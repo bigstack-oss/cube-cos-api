@@ -1,0 +1,34 @@
+name: CI workflow
+
+on:
+  pull_request:
+    branches: ['develop']
+
+jobs:
+  checks:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+      - name: Install Golang
+        uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.22.2'
+      - name: Go vet
+        run: go vet ./...
+  builds:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+      - name: Install Golang
+        uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.22.2'
+      - name: Go binary
+        run: go build cmd/main.go
+      - name: Go test
+        run: go test ./...
+

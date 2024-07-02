@@ -1,0 +1,30 @@
+kind: http
+metadata:
+  name: cube-api
+spec:
+  listen:
+    port: 8001
+    address:
+      local: 0.0.0.0
+      advertise: 0.0.0.0
+  store:
+    mongodb:
+      uri: mongodb://0.0.0.0:27019/?directConnection=true
+      database: cubecos
+      replicaSet: rs0
+      auth:
+        enabled: false
+        username: root
+        password: root
+  dependency:
+    cubeCos: /etc/settings.txt
+    openstack: /etc/admin-openrc.sh
+    k3s: /etc/rancher/k3s/k3s.yaml
+  log:
+    file: /var/log/cube-api.log
+    level: 2
+    rotation:
+      backups: 3
+      size: 20
+      ttl: 30
+      compress: true

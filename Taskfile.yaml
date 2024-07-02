@@ -1,0 +1,21 @@
+version: '3'
+
+tasks:
+  run-dev-api:
+    cmds:
+    - go run cmd/main.go cmd/plugins.go -confPath configs/cube-api.yaml
+  dev-dev-mongo:
+    cmds:
+    - docker run -d -p 27017:27017 --name cube-mongo mongo:4.2
+  vet:
+    cmds:
+    - go vet ./...
+  test:
+    cmds:
+    - go test -v ./...
+  binary:
+    cmds:
+    - GOOS=linux GOARCH=amd64 go build -o bin/cube-api cmd/main.go
+  update-api-docs:
+    cmds:
+    - swag init --output ./api -g ./cmd/main.go ./cmd/plugins.go

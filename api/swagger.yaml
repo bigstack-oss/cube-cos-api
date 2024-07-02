@@ -1,0 +1,27 @@
+basePath: /api
+info:
+  contact: {}
+  title: Cube API
+  version: "1.0"
+paths:
+  /tunings/specs:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: list supported tuning specifications
+      tags:
+      - tuning specifications
+swagger: "2.0"
