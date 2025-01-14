@@ -47,7 +47,7 @@ func WrapGoMicro(server *server.Server) micro.Service {
 func runControllers() error {
 	for _, c := range Controllers {
 		go run(c.Sync)
-		log.Infof("Controller: %s is running", c.Name())
+		log.Infof("controller: %s is running", c.Name())
 	}
 
 	return nil
@@ -61,7 +61,7 @@ func run(f func()) {
 
 func stopControllers() error {
 	for _, c := range Controllers {
-		log.Infof("Controller: %s is shutting down", c.Name())
+		log.Infof("controller: %s is shutting down", c.Name())
 		c.Stop()
 	}
 
