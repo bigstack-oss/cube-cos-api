@@ -11,6 +11,7 @@ import (
 var (
 	HostID        string
 	Hostname      string
+	ControllerVip string
 	ListenAddr    string
 	AdvertiseAddr string
 	IsGPUEnabled  bool

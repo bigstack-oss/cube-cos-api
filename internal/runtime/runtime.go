@@ -9,14 +9,15 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	apituning "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tuning"
-	"github.com/bigstack-oss/cube-cos-api/internal/auth"
 	apiConf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/controllers/v1/node"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/keycloak"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	adapter "github.com/gwatts/gin-adapter"
 	"github.com/micro/plugins/v5/server/http"
 	"go-micro.dev/v5/config"
 	"go-micro.dev/v5/logger"
@@ -42,16 +43,22 @@ func NewRuntime(conf config.Config) (*server.Server, error) {
 		return nil, err
 	}
 
+	err = newGlobalKeycloakAuth()
+	if err != nil {
+		logger.Errorf("failed to init keycloak auth: %s", err.Error())
+		return nil, err
+	}
+
 	err = newGlobalMongoHelper(apiConf.Data.Spec.Store.MongoDB)
 	if err != nil {
 		logger.Errorf("failed to init mongo helper: %s", err.Error())
 		return nil, err
 	}
 
-	showPromptMessage()
-	initNodeIdentity()
-	initNodeResyncer()
+	initNodeIdentities()
+	initNodeMemberSyncer()
 	initNodeApiHandler()
+	showPromptMessage()
 
 	return newHttpServer()
 }
@@ -82,7 +89,33 @@ func newGlobalHttpHelper() error {
 	return apihttp.NewGlobalHelper()
 }
 
-func initNodeIdentity() {
+func newGlobalKeycloakAuth() error {
+	return keycloak.NewGlobalSamlAuth(keycloak.Saml{
+		IdentityProvider: keycloak.Provider{
+			Host: keycloak.Host{
+				Scheme:      "https",
+				VirtualIp:   definition.ControllerVip,
+				Port:        10443,
+				InsecureTls: true,
+			},
+			MetadataPath: definition.DefaultIdpSamlMetadataPath,
+		},
+		ServiceProvider: keycloak.Provider{
+			Host: keycloak.Host{
+				Scheme:    "https",
+				VirtualIp: definition.ControllerVip,
+				Port:      8000,
+				Auth: keycloak.Auth{
+					Cert: definition.DefaultApiServerCert,
+					Key:  definition.DefaultApiServerKey,
+				},
+			},
+			MetadataPath: definition.DefaultSpSamlMetadataPath,
+		},
+	})
+}
+
+func initNodeIdentities() {
 	hostname, err := os.Hostname()
 	if err != nil {
 		panic(err)
@@ -98,15 +131,21 @@ func initNodeIdentity() {
 		panic(err)
 	}
 
+	vip, err := cubecos.GetControllerVirtualIp()
+	if err != nil {
+		panic(err)
+	}
+
 	definition.HostID = hostID
 	definition.Hostname = hostname
 	definition.CurrentRole = role
+	definition.ControllerVip = vip
 	definition.ListenAddr = localAddr()
 	definition.AdvertiseAddr = serviceDiscoveryAddr()
 	definition.IsGPUEnabled = cubecos.IsGPUEnabled()
 }
 
-func initNodeResyncer() {
+func initNodeMemberSyncer() {
 	service.RegisterController(node.Name(), node.NewController())
 }
 
@@ -117,6 +156,9 @@ func initNodeApiHandler() {
 		definition.RoleControl,
 		definition.RoleCompute,
 	)
+
+	// Register other handlers here
+	// ...
 }
 
 func newHttpServer() (*server.Server, error) {
@@ -147,16 +189,17 @@ func newHttpServer() (*server.Server, error) {
 func newRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
+	router.Any("/api/v1/saml/*action", gin.WrapH(keycloak.SamlAuth))
 	router.Use(gin.Recovery())
 	router.Use(initReqInfo)
-	router.Use(auth.VerifyReq())
+	router.Use(adapter.Wrap(keycloak.SamlAuth.RequireAccount))
 	return router
 }
 
 func initReqInfo(c *gin.Context) {
 	uuidV4 := uuid.New()
 	c.Set("requestID", uuidV4)
-	logger.Infof("Request(%s): %s %s", uuidV4, c.Request.Method, c.Request.URL.Path)
+	logger.Infof("request(%s): %s %s", uuidV4, c.Request.Method, c.Request.URL.Path)
 	c.Next()
 }
 
@@ -200,12 +243,12 @@ func registerHandlersByRole(router *gin.Engine) error {
 func setGroupHandlersToRouter(router *gin.Engine, handlers []api.Handler) {
 	for _, h := range handlers {
 		if h.Version == "" {
-			logger.Warnf("Skip invalid API registration: %s %s (no version provided)", h.Method, h.Path)
+			logger.Warnf("skip invalid API registration: %s %s (no version provided)", h.Method, h.Path)
 			continue
 		}
 
 		routerGroup := router.Group(h.Version)
 		routerGroup.Handle(h.Method, h.Path, h.Func)
-		logger.Infof("Register API: %s %s", h.Method, fmt.Sprintf("%s%s", h.Version, h.Path))
+		logger.Infof("register API: %s %s", h.Method, fmt.Sprintf("%s%s", h.Version, h.Path))
 	}
 }
