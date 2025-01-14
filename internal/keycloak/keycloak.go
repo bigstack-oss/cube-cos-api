@@ -106,7 +106,7 @@ func genIdpMetadata(saml Saml) (*saml.EntityDescriptor, error) {
 func genIdpSamlMetadataUrl(saml Saml) url.URL {
 	return url.URL{
 		Scheme: saml.IdentityProvider.Host.Scheme,
-		Host:   fmt.Sprintf("%s:10443", saml.IdentityProvider.Host.VirtualIp),
+		Host:   fmt.Sprintf("%s:%d", saml.IdentityProvider.Host.VirtualIp, saml.IdentityProvider.Host.Port),
 		Path:   definition.DefaultIdpSamlMetadataPath,
 	}
 }
