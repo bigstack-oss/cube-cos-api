@@ -15,3 +15,8 @@ func IsHaEnabled() (bool, error) {
 
 	return isHaEnabled, nil
 }
+
+// M2 TODO: Check if the data center is local
+func IsLocalDataCenter(dataCenter string) bool {
+	return true
+}

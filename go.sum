@@ -50,8 +50,10 @@ github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250112093313-b25ef3196c95 h1:1m3ZqZ7M4ht9JmCbof32rYth7FPRlPTW6469otX+dko=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250112093313-b25ef3196c95/go.mod h1:yLXvdHZ36lJzHzQF2vFu9jlYIP1+pLFC+rlHytpASeg=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250115135240-0711be34bfba h1:aQKQ4d/7BXER1mHKC8KQhhUTCafKuANm9BHMlf8iNck=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250115135240-0711be34bfba/go.mod h1:X1p1BUSrG2MFZP8RB8L1fwIgEUHYvSxUNBRbnkTq0zc=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250115163338-ab9f51c777e8 h1:R/oObEDU70IDIveE0I71POgc5YbJJ0AIyxKyGb1jhzQ=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250115163338-ab9f51c777e8/go.mod h1:X1p1BUSrG2MFZP8RB8L1fwIgEUHYvSxUNBRbnkTq0zc=
 github.com/bitly/go-simplejson v0.5.0 h1:6IH+V8/tVMab511d5bn4M7EwGXZf9Hj6i2xSwkNEM+Y=
 github.com/bitly/go-simplejson v0.5.0/go.mod h1:cXHtHw4XUPsvGaxgjIAn8PhEWG9NfngEKAMDJEczWVA=
 github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 h1:DDGfHa7BWjL4YnC6+E63dPcxHo2sUxDIu8g3QgEJdRY=
@@ -202,6 +204,8 @@ github.com/googleapis/gax-go/v2 v2.0.4/go.mod h1:0Wqv26UfaUD9n4G6kQubkQ+KchISgw+
 github.com/googleapis/gax-go/v2 v2.0.5/go.mod h1:DWXyrwAJ9X0FpwwEdw+IPEYBICEFu5mhpdKc/us6bOk=
 github.com/gophercloud/gophercloud v1.14.1 h1:DTCNaTVGl8/cFu58O1JwWgis9gtISAFONqpMKNg/Vpw=
 github.com/gophercloud/gophercloud v1.14.1/go.mod h1:aAVqcocTSXh2vYFZ1JTvx4EQmfgzxRcNupUfxZbBNDM=
+github.com/gophercloud/gophercloud/v2 v2.4.0 h1:XhP5tVEH3ni66NSNK1+0iSO6kaGPH/6srtx6Cr+8eCg=
+github.com/gophercloud/gophercloud/v2 v2.4.0/go.mod h1:uJWNpTgJPSl2gyzJqcU/pIAhFUWvIkp8eE8M15n9rs4=
 github.com/gopherjs/gopherjs v0.0.0-20190910122728-9d188e94fb99 h1:twflg0XRTjwKpxb/jFExr4HGq6on2dEOmnL6FV+fgPw=
 github.com/gopherjs/gopherjs v0.0.0-20190910122728-9d188e94fb99/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
 github.com/gwatts/gin-adapter v1.0.0 h1:TsmmhYTR79/RMTsfYJ2IQvI1F5KZ3ZFJxuQSYEOpyIA=

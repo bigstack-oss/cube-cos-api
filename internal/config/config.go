@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	yaml "github.com/go-micro/plugins/v5/config/encoder/yaml"
 	"go-micro.dev/v5/config"
 	"go-micro.dev/v5/config/reader"
@@ -33,9 +34,9 @@ type Spec struct {
 }
 
 type Dependency struct {
-	CubeCos   string `json:"cubeCos"`
-	Openstack string `json:"openstack"`
-	K3s       string `json:"k3s"`
+	CubeCos   string            `json:"cubeCos"`
+	Openstack openstack.Options `json:"openstack"`
+	K3s       string            `json:"k3s"`
 }
 
 type Listen struct {

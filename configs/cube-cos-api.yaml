@@ -18,7 +18,8 @@ spec:
         password: root
   dependency:
     cubeCos: /etc/settings.txt
-    openstack: /etc/admin-openrc.sh
+    openstack:
+      confFile: /etc/admin-openrc.sh
     k3s: /etc/rancher/k3s/k3s.yaml
   log:
     file: /var/log/cube-api.log
