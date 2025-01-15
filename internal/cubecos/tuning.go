@@ -18,6 +18,12 @@ import (
 const (
 	policyFile = "/etc/policies/tuning/tuning1_0.yml"
 
+	// private tunings
+	CubeSysHa            = "cubesys.ha"
+	CubeSysController    = "cubesys.controller"
+	CubeSysControllerVip = "cubesys.control.vip"
+
+	// public tunings
 	BarbicanDebugEnabled        = "barbican.debug.enabled"
 	CephDebugEnabled            = "ceph.debug.enabled"
 	CephMirrorMetaSync          = "ceph.mirror.meta.sync"
@@ -627,7 +633,7 @@ var (
 		Roles: definition.ComputeRoles,
 		Selector: definition.Selector{
 			Enabled: true,
-			Labels:  map[string]string{"isGPUEnabled": "true"},
+			Labels:  map[string]string{"isGpuEnabled": "true"},
 		},
 	}
 	NovaOvercommitCpuRatioSpec = &definition.TuningSpec{
@@ -867,7 +873,7 @@ func init() {
 	definition.SetSpecToTuning(WatcherDebugEnabled, WatcherDebugEnabledSpec)
 }
 
-func HexTuningRead(parameterName string) (string, error) {
+func ReadHexTuning(parameterName string) (string, error) {
 	b, err := exec.Command("hex_tuning_helper", "/etc/settings.txt", "", parameterName).Output()
 	if err != nil {
 		log.Errorf("failed to read hex tunning value: %s", err.Error())
@@ -882,7 +888,7 @@ func HexTuningRead(parameterName string) (string, error) {
 	return keyValue[1], nil
 }
 
-func HexTuningApply(isolatedDir string) error {
+func ApplyHexTuning(isolatedDir string) error {
 	_, err := exec.Command("hex_config", "apply", isolatedDir).Output()
 	if err != nil {
 		log.Errorf("failed to apply hex tunning value: %s", err.Error())
@@ -893,7 +899,7 @@ func HexTuningApply(isolatedDir string) error {
 }
 
 func IsHexTuningApplied(tuning definition.Tuning) error {
-	value, err := HexTuningRead(tuning.Name)
+	value, err := ReadHexTuning(tuning.Name)
 	if err != nil {
 		return err
 	}
@@ -917,7 +923,7 @@ func ApplyHexTunings(tunings []definition.Tuning) error {
 		return err
 	}
 
-	err = HexTuningApply(tmpTuningDir)
+	err = ApplyHexTuning(tmpTuningDir)
 	if err != nil {
 		return err
 	}
@@ -957,7 +963,8 @@ func writeTuningToFile(tmpDir string, yml []byte) error {
 	}
 
 	defer file.Close()
-	_, err = io.WriteString(file, string(yml))
+
+	_, err = io.Writer.Write(file, yml)
 	if err != nil {
 		log.Errorf("failed to write tuning info to isolated file: %s", err.Error())
 		return err
@@ -995,7 +1002,7 @@ func GetPolicy() (*definition.Policy, error) {
 }
 
 func IsHexTuningDeleted(tuning definition.Tuning) error {
-	_, err := HexTuningRead(tuning.Name)
+	_, err := ReadHexTuning(tuning.Name)
 	if err == nil {
 		return fmt.Errorf("tuning value is not deleted: %s", tuning.Name)
 	}
