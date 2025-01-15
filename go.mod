@@ -3,12 +3,13 @@ module github.com/bigstack-oss/cube-cos-api
 go 1.22.2
 
 require (
-	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250112093313-b25ef3196c95
+	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250115163338-ab9f51c777e8
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
 	github.com/crewjam/saml v0.4.14
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-micro/plugins/v5/config/encoder/yaml v1.0.0
 	github.com/google/uuid v1.3.0
+	github.com/gophercloud/gophercloud v1.14.1
 	github.com/gwatts/gin-adapter v1.0.0
 	github.com/json-iterator/go v1.1.12
 	github.com/micro/plugins/v5/server/http v1.0.2
@@ -56,7 +57,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.3 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/gophercloud/gophercloud v1.14.1 // indirect
+	github.com/gophercloud/gophercloud/v2 v2.4.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/jonboulle/clockwork v0.2.2 // indirect
 	github.com/josharian/intern v1.0.0 // indirect

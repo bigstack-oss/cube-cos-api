@@ -37,23 +37,20 @@ func GenerateNodeHashByMacAddr() (string, error) {
 	return hex.EncodeToString(hash[:])[:8], nil
 }
 
-func GetNodesByRole(svcName string) ([]*Node, error) {
-	svcs, err := registry.GetService(svcName)
+func GetNodesByRole(role string) ([]*Node, error) {
+	svcs, err := registry.GetService(role)
 	if err != nil {
-		log.Errorf("failed to get service %s (%s)", svcName, err.Error())
+		log.Errorf("failed to get service %s (%s)", role, err.Error())
 		return nil, err
 	}
 	if len(svcs) == 0 {
 		return nil, nil
 	}
 
-	newNodes := []*Node{}
+	nodes := []*Node{}
 	for _, svc := range svcs {
-		newNodes = append(
-			newNodes,
-			getNodesByService(svc, svc.Name)...,
-		)
+		nodes = append(nodes, getNodesByService(svc, svc.Name)...)
 	}
 
-	return newNodes, nil
+	return nodes, nil
 }

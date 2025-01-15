@@ -129,14 +129,14 @@ func SyncNodesOfRole() {
 	defer update.Unlock()
 
 	for _, role := range Roles {
-		newNodes, err := GetNodesByRole(role)
+		nodes, err := GetNodesByRole(role)
 		if err != nil {
 			return
 		}
 
 		role := getRole(role)
 		if role != nil {
-			role.Nodes = newNodes
+			role.Nodes = nodes
 		}
 	}
 }
