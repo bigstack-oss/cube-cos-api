@@ -1,4 +1,4 @@
-package tuning
+package tunings
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"

@@ -14,7 +14,8 @@ var (
 	ControllerVip string
 	ListenAddr    string
 	AdvertiseAddr string
-	IsGPUEnabled  bool
+	IsHaEnabled   bool
+	IsGpuEnabled  bool
 )
 
 type Node struct {

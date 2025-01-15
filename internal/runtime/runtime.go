@@ -8,7 +8,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	apituning "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tuning"
+	apitunings "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
 	apiConf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/controllers/v1/node"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
@@ -136,13 +136,19 @@ func initNodeIdentities() {
 		panic(err)
 	}
 
+	isHaEnabled, err := cubecos.IsHaEnabled()
+	if err != nil {
+		panic(err)
+	}
+
 	definition.HostID = hostID
 	definition.Hostname = hostname
 	definition.CurrentRole = role
 	definition.ControllerVip = vip
 	definition.ListenAddr = localAddr()
 	definition.AdvertiseAddr = serviceDiscoveryAddr()
-	definition.IsGPUEnabled = cubecos.IsGPUEnabled()
+	definition.IsHaEnabled = isHaEnabled
+	definition.IsGpuEnabled = cubecos.IsGpuEnabled()
 }
 
 func initNodeMemberSyncer() {
@@ -152,7 +158,7 @@ func initNodeMemberSyncer() {
 func initNodeApiHandler() {
 	api.RegisterHandlersToRoles(
 		definition.Tunings,
-		apituning.Handlers,
+		apitunings.Handlers,
 		definition.RoleControl,
 		definition.RoleCompute,
 	)
@@ -223,7 +229,7 @@ func genMetadata() map[string]string {
 	return map[string]string{
 		"hostname":     definition.Hostname,
 		"nodeID":       definition.HostID,
-		"isGPUEnabled": fmt.Sprintf("%t", definition.IsGPUEnabled),
+		"isGpuEnabled": fmt.Sprintf("%t", definition.IsGpuEnabled),
 	}
 }
 

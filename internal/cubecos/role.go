@@ -15,7 +15,7 @@ const (
 )
 
 func GetNodeRole() (string, error) {
-	role, err := HexTuningRead(cubeSysRole)
+	role, err := ReadHexTuning(cubeSysRole)
 	if err != nil {
 		return "", err
 	}
@@ -27,7 +27,7 @@ func GetNodeRole() (string, error) {
 	return role, nil
 }
 
-func IsGPUEnabled() bool {
+func IsGpuEnabled() bool {
 	provider, err := openstack.NewProvider(config.Data.Spec.Dependency.Openstack)
 	if err != nil {
 		log.Errorf("failed to create openstack provider: %s", err.Error())

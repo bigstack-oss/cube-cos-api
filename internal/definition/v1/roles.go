@@ -161,7 +161,7 @@ func genNodeInfo(node *registry.Node, role string) *Node {
 		Hostname: node.Metadata["hostname"],
 		Address:  node.Address,
 		Labels: map[string]string{
-			"isGPUEnabled": node.Metadata["isGPUEnabled"],
+			"isGpuEnabled": node.Metadata["isGpuEnabled"],
 		},
 	}
 }

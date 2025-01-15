@@ -1,4 +1,4 @@
-package tuning
+package tunings
 
 import (
 	"time"
@@ -11,7 +11,7 @@ import (
 
 var (
 	ReqQueue workqueue.Interface
-	module   = "tuning"
+	module   = "tunings"
 )
 
 func init() {

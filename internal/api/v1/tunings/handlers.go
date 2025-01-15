@@ -1,11 +1,11 @@
-package tuning
+package tunings
 
 import (
 	"fmt"
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/controllers/v1/tuning"
+	"github.com/bigstack-oss/cube-cos-api/internal/controllers/v1/tunings"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/error"
 	"github.com/gin-gonic/gin"
@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	reqQueue = tuning.ReqQueue
+	reqQueue = tunings.ReqQueue
 	Handlers = []api.Handler{
 		{
 			Version: api.V1,
@@ -120,7 +120,7 @@ func applyTuning(c *gin.Context) {
 			http.StatusOK,
 			gin.H{
 				"code":   http.StatusOK,
-				"status": "success",
+				"status": "ok",
 				"msg":    "tuning applied",
 			},
 		)
@@ -188,7 +188,7 @@ func updateTuningStatus(c *gin.Context) {
 		http.StatusOK,
 		gin.H{
 			"code":   http.StatusOK,
-			"status": "success",
+			"status": "ok",
 			"msg":    "tuning status updated",
 		},
 	)
@@ -227,7 +227,7 @@ func deleteTuning(c *gin.Context) {
 		http.StatusOK,
 		gin.H{
 			"code":   http.StatusOK,
-			"status": "success",
+			"status": "ok",
 			"msg":    "tuning applied",
 		},
 	)
@@ -254,7 +254,7 @@ func deleteTunings(c *gin.Context) {
 		http.StatusOK,
 		gin.H{
 			"code":   http.StatusOK,
-			"status": "success",
+			"status": "ok",
 			"msg":    "request received and deleting",
 		},
 	)

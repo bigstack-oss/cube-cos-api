@@ -1,11 +1,9 @@
 package cubecos
 
-const (
-	cubeSysControllerVip = "cubesys.control.vip"
-)
+const ()
 
 func GetControllerVirtualIp() (string, error) {
-	value, err := HexTuningRead(cubeSysControllerVip)
+	value, err := ReadHexTuning(CubeSysControllerVip)
 	if err != nil {
 		return "", err
 	}
