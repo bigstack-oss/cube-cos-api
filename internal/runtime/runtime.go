@@ -126,12 +126,12 @@ func initNodeIdentities() {
 		panic(err)
 	}
 
-	role, err := cubecos.GetNodeRole()
+	nodeRole, err := cubecos.GetNodeRole()
 	if err != nil {
 		panic(err)
 	}
 
-	vip, err := cubecos.GetControllerVirtualIp()
+	virtualIp, err := cubecos.GetControllerVirtualIp()
 	if err != nil {
 		panic(err)
 	}
@@ -141,10 +141,16 @@ func initNodeIdentities() {
 		panic(err)
 	}
 
+	controller, err := cubecos.GetDataCenterName(isHaEnabled)
+	if err != nil {
+		panic(err)
+	}
+
 	definition.HostID = hostID
 	definition.Hostname = hostname
-	definition.CurrentRole = role
-	definition.ControllerVip = vip
+	definition.CurrentRole = nodeRole
+	definition.Controller = controller
+	definition.ControllerVip = virtualIp
 	definition.ListenAddr = localAddr()
 	definition.AdvertiseAddr = serviceDiscoveryAddr()
 	definition.IsHaEnabled = isHaEnabled
