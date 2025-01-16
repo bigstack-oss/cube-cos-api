@@ -3,7 +3,7 @@ module github.com/bigstack-oss/cube-cos-api
 go 1.22.2
 
 require (
-	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250115163338-ab9f51c777e8
+	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250116090056-d2a7a0168ad9
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
 	github.com/crewjam/saml v0.4.14
 	github.com/gin-gonic/gin v1.10.0

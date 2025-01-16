@@ -79,18 +79,3 @@ func GetRoleOverview() (*Role, error) {
 
 	return role, nil
 }
-
-func ListNodes() ([]*definition.Node, error) {
-	nodes := []*definition.Node{}
-
-	for _, role := range definition.Roles {
-		nodes, err := definition.GetNodesByRole(role)
-		if err != nil {
-			return nil, err
-		}
-
-		nodes = append(nodes, nodes...)
-	}
-
-	return nodes, nil
-}

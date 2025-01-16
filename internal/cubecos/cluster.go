@@ -1,6 +1,9 @@
 package cubecos
 
-import "strconv"
+import (
+	"os"
+	"strconv"
+)
 
 func IsHaEnabled() (bool, error) {
 	strIsHaEnabled, err := ReadHexTuning(CubeSysHa)
@@ -19,4 +22,12 @@ func IsHaEnabled() (bool, error) {
 // M2 TODO: Check if the data center is local
 func IsLocalDataCenter(dataCenter string) bool {
 	return true
+}
+
+func GetDataCenterName(isHaEnabled bool) (string, error) {
+	if !isHaEnabled {
+		return os.Hostname()
+	}
+
+	return ReadHexTuning(CubeSysController)
 }
