@@ -16,6 +16,8 @@ spec:
         enabled: false
         username: root
         password: root
+    influxdb:
+      url: http://0.0.0.0:8086
   dependency:
     cubeCos: /etc/settings.txt
     openstack:

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
@@ -45,7 +46,8 @@ type Listen struct {
 }
 
 type Store struct {
-	MongoDB mongo.Options `json:"mongodb"`
+	MongoDB  mongo.Options  `json:"mongodb"`
+	InfluxDB influx.Options `json:"influxdb"`
 }
 
 type Address struct {
