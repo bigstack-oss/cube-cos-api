@@ -66,7 +66,6 @@ func getNodes(c *gin.Context) {
 		}
 
 		nodes[i].Uptime = time.Uptime
-
 		nodes[i].License = definition.License{} // have to be implemented and integrated with license feature
 	}
 

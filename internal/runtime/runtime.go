@@ -5,6 +5,7 @@ import (
 	"os"
 
 	apihttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
@@ -55,6 +56,12 @@ func NewRuntime(conf config.Config) (*server.Server, error) {
 		return nil, err
 	}
 
+	err = newGlobalInfluxHelper(apiConf.Data.Spec.Store.InfluxDB)
+	if err != nil {
+		logger.Errorf("failed to init influx helper: %s", err.Error())
+		return nil, err
+	}
+
 	initNodeIdentities()
 	initNodeMemberSyncer()
 	initNodeApiHandler()
@@ -82,6 +89,12 @@ func newGlobalMongoHelper(opts mongo.Options) error {
 		mongo.AuthUsername(opts.Auth.Username),
 		mongo.AuthPassword(opts.Auth.Password),
 		mongo.ReplicaSet(opts.ReplicaSet),
+	)
+}
+
+func newGlobalInfluxHelper(opts influx.Options) error {
+	return influx.NewGlobalHelper(
+		influx.Url(opts.Url),
 	)
 }
 
