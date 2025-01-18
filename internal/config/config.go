@@ -17,42 +17,42 @@ var (
 )
 
 type Payload struct {
-	Kind     string `json:"kind"`
-	Metadata `json:"metadata"`
-	Spec     `json:"spec"`
+	Kind     string `json:"kind" yaml:"kind"`
+	Metadata `json:"metadata" yaml:"metadata"`
+	Spec     `json:"spec" yaml:"spec"`
 }
 
 type Metadata struct {
-	Name string `json:"name"`
+	Name string `json:"name" yaml:"name"`
 }
 
 type Spec struct {
-	Runtime    string `json:"runtime"`
-	Listen     `json:"listen"`
-	Store      `json:"store"`
-	Dependency `json:"auth"`
-	Log        log.Options `json:"log"`
+	Runtime    string `json:"runtime" yaml:"runtime"`
+	Listen     `json:"listen" yaml:"listen"`
+	Store      `json:"store" yaml:"store"`
+	Dependency `json:"dependency" yaml:"dependency"`
+	Log        log.Options `json:"log" yaml:"log"`
 }
 
 type Dependency struct {
-	CubeCos   string            `json:"cubeCos"`
-	Openstack openstack.Options `json:"openstack"`
-	K3s       string            `json:"k3s"`
+	CubeCos   string            `json:"cubeCos" yaml:"cubeCos"`
+	Openstack openstack.Options `json:"openstack" yaml:"openstack"`
+	K3s       string            `json:"k3s" yaml:"k3s"`
 }
 
 type Listen struct {
-	Port    int `json:"port"`
-	Address `json:"Address"`
+	Port    int `json:"port" yaml:"port"`
+	Address `json:"Address" yaml:"address"`
 }
 
 type Store struct {
-	MongoDB  mongo.Options  `json:"mongodb"`
-	InfluxDB influx.Options `json:"influxdb"`
+	MongoDB  mongo.Options  `json:"mongodb" yaml:"mongodb"`
+	InfluxDB influx.Options `json:"influxdb" yaml:"influxdb"`
 }
 
 type Address struct {
-	Local     string `json:"local"`
-	Advertise string `json:"advertise"`
+	Local     string `json:"local" yaml:"local"`
+	Advertise string `json:"advertise" yaml:"advertise"`
 }
 
 func NewConfiger() (config.Config, error) {

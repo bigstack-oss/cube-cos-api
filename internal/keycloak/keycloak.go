@@ -13,6 +13,7 @@ import (
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/crewjam/saml"
 	"github.com/crewjam/saml/samlsp"
+	log "go-micro.dev/v5/logger"
 )
 
 var (
@@ -49,11 +50,13 @@ func NewGlobalSamlAuth(saml Saml) error {
 		saml.ServiceProvider.Host.Auth.Key,
 	)
 	if err != nil {
+		log.Errorf("failed to generate api server cert key pair: %v", err)
 		return err
 	}
 
 	idpMetadata, err := genIdpMetadata(saml)
 	if err != nil {
+		log.Errorf("failed to generate idp metadata: %v", err)
 		return err
 	}
 
@@ -67,6 +70,7 @@ func NewGlobalSamlAuth(saml Saml) error {
 		SignRequest: true,
 	})
 	if err != nil {
+		log.Errorf("failed to create saml auth: %v", err)
 		return err
 	}
 

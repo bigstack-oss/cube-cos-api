@@ -3,6 +3,8 @@ package cubecos
 import (
 	"os"
 	"strconv"
+
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
 
 func IsHaEnabled() (bool, error) {
@@ -24,8 +26,8 @@ func IsLocalDataCenter(dataCenter string) bool {
 	return true
 }
 
-func GetDataCenterName(isHaEnabled bool) (string, error) {
-	if !isHaEnabled {
+func GetDataCenterName() (string, error) {
+	if !definition.IsHaEnabled {
 		return os.Hostname()
 	}
 

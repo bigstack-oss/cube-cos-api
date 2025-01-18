@@ -1,6 +1,10 @@
 package v1
 
-type Health struct {
+const (
+	Health = "health"
+)
+
+type HealthInfo struct {
 	Service string   `json:"service"`
 	Status  string   `json:"status"`
 	Modules []Module `json:"modules"`

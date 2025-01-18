@@ -8,6 +8,10 @@ import (
 	"go-micro.dev/v5/registry"
 )
 
+const (
+	Nodes = "nodes"
+)
+
 var (
 	HostID        string
 	Hostname      string

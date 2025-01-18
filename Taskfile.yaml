@@ -1,21 +1,56 @@
 version: '3'
 
+vars:
+  API_SERVICE: "cube-cos-api"
+  DB_SERVICE: "cube-cos-mongo"
+  DEV_COS_USER: "root"
+  DEV_COS_IP: "10.32.10.180"
+  MONGO_VERSION: "6.0.19"
+
 tasks:
-  run-dev-api:
-    cmds:
-    - go run cmd/main.go cmd/plugins.go -confPath configs/cube-api.yaml
-  dev-dev-mongo:
-    cmds:
-    - docker run -d -p 27017:27017 --name cube-mongo mongo:4.2
   vet:
     cmds:
-    - go vet ./...
+      - GOWORK=off go vet ./...
   test:
     cmds:
-    - go test -v ./...
+      - GOWORK=off go test -v ./...
   binary:
     cmds:
-    - GOOS=linux GOARCH=amd64 go build -o bin/cube-api cmd/main.go
+      - GOWORK=off GOOS=linux GOARCH=amd64 go build -o bin/{{.API_SERVICE}} cmd/main.go
   update-api-docs:
     cmds:
-    - swag init --output ./api -g ./cmd/main.go ./cmd/plugins.go
+      - swag init --output ./api -g ./cmd/main.go
+  run-dev-api:
+    cmds:
+      - GOWORK=off go run cmd/main.go -conf configs/{{.API_SERVICE}}.yaml
+  run-dev-mongo:
+    cmds:
+      - docker run -d -p 27017:27017 --name {{.DB_SERVICE}}-0 --hostname {{.DB_SERVICE}}-0 mongo:{{.MONGO_VERSION}} mongod --replSet cube-cos-rs
+  init-dev-space:
+    cmds:
+      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "mkdir -p /opt/dev/{{.API_SERVICE}}"
+      - cmd: ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "docker network ls | grep {{.DB_SERVICE}} || docker network create {{.DB_SERVICE}}"
+        ignore_error: true
+  deploy-dev-api:
+    cmds:
+      - task: binary
+      - task: stop-dev-api
+      - task: init-dev-space
+      - scp bin/{{.API_SERVICE}} {{.DEV_COS_USER}}@{{.DEV_COS_IP}}:/opt/dev/{{.API_SERVICE}}
+      - scp configs/{{.API_SERVICE}}.yaml {{.DEV_COS_USER}}@{{.DEV_COS_IP}}:/opt/dev/{{.API_SERVICE}}
+  deploy-dev-mongo:
+    cmds:
+      - task: init-dev-space
+      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "docker run -itd -p 27017:27017 -v /opt/dev/{{.API_SERVICE}}/mongo:/data/db --name {{.DB_SERVICE}}-0 --network={{.DB_SERVICE}} --hostname {{.DB_SERVICE}}-0 mongo:{{.MONGO_VERSION}} mongod --replSet {{.DB_SERVICE}}"
+      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "sleep 20"
+      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} 'docker exec -i {{.DB_SERVICE}}-0 mongosh --quiet --eval "rs.initiate()"'
+      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} 'docker exec -i {{.DB_SERVICE}}-0 mongosh --quiet --eval "db.getSiblingDB(\"admin\").createUser({user:\"admin\",pwd:\"admin\",roles:[{role:\"userAdminAnyDatabase\",db:\"admin\"}]})"'
+  stop-dev-api:
+    cmds:
+      - cmd: ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "pkill -f {{.API_SERVICE}}"
+        ignore_error: true
+  remove-dev-mongo:
+    cmds:
+      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "docker rm -f {{.DB_SERVICE}}-0"
+      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "rm -rf /opt/dev/{{.API_SERVICE}}/mongo"
+      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "docker network rm {{.DB_SERVICE}}"

@@ -1,6 +1,7 @@
 kind: http
 metadata:
-  name: cube-api
+  name: cube-cos-api
+  version: v1.0.0
 spec:
   listen:
     port: 8001
@@ -9,13 +10,13 @@ spec:
       advertise: 0.0.0.0
   store:
     mongodb:
-      uri: mongodb://0.0.0.0:27019/?directConnection=true
-      database: cubecos
-      replicaSet: rs0
+      uri: mongodb://0.0.0.0:27017
+      database: cube-cos
+      replicaSet: cube-cos-rs
       auth:
-        enabled: false
-        username: root
-        password: root
+        enabled: true
+        username: admin
+        password: admin
     influxdb:
       url: http://0.0.0.0:8086
   dependency:
@@ -24,7 +25,7 @@ spec:
       confFile: /etc/admin-openrc.sh
     k3s: /etc/rancher/k3s/k3s.yaml
   log:
-    file: /var/log/cube-api.log
+    file: /var/log/cube-cos-api/access.log
     level: 2
     rotation:
       backups: 3

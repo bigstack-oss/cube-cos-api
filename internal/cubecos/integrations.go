@@ -6,8 +6,8 @@ import (
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
 
-var (
-	builtInIntegrations = []definition.Integration{
+func ListBuiltInIntegrations() []definition.Integration {
+	return []definition.Integration{
 		{
 			Name:                    "keycloak",
 			IsHeaderShortcutEnabled: true,
@@ -37,8 +37,4 @@ var (
 			Url:                     fmt.Sprintf("https://%s/ceph", definition.ControllerVip),
 		},
 	}
-)
-
-func ListBuiltInIntegrations() []definition.Integration {
-	return builtInIntegrations
 }
