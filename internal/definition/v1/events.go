@@ -2,6 +2,21 @@ package v1
 
 import "strings"
 
+const (
+	Events = "events"
+)
+
+type Event struct {
+	Type        string                 `json:"type"`
+	ID          string                 `json:"id"`
+	Description string                 `json:"description"`
+	Host        string                 `json:"host"`
+	Category    string                 `json:"category"`
+	Service     string                 `json:"service"`
+	Metadata    map[string]interface{} `json:"metadata"`
+	Time        string                 `json:"time"`
+}
+
 func SeverityFullName(severity string) string {
 	switch strings.ToLower(severity) {
 	case "c":
@@ -13,15 +28,4 @@ func SeverityFullName(severity string) string {
 	}
 
 	return "Unknown"
-}
-
-type Event struct {
-	Type        string                 `json:"type"`
-	ID          string                 `json:"id"`
-	Description string                 `json:"description"`
-	Host        string                 `json:"host"`
-	Category    string                 `json:"category"`
-	Service     string                 `json:"service"`
-	Metadata    map[string]interface{} `json:"metadata"`
-	Time        string                 `json:"time"`
 }

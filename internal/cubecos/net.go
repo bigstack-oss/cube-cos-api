@@ -1,12 +1,13 @@
 package cubecos
 
+import definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+
 const ()
 
 func GetControllerVirtualIp() (string, error) {
-	value, err := ReadHexTuning(CubeSysControllerVip)
-	if err != nil {
-		return "", err
+	if definition.IsHaEnabled {
+		return ReadHexTuning(CubeSysControllerVip)
 	}
 
-	return value, nil
+	return ReadHexTuning(NetIfAddrEth0)
 }

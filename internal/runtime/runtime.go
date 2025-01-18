@@ -9,6 +9,12 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/datacenters"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/health"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/integrations"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/summary"
 	apitunings "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
 	apiConf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/controllers/v1/node"
@@ -32,42 +38,57 @@ func NewRuntime(conf config.Config) (*server.Server, error) {
 		return nil, err
 	}
 
-	err = newGlobalLogHelper(apiConf.Data.Spec.Log)
+	err = initNodeIdentities()
+	if err != nil {
+		logger.Errorf("failed to init node identities: %s", err.Error())
+		return nil, err
+	}
+
+	err = initNodeClis()
+	if err != nil {
+		logger.Errorf("failed to init node clis: %s", err.Error())
+		return nil, err
+	}
+
+	initNodePeerSyncer()
+	initNodeApiHandler()
+
+	showPromptMessages()
+	return newHttpServer()
+}
+
+func initNodeClis() error {
+	err := newGlobalLogHelper(apiConf.Data.Spec.Log)
 	if err != nil {
 		logger.Errorf("failed to init logger: %s", err.Error())
-		return nil, err
+		return err
 	}
 
 	err = newGlobalHttpHelper()
 	if err != nil {
 		logger.Errorf("failed to init http helper: %s", err.Error())
-		return nil, err
+		return err
 	}
 
 	err = newGlobalKeycloakAuth()
 	if err != nil {
 		logger.Errorf("failed to init keycloak auth: %s", err.Error())
-		return nil, err
+		return err
 	}
 
 	err = newGlobalMongoHelper(apiConf.Data.Spec.Store.MongoDB)
 	if err != nil {
 		logger.Errorf("failed to init mongo helper: %s", err.Error())
-		return nil, err
+		return err
 	}
 
 	err = newGlobalInfluxHelper(apiConf.Data.Spec.Store.InfluxDB)
 	if err != nil {
 		logger.Errorf("failed to init influx helper: %s", err.Error())
-		return nil, err
+		return err
 	}
 
-	initNodeIdentities()
-	initNodeMemberSyncer()
-	initNodeApiHandler()
-	showPromptMessage()
-
-	return newHttpServer()
+	return nil
 }
 
 func newGlobalLogHelper(opts log.Options) error {
@@ -105,85 +126,122 @@ func newGlobalHttpHelper() error {
 func newGlobalKeycloakAuth() error {
 	return keycloak.NewGlobalSamlAuth(keycloak.Saml{
 		IdentityProvider: keycloak.Provider{
+			MetadataPath: definition.DefaultIdpSamlMetadataPath,
 			Host: keycloak.Host{
 				Scheme:      "https",
 				VirtualIp:   definition.ControllerVip,
 				Port:        10443,
 				InsecureTls: true,
 			},
-			MetadataPath: definition.DefaultIdpSamlMetadataPath,
 		},
 		ServiceProvider: keycloak.Provider{
+			MetadataPath: definition.DefaultSpSamlMetadataPath,
 			Host: keycloak.Host{
 				Scheme:    "https",
 				VirtualIp: definition.ControllerVip,
-				Port:      8000,
+				Port:      4443,
+				// Port:      apiConf.Data.Spec.Listen.Port,
 				Auth: keycloak.Auth{
 					Cert: definition.DefaultApiServerCert,
 					Key:  definition.DefaultApiServerKey,
 				},
 			},
-			MetadataPath: definition.DefaultSpSamlMetadataPath,
 		},
 	})
 }
 
-func initNodeIdentities() {
-	hostname, err := os.Hostname()
+func initNodeIdentities() error {
+	var err error
+	definition.Hostname, err = os.Hostname()
 	if err != nil {
-		panic(err)
+		logger.Errorf("failed to get hostname: %s", err.Error())
+		return err
 	}
 
-	hostID, err := definition.GenerateNodeHashByMacAddr()
+	definition.HostID, err = definition.GenerateNodeHashByMacAddr()
 	if err != nil {
-		panic(err)
+		logger.Errorf("failed to generate host id: %s", err.Error())
+		return err
 	}
 
-	nodeRole, err := cubecos.GetNodeRole()
+	definition.CurrentRole, err = cubecos.GetNodeRole()
 	if err != nil {
-		panic(err)
+		logger.Errorf("failed to get node role: %s", err.Error())
+		return err
 	}
 
-	virtualIp, err := cubecos.GetControllerVirtualIp()
+	definition.IsHaEnabled, err = cubecos.IsHaEnabled()
 	if err != nil {
-		panic(err)
+		logger.Errorf("failed to get ha enabled: %s", err.Error())
+		return err
 	}
 
-	isHaEnabled, err := cubecos.IsHaEnabled()
+	definition.ControllerVip, err = cubecos.GetControllerVirtualIp()
 	if err != nil {
-		panic(err)
+		logger.Errorf("failed to get controller virtual ip: %s", err.Error())
+		return err
 	}
 
-	controller, err := cubecos.GetDataCenterName(isHaEnabled)
+	definition.Controller, err = cubecos.GetDataCenterName()
 	if err != nil {
-		panic(err)
+		logger.Errorf("failed to get data center name: %s", err.Error())
+		return err
 	}
 
-	definition.HostID = hostID
-	definition.Hostname = hostname
-	definition.CurrentRole = nodeRole
-	definition.Controller = controller
-	definition.ControllerVip = virtualIp
 	definition.ListenAddr = localAddr()
 	definition.AdvertiseAddr = serviceDiscoveryAddr()
-	definition.IsHaEnabled = isHaEnabled
 	definition.IsGpuEnabled = cubecos.IsGpuEnabled()
+
+	return nil
 }
 
-func initNodeMemberSyncer() {
+func initNodePeerSyncer() {
 	service.RegisterController(node.Name(), node.NewController())
 }
 
 func initNodeApiHandler() {
+	api.RegisterHandlersToRoles(
+		definition.DataCenters,
+		datacenters.Handlers,
+		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Summary,
+		summary.Handlers,
+		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Integrations,
+		integrations.Handlers,
+		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Health,
+		health.Handlers,
+		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Events,
+		events.Handlers,
+		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Nodes,
+		nodes.Handlers,
+		definition.RoleControl,
+	)
+
 	api.RegisterHandlersToRoles(
 		definition.Tunings,
 		apitunings.Handlers,
 		definition.RoleControl,
 		definition.RoleCompute,
 	)
-
-	// Register other handlers here
-	// ...
 }
 
 func newHttpServer() (*server.Server, error) {
@@ -214,7 +272,7 @@ func newHttpServer() (*server.Server, error) {
 func newRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.Any("/api/v1/saml/*action", gin.WrapH(keycloak.SamlAuth))
+	router.Any("/saml/*any", gin.WrapH(keycloak.SamlAuth))
 	router.Use(gin.Recovery())
 	router.Use(initReqInfo)
 	router.Use(adapter.Wrap(keycloak.SamlAuth.RequireAccount))
@@ -267,13 +325,22 @@ func registerHandlersByRole(router *gin.Engine) error {
 
 func setGroupHandlersToRouter(router *gin.Engine, handlers []api.Handler) {
 	for _, h := range handlers {
-		if h.Version == "" {
-			logger.Warnf("skip invalid API registration: %s %s (no version provided)", h.Method, h.Path)
+		if h.Version == "" || definition.Controller == "" {
+			logger.Warnf("skip invalid API registration: %s %s (no version or controller provided)", h.Method, h.Path)
 			continue
 		}
 
-		routerGroup := router.Group(h.Version)
+		parentPath := getParentPath(h)
+		routerGroup := router.Group(parentPath)
 		routerGroup.Handle(h.Method, h.Path, h.Func)
-		logger.Infof("register API: %s %s", h.Method, fmt.Sprintf("%s%s", h.Version, h.Path))
+		logger.Infof("register API: %s %s", h.Method, fmt.Sprintf("%s%s", parentPath, h.Path))
 	}
+}
+
+func getParentPath(h api.Handler) string {
+	if h.IsUnderDataCenter() {
+		return fmt.Sprintf("%s/datacenters/%s", h.Version, definition.Controller)
+	}
+
+	return fmt.Sprintf("%s/datacenters", h.Version)
 }

@@ -27,7 +27,7 @@ func listHealth(c *gin.Context) {
 			"status": "ok",
 			"msg":    "fetch service health list successfully",
 			"data": gin.H{
-				"inUse": []definition.Health{
+				"inUse": []definition.HealthInfo{
 					{
 						Service: "blockStorage",
 						Status:  "ok",
@@ -43,7 +43,7 @@ func listHealth(c *gin.Context) {
 						},
 					},
 				},
-				"error": []definition.Health{
+				"error": []definition.HealthInfo{
 					{
 						Service: "dataPipe",
 						Status:  "ng",

@@ -25,7 +25,7 @@ func getEvents(c *gin.Context) {
 	stmt := genQueryStmt(c)
 	events, err := cubecos.ListEvents(stmt)
 	if err != nil {
-		//
+
 		return
 	}
 

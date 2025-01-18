@@ -22,6 +22,7 @@ const (
 	CubeSysHa            = "cubesys.ha"
 	CubeSysController    = "cubesys.controller"
 	CubeSysControllerVip = "cubesys.control.vip"
+	NetIfAddrEth0        = "net.if.addr.eth0"
 
 	// public tunings
 	BarbicanDebugEnabled        = "barbican.debug.enabled"

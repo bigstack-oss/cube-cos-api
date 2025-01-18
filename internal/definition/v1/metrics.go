@@ -1,5 +1,9 @@
 package v1
 
+const (
+	Summary = "summary"
+)
+
 type Metrics struct {
 	Vcpu    ComputeStatistic `json:"vcpu"`
 	Memory  SpaceStatistic   `json:"memory"`

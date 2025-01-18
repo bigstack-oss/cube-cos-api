@@ -30,6 +30,10 @@ type Handler struct {
 	Func    gin.HandlerFunc
 }
 
+func (h Handler) IsUnderDataCenter() bool {
+	return h.Path != ""
+}
+
 func RegisterHandlersToRoles(module string, handlers []Handler, rolesToRegister ...string) {
 	for _, role := range rolesToRegister {
 		switch role {
