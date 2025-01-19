@@ -55,16 +55,6 @@ github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250119194401-d9d5200e9d49 h1:+3grYex8Dz+8XEM6AjOCFfxelbANU4GSytdq1QEaP4o=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250119194401-d9d5200e9d49/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120133327-b0d1d829af51 h1:yKBKLa3v6SK5koompNZkS7I8++jq0Mlk1i44sQXoZ0c=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120133327-b0d1d829af51/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120135544-a6c0b0dfd95c h1:RMF9RxPpvS7dgHa5E+aX226dEh4mqRZ2FPn74S1t+Uk=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120135544-a6c0b0dfd95c/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120165326-1c2791f82532 h1:W/0oy+g2PV3KtPMxgELNu7es3QPJIt8Air2AtKqa0W4=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120165326-1c2791f82532/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120173251-736764286959 h1:BmOytbUp+TWmcal1bneq+SgmC3BO0je0XG2fnVmRhVc=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120173251-736764286959/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
 github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250121124706-d8117847670b h1:1Kmv6abkeSIos/I5ocbH8j+eSmoPo7Y2rBHfTgtiPgI=
 github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250121124706-d8117847670b/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
 github.com/bitly/go-simplejson v0.5.0 h1:6IH+V8/tVMab511d5bn4M7EwGXZf9Hj6i2xSwkNEM+Y=
