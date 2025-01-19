@@ -8,9 +8,24 @@ vars:
   mongoVersion: "6.0.19"
 
 tasks:
+  check:
+    cmds:
+      - task: vet
+      - task: diff-mod
+      - task: diff-api-docs
+  build:
+    cmds:
+      - task: buildLocalBinary
   vet:
     cmds:
       - GOWORK=off go vet ./...
+  diff-mod:
+    cmds:
+      - GOWORK=off go mod tidy
+      - git diff --exit-code go.mod go.sum
+  diff-api-docs:
+    cmds:
+      - git diff --exit-code api
   test:
     cmds:
       - GOWORK=off go test -v ./...
