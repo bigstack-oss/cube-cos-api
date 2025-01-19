@@ -21,7 +21,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/controllers/v1/node"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/keycloak"
+	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -125,24 +125,24 @@ func newGlobalHttpHelper() error {
 }
 
 func newGlobalKeycloakAuth() error {
-	return keycloak.NewGlobalSamlAuth(keycloak.Saml{
-		IdentityProvider: keycloak.Provider{
+	return saml.NewGlobalAuth(saml.Spec{
+		IdentityProvider: saml.Provider{
 			MetadataPath: definition.DefaultIdpSamlMetadataPath,
-			Host: keycloak.Host{
+			Host: saml.Host{
 				Scheme:      "https",
 				VirtualIp:   definition.ControllerVip,
 				Port:        10443,
 				InsecureTls: true,
 			},
 		},
-		ServiceProvider: keycloak.Provider{
+		ServiceProvider: saml.Provider{
 			MetadataPath: definition.DefaultSpSamlMetadataPath,
-			Host: keycloak.Host{
+			Host: saml.Host{
 				Scheme:    "https",
 				VirtualIp: definition.ControllerVip,
 				Port:      4443,
 				// Port:      apiConf.Data.Spec.Listen.Port,
-				Auth: keycloak.Auth{
+				Auth: saml.Auth{
 					Cert: definition.DefaultApiServerCert,
 					Key:  definition.DefaultApiServerKey,
 				},
@@ -279,10 +279,10 @@ func newHttpServer() (*server.Server, error) {
 func newRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.Any("/saml/*any", gin.WrapH(keycloak.SamlAuth))
+	router.Any("/saml/*any", gin.WrapH(saml.SpAuth))
 	router.Use(gin.Recovery())
 	router.Use(initReqInfo)
-	router.Use(adapter.Wrap(keycloak.SamlAuth.RequireAccount))
+	router.Use(adapter.Wrap(saml.SpAuth.RequireAccount))
 	return router
 }
 
