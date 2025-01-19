@@ -2,6 +2,10 @@ package v1
 
 import "fmt"
 
+const (
+	Logout = "logout"
+)
+
 var (
 	DefaultKeycloakRealm       = "master"
 	DefaultIdpSamlMetadataPath = fmt.Sprintf("/auth/realms/%s/protocol/saml/descriptor", DefaultKeycloakRealm)

@@ -7,7 +7,9 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
+	"go-micro.dev/v5/logger"
 )
 
 var (
@@ -25,22 +27,27 @@ func getEvents(c *gin.Context) {
 	stmt := genQueryStmt(c)
 	events, err := cubecos.ListEvents(stmt)
 	if err != nil {
-
+		logger.Errorf("failed to fetch events: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":   http.StatusInternalServerError,
+			"status": "internal server error",
+			"msg":    "failed to fetch events",
+		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":   http.StatusOK,
 		"status": "ok",
-		"msg":    "fetch data center list successfully",
+		"msg":    "fetch events successfully",
 		"data":   events,
 	})
 }
 
 func genQueryStmt(c *gin.Context) string {
 	measurement := c.DefaultQuery("type", "system")
-	from := c.DefaultQuery("from", time.Now().Add(-1*time.Hour).UTC().String())
-	to := c.DefaultQuery("to", time.Now().UTC().String())
+	from := c.DefaultQuery("from", definition.TimeRFC3339(-72*time.Hour))
+	to := c.DefaultQuery("to", definition.TimeNowRFC3339())
 
 	return fmt.Sprintf(
 		eventQueryTemplate,

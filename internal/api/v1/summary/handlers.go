@@ -6,6 +6,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/gin-gonic/gin"
+	log "go-micro.dev/v5/logger"
 )
 
 var (
@@ -29,19 +30,24 @@ func getSummary(c *gin.Context) {
 
 	vmOverview, err := cubecos.GetVmStatusOverview()
 	if err != nil {
-		//
+		log.Errorf("failed to get vm status overview: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":   http.StatusInternalServerError,
+			"status": "internal server error",
+			"msg":    "failed to get vm status overview",
+		})
 		return
 	}
 
 	resourceMetrics, err := cubecos.GetResourceMetrics()
 	if err != nil {
-		//
+		log.Errorf("failed to get resource metrics: %v", err)
 		return
 	}
 
 	roleOverview, err := cubecos.GetRoleOverview()
 	if err != nil {
-		//
+		log.Errorf("failed to get role overview: %v", err)
 		return
 	}
 

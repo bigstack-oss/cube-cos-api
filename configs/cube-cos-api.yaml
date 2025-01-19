@@ -23,6 +23,15 @@ spec:
     cubeCos: /etc/settings.txt
     openstack:
       confFile: /etc/admin-openrc.sh
+      auth:
+        type: "password"
+        url: "http://10.32.10.180:5000/v3"
+        username: "admin"
+        password: "admin"
+        project:
+          name: "admin"
+          domain:
+            name: "default"
     k3s: /etc/rancher/k3s/k3s.yaml
   log:
     file: /var/log/cube-cos-api/access.log

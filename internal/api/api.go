@@ -24,10 +24,11 @@ var (
 )
 
 type Handler struct {
-	Version string
-	Method  string
-	Path    string
-	Func    gin.HandlerFunc
+	Version              string
+	Method               string
+	Path                 string
+	Func                 gin.HandlerFunc
+	IsNotUnderDataCenter bool
 }
 
 func (h Handler) IsUnderDataCenter() bool {

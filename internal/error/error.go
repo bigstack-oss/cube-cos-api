@@ -14,6 +14,7 @@ const (
 var (
 	ServiceNotFound     = errors.New("service not found")
 	TuningParamNotFound = errors.New("tuning parameter not found")
+	LicensesNotFound    = errors.New("licenses not found")
 )
 
 type Template struct {
