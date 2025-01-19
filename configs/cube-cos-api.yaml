@@ -19,6 +19,13 @@ spec:
         password: admin
     influxdb:
       url: http://0.0.0.0:8086
+  auth:
+    keycloak:
+      host: https://10.32.10.180:10443/auth
+      realm: master
+      username: admin
+      password: admin
+      insecure: true
   dependency:
     cubeCos: /etc/settings.txt
     openstack:
@@ -26,8 +33,8 @@ spec:
       auth:
         type: "password"
         url: "http://10.32.10.180:5000/v3"
-        username: "admin"
-        password: "admin"
+        username: "admin_cli"
+        password: "dk7LPiAZHTiC1mce"
         project:
           name: "admin"
           domain:

@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
@@ -30,6 +31,7 @@ type Spec struct {
 	Runtime    string `json:"runtime" yaml:"runtime"`
 	Listen     `json:"listen" yaml:"listen"`
 	Store      `json:"store" yaml:"store"`
+	Auth       `json:"auth" yaml:"auth"`
 	Dependency `json:"dependency" yaml:"dependency"`
 	Log        log.Options `json:"log" yaml:"log"`
 }
@@ -48,6 +50,10 @@ type Listen struct {
 type Store struct {
 	MongoDB  mongo.Options  `json:"mongodb" yaml:"mongodb"`
 	InfluxDB influx.Options `json:"influxdb" yaml:"influxdb"`
+}
+
+type Auth struct {
+	Keycloak keycloak.Options `json:"keycloak" yaml:"keycloak"`
 }
 
 type Address struct {

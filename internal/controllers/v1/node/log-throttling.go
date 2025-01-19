@@ -51,7 +51,7 @@ func logWithThrottling(event *registry.Result) {
 	}
 
 	log.Infof(
-		"Node resynced: %s %s %s",
+		"node resynced: %s %s %s",
 		event.Service.Name,
 		fmt.Sprintf("%s(%s)", event.Service.Metadata["hostname"], event.Service.Nodes[0].Address),
 		convertAction(event.Action),
