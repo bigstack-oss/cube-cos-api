@@ -1,4 +1,4 @@
-package login
+package logout
 
 import (
 	"net/http"
@@ -13,10 +13,11 @@ import (
 var (
 	Handlers = []api.Handler{
 		{
-			Version: api.V1,
-			Method:  http.MethodPost,
-			Path:    "/logout",
-			Func:    logout,
+			Version:              api.V1,
+			Method:               http.MethodPost,
+			Path:                 "/logout",
+			Func:                 logout,
+			IsNotUnderDataCenter: true,
 		},
 	}
 )

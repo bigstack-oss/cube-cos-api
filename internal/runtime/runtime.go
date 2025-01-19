@@ -13,6 +13,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/health"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/integrations"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/logout"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/summary"
 	apitunings "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
@@ -242,6 +243,12 @@ func initNodeApiHandler() {
 		definition.RoleControl,
 		definition.RoleCompute,
 	)
+
+	api.RegisterHandlersToRoles(
+		definition.Logout,
+		logout.Handlers,
+		definition.RoleControl,
+	)
 }
 
 func newHttpServer() (*server.Server, error) {
@@ -338,9 +345,9 @@ func setGroupHandlersToRouter(router *gin.Engine, handlers []api.Handler) {
 }
 
 func getParentPath(h api.Handler) string {
-	if h.IsUnderDataCenter() {
-		return fmt.Sprintf("%s/datacenters/%s", h.Version, definition.Controller)
+	if h.IsNotUnderDataCenter {
+		return h.Version
 	}
 
-	return fmt.Sprintf("%s/datacenters", h.Version)
+	return fmt.Sprintf("%s/datacenters/%s", h.Version, definition.Controller)
 }

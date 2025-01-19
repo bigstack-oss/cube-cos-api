@@ -11,10 +11,11 @@ import (
 var (
 	Handlers = []api.Handler{
 		{
-			Version: api.V1,
-			Method:  http.MethodGet,
-			Path:    "",
-			Func:    getDataCenters,
+			Version:              api.V1,
+			Method:               http.MethodGet,
+			Path:                 "/datacenters",
+			Func:                 getDataCenters,
+			IsNotUnderDataCenter: true,
 		},
 	}
 )

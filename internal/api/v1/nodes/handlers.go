@@ -2,9 +2,11 @@ package nodes
 
 import (
 	"net/http"
+	"regexp"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
@@ -28,7 +30,20 @@ func getNodes(c *gin.Context) {
 		return
 	}
 
-	h, err := openstack.NewHelper()
+	h, err := openstack.NewHelper(
+		openstack.AuthType(config.Data.Spec.Openstack.Auth.Type),
+		openstack.AuthUrl(config.Data.Spec.Openstack.Auth.Url),
+		openstack.ProjectName(config.Data.Spec.Openstack.Auth.Project.Name),
+		openstack.ProjectDomainName(config.Data.Spec.Openstack.Auth.Project.Domain.Name),
+		openstack.Username(config.Data.Spec.Openstack.Auth.Username),
+		openstack.Password(config.Data.Spec.Openstack.Auth.Password),
+	)
+	if err != nil {
+		//
+		return
+	}
+
+	licenses, err := cubecos.ListLicenses()
 	if err != nil {
 		//
 		return
@@ -65,8 +80,15 @@ func getNodes(c *gin.Context) {
 			continue
 		}
 
-		nodes[i].Uptime = time.Uptime
-		nodes[i].License = definition.License{} // have to be implemented and integrated with license feature
+		re := regexp.MustCompile(`up\s+(.*?),`)
+		match := re.FindStringSubmatch(time.Uptime)
+		if len(match) > 1 {
+			nodes[i].Uptime = match[1]
+		} else {
+			nodes[i].Uptime = "no uptime from system"
+		}
+
+		nodes[i].License = getLicenseByHostname(licenses, node.Hostname)
 	}
 
 	c.JSON(
@@ -78,4 +100,14 @@ func getNodes(c *gin.Context) {
 			"data":   nodes,
 		},
 	)
+}
+
+func getLicenseByHostname(licenses []definition.License, hostname string) definition.License {
+	for _, license := range licenses {
+		if license.Hostname == hostname {
+			return license
+		}
+	}
+
+	return definition.License{}
 }
