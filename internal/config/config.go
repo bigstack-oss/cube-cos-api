@@ -6,7 +6,9 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
+	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	yaml "github.com/go-micro/plugins/v5/config/encoder/yaml"
+	jsonitor "github.com/json-iterator/go"
 	"go-micro.dev/v5/config"
 	"go-micro.dev/v5/config/reader"
 	"go-micro.dev/v5/config/reader/json"
@@ -14,32 +16,27 @@ import (
 )
 
 var (
-	Data Payload
+	Opts Options
 )
 
-type Payload struct {
+type Options struct {
 	Kind     string `json:"kind" yaml:"kind"`
 	Metadata `json:"metadata" yaml:"metadata"`
 	Spec     `json:"spec" yaml:"spec"`
 }
 
 type Metadata struct {
-	Name string `json:"name" yaml:"name"`
+	Name    string            `json:"name" yaml:"name"`
+	Version string            `json:"version" yaml:"version"`
+	Labels  map[string]string `json:"labels" yaml:"labels"`
 }
 
 type Spec struct {
-	Runtime    string `json:"runtime" yaml:"runtime"`
-	Listen     `json:"listen" yaml:"listen"`
-	Store      `json:"store" yaml:"store"`
-	Auth       `json:"auth" yaml:"auth"`
-	Dependency `json:"dependency" yaml:"dependency"`
-	Log        log.Options `json:"log" yaml:"log"`
-}
-
-type Dependency struct {
-	CubeCos   string            `json:"cubeCos" yaml:"cubeCos"`
-	Openstack openstack.Options `json:"openstack" yaml:"openstack"`
-	K3s       string            `json:"k3s" yaml:"k3s"`
+	Listen          `json:"listen" yaml:"listen"`
+	Store           `json:"store" yaml:"store"`
+	Identity        `json:"identity" yaml:"identity"`
+	ResourceControl `json:"resourceControl" yaml:"resourceControl"`
+	Log             log.Options `json:"log" yaml:"log"`
 }
 
 type Listen struct {
@@ -47,18 +44,39 @@ type Listen struct {
 	Address `json:"Address" yaml:"address"`
 }
 
+type Address struct {
+	Local     string `json:"local" yaml:"local"`
+	Advertise string `json:"advertise" yaml:"advertise"`
+}
+
+type Identity struct {
+	OsPolicy       string           `json:"osPolicy" yaml:"osPolicy"`
+	LogoutRedirect string           `json:"logoutRedirect" yaml:"logoutRedirect"`
+	Keycloak       keycloak.Options `json:"keycloak" yaml:"keycloak"`
+	Saml           saml.Options     `json:"saml" yaml:"saml"`
+}
+
+type ResourceControl struct {
+	Openstack openstack.Options `json:"openstack" yaml:"openstack"`
+	K3s       `json:"k3s" yaml:"k3s"`
+}
+
+type K3s struct {
+	Auth string `json:"auth" yaml:"auth"`
+}
+
 type Store struct {
 	MongoDB  mongo.Options  `json:"mongodb" yaml:"mongodb"`
 	InfluxDB influx.Options `json:"influxdb" yaml:"influxdb"`
 }
 
-type Auth struct {
-	Keycloak keycloak.Options `json:"keycloak" yaml:"keycloak"`
-}
+func (o *Options) String() (string, error) {
+	b, err := jsonitor.Marshal(o)
+	if err != nil {
+		return "", err
+	}
 
-type Address struct {
-	Local     string `json:"local" yaml:"local"`
-	Advertise string `json:"advertise" yaml:"advertise"`
+	return string(b), nil
 }
 
 func NewConfiger() (config.Config, error) {

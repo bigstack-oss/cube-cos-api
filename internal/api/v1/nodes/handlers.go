@@ -6,7 +6,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/config"
+	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
@@ -31,12 +31,12 @@ func getNodes(c *gin.Context) {
 	}
 
 	h, err := openstack.NewHelper(
-		openstack.AuthType(config.Data.Spec.Openstack.Auth.Type),
-		openstack.AuthUrl(config.Data.Spec.Openstack.Auth.Url),
-		openstack.ProjectName(config.Data.Spec.Openstack.Auth.Project.Name),
-		openstack.ProjectDomainName(config.Data.Spec.Openstack.Auth.Project.Domain.Name),
-		openstack.Username(config.Data.Spec.Openstack.Auth.Username),
-		openstack.Password(config.Data.Spec.Openstack.Auth.Password),
+		openstack.AuthType(conf.Opts.Spec.Openstack.Auth.Type),
+		openstack.AuthUrl(conf.Opts.Spec.Openstack.Auth.Url),
+		openstack.ProjectName(conf.Opts.Spec.Openstack.Auth.Project.Name),
+		openstack.ProjectDomainName(conf.Opts.Spec.Openstack.Auth.Project.Domain.Name),
+		openstack.Username(conf.Opts.Spec.Openstack.Auth.Username),
+		openstack.Password(conf.Opts.Spec.Openstack.Auth.Password),
 	)
 	if err != nil {
 		//

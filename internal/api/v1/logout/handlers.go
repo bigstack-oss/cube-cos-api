@@ -7,7 +7,8 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/config"
+	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/crewjam/saml/samlsp"
 	"github.com/gin-gonic/gin"
@@ -62,7 +63,10 @@ func logout(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(http.StatusFound, "https://10.32.10.180:4443/api/v1/datacenters")
+	c.Redirect(
+		http.StatusFound,
+		fmt.Sprintf("https://%s:4443%s", definition.ControllerVip, conf.Opts.Spec.Identity.LogoutRedirect),
+	)
 }
 
 func cleanSession(c *gin.Context, session samlsp.Session) error {
@@ -100,11 +104,11 @@ func deleteSessionInSamlAuth(c *gin.Context, jwtSession samlsp.JWTSessionClaims)
 
 func deleteSessionInKeycloak(jwtSession samlsp.JWTSessionClaims) error {
 	h, err := keycloak.NewHelper(
-		keycloak.Host(config.Data.Spec.Auth.Keycloak.Host),
-		keycloak.Realm(config.Data.Spec.Auth.Keycloak.Realm),
-		keycloak.Username(config.Data.Spec.Auth.Keycloak.Username),
-		keycloak.Password(config.Data.Spec.Auth.Keycloak.Password),
-		keycloak.Insecure(config.Data.Spec.Auth.Keycloak.Insecure),
+		keycloak.Host(conf.Opts.Spec.Identity.Keycloak.Host),
+		keycloak.Realm(conf.Opts.Spec.Identity.Keycloak.Realm),
+		keycloak.Username(conf.Opts.Spec.Identity.Keycloak.Username),
+		keycloak.Password(conf.Opts.Spec.Identity.Keycloak.Password),
+		keycloak.Insecure(conf.Opts.Spec.Identity.Keycloak.TlsInsecureSkipVerify),
 	)
 	if err != nil {
 		log.Errorf("failed to create keycloak helper: %s", err.Error())
@@ -117,23 +121,24 @@ func deleteSessionInKeycloak(jwtSession samlsp.JWTSessionClaims) error {
 		return err
 	}
 
-	sessionIndexes, found := jwtSession.Attributes["SessionIndex"]
+	activeSpSessions, found := jwtSession.Attributes["SessionIndex"]
 	if !found {
 		err := fmt.Errorf("session index not found in jwt session")
-		log.Errorf("session index not found in jwt session")
+		log.Errorf(err.Error())
 		return err
 	}
 
-	for _, sessionIndex := range sessionIndexes {
-		sessionDetails := strings.Split(sessionIndex, "::")
-		if len(sessionDetails) < 2 {
-			log.Warnf("invalid session index to logout: %s", sessionIndex)
+	for _, activeSpSession := range activeSpSessions {
+		spSessionInfo := strings.Split(activeSpSession, "::")
+		if len(spSessionInfo) < 2 {
+			log.Warnf("invalid alive session index to logout: %s", spSessionInfo)
 			continue
 		}
 
-		err := h.LogoutUserSession(config.Data.Spec.Auth.Keycloak.Realm, sessionDetails[0])
+		sessionId := spSessionInfo[0]
+		err := h.LogoutUserSession(conf.Opts.Spec.Identity.Keycloak.Realm, sessionId)
 		if err != nil {
-			log.Errorf("failed to logout user session: %s", err.Error())
+			log.Errorf("failed to logout user session(%s): %s", sessionId, err.Error())
 		}
 	}
 

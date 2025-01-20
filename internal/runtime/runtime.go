@@ -33,7 +33,7 @@ import (
 )
 
 func NewRuntime(conf config.Config) (*server.Server, error) {
-	err := conf.Get().Scan(&apiConf.Data)
+	err := conf.Get().Scan(&apiConf.Opts)
 	if err != nil {
 		logger.Errorf("failed to scan config: %s", err.Error())
 		return nil, err
@@ -55,11 +55,12 @@ func NewRuntime(conf config.Config) (*server.Server, error) {
 	initNodeApiHandler()
 
 	showPromptMessages()
+	showLoadedConfBody()
 	return newHttpServer()
 }
 
 func initNodeClis() error {
-	err := newGlobalLogHelper(apiConf.Data.Spec.Log)
+	err := newGlobalLogHelper(apiConf.Opts.Spec.Log)
 	if err != nil {
 		logger.Errorf("failed to init logger: %s", err.Error())
 		return err
@@ -77,13 +78,13 @@ func initNodeClis() error {
 		return err
 	}
 
-	err = newGlobalMongoHelper(apiConf.Data.Spec.Store.MongoDB)
+	err = newGlobalMongoHelper(apiConf.Opts.Spec.Store.MongoDB)
 	if err != nil {
 		logger.Errorf("failed to init mongo helper: %s", err.Error())
 		return err
 	}
 
-	err = newGlobalInfluxHelper(apiConf.Data.Spec.Store.InfluxDB)
+	err = newGlobalInfluxHelper(apiConf.Opts.Spec.Store.InfluxDB)
 	if err != nil {
 		logger.Errorf("failed to init influx helper: %s", err.Error())
 		return err
@@ -125,30 +126,7 @@ func newGlobalHttpHelper() error {
 }
 
 func newGlobalKeycloakAuth() error {
-	return saml.NewGlobalAuth(saml.Spec{
-		IdentityProvider: saml.Provider{
-			MetadataPath: definition.DefaultIdpSamlMetadataPath,
-			Host: saml.Host{
-				Scheme:      "https",
-				VirtualIp:   definition.ControllerVip,
-				Port:        10443,
-				InsecureTls: true,
-			},
-		},
-		ServiceProvider: saml.Provider{
-			MetadataPath: definition.DefaultSpSamlMetadataPath,
-			Host: saml.Host{
-				Scheme:    "https",
-				VirtualIp: definition.ControllerVip,
-				Port:      4443,
-				// Port:      apiConf.Data.Spec.Listen.Port,
-				Auth: saml.Auth{
-					Cert: definition.DefaultApiServerCert,
-					Key:  definition.DefaultApiServerKey,
-				},
-			},
-		},
-	})
+	return saml.NewGlobalAuth(apiConf.Opts.Spec.Identity.Saml)
 }
 
 func initNodeIdentities() error {
@@ -177,7 +155,19 @@ func initNodeIdentities() error {
 		return err
 	}
 
-	definition.ControllerVip, err = cubecos.GetControllerVirtualIp()
+	definition.MgmtNet, err = cubecos.GetMgmtNet()
+	if err != nil {
+		logger.Errorf("failed to get management network: %s", err.Error())
+		return err
+	}
+
+	definition.MgmtIP, err = cubecos.GetManagementIp(definition.MgmtNet)
+	if err != nil {
+		logger.Errorf("failed to get management ip: %s", err.Error())
+		return err
+	}
+
+	definition.ControllerVip, err = cubecos.GetControllerVirtualIp(definition.MgmtNet)
 	if err != nil {
 		logger.Errorf("failed to get controller virtual ip: %s", err.Error())
 		return err
@@ -189,9 +179,10 @@ func initNodeIdentities() error {
 		return err
 	}
 
-	definition.ListenAddr = localAddr()
-	definition.AdvertiseAddr = serviceDiscoveryAddr()
+	definition.ListenAddr = genLocalAddr()
+	definition.AdvertiseAddr = genServiceDiscoveryAddr()
 	definition.IsGpuEnabled = cubecos.IsGpuEnabled()
+	definition.LogoutRedirectUrl = genLogoutRedirectUrl()
 
 	return nil
 }
@@ -263,8 +254,8 @@ func newHttpServer() (*server.Server, error) {
 		server.Name(definition.CurrentRole),
 		server.Metadata(genMetadata()),
 		server.WithLogger(logger.DefaultLogger),
-		server.Address(localAddr()),
-		server.Advertise(serviceDiscoveryAddr()),
+		server.Address(genLocalAddr()),
+		server.Advertise(genServiceDiscoveryAddr()),
 	)
 
 	err = srv.Handle(srv.NewHandler(router))
@@ -293,19 +284,27 @@ func initReqInfo(c *gin.Context) {
 	c.Next()
 }
 
-func serviceDiscoveryAddr() string {
+func genLocalAddr() string {
 	return fmt.Sprintf(
 		"%s:%d",
-		apiConf.Data.Spec.Listen.Address.Advertise,
-		apiConf.Data.Spec.Listen.Port,
+		apiConf.Opts.Spec.Listen.Local,
+		apiConf.Opts.Spec.Listen.Port,
 	)
 }
 
-func localAddr() string {
+func genServiceDiscoveryAddr() string {
 	return fmt.Sprintf(
 		"%s:%d",
-		apiConf.Data.Spec.Listen.Local,
-		apiConf.Data.Spec.Listen.Port,
+		definition.MgmtIP,
+		apiConf.Opts.Spec.Listen.Port,
+	)
+}
+
+func genLogoutRedirectUrl() string {
+	return fmt.Sprintf(
+		"https://%s:4443%s",
+		definition.ControllerVip,
+		apiConf.Opts.Spec.Identity.LogoutRedirect,
 	)
 }
 

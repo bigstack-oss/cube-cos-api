@@ -7,7 +7,45 @@ spec:
     port: 8001
     address:
       local: 0.0.0.0
-      advertise: 0.0.0.0
+  identity:
+    osPolicy: /etc/settings.txt
+    logoutRedirect: "/api/v1/dataceneters"
+    keycloak:
+      host: https://10.32.10.113:10443/auth
+      tlsInsecureSkipVerify: true
+      auth:
+        realm: master
+        username: admin
+        password: admin
+    saml:
+      identityProvider:
+        metadataPath: "/auth/realms/master/protocol/saml/descriptor"
+        host:
+          scheme: "https"
+          port: 10443
+          tlsInsecureSkipVerify: true
+      serviceProvider:
+        metadataPath: "/saml/metadata"
+        host:
+          scheme: "https"
+          port: 4443
+          auth:
+            key: "/var/www/certs/server.key"
+            cert: "/var/www/certs/server.cert"
+  resourceControl:
+    k3s:
+      auth: /etc/rancher/k3s/k3s.yaml
+    openstack:
+      confFile: /etc/admin-openrc.sh
+      auth:
+        type: "password"
+        url: "http://10.32.10.113:5000/v3"
+        username: "admin_cli"
+        password: "dk7LPiAZHTiC1mce"
+        project:
+          name: "admin"
+          domain:
+            name: "default"
   store:
     mongodb:
       uri: mongodb://0.0.0.0:27017
@@ -19,32 +57,13 @@ spec:
         password: admin
     influxdb:
       url: http://0.0.0.0:8086
-  auth:
-    keycloak:
-      host: https://10.32.10.180:10443/auth
-      realm: master
-      username: admin
-      password: admin
-      insecure: true
-  dependency:
-    cubeCos: /etc/settings.txt
-    openstack:
-      confFile: /etc/admin-openrc.sh
-      auth:
-        type: "password"
-        url: "http://10.32.10.180:5000/v3"
-        username: "admin_cli"
-        password: "dk7LPiAZHTiC1mce"
-        project:
-          name: "admin"
-          domain:
-            name: "default"
-    k3s: /etc/rancher/k3s/k3s.yaml
-  log:
-    file: /var/log/cube-cos-api/access.log
-    level: 2
-    rotation:
-      backups: 3
-      size: 20
-      ttl: 30
-      compress: true
+  observability:
+    log:
+      file: /var/log/cube-cos-api/cube-cos-api.log
+      level: 2
+      rotation:
+        backups: 3
+        size: 20
+        ttl: 30
+        compress: true
+  

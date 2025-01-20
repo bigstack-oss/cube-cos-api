@@ -5,7 +5,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v1"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v1/accelerators/devices"
-	"github.com/bigstack-oss/cube-cos-api/internal/config"
+	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	log "go-micro.dev/v5/logger"
 )
@@ -28,7 +28,7 @@ func GetNodeRole() (string, error) {
 }
 
 func IsGpuEnabled() bool {
-	provider, err := openstack.NewProvider(config.Data.Spec.Dependency.Openstack.ConfFile)
+	provider, err := openstack.NewProvider(conf.Opts.Spec.ResourceControl.Openstack.ConfFile)
 	if err != nil {
 		log.Errorf("failed to create openstack provider: %s", err.Error())
 		return false
