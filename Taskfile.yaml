@@ -1,11 +1,11 @@
 version: '3'
 
 vars:
-  API_SERVICE: "cube-cos-api"
-  DB_SERVICE: "cube-cos-mongo"
-  DEV_COS_USER: "root"
-  DEV_COS_IP: "10.32.10.180"
-  MONGO_VERSION: "6.0.19"
+  apiService: "cube-cos-api"
+  dbService: "cube-cos-mongo"
+  devCosUser: "root"
+  devCosIp: "10.32.10.113"
+  mongoVersion: "6.0.19"
 
 tasks:
   vet:
@@ -14,43 +14,62 @@ tasks:
   test:
     cmds:
       - GOWORK=off go test -v ./...
-  binary:
+  buildLocalBinary:
     cmds:
-      - GOWORK=off GOOS=linux GOARCH=amd64 go build -o bin/{{.API_SERVICE}} cmd/main.go
-  update-api-docs:
+      - GOWORK=off GOOS=linux GOARCH=amd64 go build -o bin/{{.apiService}} cmd/main.go
+  updateApiDocs:
     cmds:
       - swag init --output ./api -g ./cmd/main.go
-  run-dev-api:
+  runLocalDevApi:
     cmds:
-      - GOWORK=off go run cmd/main.go -conf configs/{{.API_SERVICE}}.yaml
-  run-dev-mongo:
+      - GOWORK=off go run cmd/main.go -conf configs/{{.apiService}}.yaml
+  runLocalDevMongo:
     cmds:
-      - docker run -d -p 27017:27017 --name {{.DB_SERVICE}}-0 --hostname {{.DB_SERVICE}}-0 mongo:{{.MONGO_VERSION}} mongod --replSet cube-cos-rs
-  init-dev-space:
+      - docker run -d -p 27017:27017 --name {{.dbService}}-0 --hostname {{.dbService}}-0 mongo:{{.mongoVersion}} mongod --replSet cube-cos-rs
+  deployAllRemoteDevServices:
     cmds:
-      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "mkdir -p /opt/dev/{{.API_SERVICE}}"
-      - cmd: ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "docker network ls | grep {{.DB_SERVICE}} || docker network create {{.DB_SERVICE}}"
-        ignore_error: true
-  deploy-dev-api:
+      - task: deployRemoteDevApi
+      - task: deployRemoteDevMongo
+  deployRemoteDevApi:
     cmds:
-      - task: binary
-      - task: stop-dev-api
-      - task: init-dev-space
-      - scp bin/{{.API_SERVICE}} {{.DEV_COS_USER}}@{{.DEV_COS_IP}}:/opt/dev/{{.API_SERVICE}}
-      - scp configs/{{.API_SERVICE}}.yaml {{.DEV_COS_USER}}@{{.DEV_COS_IP}}:/opt/dev/{{.API_SERVICE}}
-  deploy-dev-mongo:
+      - task: buildLocalBinary
+      - task: stopRemoteDevApi
+      - task: initRemoteCosDevEnv
+      - task: moveLocalBinaryToRemoteCos
+      - task: moveLocalConfigToRemoteCos
+  deployRemoteDevMongo:
     cmds:
-      - task: init-dev-space
-      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "docker run -itd -p 27017:27017 -v /opt/dev/{{.API_SERVICE}}/mongo:/data/db --name {{.DB_SERVICE}}-0 --network={{.DB_SERVICE}} --hostname {{.DB_SERVICE}}-0 mongo:{{.MONGO_VERSION}} mongod --replSet {{.DB_SERVICE}}"
-      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "sleep 20"
-      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} 'docker exec -i {{.DB_SERVICE}}-0 mongosh --quiet --eval "rs.initiate()"'
-      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} 'docker exec -i {{.DB_SERVICE}}-0 mongosh --quiet --eval "db.getSiblingDB(\"admin\").createUser({user:\"admin\",pwd:\"admin\",roles:[{role:\"userAdminAnyDatabase\",db:\"admin\"}]})"'
-  stop-dev-api:
+      - task: initRemoteCosDevEnv
+      - task: simulateRemoteProductionMongo
+  stopRemoteDevApi:
     cmds:
-      - cmd: ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "pkill -f {{.API_SERVICE}}"
-        ignore_error: true
-  remove-dev-mongo:
+      - ssh {{.devCosUser}}@{{.devCosIp}} "pkill -f {{.apiService}}"
+    ignore_error: true
+  simulateRemoteProductionMongo:
     cmds:
-      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "docker rm -f {{.DB_SERVICE}}-0"
-      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "rm -rf /opt/dev/{{.API_SERVICE}}/mongo"
-      - ssh {{.DEV_COS_USER}}@{{.DEV_COS_IP}} "docker network rm {{.DB_SERVICE}}"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "docker run -itd -p 27017:27017 -v /opt/dev/{{.apiService}}/mongo:/data/db --name {{.dbService}}-0 --network={{.dbService}} --hostname {{.dbService}}-0 mongo:{{.mongoVersion}} mongod --replSet {{.dbService}}"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "sleep 15"
+      - ssh {{.devCosUser}}@{{.devCosIp}} 'docker exec -i {{.dbService}}-0 mongosh --quiet --eval "rs.initiate()"'
+      - ssh {{.devCosUser}}@{{.devCosIp}} 'docker exec -i {{.dbService}}-0 mongosh --quiet --eval "db.getSiblingDB(\"admin\").createUser({user:\"admin\",pwd:\"admin\",roles:[{role:\"userAdminAnyDatabase\",db:\"admin\"}]})"'
+  removeRemoteDevMongo:
+    cmds:
+      - ssh {{.devCosUser}}@{{.devCosIp}} "docker rm -f {{.dbService}}-0"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "rm -rf /opt/dev/{{.apiService}}/mongo"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "docker network rm {{.dbService}}"
+  initRemoteCosDevEnv:
+    cmds:
+      - task: initRemoteCosWorkspace
+      - task: initRemoteCosContainerNetwork
+  initRemoteCosWorkspace:
+    cmds:
+      - ssh {{.devCosUser}}@{{.devCosIp}} "mkdir -p /opt/dev/{{.apiService}}"
+  initRemoteCosContainerNetwork:
+    cmds:
+      - ssh {{.devCosUser}}@{{.devCosIp}} "docker network ls | grep {{.dbService}} || docker network create {{.dbService}}"
+    ignore_error: true
+  moveLocalBinaryToRemoteCos:
+    cmds:
+      - scp bin/{{.apiService}} {{.devCosUser}}@{{.devCosIp}}:/opt/dev/{{.apiService}}
+  moveLocalConfigToRemoteCos:
+    cmds:
+      - scp configs/{{.apiService}}.yaml {{.devCosUser}}@{{.devCosIp}}:/opt/dev/{{.apiService}}

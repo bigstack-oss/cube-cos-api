@@ -19,6 +19,8 @@ var (
 	ControllerVip string
 	ListenAddr    string
 	AdvertiseAddr string
+	MgmtNet       string
+	MgmtIP        string
 	IsHaEnabled   bool
 	IsGpuEnabled  bool
 )

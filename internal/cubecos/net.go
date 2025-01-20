@@ -1,13 +1,35 @@
 package cubecos
 
-import definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+import (
+	"fmt"
+
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+)
 
 const ()
 
-func GetControllerVirtualIp() (string, error) {
+func GetControllerVirtualIp(mgmtNet string) (string, error) {
 	if definition.IsHaEnabled {
 		return ReadHexTuning(CubeSysControllerVip)
 	}
 
-	return ReadHexTuning(NetIfAddrEth0)
+	if mgmtNet == "" {
+		return "", fmt.Errorf("management network is empty")
+	}
+
+	netIfAddrMgmtIp := fmt.Sprintf("%s%s", CubeNetIfAddrPrefix, mgmtNet)
+	return ReadHexTuning(netIfAddrMgmtIp)
+}
+
+func GetMgmtNet() (string, error) {
+	return ReadHexTuning(CubeSysManagementNetwork)
+}
+
+func GetManagementIp(mgmtNet string) (string, error) {
+	if mgmtNet == "" {
+		return "", fmt.Errorf("management network is empty")
+	}
+
+	netIfAddrMgmtIp := fmt.Sprintf("%s%s", CubeNetIfAddrPrefix, mgmtNet)
+	return ReadHexTuning(netIfAddrMgmtIp)
 }

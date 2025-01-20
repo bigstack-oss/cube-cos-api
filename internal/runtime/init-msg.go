@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -13,4 +14,14 @@ func showPromptMessages() {
 	log.Info(`| |___| |_| | |_) |  __/  | |___| |__| |____) |   / ____ \| |    _| |_ `)
 	log.Info(`\______\__,_|_.__/ \___|   \_____\____/|_____/   /_/    \_\_|   |_____| ©2025 Powered by Bigstack.`)
 	log.Info("")
+}
+
+func showLoadedConfBody() {
+	body, err := config.Opts.String()
+	if err != nil {
+		log.Errorf("failed to process loaded conf, the struct might be corrupted: %s", err.Error())
+		panic(err)
+	}
+
+	log.Infof("init parameters: %+v", body)
 }

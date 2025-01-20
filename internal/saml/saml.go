@@ -20,50 +20,50 @@ var (
 	SpAuth *samlsp.Middleware
 )
 
-type Spec struct {
-	IdentityProvider Provider
-	ServiceProvider  Provider
+type Options struct {
+	IdentityProvider Provider `json:"identityProvider" yaml:"identityProvider"`
+	ServiceProvider  Provider `json:"serviceProvider" yaml:"serviceProvider"`
 }
 
 type Provider struct {
-	Host
-	MetadataPath string
+	Host         `json:"host" yaml:"host"`
+	MetadataPath string `json:"metadataPath" yaml:"metadataPath"`
 }
 
 type Host struct {
-	Scheme      string
-	VirtualIp   string
-	Ip          string
-	Port        int
-	InsecureTls bool
-	Auth
+	Scheme                string `json:"scheme" yaml:"scheme"`
+	VirtualIp             string `json:"virtualIp" yaml:"virtualIp"`
+	Ip                    string `json:"ip" yaml:"ip"`
+	Port                  int    `json:"port" yaml:"port"`
+	TlsInsecureSkipVerify bool   `json:"tlsInsecureSkipVerify" yaml:"tlsInsecureSkipVerify"`
+	Auth                  `json:"auth" yaml:"auth"`
 }
 
 type Auth struct {
-	Key  string
-	Cert string
+	Key  string `json:"key" yaml:"key"`
+	Cert string `json:"cert" yaml:"cert"`
 }
 
-func NewGlobalAuth(spec Spec) error {
+func NewGlobalAuth(opts Options) error {
 	keyPair, err := genApiServerCertKeyPair(
-		spec.ServiceProvider.Host.Auth.Cert,
-		spec.ServiceProvider.Host.Auth.Key,
+		opts.ServiceProvider.Host.Auth.Cert,
+		opts.ServiceProvider.Host.Auth.Key,
 	)
 	if err != nil {
 		log.Errorf("failed to generate api server cert key pair: %v", err)
 		return err
 	}
 
-	idpMetadata, err := genIdpMetadata(spec)
+	idpMetadata, err := genIdentityProviderMetadata(opts)
 	if err != nil {
 		log.Errorf("failed to generate idp metadata: %v", err)
 		return err
 	}
 
-	spMetadataUrl := genSpMetadataUrl(spec)
+	spMetadataUrl := genServiceProviderMetadataUrl(opts)
 	SpAuth, err = samlsp.New(samlsp.Options{
 		EntityID:    spMetadataUrl.String(),
-		URL:         genRootUrl(spec),
+		URL:         genRootUrl(opts),
 		Key:         keyPair.PrivateKey.(*rsa.PrivateKey),
 		Certificate: keyPair.Leaf,
 		IDPMetadata: idpMetadata,
@@ -91,10 +91,10 @@ func genApiServerCertKeyPair(serverCert, serverKey string) (*tls.Certificate, er
 	return &keyPair, nil
 }
 
-func genIdpMetadata(spec Spec) (*saml.EntityDescriptor, error) {
+func genIdentityProviderMetadata(opts Options) (*saml.EntityDescriptor, error) {
 	http.DefaultClient = &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: spec.IdentityProvider.Host.InsecureTls},
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: opts.IdentityProvider.Host.TlsInsecureSkipVerify},
 		},
 	}
 
@@ -103,29 +103,29 @@ func genIdpMetadata(spec Spec) (*saml.EntityDescriptor, error) {
 	return samlsp.FetchMetadata(
 		ctx,
 		http.DefaultClient,
-		genIdpMetadataUrl(spec),
+		genIdentityProviderMetadataUrl(opts),
 	)
 }
 
-func genIdpMetadataUrl(spec Spec) url.URL {
+func genIdentityProviderMetadataUrl(opts Options) url.URL {
 	return url.URL{
-		Scheme: spec.IdentityProvider.Host.Scheme,
-		Host:   fmt.Sprintf("%s:%d", spec.IdentityProvider.Host.VirtualIp, spec.IdentityProvider.Host.Port),
-		Path:   definition.DefaultIdpSamlMetadataPath,
+		Scheme: opts.IdentityProvider.Host.Scheme,
+		Host:   fmt.Sprintf("%s:%d", definition.ControllerVip, opts.IdentityProvider.Host.Port),
+		Path:   opts.IdentityProvider.MetadataPath,
 	}
 }
 
-func genSpMetadataUrl(spec Spec) url.URL {
+func genServiceProviderMetadataUrl(opts Options) url.URL {
 	return url.URL{
-		Scheme: spec.ServiceProvider.Scheme,
-		Host:   fmt.Sprintf("%s:%d", spec.ServiceProvider.Host.VirtualIp, spec.ServiceProvider.Host.Port),
-		Path:   spec.ServiceProvider.MetadataPath,
+		Scheme: opts.ServiceProvider.Scheme,
+		Host:   fmt.Sprintf("%s:%d", definition.ControllerVip, opts.ServiceProvider.Host.Port),
+		Path:   opts.ServiceProvider.MetadataPath,
 	}
 }
 
-func genRootUrl(spec Spec) url.URL {
+func genRootUrl(opts Options) url.URL {
 	return url.URL{
-		Scheme: spec.ServiceProvider.Host.Scheme,
-		Host:   fmt.Sprintf("%s:%d", spec.ServiceProvider.Host.VirtualIp, spec.ServiceProvider.Host.Port),
+		Scheme: opts.ServiceProvider.Host.Scheme,
+		Host:   fmt.Sprintf("%s:%d", definition.ControllerVip, opts.ServiceProvider.Host.Port),
 	}
 }

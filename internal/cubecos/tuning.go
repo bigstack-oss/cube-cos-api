@@ -19,10 +19,12 @@ const (
 	policyFile = "/etc/policies/tuning/tuning1_0.yml"
 
 	// private tunings
-	CubeSysHa            = "cubesys.ha"
-	CubeSysController    = "cubesys.controller"
-	CubeSysControllerVip = "cubesys.control.vip"
-	NetIfAddrEth0        = "net.if.addr.eth0"
+	CubeSysHa                = "cubesys.ha"
+	CubeSysController        = "cubesys.controller"
+	CubeSysControllerVip     = "cubesys.control.vip"
+	CubeSysManagementNetwork = "cubesys.management"
+	CubeNetIfAddrPrefix      = "net.if.addr."
+	NetIfAddrEth0            = "net.if.addr.eth0"
 
 	// public tunings
 	BarbicanDebugEnabled        = "barbican.debug.enabled"
