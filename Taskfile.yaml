@@ -37,6 +37,7 @@ tasks:
       - task: initRemoteCosDevEnv
       - task: moveLocalBinaryToRemoteCos
       - task: moveLocalConfigToRemoteCos
+      - task: activateSystemdService
   deployRemoteDevMongo:
     cmds:
       - task: initRemoteCosDevEnv
@@ -47,14 +48,14 @@ tasks:
     ignore_error: true
   simulateRemoteProductionMongo:
     cmds:
-      - ssh {{.devCosUser}}@{{.devCosIp}} "docker run -itd -p 27017:27017 -v /opt/dev/{{.apiService}}/mongo:/data/db --name {{.dbService}}-0 --network={{.dbService}} --hostname {{.dbService}}-0 mongo:{{.mongoVersion}} mongod --replSet {{.dbService}}"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "docker run -itd -p 27017:27017 -v /etc/{{.apiService}}/mongo:/data/db --name {{.dbService}}-0 --network={{.dbService}} --hostname {{.dbService}}-0 mongo:{{.mongoVersion}} mongod --replSet {{.dbService}}"
       - ssh {{.devCosUser}}@{{.devCosIp}} "sleep 15"
       - ssh {{.devCosUser}}@{{.devCosIp}} 'docker exec -i {{.dbService}}-0 mongosh --quiet --eval "rs.initiate()"'
       - ssh {{.devCosUser}}@{{.devCosIp}} 'docker exec -i {{.dbService}}-0 mongosh --quiet --eval "db.getSiblingDB(\"admin\").createUser({user:\"admin\",pwd:\"admin\",roles:[{role:\"userAdminAnyDatabase\",db:\"admin\"}]})"'
   removeRemoteDevMongo:
     cmds:
       - ssh {{.devCosUser}}@{{.devCosIp}} "docker rm -f {{.dbService}}-0"
-      - ssh {{.devCosUser}}@{{.devCosIp}} "rm -rf /opt/dev/{{.apiService}}/mongo"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "rm -rf /etc/{{.apiService}}/mongo"
       - ssh {{.devCosUser}}@{{.devCosIp}} "docker network rm {{.dbService}}"
   initRemoteCosDevEnv:
     cmds:
@@ -62,14 +63,23 @@ tasks:
       - task: initRemoteCosContainerNetwork
   initRemoteCosWorkspace:
     cmds:
-      - ssh {{.devCosUser}}@{{.devCosIp}} "mkdir -p /opt/dev/{{.apiService}}"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "mkdir -p /etc/{{.apiService}}"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "grep {{.apiService}} /etc/group || groupadd {{.apiService}}"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "id {{.apiService}} || useradd -g {{.apiService}} {{.apiService}}"
   initRemoteCosContainerNetwork:
     cmds:
       - ssh {{.devCosUser}}@{{.devCosIp}} "docker network ls | grep {{.dbService}} || docker network create {{.dbService}}"
     ignore_error: true
   moveLocalBinaryToRemoteCos:
     cmds:
-      - scp bin/{{.apiService}} {{.devCosUser}}@{{.devCosIp}}:/opt/dev/{{.apiService}}
+      - scp bin/{{.apiService}} {{.devCosUser}}@{{.devCosIp}}:/usr/bin/{{.apiService}}
+      - ssh {{.devCosUser}}@{{.devCosIp}} "chown -R {{.apiService}}:{{.apiService}} /usr/bin/{{.apiService}}"
   moveLocalConfigToRemoteCos:
     cmds:
-      - scp configs/{{.apiService}}.yaml {{.devCosUser}}@{{.devCosIp}}:/opt/dev/{{.apiService}}
+      - scp configs/{{.apiService}}.yaml {{.devCosUser}}@{{.devCosIp}}:/etc/{{.apiService}}
+      - scp init/cube-cos-api.service {{.devCosUser}}@{{.devCosIp}}:/lib/systemd/system
+  activateSystemdService:
+    cmds:
+      - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl daemon-reload"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl enable cube-cos-api.service"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl start cube-cos-api.service"
