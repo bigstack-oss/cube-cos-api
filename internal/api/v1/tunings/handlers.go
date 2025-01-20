@@ -7,9 +7,9 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/controllers/v1/tunings"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	cuberr "github.com/bigstack-oss/cube-cos-api/internal/error"
 	"github.com/gin-gonic/gin"
 	"github.com/mohae/deepcopy"
+	log "go-micro.dev/v5/logger"
 )
 
 var (
@@ -63,15 +63,14 @@ var (
 func getTunings(c *gin.Context) {
 	tunings, err := getTuningRecords()
 	if err != nil {
-		c.JSON(
-			http.StatusInternalServerError,
-			gin.H{"error": err.Error()},
-		)
+		log.Errorf("request(%s): failed to get tunings: %s", api.GetReqId(c), err.Error())
+		api.SetErrInternalServerErrorResp(c, err)
 		return
 	}
 
-	c.JSON(
-		http.StatusOK,
+	api.SetStatusOkResp(
+		c,
+		"fetch tunings list successfully",
 		tunings,
 	)
 }
@@ -94,8 +93,9 @@ func getTuningSpecs(c *gin.Context) {
 		return true
 	})
 
-	c.JSON(
-		http.StatusOK,
+	api.SetStatusOkResp(
+		c,
+		"fetch tuning specs successfully",
 		specs,
 	)
 }
@@ -103,69 +103,48 @@ func getTuningSpecs(c *gin.Context) {
 func applyTuning(c *gin.Context) {
 	tuning, err := decodeTuningReq(c.Request.Body)
 	if err != nil {
-		c.JSON(
-			http.StatusBadRequest,
-			gin.H{
-				"code":   http.StatusBadRequest,
-				"status": cuberr.BadRequest,
-				"msg":    err.Error(),
-			},
-		)
+		log.Errorf("request(%s): failed to decode tuning: %s", api.GetReqId(c), err.Error())
+		api.SetErrBadRequestResp(c, err)
 		return
 	}
 
-	if definition.ShouldCurrentRoleHandleTheTuning(tuning.Name, definition.CurrentRole) {
-		delegateToCurrentNode(*tuning)
-		c.JSON(
-			http.StatusOK,
-			gin.H{
-				"code":   http.StatusOK,
-				"status": "ok",
-				"msg":    "tuning applied",
-			},
-		)
+	if !definition.ShouldCurrentRoleHandleTheTuning(tuning.Name, definition.CurrentRole) {
+		err := fmt.Errorf("role %s is not responsible for tuning %s", definition.CurrentRole, tuning.Name)
+		log.Errorf("request(%s): %s", err.Error())
+		api.SetErrBadRequestResp(c, err)
 		return
 	}
 
-	c.JSON(
-		http.StatusBadRequest,
-		gin.H{"error": fmt.Sprintf("role %s is not responsible for tuning %s", definition.CurrentRole, tuning.Name)},
+	delegateToCurrentNode(*tuning)
+	api.SetStatusOkResp(
+		c,
+		"tuning applied",
+		*tuning,
 	)
 }
 
 func applyTunings(c *gin.Context) {
 	tunings, err := decodeTuningsReq(c.Request.Body)
 	if err != nil {
-		c.JSON(
-			http.StatusBadRequest,
-			gin.H{"error": err.Error()},
-		)
+		log.Errorf("request(%s): failed to decode tunings: %s", api.GetReqId(c), err.Error())
+		api.SetErrBadRequestResp(c, err)
 		return
 	}
 
 	setBatchPendingUpdate(tunings)
 	delegateTuningsReq(tunings)
-
-	c.JSON(
-		http.StatusOK,
-		gin.H{
-			"code":    http.StatusOK,
-			"message": "request received and applying",
-		},
+	api.SetStatusOkResp(
+		c,
+		"request received and applying",
+		tunings,
 	)
 }
 
 func updateTuningStatus(c *gin.Context) {
 	tuning, err := decodeTuningReq(c.Request.Body)
 	if err != nil {
-		c.JSON(
-			http.StatusBadRequest,
-			gin.H{
-				"code":   http.StatusBadRequest,
-				"status": cuberr.BadRequest,
-				"msg":    err.Error(),
-			},
-		)
+		log.Errorf("request(%s): failed to decode tuning: %s", api.GetReqId(c), err.Error())
+		api.SetErrBadRequestResp(c, err)
 		return
 	}
 
@@ -173,89 +152,57 @@ func updateTuningStatus(c *gin.Context) {
 	tuning.Status.SetDesiredToUpdate()
 	err = updateRecordStatus(tuning)
 	if err != nil {
-		c.JSON(
-			http.StatusInternalServerError,
-			gin.H{
-				"code":   http.StatusInternalServerError,
-				"status": cuberr.InternalServerError,
-				"msg":    err.Error(),
-			},
-		)
+		log.Errorf("request(%s): failed to update tuning status: %s", api.GetReqId(c), err.Error())
+		api.SetErrInternalServerErrorResp(c, err)
 		return
 	}
 
-	c.JSON(
-		http.StatusOK,
-		gin.H{
-			"code":   http.StatusOK,
-			"status": "ok",
-			"msg":    "tuning status updated",
-		},
+	api.SetStatusOkResp(
+		c,
+		"tuning status updated",
+		*tuning,
 	)
 }
 
 func deleteTuning(c *gin.Context) {
 	tuning, err := decodeTuningReq(c.Request.Body)
 	if err != nil {
-		c.JSON(
-			http.StatusBadRequest,
-			gin.H{
-				"code":   http.StatusBadRequest,
-				"status": cuberr.BadRequest,
-				"msg":    err.Error(),
-			},
-		)
+		log.Errorf("request(%s): failed to decode tuning: %s", api.GetReqId(c), err.Error())
+		api.SetErrBadRequestResp(c, err)
 		return
 	}
 
 	if !definition.ShouldCurrentRoleHandleTheTuning(tuning.Name, definition.CurrentRole) {
-		c.JSON(
-			http.StatusBadRequest,
-			gin.H{
-				"code":   http.StatusBadRequest,
-				"status": cuberr.BadRequest,
-				"msg":    fmt.Sprintf("role %s is not responsible for tuning %s", definition.CurrentRole, tuning.Name),
-			},
-		)
+		err := fmt.Errorf("role %s is not responsible for tuning %s", definition.CurrentRole, tuning.Name)
+		log.Errorf("request(%s): %s", err.Error())
+		api.SetErrBadRequestResp(c, err)
 		return
 	}
 
 	tuning.Status.SetDesiredToDelete()
 	syncTuningRecord(*tuning)
 	reqQueue.Add(tuning)
-	c.JSON(
-		http.StatusOK,
-		gin.H{
-			"code":   http.StatusOK,
-			"status": "ok",
-			"msg":    "tuning applied",
-		},
+
+	api.SetStatusOkResp(
+		c,
+		"tuning applied",
+		*tuning,
 	)
 }
 
 func deleteTunings(c *gin.Context) {
 	tunings, err := decodeTuningsReq(c.Request.Body)
 	if err != nil {
-		c.JSON(
-			http.StatusBadRequest,
-			gin.H{
-				"code":   http.StatusBadRequest,
-				"status": cuberr.BadRequest,
-				"msg":    err.Error(),
-			},
-		)
+		log.Errorf("request(%s): failed to decode tunings: %s", api.GetReqId(c), err.Error())
+		api.SetErrBadRequestResp(c, err)
 		return
 	}
 
 	setBatchPendingDeletion(tunings)
 	delegateTuningsReq(tunings)
-
-	c.JSON(
-		http.StatusOK,
-		gin.H{
-			"code":   http.StatusOK,
-			"status": "ok",
-			"msg":    "request received and deleting",
-		},
+	api.SetStatusOkResp(
+		c,
+		"request received and deleting",
+		tunings,
 	)
 }

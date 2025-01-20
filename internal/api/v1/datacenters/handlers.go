@@ -20,6 +20,8 @@ var (
 	}
 )
 
+// TODO M2: the data center info will be persisted and retrieved from the database
+// M1 only has one data center, so just return the current one
 func getDataCenters(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":   http.StatusOK,

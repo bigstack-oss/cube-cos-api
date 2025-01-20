@@ -20,10 +20,9 @@ var (
 )
 
 func getIntegrations(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"code":   http.StatusOK,
-		"status": "ok",
-		"msg":    "fetch integration list successfully",
-		"data":   cubecos.ListBuiltInIntegrations(),
-	})
+	api.SetStatusOkResp(
+		c,
+		"fetch integrations successfully",
+		cubecos.ListBuiltInIntegrations(),
+	)
 }

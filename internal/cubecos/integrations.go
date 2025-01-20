@@ -20,7 +20,7 @@ func ListBuiltInIntegrations() []definition.Integration {
 			IsHeaderShortcutEnabled: true,
 			Description:             "OpenStack Dashboard",
 			IsBuiltIn:               true,
-			Url:                     fmt.Sprintf("https://%s:9999", definition.ControllerVip),
+			Url:                     fmt.Sprintf("https://%s/horizon", definition.ControllerVip),
 		},
 		{
 			Name:                    "rancher",
@@ -34,7 +34,7 @@ func ListBuiltInIntegrations() []definition.Integration {
 			IsHeaderShortcutEnabled: true,
 			Description:             "Ceph Dashboard",
 			IsBuiltIn:               true,
-			Url:                     fmt.Sprintf("https://%s/ceph", definition.ControllerVip),
+			Url:                     fmt.Sprintf("https://%s:7443/ceph/#/dashboard", definition.ControllerVip),
 		},
 	}
 }

@@ -9,6 +9,11 @@ import (
 
 const (
 	API = "api"
+
+	Code   = "code"
+	Status = "status"
+	Msg    = "msg"
+	Data   = "data"
 )
 
 var (
@@ -90,4 +95,13 @@ func GetGroupHandlersByRole(role string) map[string][]Handler {
 	default:
 		return nil
 	}
+}
+
+func GetReqId(c *gin.Context) string {
+	id, found := c.Get("reqId")
+	if !found {
+		return ""
+	}
+
+	return id.(string)
 }

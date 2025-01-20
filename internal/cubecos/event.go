@@ -75,7 +75,7 @@ func genEventByRecord(record *query.FluxRecord) definition.Event {
 
 	return definition.Event{
 		Type:        definition.SeverityFullName(severity),
-		ID:          eventId,
+		Id:          eventId,
 		Description: msg,
 		Host:        "",
 		Time:        date.Format(time.RFC3339),
@@ -105,41 +105,26 @@ func setMetadataToEvent(event *definition.Event, record *query.FluxRecord) {
 func setCategoryToEvent(event *definition.Event, metaObj map[string]interface{}) {
 	metaCategory, found := metaObj["category"]
 	if !found {
-		log.Warnf("category not found in the metadata")
 		return
 	}
 
-	ok := false
-	event.Category, ok = metaCategory.(string)
-	if !ok {
-		log.Warnf("failed to parse category")
-	}
+	event.Category, _ = metaCategory.(string)
 }
 
 func setServiceToEvent(event *definition.Event, metaObj map[string]interface{}) {
 	metaService, found := metaObj["service"]
 	if !found {
-		log.Warnf("service not found in the metadata")
 		return
 	}
 
-	ok := false
-	event.Service, ok = metaService.(string)
-	if !ok {
-		log.Warnf("failed to parse service")
-	}
+	event.Service, _ = metaService.(string)
 }
 
 func setHostnameToEvent(event *definition.Event, metaObj map[string]interface{}) {
 	metaHost, found := metaObj["host"]
 	if !found {
-		log.Warnf("hostname not found in the metadata")
 		return
 	}
 
-	ok := false
-	event.Host, ok = metaHost.(string)
-	if !ok {
-		log.Warnf("failed to parse host")
-	}
+	event.Host, _ = metaHost.(string)
 }
