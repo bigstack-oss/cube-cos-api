@@ -90,7 +90,7 @@ func (t *Tuning) Bytes() ([]byte, error) {
 func (t *Tuning) SetNodeInfo(role, address string) {
 	t.Node = Node{
 		Role:     role,
-		ID:       HostID,
+		Id:       HostID,
 		Hostname: Hostname,
 		Address:  address,
 	}

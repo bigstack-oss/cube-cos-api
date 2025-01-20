@@ -8,6 +8,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/datacenters"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/events"
@@ -45,7 +46,7 @@ func NewRuntime(conf config.Config) (*server.Server, error) {
 		return nil, err
 	}
 
-	err = initNodeClis()
+	err = initDependencyHelpers()
 	if err != nil {
 		logger.Errorf("failed to init node clis: %s", err.Error())
 		return nil, err
@@ -56,77 +57,8 @@ func NewRuntime(conf config.Config) (*server.Server, error) {
 
 	showPromptMessages()
 	showLoadedConfBody()
+
 	return newHttpServer()
-}
-
-func initNodeClis() error {
-	err := newGlobalLogHelper(apiConf.Opts.Spec.Log)
-	if err != nil {
-		logger.Errorf("failed to init logger: %s", err.Error())
-		return err
-	}
-
-	err = newGlobalHttpHelper()
-	if err != nil {
-		logger.Errorf("failed to init http helper: %s", err.Error())
-		return err
-	}
-
-	err = newGlobalKeycloakAuth()
-	if err != nil {
-		logger.Errorf("failed to init keycloak auth: %s", err.Error())
-		return err
-	}
-
-	err = newGlobalMongoHelper(apiConf.Opts.Spec.Store.MongoDB)
-	if err != nil {
-		logger.Errorf("failed to init mongo helper: %s", err.Error())
-		return err
-	}
-
-	err = newGlobalInfluxHelper(apiConf.Opts.Spec.Store.InfluxDB)
-	if err != nil {
-		logger.Errorf("failed to init influx helper: %s", err.Error())
-		return err
-	}
-
-	return nil
-}
-
-func newGlobalLogHelper(opts log.Options) error {
-	return log.NewGlobalHelper(
-		log.File(opts.File),
-		log.Level(opts.Level),
-		log.Backups(opts.Rotation.Backups),
-		log.Size(opts.Rotation.Size),
-		log.TTL(opts.Rotation.TTL),
-		log.Compress(opts.Rotation.Compress),
-	)
-}
-
-func newGlobalMongoHelper(opts mongo.Options) error {
-	return mongo.NewGlobalHelper(
-		mongo.Uri(opts.Uri),
-		mongo.AuthEnable(opts.Auth.Enable),
-		mongo.AuthSource(opts.Auth.Source),
-		mongo.AuthUsername(opts.Auth.Username),
-		mongo.AuthPassword(opts.Auth.Password),
-		mongo.ReplicaSet(opts.ReplicaSet),
-	)
-}
-
-func newGlobalInfluxHelper(opts influx.Options) error {
-	return influx.NewGlobalHelper(
-		influx.Url(opts.Url),
-	)
-}
-
-func newGlobalHttpHelper() error {
-	return apihttp.NewGlobalHelper()
-}
-
-func newGlobalKeycloakAuth() error {
-	return saml.NewGlobalAuth(apiConf.Opts.Spec.Identity.Saml)
 }
 
 func initNodeIdentities() error {
@@ -187,6 +119,46 @@ func initNodeIdentities() error {
 	return nil
 }
 
+func initDependencyHelpers() error {
+	err := newGlobalLogHelper(apiConf.Opts.Spec.Log)
+	if err != nil {
+		logger.Errorf("failed to init logger: %s", err.Error())
+		return err
+	}
+
+	err = newGlobalHttpHelper()
+	if err != nil {
+		logger.Errorf("failed to init http helper: %s", err.Error())
+		return err
+	}
+
+	err = newGlobalSamlHelper()
+	if err != nil {
+		logger.Errorf("failed to init keycloak auth: %s", err.Error())
+		return err
+	}
+
+	err = newGlobalMongoHelper(apiConf.Opts.Spec.Store.MongoDB)
+	if err != nil {
+		logger.Errorf("failed to init mongo helper: %s", err.Error())
+		return err
+	}
+
+	err = newGlobalInfluxHelper(apiConf.Opts.Spec.Store.InfluxDB)
+	if err != nil {
+		logger.Errorf("failed to init influx helper: %s", err.Error())
+		return err
+	}
+
+	err = newGlobalOpenstackHelper(apiConf.Opts.Spec.Openstack)
+	if err != nil {
+		logger.Errorf("failed to init openstack helper: %s", err.Error())
+		return err
+	}
+
+	return nil
+}
+
 func initNodePeerSyncer() {
 	service.RegisterController(node.Name(), node.NewController())
 }
@@ -242,6 +214,52 @@ func initNodeApiHandler() {
 	)
 }
 
+func newGlobalLogHelper(opts log.Options) error {
+	return log.NewGlobalHelper(
+		log.File(opts.File),
+		log.Level(opts.Level),
+		log.Backups(opts.Rotation.Backups),
+		log.Size(opts.Rotation.Size),
+		log.TTL(opts.Rotation.TTL),
+		log.Compress(opts.Rotation.Compress),
+	)
+}
+
+func newGlobalMongoHelper(opts mongo.Options) error {
+	return mongo.NewGlobalHelper(
+		mongo.Uri(opts.Uri),
+		mongo.AuthEnable(opts.Auth.Enable),
+		mongo.AuthSource(opts.Auth.Source),
+		mongo.AuthUsername(opts.Auth.Username),
+		mongo.AuthPassword(opts.Auth.Password),
+		mongo.ReplicaSet(opts.ReplicaSet),
+	)
+}
+
+func newGlobalInfluxHelper(opts influx.Options) error {
+	return influx.NewGlobalHelper(
+		influx.Url(opts.Url),
+	)
+}
+func newGlobalOpenstackHelper(opts openstack.Options) error {
+	return openstack.NewGlobalHelper(
+		openstack.AuthType(opts.Auth.Type),
+		openstack.AuthUrl(opts.Auth.Url),
+		openstack.ProjectName(opts.Auth.Project.Name),
+		openstack.ProjectDomainName(opts.Auth.Project.Domain.Name),
+		openstack.Username(opts.Auth.Username),
+		openstack.Password(opts.Auth.Password),
+	)
+}
+
+func newGlobalHttpHelper() error {
+	return apihttp.NewGlobalHelper()
+}
+
+func newGlobalSamlHelper() error {
+	return saml.NewGlobalAuth(apiConf.Opts.Spec.Identity.Saml)
+}
+
 func newHttpServer() (*server.Server, error) {
 	router := newRouter()
 	err := registerHandlersByRole(router)
@@ -279,7 +297,7 @@ func newRouter() *gin.Engine {
 
 func initReqInfo(c *gin.Context) {
 	uuidV4 := uuid.New()
-	c.Set("requestID", uuidV4)
+	c.Set("reqId", uuidV4.String())
 	logger.Infof("request(%s): %s %s", uuidV4, c.Request.Method, c.Request.URL.Path)
 	c.Next()
 }
@@ -331,7 +349,7 @@ func registerHandlersByRole(router *gin.Engine) error {
 
 func setGroupHandlersToRouter(router *gin.Engine, handlers []api.Handler) {
 	for _, h := range handlers {
-		if h.Version == "" || definition.Controller == "" {
+		if h.Version == "" {
 			logger.Warnf("skip invalid API registration: %s %s (no version or controller provided)", h.Method, h.Path)
 			continue
 		}
@@ -348,5 +366,5 @@ func getParentPath(h api.Handler) string {
 		return h.Version
 	}
 
-	return fmt.Sprintf("%s/datacenters/%s", h.Version, definition.Controller)
+	return fmt.Sprintf("%s/datacenters/:DataCenter", h.Version)
 }

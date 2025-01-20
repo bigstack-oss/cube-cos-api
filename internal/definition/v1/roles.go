@@ -157,7 +157,7 @@ func getNodesByService(svc *registry.Service, role string) []*Node {
 func genNodeInfo(node *registry.Node, role string) *Node {
 	return &Node{
 		Role:     role,
-		ID:       node.Metadata["nodeID"],
+		Id:       node.Metadata["nodeID"],
 		Hostname: node.Metadata["hostname"],
 		Address:  node.Address,
 		Labels: map[string]string{

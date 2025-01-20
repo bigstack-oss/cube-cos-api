@@ -61,6 +61,10 @@ github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120133327-b0d1d829af5
 github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120133327-b0d1d829af51/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
 github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120135544-a6c0b0dfd95c h1:RMF9RxPpvS7dgHa5E+aX226dEh4mqRZ2FPn74S1t+Uk=
 github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120135544-a6c0b0dfd95c/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120165326-1c2791f82532 h1:W/0oy+g2PV3KtPMxgELNu7es3QPJIt8Air2AtKqa0W4=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120165326-1c2791f82532/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120173251-736764286959 h1:BmOytbUp+TWmcal1bneq+SgmC3BO0je0XG2fnVmRhVc=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250120173251-736764286959/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
 github.com/bitly/go-simplejson v0.5.0 h1:6IH+V8/tVMab511d5bn4M7EwGXZf9Hj6i2xSwkNEM+Y=
 github.com/bitly/go-simplejson v0.5.0/go.mod h1:cXHtHw4XUPsvGaxgjIAn8PhEWG9NfngEKAMDJEczWVA=
 github.com/bmatcuk/doublestar v1.1.1/go.mod h1:UD6OnuiIn0yFxxA2le/rnRU1G4RaI4UvFv1sNto9p6w=

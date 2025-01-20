@@ -27,7 +27,7 @@ func getNodesByService(svc *registry.Service, role string) []definition.Node {
 func genNodeInfo(node *registry.Node, role string) definition.Node {
 	return definition.Node{
 		Role:     role,
-		ID:       definition.HostID,
+		Id:       definition.HostID,
 		Hostname: definition.Hostname,
 		Address:  node.Address,
 	}

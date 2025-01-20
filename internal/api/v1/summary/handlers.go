@@ -21,44 +21,34 @@ var (
 )
 
 func getSummary(c *gin.Context) {
-	dataCenter := c.Param("datacenter")
-
-	// M2 TODO: Check if the data center is local
-	if !cubecos.IsLocalDataCenter(dataCenter) {
-		return
-	}
-
-	vmOverview, err := cubecos.GetVmStatusOverview()
+	vmStatusOverview, err := cubecos.GetVmStatusOverview()
 	if err != nil {
-		log.Errorf("failed to get vm status overview: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":   http.StatusInternalServerError,
-			"status": "internal server error",
-			"msg":    "failed to get vm status overview",
-		})
+		log.Errorf("request(%s): failed to get vm status overview: %v", api.GetReqId(c), err)
+		api.SetErrInternalServerErrorResp(c, err)
 		return
 	}
 
 	resourceMetrics, err := cubecos.GetResourceMetrics()
 	if err != nil {
-		log.Errorf("failed to get resource metrics: %v", err)
+		log.Errorf("request(%s): failed to get resource metrics: %v", api.GetReqId(c), err)
+		api.SetErrInternalServerErrorResp(c, err)
 		return
 	}
 
 	roleOverview, err := cubecos.GetRoleOverview()
 	if err != nil {
-		log.Errorf("failed to get role overview: %v", err)
+		log.Errorf("request(%s): failed to get role overview: %v", api.GetReqId(c), err)
+		api.SetErrInternalServerErrorResp(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":   http.StatusOK,
-		"status": "ok",
-		"msg":    "fetch data center list successfully",
-		"data": gin.H{
-			"vm":      vmOverview,
-			"role":    roleOverview,
-			"metrics": resourceMetrics,
+	api.SetStatusOkResp(
+		c,
+		"fetch summary successfully",
+		cubecos.Summary{
+			Vm:      *vmStatusOverview,
+			Role:    *roleOverview,
+			Metrics: *resourceMetrics,
 		},
-	})
+	)
 }

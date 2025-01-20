@@ -26,7 +26,7 @@ var (
 )
 
 type Node struct {
-	ID           string `json:"id" yaml:"id"`
+	Id           string `json:"id" yaml:"id"`
 	Hostname     string `json:"hostname" yaml:"hostname"`
 	Role         string `json:"role" yaml:"role"`
 	Protocol     string `json:"protocol,omitempty" yaml:"protocol,omitempty" bson:"protocol,omitempty"`

@@ -2,34 +2,22 @@ package cubecos
 
 import (
 	openstack "github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
-	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/hypervisors"
 )
 
-func GetResourceMetrics() (definition.Metrics, error) {
-	h, err := openstack.NewHelper(
-		openstack.AuthType(conf.Opts.Spec.Openstack.Auth.Type),
-		openstack.AuthUrl(conf.Opts.Spec.Openstack.Auth.Url),
-		openstack.ProjectName(conf.Opts.Spec.Openstack.Auth.Project.Name),
-		openstack.ProjectDomainName(conf.Opts.Spec.Openstack.Auth.Project.Domain.Name),
-		openstack.Username(conf.Opts.Spec.Openstack.Auth.Username),
-		openstack.Password(conf.Opts.Spec.Openstack.Auth.Password),
-	)
-	if err != nil {
-		return definition.Metrics{}, err
-	}
-
+func GetResourceMetrics() (*definition.Metrics, error) {
+	h := openstack.GetGlobalHelper()
 	stats, err := h.GetHypervisorStatistics()
 	if err != nil {
-		return definition.Metrics{}, err
+		return nil, err
 	}
 
 	return genResourceMetrics(stats), nil
 }
 
-func genResourceMetrics(stats *hypervisors.Statistics) definition.Metrics {
-	return definition.Metrics{
+func genResourceMetrics(stats *hypervisors.Statistics) *definition.Metrics {
+	return &definition.Metrics{
 		Vcpu: definition.ComputeStatistic{
 			TotalCores: stats.VCPUs,
 			UsedCores:  stats.VCPUsUsed,
