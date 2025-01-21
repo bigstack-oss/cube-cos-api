@@ -252,6 +252,7 @@ func newGlobalOpenstackHelper(opts openstack.Options) error {
 	return openstack.NewGlobalHelper(
 		openstack.AuthType(opts.Auth.Type),
 		openstack.AuthUrl(opts.Auth.Url),
+		openstack.EnableAutoRenew(opts.Auth.EnableAutoRenew),
 		openstack.ProjectName(opts.Auth.Project.Name),
 		openstack.ProjectDomainName(opts.Auth.Project.Domain.Name),
 		openstack.Username(opts.Auth.Username),
