@@ -36,7 +36,7 @@ type Spec struct {
 	Store           `json:"store" yaml:"store"`
 	Identity        `json:"identity" yaml:"identity"`
 	ResourceControl `json:"resourceControl" yaml:"resourceControl"`
-	Log             log.Options `json:"log" yaml:"log"`
+	Observability   `json:"observability" yaml:"observability"`
 }
 
 type Listen struct {
@@ -68,6 +68,10 @@ type K3s struct {
 type Store struct {
 	MongoDB  mongo.Options  `json:"mongodb" yaml:"mongodb"`
 	InfluxDB influx.Options `json:"influxdb" yaml:"influxdb"`
+}
+
+type Observability struct {
+	Log log.Options `json:"log" yaml:"log"`
 }
 
 func (o *Options) String() (string, error) {

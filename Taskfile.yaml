@@ -4,7 +4,7 @@ vars:
   apiService: "cube-cos-api"
   dbService: "cube-cos-mongo"
   devCosUser: "root"
-  devCosIp: "10.32.10.113"
+  devCosIp: "<REPLACE_NEW_VALUE_HERE_FOR_DEVELOPING>"
   mongoVersion: "6.0.19"
 
 tasks:
@@ -20,6 +20,7 @@ tasks:
   updateApiDocs:
     cmds:
       - swag init --output ./api -g ./cmd/main.go
+      - swag fmt -d ./
   runLocalDevApi:
     cmds:
       - GOWORK=off go run cmd/main.go -conf configs/{{.apiService}}.yaml
@@ -82,4 +83,4 @@ tasks:
     cmds:
       - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl daemon-reload"
       - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl enable cube-cos-api.service"
-      - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl start cube-cos-api.service"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl restart cube-cos-api.service"

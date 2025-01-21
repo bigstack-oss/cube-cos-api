@@ -75,15 +75,6 @@ func getTunings(c *gin.Context) {
 	)
 }
 
-// @BasePath /api/v1
-// @Summary	list supported tuning specifications
-// @Schemes
-// @Description
-// @Tags		tuning specifications
-// @Success	200	{array}     string	""
-// @Failure	400	{string}	string	""
-// @Failure	500	{string}	string	""
-// @Router		/tunings/specs [get]
 func getTuningSpecs(c *gin.Context) {
 	specs := []definition.TuningSpec{}
 	definition.GetAllTunings().Range(func(key, value interface{}) bool {
