@@ -9,7 +9,7 @@ spec:
       local: 0.0.0.0
   identity:
     osPolicy: /etc/settings.txt
-    logoutRedirect: "/api/v1/dataceneters"
+    logoutRedirect: "/api/v1/datacenters"
     keycloak:
       host: https://10.32.10.113:10443/auth
       tlsInsecureSkipVerify: true

@@ -19,9 +19,6 @@ func init() {
 	flag.Parse()
 }
 
-// @title     Cube COS API
-// @version   1.0
-// @BasePath  /api
 func main() {
 	conf, err := config.Load(conf)
 	if err != nil {

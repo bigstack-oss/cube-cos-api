@@ -6,6 +6,7 @@ import (
 
 	apihttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
@@ -120,7 +121,7 @@ func initNodeIdentities() error {
 }
 
 func initDependencyHelpers() error {
-	err := newGlobalLogHelper(apiConf.Opts.Spec.Log)
+	err := newGlobalLogHelper(apiConf.Opts.Spec.Observability.Log)
 	if err != nil {
 		logger.Errorf("failed to init logger: %s", err.Error())
 		return err
@@ -153,6 +154,12 @@ func initDependencyHelpers() error {
 	err = newGlobalOpenstackHelper(apiConf.Opts.Spec.Openstack)
 	if err != nil {
 		logger.Errorf("failed to init openstack helper: %s", err.Error())
+		return err
+	}
+
+	err = newGlobalKeycloakHelper(apiConf.Opts.Spec.Identity.Keycloak)
+	if err != nil {
+		logger.Errorf("failed to init keycloak helper: %s", err.Error())
 		return err
 	}
 
@@ -249,6 +256,16 @@ func newGlobalOpenstackHelper(opts openstack.Options) error {
 		openstack.ProjectDomainName(opts.Auth.Project.Domain.Name),
 		openstack.Username(opts.Auth.Username),
 		openstack.Password(opts.Auth.Password),
+	)
+}
+
+func newGlobalKeycloakHelper(opts keycloak.Options) error {
+	return keycloak.NewGlobalHelper(
+		keycloak.Host(opts.Host),
+		keycloak.Realm(opts.Realm),
+		keycloak.Username(opts.Username),
+		keycloak.Password(opts.Password),
+		keycloak.Insecure(opts.TlsInsecureSkipVerify),
 	)
 }
 

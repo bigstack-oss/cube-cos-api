@@ -21,14 +21,6 @@ var (
 	}
 )
 
-// @BasePath /api/v1
-// @Summary	Logout from the system and redirect to login page
-// @Schemes
-// @Description
-// @Tags		logout      specifications
-// @Success	302	{array}     string	""
-// @Failure	500	{string}	string	""
-// @Router		/logout     [post]
 func logout(c *gin.Context) {
 	session, err := saml.SpAuth.Session.GetSession(c.Request)
 	if err != nil {

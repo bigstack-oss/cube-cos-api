@@ -56,19 +56,8 @@ func deleteSessionInSamlAuth(c *gin.Context, jwtSession samlsp.JWTSessionClaims)
 }
 
 func deleteSessionInKeycloak(jwtSession samlsp.JWTSessionClaims) error {
-	h, err := keycloak.NewHelper(
-		keycloak.Host(conf.Opts.Spec.Identity.Keycloak.Host),
-		keycloak.Realm(conf.Opts.Spec.Identity.Keycloak.Realm),
-		keycloak.Username(conf.Opts.Spec.Identity.Keycloak.Username),
-		keycloak.Password(conf.Opts.Spec.Identity.Keycloak.Password),
-		keycloak.Insecure(conf.Opts.Spec.Identity.Keycloak.TlsInsecureSkipVerify),
-	)
-	if err != nil {
-		log.Errorf("failed to create keycloak helper: %s", err.Error())
-		return err
-	}
-
-	err = h.LoginAdmin()
+	h := keycloak.GetGlobalHelper()
+	err := h.LoginAdmin()
 	if err != nil {
 		log.Errorf("failed to login admin: %s", err.Error())
 		return err
