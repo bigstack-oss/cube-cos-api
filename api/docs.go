@@ -96,7 +96,7 @@ const docTemplate = `{
                                 },
                                 "msg": {
                                     "type": "string",
-                                    "example": "failed to fetch events: internal server error"
+                                    "example": "failed to fetch data centers: internal server error"
                                 },
                                 "status": {
                                     "type": "string",
