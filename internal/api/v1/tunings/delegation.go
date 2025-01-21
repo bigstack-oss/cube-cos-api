@@ -1,4 +1,4 @@
-package tuning
+package tunings
 
 import (
 	"errors"
@@ -64,7 +64,7 @@ func sendTuningToOtherNodes(tuning definition.Tuning, nodes []definition.Node) {
 		log.Errorf(
 			"failed to send tuning %s to node %s: %d %s",
 			tuning.Name,
-			node.ID,
+			node.Id,
 			resp.StatusCode(),
 			string(resp.Body()),
 		)

@@ -1,4 +1,4 @@
-package tuning
+package tunings
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
@@ -9,7 +9,7 @@ import (
 )
 
 func (c *Controller) updateTuningResult(tuning definition.Tuning) error {
-	filter := bson.M{"node.id": tuning.Node.ID}
+	filter := bson.M{"node.id": tuning.Node.Id}
 	tuning.Status.UpdatedAt = definition.TimeNowRFC3339()
 	update := bson.M{"$set": tuning}
 
@@ -38,7 +38,7 @@ func (c *Controller) handleApplyingExit(tuning definition.Tuning, err error) {
 }
 
 func (c *Controller) deleteTuningResult(tuning definition.Tuning) {
-	filter := bson.M{"node.id": tuning.Node.ID, "name": tuning.Name}
+	filter := bson.M{"node.id": tuning.Node.Id, "name": tuning.Name}
 	err := c.mongo.DeleteOne(
 		definition.TuningDB(),
 		definition.TuningCollection(tuning.Name),

@@ -5,18 +5,29 @@ import (
 	"os"
 
 	apihttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	apituning "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tuning"
-	"github.com/bigstack-oss/cube-cos-api/internal/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/datacenters"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/health"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/integrations"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/logout"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/summary"
+	apitunings "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
 	apiConf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/controllers/v1/node"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	adapter "github.com/gwatts/gin-adapter"
 	"github.com/micro/plugins/v5/server/http"
 	"go-micro.dev/v5/config"
 	"go-micro.dev/v5/logger"
@@ -24,36 +35,190 @@ import (
 )
 
 func NewRuntime(conf config.Config) (*server.Server, error) {
-	err := conf.Get().Scan(&apiConf.Data)
+	err := conf.Get().Scan(&apiConf.Opts)
 	if err != nil {
 		logger.Errorf("failed to scan config: %s", err.Error())
 		return nil, err
 	}
 
-	err = newGlobalLogHelper(apiConf.Data.Spec.Log)
+	err = initNodeIdentities()
+	if err != nil {
+		logger.Errorf("failed to init node identities: %s", err.Error())
+		return nil, err
+	}
+
+	err = initDependencyHelpers()
+	if err != nil {
+		logger.Errorf("failed to init node clis: %s", err.Error())
+		return nil, err
+	}
+
+	initNodePeerSyncer()
+	initNodeApiHandler()
+
+	showPromptMessages()
+	showLoadedConfBody()
+
+	return newHttpServer()
+}
+
+func initNodeIdentities() error {
+	var err error
+	definition.Hostname, err = os.Hostname()
+	if err != nil {
+		logger.Errorf("failed to get hostname: %s", err.Error())
+		return err
+	}
+
+	definition.HostID, err = definition.GenerateNodeHashByMacAddr()
+	if err != nil {
+		logger.Errorf("failed to generate host id: %s", err.Error())
+		return err
+	}
+
+	definition.CurrentRole, err = cubecos.GetNodeRole()
+	if err != nil {
+		logger.Errorf("failed to get node role: %s", err.Error())
+		return err
+	}
+
+	definition.IsHaEnabled, err = cubecos.IsHaEnabled()
+	if err != nil {
+		logger.Errorf("failed to get ha enabled: %s", err.Error())
+		return err
+	}
+
+	definition.MgmtNet, err = cubecos.GetMgmtNet()
+	if err != nil {
+		logger.Errorf("failed to get management network: %s", err.Error())
+		return err
+	}
+
+	definition.MgmtIP, err = cubecos.GetManagementIp(definition.MgmtNet)
+	if err != nil {
+		logger.Errorf("failed to get management ip: %s", err.Error())
+		return err
+	}
+
+	definition.ControllerVip, err = cubecos.GetControllerVirtualIp(definition.MgmtNet)
+	if err != nil {
+		logger.Errorf("failed to get controller virtual ip: %s", err.Error())
+		return err
+	}
+
+	definition.Controller, err = cubecos.GetDataCenterName()
+	if err != nil {
+		logger.Errorf("failed to get data center name: %s", err.Error())
+		return err
+	}
+
+	definition.ListenAddr = genLocalAddr()
+	definition.AdvertiseAddr = genServiceDiscoveryAddr()
+	definition.IsGpuEnabled = cubecos.IsGpuEnabled()
+	definition.LogoutRedirectUrl = genLogoutRedirectUrl()
+
+	return nil
+}
+
+func initDependencyHelpers() error {
+	err := newGlobalLogHelper(apiConf.Opts.Spec.Observability.Log)
 	if err != nil {
 		logger.Errorf("failed to init logger: %s", err.Error())
-		return nil, err
+		return err
 	}
 
 	err = newGlobalHttpHelper()
 	if err != nil {
 		logger.Errorf("failed to init http helper: %s", err.Error())
-		return nil, err
+		return err
 	}
 
-	err = newGlobalMongoHelper(apiConf.Data.Spec.Store.MongoDB)
+	err = newGlobalSamlHelper()
+	if err != nil {
+		logger.Errorf("failed to init keycloak auth: %s", err.Error())
+		return err
+	}
+
+	err = newGlobalMongoHelper(apiConf.Opts.Spec.Store.MongoDB)
 	if err != nil {
 		logger.Errorf("failed to init mongo helper: %s", err.Error())
-		return nil, err
+		return err
 	}
 
-	showPromptMessage()
-	initNodeIdentity()
-	initNodeResyncer()
-	initNodeApiHandler()
+	err = newGlobalInfluxHelper(apiConf.Opts.Spec.Store.InfluxDB)
+	if err != nil {
+		logger.Errorf("failed to init influx helper: %s", err.Error())
+		return err
+	}
 
-	return newHttpServer()
+	err = newGlobalOpenstackHelper(apiConf.Opts.Spec.Openstack)
+	if err != nil {
+		logger.Errorf("failed to init openstack helper: %s", err.Error())
+		return err
+	}
+
+	err = newGlobalKeycloakHelper(apiConf.Opts.Spec.Identity.Keycloak)
+	if err != nil {
+		logger.Errorf("failed to init keycloak helper: %s", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func initNodePeerSyncer() {
+	service.RegisterController(node.Name(), node.NewController())
+}
+
+func initNodeApiHandler() {
+	api.RegisterHandlersToRoles(
+		definition.DataCenters,
+		datacenters.Handlers,
+		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Summary,
+		summary.Handlers,
+		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Integrations,
+		integrations.Handlers,
+		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Health,
+		health.Handlers,
+		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Events,
+		events.Handlers,
+		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Nodes,
+		nodes.Handlers,
+		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Tunings,
+		apitunings.Handlers,
+		definition.RoleControl,
+		definition.RoleCompute,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Logout,
+		logout.Handlers,
+		definition.RoleControl,
+	)
 }
 
 func newGlobalLogHelper(opts log.Options) error {
@@ -78,45 +243,38 @@ func newGlobalMongoHelper(opts mongo.Options) error {
 	)
 }
 
+func newGlobalInfluxHelper(opts influx.Options) error {
+	return influx.NewGlobalHelper(
+		influx.Url(opts.Url),
+	)
+}
+func newGlobalOpenstackHelper(opts openstack.Options) error {
+	return openstack.NewGlobalHelper(
+		openstack.AuthType(opts.Auth.Type),
+		openstack.AuthUrl(opts.Auth.Url),
+		openstack.ProjectName(opts.Auth.Project.Name),
+		openstack.ProjectDomainName(opts.Auth.Project.Domain.Name),
+		openstack.Username(opts.Auth.Username),
+		openstack.Password(opts.Auth.Password),
+	)
+}
+
+func newGlobalKeycloakHelper(opts keycloak.Options) error {
+	return keycloak.NewGlobalHelper(
+		keycloak.Host(opts.Host),
+		keycloak.Realm(opts.Realm),
+		keycloak.Username(opts.Username),
+		keycloak.Password(opts.Password),
+		keycloak.Insecure(opts.TlsInsecureSkipVerify),
+	)
+}
+
 func newGlobalHttpHelper() error {
 	return apihttp.NewGlobalHelper()
 }
 
-func initNodeIdentity() {
-	hostname, err := os.Hostname()
-	if err != nil {
-		panic(err)
-	}
-
-	hostID, err := definition.GenerateNodeHashByMacAddr()
-	if err != nil {
-		panic(err)
-	}
-
-	role, err := cubecos.GetNodeRole()
-	if err != nil {
-		panic(err)
-	}
-
-	definition.HostID = hostID
-	definition.Hostname = hostname
-	definition.CurrentRole = role
-	definition.ListenAddr = localAddr()
-	definition.AdvertiseAddr = serviceDiscoveryAddr()
-	definition.IsGPUEnabled = cubecos.IsGPUEnabled()
-}
-
-func initNodeResyncer() {
-	service.RegisterController(node.Name(), node.NewController())
-}
-
-func initNodeApiHandler() {
-	api.RegisterHandlersToRoles(
-		definition.Tunings,
-		apituning.Handlers,
-		definition.RoleControl,
-		definition.RoleCompute,
-	)
+func newGlobalSamlHelper() error {
+	return saml.NewGlobalAuth(apiConf.Opts.Spec.Identity.Saml)
 }
 
 func newHttpServer() (*server.Server, error) {
@@ -131,8 +289,8 @@ func newHttpServer() (*server.Server, error) {
 		server.Name(definition.CurrentRole),
 		server.Metadata(genMetadata()),
 		server.WithLogger(logger.DefaultLogger),
-		server.Address(localAddr()),
-		server.Advertise(serviceDiscoveryAddr()),
+		server.Address(genLocalAddr()),
+		server.Advertise(genServiceDiscoveryAddr()),
 	)
 
 	err = srv.Handle(srv.NewHandler(router))
@@ -147,32 +305,41 @@ func newHttpServer() (*server.Server, error) {
 func newRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
+	router.Any("/saml/*any", gin.WrapH(saml.SpAuth))
 	router.Use(gin.Recovery())
 	router.Use(initReqInfo)
-	router.Use(auth.VerifyReq())
+	router.Use(adapter.Wrap(saml.SpAuth.RequireAccount))
 	return router
 }
 
 func initReqInfo(c *gin.Context) {
 	uuidV4 := uuid.New()
-	c.Set("requestID", uuidV4)
-	logger.Infof("Request(%s): %s %s", uuidV4, c.Request.Method, c.Request.URL.Path)
+	c.Set("reqId", uuidV4.String())
+	logger.Infof("request(%s): %s %s", uuidV4, c.Request.Method, c.Request.URL.Path)
 	c.Next()
 }
 
-func serviceDiscoveryAddr() string {
+func genLocalAddr() string {
 	return fmt.Sprintf(
 		"%s:%d",
-		apiConf.Data.Spec.Listen.Address.Advertise,
-		apiConf.Data.Spec.Listen.Port,
+		apiConf.Opts.Spec.Listen.Local,
+		apiConf.Opts.Spec.Listen.Port,
 	)
 }
 
-func localAddr() string {
+func genServiceDiscoveryAddr() string {
 	return fmt.Sprintf(
 		"%s:%d",
-		apiConf.Data.Spec.Listen.Local,
-		apiConf.Data.Spec.Listen.Port,
+		definition.MgmtIP,
+		apiConf.Opts.Spec.Listen.Port,
+	)
+}
+
+func genLogoutRedirectUrl() string {
+	return fmt.Sprintf(
+		"https://%s:4443%s",
+		definition.ControllerVip,
+		apiConf.Opts.Spec.Identity.LogoutRedirect,
 	)
 }
 
@@ -180,7 +347,7 @@ func genMetadata() map[string]string {
 	return map[string]string{
 		"hostname":     definition.Hostname,
 		"nodeID":       definition.HostID,
-		"isGPUEnabled": fmt.Sprintf("%t", definition.IsGPUEnabled),
+		"isGpuEnabled": fmt.Sprintf("%t", definition.IsGpuEnabled),
 	}
 }
 
@@ -200,12 +367,21 @@ func registerHandlersByRole(router *gin.Engine) error {
 func setGroupHandlersToRouter(router *gin.Engine, handlers []api.Handler) {
 	for _, h := range handlers {
 		if h.Version == "" {
-			logger.Warnf("Skip invalid API registration: %s %s (no version provided)", h.Method, h.Path)
+			logger.Warnf("skip invalid API registration: %s %s (no version or controller provided)", h.Method, h.Path)
 			continue
 		}
 
-		routerGroup := router.Group(h.Version)
+		parentPath := getParentPath(h)
+		routerGroup := router.Group(parentPath)
 		routerGroup.Handle(h.Method, h.Path, h.Func)
-		logger.Infof("Register API: %s %s", h.Method, fmt.Sprintf("%s%s", h.Version, h.Path))
+		logger.Infof("register API: %s %s", h.Method, fmt.Sprintf("%s%s", parentPath, h.Path))
 	}
+}
+
+func getParentPath(h api.Handler) string {
+	if h.IsNotUnderDataCenter {
+		return h.Version
+	}
+
+	return fmt.Sprintf("%s/datacenters/:DataCenter", h.Version)
 }

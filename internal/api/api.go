@@ -9,6 +9,11 @@ import (
 
 const (
 	API = "api"
+
+	Code   = "code"
+	Status = "status"
+	Msg    = "msg"
+	Data   = "data"
 )
 
 var (
@@ -24,10 +29,15 @@ var (
 )
 
 type Handler struct {
-	Version string
-	Method  string
-	Path    string
-	Func    gin.HandlerFunc
+	Version              string
+	Method               string
+	Path                 string
+	Func                 gin.HandlerFunc
+	IsNotUnderDataCenter bool
+}
+
+func (h Handler) IsUnderDataCenter() bool {
+	return h.Path != ""
 }
 
 func RegisterHandlersToRoles(module string, handlers []Handler, rolesToRegister ...string) {
@@ -85,4 +95,13 @@ func GetGroupHandlersByRole(role string) map[string][]Handler {
 	default:
 		return nil
 	}
+}
+
+func GetReqId(c *gin.Context) string {
+	id, found := c.Get("reqId")
+	if !found {
+		return ""
+	}
+
+	return id.(string)
 }

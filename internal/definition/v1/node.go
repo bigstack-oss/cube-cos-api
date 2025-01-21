@@ -8,21 +8,37 @@ import (
 	"go-micro.dev/v5/registry"
 )
 
+const (
+	Nodes = "nodes"
+)
+
 var (
 	HostID        string
 	Hostname      string
+	Controller    string
+	ControllerVip string
 	ListenAddr    string
 	AdvertiseAddr string
-	IsGPUEnabled  bool
+	MgmtNet       string
+	MgmtIP        string
+	IsHaEnabled   bool
+	IsGpuEnabled  bool
 )
 
 type Node struct {
-	ID       string            `json:"id" yaml:"id"`
-	Hostname string            `json:"hostname" yaml:"hostname"`
-	Role     string            `json:"role" yaml:"role"`
-	Protocol string            `json:"protocol,omitempty" yaml:"protocol,omitempty" bson:"protocol,omitempty"`
-	Address  string            `json:"address" yaml:"address"`
-	Labels   map[string]string `json:"labels,omitempty" yaml:"labels,omitempty" bson:"labels,omitempty"`
+	Id           string `json:"id" yaml:"id"`
+	Hostname     string `json:"hostname" yaml:"hostname"`
+	Role         string `json:"role" yaml:"role"`
+	Protocol     string `json:"protocol,omitempty" yaml:"protocol,omitempty" bson:"protocol,omitempty"`
+	Address      string `json:"address" yaml:"address"`
+	ManagementIP string `json:"managementIP" yaml:"managementIP"`
+	License      `json:"license,omitempty" yaml:"license,omitempty" bson:"license,omitempty"`
+	Status       string            `json:"status" yaml:"status"`
+	Vcpu         ComputeStatistic  `json:"vcpu" yaml:"vcpu" bson:"vcpu"`
+	Memory       SpaceStatistic    `json:"memory" yaml:"memory" bson:"memory"`
+	Storage      SpaceStatistic    `json:"storage" yaml:"storage" bson:"storage"`
+	Uptime       string            `json:"uptime" yaml:"uptime"`
+	Labels       map[string]string `json:"labels,omitempty" yaml:"labels,omitempty" bson:"labels,omitempty"`
 }
 
 func GenerateNodeHashByMacAddr() (string, error) {
@@ -35,23 +51,20 @@ func GenerateNodeHashByMacAddr() (string, error) {
 	return hex.EncodeToString(hash[:])[:8], nil
 }
 
-func GetNodesByRole(svcName string) ([]*Node, error) {
-	svcs, err := registry.GetService(svcName)
+func GetNodesByRole(role string) ([]*Node, error) {
+	svcs, err := registry.GetService(role)
 	if err != nil {
-		log.Errorf("failed to get service %s (%s)", svcName, err.Error())
+		log.Errorf("failed to get service %s (%s)", role, err.Error())
 		return nil, err
 	}
 	if len(svcs) == 0 {
 		return nil, nil
 	}
 
-	newNodes := []*Node{}
+	nodes := []*Node{}
 	for _, svc := range svcs {
-		newNodes = append(
-			newNodes,
-			getNodesByService(svc, svc.Name)...,
-		)
+		nodes = append(nodes, getNodesByService(svc, svc.Name)...)
 	}
 
-	return newNodes, nil
+	return nodes, nil
 }

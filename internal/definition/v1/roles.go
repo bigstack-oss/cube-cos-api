@@ -129,14 +129,14 @@ func SyncNodesOfRole() {
 	defer update.Unlock()
 
 	for _, role := range Roles {
-		newNodes, err := GetNodesByRole(role)
+		nodes, err := GetNodesByRole(role)
 		if err != nil {
 			return
 		}
 
 		role := getRole(role)
 		if role != nil {
-			role.Nodes = newNodes
+			role.Nodes = nodes
 		}
 	}
 }
@@ -157,11 +157,11 @@ func getNodesByService(svc *registry.Service, role string) []*Node {
 func genNodeInfo(node *registry.Node, role string) *Node {
 	return &Node{
 		Role:     role,
-		ID:       node.Metadata["nodeID"],
+		Id:       node.Metadata["nodeID"],
 		Hostname: node.Metadata["hostname"],
 		Address:  node.Address,
 		Labels: map[string]string{
-			"isGPUEnabled": node.Metadata["isGPUEnabled"],
+			"isGpuEnabled": node.Metadata["isGpuEnabled"],
 		},
 	}
 }

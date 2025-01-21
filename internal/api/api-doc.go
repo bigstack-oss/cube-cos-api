@@ -17,7 +17,7 @@ var (
 		{
 			Version: V1,
 			Method:  http.MethodGet,
-			Path:    "/api-doc/*any",
+			Path:    "/apiDoc/*any",
 			Func:    ginSwagger.WrapHandler(ginFiles.Handler),
 		},
 	}

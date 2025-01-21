@@ -1,4 +1,4 @@
-package tuning
+package tunings
 
 import definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 

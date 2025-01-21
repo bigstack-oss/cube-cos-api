@@ -1,4 +1,4 @@
-package tuning
+package tunings
 
 import (
 	"context"
@@ -57,7 +57,7 @@ func syncTuningRecord(tuning definition.Tuning) {
 	db := cubeMongo.GetGlobalHelper()
 	defer db.Disconnect(context.Background())
 
-	filter := bson.M{"node.id": tuning.Node.ID, "name": tuning.Name}
+	filter := bson.M{"node.id": tuning.Node.Id, "name": tuning.Name}
 	update := bson.M{"$set": tuning}
 	err := db.UpdateOne(
 		definition.TuningDB(),
@@ -82,7 +82,7 @@ func updateRecordStatus(tuning *definition.Tuning) error {
 	return db.UpdateOne(
 		definition.TuningDB(),
 		definition.TuningCollection(tuning.Name),
-		bson.M{"node.id": tuning.Node.ID, "name": tuning.Name},
+		bson.M{"node.id": tuning.Node.Id, "name": tuning.Name},
 		tuning,
 		options.Update().SetUpsert(true),
 	)

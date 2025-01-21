@@ -1,30 +1,69 @@
 kind: http
 metadata:
-  name: cube-api
+  name: cube-cos-api
+  version: v1.0.0
 spec:
   listen:
     port: 8001
     address:
       local: 0.0.0.0
-      advertise: 0.0.0.0
+  identity:
+    osPolicy: /etc/settings.txt
+    logoutRedirect: "/api/v1/datacenters"
+    keycloak:
+      host: https://10.32.10.113:10443/auth
+      tlsInsecureSkipVerify: true
+      auth:
+        realm: master
+        username: admin
+        password: admin
+    saml:
+      identityProvider:
+        metadataPath: "/auth/realms/master/protocol/saml/descriptor"
+        host:
+          scheme: "https"
+          port: 10443
+          tlsInsecureSkipVerify: true
+      serviceProvider:
+        metadataPath: "/saml/metadata"
+        host:
+          scheme: "https"
+          port: 4443
+          auth:
+            key: "/var/www/certs/server.key"
+            cert: "/var/www/certs/server.cert"
+  resourceControl:
+    k3s:
+      auth: /etc/rancher/k3s/k3s.yaml
+    openstack:
+      confFile: /etc/admin-openrc.sh
+      auth:
+        type: "password"
+        url: "http://10.32.10.113:5000/v3"
+        username: "admin_cli"
+        password: "dk7LPiAZHTiC1mce"
+        project:
+          name: "admin"
+          domain:
+            name: "default"
   store:
     mongodb:
-      uri: mongodb://0.0.0.0:27019/?directConnection=true
-      database: cubecos
-      replicaSet: rs0
+      uri: mongodb://0.0.0.0:27017
+      database: cube-cos
+      replicaSet: cube-cos-rs
       auth:
-        enabled: false
-        username: root
-        password: root
-  dependency:
-    cubeCos: /etc/settings.txt
-    openstack: /etc/admin-openrc.sh
-    k3s: /etc/rancher/k3s/k3s.yaml
-  log:
-    file: /var/log/cube-api.log
-    level: 2
-    rotation:
-      backups: 3
-      size: 20
-      ttl: 30
-      compress: true
+        enabled: true
+        username: admin
+        password: admin
+    influxdb:
+      url: http://0.0.0.0:8086
+  observability:
+    log:
+      file: /var/log/cube-cos-api/cube-cos-api.log
+      level: 2
+      rotation:
+        backups: 3
+        size: 20
+        ttl: 30
+        compress: true
+  

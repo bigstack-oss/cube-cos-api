@@ -1,4 +1,4 @@
-package tuning
+package tunings
 
 import (
 	"encoding/json"
