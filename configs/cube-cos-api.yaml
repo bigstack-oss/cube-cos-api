@@ -42,6 +42,7 @@ spec:
         url: "http://10.32.10.113:5000/v3"
         username: "admin_cli"
         password: "dk7LPiAZHTiC1mce"
+        enableAutoRenew: true
         project:
           name: "admin"
           domain:
