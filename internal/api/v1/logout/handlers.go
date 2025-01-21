@@ -13,7 +13,7 @@ var (
 	Handlers = []api.Handler{
 		{
 			Version:              api.V1,
-			Method:               http.MethodGet,
+			Method:               http.MethodPost,
 			Path:                 "/logout",
 			Func:                 logout,
 			IsNotUnderDataCenter: true,
