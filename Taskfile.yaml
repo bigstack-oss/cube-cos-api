@@ -11,19 +11,19 @@ tasks:
   check:
     cmds:
       - task: vet
-      - task: diff-mod
-      - task: diff-api-docs
+      - task: diffMod
+      - task: diffApiDocs
   build:
     cmds:
       - task: buildLocalBinary
   vet:
     cmds:
       - GOWORK=off go vet ./...
-  diff-mod:
+  diffMod:
     cmds:
       - GOWORK=off go mod tidy
       - git diff --exit-code go.mod go.sum
-  diff-api-docs:
+  diffApiDocs:
     cmds:
       - git diff --exit-code api
   test:
