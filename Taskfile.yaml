@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 vars:
   apiService: "cube-cos-api"
@@ -8,9 +8,24 @@ vars:
   mongoVersion: "6.0.19"
 
 tasks:
+  check:
+    cmds:
+      - task: vet
+      - task: diffMod
+      - task: diffApiDocs
+  build:
+    cmds:
+      - task: buildLocalBinary
   vet:
     cmds:
       - GOWORK=off go vet ./...
+  diffMod:
+    cmds:
+      - GOWORK=off go mod tidy
+      - git diff --exit-code go.mod go.sum
+  diffApiDocs:
+    cmds:
+      - git diff --exit-code api
   test:
     cmds:
       - GOWORK=off go test -v ./...
