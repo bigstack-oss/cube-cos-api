@@ -40,6 +40,7 @@ pipeline {
                 echo 'Setting up the git environment...'
                 sh """
                 git config --global --add safe.directory \$(pwd)
+                git remote set-url origin git@github.com:${REPO_NAME}.git
 
                 mkdir -p ~/.ssh
                 ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
