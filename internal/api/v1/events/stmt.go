@@ -2,27 +2,71 @@ package events
 
 import (
 	"fmt"
-	"time"
-
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/gin-gonic/gin"
 )
 
 var (
-	eventQueryTemplate = `
+	eventCountQueryTemplate = `
+		from(bucket: "events")
+			|> range(start: %s, stop: %s)
+			|> filter(fn: (r) => r._measurement == "%s")
+			|> filter(fn: (r) => r._field == "message")
+			|> count()
+	`
+
+	eventNonPagingQueryTemplate = `
 		from(bucket: "events")
 			|> range(start: %s, stop: %s)
 			|> filter(fn: (r) => r._measurement == "%s")
 			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+			|> group()
 			|> sort(columns: ["_time"], desc: true)
+	`
+
+	eventPagingQueryTemplate = `
+		from(bucket: "events")
+			|> range(start: %s, stop: %s)
+			|> filter(fn: (r) => r._measurement == "%s")
+			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+			|> group()
+			|> sort(columns: ["_time"], desc: true)
+			|> limit(n: %d, offset: %d)
 	`
 )
 
-func genQueryStmt(c *gin.Context) string {
+func (h *helper) genCountQueryStmt() string {
 	return fmt.Sprintf(
-		eventQueryTemplate,
-		c.DefaultQuery("from", definition.TimeRFC3339(-150*time.Hour)),
-		c.DefaultQuery("to", definition.TimeNowRFC3339()),
-		c.DefaultQuery("type", "system"),
+		eventCountQueryTemplate,
+		h.period.start,
+		h.period.stop,
+		h.eventType,
+	)
+}
+
+func (h *helper) genQueryStmt() string {
+	if !h.isPaginationEnabled() {
+		return h.genNonPagingQueryStmt()
+	}
+
+	return h.genPagingQueryStmt()
+}
+
+func (h *helper) genNonPagingQueryStmt() string {
+	return fmt.Sprintf(
+		eventNonPagingQueryTemplate,
+		h.period.start,
+		h.period.stop,
+		h.eventType,
+	)
+}
+
+func (h *helper) genPagingQueryStmt() string {
+	offset := (h.page.Number - 1) * h.page.Size
+	return fmt.Sprintf(
+		eventPagingQueryTemplate,
+		h.period.start,
+		h.period.stop,
+		h.eventType,
+		h.page.Size,
+		offset,
 	)
 }

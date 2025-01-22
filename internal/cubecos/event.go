@@ -16,6 +16,48 @@ const (
 	eventTimeLayout = "2006-01-02 15:04:05.999999999 -0700 MST"
 )
 
+var (
+	isValidMeasurements = map[string]bool{
+		"system":   true,
+		"host":     true,
+		"instance": true,
+	}
+)
+
+func IsEventTypeValid(t string) bool {
+	return isValidMeasurements[t]
+}
+
+func CountEvents(stmt string) (int64, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	h := influx.GetGlobalHelper()
+	c, err := h.QueryApiClient.Query(ctx, stmt)
+	if err != nil {
+		log.Errorf("failed to get query cursor: %v", err)
+		return 0, err
+	}
+
+	defer c.Close()
+	return countEvents(c)
+}
+
+func countEvents(c *api.QueryTableResult) (int64, error) {
+	count := int64(0)
+
+	for c.Next() {
+		record := c.Record()
+		rawCount := record.Value().(int64)
+		count = count + rawCount
+	}
+	if c.Err() != nil {
+		return 0, c.Err()
+	}
+
+	return count, nil
+}
+
 func ListEvents(stmt string) ([]definition.Event, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
