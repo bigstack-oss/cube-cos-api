@@ -16,7 +16,7 @@ pipeline {
         BLDSRV         = 'bldsrv_prod'
 
         GITHUB_PAT     = 'github-PAT'
-        GITHUB_SSH_KEY = 'arashi-github-ssh-key'
+        GITHUB_SSH_KEY = 'github-SSH-KEY'
         SLACK_CHANNEL  = "#${PROJ_NAME}-ci"
     }
 
