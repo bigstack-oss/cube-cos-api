@@ -1,8 +1,8 @@
 pipeline {
     agent {
         docker {
-            image 'golang:1.22-alpine'
-            args '--user root'
+            image 'localhost:5000/cube-cos-api-jail'
+            args '-u 1000:1000'
             label 'bldsrv_prod'
         }
     }
@@ -70,8 +70,6 @@ pipeline {
                     echo 'Preparing the build environment...'
 
                     sh """
-                    apk add --no-cache git openssh go-task zip
-
                     git config --global --add safe.directory \$(pwd)
 
                     mkdir -p ~/.ssh
