@@ -1,8 +1,8 @@
 pipeline {
     agent {
         docker {
-            image 'golang:1.22-alpine'
-            args '--user root'
+            image 'localhost:5000/cube-cos-api-jail'
+            args '-u 1000:1000'
             label 'bldsrv_prod'
         }
     }
@@ -27,65 +27,34 @@ pipeline {
     }
 
     stages {
-        stage('env') {
+        stage('init') {
             steps {
+                echo 'Initializing the pipeline...'
+
                 script {
                     env.getEnvironment().each { name, value ->
                         println "Name: $name -> Value $value"
                     }
                 }
-            }
-        }
 
-        stage('source') {
-            steps {
-                echo "Checking out code from branch: ${env.GIT_BRANCH}"
-                retry(2) {
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: "${env.GIT_BRANCH}"]],
-                        browser: [$class: 'GithubWeb', repoUrl: "https://github.com/${env.REPO_NAME}/"],
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions: [
-                            [$class: 'GitLFSPull'],
-                            [$class: 'RelativeTargetDirectory', relativeTargetDir: "${env.PROJ_NAME}"]
-                        ],
-                        userRemoteConfigs: [[
-                            url: "git@github.com:${env.REPO_NAME}.git",
-                            credentialsId: "${env.GITHUB_SSH_KEY}"
-                        ]]
-                    ])
-                }
+                echo 'Setting up the git environment...'
+                sh """
+                git config --global --add safe.directory \$(pwd)
+                git remote set-url origin git@github.com:${REPO_NAME}.git
+
+                mkdir -p ~/.ssh
+                ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+                chmod 600 ~/.ssh/known_hosts
+                """
+
 
                 script {
-                    def currentDir = sh(script: 'pwd', returnStdout: true).trim()
-                    env.BLDPTH = "${currentDir}/${env.PROJ_NAME}"
-                }
-            }
-        }
-
-        stage('prepare') {
-            steps {
-                dir("${env.BLDPTH}") {
-                    echo 'Preparing the build environment...'
-
-                    sh """
-                    apk add --no-cache git openssh go-task zip
-
-                    git config --global --add safe.directory \$(pwd)
-
-                    mkdir -p ~/.ssh
-                    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-                    chmod 600 ~/.ssh/known_hosts
-                    """
-
-                    script {
-                        env.VERSION = getVersion()
-                        env.PR_OR_COMMIT = sh(
-                            script: 'echo "$(git log -1 --pretty=%B) [$(git log -1 --pretty=format:\'%an\')]"',
-                            returnStdout: true
-                        ).trim()
-                    }
+                    env.BLDPTH = sh(script: 'pwd', returnStdout: true).trim()
+                    env.VERSION = getVersion()
+                    env.PR_OR_COMMIT = sh(
+                        script: 'echo "$(git log -1 --pretty=%B) [$(git log -1 --pretty=format:\'%an\')]"',
+                        returnStdout: true
+                    ).trim()
                 }
             }
         }
@@ -154,7 +123,11 @@ pipeline {
 
     post {
         always {
+            echo 'Cleaning up...'
+            cleanWs()
+
             script {
+                echo 'Sending Slack notification...'
                 sendSlackNotification(env.GIT_BRANCH, currentBuild.result ?: 'SUCCESS', env.VERSION, env.PR_OR_COMMIT)
             }
         }
