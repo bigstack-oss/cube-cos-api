@@ -116,34 +116,54 @@ const docTemplate = `{
                 "summary": "Retrieve the list of events",
                 "parameters": [
                     {
-                      "in": "query",
-                      "name": "type",
-                      "required": false,
-                      "schema": {
-                        "type": "string"
-                      },
-                      "description": "The type of event to query, the value can be only 'system', 'host', and 'instance' (default is 'system').",
-                      "example": "system"
+                        "in": "query",
+                        "name": "type",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of event to query, the value can be only 'system', 'host', and 'instance'.",
+                        "example": "system"
                     },
                     {
-                      "in": "query",
-                      "name": "from",
-                      "required": false,
-                      "schema": {
-                        "type": "string"
-                      },
-                      "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
-                      "example": "2025-01-01T01:00:00Z"
+                        "in": "query",
+                        "name": "start",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
+                        "example": "2025-01-01T01:00:00Z"
                     },
                     {
-                      "in": "query",
-                      "name": "to",
-                      "required": false,
-                      "schema": {
-                        "type": "string"
-                      },
-                      "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
-                      "example": "2025-01-01T01:00:00Z"
+                        "in": "query",
+                        "name": "stop",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
+                        "example": "2025-01-01T01:00:00Z"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageNum",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The page number of the event chunking to fetch (default is 1).",
+                        "example": 1
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The size per page of the events to return (default is unlimit).",
+                        "example": 10
                     }
                 ],
                 "responses": {
@@ -157,50 +177,72 @@ const docTemplate = `{
                                     "example": 200
                                 },
                                 "data": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "type": {
-                                                "type": "string",
-                                                "example": "Info"
-                                            },
-                                            "id": {
-                                                "type": "string",
-                                                "example": "NET00003I"
-                                            },
-                                            "description": {
-                                                "type": "string",
-                                                "example": "instance 0125741a-7dbe-4309-bc1a-53d2880d2925 at 192.168.0.91 is reachable"
-                                            },
-                                            "host": {
-                                                "type": "string",
-                                                "example": "bigstack-host"
-                                            },
-                                            "category": {
-                                                "type": "string",
-                                                "example": "net"
-                                            },
-                                            "service": {
-                                                "type": "string",
-                                                "example": "neutron"
-                                            },
-                                            "metadata": {
+                                    "type": "object",
+                                    "properties": {
+                                        "events": {
+                                            "type": "array",
+                                            "items": {
                                                 "type": "object",
                                                 "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "Info"
+                                                    },
                                                     "id": {
                                                         "type": "string",
-                                                        "example": "0125741a-7dbe-4309-bc1a-53d2880d2925"
+                                                        "example": "NET00003I"
                                                     },
-                                                    "ip": {
+                                                    "description": {
                                                         "type": "string",
-                                                        "example": "192.168.0.91"
+                                                        "example": "instance 0125741a-7dbe-4309-bc1a-53d2880d2925 at 192.168.0.91 is reachable"
+                                                    },
+                                                    "host": {
+                                                        "type": "string",
+                                                        "example": "bigstack-host"
+                                                    },
+                                                    "category": {
+                                                        "type": "string",
+                                                        "example": "net"
+                                                    },
+                                                    "service": {
+                                                        "type": "string",
+                                                        "example": "neutron"
+                                                    },
+                                                    "metadata": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string",
+                                                                "example": "0125741a-7dbe-4309-bc1a-53d2880d2925"
+                                                            },
+                                                            "ip": {
+                                                                "type": "string",
+                                                                "example": "192.168.0.91"
+                                                            }
+                                                        }
+                                                    },
+                                                    "time": {
+                                                        "type": "string",
+                                                        "example": "2025-01-01T01:00:00Z"
                                                     }
                                                 }
-                                            },
-                                            "time": {
-                                                "type": "string",
-                                                "example": "2025-01-01T01:00:00Z"
+                                            }
+                                        },
+                                        "page": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "number": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "size": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
                                             }
                                         }
                                     }
@@ -227,7 +269,7 @@ const docTemplate = `{
                                 },
                                 "msg": {
                                     "type": "string",
-                                    "example": "invalid 'from' time: 2021-09-01T111:00:00Z"
+                                    "example": "invalid 'start' time: 2021-09-01T111:00:00Z"
                                 },
                                 "status": {
                                     "type": "string",
