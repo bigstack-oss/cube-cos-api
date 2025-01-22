@@ -122,7 +122,11 @@ pipeline {
 
     post {
         always {
+            echo 'Cleaning up...'
+            cleanWs()
+
             script {
+                echo 'Sending Slack notification...'
                 sendSlackNotification(env.GIT_BRANCH, currentBuild.result ?: 'SUCCESS', env.VERSION, env.PR_OR_COMMIT)
             }
         }
