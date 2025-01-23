@@ -5,9 +5,10 @@ const (
 )
 
 type HealthInfo struct {
-	Service string   `json:"service"`
-	Status  string   `json:"status"`
-	Modules []Module `json:"modules"`
+	Category string   `json:"category"`
+	Service  string   `json:"service"`
+	Status   string   `json:"status"`
+	Modules  []Module `json:"modules"`
 }
 
 type Module struct {
