@@ -14,18 +14,12 @@ type helper struct {
 	c         *gin.Context
 	eventType string
 	period
-	page
+	definition.Page
 }
 
 type period struct {
 	start string
 	stop  string
-}
-
-type page struct {
-	Total  int64 `json:"total"`
-	Number int   `json:"number"`
-	Size   int   `json:"size"`
 }
 
 func initHelperByQueryParams(c *gin.Context) (*helper, error) {
@@ -104,6 +98,6 @@ func (h *helper) parsePage() error {
 		return fmt.Errorf("pageSize should be an integer: %s", pageSize)
 	}
 
-	h.page = page{Number: intPageNum, Size: intPageSize}
+	h.Page = definition.Page{Number: intPageNum, Size: intPageSize}
 	return nil
 }

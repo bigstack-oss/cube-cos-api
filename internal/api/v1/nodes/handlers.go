@@ -23,18 +23,42 @@ var (
 // TODO M1: have to check why sometime take a long time to get the nodes list
 // suspect the cluster-wise license fetching might be slow by hex cli
 func getNodes(c *gin.Context) {
-	nodes, err := cubecos.ListNodes()
+	pageOpts, err := genPageOptsByQueryParams(c)
+	if err != nil {
+		log.Errorf("request(%s): %s", api.GetReqId(c), err.Error())
+		api.SetErrBadRequestResp(c, err)
+		return
+	}
+
+	allNodes, err := cubecos.ListNodes()
 	if err != nil {
 		log.Errorf("request(%s): failed to get nodes: %s", api.GetReqId(c), err.Error())
 		api.SetErrInternalServerErrorResp(c, err)
 		return
 	}
 
-	addLicenseInfoToNodes(c, &nodes)
-	addNodeDetailsToNodes(c, &nodes)
+	pagedNodes, err := paginateNodes(allNodes, pageOpts)
+	if err != nil {
+		log.Errorf("request(%s): failed to paginate nodes: %s", api.GetReqId(c), err.Error())
+		api.SetErrInternalServerErrorResp(c, err)
+		return
+	}
+
+	page, err := genPageInfo(allNodes, pageOpts)
+	if err != nil {
+		log.Errorf("request(%s): failed to gen page info: %s", api.GetReqId(c), err.Error())
+		api.SetErrInternalServerErrorResp(c, err)
+		return
+	}
+
+	addLicenseInfoToNodes(c, &pagedNodes)
+	addNodeDetailsToNodes(c, &pagedNodes)
 	api.SetStatusOkResp(
 		c,
 		"fetch nodes list successfully",
-		nodes,
+		data{
+			Nodes: pagedNodes,
+			Page:  page,
+		},
 	)
 }
