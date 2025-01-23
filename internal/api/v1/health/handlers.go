@@ -34,6 +34,24 @@ func genFakeHealthInfo() cubecos.Health {
 	return cubecos.Health{
 		InUse: []definition.HealthInfo{
 			{
+				Service: "clusterLink",
+				Status:  "ok",
+				Modules: []definition.Module{
+					{
+						Name:   "link",
+						Status: "ok",
+					},
+					{
+						Name:   "clock",
+						Status: "ok",
+					},
+					{
+						Name:   "dns",
+						Status: "ok",
+					},
+				},
+			},
+			{
 				Service: "blockStorage",
 				Status:  "ok",
 				Modules: []definition.Module{
@@ -50,8 +68,9 @@ func genFakeHealthInfo() cubecos.Health {
 		},
 		Error: []definition.HealthInfo{
 			{
-				Service: "dataPipe",
-				Status:  "ng",
+				Category: "infraScope",
+				Service:  "dataPipe",
+				Status:   "ng",
 				Modules: []definition.Module{
 					{
 						Name:   "zookeeper",
@@ -62,6 +81,19 @@ func genFakeHealthInfo() cubecos.Health {
 						Name:   "kafka",
 						Status: "ng",
 						Msg:    "5 topics have no coordinator",
+					},
+				},
+			},
+		},
+		Fixing: []definition.HealthInfo{
+			{
+				Service: "ClusterSettings",
+				Status:  "fixing",
+				Modules: []definition.Module{
+					{
+						Name:   "etcd",
+						Status: "fixing",
+						Msg:    "etcd is fixing",
 					},
 				},
 			},
