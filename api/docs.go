@@ -503,6 +503,28 @@ const docTemplate = `{
                     "Nodes"
                 ],
                 "summary": "Retrieve the list of nodes",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "pageNum",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The page number of the event chunking to fetch (default is 1).",
+                        "example": 1
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The size per page of the events to return (default is unlimit).",
+                        "example": 10
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Retrieve the list of nodes successfully",
@@ -514,186 +536,208 @@ const docTemplate = `{
                                     "example": 200
                                 },
                                 "data": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "id": {
-                                                "type": "string",
-                                                "example": "7a18177c"
-                                            },
-                                            "hostname": {
-                                                "type": "string",
-                                                "example": "bigstack-host"
-                                            },
-                                            "role": {
-                                                "type": "string",
-                                                "example": "control-converged"
-                                            },
-                                            "address": {
-                                                "type": "string",
-                                                "example": "10.10.10.10"
-                                            },
-                                            "managementIP": {
-                                                "type": "string",
-                                                "example": "192.168.10.10"
-                                            },
-                                            "license": {
+                                    "type": "object",
+                                    "properties": {
+                                        "nodes": {
+                                            "type": "array",
+                                            "items": {
                                                 "type": "object",
                                                 "properties": {
-                                                    "status": {
+                                                    "id": {
                                                         "type": "string",
-                                                        "example": "trial"
+                                                        "example": "7a18177c"
                                                     },
                                                     "hostname": {
                                                         "type": "string",
                                                         "example": "bigstack-host"
                                                     },
-                                                    "serial": {
+                                                    "role": {
                                                         "type": "string",
-                                                        "example": "1N7L603"
+                                                        "example": "control-converged"
                                                     },
-                                                    "product": {
+                                                    "address": {
+                                                        "type": "string",
+                                                        "example": "10.10.10.10"
+                                                    },
+                                                    "managementIP": {
+                                                        "type": "string",
+                                                        "example": "192.168.10.10"
+                                                    },
+                                                    "license": {
                                                         "type": "object",
                                                         "properties": {
-                                                            "name": {
+                                                            "status": {
                                                                 "type": "string",
-                                                                "example": "cubecos"
+                                                                "example": "trial"
                                                             },
-                                                            "features": {
+                                                            "hostname": {
+                                                                "type": "string",
+                                                                "example": "bigstack-host"
+                                                            },
+                                                            "serial": {
+                                                                "type": "string",
+                                                                "example": "1N7L603"
+                                                            },
+                                                            "product": {
                                                                 "type": "object",
                                                                 "properties": {
                                                                     "name": {
                                                                         "type": "string",
-                                                                        "example": "instance"
+                                                                        "example": "cubecos"
+                                                                    },
+                                                                    "features": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "name": {
+                                                                                "type": "string",
+                                                                                "example": "instance"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "issue": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "by": {
+                                                                        "type": "string",
+                                                                        "example": "Bigstack co., ltd."
+                                                                    },
+                                                                    "to": {
+                                                                        "type": "string",
+                                                                        "example": "bigstack"
+                                                                    },
+                                                                    "hardware": {
+                                                                        "type": "string",
+                                                                        "example": "*"
+                                                                    },
+                                                                    "date": {
+                                                                        "type": "string",
+                                                                        "example": "2025-01-01T01:00:00Z"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "serviceLevelAgreement": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "uptime": {
+                                                                        "type": "int",
+                                                                        "example": 99.99
+                                                                    },
+                                                                    "period": {
+                                                                        "type": "string",
+                                                                        "example": "24x7"
+                                                                    },
+                                                                    "meanTimeBetweenFailure": {
+                                                                        "type": "string",
+                                                                        "example": "5 mins"
+                                                                    },
+                                                                    "meanTimeToRepair": {
+                                                                        "type": "string",
+                                                                        "example": "15 mins"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "expire": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "date": {
+                                                                        "type": "string",
+                                                                        "example": "2025-01-01T01:00:00Z"
+                                                                    },
+                                                                    "days": {
+                                                                        "type": "integer",
+                                                                        "example": 30
                                                                     }
                                                                 }
                                                             }
                                                         }
                                                     },
-                                                    "issue": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "by": {
-                                                                "type": "string",
-                                                                "example": "Bigstack co., ltd."
-                                                            },
-                                                            "to": {
-                                                                "type": "string",
-                                                                "example": "bigstack"
-                                                            },
-                                                            "hardware": {
-                                                                "type": "string",
-                                                                "example": "*"
-                                                            },
-                                                            "date": {
-                                                                "type": "string",
-                                                                "example": "2025-01-01T01:00:00Z"
-                                                            }
-                                                        }
-                                                    },
-                                                    "serviceLevelAgreement": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "uptime": {
-                                                                "type": "int",
-                                                                "example": 99.99
-                                                            },
-                                                            "period": {
-                                                                "type": "string",
-                                                                "example": "24x7"
-                                                            },
-                                                            "meanTimeBetweenFailure": {
-                                                                "type": "string",
-                                                                "example": "5 mins"
-                                                            },
-                                                            "meanTimeToRepair": {
-                                                                "type": "string",
-                                                                "example": "15 mins"
-                                                            }
-                                                        }
-                                                    },
-                                                    "expire": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "date": {
-                                                                "type": "string",
-                                                                "example": "2025-01-01T01:00:00Z"
-                                                            },
-                                                            "days": {
-                                                                "type": "integer",
-                                                                "example": 30
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            "status": {
-                                                "type": "string",
-                                                "example": "up"
-                                            },
-                                            "vcpu": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "totalCores": {
-                                                        "type": "integer",
-                                                        "example": 80
-                                                    },
-                                                    "usedCores": {
-                                                        "type": "integer",
-                                                        "example": 31
-                                                    },
-                                                    "freeCores": {
-                                                        "type": "integer",
-                                                        "example": 49
-                                                    }
-                                                }
-                                            },
-                                            "memory": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "totalMiB": {
-                                                        "type": "integer",
-                                                        "example": 257371
-                                                    },
-                                                    "usedMiB": {
-                                                        "type": "integer",
-                                                        "example": 98255
-                                                    },
-                                                    "freeMiB": {
-                                                        "type": "integer",
-                                                        "example": 159116
-                                                    }
-                                                }
-                                            },
-                                            "storage": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "totalMiB": {
-                                                        "type": "integer",
-                                                        "example": 102400
-                                                    },
-                                                    "usedMiB": {
-                                                        "type": "integer",
-                                                        "example": 51200
-                                                    },
-                                                    "freeMiB": {
-                                                        "type": "integer",
-                                                        "example": 51200
-                                                    }
-                                                }
-                                            },
-                                            "uptime": {
-                                                "type": "string",
-                                                "example": "26 days"
-                                            },
-                                            "labels": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "isGpuEnabled": {
+                                                    "status": {
                                                         "type": "string",
-                                                        "example": "true"
+                                                        "example": "up"
+                                                    },
+                                                    "vcpu": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "totalCores": {
+                                                                "type": "integer",
+                                                                "example": 80
+                                                            },
+                                                            "usedCores": {
+                                                                "type": "integer",
+                                                                "example": 31
+                                                            },
+                                                            "freeCores": {
+                                                                "type": "integer",
+                                                                "example": 49
+                                                            }
+                                                        }
+                                                    },
+                                                    "memory": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "totalMiB": {
+                                                                "type": "integer",
+                                                                "example": 257371
+                                                            },
+                                                            "usedMiB": {
+                                                                "type": "integer",
+                                                                "example": 98255
+                                                            },
+                                                            "freeMiB": {
+                                                                "type": "integer",
+                                                                "example": 159116
+                                                            }
+                                                        }
+                                                    },
+                                                    "storage": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "totalMiB": {
+                                                                "type": "integer",
+                                                                "example": 102400
+                                                            },
+                                                            "usedMiB": {
+                                                                "type": "integer",
+                                                                "example": 51200
+                                                            },
+                                                            "freeMiB": {
+                                                                "type": "integer",
+                                                                "example": 51200
+                                                            }
+                                                        }
+                                                    },
+                                                    "uptime": {
+                                                        "type": "string",
+                                                        "example": "26 days"
+                                                    },
+                                                    "labels": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "isGpuEnabled": {
+                                                                "type": "string",
+                                                                "example": "true"
+                                                            }
+                                                        }
                                                     }
+                                                }
+                                            }
+                                        },
+                                        "page": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "number": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "size": {
+                                                    "type": "integer",
+                                                    "example": 1
                                                 }
                                             }
                                         }
