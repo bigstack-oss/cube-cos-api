@@ -13,13 +13,13 @@ func isPaginationRequired(page, pageSize string) bool {
 	return page != "" || pageSize != ""
 }
 
-func (h *helper) isPaginationEnabled() bool {
-	return h.page.Number > 0 || h.page.Size > 0
+func (h *helper) isPaginationRequired() bool {
+	return h.Page.Number > 0 || h.Page.Size > 0
 }
 
-func (h *helper) genPageInfo(events []definition.Event) (page, error) {
-	if !h.isPaginationEnabled() {
-		return page{
+func (h *helper) genPageInfo(events []definition.Event) (definition.Page, error) {
+	if !h.isPaginationRequired() {
+		return definition.Page{
 			Total:  1,
 			Number: 1,
 			Size:   len(events),
@@ -28,13 +28,13 @@ func (h *helper) genPageInfo(events []definition.Event) (page, error) {
 
 	totalPages, err := h.countTotalPages()
 	if err != nil {
-		return page{}, err
+		return definition.Page{}, err
 	}
 
-	return page{
+	return definition.Page{
 		Total:  totalPages,
-		Number: h.page.Number,
-		Size:   h.page.Size,
+		Number: h.Page.Number,
+		Size:   h.Page.Size,
 	}, nil
 }
 
@@ -46,5 +46,5 @@ func (h *helper) countTotalPages() (int64, error) {
 		return 0, err
 	}
 
-	return int64(math.Ceil(float64(count) / float64(h.page.Size))), nil
+	return int64(math.Ceil(float64(count) / float64(h.Page.Size))), nil
 }

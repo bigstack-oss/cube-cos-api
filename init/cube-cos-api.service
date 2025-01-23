@@ -10,7 +10,7 @@ ExecStart=/usr/bin/cube-cos-api -conf /etc/cube-cos-api/cube-cos-api.yaml
 
 # Give a reasonable amount of time for the server to start up/shut down
 TimeoutSec=120
-Restart=on-failure
+Restart=always
 RestartSec=60
 
 # check with `systemd-cgtop` command.

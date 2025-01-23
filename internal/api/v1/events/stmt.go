@@ -43,7 +43,7 @@ func (h *helper) genCountQueryStmt() string {
 }
 
 func (h *helper) genQueryStmt() string {
-	if !h.isPaginationEnabled() {
+	if !h.isPaginationRequired() {
 		return h.genNonPagingQueryStmt()
 	}
 
@@ -60,13 +60,13 @@ func (h *helper) genNonPagingQueryStmt() string {
 }
 
 func (h *helper) genPagingQueryStmt() string {
-	offset := (h.page.Number - 1) * h.page.Size
+	offset := (h.Page.Number - 1) * h.Page.Size
 	return fmt.Sprintf(
 		eventPagingQueryTemplate,
 		h.period.start,
 		h.period.stop,
 		h.eventType,
-		h.page.Size,
+		h.Page.Size,
 		offset,
 	)
 }
