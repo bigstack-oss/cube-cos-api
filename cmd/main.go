@@ -20,19 +20,19 @@ func init() {
 }
 
 func main() {
-	conf, err := config.Load(conf)
+	err := config.InitServerOpts(conf)
 	if err != nil {
 		log.Errorf("failed to load config: %s", err.Error())
 		return
 	}
 
-	runtime, err := runtime.NewRuntime(conf)
+	srv, err := runtime.NewHttpServer()
 	if err != nil {
 		log.Errorf("failed to init runtime: %s", err.Error())
 		return
 	}
 
-	err = service.WrapGoMicro(runtime).Run()
+	err = service.WrapGoMicro(srv).Run()
 	if err != nil {
 		log.Errorf("failed to run service: %s", err.Error())
 	}

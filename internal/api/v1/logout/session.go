@@ -16,7 +16,7 @@ import (
 func genRedirectUrl() string {
 	return fmt.Sprintf(
 		"https://%s:%d%s",
-		definition.ControllerVip,
+		definition.DataCenterVip,
 		conf.Opts.Spec.Saml.ServiceProvider.Host.Port,
 		conf.Opts.Spec.Identity.LogoutRedirect,
 	)

@@ -26,34 +26,34 @@ func getNodes(c *gin.Context) {
 	pageOpts, err := genPageOptsByQueryParams(c)
 	if err != nil {
 		log.Errorf("request(%s): %s", api.GetReqId(c), err.Error())
-		api.SetErrBadRequestResp(c, err)
+		api.SetBadRequest(c, err)
 		return
 	}
 
 	allNodes, err := cubecos.ListNodes()
 	if err != nil {
 		log.Errorf("request(%s): failed to get nodes: %s", api.GetReqId(c), err.Error())
-		api.SetErrInternalServerErrorResp(c, err)
+		api.SetInternalServerError(c, err)
 		return
 	}
 
 	pagedNodes, err := paginateNodes(allNodes, pageOpts)
 	if err != nil {
 		log.Errorf("request(%s): failed to paginate nodes: %s", api.GetReqId(c), err.Error())
-		api.SetErrInternalServerErrorResp(c, err)
+		api.SetInternalServerError(c, err)
 		return
 	}
 
 	page, err := genPageInfo(allNodes, pageOpts)
 	if err != nil {
 		log.Errorf("request(%s): failed to gen page info: %s", api.GetReqId(c), err.Error())
-		api.SetErrInternalServerErrorResp(c, err)
+		api.SetInternalServerError(c, err)
 		return
 	}
 
 	addLicenseInfoToNodes(c, &pagedNodes)
 	addNodeDetailsToNodes(c, &pagedNodes)
-	api.SetStatusOkResp(
+	api.SetStatusOk(
 		c,
 		"fetch nodes list successfully",
 		data{

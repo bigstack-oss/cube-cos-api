@@ -13,21 +13,21 @@ import (
 )
 
 var (
-	Controllers map[string]Controller
+	Operators map[string]Operator
 )
 
-type Controller interface {
+type Operator interface {
 	Name() string
 	Sync()
 	Stop()
 }
 
 func init() {
-	Controllers = make(map[string]Controller)
+	Operators = make(map[string]Operator)
 }
 
-func RegisterController(name string, controller Controller) {
-	Controllers[name] = controller
+func RegisterOperator(name string, operator Operator) {
+	Operators[name] = operator
 }
 
 func WrapGoMicro(server *server.Server) micro.Service {
@@ -39,15 +39,15 @@ func WrapGoMicro(server *server.Server) micro.Service {
 		micro.Registry(registry.NewRegistry()),
 		micro.RegisterTTL(time.Second*60),
 		micro.RegisterInterval(time.Second*20),
-		micro.AfterStart(runControllers),
-		micro.AfterStop(stopControllers),
+		micro.AfterStart(runOperators),
+		micro.AfterStop(stopOperators),
 	)
 }
 
-func runControllers() error {
-	for _, c := range Controllers {
-		go run(c.Sync)
-		log.Infof("controller: %s is running", c.Name())
+func runOperators() error {
+	for _, o := range Operators {
+		go run(o.Sync)
+		log.Infof("operator: %s is running", o.Name())
 	}
 
 	return nil
@@ -59,10 +59,10 @@ func run(f func()) {
 	}
 }
 
-func stopControllers() error {
-	for _, c := range Controllers {
-		log.Infof("controller: %s is shutting down", c.Name())
-		c.Stop()
+func stopOperators() error {
+	for _, o := range Operators {
+		log.Infof("operator: %s is shutting down", o.Name())
+		o.Stop()
 	}
 
 	return nil

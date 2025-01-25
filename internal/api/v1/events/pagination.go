@@ -42,7 +42,7 @@ func (h *helper) countTotalPages() (int64, error) {
 	count, err := cubecos.CountEvents(h.genCountQueryStmt())
 	if err != nil {
 		log.Errorf("request(%s): failed to count events: %v", api.GetReqId(h.c), err)
-		api.SetErrInternalServerErrorResp(h.c, err)
+		api.SetInternalServerError(h.c, err)
 		return 0, err
 	}
 

@@ -110,7 +110,7 @@ func genIdentityProviderMetadata(opts Options) (*saml.EntityDescriptor, error) {
 func genIdentityProviderMetadataUrl(opts Options) url.URL {
 	return url.URL{
 		Scheme: opts.IdentityProvider.Host.Scheme,
-		Host:   fmt.Sprintf("%s:%d", definition.ControllerVip, opts.IdentityProvider.Host.Port),
+		Host:   fmt.Sprintf("%s:%d", definition.DataCenterVip, opts.IdentityProvider.Host.Port),
 		Path:   opts.IdentityProvider.MetadataPath,
 	}
 }
@@ -118,7 +118,7 @@ func genIdentityProviderMetadataUrl(opts Options) url.URL {
 func genServiceProviderMetadataUrl(opts Options) url.URL {
 	return url.URL{
 		Scheme: opts.ServiceProvider.Scheme,
-		Host:   fmt.Sprintf("%s:%d", definition.ControllerVip, opts.ServiceProvider.Host.Port),
+		Host:   fmt.Sprintf("%s:%d", definition.DataCenterVip, opts.ServiceProvider.Host.Port),
 		Path:   opts.ServiceProvider.MetadataPath,
 	}
 }
@@ -126,6 +126,6 @@ func genServiceProviderMetadataUrl(opts Options) url.URL {
 func genRootUrl(opts Options) url.URL {
 	return url.URL{
 		Scheme: opts.ServiceProvider.Host.Scheme,
-		Host:   fmt.Sprintf("%s:%d", definition.ControllerVip, opts.ServiceProvider.Host.Port),
+		Host:   fmt.Sprintf("%s:%d", definition.DataCenterVip, opts.ServiceProvider.Host.Port),
 	}
 }

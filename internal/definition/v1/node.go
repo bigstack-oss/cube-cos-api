@@ -3,6 +3,7 @@ package v1
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
@@ -13,16 +14,18 @@ const (
 )
 
 var (
-	HostID        string
-	Hostname      string
-	Controller    string
-	ControllerVip string
-	ListenAddr    string
-	AdvertiseAddr string
-	MgmtNet       string
-	MgmtIP        string
-	IsHaEnabled   bool
-	IsGpuEnabled  bool
+	HostID         string
+	Hostname       string
+	DataCenterName string
+	DataCenterVip  string
+	ListenAddr     string
+	ListenPort     int
+	AdvertiseAddr  string
+	AdvertisePort  int
+	MgmtNet        string
+	MgmtIP         string
+	IsHaEnabled    bool
+	IsGpuEnabled   bool
 )
 
 type Node struct {
@@ -67,4 +70,21 @@ func GetNodesByRole(role string) ([]*Node, error) {
 	}
 
 	return nodes, nil
+}
+
+func GetControllerNodes() ([]*Node, error) {
+	nodes, err := GetNodesByRole("control")
+	if err == nil && len(nodes) > 0 {
+		return nodes, nil
+	}
+
+	nodes, err = GetNodesByRole("control-converged")
+	if err == nil && len(nodes) > 0 {
+		return nodes, nil
+	}
+
+	return nil, fmt.Errorf(
+		"failed to get control nodes(control or control-converged): %s",
+		err.Error(),
+	)
 }

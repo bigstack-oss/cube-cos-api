@@ -9,12 +9,12 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (c *Controller) syncByDesiredAction(tuning definition.Tuning) error {
+func (o *Operator) operateReq(tuning definition.Tuning) error {
 	switch tuning.Status.Desired {
 	case status.Create, status.Update:
-		return c.applyTuning(tuning)
+		return o.applyTuning(tuning)
 	case status.Delete:
-		return c.deleteTuning(tuning)
+		return o.deleteTuning(tuning)
 	}
 
 	return fmt.Errorf(
@@ -24,7 +24,7 @@ func (c *Controller) syncByDesiredAction(tuning definition.Tuning) error {
 	)
 }
 
-func (c *Controller) deleteTuning(tuning definition.Tuning) error {
+func (o *Operator) deleteTuning(tuning definition.Tuning) error {
 	policy, err := cubecos.GetPolicy()
 	if err != nil {
 		log.Errorf("failed to get all tunings: %s", err.Error())
@@ -47,7 +47,7 @@ func (c *Controller) deleteTuning(tuning definition.Tuning) error {
 	return nil
 }
 
-func (c *Controller) applyTuning(tuning definition.Tuning) error {
+func (o *Operator) applyTuning(tuning definition.Tuning) error {
 	policy, err := cubecos.GetPolicy()
 	if err != nil {
 		return err

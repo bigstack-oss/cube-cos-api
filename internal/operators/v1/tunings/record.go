@@ -8,12 +8,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (c *Controller) updateTuningResult(tuning definition.Tuning) error {
+func (o *Operator) updateTuningResult(tuning definition.Tuning) error {
 	filter := bson.M{"node.id": tuning.Node.Id}
 	tuning.Status.UpdatedAt = definition.TimeNowRFC3339()
 	update := bson.M{"$set": tuning}
 
-	return c.mongo.UpdateOne(
+	return o.mongo.UpdateOne(
 		definition.TuningDB(),
 		definition.TuningCollection(tuning.Name),
 		filter,
@@ -22,7 +22,7 @@ func (c *Controller) updateTuningResult(tuning definition.Tuning) error {
 	)
 }
 
-func (c *Controller) handleApplyingExit(tuning definition.Tuning, err error) {
+func (o *Operator) handleApplyingExit(tuning definition.Tuning, err error) {
 	if err == nil {
 		tuning.Status.Current = status.Completed
 	} else {
@@ -31,15 +31,15 @@ func (c *Controller) handleApplyingExit(tuning definition.Tuning, err error) {
 	}
 
 	tuning.Status.ClearDesired()
-	err = c.updateTuningResult(tuning)
+	err = o.updateTuningResult(tuning)
 	if err != nil {
 		log.Errorf("failed to update tuning result %s: %s", tuning.Name, err.Error())
 	}
 }
 
-func (c *Controller) deleteTuningResult(tuning definition.Tuning) {
+func (o *Operator) deleteTuningResult(tuning definition.Tuning) {
 	filter := bson.M{"node.id": tuning.Node.Id, "name": tuning.Name}
-	err := c.mongo.DeleteOne(
+	err := o.mongo.DeleteOne(
 		definition.TuningDB(),
 		definition.TuningCollection(tuning.Name),
 		filter,
@@ -49,9 +49,9 @@ func (c *Controller) deleteTuningResult(tuning definition.Tuning) {
 	}
 }
 
-func (c *Controller) handleDeletionExit(tuning definition.Tuning, err error) {
+func (o *Operator) handleDeletionExit(tuning definition.Tuning, err error) {
 	if err == nil {
-		c.deleteTuningResult(tuning)
+		o.deleteTuningResult(tuning)
 		return
 	}
 
@@ -59,11 +59,11 @@ func (c *Controller) handleDeletionExit(tuning definition.Tuning, err error) {
 	log.Errorf("failed to %s tuning %s: %s", tuning.Status.Desired, tuning.Name, err.Error())
 }
 
-func (c *Controller) handleExit(tuning definition.Tuning, err error) {
+func (o *Operator) handleExit(tuning definition.Tuning, err error) {
 	switch tuning.Status.Desired {
 	case status.Create, status.Update:
-		c.handleApplyingExit(tuning, err)
+		o.handleApplyingExit(tuning, err)
 	case status.Delete:
-		c.handleDeletionExit(tuning, err)
+		o.handleDeletionExit(tuning, err)
 	}
 }

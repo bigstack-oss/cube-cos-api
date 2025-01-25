@@ -16,41 +16,41 @@ var (
 
 func init() {
 	ReqQueue = workqueue.New()
-	service.RegisterController(module, NewController())
+	service.RegisterOperator(module, NewOperator())
 }
 
-type Controller struct {
+type Operator struct {
 	mongo *mongo.Helper
 }
 
-func NewController() *Controller {
-	return &Controller{mongo: mongo.GetGlobalHelper()}
+func NewOperator() *Operator {
+	return &Operator{mongo: mongo.GetGlobalHelper()}
 }
 
-func (c *Controller) Name() string {
+func (o *Operator) Name() string {
 	return module
 }
 
-func (c *Controller) Sync() {
+func (o *Operator) Sync() {
 	req, shutdown := ReqQueue.Get()
 	if shutdown {
 		return
 	}
 
 	tuning := req.(definition.Tuning)
-	err := c.syncByDesiredAction(tuning)
+	err := o.operateReq(tuning)
 
-	c.handleExit(tuning, err)
+	o.handleExit(tuning, err)
 	ReqQueue.Done(req)
 }
 
-func (c *Controller) Stop() {
+func (o *Operator) Stop() {
 	ReqQueue.ShutDown()
-	c.waitForLastTask()
-	c.mongo.Close()
+	o.waitForLastTask()
+	o.mongo.Close()
 }
 
-func (c *Controller) waitForLastTask() {
+func (o *Operator) waitForLastTask() {
 	for ReqQueue.Len() >= 1 {
 		time.Sleep(time.Second * 1)
 	}

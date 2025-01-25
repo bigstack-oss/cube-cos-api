@@ -3,15 +3,15 @@ Description=CubeCosApi
 After=network.target
 
 [Service]
-User=cube-cos-api
-Group=cube-cos-api
+User=root
+Group=root
 Type=simple
 ExecStart=/usr/bin/cube-cos-api -conf /etc/cube-cos-api/cube-cos-api.yaml
 
 # Give a reasonable amount of time for the server to start up/shut down
 TimeoutSec=120
 Restart=always
-RestartSec=60
+RestartSec=5
 
 # check with `systemd-cgtop` command.
 CPUAccounting=true

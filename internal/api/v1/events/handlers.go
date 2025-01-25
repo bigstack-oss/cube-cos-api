@@ -24,7 +24,7 @@ func getEvents(c *gin.Context) {
 	h, err := initHelperByQueryParams(c)
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
-		api.SetErrBadRequestResp(c, err)
+		api.SetBadRequest(c, err)
 		return
 	}
 
@@ -32,18 +32,18 @@ func getEvents(c *gin.Context) {
 	events, err := cubecos.ListEvents(stmt)
 	if err != nil {
 		log.Errorf("request(%s): failed to fetch events: %v", api.GetReqId(c), err)
-		api.SetErrInternalServerErrorResp(c, err)
+		api.SetInternalServerError(c, err)
 		return
 	}
 
 	page, err := h.genPageInfo(events)
 	if err != nil {
 		log.Errorf("request(%s): failed to gen page info: %v", api.GetReqId(c), err)
-		api.SetErrInternalServerErrorResp(c, err)
+		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOkResp(
+	api.SetStatusOk(
 		c,
 		"fetch events successfully",
 		data{
