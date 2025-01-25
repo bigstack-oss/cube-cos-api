@@ -83,7 +83,27 @@ func (o *Options) String() (string, error) {
 	return string(b), nil
 }
 
-func NewConfiger() (config.Config, error) {
+func InitServerOpts(filePath string) error {
+	conf, err := newConfiger()
+	if err != nil {
+		return err
+	}
+
+	src := file.NewSource(file.WithPath(filePath))
+	err = conf.Load(src)
+	if err != nil {
+		return err
+	}
+
+	err = conf.Get().Scan(&Opts)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func newConfiger() (config.Config, error) {
 	return config.NewConfig(
 		config.WithReader(
 			json.NewReader(
@@ -91,19 +111,4 @@ func NewConfiger() (config.Config, error) {
 			),
 		),
 	)
-}
-
-func Load(filePath string) (config.Config, error) {
-	configer, err := NewConfiger()
-	if err != nil {
-		return nil, err
-	}
-
-	confSrc := file.NewSource(file.WithPath(filePath))
-	err = configer.Load(confSrc)
-	if err != nil {
-		return nil, err
-	}
-
-	return configer, nil
 }

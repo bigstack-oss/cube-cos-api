@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetStatusOkResp(c *gin.Context, msg string, data interface{}) {
+func SetStatusOk(c *gin.Context, msg string, data interface{}) {
 	c.JSON(
 		http.StatusOK,
 		gin.H{
@@ -18,14 +18,25 @@ func SetStatusOkResp(c *gin.Context, msg string, data interface{}) {
 	)
 }
 
-func SetRedirectResp(c *gin.Context, redirectUrl string) {
+func SetStatusAccepted(c *gin.Context, msg string) {
+	c.JSON(
+		http.StatusAccepted,
+		gin.H{
+			Code:   http.StatusAccepted,
+			Status: "accepted",
+			Msg:    msg,
+		},
+	)
+}
+
+func SetRedirect(c *gin.Context, redirectUrl string) {
 	c.Redirect(
 		http.StatusFound,
 		redirectUrl,
 	)
 }
 
-func SetErrBadRequestResp(c *gin.Context, err error) {
+func SetBadRequest(c *gin.Context, err error) {
 	c.JSON(
 		http.StatusBadRequest,
 		gin.H{
@@ -36,12 +47,34 @@ func SetErrBadRequestResp(c *gin.Context, err error) {
 	)
 }
 
-func SetErrInternalServerErrorResp(c *gin.Context, err error) {
+func SetStatusConflict(c *gin.Context, err error) {
+	c.JSON(
+		http.StatusConflict,
+		gin.H{
+			Code:   http.StatusConflict,
+			Status: "status conflict",
+			Msg:    err.Error(),
+		},
+	)
+}
+
+func SetInternalServerError(c *gin.Context, err error) {
 	c.JSON(
 		http.StatusInternalServerError,
 		gin.H{
 			Code:   http.StatusInternalServerError,
 			Status: "internal server error",
+			Msg:    err.Error(),
+		},
+	)
+}
+
+func SetErrVariantAlsoNegotiates(c *gin.Context, err error) {
+	c.JSON(
+		http.StatusVariantAlsoNegotiates,
+		gin.H{
+			Code:   http.StatusVariantAlsoNegotiates,
+			Status: "variant also negotiates",
 			Msg:    err.Error(),
 		},
 	)

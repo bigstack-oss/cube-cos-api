@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/controllers/v1/tunings"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/tunings"
 	"github.com/gin-gonic/gin"
 	"github.com/mohae/deepcopy"
 	log "go-micro.dev/v5/logger"
@@ -64,11 +64,11 @@ func getTunings(c *gin.Context) {
 	tunings, err := getTuningRecords()
 	if err != nil {
 		log.Errorf("request(%s): failed to get tunings: %s", api.GetReqId(c), err.Error())
-		api.SetErrInternalServerErrorResp(c, err)
+		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOkResp(
+	api.SetStatusOk(
 		c,
 		"fetch tunings list successfully",
 		tunings,
@@ -84,7 +84,7 @@ func getTuningSpecs(c *gin.Context) {
 		return true
 	})
 
-	api.SetStatusOkResp(
+	api.SetStatusOk(
 		c,
 		"fetch tuning specs successfully",
 		specs,
@@ -95,19 +95,19 @@ func applyTuning(c *gin.Context) {
 	tuning, err := decodeTuningReq(c.Request.Body)
 	if err != nil {
 		log.Errorf("request(%s): failed to decode tuning: %s", api.GetReqId(c), err.Error())
-		api.SetErrBadRequestResp(c, err)
+		api.SetBadRequest(c, err)
 		return
 	}
 
 	if !definition.ShouldCurrentRoleHandleTheTuning(tuning.Name, definition.CurrentRole) {
 		err := fmt.Errorf("role %s is not responsible for tuning %s", definition.CurrentRole, tuning.Name)
 		log.Errorf("request(%s): %s", err.Error())
-		api.SetErrBadRequestResp(c, err)
+		api.SetBadRequest(c, err)
 		return
 	}
 
 	delegateToCurrentNode(*tuning)
-	api.SetStatusOkResp(
+	api.SetStatusOk(
 		c,
 		"tuning applied",
 		*tuning,
@@ -118,13 +118,13 @@ func applyTunings(c *gin.Context) {
 	tunings, err := decodeTuningsReq(c.Request.Body)
 	if err != nil {
 		log.Errorf("request(%s): failed to decode tunings: %s", api.GetReqId(c), err.Error())
-		api.SetErrBadRequestResp(c, err)
+		api.SetBadRequest(c, err)
 		return
 	}
 
 	setBatchPendingUpdate(tunings)
 	delegateTuningsReq(tunings)
-	api.SetStatusOkResp(
+	api.SetStatusOk(
 		c,
 		"request received and applying",
 		tunings,
@@ -135,7 +135,7 @@ func updateTuningStatus(c *gin.Context) {
 	tuning, err := decodeTuningReq(c.Request.Body)
 	if err != nil {
 		log.Errorf("request(%s): failed to decode tuning: %s", api.GetReqId(c), err.Error())
-		api.SetErrBadRequestResp(c, err)
+		api.SetBadRequest(c, err)
 		return
 	}
 
@@ -144,11 +144,11 @@ func updateTuningStatus(c *gin.Context) {
 	err = updateRecordStatus(tuning)
 	if err != nil {
 		log.Errorf("request(%s): failed to update tuning status: %s", api.GetReqId(c), err.Error())
-		api.SetErrInternalServerErrorResp(c, err)
+		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOkResp(
+	api.SetStatusOk(
 		c,
 		"tuning status updated",
 		*tuning,
@@ -159,14 +159,14 @@ func deleteTuning(c *gin.Context) {
 	tuning, err := decodeTuningReq(c.Request.Body)
 	if err != nil {
 		log.Errorf("request(%s): failed to decode tuning: %s", api.GetReqId(c), err.Error())
-		api.SetErrBadRequestResp(c, err)
+		api.SetBadRequest(c, err)
 		return
 	}
 
 	if !definition.ShouldCurrentRoleHandleTheTuning(tuning.Name, definition.CurrentRole) {
 		err := fmt.Errorf("role %s is not responsible for tuning %s", definition.CurrentRole, tuning.Name)
 		log.Errorf("request(%s): %s", err.Error())
-		api.SetErrBadRequestResp(c, err)
+		api.SetBadRequest(c, err)
 		return
 	}
 
@@ -174,7 +174,7 @@ func deleteTuning(c *gin.Context) {
 	syncTuningRecord(*tuning)
 	reqQueue.Add(tuning)
 
-	api.SetStatusOkResp(
+	api.SetStatusOk(
 		c,
 		"tuning applied",
 		*tuning,
@@ -185,13 +185,13 @@ func deleteTunings(c *gin.Context) {
 	tunings, err := decodeTuningsReq(c.Request.Body)
 	if err != nil {
 		log.Errorf("request(%s): failed to decode tunings: %s", api.GetReqId(c), err.Error())
-		api.SetErrBadRequestResp(c, err)
+		api.SetBadRequest(c, err)
 		return
 	}
 
 	setBatchPendingDeletion(tunings)
 	delegateTuningsReq(tunings)
-	api.SetStatusOkResp(
+	api.SetStatusOk(
 		c,
 		"request received and deleting",
 		tunings,

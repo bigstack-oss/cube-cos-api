@@ -1,0 +1,109 @@
+package runtime
+
+import (
+	"fmt"
+	"os"
+
+	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/node"
+	"github.com/bigstack-oss/cube-cos-api/internal/service"
+	log "go-micro.dev/v5/logger"
+)
+
+func initNodeIdentities() error {
+	var err error
+	definition.Hostname, err = os.Hostname()
+	if err != nil {
+		log.Errorf("failed to get hostname: %s", err.Error())
+		return err
+	}
+
+	definition.HostID, err = definition.GenerateNodeHashByMacAddr()
+	if err != nil {
+		log.Errorf("failed to generate host id: %s", err.Error())
+		return err
+	}
+
+	definition.CurrentRole, err = cubecos.GetNodeRole()
+	if err != nil {
+		log.Errorf("failed to get node role: %s", err.Error())
+		return err
+	}
+
+	definition.IsHaEnabled, err = cubecos.IsHaEnabled()
+	if err != nil {
+		log.Errorf("failed to get ha enabled: %s", err.Error())
+		return err
+	}
+
+	definition.MgmtNet, err = cubecos.GetMgmtNet()
+	if err != nil {
+		log.Errorf("failed to get management network: %s", err.Error())
+		return err
+	}
+
+	definition.MgmtIP, err = cubecos.GetManagementIp(definition.MgmtNet)
+	if err != nil {
+		log.Errorf("failed to get management ip: %s", err.Error())
+		return err
+	}
+
+	definition.DataCenterVip, err = cubecos.GetControllerVirtualIp(definition.MgmtNet)
+	if err != nil {
+		log.Errorf("failed to get controller virtual ip: %s", err.Error())
+		return err
+	}
+
+	definition.DataCenterName, err = cubecos.GetDataCenterName()
+	if err != nil {
+		log.Errorf("failed to get data center name: %s", err.Error())
+		return err
+	}
+
+	definition.ListenAddr = genLocalAddr()
+	definition.ListenPort = conf.Opts.Spec.Listen.Port
+	definition.AdvertiseAddr = genServiceDiscoveryAddr()
+	definition.AdvertisePort = conf.Opts.Spec.Listen.Port
+	definition.IsGpuEnabled = cubecos.IsGpuEnabled()
+	definition.LogoutRedirectUrl = genLogoutRedirectUrl()
+
+	return nil
+}
+
+func initNodePeerSyncer() {
+	service.RegisterOperator(node.Name(), node.NewOperator())
+}
+
+func genMetadata() map[string]string {
+	return map[string]string{
+		"hostname":     definition.Hostname,
+		"nodeID":       definition.HostID,
+		"isGpuEnabled": fmt.Sprintf("%t", definition.IsGpuEnabled),
+	}
+}
+
+func genLocalAddr() string {
+	return fmt.Sprintf(
+		"%s:%d",
+		conf.Opts.Spec.Listen.Local,
+		conf.Opts.Spec.Listen.Port,
+	)
+}
+
+func genServiceDiscoveryAddr() string {
+	return fmt.Sprintf(
+		"%s:%d",
+		definition.MgmtIP,
+		conf.Opts.Spec.Listen.Port,
+	)
+}
+
+func genLogoutRedirectUrl() string {
+	return fmt.Sprintf(
+		"https://%s:4443%s",
+		definition.DataCenterVip,
+		conf.Opts.Spec.Identity.LogoutRedirect,
+	)
+}

@@ -1,10 +1,12 @@
 package v1
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	json "github.com/json-iterator/go"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -12,7 +14,8 @@ const (
 )
 
 var (
-	tuningSpecs = sync.Map{}
+	tuningSpecs            = sync.Map{}
+	CreateRecordIfNotExist = options.Update().SetUpsert(true)
 )
 
 type Policy struct {
@@ -109,4 +112,12 @@ func (t *Policy) DeleteTuning(tuningName string) {
 	}
 
 	t.Tunings = newTunings
+}
+
+func TuningDB() string {
+	return Tunings
+}
+
+func TuningCollection(name string) string {
+	return strings.Split(name, ".")[0]
 }

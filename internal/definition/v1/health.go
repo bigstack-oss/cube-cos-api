@@ -1,18 +1,25 @@
 package v1
 
-const (
-	Health = "health"
+import (
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 )
 
-type HealthInfo struct {
-	Category string   `json:"category"`
-	Service  string   `json:"service"`
-	Status   string   `json:"status"`
-	Modules  []Module `json:"modules"`
+const (
+	Healths = "healths"
+	repair  = "repair"
+)
+
+type Health struct {
+	Category string         `json:"category"`
+	Service  string         `json:"service"`
+	Status   status.Details `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
+	Modules  []Module       `json:"modules"`
 }
 
-type Module struct {
-	Name   string `json:"name"`
-	Status string `json:"status"`
-	Msg    string `json:"msg"`
+func HealthDB() string {
+	return Healths
+}
+
+func RepairCollection() string {
+	return repair
 }

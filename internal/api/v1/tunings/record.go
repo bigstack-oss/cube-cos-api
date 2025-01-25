@@ -13,17 +13,15 @@ import (
 )
 
 func getTuningRecords() ([]definition.Tuning, error) {
-	db := cubeMongo.GetGlobalHelper()
-	defer db.Disconnect(context.Background())
-
-	colls, err := db.GetAllCollections(definition.TuningDB())
+	h := cubeMongo.GetGlobalHelper()
+	colls, err := h.GetAllCollections(definition.TuningDB())
 	if err != nil {
 		return nil, err
 	}
 
 	tunings := []definition.Tuning{}
 	for _, coll := range colls {
-		cursor, err := db.GetQueryCursor(definition.TuningDB(), coll, bson.M{})
+		cursor, err := h.GetQueryCursor(definition.TuningDB(), coll, bson.M{})
 		if err != nil {
 			log.Errorf("failed to get cursor for %s (%s)", coll, err.Error())
 			continue
@@ -54,12 +52,10 @@ func appendTuningRecords(cursor *mongo.Cursor, tunings *[]definition.Tuning) {
 }
 
 func syncTuningRecord(tuning definition.Tuning) {
-	db := cubeMongo.GetGlobalHelper()
-	defer db.Disconnect(context.Background())
-
+	h := cubeMongo.GetGlobalHelper()
 	filter := bson.M{"node.id": tuning.Node.Id, "name": tuning.Name}
 	update := bson.M{"$set": tuning}
-	err := db.UpdateOne(
+	err := h.UpdateOne(
 		definition.TuningDB(),
 		definition.TuningCollection(tuning.Name),
 		filter,
@@ -76,10 +72,8 @@ func syncTuningRecord(tuning definition.Tuning) {
 }
 
 func updateRecordStatus(tuning *definition.Tuning) error {
-	db := cubeMongo.GetGlobalHelper()
-	defer db.Disconnect(context.Background())
-
-	return db.UpdateOne(
+	h := cubeMongo.GetGlobalHelper()
+	return h.UpdateOne(
 		definition.TuningDB(),
 		definition.TuningCollection(tuning.Name),
 		bson.M{"node.id": tuning.Node.Id, "name": tuning.Name},

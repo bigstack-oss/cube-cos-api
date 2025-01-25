@@ -1,4 +1,4 @@
-package error
+package errors
 
 import "errors"
 
@@ -15,6 +15,9 @@ var (
 	ServiceNotFound     = errors.New("service not found")
 	TuningParamNotFound = errors.New("tuning parameter not found")
 	LicensesNotFound    = errors.New("licenses not found")
+
+	DataCenterIsNotReady  = errors.New("data center is not set ready")
+	DataCenterIsRepairing = errors.New("data center is repairing")
 )
 
 type Template struct {
@@ -35,4 +38,17 @@ func ErrService(err error) Template {
 		Msg:      "configuration operation failure",
 		Raw:      err,
 	}
+}
+
+func CombineErrors(errs []error) error {
+	if len(errs) == 0 {
+		return nil
+	}
+
+	errStr := ""
+	for _, err := range errs {
+		errStr += err.Error() + ", "
+	}
+
+	return errors.New(errStr)
 }

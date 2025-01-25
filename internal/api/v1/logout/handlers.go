@@ -25,15 +25,15 @@ func logout(c *gin.Context) {
 	session, err := saml.SpAuth.Session.GetSession(c.Request)
 	if err != nil {
 		log.Errorf("failed to get session for logout: %s", err.Error())
-		api.SetErrInternalServerErrorResp(c, err)
+		api.SetInternalServerError(c, err)
 		return
 	}
 
 	err = cleanSession(c, session)
 	if err != nil {
-		api.SetErrInternalServerErrorResp(c, err)
+		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetRedirectResp(c, genRedirectUrl())
+	api.SetRedirect(c, genRedirectUrl())
 }

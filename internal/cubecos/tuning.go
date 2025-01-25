@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	cuberr "github.com/bigstack-oss/cube-cos-api/internal/error"
+	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/google/uuid"
 	log "go-micro.dev/v5/logger"
 	"gopkg.in/yaml.v2"
@@ -892,9 +892,9 @@ func ReadHexTuning(parameterName string) (string, error) {
 }
 
 func ApplyHexTuning(isolatedDir string) error {
-	_, err := exec.Command("hex_config", "apply", isolatedDir).Output()
+	out, err := exec.Command("hex_config", "apply", isolatedDir).CombinedOutput()
 	if err != nil {
-		log.Errorf("failed to apply hex tunning value: %s", err.Error())
+		log.Errorf("failed to apply hex tunning value: %s", string(out))
 		return err
 	}
 
