@@ -73,7 +73,6 @@ func conditionalSaml() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		_, found := c.Get("isTokenValid")
 		if found {
-			log.Infof("auth: valid token authed, skip SAML auth")
 			c.Next()
 			return
 		}
