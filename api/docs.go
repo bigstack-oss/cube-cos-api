@@ -350,7 +350,7 @@ const docTemplate = `{
                                                     "properties": {
                                                         "current": {
                                                             "type": "string",
-                                                            "example": "ok"
+                                                            "example": "ng"
                                                         },
                                                         "description": {
                                                             "type": "string",
@@ -549,7 +549,7 @@ const docTemplate = `{
                                 },
                                 "status": {
                                     "type": "string",
-                                    "example": "ok"
+                                    "example": "accepted"
                                 }
                             }
                         }
