@@ -1,7 +1,7 @@
 package healths
 
 import (
-	"encoding/json"
+	json "github.com/json-iterator/go"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
@@ -81,7 +81,8 @@ func genRepairReq(c *gin.Context) *cubecos.Health {
 	h := &cubecos.Health{}
 	err := json.NewDecoder(c.Request.Body).Decode(&h)
 	if err != nil {
-		h = &cubecos.Health{}
+		h.DataCenter = &definition.DataCenter{}
+		h.Overall = &cubecos.Overall{}
 	}
 
 	h.DataCenter.SetDetailsByInitedInfo()

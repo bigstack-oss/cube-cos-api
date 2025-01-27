@@ -60,7 +60,10 @@ func repairHealth(c *gin.Context) {
 	}
 
 	reqQueue.Add(req)
-	api.SetStatusAccepted(c, "data center is repairing")
+	api.SetStatusAccepted(
+		c,
+		"the request of unhealthy module repair is accepted and repairing",
+	)
 }
 
 func updateHealth(c *gin.Context) {
