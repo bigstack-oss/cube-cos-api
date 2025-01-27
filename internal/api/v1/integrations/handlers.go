@@ -20,7 +20,7 @@ var (
 )
 
 func getIntegrations(c *gin.Context) {
-	api.SetStatusOkResp(
+	api.SetStatusOk(
 		c,
 		"fetch integrations successfully",
 		cubecos.ListBuiltInIntegrations(),

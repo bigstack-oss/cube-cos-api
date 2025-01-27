@@ -2,7 +2,7 @@ package service
 
 import (
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	cuberr "github.com/bigstack-oss/cube-cos-api/internal/error"
+	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )

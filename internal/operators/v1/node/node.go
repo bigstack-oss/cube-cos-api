@@ -16,26 +16,26 @@ func Name() string {
 	return module
 }
 
-type Controller struct {
+type Operator struct {
 	ctx             context.Context
 	cancel          context.CancelFunc
 	isFirstTimeSync bool
 }
 
-func NewController() *Controller {
+func NewOperator() *Operator {
 	ctx, cancel := context.WithCancel(context.Background())
-	return &Controller{
+	return &Operator{
 		ctx:             ctx,
 		cancel:          cancel,
 		isFirstTimeSync: true,
 	}
 }
 
-func (c *Controller) Name() string {
+func (o *Operator) Name() string {
 	return module
 }
 
-func (c *Controller) Sync() {
+func (o *Operator) Sync() {
 	watcher, err := registry.Watch()
 	if err != nil {
 		log.Errorf("failed to create watcher (%s)", err.Error())
@@ -44,18 +44,18 @@ func (c *Controller) Sync() {
 
 	defer watcher.Stop()
 	select {
-	case <-c.ctx.Done():
+	case <-o.ctx.Done():
 		return
 	default:
-		c.watchAndSyncNodeRoles(&watcher)
+		o.watchAndSyncNodeRoles(&watcher)
 	}
 }
 
-func (c *Controller) Stop() {
-	c.cancel()
+func (o *Operator) Stop() {
+	o.cancel()
 }
 
-func (c *Controller) watchAndSyncNodeRoles(watcher *registry.Watcher) {
+func (o *Operator) watchAndSyncNodeRoles(watcher *registry.Watcher) {
 	event, err := (*watcher).Next()
 	if err == nil {
 		definition.SyncNodesOfRole()

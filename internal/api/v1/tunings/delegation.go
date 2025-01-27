@@ -7,7 +7,7 @@ import (
 
 	cubeHttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	cuberr "github.com/bigstack-oss/cube-cos-api/internal/error"
+	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 )

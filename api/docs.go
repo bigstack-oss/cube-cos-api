@@ -116,6 +116,16 @@ const docTemplate = `{
                 "summary": "Retrieve the list of events",
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                          "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
                         "in": "query",
                         "name": "type",
                         "required": true,
@@ -301,15 +311,27 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/health": {
+        "/api/v1/datacenters/{dataCenter}/healths": {
             "get": {
                 "tags": [
                     "Health"
                 ],
-                "summary": "Retrieve the list of health checks",
+                "summary": "Retrieve the list of health",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                          "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Retrieve the list of health checks successfully",
+                        "description": "Retrieve the list of health successfully",
                         "schema": {
                             "type": "object",
                             "properties": {
@@ -318,80 +340,236 @@ const docTemplate = `{
                                     "example": 200
                                 },
                                 "data": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "inUse": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "service": {
-                                                        "type": "string",
-                                                        "example": "blockStorage"
-                                                    },
-                                                    "status": {
-                                                        "type": "string",
-                                                        "example": "ok"
-                                                    },
-                                                    "module": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "name": {
-                                                                "type": "string",
-                                                                "example": "ceph"
-                                                            },
-                                                            "status": {
-                                                                "type": "string",
-                                                                "example": "ok"
-                                                            },
-                                                            "msg": {
-                                                                "type": "string",
-                                                                "example": ""
-                                                            }
+                                    "type": "object",
+                                    "properties": {
+                                        "overall": {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "current": {
+                                                            "type": "string",
+                                                            "example": "ok"
+                                                        },
+                                                        "description": {
+                                                            "type": "string",
+                                                            "example": "ceph has 2 ceph_osd down"
                                                         }
                                                     }
                                                 }
-                                            },
-                                            "error": {
-                                                "type": "object",
+                                            }
+                                        },
+                                        "inUse": {
+                                            "type": "array",
+                                            "items": {
                                                 "properties": {
                                                     "service": {
                                                         "type": "string",
-                                                        "example": "dataPipe"
+                                                        "example": "clusterLink"
+                                                    },
+                                                    "category": {
+                                                        "type": "string",
+                                                        "example": "core"
                                                     },
                                                     "status": {
-                                                        "type": "string",
-                                                        "example": "ng"
-                                                    },
-                                                    "module": {
                                                         "type": "object",
                                                         "properties": {
-                                                            "name": {
+                                                            "current": {
                                                                 "type": "string",
-                                                                "example": "kafka"
-                                                            },
-                                                            "status": {
-                                                                "type": "string",
-                                                                "example": "ng"
-                                                            },
-                                                            "msg": {
-                                                                "type": "string",
-                                                                "example": "5 topics have no coordinator"
+                                                                "example": "ok"
+                                                            }
+                                                        }
+                                                    },
+                                                    "module": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "link"
+                                                                },
+                                                                "isAutoRepairable": {
+                                                                    "type": "boolean",
+                                                                    "example": false
+                                                                },
+                                                                "status": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "current": {
+                                                                            "type": "string",
+                                                                            "example": "ok"
+                                                                        }
+                                                                    }
+                                                                }
                                                             }
                                                         }
                                                     }
                                                 }
                                             }
+                                        },
+                                        "error": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "service": {
+                                                        "type": "string",
+                                                        "example": "storage"
+                                                    },
+                                                    "category": {
+                                                        "type": "string",
+                                                        "example": "storage"
+                                                    },
+                                                    "status": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "current": {
+                                                                "type": "string",
+                                                                "example": "ng"
+                                                            },
+                                                            "description": {
+                                                                "type": "string",
+                                                                "example": "ceph has 2 ceph_osd down"
+                                                            }
+                                                        }
+                                                    },
+                                                    "module": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "ceph_osd"
+                                                                },
+                                                                "isAutoRepairable": {
+                                                                    "type": "boolean",
+                                                                    "example": true
+                                                                },
+                                                                "status": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "current": {
+                                                                            "type": "string",
+                                                                            "example": "ng"
+                                                                        },
+                                                                        "description": {
+                                                                            "type": "string",
+                                                                            "example": "2 ceph_osd down"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "fixing": {
+                                            "type": "array"
                                         }
                                     }
                                 },
                                 "msg": {
                                     "type": "string",
-                                    "example": "fetch health checks successfully"
+                                    "example": "fetch health successfully"
                                 },
                                 "status": {
                                     "type": "string",
                                     "example": "ok"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "integer",
+                                    "example": 500
+                                },
+                                "msg": {
+                                    "type": "string",
+                                    "example": "failed to fetch health checks: internal server error"
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "example": "internal server error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/healths/{module}/repair": {
+            "post": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Repair the unhealthy module",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                          "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "module",
+                        "required": true,
+                        "schema": {
+                          "type": "string"
+                        },
+                        "description": "The name of the module to repair. The value can be 'all' to repair all modules under all services, or other module names like 'ceph_osd', 'nova', and so on.",
+                        "example": "all, ceph_osd, or other module names"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "The Request of the unhealthy module repair is accepted",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "integer",
+                                    "example": 202
+                                },
+                                "msg": {
+                                    "type": "string",
+                                    "example": "the request of unhealthy module repair is accepted and repairing"
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "example": "ok"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "integer",
+                                    "example": 409
+                                },
+                                "msg": {
+                                    "type": "string",
+                                    "example": "the repair process is already running"
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "example": "conflict"
                                 }
                             }
                         }
@@ -425,6 +603,18 @@ const docTemplate = `{
                     "Integrations"
                 ],
                 "summary": "Retrieve the list of integrated applications",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                          "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Retrieve the list of integrated applications successfully",
@@ -504,6 +694,16 @@ const docTemplate = `{
                 ],
                 "summary": "Retrieve the list of nodes",
                 "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                          "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
                     {
                         "in": "query",
                         "name": "pageNum",
@@ -783,6 +983,18 @@ const docTemplate = `{
                     "Summary"
                 ],
                 "summary": "Retrieve the summary of data center",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                          "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Retrieve the summary of data center successfully",
@@ -949,7 +1161,6 @@ const docTemplate = `{
     }
 }`
 
-// SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0.0",
 	Host:             "",

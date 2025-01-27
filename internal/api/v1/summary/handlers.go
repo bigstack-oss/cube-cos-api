@@ -24,25 +24,25 @@ func getSummary(c *gin.Context) {
 	vmStatusOverview, err := cubecos.GetVmStatusOverview()
 	if err != nil {
 		log.Errorf("request(%s): failed to get vm status overview: %v", api.GetReqId(c), err)
-		api.SetErrInternalServerErrorResp(c, err)
+		api.SetInternalServerError(c, err)
 		return
 	}
 
 	resourceMetrics, err := cubecos.GetResourceMetrics()
 	if err != nil {
 		log.Errorf("request(%s): failed to get resource metrics: %v", api.GetReqId(c), err)
-		api.SetErrInternalServerErrorResp(c, err)
+		api.SetInternalServerError(c, err)
 		return
 	}
 
 	roleOverview, err := cubecos.GetRoleOverview()
 	if err != nil {
 		log.Errorf("request(%s): failed to get role overview: %v", api.GetReqId(c), err)
-		api.SetErrInternalServerErrorResp(c, err)
+		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOkResp(
+	api.SetStatusOk(
 		c,
 		"fetch summary successfully",
 		cubecos.Summary{
