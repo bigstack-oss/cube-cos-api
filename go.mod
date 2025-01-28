@@ -3,8 +3,10 @@ module github.com/bigstack-oss/cube-cos-api
 go 1.22.2
 
 require (
-	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250121124706-d8117847670b
+	github.com/Nerzal/gocloak/v13 v13.9.0
+	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250128101320-666466b5e307
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
+	github.com/coreos/go-oidc v2.3.0+incompatible
 	github.com/crewjam/saml v0.4.14
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-micro/plugins/v5/config/encoder/yaml v1.0.0
@@ -29,7 +31,6 @@ require (
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
-	github.com/Nerzal/gocloak/v13 v13.9.0 // indirect
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5 // indirect
 	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
@@ -85,6 +86,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pquerna/cachecontrol v0.2.0 // indirect
 	github.com/prometheus/client_golang v1.13.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
@@ -107,12 +109,15 @@ require (
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/mod v0.19.0 // indirect
 	golang.org/x/net v0.33.0 // indirect
+	golang.org/x/oauth2 v0.10.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
 	golang.org/x/tools v0.23.0 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
+	gopkg.in/go-jose/go-jose.v2 v2.6.3 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apimachinery v0.30.2 // indirect
