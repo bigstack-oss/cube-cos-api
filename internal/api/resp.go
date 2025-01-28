@@ -18,6 +18,18 @@ func SetStatusOk(c *gin.Context, msg string, data interface{}) {
 	)
 }
 
+func SetStatusCreated(c *gin.Context, msg string, data interface{}) {
+	c.JSON(
+		http.StatusCreated,
+		gin.H{
+			Code:   http.StatusCreated,
+			Status: "created",
+			Msg:    msg,
+			Data:   data,
+		},
+	)
+}
+
 func SetStatusAccepted(c *gin.Context, msg string) {
 	c.JSON(
 		http.StatusAccepted,
@@ -42,6 +54,17 @@ func SetBadRequest(c *gin.Context, err error) {
 		gin.H{
 			Code:   http.StatusBadRequest,
 			Status: "bad request",
+			Msg:    err.Error(),
+		},
+	)
+}
+
+func SetUnauthorized(c *gin.Context, err error) {
+	c.JSON(
+		http.StatusUnauthorized,
+		gin.H{
+			Code:   http.StatusUnauthorized,
+			Status: "unauthorized",
 			Msg:    err.Error(),
 		},
 	)
