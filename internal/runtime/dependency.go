@@ -1,6 +1,9 @@
 package runtime
 
 import (
+	"net/http"
+
+	"github.com/Nerzal/gocloak/v13"
 	bshttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
@@ -8,11 +11,12 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	log "go-micro.dev/v5/logger"
 )
 
-func initDependencyHelpers() error {
+func initDependencies() error {
 	err := newGlobalLogHelper(conf.Opts.Spec.Observability.Log)
 	if err != nil {
 		log.Errorf("failed to init logger: %s", err.Error())
@@ -52,6 +56,12 @@ func initDependencyHelpers() error {
 	err = newGlobalKeycloakHelper(conf.Opts.Spec.Identity.Keycloak)
 	if err != nil {
 		log.Errorf("failed to init keycloak helper: %s", err.Error())
+		return err
+	}
+
+	err = newKeycloakOidcAuth()
+	if err != nil {
+		log.Errorf("failed to init oidc auth in keycloak: %s", err.Error())
 		return err
 	}
 
@@ -113,4 +123,26 @@ func newGlobalHttpHelper() error {
 
 func newGlobalSamlHelper() error {
 	return saml.NewGlobalAuth(conf.Opts.Spec.Identity.Saml)
+}
+
+func newKeycloakOidcAuth() error {
+	h := keycloak.GetGlobalHelper()
+	err := h.LoginAdmin()
+	if err != nil {
+		log.Errorf("failed to login admin: %s", err.Error())
+		return err
+	}
+
+	_, err = h.CreateClient(
+		definition.DefaultKeycloakRealm,
+		definition.DefaultOidcClientOpts,
+	)
+	if err == nil {
+		return nil
+	}
+	if err.(*gocloak.APIError).Code == http.StatusConflict {
+		return nil
+	}
+
+	return err
 }

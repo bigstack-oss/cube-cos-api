@@ -12,7 +12,7 @@ func NewHttpServer() (*server.Server, error) {
 		return nil, err
 	}
 
-	err = initDependencyHelpers()
+	err = initDependencies()
 	if err != nil {
 		log.Errorf("failed to init node clis: %s", err.Error())
 		return nil, err

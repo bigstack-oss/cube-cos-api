@@ -2,9 +2,11 @@ package runtime
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/oidc"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -59,8 +61,9 @@ func initReqInfo(c *gin.Context) {
 
 func verifyAuthToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token, err := c.Cookie("Bearer")
-		if err == nil && token != "" {
+		token := parseToken(c)
+		err := oidc.VerifyToken(token)
+		if err == nil {
 			c.Set("isTokenValid", true)
 		}
 
@@ -68,8 +71,22 @@ func verifyAuthToken() gin.HandlerFunc {
 	}
 }
 
+func parseToken(c *gin.Context) string {
+	auth := c.GetHeader("Authorization")
+	if auth == "" {
+		return ""
+	}
+
+	const bearer = "Bearer "
+	if !strings.HasPrefix(auth, bearer) {
+		return ""
+	}
+
+	return strings.TrimPrefix(auth, bearer)
+}
+
 func conditionalSaml() gin.HandlerFunc {
-	requireAccount := adapter.Wrap(saml.SpAuth.RequireAccount)
+	doSamlAuth := adapter.Wrap(saml.SpAuth.RequireAccount)
 	return func(c *gin.Context) {
 		_, found := c.Get("isTokenValid")
 		if found {
@@ -77,7 +94,13 @@ func conditionalSaml() gin.HandlerFunc {
 			return
 		}
 
-		requireAccount(c)
+		// M1 TODO: can converge with the saml auth
+		if strings.Contains(c.Request.URL.Path, "/token") {
+			c.Next()
+			return
+		}
+
+		doSamlAuth(c)
 	}
 }
 
