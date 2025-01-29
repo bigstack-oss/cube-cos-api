@@ -1,8 +1,6 @@
 package main
 
 import (
-	"flag"
-
 	_ "github.com/bigstack-oss/cube-cos-api/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/runtime"
@@ -10,17 +8,8 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-var (
-	conf string
-)
-
-func init() {
-	flag.StringVar(&conf, "conf", "", "")
-	flag.Parse()
-}
-
 func main() {
-	err := config.InitServerOpts(conf)
+	err := config.ReadAndOverrideOpts()
 	if err != nil {
 		log.Errorf("failed to load config: %s", err.Error())
 		return
