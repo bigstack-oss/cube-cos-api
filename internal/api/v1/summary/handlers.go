@@ -20,35 +20,29 @@ var (
 	}
 )
 
+func init() {
+	go onDemandStreamSummary()
+}
+
 func getSummary(c *gin.Context) {
-	vmStatusOverview, err := cubecos.GetVmStatusOverview()
+	summary, err := cubecos.GetDataCenterSummary()
 	if err != nil {
-		log.Errorf("request(%s): failed to get vm status overview: %v", api.GetReqId(c), err)
+		log.Errorf("request(%s): failed to fetch data center summary: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	resourceMetrics, err := cubecos.GetResourceMetrics()
+	watch, err := parseWatch(c)
 	if err != nil {
-		log.Errorf("request(%s): failed to get resource metrics: %v", api.GetReqId(c), err)
-		api.SetInternalServerError(c, err)
+		log.Errorf("request(%s): failed to parse watch query: %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
 		return
 	}
 
-	roleOverview, err := cubecos.GetRoleOverview()
-	if err != nil {
-		log.Errorf("request(%s): failed to get role overview: %v", api.GetReqId(c), err)
-		api.SetInternalServerError(c, err)
+	if !watch {
+		api.SetStatusOk(c, "fetch summary successfully", summary)
 		return
 	}
 
-	api.SetStatusOk(
-		c,
-		"fetch summary successfully",
-		cubecos.Summary{
-			Vm:      *vmStatusOverview,
-			Role:    *roleOverview,
-			Metrics: *resourceMetrics,
-		},
-	)
+	watchSummary(c, summary)
 }

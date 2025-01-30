@@ -1,11 +1,10 @@
 package tunings
 
 import (
-	"time"
-
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
+	"github.com/bigstack-oss/cube-cos-api/internal/wait"
 	"k8s.io/client-go/util/workqueue"
 )
 
@@ -52,6 +51,6 @@ func (o *Operator) Stop() {
 
 func (o *Operator) waitForLastTask() {
 	for ReqQueue.Len() >= 1 {
-		time.Sleep(time.Second * 1)
+		wait.Seconds(1)
 	}
 }
