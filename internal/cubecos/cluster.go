@@ -43,3 +43,26 @@ func GetDataCenterName() (string, error) {
 
 	return ReadHexTuning(CubeSysController)
 }
+
+func GetDataCenterSummary() (*Summary, error) {
+	resourceMetrics, err := GetResourceMetrics()
+	if err != nil {
+		return nil, err
+	}
+
+	roleOverview, err := GetRoleOverview()
+	if err != nil {
+		return nil, err
+	}
+
+	vmStatusOverview, err := GetVmStatusOverview()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Summary{
+		Metrics: *resourceMetrics,
+		Role:    *roleOverview,
+		Vm:      *vmStatusOverview,
+	}, nil
+}
