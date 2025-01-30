@@ -1048,6 +1048,16 @@ const docTemplate = `{
                         },
                         "description": "The name of the data center to operate",
                         "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "watch",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "The flag to watch the summary data center in real-time (default is false).",
+                        "example": true
                     }
                 ],
                 "responses": {

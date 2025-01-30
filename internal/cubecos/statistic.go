@@ -1,6 +1,8 @@
 package cubecos
 
 import (
+	json "github.com/json-iterator/go"
+
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
 
@@ -26,4 +28,13 @@ type Role struct {
 	Compute          int `json:"compute"`
 	Storage          int `json:"storage"`
 	Others           int `json:"others"`
+}
+
+func (s *Summary) Bytes() []byte {
+	b, err := json.Marshal(s)
+	if err != nil {
+		return []byte{}
+	}
+
+	return b
 }
