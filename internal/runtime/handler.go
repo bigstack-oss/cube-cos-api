@@ -7,8 +7,8 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/healths"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/integrations"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/logout"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/metrics"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/summary"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/tokens"
 	apitunings "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
@@ -18,12 +18,6 @@ func initNodeApiHandler() {
 	api.RegisterHandlersToRoles(
 		definition.DataCenters,
 		datacenters.Handlers,
-		definition.RoleControl,
-	)
-
-	api.RegisterHandlersToRoles(
-		definition.Summary,
-		summary.Handlers,
 		definition.RoleControl,
 	)
 
@@ -56,6 +50,12 @@ func initNodeApiHandler() {
 		apitunings.Handlers,
 		definition.RoleControl,
 		definition.RoleCompute,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Metrics,
+		metrics.Handlers,
+		definition.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
