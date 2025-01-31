@@ -29,7 +29,7 @@ func getEvents(c *gin.Context) {
 	}
 
 	stmt := h.genQueryStmt()
-	events, err := cubecos.ListEvents(stmt)
+	events, err := cubecos.GetEvents(stmt)
 	if err != nil {
 		log.Errorf("request(%s): failed to fetch events: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)

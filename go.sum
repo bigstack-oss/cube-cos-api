@@ -74,7 +74,16 @@ github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250121124706-d8117847670
 =======
 github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250128101320-666466b5e307 h1:k9ITv5PRbi+WEaEk9ChvuMG7X8PEW2Rl4+7Ynk1yjTc=
 github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250128101320-666466b5e307/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
+<<<<<<< HEAD
 >>>>>>> dde1d50 ([#26] feat(auth): add OIDC based token access and POST api to fetch token)
+=======
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250201184042-01b4a6b51a79 h1:LERc/Ng8VBN0Ee2MbAj4+B6FTU88kzCy9nsTJqHfjeg=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250201184042-01b4a6b51a79/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250202065107-8db34cdde7b7 h1:FiABFCvE4HmeGydg2rHWLH8HGL4gnJme0/9LjkvVlxo=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250202065107-8db34cdde7b7/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250202082555-9061781b157d h1:1uKJa7FIV+oaqe1F8e9J3A4B9UHTKWKgEguuVOZf1/8=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250202082555-9061781b157d/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
+>>>>>>> 1d06229 ([#46] feat(chart): add GET apis to support metrics fetching from all charts)
 github.com/bitly/go-simplejson v0.5.0 h1:6IH+V8/tVMab511d5bn4M7EwGXZf9Hj6i2xSwkNEM+Y=
 github.com/bitly/go-simplejson v0.5.0/go.mod h1:cXHtHw4XUPsvGaxgjIAn8PhEWG9NfngEKAMDJEczWVA=
 github.com/bmatcuk/doublestar v1.1.1/go.mod h1:UD6OnuiIn0yFxxA2le/rnRU1G4RaI4UvFv1sNto9p6w=

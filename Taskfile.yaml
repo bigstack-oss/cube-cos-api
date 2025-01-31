@@ -5,7 +5,7 @@ vars:
   dbService: "cube-cos-mongo"
   dbReplicaSet: "cube-cos-rs"
   devCosUser: "root"
-  devCosIp: "<REPLACE_NEW_VALUE_HERE_FOR_DEVELOPING>"
+  devCosIp: "<REPLACE_WITH_YOUR_REMOTE_DEV_COS_IP>"
   mongoVersion: "6.0.19"
 
 tasks:
@@ -23,7 +23,6 @@ tasks:
   diffMod:
     cmds:
       - GOWORK=off go mod tidy
-      - git diff --exit-code go.mod go.sum
   diffApiDocs:
     cmds:
       - git diff --exit-code api

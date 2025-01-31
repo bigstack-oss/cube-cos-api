@@ -734,6 +734,2152 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/metrics": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the metrics of data center",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the summary of data center successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "host": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "role": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "controlConverged": {
+                                                                    "type": "integer",
+                                                                    "example": 10
+                                                                },
+                                                                "control": {
+                                                                    "type": "integer",
+                                                                    "example": 3
+                                                                },
+                                                                "compute": {
+                                                                    "type": "integer",
+                                                                    "example": 5
+                                                                },
+                                                                "storage": {
+                                                                    "type": "integer",
+                                                                    "example": 2
+                                                                },
+                                                                "others": {
+                                                                    "type": "integer",
+                                                                    "example": 0
+                                                                }
+                                                            }
+                                                        },
+                                                        "usage": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "vcpu": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "totalCores": {
+                                                                            "type": "integer",
+                                                                            "example": 80
+                                                                        },
+                                                                        "usedCores": {
+                                                                            "type": "integer",
+                                                                            "example": 31
+                                                                        },
+                                                                        "usedPercent": {
+                                                                            "type": "float",
+                                                                            "example": 38.75
+                                                                        },
+                                                                        "freeCores": {
+                                                                            "type": "integer",
+                                                                            "example": 49
+                                                                        },
+                                                                        "freePercent": {
+                                                                            "type": "float",
+                                                                            "example": 61.25
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "memory": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "totalMiB": {
+                                                                            "type": "integer",
+                                                                            "example": 257371
+                                                                        },
+                                                                        "usedMiB": {
+                                                                            "type": "integer",
+                                                                            "example": 98255
+                                                                        },
+                                                                        "usedPercent": {
+                                                                            "type": "float",
+                                                                            "example": 38.2
+                                                                        },
+                                                                        "freeMiB": {
+                                                                            "type": "integer",
+                                                                            "example": 159116
+                                                                        },
+                                                                        "freePercent": {
+                                                                            "type": "float",
+                                                                            "example": 61.8
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "storage": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "totalMiB": {
+                                                                            "type": "integer",
+                                                                            "example": 102400
+                                                                        },
+                                                                        "usedMiB": {
+                                                                            "type": "integer",
+                                                                            "example": 51200
+                                                                        },
+                                                                        "usedPercent": {
+                                                                            "type": "float",
+                                                                            "example": 50
+                                                                        },
+                                                                        "freeMiB": {
+                                                                            "type": "integer",
+                                                                            "example": 51200
+                                                                        },
+                                                                        "freePercent": {
+                                                                            "type": "float",
+                                                                            "example": 50
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "vm": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "status": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "total": {
+                                                                    "type": "integer",
+                                                                    "example": 10
+                                                                },
+                                                                "running": {
+                                                                    "type": "integer",
+                                                                    "example": 8
+                                                                },
+                                                                "stopped": {
+                                                                    "type": "integer",
+                                                                    "example": 2
+                                                                },
+                                                                "paused": {
+                                                                    "type": "integer",
+                                                                    "example": 0
+                                                                },
+                                                                "suspend": {
+                                                                    "type": "integer",
+                                                                    "example": 0
+                                                                },
+                                                                "error": {
+                                                                    "type": "integer",
+                                                                    "example": 0
+                                                                },
+                                                                "unknown": {
+                                                                    "type": "integer",
+                                                                    "example": 0
+                                                                }
+                                                            }
+                                                        },
+                                                        "usage": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "vcpu": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "totalCores": {
+                                                                            "type": "integer",
+                                                                            "example": 80
+                                                                        },
+                                                                        "usedCores": {
+                                                                            "type": "integer",
+                                                                            "example": 31
+                                                                        },
+                                                                        "freeCores": {
+                                                                            "type": "integer",
+                                                                            "example": 49
+                                                                        },
+                                                                        "usedPercent": {
+                                                                            "type": "float",
+                                                                            "example": 38.75
+                                                                        },
+                                                                        "freePercent": {
+                                                                            "type": "float",
+                                                                            "example": 61.25
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "memory": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "totalMiB": {
+                                                                            "type": "integer",
+                                                                            "example": 257371
+                                                                        },
+                                                                        "usedMiB": {
+                                                                            "type": "integer",
+                                                                            "example": 98255
+                                                                        },
+                                                                        "freeMiB": {
+                                                                            "type": "integer",
+                                                                            "example": 159116
+                                                                        },
+                                                                        "usedPercent": {
+                                                                            "type": "float",
+                                                                            "example": 38.2
+                                                                        },
+                                                                        "freePercent": {
+                                                                            "type": "float",
+                                                                            "example": 61.8
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "storage": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "totalMiB": {
+                                                                            "type": "integer",
+                                                                            "example": 102400
+                                                                        },
+                                                                        "usedMiB": {
+                                                                            "type": "integer",
+                                                                            "example": 51200
+                                                                        },
+                                                                        "freeMiB": {
+                                                                            "type": "integer",
+                                                                            "example": 51200
+                                                                        },
+                                                                        "usedPercent": {
+                                                                            "type": "float",
+                                                                            "example": 50
+                                                                        },
+                                                                        "freePercent": {
+                                                                            "type": "float",
+                                                                            "example": 50
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch summary successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch nodes: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/{metricGroup}/{resourceType}": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the metrics of data center, host, and vm",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "metricGroup",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the metric group to query, the value can be only 'cpu', 'memory', 'storage', and 'network'",
+                        "example": "cpu"
+                    },
+                    {
+                        "in": "path",
+                        "name": "resourceType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of resource to query, the value can be only 'hosts' and 'vms'",
+                        "example": "hosts"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'usage', 'iops', 'bandwidth', 'latency', 'ingress', and 'egress'.",
+                        "example": 1
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'summary', 'timeSeries', and 'rank'.",
+                        "example": 1
+                    },
+                    {
+                        "in": "query",
+                        "name": "start",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
+                        "example": "2025-01-01T01:00:00Z"
+                    },
+                    {
+                        "in": "query",
+                        "name": "stop",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
+                        "example": "2025-01-01T01:00:00Z"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the summary of data center successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "vm": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "total": {
+                                                            "type": "integer",
+                                                            "example": 10
+                                                        },
+                                                        "running": {
+                                                            "type": "integer",
+                                                            "example": 8
+                                                        },
+                                                        "stopped": {
+                                                            "type": "integer",
+                                                            "example": 2
+                                                        },
+                                                        "paused": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        },
+                                                        "suspend": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        },
+                                                        "error": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        },
+                                                        "unknown": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        }
+                                                    }
+                                                },
+                                                "role": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "controlConverged": {
+                                                            "type": "integer",
+                                                            "example": 10
+                                                        },
+                                                        "control": {
+                                                            "type": "integer",
+                                                            "example": 3
+                                                        },
+                                                        "compute": {
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        },
+                                                        "storage": {
+                                                            "type": "integer",
+                                                            "example": 2
+                                                        },
+                                                        "others": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        }
+                                                    }
+                                                },
+                                                "metrics": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "vcpu": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "totalCores": {
+                                                                    "type": "integer",
+                                                                    "example": 80
+                                                                },
+                                                                "usedCores": {
+                                                                    "type": "integer",
+                                                                    "example": 31
+                                                                },
+                                                                "freeCores": {
+                                                                    "type": "integer",
+                                                                    "example": 49
+                                                                }
+                                                            }
+                                                        },
+                                                        "memory": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "totalMiB": {
+                                                                    "type": "integer",
+                                                                    "example": 257371
+                                                                },
+                                                                "usedMiB": {
+                                                                    "type": "integer",
+                                                                    "example": 98255
+                                                                },
+                                                                "freeMiB": {
+                                                                    "type": "integer",
+                                                                    "example": 159116
+                                                                }
+                                                            }
+                                                        },
+                                                        "storage": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "totalMiB": {
+                                                                    "type": "integer",
+                                                                    "example": 102400
+                                                                },
+                                                                "usedMiB": {
+                                                                    "type": "integer",
+                                                                    "example": 51200
+                                                                },
+                                                                "freeMiB": {
+                                                                    "type": "integer",
+                                                                    "example": 51200
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch summary successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch nodes: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/cpu/hosts": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the cpu metrics of hosts",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'usage'.",
+                        "example": 1
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'timeSeries'.",
+                        "example": 1
+                    },
+                    {
+                        "in": "query",
+                        "name": "start",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
+                        "example": "2025-01-01T01:00:00Z"
+                    },
+                    {
+                        "in": "query",
+                        "name": "stop",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
+                        "example": "2025-01-01T01:00:00Z"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the cpu usage of hosts successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "totalCores": {
+                                                    "type": "integer",
+                                                    "example": 80
+                                                },
+                                                "usedCores": {
+                                                    "type": "integer",
+                                                    "example": 31
+                                                },
+                                                "freeCores": {
+                                                    "type": "integer",
+                                                    "example": 49
+                                                },
+                                                "usedPercent": {
+                                                    "type": "float",
+                                                    "example": 38.75
+                                                },
+                                                "freePercent": {
+                                                    "type": "float",
+                                                    "example": 61.25
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch summary successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/storage/hosts?metricType=bandwidth": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the storage bandwidth time series of hosts",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'bandwidth'.",
+                        "example": "bandwidth"
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'timeSeries'.",
+                        "example": "timeSeries"
+                    },
+                    {
+                        "in": "query",
+                        "name": "start",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The start time of the metric to query, the value should be in RFC3339 format (default is 24 hours ago).",
+                        "example": "2025-01-01T01:00:00Z"
+                    },
+                    {
+                        "in": "query",
+                        "name": "stop",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The end time of the metric to query, the value should be in RFC3339 format (default is now).",
+                        "example": "2025-01-01T01:00:00Z"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the storage bandwidth time series of hosts successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "read": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "time": {
+                                                                "type": "string",
+                                                                "example": "2025-01-01T01:00:00Z"
+                                                            },
+                                                            "bytes": {
+                                                                "type": "float",
+                                                                "example": 682.6666
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "write": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "time": {
+                                                                "type": "string",
+                                                                "example": "2025-01-01T01:00:00Z"
+                                                            },
+                                                            "bytes": {
+                                                                "type": "float",
+                                                                "example": 4.5
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch metrics successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/storage/hosts?metricType=iops": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the storage iops time series of hosts",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'iops'.",
+                        "example": "iops"
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'timeSeries'.",
+                        "example": "timeSeries"
+                    },
+                    {
+                        "in": "query",
+                        "name": "start",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The start time of the metric to query, the value should be in RFC3339 format (default is 24 hours ago).",
+                        "example": "2025-01-01T01:00:00Z"
+                    },
+                    {
+                        "in": "query",
+                        "name": "stop",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The end time of the metric to query, the value should be in RFC3339 format (default is now).",
+                        "example": "2025-01-01T01:00:00Z"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the storage iops time series of hosts successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "read": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "time": {
+                                                                "type": "string",
+                                                                "example": "2025-01-01T01:00:00Z"
+                                                            },
+                                                            "ops": {
+                                                                "type": "float",
+                                                                "example": 1.0833
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "write": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "time": {
+                                                                "type": "string",
+                                                                "example": "2025-01-01T01:00:00Z"
+                                                            },
+                                                            "ops": {
+                                                                "type": "float",
+                                                                "example": 5.8166
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch metrics successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/storage/hosts?metricType=latency": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the storage latency time series of hosts",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'latency'.",
+                        "example": "latency"
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'timeSeries'.",
+                        "example": "timeSeries"
+                    },
+                    {
+                        "in": "query",
+                        "name": "start",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The start time of the metric to query, the value should be in RFC3339 format (default is 24 hours ago).",
+                        "example": "2025-01-01T01:00:00Z"
+                    },
+                    {
+                        "in": "query",
+                        "name": "stop",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The end time of the metric to query, the value should be in RFC3339 format (default is now).",
+                        "example": "2025-01-01T01:00:00Z"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the storage latency time series of hosts successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "read": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "time": {
+                                                                "type": "string",
+                                                                "example": "2025-01-01T01:00:00Z"
+                                                            },
+                                                            "ms": {
+                                                                "type": "float",
+                                                                "example": 10736.9833
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "write": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "time": {
+                                                                "type": "string",
+                                                                "example": "2025-01-01T01:00:00Z"
+                                                            },
+                                                            "ms": {
+                                                                "type": "float",
+                                                                "example": 1615349.9
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch metrics successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/storage/hosts?metricType=usage": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the storage usage time series of hosts",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'usage'.",
+                        "example": "latency"
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'rank'.",
+                        "example": "rank"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the storage usage rank of hosts successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "test-data-center"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "test-data-center"
+                                                    },
+                                                    "usedPercent": {
+                                                        "type": "float",
+                                                        "example": 24.6699
+                                                    },
+                                                    "freePercent": {
+                                                        "type": "float",
+                                                        "example": 75.3301
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch metrics successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/cpu/hosts?metricType=usage&reportType=rank": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the cpu usage rank of hosts",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'usage'.",
+                        "example": "latency"
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'rank'.",
+                        "example": "rank"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the cpu usage rank of hosts successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "test-data-center"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "test-data-center"
+                                                    },
+                                                    "usedPercent": {
+                                                        "type": "float",
+                                                        "example": 10.5263
+                                                    },
+                                                    "freePercent": {
+                                                        "type": "float",
+                                                        "example": 89.4737
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch metrics successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/memory/hosts?metricType=usage&reportType=rank": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the memory usage rank of hosts",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'usage'.",
+                        "example": "latency"
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'rank'.",
+                        "example": "rank"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the memory usage rank of hosts successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "test-data-center"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "test-data-center"
+                                                    },
+                                                    "usedPercent": {
+                                                        "type": "float",
+                                                        "example": 52.6702
+                                                    },
+                                                    "freePercent": {
+                                                        "type": "float",
+                                                        "example": 47.3298
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch metrics successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/network/hosts?metricType=ingress&reportType=rank": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the network ingress rank of hosts",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'ingress'.",
+                        "example": "ingress"
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'rank'.",
+                        "example": "rank"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the network ingress rank of hosts successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "test-data-center"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "test-data-center"
+                                                    },
+                                                    "packets": {
+                                                        "type": "float",
+                                                        "example": 5392.2666
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch metrics successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/network/hosts?metricType=egress&reportType=rank": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the network egress rank of hosts",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'ingress'.",
+                        "example": "ingress"
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'rank'.",
+                        "example": "rank"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the network ingress rank of hosts successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "test-data-center"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "test-data-center"
+                                                    },
+                                                    "packets": {
+                                                        "type": "float",
+                                                        "example": 1724.5302
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch metrics successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/cpu/vms?metricType=usage&reportType=rank": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the cpu usage rank of hosts",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'usage'.",
+                        "example": "ingress"
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'rank'.",
+                        "example": "rank"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the cpu usage rank of hosts successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "d280d915-7877-48c7-a0b2-faa15ec94717"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "test-vm"
+                                                    },
+                                                    "usedPercent": {
+                                                        "type": "float",
+                                                        "example": 10.5263
+                                                    },
+                                                    "freePercent": {
+                                                        "type": "float",
+                                                        "example": 89.4737
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch metrics successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/memory/vms?metricType=usage&reportType=rank": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the memory usage rank of hosts",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'usage'.",
+                        "example": "ingress"
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'rank'.",
+                        "example": "rank"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the memory usage rank of hosts successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "d280d915-7877-48c7-a0b2-faa15ec94717"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "test-vm"
+                                                    },
+                                                    "usedPercent": {
+                                                        "type": "float",
+                                                        "example": 35.0991
+                                                    },
+                                                    "freePercent": {
+                                                        "type": "float",
+                                                        "example": 64.9009
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch metrics successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/storage/vms?metricType={metricType}&reportType=rank": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the storage iops read or write rank of hosts",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'iopsRead' or 'iopsWrite'.",
+                        "example": "ingress"
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'rank'.",
+                        "example": "rank"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the storage iops rank of hosts successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "d280d915-7877-48c7-a0b2-faa15ec94717"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "test-vm"
+                                                    },
+                                                    "device": {
+                                                        "type": "string",
+                                                        "example": "sda"
+                                                    },
+                                                    "usage": {
+                                                        "type": "float",
+                                                        "example": 184266.4594
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch metrics successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/network/vms?metricType={metricType}&reportType=rank": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the network ingress or egress rank of hosts",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "metricType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of metric to query, the value can be only 'ingress' or 'egress'.",
+                        "example": "ingress"
+                    },
+                    {
+                        "in": "query",
+                        "name": "reportType",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of report to query, the value can be only 'rank'.",
+                        "example": "rank"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                       "description": "Retrieve the network ingress or egress rank of hosts successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "d280d915-7877-48c7-a0b2-faa15ec94717"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "test-vm"
+                                                    },
+                                                    "device": {
+                                                        "type": "string",
+                                                        "example": "sda"
+                                                    },
+                                                    "usage": {
+                                                        "type": "float",
+                                                        "example": 45443.764
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch metrics successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/nodes": {
             "get": {
                 "tags": [
@@ -1019,205 +3165,6 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to fetch nodes: internal server error"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "internal server error"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/datacenters/{dataCenter}/summary": {
-            "get": {
-                "tags": [
-                    "Summary"
-                ],
-                "summary": "Retrieve the summary of data center",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "test-data-center"
-                    },
-                    {
-                        "in": "query",
-                        "name": "watch",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "description": "The flag to watch the summary data center in real-time (default is false).",
-                        "example": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Retrieve the summary of data center successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 200
-                                        },
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "vm": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "total": {
-                                                            "type": "integer",
-                                                            "example": 10
-                                                        },
-                                                        "running": {
-                                                            "type": "integer",
-                                                            "example": 8
-                                                        },
-                                                        "stopped": {
-                                                            "type": "integer",
-                                                            "example": 2
-                                                        },
-                                                        "paused": {
-                                                            "type": "integer",
-                                                            "example": 0
-                                                        },
-                                                        "suspend": {
-                                                            "type": "integer",
-                                                            "example": 0
-                                                        },
-                                                        "error": {
-                                                            "type": "integer",
-                                                            "example": 0
-                                                        },
-                                                        "unknown": {
-                                                            "type": "integer",
-                                                            "example": 0
-                                                        }
-                                                    }
-                                                },
-                                                "role": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "controlConverged": {
-                                                            "type": "integer",
-                                                            "example": 10
-                                                        },
-                                                        "control": {
-                                                            "type": "integer",
-                                                            "example": 3
-                                                        },
-                                                        "compute": {
-                                                            "type": "integer",
-                                                            "example": 5
-                                                        },
-                                                        "storage": {
-                                                            "type": "integer",
-                                                            "example": 2
-                                                        },
-                                                        "others": {
-                                                            "type": "integer",
-                                                            "example": 0
-                                                        }
-                                                    }
-                                                },
-                                                "metrics": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "vcpu": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "totalCores": {
-                                                                    "type": "integer",
-                                                                    "example": 80
-                                                                },
-                                                                "usedCores": {
-                                                                    "type": "integer",
-                                                                    "example": 31
-                                                                },
-                                                                "freeCores": {
-                                                                    "type": "integer",
-                                                                    "example": 49
-                                                                }
-                                                            }
-                                                        },
-                                                        "memory": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "totalMiB": {
-                                                                    "type": "integer",
-                                                                    "example": 257371
-                                                                },
-                                                                "usedMiB": {
-                                                                    "type": "integer",
-                                                                    "example": 98255
-                                                                },
-                                                                "freeMiB": {
-                                                                    "type": "integer",
-                                                                    "example": 159116
-                                                                }
-                                                            }
-                                                        },
-                                                        "storage": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "totalMiB": {
-                                                                    "type": "integer",
-                                                                    "example": 102400
-                                                                },
-                                                                "usedMiB": {
-                                                                    "type": "integer",
-                                                                    "example": 51200
-                                                                },
-                                                                "freeMiB": {
-                                                                    "type": "integer",
-                                                                    "example": 51200
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "fetch summary successfully"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ok"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 500
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "failed to fetch summary: internal server error"
                                         },
                                         "status": {
                                             "type": "string",

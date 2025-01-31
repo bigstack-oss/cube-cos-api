@@ -29,19 +29,25 @@ func addNodeDetailsToNodes(c *gin.Context, nodes *[]*definition.Node) {
 
 func addMetricToNode(node *definition.Node, hypervisor *hypervisors.Hypervisor) {
 	node.Vcpu = definition.ComputeStatistic{
-		TotalCores: hypervisor.VCPUs,
-		UsedCores:  hypervisor.VCPUsUsed,
-		FreeCores:  hypervisor.VCPUs - hypervisor.VCPUsUsed,
+		TotalCores:  hypervisor.VCPUs,
+		UsedCores:   hypervisor.VCPUsUsed,
+		FreeCores:   hypervisor.VCPUs - hypervisor.VCPUsUsed,
+		UsedPercent: float64(hypervisor.VCPUsUsed) / float64(hypervisor.VCPUs) * 100,
+		FreePercent: float64(hypervisor.VCPUs-hypervisor.VCPUsUsed) / float64(hypervisor.VCPUs) * 100,
 	}
 	node.Memory = definition.SpaceStatistic{
-		TotalMiB: float64(hypervisor.MemoryMB),
-		UsedMiB:  float64(hypervisor.MemoryMBUsed),
-		FreeMiB:  float64(hypervisor.MemoryMB - hypervisor.MemoryMBUsed),
+		TotalMiB:    float64(hypervisor.MemoryMB),
+		UsedMiB:     float64(hypervisor.MemoryMBUsed),
+		FreeMiB:     float64(hypervisor.MemoryMB - hypervisor.MemoryMBUsed),
+		UsedPercent: float64(hypervisor.MemoryMBUsed) / float64(hypervisor.MemoryMB) * 100,
+		FreePercent: float64(hypervisor.MemoryMB-hypervisor.MemoryMBUsed) / float64(hypervisor.MemoryMB) * 100,
 	}
 	node.Storage = definition.SpaceStatistic{
-		TotalMiB: float64(hypervisor.LocalGB) * 1024,
-		UsedMiB:  float64(hypervisor.LocalGBUsed) * 1024,
-		FreeMiB:  float64(hypervisor.LocalGB-hypervisor.LocalGBUsed) * 1024,
+		TotalMiB:    float64(hypervisor.LocalGB) * 1024,
+		UsedMiB:     float64(hypervisor.LocalGBUsed) * 1024,
+		FreeMiB:     float64(hypervisor.LocalGB-hypervisor.LocalGBUsed) * 1024,
+		UsedPercent: float64(hypervisor.LocalGBUsed) / float64(hypervisor.LocalGB) * 100,
+		FreePercent: float64(hypervisor.LocalGB-hypervisor.LocalGBUsed) / float64(hypervisor.LocalGB) * 100,
 	}
 }
 

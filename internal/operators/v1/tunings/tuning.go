@@ -2,9 +2,9 @@ package tunings
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
-	"github.com/bigstack-oss/cube-cos-api/internal/wait"
 	"k8s.io/client-go/util/workqueue"
 )
 
