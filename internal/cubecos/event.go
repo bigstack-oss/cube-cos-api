@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	isValidMeasurements = map[string]bool{
+	isValidEventMeasurement = map[string]bool{
 		"system":   true,
 		"host":     true,
 		"instance": true,
@@ -25,7 +25,7 @@ var (
 )
 
 func IsEventTypeValid(t string) bool {
-	return isValidMeasurements[t]
+	return isValidEventMeasurement[t]
 }
 
 func CountEvents(stmt string) (int64, error) {
@@ -58,7 +58,7 @@ func countEvents(c *api.QueryTableResult) (int64, error) {
 	return count, nil
 }
 
-func ListEvents(stmt string) ([]definition.Event, error) {
+func GetEvents(stmt string) ([]definition.Event, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 

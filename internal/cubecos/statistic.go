@@ -7,19 +7,13 @@ import (
 )
 
 type Summary struct {
-	Vm      `json:"vm"`
-	Role    `json:"role"`
-	Metrics definition.Metrics `json:"metrics"`
+	Host HostSummary `json:"host"`
+	Vm   VmSummary   `json:"vm"`
 }
 
-type Vm struct {
-	Total   int `json:"total"`
-	Running int `json:"running"`
-	Stopped int `json:"stopped"`
-	Suspend int `json:"suspend"`
-	Paused  int `json:"paused"`
-	Error   int `json:"error"`
-	Unknown int `json:"unknown"`
+type HostSummary struct {
+	Role             `json:"role"`
+	definition.Usage `json:"usage"`
 }
 
 type Role struct {
@@ -28,6 +22,21 @@ type Role struct {
 	Compute          int `json:"compute"`
 	Storage          int `json:"storage"`
 	Others           int `json:"others"`
+}
+
+type VmSummary struct {
+	Status           VmStatus `json:"status"`
+	definition.Usage `json:"usage"`
+}
+
+type VmStatus struct {
+	Total   int `json:"total"`
+	Running int `json:"running"`
+	Stopped int `json:"stopped"`
+	Suspend int `json:"suspend"`
+	Paused  int `json:"paused"`
+	Error   int `json:"error"`
+	Unknown int `json:"unknown"`
 }
 
 func (s *Summary) Bytes() []byte {

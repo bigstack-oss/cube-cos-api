@@ -1,10 +1,10 @@
 package healths
 
 import (
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
-	"github.com/bigstack-oss/cube-cos-api/internal/wait"
 	log "go-micro.dev/v5/logger"
 	"k8s.io/client-go/util/workqueue"
 )

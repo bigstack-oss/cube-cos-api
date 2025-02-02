@@ -5,8 +5,8 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
-	"time"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/coreos/go-oidc"
 )
@@ -18,7 +18,7 @@ func VerifyToken(token string) error {
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(ctxSeconds(10))
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
 	client := oidc.ClientContext(ctx, http.DefaultClient)
 	defer cancel()
 	provider, err := oidc.NewProvider(client, genRealmUrl())
@@ -26,7 +26,7 @@ func VerifyToken(token string) error {
 		return err
 	}
 
-	ctx, cancel = context.WithTimeout(ctxSeconds(10))
+	ctx, cancel = context.WithTimeout(wait.CtxSeconds(10))
 	oidcConf := &oidc.Config{SkipClientIDCheck: true}
 	defer cancel()
 	verifier := provider.Verifier(oidcConf)
@@ -36,10 +36,6 @@ func VerifyToken(token string) error {
 	}
 
 	return nil
-}
-
-func ctxSeconds(s time.Duration) (context.Context, time.Duration) {
-	return context.Background(), s * time.Second
 }
 
 func genRealmUrl() string {

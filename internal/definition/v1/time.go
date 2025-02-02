@@ -7,6 +7,11 @@ const (
 	RFC3339 = time.RFC3339
 )
 
+type Period struct {
+	Start string
+	Stop  string
+}
+
 func TimeNowRFC3339() string {
 	return time.Now().UTC().Format(time.RFC3339)
 }

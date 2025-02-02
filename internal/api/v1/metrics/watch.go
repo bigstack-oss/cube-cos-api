@@ -1,13 +1,14 @@
-package summary
+package metrics
 
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"sync"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/wait"
 	"github.com/gin-gonic/gin"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
@@ -45,6 +46,16 @@ func onDemandStreamSummary() {
 
 		stream.Unlock()
 	}
+}
+
+func parseWatch(c *gin.Context) (bool, error) {
+	rawParam := c.DefaultQuery("watch", "false")
+	watch, err := strconv.ParseBool(rawParam)
+	if err != nil {
+		return false, errors.New("watch parameter is invalid, it should be true or false if provided")
+	}
+
+	return watch, nil
 }
 
 func watchSummary(c *gin.Context, summary *cubecos.Summary) {

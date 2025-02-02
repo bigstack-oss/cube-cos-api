@@ -1,0 +1,126 @@
+package metrics
+
+import (
+	"errors"
+	"fmt"
+	"strconv"
+	"time"
+
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/trick"
+)
+
+func (h *helper) parseParams() error {
+	parsers := []func() error{
+		h.parseReport, h.parseMetric, h.parseResource,
+		h.parsePeriod, h.parseRank, h.parseLimit, h.parseWatch,
+	}
+
+	for _, parse := range parsers {
+		err := parse()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (h *helper) parseReport() error {
+	h.reportType = h.c.DefaultQuery("reportType", "")
+	if !cubecos.IsMetricReportTypeValid(h.reportType) {
+		return errors.New("reportType should be summary, timeSeries, or rank")
+	}
+
+	return nil
+}
+
+func (h *helper) parseMetric() error {
+	h.metricGroup = h.c.Param("metricGroup")
+	if !cubecos.IsMetricGroupValid(h.metricGroup) {
+		return errors.New("metricGroup should be cpu, memory, storage, or network")
+	}
+
+	h.metricType = h.c.DefaultQuery("metricType", "")
+	if !cubecos.IsMetricTypeValid(h.metricType) {
+		return errors.New("metricType should be bandwidth, iops, latency, ingress, or egress")
+	}
+
+	return nil
+}
+
+func (h *helper) parseResource() error {
+	h.resourceType = h.c.Param("resourceType")
+	if !cubecos.IsResourceTypeValid(h.resourceType) {
+		return errors.New("resourceType should be hosts or vms")
+	}
+
+	return nil
+}
+
+func (h *helper) parseLimit() error {
+	if h.reportType != "rank" {
+		return nil
+	}
+
+	var err error
+	h.limit, err = strconv.Atoi(h.c.DefaultQuery("limit", "10"))
+	if err != nil || h.limit <= 0 {
+		return errors.New("limit should be an integer and greater than 0")
+	}
+
+	return nil
+}
+
+func (h *helper) parsePeriod() error {
+	if h.reportType != "timeSeries" {
+		return nil
+	}
+
+	h.Period.Start = h.c.DefaultQuery("start", definition.TimeRFC3339(-24*time.Hour))
+	start, err := time.Parse(time.RFC3339, h.Period.Start)
+	if err != nil {
+		return fmt.Errorf("'start' time format should be aligned with RFC3339: %s", h.Period.Start)
+	}
+	trick.Minus2MinsOnMetricStartTime(&h.Period.Start, start)
+
+	h.Period.Stop = h.c.DefaultQuery("stop", definition.TimeNowRFC3339())
+	_, err = time.Parse(time.RFC3339, h.Period.Stop)
+	if err != nil {
+		return fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", h.Period.Stop)
+	}
+
+	return nil
+}
+
+func (h *helper) parseRank() error {
+	if h.reportType != "rank" {
+		return nil
+	}
+
+	var err error
+	head := h.c.DefaultQuery("head", "10")
+	h.head, err = strconv.Atoi(head)
+	if err != nil || h.head <= 0 {
+		return fmt.Errorf("'head' should be an integer which greater than 0: %s", head)
+	}
+
+	tail := h.c.DefaultQuery("tail", "10")
+	h.tail, err = strconv.Atoi(tail)
+	if err != nil || h.tail <= 0 {
+		return fmt.Errorf("'tail' should be an integer which greater than 0: %s", tail)
+	}
+
+	return nil
+}
+
+func (h *helper) parseWatch() error {
+	var err error
+	h.watch, err = parseWatch(h.c)
+	if err != nil {
+		return errors.New("watch parameter is invalid, it should be true or false if provided")
+	}
+
+	return nil
+}

@@ -4,7 +4,7 @@ go 1.22.2
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
-	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250128101320-666466b5e307
+	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250202082555-9061781b157d
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
 	github.com/coreos/go-oidc v2.3.0+incompatible
 	github.com/crewjam/saml v0.4.14

@@ -55,7 +55,7 @@ func IsGpuEnabled() bool {
 	return len(devices) > 0
 }
 
-func GetRoleOverview() (*Role, error) {
+func GetRoleStatus() (*Role, error) {
 	nodes, err := ListNodes()
 	if err != nil {
 		return nil, err
