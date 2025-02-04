@@ -78,6 +78,7 @@ func initNodePeerSyncer() {
 
 func genMetadata() map[string]string {
 	return map[string]string{
+		"role":         definition.CurrentRole,
 		"hostname":     definition.Hostname,
 		"nodeID":       definition.HostID,
 		"isGpuEnabled": fmt.Sprintf("%t", definition.IsGpuEnabled),
