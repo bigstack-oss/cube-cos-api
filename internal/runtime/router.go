@@ -25,7 +25,7 @@ func newHttpServer() (*server.Server, error) {
 	}
 
 	srv := http.NewServer(
-		server.Name(definition.CurrentRole),
+		server.Name(definition.DataCenterName),
 		server.Metadata(genMetadata()),
 		server.WithLogger(log.DefaultLogger),
 		server.Address(genLocalAddr()),

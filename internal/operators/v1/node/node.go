@@ -36,7 +36,9 @@ func (o *Operator) Name() string {
 }
 
 func (o *Operator) Sync() {
-	watcher, err := registry.Watch()
+	watcher, err := registry.Watch(
+		registry.WatchService(definition.DataCenterName),
+	)
 	if err != nil {
 		log.Errorf("failed to create watcher (%s)", err.Error())
 		return
