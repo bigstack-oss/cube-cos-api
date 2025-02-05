@@ -1,5 +1,9 @@
 package v1
 
+const (
+	Licenses = "licenses"
+)
+
 type License struct {
 	Type                  string `json:"type" yaml:"type" bson:"type"`
 	Hostname              string `json:"hostname" yaml:"hostname" bson:"hostname"`
