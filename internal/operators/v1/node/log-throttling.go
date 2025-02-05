@@ -2,7 +2,6 @@ package node
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -51,9 +50,10 @@ func logWithThrottling(event *registry.Result) {
 	}
 
 	log.Infof(
-		"node resynced: %s %s %s",
+		"node discovery: node(%s) role(%s) ip(%s) %s",
+		event.Service.Nodes[0].Metadata["hostname"],
 		event.Service.Nodes[0].Metadata["role"],
-		fmt.Sprintf("%s(%s)", event.Service.Nodes[0].Metadata["hostname"], event.Service.Nodes[0].Address),
+		event.Service.Nodes[0].Address,
 		convertAction(event.Action),
 	)
 }
