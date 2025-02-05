@@ -1,6 +1,9 @@
 package healths
 
 import (
+	"fmt"
+	"time"
+
 	json "github.com/json-iterator/go"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
@@ -9,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// M1 TODO: this will be removed once the real data is available in the COS side
 func genFakeHealths() cubecos.Health {
 	return cubecos.Health{
 		Overall: &cubecos.Overall{
@@ -74,6 +78,47 @@ func genFakeHealths() cubecos.Health {
 			},
 		},
 		Fixing: []definition.Service{},
+	}
+}
+
+// M1 TODO: this will be removed once the real data is available in the COS side
+func (h *helper) genFakeHealthCheckResult() cubecos.HealthCheckResult {
+	now := time.Now().UTC()
+	interval := 5 * time.Minute
+	history := []cubecos.HealthCheckPoint{}
+	count := 0
+
+	for t := h.StartAsTime(); !t.After(h.StopAsTime()); t = t.Add(interval) {
+		timestamp := now.Add(-time.Duration(count) * interval).Format(time.RFC3339)
+		status := "ok"
+		checkResult := cubecos.HealthCheckPoint{Time: timestamp, Status: status}
+		if count%5 == 0 {
+			h.setFakeError(&checkResult)
+		}
+
+		history = append(history, checkResult)
+		count++
+	}
+
+	return cubecos.HealthCheckResult{
+		Category: "cloud computing",
+		Service:  "compute",
+		Module:   "nova",
+		History:  history,
+	}
+}
+
+func (h *helper) setFakeError(checkResult *cubecos.HealthCheckPoint) {
+	checkResult.Status = "ng"
+	checkResult.Error = &cubecos.Error{
+		Type:        "service down",
+		Nodes:       []string{definition.DataCenterName},
+		Description: "nova has 1 nodes down",
+		Details:     "{ ... the best efforts of error summary / direction ...} ",
+		Log: fmt.Sprintf(
+			"http://{dataCenter}:8888/log/nova/%s-20250205113459-b3gc.log",
+			definition.DataCenterName,
+		),
 	}
 }
 

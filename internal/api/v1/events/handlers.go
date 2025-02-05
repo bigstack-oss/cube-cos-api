@@ -21,7 +21,7 @@ var (
 )
 
 func getEvents(c *gin.Context) {
-	h, err := initHelperByQueryParams(c)
+	h, err := initReqHelper(c)
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)

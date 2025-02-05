@@ -22,7 +22,7 @@ type period struct {
 	stop  string
 }
 
-func initHelperByQueryParams(c *gin.Context) (*helper, error) {
+func initReqHelper(c *gin.Context) (*helper, error) {
 	h := &helper{c: c}
 
 	err := h.parseType()
@@ -74,28 +74,28 @@ func (h *helper) parsePeriod() error {
 }
 
 func (h *helper) parsePage() error {
-	pageNum := h.c.DefaultQuery("pageNum", "")
-	pageSize := h.c.DefaultQuery("pageSize", "")
-	if !isPaginationRequired(pageNum, pageSize) {
+	num := h.c.DefaultQuery("pageNum", "")
+	size := h.c.DefaultQuery("pageSize", "")
+	if !isPageRequired(num, size) {
 		return nil
 	}
 
-	if pageNum == "" {
+	if num == "" {
 		return fmt.Errorf("pageNum should be provided if pageSize is provided")
 	}
 
-	if pageSize == "" {
+	if size == "" {
 		return fmt.Errorf("pageSize should greater than 0 if pageNum is provided")
 	}
 
-	intPageNum, err := strconv.Atoi(pageNum)
+	intPageNum, err := strconv.Atoi(num)
 	if err != nil {
-		return fmt.Errorf("pageNum should be an integer: %s", pageNum)
+		return fmt.Errorf("pageNum should be an integer: %s", num)
 	}
 
-	intPageSize, err := strconv.Atoi(pageSize)
+	intPageSize, err := strconv.Atoi(size)
 	if err != nil {
-		return fmt.Errorf("pageSize should be an integer: %s", pageSize)
+		return fmt.Errorf("pageSize should be an integer: %s", size)
 	}
 
 	h.Page = definition.Page{Number: intPageNum, Size: intPageSize}
