@@ -1,22 +1,7 @@
-### ▎Main changes
+### What type of PR is this?
 
+### Which issue(s) this PR fixes?
 
-<br/>
+### What this PR does?
 
----
-
-<br/>
-
-
-### ▎Minor changes(optional)
-
-<br/>
-
----
-
-<br/>
-
-
-### ▎Result/Test
-
-
+### Test results (optional)
