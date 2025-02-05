@@ -1,6 +1,8 @@
 package tunings
 
 import (
+	"errors"
+
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
@@ -23,11 +25,20 @@ type Operator struct {
 }
 
 func NewOperator() *Operator {
-	return &Operator{mongo: mongo.GetGlobalHelper()}
+	return &Operator{}
 }
 
 func (o *Operator) Name() string {
 	return module
+}
+
+func (o *Operator) Init() error {
+	o.mongo = mongo.GetGlobalHelper()
+	if o.mongo == nil {
+		return errors.New("mongo helper is not initialized")
+	}
+
+	return nil
 }
 
 func (o *Operator) Sync() {
