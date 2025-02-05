@@ -22,17 +22,16 @@ type Operator struct {
 	isFirstTimeSync bool
 }
 
-func NewOperator() *Operator {
-	ctx, cancel := context.WithCancel(context.Background())
-	return &Operator{
-		ctx:             ctx,
-		cancel:          cancel,
-		isFirstTimeSync: true,
-	}
-}
-
 func (o *Operator) Name() string {
 	return module
+}
+
+func (o *Operator) Init() error {
+	ctx, cancel := context.WithCancel(context.Background())
+	o.ctx = ctx
+	o.cancel = cancel
+	o.isFirstTimeSync = true
+	return nil
 }
 
 func (o *Operator) Sync() {
