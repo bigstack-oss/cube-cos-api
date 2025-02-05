@@ -955,7 +955,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the summary of data center successfully",
+                        "description": "Retrieve the summary of data center successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1318,7 +1318,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the summary of data center successfully",
+                        "description": "Retrieve the summary of data center successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1547,7 +1547,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the cpu usage of hosts successfully",
+                        "description": "Retrieve the cpu usage of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1682,7 +1682,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the storage bandwidth time series of hosts successfully",
+                        "description": "Retrieve the storage bandwidth time series of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1829,7 +1829,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the storage iops time series of hosts successfully",
+                        "description": "Retrieve the storage iops time series of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1976,7 +1976,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the storage latency time series of hosts successfully",
+                        "description": "Retrieve the storage latency time series of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2103,7 +2103,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the storage usage rank of hosts successfully",
+                        "description": "Retrieve the storage usage rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2217,7 +2217,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the cpu usage rank of hosts successfully",
+                        "description": "Retrieve the cpu usage rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2331,7 +2331,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the memory usage rank of hosts successfully",
+                        "description": "Retrieve the memory usage rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2445,7 +2445,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the network ingress rank of hosts successfully",
+                        "description": "Retrieve the network ingress rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2555,7 +2555,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the network ingress rank of hosts successfully",
+                        "description": "Retrieve the network ingress rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2665,7 +2665,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the cpu usage rank of hosts successfully",
+                        "description": "Retrieve the cpu usage rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2779,7 +2779,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the memory usage rank of hosts successfully",
+                        "description": "Retrieve the memory usage rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2893,7 +2893,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the storage iops rank of hosts successfully",
+                        "description": "Retrieve the storage iops rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3007,7 +3007,7 @@
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the network ingress or egress rank of hosts successfully",
+                        "description": "Retrieve the network ingress or egress rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
