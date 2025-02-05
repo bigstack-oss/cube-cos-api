@@ -16,17 +16,17 @@ var (
 
 func init() {
 	ReqQueue = workqueue.New()
-	service.RegisterOperator(module, NewOperator())
-}
-
-func NewOperator() *Operator {
-	return &Operator{}
+	service.RegisterOperator(module, &Operator{})
 }
 
 type Operator struct{}
 
 func (o *Operator) Name() string {
 	return module
+}
+
+func (o *Operator) Init() error {
+	return nil
 }
 
 func (o *Operator) Sync() {
