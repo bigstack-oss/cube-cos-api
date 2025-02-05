@@ -722,6 +722,219 @@
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/licenses": {
+            "get": {
+                "tags": [
+                    "Licenses"
+                ],
+                "summary": "Retrieve the list of licenses",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageNum",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The page number of the event chunking to fetch (default is 1).",
+                        "example": 1
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The size per page of the events to return (default is unlimit).",
+                        "example": 10
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the list of licenses successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "licenses": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "type": {
+                                                                "type": "string",
+                                                                "example": "trial"
+                                                            },
+                                                            "hostname": {
+                                                                "type": "string",
+                                                                "example": "dell200"
+                                                            },
+                                                            "serial": {
+                                                                "type": "string",
+                                                                "example": "  "
+                                                            },
+                                                            "product": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "name": {
+                                                                        "type": "string",
+                                                                        "example": ""
+                                                                    },
+                                                                    "features": {
+                                                                        "type": "object",
+                                                                        "example": null
+                                                                    }
+                                                                }
+                                                            },
+                                                            "issue": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "by": {
+                                                                        "type": "string",
+                                                                        "example": "Bigstack co., ltd."
+                                                                    },
+                                                                    "to": {
+                                                                        "type": "string",
+                                                                        "example": "*"
+                                                                    },
+                                                                    "hardware": {
+                                                                        "type": "string",
+                                                                        "example": "*"
+                                                                    },
+                                                                    "date": {
+                                                                        "type": "string",
+                                                                        "example": "2025-02-04 09:54:45 UTC"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "quantity": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "type": {
+                                                                        "type": "string",
+                                                                        "example": ""
+                                                                    },
+                                                                    "vcpu": {
+                                                                        "type": "integer",
+                                                                        "example": 0
+                                                                    }
+                                                                }
+                                                            },
+                                                            "serviceLevelAgreement": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "uptime": {
+                                                                        "type": "number",
+                                                                        "example": 0
+                                                                    },
+                                                                    "period": {
+                                                                        "type": "string",
+                                                                        "example": ""
+                                                                    },
+                                                                    "meanTimeBetweenFailure": {
+                                                                        "type": "string",
+                                                                        "example": ""
+                                                                    },
+                                                                    "meanTimeToRecovery": {
+                                                                        "type": "string",
+                                                                        "example": ""
+                                                                    }
+                                                                }
+                                                            },
+                                                            "expiry": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "date": {
+                                                                        "type": "string",
+                                                                        "example": "2025-04-05 09:54:45 UTC"
+                                                                    },
+                                                                    "days": {
+                                                                        "type": "integer",
+                                                                        "example": 58
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "page": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "total": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "number": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "size": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch licenses successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch licenses: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/metrics": {
             "get": {
                 "tags": [
