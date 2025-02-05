@@ -10,6 +10,6 @@ func (p Page) IsRequired() bool {
 	return p.Number > 0 || p.Size > 0
 }
 
-func IsPaginationRequired(pageNum, pageSize string) bool {
+func IsPageRequired(pageNum, pageSize string) bool {
 	return pageNum != "" || pageSize != ""
 }

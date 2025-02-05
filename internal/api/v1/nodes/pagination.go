@@ -12,29 +12,29 @@ import (
 func genPageOptsByQueryParams(c *gin.Context) (definition.Page, error) {
 	var err error
 	page := definition.Page{}
-	pageNum := c.DefaultQuery("pageNum", "")
-	pageSize := c.DefaultQuery("pageSize", "")
+	num := c.DefaultQuery("pageNum", "")
+	size := c.DefaultQuery("pageSize", "")
 
-	if !definition.IsPaginationRequired(pageNum, pageSize) {
+	if !definition.IsPageRequired(num, size) {
 		return page, nil
 	}
 
-	if pageNum == "" {
+	if num == "" {
 		return page, fmt.Errorf("pageNum should be provided if pageSize is provided")
 	}
 
-	if pageSize == "" {
+	if size == "" {
 		return page, fmt.Errorf("pageSize should greater than 0 if pageNum is provided")
 	}
 
-	page.Number, err = strconv.Atoi(pageNum)
+	page.Number, err = strconv.Atoi(num)
 	if err != nil {
-		return page, fmt.Errorf("pageNum should be an integer: %s", pageNum)
+		return page, fmt.Errorf("pageNum should be an integer: %s", num)
 	}
 
-	page.Size, err = strconv.Atoi(pageSize)
+	page.Size, err = strconv.Atoi(size)
 	if err != nil {
-		return page, fmt.Errorf("pageSize should be an integer: %s", pageSize)
+		return page, fmt.Errorf("pageSize should be an integer: %s", size)
 	}
 
 	if page.Number <= 0 {

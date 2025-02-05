@@ -30,6 +30,12 @@ var (
 			Path:    "/healths/:module",
 			Func:    updateHealth,
 		},
+		{
+			Version: api.V1,
+			Method:  http.MethodGet,
+			Path:    "/healths/:module/history",
+			Func:    getModuleHealthHistory,
+		},
 	}
 )
 
@@ -85,5 +91,31 @@ func updateHealth(c *gin.Context) {
 		c,
 		"repair status updated successfully",
 		nil,
+	)
+}
+
+func getModuleHealthHistory(c *gin.Context) {
+	h, err := initReqHelper(c)
+	if err != nil {
+		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	checkResult := h.genFakeHealthCheckResult()
+	page, err := h.genPageInfo()
+	if err != nil {
+		log.Errorf("request(%s): failed to gen page info: %v", api.GetReqId(c), err)
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"fetch module health history successfully",
+		data{
+			Health: checkResult,
+			Page:   page,
+		},
 	)
 }

@@ -9,16 +9,16 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func isPaginationRequired(page, pageSize string) bool {
+func isPageRequired(page, pageSize string) bool {
 	return page != "" || pageSize != ""
 }
 
-func (h *helper) isPaginationRequired() bool {
+func (h *helper) isPageRequired() bool {
 	return h.Page.Number > 0 || h.Page.Size > 0
 }
 
 func (h *helper) genPageInfo(events []definition.Event) (definition.Page, error) {
-	if !h.isPaginationRequired() {
+	if !h.isPageRequired() {
 		return definition.Page{
 			Total:  1,
 			Number: 1,
