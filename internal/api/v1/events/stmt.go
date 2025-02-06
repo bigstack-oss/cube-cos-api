@@ -43,7 +43,7 @@ func (h *helper) genCountQueryStmt() string {
 }
 
 func (h *helper) genQueryStmt() string {
-	if !h.isPaginationRequired() {
+	if !h.isPageRequired() {
 		return h.genNonPagingQueryStmt()
 	}
 
