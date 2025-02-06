@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -20,45 +19,35 @@ var (
 	}
 )
 
+func init() {
+	go streamNodes()
+}
+
 // TODO M1: have to check why sometime take a long time to get the nodes list
 // suspect the cluster-wise license fetching might be slow by hex cli
 func getNodes(c *gin.Context) {
-	pageOpts, err := genPageOptsByQueryParams(c)
+	h, err := initReqHelper(c)
 	if err != nil {
-		log.Errorf("request(%s): %s", api.GetReqId(c), err.Error())
+		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	allNodes, err := cubecos.ListNodes()
+	resp, err := h.genNodeResp()
 	if err != nil {
-		log.Errorf("request(%s): failed to get nodes: %s", api.GetReqId(c), err.Error())
+		log.Errorf("request(%s): failed to gen node: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	pagedNodes, err := paginateNodes(allNodes, pageOpts)
-	if err != nil {
-		log.Errorf("request(%s): failed to paginate nodes: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
+	if h.watch {
+		watchNodes(h, *resp)
 		return
 	}
 
-	page, err := genPageInfo(allNodes, pageOpts)
-	if err != nil {
-		log.Errorf("request(%s): failed to gen page info: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
-		return
-	}
-
-	addLicenseInfoToNodes(c, &pagedNodes)
-	addNodeDetailsToNodes(c, &pagedNodes)
 	api.SetStatusOk(
 		c,
 		"fetch nodes list successfully",
-		data{
-			Nodes: pagedNodes,
-			Page:  page,
-		},
+		resp,
 	)
 }

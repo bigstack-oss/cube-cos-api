@@ -16,7 +16,7 @@ var (
 			Version: api.V1,
 			Method:  http.MethodGet,
 			Path:    "/healths",
-			Func:    listHealth,
+			Func:    getHealthSummary,
 		},
 		{
 			Version: api.V1,
@@ -39,13 +39,30 @@ var (
 	}
 )
 
+func init() {
+	go streamHealthSummary()
+}
+
 // TODO M1: the health info will be replaced by the real data around 2025-02-10
 // there're a few implementations to need to be checked with the team.
-func listHealth(c *gin.Context) {
+func getHealthSummary(c *gin.Context) {
+	watch, err := api.ParseWatch(c)
+	if err != nil {
+		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	summary := genFakeHealthSummary()
+	if watch {
+		watchHealthSummary(c, &summary)
+		return
+	}
+
 	api.SetStatusOk(
 		c,
-		"fetch service health successfully",
-		genFakeHealths(),
+		"fetch health summary successfully",
+		summary,
 	)
 }
 

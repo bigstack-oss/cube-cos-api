@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
@@ -59,7 +60,7 @@ func countEvents(c *api.QueryTableResult) (int64, error) {
 }
 
 func GetEvents(stmt string) ([]definition.Event, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
 
 	h := influx.GetGlobalHelper()

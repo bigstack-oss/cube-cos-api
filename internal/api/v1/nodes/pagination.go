@@ -1,52 +1,10 @@
 package nodes
 
 import (
-	"fmt"
 	"math"
-	"strconv"
 
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/gin-gonic/gin"
 )
-
-func genPageOptsByQueryParams(c *gin.Context) (definition.Page, error) {
-	var err error
-	page := definition.Page{}
-	num := c.DefaultQuery("pageNum", "")
-	size := c.DefaultQuery("pageSize", "")
-
-	if !definition.IsPageRequired(num, size) {
-		return page, nil
-	}
-
-	if num == "" {
-		return page, fmt.Errorf("pageNum should be provided if pageSize is provided")
-	}
-
-	if size == "" {
-		return page, fmt.Errorf("pageSize should greater than 0 if pageNum is provided")
-	}
-
-	page.Number, err = strconv.Atoi(num)
-	if err != nil {
-		return page, fmt.Errorf("pageNum should be an integer: %s", num)
-	}
-
-	page.Size, err = strconv.Atoi(size)
-	if err != nil {
-		return page, fmt.Errorf("pageSize should be an integer: %s", size)
-	}
-
-	if page.Number <= 0 {
-		return page, fmt.Errorf("pageNum should be greater than 0 if pageSize is provided")
-	}
-
-	if page.Size <= 0 {
-		return page, fmt.Errorf("pageSize should be greater than 0 if pageNum is provided")
-	}
-
-	return page, nil
-}
 
 func paginateNodes(nodes []*definition.Node, page definition.Page) ([]*definition.Node, error) {
 	if !page.IsRequired() {

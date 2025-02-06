@@ -35,6 +35,7 @@ func addMetricToNode(node *definition.Node, hypervisor *hypervisors.Hypervisor) 
 		UsedPercent: float64(hypervisor.VCPUsUsed) / float64(hypervisor.VCPUs) * 100,
 		FreePercent: float64(hypervisor.VCPUs-hypervisor.VCPUsUsed) / float64(hypervisor.VCPUs) * 100,
 	}
+
 	node.Memory = definition.SpaceStatistic{
 		TotalMiB:    float64(hypervisor.MemoryMB),
 		UsedMiB:     float64(hypervisor.MemoryMBUsed),
@@ -42,6 +43,7 @@ func addMetricToNode(node *definition.Node, hypervisor *hypervisors.Hypervisor) 
 		UsedPercent: float64(hypervisor.MemoryMBUsed) / float64(hypervisor.MemoryMB) * 100,
 		FreePercent: float64(hypervisor.MemoryMB-hypervisor.MemoryMBUsed) / float64(hypervisor.MemoryMB) * 100,
 	}
+
 	node.Storage = definition.SpaceStatistic{
 		TotalMiB:    float64(hypervisor.LocalGB) * 1024,
 		UsedMiB:     float64(hypervisor.LocalGBUsed) * 1024,
