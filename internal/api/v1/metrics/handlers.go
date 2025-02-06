@@ -27,7 +27,7 @@ var (
 )
 
 func init() {
-	go onDemandStreamSummary()
+	go streamSummary()
 }
 
 func getDataCenterMetricsSummary(c *gin.Context) {

@@ -13,7 +13,7 @@ import (
 )
 
 // M1 TODO: this will be removed once the real data is available in the COS side
-func genFakeHealths() cubecos.Health {
+func genFakeHealthSummary() cubecos.Health {
 	return cubecos.Health{
 		Overall: &cubecos.Overall{
 			Status: status.Details{

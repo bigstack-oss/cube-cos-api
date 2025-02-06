@@ -5,9 +5,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
+	log "go-micro.dev/v5/logger"
 )
 
 type helper struct {
@@ -15,6 +17,7 @@ type helper struct {
 	eventType string
 	period
 	definition.Page
+	watch bool
 }
 
 type period struct {
@@ -36,6 +39,11 @@ func initReqHelper(c *gin.Context) (*helper, error) {
 	}
 
 	err = h.parsePage()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parseWatch()
 	if err != nil {
 		return nil, err
 	}
@@ -100,4 +108,31 @@ func (h *helper) parsePage() error {
 
 	h.Page = definition.Page{Number: intPageNum, Size: intPageSize}
 	return nil
+}
+
+func (h *helper) parseWatch() error {
+	watch, err := api.ParseWatch(h.c)
+	if err != nil {
+		return err
+	}
+
+	h.watch = watch
+	return nil
+}
+
+func (h *helper) genEventResp() (*resp, error) {
+	stmt := h.genQueryStmt()
+	events, err := cubecos.GetEvents(stmt)
+	if err != nil {
+		log.Errorf("request(%s): failed to get events: %v", api.GetReqId(h.c), err)
+		return nil, err
+	}
+
+	page, err := h.genPageInfo(events)
+	if err != nil {
+		log.Errorf("request(%s): failed to gen page info: %v", api.GetReqId(h.c), err)
+		return nil, err
+	}
+
+	return &resp{Events: events, Page: page}, nil
 }

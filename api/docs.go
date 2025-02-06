@@ -122,7 +122,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -173,6 +173,16 @@ const docTemplate = `{
                         },
                         "description": "The size per page of the events to return (default is unlimit).",
                         "example": 10
+                    },
+                    {
+                        "in": "query",
+                        "name": "watch",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "The toggle to enable http chunked transfer for continues server push.",
+                        "example": true
                     }
                 ],
                 "responses": {
@@ -337,7 +347,17 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "watch",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "The toggle to enable http chunked transfer for continues server push.",
+                        "example": true
                     }
                 ],
                 "responses": {
@@ -537,7 +557,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     }
                 ],
                 "responses": {
@@ -631,7 +651,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "path",
@@ -735,7 +755,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "path",
@@ -972,7 +992,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     }
                 ],
                 "responses": {
@@ -1070,7 +1090,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -1283,7 +1303,17 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "watch",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "The toggle to enable http chunked transfer for continues server push.",
+                        "example": true
                     }
                 ],
                 "responses": {
@@ -1586,7 +1616,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "path",
@@ -1835,7 +1865,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -1970,7 +2000,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2158,7 +2188,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2305,7 +2335,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2452,7 +2482,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2494,11 +2524,11 @@ const docTemplate = `{
                                                 "properties": {
                                                     "id": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "usedPercent": {
                                                         "type": "number",
@@ -2566,7 +2596,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2608,11 +2638,11 @@ const docTemplate = `{
                                                 "properties": {
                                                     "id": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "usedPercent": {
                                                         "type": "number",
@@ -2680,7 +2710,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2722,11 +2752,11 @@ const docTemplate = `{
                                                 "properties": {
                                                     "id": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "usedPercent": {
                                                         "type": "number",
@@ -2794,7 +2824,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2836,11 +2866,11 @@ const docTemplate = `{
                                                 "properties": {
                                                     "id": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "packets": {
                                                         "type": "number",
@@ -2904,7 +2934,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2946,11 +2976,11 @@ const docTemplate = `{
                                                 "properties": {
                                                     "id": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "packets": {
                                                         "type": "number",
@@ -3014,7 +3044,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -3060,7 +3090,7 @@ const docTemplate = `{
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-vm"
+                                                        "example": "example-vm"
                                                     },
                                                     "usedPercent": {
                                                         "type": "number",
@@ -3128,7 +3158,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -3174,7 +3204,7 @@ const docTemplate = `{
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-vm"
+                                                        "example": "example-vm"
                                                     },
                                                     "usedPercent": {
                                                         "type": "number",
@@ -3242,7 +3272,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -3288,7 +3318,7 @@ const docTemplate = `{
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-vm"
+                                                        "example": "example-vm"
                                                     },
                                                     "device": {
                                                         "type": "string",
@@ -3356,7 +3386,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -3402,7 +3432,7 @@ const docTemplate = `{
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-vm"
+                                                        "example": "example-vm"
                                                     },
                                                     "device": {
                                                         "type": "string",
@@ -3470,7 +3500,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -3491,6 +3521,16 @@ const docTemplate = `{
                         },
                         "description": "The size per page of the events to return (default is unlimit).",
                         "example": 10
+                    },
+                    {
+                        "in": "query",
+                        "name": "watch",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "The toggle to enable http chunked transfer for continues server push.",
+                        "example": true
                     }
                 ],
                 "responses": {
@@ -3768,7 +3808,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     }
                 ],
                 "requestBody": {
@@ -3782,12 +3822,12 @@ const docTemplate = `{
                                     "name": {
                                         "type": "string",
                                         "description": "the name of user to generate the token",
-                                        "example": "test-name"
+                                        "example": "example-name"
                                     },
                                     "password": {
                                         "type": "string",
                                         "description": "the password of user to generate the token",
-                                        "example": "test-password"
+                                        "example": "example-password"
                                     }
                                 }
                             }
