@@ -6,6 +6,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/healths"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/integrations"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/logout"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/metrics"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/nodes"
@@ -67,6 +68,12 @@ func initNodeApiHandler() {
 	api.RegisterHandlersToRoles(
 		definition.Logout,
 		logout.Handlers,
+		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Licenses,
+		licenses.Handlers,
 		definition.RoleControl,
 	)
 }
