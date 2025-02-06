@@ -15,7 +15,7 @@ func genPageOptsByQueryParams(c *gin.Context) (definition.Page, error) {
 	pageNum := c.DefaultQuery("pageNum", "")
 	pageSize := c.DefaultQuery("pageSize", "")
 
-	if !definition.IsPaginationRequired(pageNum, pageSize) {
+	if !definition.IsPageRequired(pageNum, pageSize) {
 		return page, nil
 	}
 
