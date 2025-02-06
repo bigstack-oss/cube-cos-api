@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -20,6 +19,10 @@ var (
 	}
 )
 
+func init() {
+	go streamEvents()
+}
+
 func getEvents(c *gin.Context) {
 	h, err := initReqHelper(c)
 	if err != nil {
@@ -28,27 +31,21 @@ func getEvents(c *gin.Context) {
 		return
 	}
 
-	stmt := h.genQueryStmt()
-	events, err := cubecos.GetEvents(stmt)
+	resp, err := h.genEventResp()
 	if err != nil {
-		log.Errorf("request(%s): failed to fetch events: %v", api.GetReqId(c), err)
+		log.Errorf("request(%s): failed to gen event resp: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	page, err := h.genPageInfo(events)
-	if err != nil {
-		log.Errorf("request(%s): failed to gen page info: %v", api.GetReqId(c), err)
-		api.SetInternalServerError(c, err)
+	if h.watch {
+		watchEvents(h, resp)
 		return
 	}
 
 	api.SetStatusOk(
 		c,
 		"fetch events successfully",
-		data{
-			Events: events,
-			Page:   page,
-		},
+		resp,
 	)
 }

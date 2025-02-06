@@ -118,7 +118,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -169,6 +169,16 @@
                         },
                         "description": "The size per page of the events to return (default is unlimit).",
                         "example": 10
+                    },
+                    {
+                        "in": "query",
+                        "name": "watch",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "The toggle to enable http chunked transfer for continues server push.",
+                        "example": true
                     }
                 ],
                 "responses": {
@@ -333,7 +343,17 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "watch",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "The toggle to enable http chunked transfer for continues server push.",
+                        "example": true
                     }
                 ],
                 "responses": {
@@ -533,7 +553,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     }
                 ],
                 "responses": {
@@ -627,7 +647,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "path",
@@ -731,7 +751,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "path",
@@ -968,7 +988,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     }
                 ],
                 "responses": {
@@ -1066,7 +1086,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -1279,7 +1299,17 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "watch",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "The toggle to enable http chunked transfer for continues server push.",
+                        "example": true
                     }
                 ],
                 "responses": {
@@ -1582,7 +1612,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "path",
@@ -1831,7 +1861,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -1966,7 +1996,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2154,7 +2184,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2301,7 +2331,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2448,7 +2478,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2490,11 +2520,11 @@
                                                 "properties": {
                                                     "id": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "usedPercent": {
                                                         "type": "number",
@@ -2562,7 +2592,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2604,11 +2634,11 @@
                                                 "properties": {
                                                     "id": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "usedPercent": {
                                                         "type": "number",
@@ -2676,7 +2706,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2718,11 +2748,11 @@
                                                 "properties": {
                                                     "id": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "usedPercent": {
                                                         "type": "number",
@@ -2790,7 +2820,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2832,11 +2862,11 @@
                                                 "properties": {
                                                     "id": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "packets": {
                                                         "type": "number",
@@ -2900,7 +2930,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -2942,11 +2972,11 @@
                                                 "properties": {
                                                     "id": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-data-center"
+                                                        "example": "example-data-center"
                                                     },
                                                     "packets": {
                                                         "type": "number",
@@ -3010,7 +3040,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -3056,7 +3086,7 @@
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-vm"
+                                                        "example": "example-vm"
                                                     },
                                                     "usedPercent": {
                                                         "type": "number",
@@ -3124,7 +3154,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -3170,7 +3200,7 @@
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-vm"
+                                                        "example": "example-vm"
                                                     },
                                                     "usedPercent": {
                                                         "type": "number",
@@ -3238,7 +3268,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -3284,7 +3314,7 @@
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-vm"
+                                                        "example": "example-vm"
                                                     },
                                                     "device": {
                                                         "type": "string",
@@ -3352,7 +3382,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -3398,7 +3428,7 @@
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "test-vm"
+                                                        "example": "example-vm"
                                                     },
                                                     "device": {
                                                         "type": "string",
@@ -3466,7 +3496,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -3487,6 +3517,16 @@
                         },
                         "description": "The size per page of the events to return (default is unlimit).",
                         "example": 10
+                    },
+                    {
+                        "in": "query",
+                        "name": "watch",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "The toggle to enable http chunked transfer for continues server push.",
+                        "example": true
                     }
                 ],
                 "responses": {
@@ -3764,7 +3804,7 @@
                             "type": "string"
                         },
                         "description": "The name of the data center to operate",
-                        "example": "test-data-center"
+                        "example": "example-data-center"
                     }
                 ],
                 "requestBody": {
@@ -3778,12 +3818,12 @@
                                     "name": {
                                         "type": "string",
                                         "description": "the name of user to generate the token",
-                                        "example": "test-name"
+                                        "example": "example-name"
                                     },
                                     "password": {
                                         "type": "string",
                                         "description": "the password of user to generate the token",
-                                        "example": "test-password"
+                                        "example": "example-password"
                                     }
                                 }
                             }

@@ -1,9 +1,8 @@
-package metrics
+package healths
 
 import (
 	"errors"
 	"net/http"
-	"strconv"
 	"sync"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
@@ -11,10 +10,9 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/gin-gonic/gin"
 	json "github.com/json-iterator/go"
-	log "go-micro.dev/v5/logger"
 )
 
-type watcher chan cubecos.Summary
+type watcher chan cubecos.Health
 
 var (
 	stream = struct {
@@ -23,23 +21,18 @@ var (
 	}{}
 )
 
-func streamSummary() {
+func streamHealthSummary() {
 	for {
 		wait.Seconds(2)
 		if len(stream.Watchers) == 0 {
 			continue
 		}
 
-		summary, err := cubecos.GetDataCenterSummary()
-		if err != nil {
-			log.Errorf("summary: failed to fetch data center summary: %v", err)
-			continue
-		}
-
+		summary := genFakeHealthSummary()
 		stream.Lock()
 		for _, w := range stream.Watchers {
 			select {
-			case w <- *summary:
+			case w <- summary:
 			default:
 			}
 		}
@@ -48,17 +41,7 @@ func streamSummary() {
 	}
 }
 
-func parseWatch(c *gin.Context) (bool, error) {
-	rawParam := c.DefaultQuery("watch", "false")
-	watch, err := strconv.ParseBool(rawParam)
-	if err != nil {
-		return false, errors.New("watch parameter is invalid, it should be true or false if provided")
-	}
-
-	return watch, nil
-}
-
-func watchSummary(c *gin.Context, summary *cubecos.Summary) {
+func watchHealthSummary(c *gin.Context, summary *cubecos.Health) {
 	setChunkedTransfer(c)
 	flusher, ok := c.Writer.(http.Flusher)
 	if !ok {
@@ -102,8 +85,8 @@ func removeWatcher(watcherToRemove watcher) {
 	}
 }
 
-func sendFirstSummary(c *gin.Context, flusher http.Flusher, summary *cubecos.Summary) {
-	c.Writer.Write(streamingResp(summary))
+func sendFirstSummary(c *gin.Context, flusher http.Flusher, healthSummary *cubecos.Health) {
+	c.Writer.Write(streamingResp(healthSummary))
 	c.Writer.Write([]byte("\n"))
 	flusher.Flush()
 }
@@ -112,23 +95,23 @@ func streamingSummary(c *gin.Context, flusher http.Flusher, watcher watcher) {
 	ctx := c.Request.Context()
 	for {
 		select {
-		case summary := <-watcher:
-			c.Writer.Write(streamingResp(&summary))
+		case healthSummary := <-watcher:
+			c.Writer.Write(streamingResp(&healthSummary))
 			c.Writer.Write([]byte("\n"))
 			flusher.Flush()
 		case <-ctx.Done():
-			api.SetStatusOk(c, "summary watching is stopped successfully", nil)
+			api.SetStatusOk(c, "health summary watching is stopped successfully", nil)
 			return
 		}
 	}
 }
 
-func streamingResp(summary *cubecos.Summary) []byte {
+func streamingResp(healthSummary *cubecos.Health) []byte {
 	b, err := json.Marshal(gin.H{
 		"code":   http.StatusOK,
 		"status": "ok",
-		"msg":    "fetch data center summary successfully",
-		"data":   *summary,
+		"msg":    "fetch health summary successfully",
+		"data":   *healthSummary,
 	})
 	if err != nil {
 		return []byte{}
