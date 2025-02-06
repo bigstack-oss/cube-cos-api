@@ -18,6 +18,7 @@ var (
 
 type Operator interface {
 	Name() string
+	Init() error
 	Sync()
 	Stop()
 }
@@ -46,14 +47,20 @@ func WrapGoMicro(server *server.Server) micro.Service {
 
 func runOperators() error {
 	for _, o := range Operators {
-		go run(o.Sync)
+		err := o.Init()
+		if err != nil {
+			log.Errorf("operator: %s init failed: %v: ", o.Name(), err)
+			return err
+		}
+
+		go runInBackground(o.Sync)
 		log.Infof("operator: %s is running", o.Name())
 	}
 
 	return nil
 }
 
-func run(f func()) {
+func runInBackground(f func()) {
 	for {
 		f()
 	}

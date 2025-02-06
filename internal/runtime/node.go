@@ -73,7 +73,7 @@ func initNodeIdentities() error {
 }
 
 func initNodePeerSyncer() {
-	service.RegisterOperator(node.Name(), node.NewOperator())
+	service.RegisterOperator(node.Name(), &node.Operator{})
 }
 
 func genMetadata() map[string]string {

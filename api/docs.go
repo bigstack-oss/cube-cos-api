@@ -5,13 +5,11 @@ import "github.com/swaggo/swag"
 const docTemplate = `{
     "openapi": "3.0.0",
     "info": {
-        "description": "{{escape .Description}}",
-        "title": "{{.Title}}",
+        "description": "",
+        "title": "Cube COS API",
         "contact": {},
-        "version": "{{.Version}}"
+        "version": "1.0.0"
     },
-    "host": "{{.Host}}",
-    "basePath": "{{.BasePath}}",
     "paths": {
         "/api/v1/logout": {
             "post": {
@@ -29,12 +27,6 @@ const docTemplate = `{
         "/api/v1/datacenters": {
             "get": {
                 "description": "Retrieve the list of data centers",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Data Centers"
                 ],
@@ -335,7 +327,7 @@ const docTemplate = `{
                 "tags": [
                     "Health"
                 ],
-                "summary": "Retrieve the list of health",
+                "summary": "Retrieve the overall health status of all modules",
                 "parameters": [
                     {
                         "in": "path",
@@ -530,10 +522,102 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Repair the health for all modules",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "The Request of the all modules repair is accepted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 202
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "the request of all modules repair is accepted and repairing"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "the repair process is already running"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to request repair"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/healths/{module}/repair": {
-            "post": {
+        "/api/v1/datacenters/{dataCenter}/healths/{module}": {
+            "patch": {
                 "tags": [
                     "Health"
                 ],
@@ -623,6 +707,243 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to fetch health checks: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/healths/{module}/history": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Retrieve the health history of module",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "test-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "module",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the module to retrieve health history, it could be 'ceph_osd', 'nova', and so on.",
+                        "example": "'ceph_osd', 'nova', and so on."
+                    },
+                    {
+                        "in": "query",
+                        "name": "start",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The start time of the health history to query, the value should be in RFC3339 format (default is 24 hours ago).",
+                        "example": "2025-01-01T01:00:00Z"
+                    },
+                    {
+                        "in": "query",
+                        "name": "stop",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The end time of the health history to query, the value should be in RFC3339 format (default is now).",
+                        "example": "2025-01-01T01:00:00Z"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageNum",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The page number of the health history chunking to fetch (default is 1).",
+                        "example": 1
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The size per page of the health history to return (default is unlimit).",
+                        "example": 10
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the health history of module successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "health": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "category": {
+                                                            "type": "string"
+                                                        },
+                                                        "service": {
+                                                            "type": "string"
+                                                        },
+                                                        "module": {
+                                                            "type": "string"
+                                                        },
+                                                        "history": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "time": {
+                                                                        "type": "string",
+                                                                        "format": "date-time"
+                                                                    },
+                                                                    "status": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "error": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "nodes": {
+                                                                                "type": "array",
+                                                                                "items": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "description": {
+                                                                                "type": "string"                                                                            },
+                                                                            "details": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "log": {
+                                                                                "type": "string",
+                                                                                "format": "uri"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "page": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "total": {
+                                                            "type": "integer"
+                                                        },
+                                                        "number": {
+                                                            "type": "integer"
+                                                        },
+                                                        "size": {
+                                                            "type": "integer"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Multiple historical records",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "health": {
+                                                    "category": "cloud computing",
+                                                    "service": "compute",
+                                                    "module": "nova",
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-01T03:00:00Z",
+                                                            "status": "ok"
+                                                        },
+                                                        {
+                                                            "time": "2025-02-01T02:55:00Z",
+                                                            "status": "ok"
+                                                        },
+                                                        {
+                                                            "time": "2025-02-01T02:50:00Z",
+                                                            "status": "ng",
+                                                            "error": {
+                                                                "type": "service down",
+                                                                "nodes": [
+                                                                    "example-node-0"
+                                                                ],
+                                                                "description": "nova has 1 node down",
+                                                                "details": "{ ... best effort error summary / direction ...}",
+                                                                "log": "http://datacenter1:8888/log/nova/dell180-20250205113459-b3gc.log"
+                                                            }
+                                                        },
+                                                        {
+                                                            "time": "2025-02-01T02:45:00Z",
+                                                            "status": "ok"
+                                                        }
+                                                    ]
+                                                },
+                                                "page": {
+                                                    "total": 10,
+                                                    "number": 1,
+                                                    "size": 2
+                                                }
+                                            },
+                                            "msg": "retrieve health history of module successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to retrieve health history"
                                         },
                                         "status": {
                                             "type": "string",
@@ -967,7 +1288,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the summary of data center successfully",
+                        "description": "Retrieve the summary of data center successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1023,7 +1344,7 @@ const docTemplate = `{
                                                                             "example": 31
                                                                         },
                                                                         "usedPercent": {
-                                                                            "type": "float",
+                                                                            "type": "number",
                                                                             "example": 38.75
                                                                         },
                                                                         "freeCores": {
@@ -1031,7 +1352,7 @@ const docTemplate = `{
                                                                             "example": 49
                                                                         },
                                                                         "freePercent": {
-                                                                            "type": "float",
+                                                                            "type": "number",
                                                                             "example": 61.25
                                                                         }
                                                                     }
@@ -1048,7 +1369,7 @@ const docTemplate = `{
                                                                             "example": 98255
                                                                         },
                                                                         "usedPercent": {
-                                                                            "type": "float",
+                                                                            "type": "number",
                                                                             "example": 38.2
                                                                         },
                                                                         "freeMiB": {
@@ -1056,7 +1377,7 @@ const docTemplate = `{
                                                                             "example": 159116
                                                                         },
                                                                         "freePercent": {
-                                                                            "type": "float",
+                                                                            "type": "number",
                                                                             "example": 61.8
                                                                         }
                                                                     }
@@ -1073,7 +1394,7 @@ const docTemplate = `{
                                                                             "example": 51200
                                                                         },
                                                                         "usedPercent": {
-                                                                            "type": "float",
+                                                                            "type": "number",
                                                                             "example": 50
                                                                         },
                                                                         "freeMiB": {
@@ -1081,7 +1402,7 @@ const docTemplate = `{
                                                                             "example": 51200
                                                                         },
                                                                         "freePercent": {
-                                                                            "type": "float",
+                                                                            "type": "number",
                                                                             "example": 50
                                                                         }
                                                                     }
@@ -1145,11 +1466,11 @@ const docTemplate = `{
                                                                             "example": 49
                                                                         },
                                                                         "usedPercent": {
-                                                                            "type": "float",
+                                                                            "type": "number",
                                                                             "example": 38.75
                                                                         },
                                                                         "freePercent": {
-                                                                            "type": "float",
+                                                                            "type": "number",
                                                                             "example": 61.25
                                                                         }
                                                                     }
@@ -1170,11 +1491,11 @@ const docTemplate = `{
                                                                             "example": 159116
                                                                         },
                                                                         "usedPercent": {
-                                                                            "type": "float",
+                                                                            "type": "number",
                                                                             "example": 38.2
                                                                         },
                                                                         "freePercent": {
-                                                                            "type": "float",
+                                                                            "type": "number",
                                                                             "example": 61.8
                                                                         }
                                                                     }
@@ -1195,11 +1516,11 @@ const docTemplate = `{
                                                                             "example": 51200
                                                                         },
                                                                         "usedPercent": {
-                                                                            "type": "float",
+                                                                            "type": "number",
                                                                             "example": 50
                                                                         },
                                                                         "freePercent": {
-                                                                            "type": "float",
+                                                                            "type": "number",
                                                                             "example": 50
                                                                         }
                                                                     }
@@ -1330,7 +1651,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the summary of data center successfully",
+                        "description": "Retrieve the summary of data center successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1559,7 +1880,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the cpu usage of hosts successfully",
+                        "description": "Retrieve the cpu usage of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1585,11 +1906,11 @@ const docTemplate = `{
                                                     "example": 49
                                                 },
                                                 "usedPercent": {
-                                                    "type": "float",
+                                                    "type": "number",
                                                     "example": 38.75
                                                 },
                                                 "freePercent": {
-                                                    "type": "float",
+                                                    "type": "number",
                                                     "example": 61.25
                                                 }
                                             }
@@ -1694,60 +2015,101 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the storage bandwidth time series of hosts successfully",
+                        "description": "Retrieve the storage bandwidth time series of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 200
-                                        },
-                                        "data": {
+                                    "oneOf": [
+                                        {
                                             "type": "object",
                                             "properties": {
-                                                "read": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "time": {
-                                                                "type": "string",
-                                                                "example": "2025-01-01T01:00:00Z"
-                                                            },
-                                                            "bytes": {
-                                                                "type": "float",
-                                                                "example": 682.6666
+                                                "code": {
+                                                    "type": "integer",
+                                                    "example": 200
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "read": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "time": {
+                                                                        "type": "string",
+                                                                        "example": "2025-01-01T01:00:00Z"
+                                                                    },
+                                                                    "bytes": {
+                                                                        "type": "number",
+                                                                        "example": 682.6666
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "write": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "time": {
+                                                                        "type": "string",
+                                                                        "example": "2025-01-01T01:00:00Z"
+                                                                    },
+                                                                    "bytes": {
+                                                                        "type": "number",
+                                                                        "example": 4.5
+                                                                    }
+                                                                }
                                                             }
                                                         }
                                                     }
                                                 },
-                                                "write": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "time": {
-                                                                "type": "string",
-                                                                "example": "2025-01-01T01:00:00Z"
-                                                            },
-                                                            "bytes": {
-                                                                "type": "float",
-                                                                "example": 4.5
-                                                            }
-                                                        }
-                                                    }
+                                                "msg": {
+                                                    "type": "string",
+                                                    "example": "fetch metrics successfully"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "ok"
                                                 }
                                             }
                                         },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "fetch metrics successfully"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ok"
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "ok"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "read": [
+                                                    {
+                                                        "time": "2025-01-01T01:00:00Z",
+                                                        "bytes": 682.6666
+                                                    }
+                                                ],
+                                                "write": [
+                                                    {
+                                                        "time": "2025-01-01T01:00:00Z",
+                                                        "bytes": 4.5
+                                                    }
+                                                ]
+                                            },
+                                            "msg": "fetch metrics successfully",
+                                            "status": "ok"
+                                        }
+                                    },
+                                    "example2": {
+                                        "value": {
+                                            "status": "ok"
                                         }
                                     }
                                 }
@@ -1841,7 +2203,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the storage iops time series of hosts successfully",
+                        "description": "Retrieve the storage iops time series of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1864,7 +2226,7 @@ const docTemplate = `{
                                                                 "example": "2025-01-01T01:00:00Z"
                                                             },
                                                             "ops": {
-                                                                "type": "float",
+                                                                "type": "number",
                                                                 "example": 1.0833
                                                             }
                                                         }
@@ -1880,7 +2242,7 @@ const docTemplate = `{
                                                                 "example": "2025-01-01T01:00:00Z"
                                                             },
                                                             "ops": {
-                                                                "type": "float",
+                                                                "type": "number",
                                                                 "example": 5.8166
                                                             }
                                                         }
@@ -1988,7 +2350,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the storage latency time series of hosts successfully",
+                        "description": "Retrieve the storage latency time series of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2011,7 +2373,7 @@ const docTemplate = `{
                                                                 "example": "2025-01-01T01:00:00Z"
                                                             },
                                                             "ms": {
-                                                                "type": "float",
+                                                                "type": "number",
                                                                 "example": 10736.9833
                                                             }
                                                         }
@@ -2027,7 +2389,7 @@ const docTemplate = `{
                                                                 "example": "2025-01-01T01:00:00Z"
                                                             },
                                                             "ms": {
-                                                                "type": "float",
+                                                                "type": "number",
                                                                 "example": 1615349.9
                                                             }
                                                         }
@@ -2115,7 +2477,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the storage usage rank of hosts successfully",
+                        "description": "Retrieve the storage usage rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2139,11 +2501,11 @@ const docTemplate = `{
                                                         "example": "test-data-center"
                                                     },
                                                     "usedPercent": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 24.6699
                                                     },
                                                     "freePercent": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 75.3301
                                                     }
                                                 }
@@ -2229,7 +2591,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the cpu usage rank of hosts successfully",
+                        "description": "Retrieve the cpu usage rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2253,11 +2615,11 @@ const docTemplate = `{
                                                         "example": "test-data-center"
                                                     },
                                                     "usedPercent": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 10.5263
                                                     },
                                                     "freePercent": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 89.4737
                                                     }
                                                 }
@@ -2343,7 +2705,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the memory usage rank of hosts successfully",
+                        "description": "Retrieve the memory usage rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2367,11 +2729,11 @@ const docTemplate = `{
                                                         "example": "test-data-center"
                                                     },
                                                     "usedPercent": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 52.6702
                                                     },
                                                     "freePercent": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 47.3298
                                                     }
                                                 }
@@ -2457,7 +2819,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the network ingress rank of hosts successfully",
+                        "description": "Retrieve the network ingress rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2481,7 +2843,7 @@ const docTemplate = `{
                                                         "example": "test-data-center"
                                                     },
                                                     "packets": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 5392.2666
                                                     }
                                                 }
@@ -2567,7 +2929,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the network ingress rank of hosts successfully",
+                        "description": "Retrieve the network ingress rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2591,7 +2953,7 @@ const docTemplate = `{
                                                         "example": "test-data-center"
                                                     },
                                                     "packets": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 1724.5302
                                                     }
                                                 }
@@ -2677,7 +3039,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the cpu usage rank of hosts successfully",
+                        "description": "Retrieve the cpu usage rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2701,11 +3063,11 @@ const docTemplate = `{
                                                         "example": "test-vm"
                                                     },
                                                     "usedPercent": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 10.5263
                                                     },
                                                     "freePercent": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 89.4737
                                                     }
                                                 }
@@ -2791,7 +3153,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the memory usage rank of hosts successfully",
+                        "description": "Retrieve the memory usage rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2815,11 +3177,11 @@ const docTemplate = `{
                                                         "example": "test-vm"
                                                     },
                                                     "usedPercent": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 35.0991
                                                     },
                                                     "freePercent": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 64.9009
                                                     }
                                                 }
@@ -2905,7 +3267,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the storage iops rank of hosts successfully",
+                        "description": "Retrieve the storage iops rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2933,7 +3295,7 @@ const docTemplate = `{
                                                         "example": "sda"
                                                     },
                                                     "usage": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 184266.4594
                                                     }
                                                 }
@@ -3019,7 +3381,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                       "description": "Retrieve the network ingress or egress rank of hosts successfully",
+                        "description": "Retrieve the network ingress or egress rank of hosts successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3047,7 +3409,7 @@ const docTemplate = `{
                                                         "example": "sda"
                                                     },
                                                     "usage": {
-                                                        "type": "float",
+                                                        "type": "number",
                                                         "example": 45443.764
                                                     }
                                                 }
@@ -3229,7 +3591,7 @@ const docTemplate = `{
                                                                         "type": "object",
                                                                         "properties": {
                                                                             "uptime": {
-                                                                                "type": "int",
+                                                                                "type": "number",
                                                                                 "example": 99.99
                                                                             },
                                                                             "period": {

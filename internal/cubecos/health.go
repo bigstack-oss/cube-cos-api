@@ -20,6 +20,27 @@ type Health struct {
 	Fixing                 []definition.Service `json:"fixing" bson:"fixing"`
 }
 
+type HealthCheckResult struct {
+	Category string             `json:"category"`
+	Service  string             `json:"service"`
+	Module   string             `json:"module"`
+	History  []HealthCheckPoint `json:"history"`
+}
+
+type HealthCheckPoint struct {
+	Time   string `json:"time"`
+	Status string `json:"status"`
+	*Error `json:"error,omitempty"`
+}
+
+type Error struct {
+	Type        string   `json:"type"`
+	Nodes       []string `json:"nodes"`
+	Description string   `json:"description"`
+	Details     string   `json:"details"`
+	Log         string   `json:"log"`
+}
+
 type Overall struct {
 	Status status.Details `json:"status,omitempty" bson:"status"`
 }
