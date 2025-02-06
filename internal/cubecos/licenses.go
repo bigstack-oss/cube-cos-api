@@ -3,10 +3,22 @@ package cubecos
 import (
 	"encoding/json"
 	"os/exec"
+	"path/filepath"
 
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	log "go-micro.dev/v5/logger"
 )
+
+func ImportClusterLicense(licensePath string) error {
+	dir := filepath.Dir(licensePath)
+	base := filepath.Base(licensePath)
+	_, err := exec.Command("hex_config", "sdk_run", "license_cluster_import", dir, base).Output()
+	if err != nil {
+		log.Errorf("failed to import licenses: %v", err)
+		return err
+	}
+	return nil
+}
 
 func ListLicenses() ([]definition.License, error) {
 	b, err := exec.Command("hex_config", "sdk_run", "-f", "json", "license_cluster_show").Output()
