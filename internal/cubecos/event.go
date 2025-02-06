@@ -72,7 +72,7 @@ func GetEvents(stmt string) ([]definition.Event, error) {
 
 	defer c.Close()
 	events := []definition.Event{}
-	err = parseEventsFromCursor(c, &events)
+	err = parseEvents(c, &events)
 	if err != nil {
 		log.Errorf("failed to parse events from cursor: %v", err)
 		return nil, err
@@ -81,7 +81,7 @@ func GetEvents(stmt string) ([]definition.Event, error) {
 	return events, nil
 }
 
-func parseEventsFromCursor(c *api.QueryTableResult, events *[]definition.Event) error {
+func parseEvents(c *api.QueryTableResult, events *[]definition.Event) error {
 	for c.Next() {
 		record := c.Record()
 		event := genEventByRecord(record)
@@ -96,7 +96,7 @@ func parseEventsFromCursor(c *api.QueryTableResult, events *[]definition.Event) 
 }
 
 func genEventByRecord(record *query.FluxRecord) definition.Event {
-	date, err := time.Parse(eventTimeLayout, record.Time().String())
+	date, err := time.Parse(eventTimeLayout, record.Time().Local().String())
 	if err != nil {
 		log.Warnf("failed to parse date from record: %v", record)
 	}
@@ -121,7 +121,7 @@ func genEventByRecord(record *query.FluxRecord) definition.Event {
 		Id:          eventId,
 		Description: msg,
 		Host:        "",
-		Time:        date.Format(time.RFC3339),
+		Time:        definition.TimeLocalISO8601(date),
 	}
 }
 

@@ -16,6 +16,12 @@ var (
 			Path:    "/events",
 			Func:    getEvents,
 		},
+		{
+			Version: api.V1,
+			Method:  http.MethodGet,
+			Path:    "/events/abstract",
+			Func:    getEventAbstract,
+		},
 	}
 )
 
@@ -24,28 +30,55 @@ func init() {
 }
 
 func getEvents(c *gin.Context) {
-	h, err := initReqHelper(c)
+	h, err := initReqHelper(c, "getEvents")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	resp, err := h.genEventResp()
+	events, err := h.genEvents()
 	if err != nil {
-		log.Errorf("request(%s): failed to gen event resp: %v", api.GetReqId(c), err)
+		log.Errorf("request(%s): failed to gen events: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
 		return
 	}
 
 	if h.watch {
-		watchEvents(h, resp)
+		watchEvents(h, events)
 		return
 	}
 
 	api.SetStatusOk(
 		c,
 		"fetch events successfully",
-		resp,
+		events,
+	)
+}
+
+func getEventAbstract(c *gin.Context) {
+	h, err := initReqHelper(c, "getEventAbstract")
+	if err != nil {
+		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	abstract, err := h.genEventAbstract()
+	if err != nil {
+		log.Errorf("request(%s): failed to gen event abstract: %v", api.GetReqId(c), err)
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	if h.watch {
+		watchEvents(h, abstract)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"fetch event abstract successfully",
+		abstract,
 	)
 }

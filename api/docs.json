@@ -328,6 +328,343 @@
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/events/abstract": {
+            "get": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Retrieve the abstracted events",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "type",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The type of event to query, the value can be only 'system', 'host', and 'instance'.",
+                        "example": "system"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The limit of the abstracted events to return (default is 10).",
+                        "example": 10
+                    },
+                    {
+                        "in": "query",
+                        "name": "watch",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "The toggle to enable http chunked transfer for continues server push.",
+                        "example": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the abstracted events successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "events": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "type": {
+                                                                "type": "string"
+                                                            },
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": "string"
+                                                            },
+                                                            "host": {
+                                                                "type": "string"
+                                                            },
+                                                            "category": {
+                                                                "type": "string"
+                                                            },
+                                                            "service": {
+                                                                "type": "string"
+                                                            },
+                                                            "metadata": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "ip": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "time": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "limit": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "number": {
+                                                            "type": "integer"
+                                                        },
+                                                        "description": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Abstracted recent events",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "events": [
+                                                    {
+                                                        "type": "Info",
+                                                        "id": "NET00003I",
+                                                        "description": "instance \"ccc449e4-a26c-47ac-afc1-c792ab1ed20a\" at 192.168.0.10 is reachable",
+                                                        "host": "",
+                                                        "category": "net",
+                                                        "service": "",
+                                                        "metadata": {
+                                                            "category": "net",
+                                                            "id": "ccc449e4-a26c-47ac-afc1-c792ab1ed20a",
+                                                            "ip": "192.168.0.10"
+                                                        },
+                                                        "time": "2025-02-04T06:05:08Z"
+                                                    },
+                                                    {
+                                                        "type": "Info",
+                                                        "id": "NET00003I",
+                                                        "description": "instance \"441ddbcb-c6a3-48cd-933c-c416d52032b8\" at 192.168.0.127 is reachable",
+                                                        "host": "",
+                                                        "category": "net",
+                                                        "service": "",
+                                                        "metadata": {
+                                                            "category": "net",
+                                                            "id": "441ddbcb-c6a3-48cd-933c-c416d52032b8",
+                                                            "ip": "192.168.0.127"
+                                                        },
+                                                        "time": "2025-02-03T19:30:15Z"
+                                                    },
+                                                    {
+                                                        "type": "Info",
+                                                        "id": "NET00003I",
+                                                        "description": "instance \"17fa8b83-3f9c-4541-a4a8-10b972f19bd2\" at 10.254.1.149 is reachable",
+                                                        "host": "",
+                                                        "category": "net",
+                                                        "service": "",
+                                                        "metadata": {
+                                                            "category": "net",
+                                                            "id": "17fa8b83-3f9c-4541-a4a8-10b972f19bd2",
+                                                            "ip": "10.254.1.149"
+                                                        },
+                                                        "time": "2025-02-03T19:15:15Z"
+                                                    },
+                                                    {
+                                                        "type": "Info",
+                                                        "id": "SDN00002I",
+                                                        "description": "PROJ001 deleted virtual port 192.168.1.87 (fa:16:3e:b1:5c:89)",
+                                                        "host": "",
+                                                        "category": "sdn",
+                                                        "service": "",
+                                                        "metadata": {
+                                                            "category": "sdn",
+                                                            "device_id": "32f4993f-c692-49c9-9b5e-e1bd1014699e",
+                                                            "network_id": "cae0e230-9713-4717-a94e-7e2a50cb2d86",
+                                                            "port_id": "5f20ef48-a1ea-4ef9-8463-6a790b2026c2"
+                                                        },
+                                                        "time": "2025-02-03T17:32:09Z"
+                                                    },
+                                                    {
+                                                        "type": "Info",
+                                                        "id": "SDN00002I",
+                                                        "description": "PROJ001 deleted virtual port 192.168.1.5 (fa:16:3e:ce:ab:6b)",
+                                                        "host": "",
+                                                        "category": "sdn",
+                                                        "service": "",
+                                                        "metadata": {
+                                                            "category": "sdn",
+                                                            "device_id": "4222d5e8-ccb2-4069-af14-d8f0fe3fbfea",
+                                                            "network_id": "cae0e230-9713-4717-a94e-7e2a50cb2d86",
+                                                            "port_id": "1caa0da6-8c58-4a80-9bac-2eda77c23c92"
+                                                        },
+                                                        "time": "2025-02-03T17:32:09Z"
+                                                    },
+                                                    {
+                                                        "type": "Info",
+                                                        "id": "NET00003I",
+                                                        "description": "instance \"e5a85381-023c-4087-a607-c74687dc3b52\" at 10.254.1.235 is reachable",
+                                                        "host": "",
+                                                        "category": "net",
+                                                        "service": "",
+                                                        "metadata": {
+                                                            "category": "net",
+                                                            "id": "e5a85381-023c-4087-a607-c74687dc3b52",
+                                                            "ip": "10.254.1.235"
+                                                        },
+                                                        "time": "2025-02-03T17:30:15Z"
+                                                    },
+                                                    {
+                                                        "type": "Info",
+                                                        "id": "NET00003I",
+                                                        "description": "instance \"66cdfddb-efe1-4b67-b864-76c5d106524c\" at 10.254.131.183 is reachable",
+                                                        "host": "",
+                                                        "category": "net",
+                                                        "service": "",
+                                                        "metadata": {
+                                                            "category": "net",
+                                                            "id": "66cdfddb-efe1-4b67-b864-76c5d106524c",
+                                                            "ip": "10.254.131.183"
+                                                        },
+                                                        "time": "2025-02-03T17:30:15Z"
+                                                    },
+                                                    {
+                                                        "type": "Info",
+                                                        "id": "NET00003I",
+                                                        "description": "instance \"f682fc8d-2c8d-4557-9b84-049e5a72b713\" at 192.168.0.157 is reachable",
+                                                        "host": "",
+                                                        "category": "net",
+                                                        "service": "",
+                                                        "metadata": {
+                                                            "category": "net",
+                                                            "id": "f682fc8d-2c8d-4557-9b84-049e5a72b713",
+                                                            "ip": "192.168.0.157"
+                                                        },
+                                                        "time": "2025-02-03T17:15:15Z"
+                                                    },
+                                                    {
+                                                        "type": "Info",
+                                                        "id": "NET00003I",
+                                                        "description": "instance \"6942ec52-f089-434d-ba5c-6137015b91b1\" at 192.168.0.108 is reachable",
+                                                        "host": "",
+                                                        "category": "net",
+                                                        "service": "",
+                                                        "metadata": {
+                                                            "category": "net",
+                                                            "id": "6942ec52-f089-434d-ba5c-6137015b91b1",
+                                                            "ip": "192.168.0.108"
+                                                        },
+                                                        "time": "2025-02-03T16:50:15Z"
+                                                    },
+                                                    {
+                                                        "type": "Info",
+                                                        "id": "NET00003I",
+                                                        "description": "instance \"2d9ce9a4-5fe9-4011-84ae-8ecb20f64594\" at 192.168.0.111 is reachable",
+                                                        "host": "",
+                                                        "category": "net",
+                                                        "service": "",
+                                                        "metadata": {
+                                                            "category": "net",
+                                                            "id": "2d9ce9a4-5fe9-4011-84ae-8ecb20f64594",
+                                                            "ip": "192.168.0.111"
+                                                        },
+                                                        "time": "2025-02-03T16:35:15Z"
+                                                    }
+                                                ],
+                                                "limit": {
+                                                    "number": 10,
+                                                    "description": "the top 10 recent events"
+                                                }
+                                            },
+                                            "msg": "fetch event abstract successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid 'start' time: 2021-09-01T111:00:00Z"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch events: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/healths": {
             "get": {
                 "tags": [
@@ -918,10 +1255,11 @@
                                                             "status": "ng",
                                                             "error": {
                                                                 "type": "service down",
+                                                                "reason": "1 node down",
                                                                 "nodes": [
                                                                     "example-node-0"
                                                                 ],
-                                                                "description": "nova has 1 node down",
+                                                                "description": "nova has 1 node down due to the memory exhausted, and the abnormal memory competition from PID(24887) is detected",
                                                                 "details": "{ ... best effort error summary / direction ...}",
                                                                 "log": "http://datacenter1:8888/log/nova/dell180-20250205113459-b3gc.log"
                                                             }
