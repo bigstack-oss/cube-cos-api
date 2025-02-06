@@ -78,19 +78,22 @@ func (h *helper) parsePeriod() error {
 		return nil
 	}
 
-	h.Period.Start = h.c.DefaultQuery("start", definition.TimeRFC3339(-24*time.Hour))
-	start, err := time.Parse(time.RFC3339, h.Period.Start)
+	qStart := h.c.DefaultQuery("start", definition.TimeRFC3339(-24*time.Hour))
+	start, err := time.Parse(time.RFC3339, qStart)
 	if err != nil {
-		return fmt.Errorf("'start' time format should be aligned with RFC3339: %s", h.Period.Start)
-	}
-	trick.Minus2MinsOnMetricStartTime(&h.Period.Start, start)
-
-	h.Period.Stop = h.c.DefaultQuery("stop", definition.TimeNowRFC3339())
-	_, err = time.Parse(time.RFC3339, h.Period.Stop)
-	if err != nil {
-		return fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", h.Period.Stop)
+		return fmt.Errorf("'start' time format should be aligned with RFC3339: %s", qStart)
 	}
 
+	qStop := h.c.DefaultQuery("stop", definition.TimeNowRFC3339())
+	stop, err := time.Parse(time.RFC3339, qStop)
+	if err != nil {
+		return fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", qStop)
+	}
+
+	h.Period = definition.Period{
+		Start: definition.TimeUTC(trick.Minus2MinsOnMetricStart(start)),
+		Stop:  definition.TimeUTC(stop),
+	}
 	return nil
 }
 

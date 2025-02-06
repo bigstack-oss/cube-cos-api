@@ -113,7 +113,8 @@ func (h *helper) setFakeError(checkResult *cubecos.HealthCheckPoint) {
 	checkResult.Error = &cubecos.Error{
 		Type:        "service down",
 		Nodes:       []string{definition.DataCenterName},
-		Description: "nova has 1 nodes down",
+		Reason:      "1 node down",
+		Description: "nova has 1 node down due to the memory exhausted, and the abnormal memory competition from PID(24887) is detected",
 		Details:     "{ ... the best efforts of error summary / direction ...} ",
 		Log: fmt.Sprintf(
 			"http://{dataCenter}:8888/log/nova/%s-20250205113459-b3gc.log",

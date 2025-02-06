@@ -773,7 +773,7 @@ func parseHostStorageUsageRank(c *api.QueryTableResult) ([]definition.HostPercen
 func parseTimeOpsSeries(c *api.QueryTableResult) ([]definition.TimeOpsPoint, error) {
 	points := []definition.TimeOpsPoint{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
 		if err != nil {
 			continue
 		}
@@ -793,7 +793,7 @@ func parseTimeOpsSeries(c *api.QueryTableResult) ([]definition.TimeOpsPoint, err
 func parseTimeLatencySeries(c *api.QueryTableResult) ([]definition.TimeLatencyPoint, error) {
 	points := []definition.TimeLatencyPoint{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
 		if err != nil {
 			continue
 		}
@@ -801,7 +801,7 @@ func parseTimeLatencySeries(c *api.QueryTableResult) ([]definition.TimeLatencyPo
 		points = append(
 			points,
 			definition.TimeLatencyPoint{
-				Time: date.Format(time.RFC3339),
+				Time: definition.TimeLocalISO8601(date),
 				Ms:   math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
@@ -844,7 +844,7 @@ func getHostStorageBandwidthSeries(stmt string) ([]definition.TimeBytesPoint, er
 func parseTimeBytesSeries(c *api.QueryTableResult) ([]definition.TimeBytesPoint, error) {
 	points := []definition.TimeBytesPoint{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
 		if err != nil {
 			continue
 		}
@@ -852,7 +852,7 @@ func parseTimeBytesSeries(c *api.QueryTableResult) ([]definition.TimeBytesPoint,
 		points = append(
 			points,
 			definition.TimeBytesPoint{
-				Time:  date.Format(time.RFC3339),
+				Time:  definition.TimeLocalISO8601(date),
 				Bytes: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)

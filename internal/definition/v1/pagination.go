@@ -13,3 +13,8 @@ func (p Page) IsRequired() bool {
 func IsPageRequired(pageNum, pageSize string) bool {
 	return pageNum != "" || pageSize != ""
 }
+
+type Limit struct {
+	Number      int    `json:"number"`
+	Description string `json:"description"`
+}

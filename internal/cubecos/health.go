@@ -35,6 +35,7 @@ type HealthCheckPoint struct {
 
 type Error struct {
 	Type        string   `json:"type"`
+	Reason      string   `json:"reason"`
 	Nodes       []string `json:"nodes"`
 	Description string   `json:"description"`
 	Details     string   `json:"details"`

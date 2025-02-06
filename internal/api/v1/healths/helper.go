@@ -61,22 +61,26 @@ func initReqHelper(c *gin.Context) (*helper, error) {
 }
 
 func (h *helper) parsePeriod() error {
-	h.period.start = h.c.DefaultQuery("start", definition.TimeRFC3339(-24*time.Hour))
-	start, err := time.Parse(time.RFC3339, h.period.start)
+	qStart := h.c.DefaultQuery("start", definition.TimeRFC3339(-24*time.Hour))
+	start, err := time.Parse(time.RFC3339, qStart)
 	if err != nil {
-		return fmt.Errorf("'start' time format should be aligned with RFC3339: %s", h.period.start)
+		return fmt.Errorf("'start' time format should be aligned with RFC3339: %s", qStart)
 	}
 
-	h.period.stop = h.c.DefaultQuery("stop", definition.TimeNowRFC3339())
-	stop, err := time.Parse(time.RFC3339, h.period.stop)
+	qStop := h.c.DefaultQuery("stop", definition.TimeNowRFC3339())
+	stop, err := time.Parse(time.RFC3339, qStop)
 	if err != nil {
-		return fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", h.period.stop)
+		return fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", qStop)
 	}
 
 	if stop.Before(start) {
 		return fmt.Errorf("'stop' time should be after 'start' time(start: %s, stop: %s)", start, stop)
 	}
 
+	h.period = period{
+		start: definition.TimeUTC(start),
+		stop:  definition.TimeUTC(stop),
+	}
 	return nil
 }
 

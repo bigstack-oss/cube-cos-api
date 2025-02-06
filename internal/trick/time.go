@@ -2,7 +2,6 @@ package trick
 
 import "time"
 
-func Minus2MinsOnMetricStartTime(start *string, t time.Time) {
-	minusStart := t.Add(-2 * time.Minute).Format(time.RFC3339)
-	*start = minusStart
+func Minus2MinsOnMetricStart(t time.Time) time.Time {
+	return t.Add(-2 * time.Minute)
 }
