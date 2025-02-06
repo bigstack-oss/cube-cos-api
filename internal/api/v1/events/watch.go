@@ -11,11 +11,11 @@ import (
 	json "github.com/json-iterator/go"
 )
 
-type respChan chan resp
+type dataChan chan data
 
 type watcher struct {
 	helper
-	respChan
+	dataChan
 }
 
 var (
@@ -34,13 +34,13 @@ func streamEvents() {
 
 		stream.Lock()
 		for _, w := range stream.Watchers {
-			resp, err := w.genEventResp()
+			resp, err := streamEventsByHandlerType(&w.helper)
 			if err != nil {
 				continue
 			}
 
 			select {
-			case w.respChan <- *resp:
+			case w.dataChan <- *resp:
 			default:
 			}
 		}
@@ -49,7 +49,18 @@ func streamEvents() {
 	}
 }
 
-func watchEvents(h *helper, resp *resp) {
+func streamEventsByHandlerType(h *helper) (*data, error) {
+	switch h.handler {
+	case "getEvents":
+		return h.genEvents()
+	case "getEventAbstract":
+		return h.genEventAbstract()
+	}
+
+	return nil, errors.New("no internal function supported")
+}
+
+func watchEvents(h *helper, data *data) {
 	setChunkedTransfer(h.c)
 	flusher, ok := h.c.Writer.(http.Flusher)
 	if !ok {
@@ -57,11 +68,11 @@ func watchEvents(h *helper, resp *resp) {
 		return
 	}
 
-	watcher := watcher{helper: *h, respChan: make(respChan)}
+	watcher := watcher{helper: *h, dataChan: make(dataChan)}
 	addWatcher(watcher)
 	defer removeWatcher(watcher)
 
-	sendFirstSummary(h.c, flusher, resp)
+	sendFirstSummary(h.c, flusher, data)
 	streamingSummary(h.c, flusher, watcher)
 }
 
@@ -93,8 +104,8 @@ func removeWatcher(watcherToRemove watcher) {
 	}
 }
 
-func sendFirstSummary(c *gin.Context, flusher http.Flusher, resp *resp) {
-	c.Writer.Write(streamingResp(resp))
+func sendFirstSummary(c *gin.Context, flusher http.Flusher, data *data) {
+	c.Writer.Write(streamingResp(data))
 	c.Writer.Write([]byte("\n"))
 	flusher.Flush()
 }
@@ -103,8 +114,8 @@ func streamingSummary(c *gin.Context, flusher http.Flusher, watcher watcher) {
 	ctx := c.Request.Context()
 	for {
 		select {
-		case resp := <-watcher.respChan:
-			c.Writer.Write(streamingResp(&resp))
+		case data := <-watcher.dataChan:
+			c.Writer.Write(streamingResp(&data))
 			c.Writer.Write([]byte("\n"))
 			flusher.Flush()
 		case <-ctx.Done():
@@ -114,12 +125,12 @@ func streamingSummary(c *gin.Context, flusher http.Flusher, watcher watcher) {
 	}
 }
 
-func streamingResp(resp *resp) []byte {
+func streamingResp(data *data) []byte {
 	b, err := json.Marshal(gin.H{
 		"code":   http.StatusOK,
 		"status": "ok",
 		"msg":    "fetch event successfully",
-		"data":   *resp,
+		"data":   *data,
 	})
 	if err != nil {
 		return []byte{}

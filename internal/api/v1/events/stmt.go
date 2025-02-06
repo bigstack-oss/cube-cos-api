@@ -31,6 +31,16 @@ var (
 			|> sort(columns: ["_time"], desc: true)
 			|> limit(n: %d, offset: %d)
 	`
+
+	eventLimitingQueryTemplate = `
+		from(bucket: "events")
+			|> range(start: 0)
+			|> filter(fn: (r) => r._measurement == "%s")
+			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+			|> group()
+			|> sort(columns: ["_time"], desc: true)
+			|> limit(n: %d)
+	`
 )
 
 func (h *helper) genCountQueryStmt() string {
@@ -42,7 +52,7 @@ func (h *helper) genCountQueryStmt() string {
 	)
 }
 
-func (h *helper) genQueryStmt() string {
+func (h *helper) genListingStmt() string {
 	if !h.isPageRequired() {
 		return h.genNonPagingQueryStmt()
 	}
@@ -68,5 +78,13 @@ func (h *helper) genPagingQueryStmt() string {
 		h.eventType,
 		h.Page.Size,
 		offset,
+	)
+}
+
+func (h *helper) genAbstractStmt() string {
+	return fmt.Sprintf(
+		eventLimitingQueryTemplate,
+		h.eventType,
+		h.limit,
 	)
 }
