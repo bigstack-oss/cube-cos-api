@@ -8,7 +8,6 @@ import (
 	cubeHttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
-	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -35,7 +34,7 @@ func delegateToOtherNodes(tuning definition.Tuning) {
 	}
 
 	for _, role := range roles {
-		nodes, err := service.GetNodesByRole(role.Name)
+		nodes, err := definition.GetNodesByRole(role.Name)
 		if err == nil {
 			sendTuningToOtherNodes(tuning, nodes)
 			continue
@@ -52,11 +51,11 @@ func delegateToOtherNodes(tuning definition.Tuning) {
 	}
 }
 
-func sendTuningToOtherNodes(tuning definition.Tuning, nodes []definition.Node) {
+func sendTuningToOtherNodes(tuning definition.Tuning, nodes []*definition.Node) {
 	h := cubeHttp.GetGlobalHelper()
 
 	for _, node := range nodes {
-		resp, err := h.R().SetBody(tuning).Put(genUrl(node, tuning))
+		resp, err := h.R().SetBody(tuning).Put(genUrl(*node, tuning))
 		if !resp.IsError() && err == nil {
 			continue
 		}

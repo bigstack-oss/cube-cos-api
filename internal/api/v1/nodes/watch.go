@@ -34,7 +34,7 @@ func streamNodes() {
 
 		stream.Lock()
 		for _, w := range stream.Watchers {
-			nodes, err := w.genNodeResp()
+			nodes, err := w.getNodesResp()
 			if err != nil {
 				continue
 			}

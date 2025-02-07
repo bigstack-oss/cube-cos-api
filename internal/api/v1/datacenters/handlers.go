@@ -29,6 +29,7 @@ func getDataCenters(c *gin.Context) {
 		[]definition.DataCenter{
 			{
 				Name:        definition.DataCenterName,
+				Version:     definition.DataCenterVersion,
 				VirtualIp:   definition.DataCenterVip,
 				IsLocal:     true,
 				IsHaEnabled: definition.IsHaEnabled,

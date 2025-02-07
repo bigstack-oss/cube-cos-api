@@ -33,7 +33,7 @@ func getNodes(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.genNodeResp()
+	resp, err := h.getNodesResp()
 	if err != nil {
 		log.Errorf("request(%s): failed to gen node: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)

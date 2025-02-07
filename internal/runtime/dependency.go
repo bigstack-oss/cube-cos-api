@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Nerzal/gocloak/v13"
@@ -62,6 +63,12 @@ func initDependencies() error {
 	err = newKeycloakOidcAuth()
 	if err != nil {
 		log.Errorf("failed to init oidc auth in keycloak: %s", err.Error())
+		return err
+	}
+
+	err = newKeycloakSamlMapper()
+	if err != nil {
+		log.Errorf("failed to init saml mapper in keycloak: %s", err.Error())
 		return err
 	}
 
@@ -145,4 +152,53 @@ func newKeycloakOidcAuth() error {
 	}
 
 	return err
+}
+
+func newKeycloakSamlMapper() error {
+	h := keycloak.GetGlobalHelper()
+	err := h.LoginAdmin()
+	if err != nil {
+		log.Errorf("failed to login admin: %s", err.Error())
+		return err
+	}
+
+	samlId := saml.GenServiceProviderMetadataUrl(conf.Opts.Spec.Identity.Saml)
+	clients, err := h.GetClients(
+		definition.DefaultKeycloakRealm,
+		gocloak.GetClientsParams{ClientID: gocloak.StringP(samlId.String())},
+	)
+	if err != nil {
+		log.Errorf("failed to get clients: %s", err.Error())
+		return err
+	}
+	if len(clients) == 0 {
+		return fmt.Errorf("saml client not found")
+	}
+
+	_, err = h.CreateClientProtocolMapper(
+		definition.DefaultKeycloakRealm,
+		*clients[0].ID,
+		genSamlMapper(),
+	)
+	if err == nil {
+		return nil
+	}
+	if err.(*gocloak.APIError).Code == http.StatusConflict {
+		return nil
+	}
+
+	return err
+}
+
+func genSamlMapper() gocloak.ProtocolMapperRepresentation {
+	return gocloak.ProtocolMapperRepresentation{
+		Name:           gocloak.StringP("username"),
+		Protocol:       gocloak.StringP("saml"),
+		ProtocolMapper: gocloak.StringP("saml-user-property-mapper"),
+		Config: &map[string]string{
+			"user.attribute":       "username",
+			"attribute.name":       "username",
+			"attribute.nameformat": "Basic",
+		},
+	}
 }

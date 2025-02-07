@@ -1,6 +1,7 @@
 package cubecos
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"strconv"
@@ -42,4 +43,18 @@ func GetDataCenterName() (string, error) {
 	}
 
 	return ReadHexTuning(CubeSysController)
+}
+
+func GetDataCenterVersion() (string, error) {
+	desc, err := ReadSettingSys(SysProductDescription)
+	if err != nil {
+		return "", err
+	}
+
+	version, err := ReadSettingSys(SysProductVersion)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s %s", desc, version), nil
 }

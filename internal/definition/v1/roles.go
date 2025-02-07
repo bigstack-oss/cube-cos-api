@@ -141,22 +141,31 @@ func SyncNodesOfRole() {
 	}
 }
 
-func getNodesByService(svc *registry.Service, role string) []*Node {
+func parseNodes(svc *registry.Service) []*Node {
 	nodes := []*Node{}
-
 	for _, node := range svc.Nodes {
-		nodes = append(
-			nodes,
-			genNodeInfo(node, role),
-		)
+		nodes = append(nodes, newNode(node))
 	}
 
 	return nodes
 }
 
-func genNodeInfo(node *registry.Node, role string) *Node {
+func parseNodesByRole(svc *registry.Service, roleName string) []*Node {
+	nodes := []*Node{}
+	for _, node := range svc.Nodes {
+		if node.Metadata["role"] != roleName {
+			continue
+		}
+
+		nodes = append(nodes, newNode(node))
+	}
+
+	return nodes
+}
+
+func newNode(node *registry.Node) *Node {
 	return &Node{
-		Role:     role,
+		Role:     node.Metadata["role"],
 		Id:       node.Metadata["nodeID"],
 		Hostname: node.Metadata["hostname"],
 		Address:  node.Address,

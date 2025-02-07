@@ -24,6 +24,94 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/me": {
+            "get": {
+                "tags": [
+                    "User Info"
+                ],
+                "summary": "Retrieve the own user info",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the own user info successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                }  
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Own user info",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "name": "admin"
+                                            },
+                                            "msg": "fetch own user info successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch own user info: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters": {
             "get": {
                 "description": "Retrieve the list of data centers",
@@ -51,6 +139,10 @@ const docTemplate = `{
                                                     "name": {
                                                         "type": "string",
                                                         "example": "bigstack-data-center"
+                                                    },
+                                                    "version": {
+                                                        "type": "string",
+                                                        "example": "Cube Appliance 3.0.0"
                                                     },
                                                     "virtualIp": {
                                                         "type": "string",
@@ -206,6 +298,10 @@ const docTemplate = `{
                                                         "type": "object",
                                                         "properties": {
                                                             "type": {
+                                                                "type": "string",
+                                                                "example": "system"
+                                                            },
+                                                            "severity": {
                                                                 "type": "string",
                                                                 "example": "Info"
                                                             },
@@ -402,6 +498,9 @@ const docTemplate = `{
                                                             "type": {
                                                                 "type": "string"
                                                             },
+                                                            "severity": {
+                                                                "type": "string"
+                                                            },
                                                             "id": {
                                                                 "type": "string"
                                                             },
@@ -463,7 +562,8 @@ const docTemplate = `{
                                             "data": {
                                                 "events": [
                                                     {
-                                                        "type": "Info",
+                                                        "type": "system",
+                                                        "severity": "Info",
                                                         "id": "NET00003I",
                                                         "description": "instance \"ccc449e4-a26c-47ac-afc1-c792ab1ed20a\" at 192.168.0.10 is reachable",
                                                         "host": "",
@@ -477,7 +577,8 @@ const docTemplate = `{
                                                         "time": "2025-02-04T06:05:08Z"
                                                     },
                                                     {
-                                                        "type": "Info",
+                                                        "type": "system",
+                                                        "severity": "Info",
                                                         "id": "NET00003I",
                                                         "description": "instance \"441ddbcb-c6a3-48cd-933c-c416d52032b8\" at 192.168.0.127 is reachable",
                                                         "host": "",
@@ -491,7 +592,8 @@ const docTemplate = `{
                                                         "time": "2025-02-03T19:30:15Z"
                                                     },
                                                     {
-                                                        "type": "Info",
+                                                        "type": "system",
+                                                        "severity": "Info",
                                                         "id": "NET00003I",
                                                         "description": "instance \"17fa8b83-3f9c-4541-a4a8-10b972f19bd2\" at 10.254.1.149 is reachable",
                                                         "host": "",
@@ -505,7 +607,8 @@ const docTemplate = `{
                                                         "time": "2025-02-03T19:15:15Z"
                                                     },
                                                     {
-                                                        "type": "Info",
+                                                        "type": "system",
+                                                        "severity": "Info",
                                                         "id": "SDN00002I",
                                                         "description": "PROJ001 deleted virtual port 192.168.1.87 (fa:16:3e:b1:5c:89)",
                                                         "host": "",
@@ -520,7 +623,8 @@ const docTemplate = `{
                                                         "time": "2025-02-03T17:32:09Z"
                                                     },
                                                     {
-                                                        "type": "Info",
+                                                        "type": "system",
+                                                        "severity": "Info",
                                                         "id": "SDN00002I",
                                                         "description": "PROJ001 deleted virtual port 192.168.1.5 (fa:16:3e:ce:ab:6b)",
                                                         "host": "",
@@ -535,7 +639,8 @@ const docTemplate = `{
                                                         "time": "2025-02-03T17:32:09Z"
                                                     },
                                                     {
-                                                        "type": "Info",
+                                                        "type": "system",
+                                                        "severity": "Info",
                                                         "id": "NET00003I",
                                                         "description": "instance \"e5a85381-023c-4087-a607-c74687dc3b52\" at 10.254.1.235 is reachable",
                                                         "host": "",
@@ -549,7 +654,8 @@ const docTemplate = `{
                                                         "time": "2025-02-03T17:30:15Z"
                                                     },
                                                     {
-                                                        "type": "Info",
+                                                        "type": "system",
+                                                        "severity": "Info",
                                                         "id": "NET00003I",
                                                         "description": "instance \"66cdfddb-efe1-4b67-b864-76c5d106524c\" at 10.254.131.183 is reachable",
                                                         "host": "",
@@ -563,7 +669,8 @@ const docTemplate = `{
                                                         "time": "2025-02-03T17:30:15Z"
                                                     },
                                                     {
-                                                        "type": "Info",
+                                                        "type": "system",
+                                                        "severity": "Info",
                                                         "id": "NET00003I",
                                                         "description": "instance \"f682fc8d-2c8d-4557-9b84-049e5a72b713\" at 192.168.0.157 is reachable",
                                                         "host": "",
@@ -577,7 +684,8 @@ const docTemplate = `{
                                                         "time": "2025-02-03T17:15:15Z"
                                                     },
                                                     {
-                                                        "type": "Info",
+                                                        "type": "system",
+                                                        "severity": "Info",
                                                         "id": "NET00003I",
                                                         "description": "instance \"6942ec52-f089-434d-ba5c-6137015b91b1\" at 192.168.0.108 is reachable",
                                                         "host": "",
@@ -591,7 +699,8 @@ const docTemplate = `{
                                                         "time": "2025-02-03T16:50:15Z"
                                                     },
                                                     {
-                                                        "type": "Info",
+                                                        "type": "system",
+                                                        "severity": "Info",
                                                         "id": "NET00003I",
                                                         "description": "instance \"2d9ce9a4-5fe9-4011-84ae-8ecb20f64594\" at 192.168.0.111 is reachable",
                                                         "host": "",
@@ -4056,9 +4165,9 @@ const docTemplate = `{
                                                                     }
                                                                 }
                                                             },
-                                                            "uptime": {
-                                                                "type": "string",
-                                                                "example": "26 days"
+                                                            "uptimeSeconds": {
+                                                                "type": "number",
+                                                                "example": 5658305.34
                                                             },
                                                             "labels": {
                                                                 "type": "object",
