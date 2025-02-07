@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -80,8 +79,8 @@ func (h *helper) parseWatch() error {
 	return nil
 }
 
-func (h *helper) genNodeResp() (*data, error) {
-	nodes, err := cubecos.ListNodes()
+func (h *helper) getNodesResp() (*data, error) {
+	nodes, err := definition.ListNodes()
 	if err != nil {
 		log.Errorf("request(%s): failed to get nodes: %s", api.GetReqId(h.c), err.Error())
 		return nil, err

@@ -15,6 +15,9 @@ func ListNodes() ([]*definition.Node, error) {
 			log.Warnf("failed to get %s nodes: %s", role, err.Error())
 			continue
 		}
+		if len(roleNodes) == 0 {
+			continue
+		}
 
 		nodes = append(nodes, roleNodes...)
 	}
