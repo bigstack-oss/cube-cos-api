@@ -4165,9 +4165,9 @@ const docTemplate = `{
                                                                     }
                                                                 }
                                                             },
-                                                            "uptime": {
-                                                                "type": "string",
-                                                                "example": "26 days"
+                                                            "uptimeSeconds": {
+                                                                "type": "number",
+                                                                "example": 5658305.34
                                                             },
                                                             "labels": {
                                                                 "type": "object",
