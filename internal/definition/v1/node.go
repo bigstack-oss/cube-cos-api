@@ -14,18 +14,19 @@ const (
 )
 
 var (
-	HostID         string
-	Hostname       string
-	DataCenterName string
-	DataCenterVip  string
-	ListenAddr     string
-	ListenPort     int
-	AdvertiseAddr  string
-	AdvertisePort  int
-	MgmtNet        string
-	MgmtIP         string
-	IsHaEnabled    bool
-	IsGpuEnabled   bool
+	HostID            string
+	Hostname          string
+	DataCenterName    string
+	DataCenterVersion string
+	DataCenterVip     string
+	ListenAddr        string
+	ListenPort        int
+	AdvertiseAddr     string
+	AdvertisePort     int
+	MgmtNet           string
+	MgmtIP            string
+	IsHaEnabled       bool
+	IsGpuEnabled      bool
 )
 
 type Node struct {

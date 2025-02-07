@@ -93,7 +93,14 @@ github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250204145842-9b1f8c1f67a
 =======
 github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250205114656-72189664ae06 h1:ojNtJyNiaTAVbG8fvu5TFNt4wfkMx9viioMywIG4i48=
 github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250205114656-72189664ae06/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
+<<<<<<< HEAD
 >>>>>>> 9141b97 (feat(healths): add a GET API to retrieve module health history)
+=======
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250206210944-477b489199b0 h1:0V36AHKe74UtJCLQseYbyA/Ioyx5pS2FBwsgjfnxcJg=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250206210944-477b489199b0/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250207174004-e1f28e8ba740 h1:QVXn0w91x9Q87+C9ltVpiIqWz4rEzIEDIjHkQhvUm7g=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250207174004-e1f28e8ba740/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
+>>>>>>> d689902 (feat(dataCenter & user): add an API to fetch own user info and add version info in the data center)
 github.com/bitly/go-simplejson v0.5.0 h1:6IH+V8/tVMab511d5bn4M7EwGXZf9Hj6i2xSwkNEM+Y=
 github.com/bitly/go-simplejson v0.5.0/go.mod h1:cXHtHw4XUPsvGaxgjIAn8PhEWG9NfngEKAMDJEczWVA=
 github.com/bmatcuk/doublestar v1.1.1/go.mod h1:UD6OnuiIn0yFxxA2le/rnRU1G4RaI4UvFv1sNto9p6w=

@@ -100,6 +100,10 @@ const (
 	TimeTimezone                = "time.timezone"
 	UpdateSecurityAutoUpdate    = "update.security.autoupdate"
 	WatcherDebugEnabled         = "watcher.debug.enabled"
+
+	// setting sys
+	SysProductDescription = "sys.product.description"
+	SysProductVersion     = "sys.product.version"
 )
 
 var (

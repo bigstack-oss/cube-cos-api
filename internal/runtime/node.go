@@ -62,6 +62,12 @@ func initNodeIdentities() error {
 		return err
 	}
 
+	definition.DataCenterVersion, err = cubecos.GetDataCenterVersion()
+	if err != nil {
+		log.Errorf("failed to get data center version: %s", err.Error())
+		return err
+	}
+
 	definition.ListenAddr = genLocalAddr()
 	definition.ListenPort = conf.Opts.Spec.Listen.Port
 	definition.AdvertiseAddr = genServiceDiscoveryAddr()
