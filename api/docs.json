@@ -20,6 +20,94 @@
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/me": {
+            "get": {
+                "tags": [
+                    "User Info"
+                ],
+                "summary": "Retrieve the own user info",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the own user info successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                }  
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Own user info",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "name": "admin"
+                                            },
+                                            "msg": "fetch own user info successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch own user info: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters": {
             "get": {
                 "description": "Retrieve the list of data centers",
@@ -47,6 +135,10 @@
                                                     "name": {
                                                         "type": "string",
                                                         "example": "bigstack-data-center"
+                                                    },
+                                                    "version": {
+                                                        "type": "string",
+                                                        "example": "Cube Appliance 3.0.0"
                                                     },
                                                     "virtualIp": {
                                                         "type": "string",

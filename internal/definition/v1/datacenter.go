@@ -7,6 +7,7 @@ const (
 type DataCenter struct {
 	Id          string `json:"id,omitempty" bson:"id"`
 	Name        string `json:"name" bson:"name"`
+	Version     string `json:"version" bson:"version"`
 	VirtualIp   string `json:"virtualIp" bson:"virtualIp"`
 	IsLocal     bool   `json:"isLocal" bson:"isLocal"`
 	IsHaEnabled bool   `json:"isHaEnabled" bson:"isHaEnabled"`
