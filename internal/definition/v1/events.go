@@ -8,6 +8,7 @@ const (
 
 type Event struct {
 	Type        string                 `json:"type"`
+	Severity    string                 `json:"severity"`
 	Id          string                 `json:"id"`
 	Description string                 `json:"description"`
 	Host        string                 `json:"host"`

@@ -117,7 +117,8 @@ func genEventByRecord(record *query.FluxRecord) definition.Event {
 	}
 
 	return definition.Event{
-		Type:        definition.SeverityFullName(severity),
+		Type:        record.Measurement(),
+		Severity:    definition.SeverityFullName(severity),
 		Id:          eventId,
 		Description: msg,
 		Host:        "",
