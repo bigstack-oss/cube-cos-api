@@ -3,6 +3,7 @@ package healths
 import (
 	"fmt"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
@@ -17,8 +18,11 @@ var (
 
 func (o *Operator) operateReq(health cubecos.Health) error {
 	switch health.Overall.Status.Desired {
-	case status.Ok:
-		go o.applyBackgroundRepairing(health)
+	case status.Repairing:
+		go repairServices(health)
+		return nil
+	case status.CheckingAndRepairing:
+		go checkAndRepairServices(health)
 		return nil
 	}
 
@@ -28,63 +32,32 @@ func (o *Operator) operateReq(health cubecos.Health) error {
 	)
 }
 
-func (o *Operator) applyBackgroundRepairing(health cubecos.Health) {
+func checkAndRepairServices(health cubecos.Health) {
 	var err error
-	health.Error, err = cubecos.GetUnhealthyServices()
+	health.Services, err = cubecos.GetUnhealthyServices()
 	if err != nil {
-		health.Overall.Status.SetCurrentToError(err)
-		o.reportToController(&health)
 		log.Errorf("health: failed to get unhealthy services: %s", err.Error())
 		return
 	}
 
-	o.RepairServices(&health)
+	repairServices(health)
 }
 
-func (o *Operator) RepairServices(health *cubecos.Health) {
-	moveErrorSvcToFixing(health)
-	o.reportToController(health)
-
-	result := repairAndVerify(health)
-	if result.HasUnhealthyService() {
-		result.Overall.Status.SetCurrentToError(nil)
-	} else {
-		result.Overall.Status.SetCurrentToOk()
-	}
-
-	o.reportToController(result)
-}
-
-func moveErrorSvcToFixing(health *cubecos.Health) {
-	health.Fixing = append(health.Fixing, health.Error...)
-	health.Error = nil
-	for svcIdx, svc := range health.Fixing {
-		for modIdx := range svc.Modules {
-			health.Fixing[svcIdx].Modules[modIdx].Status.SetCurrentToRepairing()
-		}
-	}
-}
-
-func repairAndVerify(health *cubecos.Health) *cubecos.Health {
-	result := health.CopyEmptyServiceStruct()
-
-	for _, svc := range health.Fixing {
+func repairServices(health cubecos.Health) {
+	for _, svc := range health.Services {
 		log.Infof(healthRepair, svc.Name)
 		err := cubecos.RepairServiceHealth(svc)
 		if err != nil {
 			log.Errorf(healthRepairFailed, err.Error())
 		}
 
+		wait.Seconds(3)
+
 		log.Infof(healthVerify, svc.Name)
 		err = cubecos.CheckServiceHealth(svc)
 		if err != nil {
-			log.Errorf(healthVerifyFailed, err.Error())
-			result.AddError(svc, err)
+			log.Warnf(healthVerifyFailed, err.Error())
 			continue
 		}
-
-		result.AddOk(svc)
 	}
-
-	return &result
 }
