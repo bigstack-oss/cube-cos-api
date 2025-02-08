@@ -57,7 +57,6 @@ func repairServices(health cubecos.Health) {
 		err = cubecos.CheckServiceHealth(svc)
 		if err != nil {
 			log.Warnf(healthVerifyFailed, err.Error())
-			continue
 		}
 	}
 }

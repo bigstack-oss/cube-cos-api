@@ -12,7 +12,7 @@ type Service struct {
 type Module struct {
 	Name             string         `json:"name" bson:"name"`
 	Status           status.Details `json:"status,omitempty" bson:"status,omitempty"`
-	IsAutoRepairable bool           `json:"isAutoRepairable" bson:"isAutoRepairable"`
+	IsAutoRepairable bool           `json:"-" bson:"isAutoRepairable"`
 	Description      string         `json:"description,omitempty" bson:"description"`
 }
 
