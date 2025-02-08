@@ -1250,6 +1250,158 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "operationId": "importClusterLicense",
+                "tags": [
+                    "Licenses"
+                ],
+                "summary": "Update licenses for the cluster",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "node",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the node to operate",
+                        "example": "example-node"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostLicenseRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Update licenses successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostLicenseResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to update licenses: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/nodes/{node}/licenses": {
+            "operationId": "importNodeLicense",
+            "post": {
+                "tags": [
+                    "Licenses"
+                ],
+                "summary": "Update licenses for specific node",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "node",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the node to operate",
+                        "example": "example-node"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostLicenseRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Update licenses successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostLicenseResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to update licenses: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/v1/datacenters/{dataCenter}/metrics": {
@@ -4526,6 +4678,46 @@
                     },
                     "status": {
                         "type": "string"
+                    }
+                }
+            },
+            "PostLicenseRequest": {
+                "type": "object",
+                "required": [
+                    "license"
+                ],
+                "properties": {
+                    "license": {
+                        "type": "string",
+                        "format": "binary",
+                        "description": "License file (must have a .license extension)"
+                    }
+                }
+            },
+            "PostLicenseResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "null",
+                        "example": null
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "update licenses successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
                     }
                 }
             },
