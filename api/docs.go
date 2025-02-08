@@ -621,7 +621,6 @@ const docTemplate = `{
                                                         "modules": [
                                                             {
                                                                 "name": "link",
-                                                                "isAutoRepairable": false,
                                                                 "status": {
                                                                     "current": "ok"
                                                                 }
@@ -655,7 +654,6 @@ const docTemplate = `{
                                                         "modules": [
                                                             {
                                                                 "name": "ceph_osd",
-                                                                "isAutoRepairable": false,
                                                                 "status": {
                                                                     "current": "ng",
                                                                     "description": "ceph has 2 ceph_osd down"
@@ -4122,24 +4120,18 @@ const docTemplate = `{
                                             "type": "array",
                                             "required": [
                                                 "name",
-                                                "isAutoRepairable",
                                                 "status"
                                             ],
                                             "items": {
                                                 "type": "object",
                                                 "required": [
                                                     "name",
-                                                    "isAutoRepairable",
                                                     "status"
                                                 ],
                                                 "properties": {
                                                     "name": {
                                                         "type": "string",
                                                         "example": "link"
-                                                    },
-                                                    "isAutoRepairable": {
-                                                        "type": "boolean",
-                                                        "example": false
                                                     },
                                                     "status": {
                                                         "type": "object",
