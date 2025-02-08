@@ -23,6 +23,12 @@ var (
 			Path:    "/licenses",
 			Func:    importClusterLicense,
 		},
+		{
+			Version: api.V1,
+			Method:  http.MethodPost,
+			Path:    "/nodes/:node/licenses",
+			Func:    importNodeLicense,
+		},
 	}
 )
 
@@ -88,6 +94,16 @@ func importClusterLicense(c *gin.Context) {
 
 	if err := cubecos.ImportClusterLicense(filePath); err != nil {
 		log.Errorf("request(%s): failed to import cluster license: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(c, "update licenses successfully", nil)
+}
+
+func importNodeLicense(c *gin.Context) {
+	if err := importOrDelegateLicense(c, c.Param("node")); err != nil {
+		log.Errorf("request(%s): failed to import license: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
