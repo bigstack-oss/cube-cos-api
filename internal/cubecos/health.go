@@ -4,20 +4,16 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type Health struct {
 	*definition.DataCenter `json:"dataCenter,omitempty" bson:"dataCenter,omitempty"`
 	*Overall               `json:"overall,omitempty" bson:"overall"`
-	InUse                  []definition.Service `json:"inUse" bson:"inUse"`
-	Error                  []definition.Service `json:"error" bson:"error"`
-	Fixing                 []definition.Service `json:"fixing" bson:"fixing"`
+	Services               []definition.Service `json:"services" bson:"services"`
 }
 
 type HealthCheckResult struct {
@@ -51,7 +47,13 @@ var (
 )
 
 func (h *Health) HasUnhealthyService() bool {
-	return len(h.Error) > 0
+	for _, svc := range h.Services {
+		if svc.Status.Current != status.Ok {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (h *Health) CopyEmptyServiceStruct() Health {
@@ -61,32 +63,10 @@ func (h *Health) CopyEmptyServiceStruct() Health {
 	}
 }
 
-func (h *Health) AddOk(svc definition.Service) {
-	svc.Status.SetCurrentToOk()
-	h.InUse = append(h.InUse, svc)
-}
-
-func (h *Health) AddError(svc definition.Service, err error) {
-	svc.Status.SetCurrentToError(err)
-	h.Error = append(h.Error, svc)
-}
-
+// M1 TODO:
+// Waiting for COS developer to implement the /var/run/{markerfile} to check if the data center is repairing.
 func IsRepairing() bool {
-	h := mongo.GetGlobalHelper()
-	count, err := h.GetCount(
-		definition.HealthDB(),
-		definition.RepairCollection(),
-		bson.M{
-			"dataCenter.name": definition.DataCenterName,
-			"overall.current": "repairing",
-		},
-	)
-	if err != nil {
-		log.Errorf("failed to get repairing count: %s", err.Error())
-		return false
-	}
-
-	return count > 0
+	return false
 }
 
 func IsRepairable() bool {

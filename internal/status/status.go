@@ -7,13 +7,18 @@ const (
 	Update = "update"
 	Delete = "delete"
 
-	Pending   = "pending"
-	Repairing = "repairing"
+	Pending              = "pending"
+	Repairing            = "repairing"
+	CheckingAndRepairing = "checkingAndRepairing"
 
 	Completed = "completed"
 	Ok        = "ok"
 	Error     = "error"
 )
+
+func NewOk() Details {
+	return Details{Current: Ok}
+}
 
 type Details struct {
 	Current string `json:"current,omitempty" bson:"current"`
@@ -46,6 +51,10 @@ func (s *Details) SetCurrentToRepairing() {
 	s.Current = Repairing
 }
 
+func (s *Details) SetCurrentToCheckingAndRepairing() {
+	s.Current = CheckingAndRepairing
+}
+
 func (s *Details) SetDesiredToUpdate() {
 	s.Desired = Update
 }
@@ -60,6 +69,14 @@ func (s *Details) SetDesiredToOk() {
 
 func (s *Details) SetDesiredToDelete() {
 	s.Desired = Delete
+}
+
+func (s *Details) SetDesiredToCheckingAndRepairing() {
+	s.Desired = CheckingAndRepairing
+}
+
+func (s *Details) SetDesiredToRepairing() {
+	s.Desired = Repairing
 }
 
 func (s *Details) SetCurrentToError(err error) {

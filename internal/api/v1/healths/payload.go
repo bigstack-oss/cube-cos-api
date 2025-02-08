@@ -4,12 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	json "github.com/json-iterator/go"
-
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
-	"github.com/gin-gonic/gin"
 )
 
 // M1 TODO: this will be removed once the real data is available in the COS side
@@ -21,28 +18,150 @@ func genFakeHealthSummary() cubecos.Health {
 				Description: "ceph has 2 ceph_osd down",
 			},
 		},
-		InUse: []definition.Service{
+		Services: []definition.Service{
 			{
 				Name:     "clusterLink",
 				Category: "core",
-				Status:   status.Details{Current: "ok"},
+				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
 						Name:   "link",
-						Status: status.Details{Current: "ok"},
+						Status: status.NewOk(),
 					},
 					{
 						Name:   "clock",
-						Status: status.Details{Current: "ok"},
+						Status: status.NewOk(),
 					},
 					{
 						Name:   "dns",
-						Status: status.Details{Current: "ok"},
+						Status: status.NewOk(),
 					},
 				},
 			},
-		},
-		Error: []definition.Service{
+			{
+				Name:     "clusterSys",
+				Category: "core",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "bootstrap",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "license",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "clusterSettings",
+				Category: "core",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "etcd",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "nodelist",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "haCluster",
+				Category: "core",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "hacluster",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "msgQueue",
+				Category: "core",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "rabbitmq",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "iaasDb",
+				Category: "core",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "mysql",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "mongodb",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "virtualIp",
+				Category: "core",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "vip",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "haproxy_ha",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "singleSignOn",
+				Category: "core",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "k3s",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "keycloak",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "apiService",
+				Category: "core",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "haproxy",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "httpd",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "skyline",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "lmi",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "memcache",
+						Status: status.NewOk(),
+					},
+				},
+			},
 			{
 				Name:     "storage",
 				Category: "storage",
@@ -53,7 +172,19 @@ func genFakeHealthSummary() cubecos.Health {
 				Modules: []definition.Module{
 					{
 						Name:   "ceph",
-						Status: status.Details{Current: "ok"},
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "ceph_mon",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "ceph_mgr",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "ceph_mds",
+						Status: status.NewOk(),
 					},
 					{
 						Name: "ceph_osd",
@@ -63,21 +194,243 @@ func genFakeHealthSummary() cubecos.Health {
 						},
 					},
 					{
-						Name:   "ceph_mon",
-						Status: status.Details{Current: "ok"},
+						Name:   "ceph_rgw",
+						Status: status.NewOk(),
 					},
 					{
-						Name:   "ceph_mgr",
-						Status: status.Details{Current: "ok"},
+						Name:   "rbd_target",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "compute",
+				Category: "cloud computing",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "nova",
+						Status: status.NewOk(),
 					},
 					{
-						Name:   "ceph_mds",
-						Status: status.Details{Current: "ok"},
+						Name:   "cyborg",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "network",
+				Category: "cloud computing",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "neutron",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "lbaas",
+				Category: "cloud computing",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "octavia",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "blockStorage",
+				Category: "cloud computing",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "cinder",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "fileStorage",
+				Category: "cloud computing",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "manila",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "objectStorage",
+				Category: "cloud computing",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "swift",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "bareMetal",
+				Category: "cloud computing",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "ironic",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "dnsaas",
+				Category: "cloud computing",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "designate",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "k8saas",
+				Category: "cloud computing",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "rancher",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "orchestration",
+				Category: "cloud computing",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "heat",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "instanceHa",
+				Category: "cloud computing",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "masakari",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "image",
+				Category: "cloud computing",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "glance",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "businessLogic",
+				Category: "cloud computing",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "senlin",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "watcher",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "dataPipe",
+				Category: "infrascope",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "kafka",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "zookeeper",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "notification",
+				Category: "infrascope",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "influxdb",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "kapacitor",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "metrics",
+				Category: "infrascope",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "monasca",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "telegraf",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "grafana",
+						Status: status.NewOk(),
+					},
+				},
+			},
+			{
+				Name:     "logAnalytics",
+				Category: "infrascope",
+				Status:   status.NewOk(),
+				Modules: []definition.Module{
+					{
+						Name:   "filebeat",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "logstash",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "opensearch-dashboards",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "opensearch",
+						Status: status.NewOk(),
+					},
+					{
+						Name:   "auditbeat",
+						Status: status.NewOk(),
 					},
 				},
 			},
 		},
-		Fixing: []definition.Service{},
 	}
 }
 
@@ -123,26 +476,24 @@ func (h *helper) setFakeError(checkResult *cubecos.HealthCheckPoint) {
 	}
 }
 
-func genRepairReq(c *gin.Context) *cubecos.Health {
+func genCheckRepairReq() *cubecos.Health {
 	h := &cubecos.Health{}
-	err := json.NewDecoder(c.Request.Body).Decode(&h)
-	if err != nil {
-		h.DataCenter = &definition.DataCenter{}
-		h.Overall = &cubecos.Overall{}
-	}
-
-	h.DataCenter.SetDetailsByInitedInfo()
-	h.Overall.Status.SetCurrentToRepairing()
-	h.Overall.Status.SetDesiredToOk()
+	h.Overall = &cubecos.Overall{}
+	h.Overall.Status.SetDesiredToCheckingAndRepairing()
 	return h
 }
 
-func parseHealthBody(c *gin.Context) (*cubecos.Health, error) {
+func genForceRepairReq(module definition.Module) *cubecos.Health {
 	h := &cubecos.Health{}
-	err := json.NewDecoder(c.Request.Body).Decode(&h)
-	if err != nil {
-		return nil, err
+	h.Overall = &cubecos.Overall{}
+	h.Overall.Status.SetDesiredToRepairing()
+	svc := cubecos.ModuleToService[module.Name]
+	h.Services = []definition.Service{
+		{
+			Name:     svc,
+			Category: cubecos.ServiceToCategory[svc],
+			Modules:  []definition.Module{module},
+		},
 	}
-
-	return h, nil
+	return h
 }

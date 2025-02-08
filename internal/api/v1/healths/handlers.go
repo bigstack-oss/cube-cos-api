@@ -20,15 +20,15 @@ var (
 		},
 		{
 			Version: api.V1,
-			Method:  http.MethodPost,
-			Path:    "/healths/:module/repair",
-			Func:    repairHealth,
+			Method:  http.MethodPatch,
+			Path:    "/healths",
+			Func:    checkAndRepairAllModules,
 		},
 		{
 			Version: api.V1,
-			Method:  http.MethodPut,
+			Method:  http.MethodPatch,
 			Path:    "/healths/:module",
-			Func:    updateHealth,
+			Func:    forceRepairModule,
 		},
 		{
 			Version: api.V1,
@@ -66,22 +66,15 @@ func getHealthSummary(c *gin.Context) {
 	)
 }
 
-func repairHealth(c *gin.Context) {
-	err := checkRepairCondition()
+func checkAndRepairAllModules(c *gin.Context) {
+	err := checkEnvCondition()
 	if err != nil {
-		log.Errorf("failed to check repair condition: %s", err.Error())
+		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetStatusConflict(c, err)
 		return
 	}
 
-	req := genRepairReq(c)
-	err = applyRepairRecord(*req)
-	if err != nil {
-		log.Errorf("failed to apply repair record: %s", err.Error())
-		api.SetInternalServerError(c, err)
-		return
-	}
-
+	req := genCheckRepairReq()
 	reqQueue.Add(req)
 	api.SetStatusAccepted(
 		c,
@@ -89,25 +82,26 @@ func repairHealth(c *gin.Context) {
 	)
 }
 
-func updateHealth(c *gin.Context) {
-	health, err := parseHealthBody(c)
+func forceRepairModule(c *gin.Context) {
+	err := checkEnvCondition()
 	if err != nil {
-		log.Errorf("failed to parse health body: %s", err.Error())
+		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		api.SetStatusConflict(c, err)
+		return
+	}
+
+	module, err := parseModule(c)
+	if err != nil {
+		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	err = applyRepairRecord(*health)
-	if err != nil {
-		log.Errorf("failed to update health repair record: %s", err.Error())
-		api.SetInternalServerError(c, err)
-		return
-	}
-
-	api.SetStatusOk(
+	req := genForceRepairReq(*module)
+	reqQueue.Add(req)
+	api.SetStatusAccepted(
 		c,
-		"repair status updated successfully",
-		nil,
+		"the request of unhealthy module repair is accepted and repairing",
 	)
 }
 

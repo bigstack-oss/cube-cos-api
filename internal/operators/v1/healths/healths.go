@@ -31,7 +31,6 @@ func (o *Operator) Init() error {
 
 func (o *Operator) Sync() {
 	defer definition.CapturePanic()
-
 	req, shutdown := ReqQueue.Get()
 	if shutdown {
 		return
@@ -44,7 +43,6 @@ func (o *Operator) Sync() {
 		health.Overall.Status.SetCurrentToError(err)
 	}
 
-	o.reportToController(health)
 	ReqQueue.Done(req)
 }
 

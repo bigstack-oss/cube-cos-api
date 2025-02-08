@@ -5,7 +5,8 @@ import definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 var (
 	OrderSensitiveServices = []definition.Service{
 		{
-			Name: "clusterLink",
+			Name:     "clusterLink",
+			Category: "core",
 			Modules: []definition.Module{
 				{Name: "link", IsAutoRepairable: false},
 				{Name: "clock", IsAutoRepairable: true},
@@ -13,46 +14,54 @@ var (
 			},
 		},
 		{
-			Name: "clusterSys",
+			Name:     "clusterSys",
+			Category: "core",
 			Modules: []definition.Module{
 				{Name: "bootstrap", IsAutoRepairable: false},
 				{Name: "license", IsAutoRepairable: false},
 			},
 		},
 		{
-			Name: "clusterSettings",
+			Name:     "clusterSettings",
+			Category: "core",
 			Modules: []definition.Module{
 				{Name: "etcd", IsAutoRepairable: true},
 				{Name: "nodelist", IsAutoRepairable: false},
 			},
 		},
 		{
-			Name: "haCluster",
+			Name:     "haCluster",
+			Category: "core",
 			Modules: []definition.Module{
 				{Name: "hacluster", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "msgQueue",
+			Name:     "msgQueue",
+			Category: "core",
 			Modules: []definition.Module{
 				{Name: "rabbitmq", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "iaasDb",
+			Name:     "iaasDb",
+			Category: "core",
 			Modules: []definition.Module{
 				{Name: "mysql", IsAutoRepairable: true},
+				{Name: "mongodb", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "virtualIp",
+			Name:     "virtualIp",
+			Category: "core",
 			Modules: []definition.Module{
 				{Name: "vip", IsAutoRepairable: true},
 				{Name: "haproxy_ha", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "storage",
+			Name:     "storage",
+			Category: "storage",
 			Modules: []definition.Module{
 				{Name: "ceph", IsAutoRepairable: false},
 				{Name: "ceph_mon", IsAutoRepairable: true},
@@ -64,7 +73,8 @@ var (
 			},
 		},
 		{
-			Name: "apiService",
+			Name:     "apiService",
+			Category: "core",
 			Modules: []definition.Module{
 				{Name: "haproxy", IsAutoRepairable: true},
 				{Name: "httpd", IsAutoRepairable: true},
@@ -74,101 +84,117 @@ var (
 			},
 		},
 		{
-			Name: "singleSignOn",
+			Name:     "singleSignOn",
+			Category: "core",
 			Modules: []definition.Module{
 				{Name: "k3s", IsAutoRepairable: true},
 				{Name: "keycloak", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "network",
+			Name:     "network",
+			Category: "cloud computing",
 			Modules: []definition.Module{
 				{Name: "neutron", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "compute",
+			Name:     "compute",
+			Category: "cloud computing",
 			Modules: []definition.Module{
 				{Name: "nova", IsAutoRepairable: true},
 				{Name: "cyborg", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "bareMetal",
+			Name:     "bareMetal",
+			Category: "cloud computing",
 			Modules: []definition.Module{
 				{Name: "ironic", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "image",
+			Name:     "image",
+			Category: "cloud computing",
 			Modules: []definition.Module{
 				{Name: "glance", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "blockStor",
+			Name:     "blockStor",
+			Category: "cloud computing",
 			Modules: []definition.Module{
 				{Name: "cinder", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "fileStor",
+			Name:     "fileStor",
+			Category: "cloud computing",
 			Modules: []definition.Module{
 				{Name: "manila", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "objectStor",
+			Name:     "objectStor",
+			Category: "cloud computing",
 			Modules: []definition.Module{
 				{Name: "swift", IsAutoRepairable: false},
 			},
 		},
 		{
-			Name: "orchestration",
+			Name:     "orchestration",
+			Category: "cloud computing",
 			Modules: []definition.Module{
 				{Name: "heat", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "lbaas",
+			Name:     "lbaas",
+			Category: "cloud computing",
 			Modules: []definition.Module{
 				{Name: "octavia", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "dnsaas",
+			Name:     "dnsaas",
+			Category: "cloud computing",
 			Modules: []definition.Module{
 				{Name: "designate", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "k8saas",
+			Name:     "k8saas",
+			Category: "cloud computing",
 			Modules: []definition.Module{
 				{Name: "rancher", IsAutoRepairable: false},
 			},
 		},
 		{
-			Name: "instanceHa",
+			Name:     "instanceHa",
+			Category: "cloud computing",
 			Modules: []definition.Module{
 				{Name: "masakari", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "businessLogic",
+			Name:     "businessLogic",
+			Category: "cloud computing",
 			Modules: []definition.Module{
 				{Name: "senlin", IsAutoRepairable: true},
 				{Name: "watcher", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "dataPipe",
+			Name:     "dataPipe",
+			Category: "infrascope",
 			Modules: []definition.Module{
 				{Name: "zookeeper", IsAutoRepairable: true},
 				{Name: "kafka", IsAutoRepairable: true},
 			},
 		},
 		{
-			Name: "metrics",
+			Name:     "metrics",
+			Category: "infrascope",
 			Modules: []definition.Module{
 				{Name: "monasca", IsAutoRepairable: true},
 				{Name: "telegraf", IsAutoRepairable: true},
@@ -176,7 +202,8 @@ var (
 			},
 		},
 		{
-			Name: "logAnalytics",
+			Name:     "logAnalytics",
+			Category: "infrascope",
 			Modules: []definition.Module{
 				{Name: "filebeat", IsAutoRepairable: true},
 				{Name: "auditbeat", IsAutoRepairable: true},
@@ -186,7 +213,8 @@ var (
 			},
 		},
 		{
-			Name: "notifications",
+			Name:     "notifications",
+			Category: "infrascope",
 			Modules: []definition.Module{
 				{Name: "influxdb", IsAutoRepairable: true},
 				{Name: "kapacitor", IsAutoRepairable: true},
@@ -199,4 +227,36 @@ var (
 			},
 		},
 	}
+
+	Modules           = map[string]definition.Module{}
+	ModuleToService   = map[string]string{}
+	ServiceToCategory = map[string]string{}
 )
+
+func init() {
+	initModuleMap()
+	initModuleToServiceMap()
+	initServiceToCategoryMap()
+}
+
+func initModuleMap() {
+	for _, service := range OrderSensitiveServices {
+		for _, module := range service.Modules {
+			Modules[module.Name] = module
+		}
+	}
+}
+
+func initModuleToServiceMap() {
+	for _, service := range OrderSensitiveServices {
+		for _, module := range service.Modules {
+			ModuleToService[module.Name] = service.Name
+		}
+	}
+}
+
+func initServiceToCategoryMap() {
+	for _, service := range OrderSensitiveServices {
+		ServiceToCategory[service.Name] = service.Category
+	}
+}

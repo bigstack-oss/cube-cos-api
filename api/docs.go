@@ -13,6 +13,7 @@ const docTemplate = `{
     "paths": {
         "/api/v1/logout": {
             "post": {
+                "operationId": "logout",
                 "tags": [
                     "Logout"
                 ],
@@ -26,6 +27,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/me": {
             "get": {
+                "operationId": "getMe",
                 "tags": [
                     "User Info"
                 ],
@@ -48,26 +50,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                }  
-                                            }
-                                        },
-                                        "msg": {
-                                            "type": "string"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/GetMeResponse"
                                 },
                                 "examples": {
                                     "example1": {
@@ -114,6 +97,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters": {
             "get": {
+                "operationId": "getDataCenters",
                 "description": "Retrieve the list of data centers",
                 "tags": [
                     "Data Centers"
@@ -125,49 +109,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 200
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "name": {
-                                                        "type": "string",
-                                                        "example": "bigstack-data-center"
-                                                    },
-                                                    "version": {
-                                                        "type": "string",
-                                                        "example": "Cube Appliance 3.0.0"
-                                                    },
-                                                    "virtualIp": {
-                                                        "type": "string",
-                                                        "example": "10.10.10.10"
-                                                    },
-                                                    "isHaEnabled": {
-                                                        "type": "boolean",
-                                                        "example": false
-                                                    },
-                                                    "isLocal": {
-                                                        "type": "boolean",
-                                                        "example": true
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "fetch data center list successfully"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ok"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/GetDataCentersResponse"
                                 }
                             }
                         }
@@ -201,6 +143,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/events": {
             "get": {
+                "operationId": "getEvents",
                 "tags": [
                     "Events"
                 ],
@@ -283,96 +226,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 200
-                                        },
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "events": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "type": {
-                                                                "type": "string",
-                                                                "example": "system"
-                                                            },
-                                                            "severity": {
-                                                                "type": "string",
-                                                                "example": "Info"
-                                                            },
-                                                            "id": {
-                                                                "type": "string",
-                                                                "example": "NET00003I"
-                                                            },
-                                                            "description": {
-                                                                "type": "string",
-                                                                "example": "instance 0125741a-7dbe-4309-bc1a-53d2880d2925 at 192.168.0.91 is reachable"
-                                                            },
-                                                            "host": {
-                                                                "type": "string",
-                                                                "example": "bigstack-host"
-                                                            },
-                                                            "category": {
-                                                                "type": "string",
-                                                                "example": "net"
-                                                            },
-                                                            "service": {
-                                                                "type": "string",
-                                                                "example": "neutron"
-                                                            },
-                                                            "metadata": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "id": {
-                                                                        "type": "string",
-                                                                        "example": "0125741a-7dbe-4309-bc1a-53d2880d2925"
-                                                                    },
-                                                                    "ip": {
-                                                                        "type": "string",
-                                                                        "example": "192.168.0.91"
-                                                                    }
-                                                                }
-                                                            },
-                                                            "time": {
-                                                                "type": "string",
-                                                                "example": "2025-01-01T01:00:00Z"
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                "page": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "total": {
-                                                            "type": "integer",
-                                                            "example": 10
-                                                        },
-                                                        "number": {
-                                                            "type": "integer",
-                                                            "example": 1
-                                                        },
-                                                        "size": {
-                                                            "type": "integer",
-                                                            "example": 1
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "fetch events successfully"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ok"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/GetEventsResponse"
                                 }
                             }
                         }
@@ -430,6 +284,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/events/abstract": {
             "get": {
+                "operationId": "getAbstractedEvents",
                 "tags": [
                     "Events"
                 ],
@@ -482,77 +337,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "events": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "type": {
-                                                                "type": "string"
-                                                            },
-                                                            "severity": {
-                                                                "type": "string"
-                                                            },
-                                                            "id": {
-                                                                "type": "string"
-                                                            },
-                                                            "description": {
-                                                                "type": "string"
-                                                            },
-                                                            "host": {
-                                                                "type": "string"
-                                                            },
-                                                            "category": {
-                                                                "type": "string"
-                                                            },
-                                                            "service": {
-                                                                "type": "string"
-                                                            },
-                                                            "metadata": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "id": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "ip": {
-                                                                        "type": "string"
-                                                                    }
-                                                                }
-                                                            },
-                                                            "time": {
-                                                                "type": "string"
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                "limit": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "number": {
-                                                            "type": "integer"
-                                                        },
-                                                        "description": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "msg": {
-                                            "type": "string"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/GetAbstractedEventsResponse"
                                 },
                                 "examples": {
                                     "example1": {
@@ -780,6 +565,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/healths": {
             "get": {
+                "operationId": "GetHealths",
                 "tags": [
                     "Health"
                 ],
@@ -812,151 +598,75 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 200
-                                        },
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
+                                    "$ref": "#/components/schemas/GetHealthsResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Health check ok",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
                                                 "overall": {
-                                                    "type": "object",
-                                                    "properties": {
+                                                    "status": {
+                                                        "current": "ok"
+                                                    }
+                                                },
+                                                "services": [
+                                                    {
+                                                        "name": "clusterLink",
+                                                        "category": "core",
                                                         "status": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "current": {
-                                                                    "type": "string",
-                                                                    "example": "ng"
-                                                                },
-                                                                "description": {
-                                                                    "type": "string",
-                                                                    "example": "ceph has 2 ceph_osd down"
+                                                            "current": "ok"
+                                                        },
+                                                        "modules": [
+                                                            {
+                                                                "name": "link",
+                                                                "isAutoRepairable": false,
+                                                                "status": {
+                                                                    "current": "ok"
                                                                 }
                                                             }
-                                                        }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "msg": "fetch health successfully",
+                                            "status": "ok"
+                                        }
+                                    },
+                                    "example2": {
+                                        "summary": "Health check ng",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "overall": {
+                                                    "status": {
+                                                        "current": "ng",
+                                                        "description": "ceph has 2 ceph_osd down"
                                                     }
                                                 },
-                                                "inUse": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "service": {
-                                                                "type": "string",
-                                                                "example": "clusterLink"
-                                                            },
-                                                            "category": {
-                                                                "type": "string",
-                                                                "example": "core"
-                                                            },
-                                                            "status": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "current": {
-                                                                        "type": "string",
-                                                                        "example": "ok"
-                                                                    }
-                                                                }
-                                                            },
-                                                            "module": {
-                                                                "type": "array",
-                                                                "items": {
-                                                                    "type": "object",
-                                                                    "properties": {
-                                                                        "name": {
-                                                                            "type": "string",
-                                                                            "example": "link"
-                                                                        },
-                                                                        "isAutoRepairable": {
-                                                                            "type": "boolean",
-                                                                            "example": false
-                                                                        },
-                                                                        "status": {
-                                                                            "type": "object",
-                                                                            "properties": {
-                                                                                "current": {
-                                                                                    "type": "string",
-                                                                                    "example": "ok"
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
+                                                "services": [
+                                                    {
+                                                        "name": "storage",
+                                                        "category": "storage",
+                                                        "status": {
+                                                            "current": "ng"
+                                                        },
+                                                        "modules": [
+                                                            {
+                                                                "name": "ceph_osd",
+                                                                "isAutoRepairable": false,
+                                                                "status": {
+                                                                    "current": "ng",
+                                                                    "description": "ceph has 2 ceph_osd down"
                                                                 }
                                                             }
-                                                        }
+                                                        ]
                                                     }
-                                                },
-                                                "error": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "service": {
-                                                                "type": "string",
-                                                                "example": "storage"
-                                                            },
-                                                            "category": {
-                                                                "type": "string",
-                                                                "example": "storage"
-                                                            },
-                                                            "status": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "current": {
-                                                                        "type": "string",
-                                                                        "example": "ng"
-                                                                    },
-                                                                    "description": {
-                                                                        "type": "string",
-                                                                        "example": "ceph has 2 ceph_osd down"
-                                                                    }
-                                                                }
-                                                            },
-                                                            "module": {
-                                                                "type": "array",
-                                                                "items": {
-                                                                    "type": "object",
-                                                                    "properties": {
-                                                                        "name": {
-                                                                            "type": "string",
-                                                                            "example": "ceph_osd"
-                                                                        },
-                                                                        "isAutoRepairable": {
-                                                                            "type": "boolean",
-                                                                            "example": true
-                                                                        },
-                                                                        "status": {
-                                                                            "type": "object",
-                                                                            "properties": {
-                                                                                "current": {
-                                                                                    "type": "string",
-                                                                                    "example": "ng"
-                                                                                },
-                                                                                "description": {
-                                                                                    "type": "string",
-                                                                                    "example": "2 ceph_osd down"
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                "fixing": {
-                                                    "type": "array"
-                                                }
-                                            }
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "fetch health successfully"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ok"
+                                                ]
+                                            },
+                                            "msg": "fetch health successfully",
+                                            "status": "ok"
                                         }
                                     }
                                 }
@@ -1012,19 +722,15 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 202
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "the request of all modules repair is accepted and repairing"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "accepted"
+                                    "$ref": "#/components/schemas/PatchRepairResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Accept the repair request",
+                                        "value": {
+                                            "code": 202,
+                                            "msg": "the request of all modules repair is accepted and repairing",
+                                            "status": "accepted"
                                         }
                                     }
                                 }
@@ -1084,6 +790,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/healths/{module}": {
             "patch": {
+                "operationId": "repairModuleHealth",
                 "tags": [
                     "Health"
                 ],
@@ -1106,7 +813,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         },
-                        "description": "The name of the module to repair. The value can be 'all' to repair all modules under all services, or other module names like 'ceph_osd', 'nova', and so on.",
+                        "description": "The name of the module to repair. The module name is like 'ceph_osd', 'nova', and so on.",
                         "example": "all, ceph_osd, or other module names"
                     }
                 ],
@@ -1116,21 +823,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 202
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "the request of unhealthy module repair is accepted and repairing"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "accepted"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/PatchModuleRepairResponse"
                                 }
                             }
                         }
@@ -1188,6 +881,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/healths/{module}/history": {
             "get": {
+                "operationId": "getHealthHistory",
                 "tags": [
                     "Health"
                 ],
@@ -1260,93 +954,11 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "health": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "category": {
-                                                            "type": "string"
-                                                        },
-                                                        "service": {
-                                                            "type": "string"
-                                                        },
-                                                        "module": {
-                                                            "type": "string"
-                                                        },
-                                                        "history": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "time": {
-                                                                        "type": "string",
-                                                                        "format": "date-time"
-                                                                    },
-                                                                    "status": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "error": {
-                                                                        "type": "object",
-                                                                        "properties": {
-                                                                            "type": {
-                                                                                "type": "string"
-                                                                            },
-                                                                            "nodes": {
-                                                                                "type": "array",
-                                                                                "items": {
-                                                                                    "type": "string"
-                                                                                }
-                                                                            },
-                                                                            "description": {
-                                                                                "type": "string"                                                                            },
-                                                                            "details": {
-                                                                                "type": "string"
-                                                                            },
-                                                                            "log": {
-                                                                                "type": "string",
-                                                                                "format": "uri"
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                "page": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "total": {
-                                                            "type": "integer"
-                                                        },
-                                                        "number": {
-                                                            "type": "integer"
-                                                        },
-                                                        "size": {
-                                                            "type": "integer"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "msg": {
-                                            "type": "string"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/GetModuleHealthHistoryResponse"
                                 },
                                 "examples": {
                                     "example1": {
-                                        "summary": "Multiple historical records",
+                                        "summary": "Historical health check records",
                                         "value": {
                                             "code": 200,
                                             "data": {
@@ -1426,6 +1038,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/integrations": {
             "get": {
+                "operationId": "getIntegrations",
                 "tags": [
                     "Integrations"
                 ],
@@ -1448,47 +1061,45 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 200
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "name": {
-                                                        "type": "string",
-                                                        "example": "openstack"
-                                                    },
-                                                    "isHeaderShortcutEnabled": {
-                                                        "type": "boolean",
-                                                        "example": true
-                                                    },
-                                                    "description": {
-                                                        "type": "string",
-                                                        "example": "openstack dashboard"
-                                                    },
-                                                    "isBuiltIn": {
-                                                        "type": "boolean",
-                                                        "example": true
-                                                    },
-                                                    "url": {
-                                                        "type": "string",
-                                                        "example": "https://10.10.10.10/skyline"
-                                                    }
+                                    "$ref": "#/components/schemas/GetIntegrationsResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Integrated applications",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "name": "keycloak",
+                                                    "isHeaderShortcutEnabled": true,
+                                                    "description": "Keycloak Dashboard",
+                                                    "isBuiltIn": true,
+                                                    "url": "https://example-datat-center.host:10443/auth/admin"
+                                                },
+                                                {
+                                                    "name": "openstack",
+                                                    "isHeaderShortcutEnabled": true,
+                                                    "description": "OpenStack Dashboard",
+                                                    "isBuiltIn": true,
+                                                    "url": "https://example-datat-center.host/horizon"
+                                                },
+                                                {
+                                                    "name": "rancher",
+                                                    "isHeaderShortcutEnabled": true,
+                                                    "description": "Rancher Dashboard",
+                                                    "isBuiltIn": true,
+                                                    "url": "https://example-datat-center.host:10443"
+                                                },
+                                                {
+                                                    "name": "ceph",
+                                                    "isHeaderShortcutEnabled": true,
+                                                    "description": "Ceph Dashboard",
+                                                    "isBuiltIn": true,
+                                                    "url": "https://example-datat-center.host:7443/ceph/#/dashboard"
                                                 }
-                                            }
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "fetch integrations successfully"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ok"
+                                            ],
+                                            "msg": "fetch integrations successfully",
+                                            "status": "ok"
                                         }
                                     }
                                 }
@@ -1524,6 +1135,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/licenses": {
             "get": {
+                "operationId": "getLicenses",
                 "tags": [
                     "Licenses"
                 ],
@@ -1566,142 +1178,53 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 200
-                                        },
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "licenses": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "type": {
-                                                                "type": "string",
-                                                                "example": "trial"
-                                                            },
-                                                            "hostname": {
-                                                                "type": "string",
-                                                                "example": "dell200"
-                                                            },
-                                                            "serial": {
-                                                                "type": "string",
-                                                                "example": "  "
-                                                            },
-                                                            "product": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "name": {
-                                                                        "type": "string",
-                                                                        "example": ""
-                                                                    },
-                                                                    "features": {
-                                                                        "type": "object",
-                                                                        "example": null
-                                                                    }
-                                                                }
-                                                            },
-                                                            "issue": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "by": {
-                                                                        "type": "string",
-                                                                        "example": "Bigstack co., ltd."
-                                                                    },
-                                                                    "to": {
-                                                                        "type": "string",
-                                                                        "example": "*"
-                                                                    },
-                                                                    "hardware": {
-                                                                        "type": "string",
-                                                                        "example": "*"
-                                                                    },
-                                                                    "date": {
-                                                                        "type": "string",
-                                                                        "example": "2025-02-04 09:54:45 UTC"
-                                                                    }
-                                                                }
-                                                            },
-                                                            "quantity": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "type": {
-                                                                        "type": "string",
-                                                                        "example": ""
-                                                                    },
-                                                                    "vcpu": {
-                                                                        "type": "integer",
-                                                                        "example": 0
-                                                                    }
-                                                                }
-                                                            },
-                                                            "serviceLevelAgreement": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "uptime": {
-                                                                        "type": "number",
-                                                                        "example": 0
-                                                                    },
-                                                                    "period": {
-                                                                        "type": "string",
-                                                                        "example": ""
-                                                                    },
-                                                                    "meanTimeBetweenFailure": {
-                                                                        "type": "string",
-                                                                        "example": ""
-                                                                    },
-                                                                    "meanTimeToRecovery": {
-                                                                        "type": "string",
-                                                                        "example": ""
-                                                                    }
-                                                                }
-                                                            },
-                                                            "expiry": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "date": {
-                                                                        "type": "string",
-                                                                        "example": "2025-04-05 09:54:45 UTC"
-                                                                    },
-                                                                    "days": {
-                                                                        "type": "integer",
-                                                                        "example": 58
-                                                                    }
-                                                                }
-                                                            }
+                                    "$ref": "#/components/schemas/GetLicensesResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Licenses",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "licenses": [
+                                                    {
+                                                        "type": "trial",
+                                                        "hostname": "dell200",
+                                                        "serial": "  ",
+                                                        "product": {
+                                                            "name": "",
+                                                            "features": null
+                                                        },
+                                                        "issue": {
+                                                            "by": "Bigstack co., ltd.",
+                                                            "to": "*",
+                                                            "hardware": "*",
+                                                            "date": "2025-02-04 09:54:45 UTC"
+                                                        },
+                                                        "quantity": {
+                                                            "type": "",
+                                                            "vcpu": 0
+                                                        },
+                                                        "serviceLevelAgreement": {
+                                                            "uptime": 0,
+                                                            "period": "",
+                                                            "meanTimeBetweenFailure": "",
+                                                            "meanTimeToRecovery": ""
+                                                        },
+                                                        "expiry": {
+                                                            "date": "2025-04-05 09:54:45 UTC",
+                                                            "days": 58
                                                         }
                                                     }
-                                                },
+                                                ],
                                                 "page": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "total": {
-                                                            "type": "integer",
-                                                            "example": 1
-                                                        },
-                                                        "number": {
-                                                            "type": "integer",
-                                                            "example": 1
-                                                        },
-                                                        "size": {
-                                                            "type": "integer",
-                                                            "example": 1
-                                                        }
-                                                    }
+                                                    "total": 1,
+                                                    "number": 1,
+                                                    "size": 1
                                                 }
-                                            }
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "fetch licenses successfully"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ok"
+                                            },
+                                            "msg": "fetch licenses successfully",
+                                            "status": "ok"
                                         }
                                     }
                                 }
@@ -3934,6 +3457,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/nodes": {
             "get": {
+                "operationId": "getNodes",
                 "tags": [
                     "Nodes"
                 ],
@@ -3986,227 +3510,86 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 200
-                                        },
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "nodes": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "string",
-                                                                "example": "7a18177c"
+                                    "$ref": "#/components/schemas/GetNodesResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Nodes",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "nodes": [
+                                                    {
+                                                        "id": "abc0005e",
+                                                        "hostname": "example-node",
+                                                        "role": "control-converged",
+                                                        "address": "10.10.10.10:8001",
+                                                        "managementIP": "10.10.10.10",
+                                                        "license": {
+                                                            "type": "trial",
+                                                            "hostname": "example-node",
+                                                            "serial": "1H2ZLG2",
+                                                            "product": {
+                                                                "name": "",
+                                                                "features": null
                                                             },
-                                                            "hostname": {
-                                                                "type": "string",
-                                                                "example": "bigstack-host"
+                                                            "issue": {
+                                                                "by": "Bigstack co., ltd.",
+                                                                "to": "bigstack",
+                                                                "hardware": "*",
+                                                                "date": "2025-01-23 06:51:50 UTC"
                                                             },
-                                                            "role": {
-                                                                "type": "string",
-                                                                "example": "control-converged"
+                                                            "quantity": {
+                                                                "type": "",
+                                                                "vcpu": 0
                                                             },
-                                                            "address": {
-                                                                "type": "string",
-                                                                "example": "10.10.10.10"
+                                                            "serviceLevelAgreement": {
+                                                                "uptime": 0,
+                                                                "period": "",
+                                                                "meanTimeBetweenFailure": "",
+                                                                "meanTimeToRecovery": ""
                                                             },
-                                                            "managementIP": {
-                                                                "type": "string",
-                                                                "example": "192.168.10.10"
-                                                            },
-                                                            "license": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "status": {
-                                                                        "type": "string",
-                                                                        "example": "trial"
-                                                                    },
-                                                                    "hostname": {
-                                                                        "type": "string",
-                                                                        "example": "bigstack-host"
-                                                                    },
-                                                                    "serial": {
-                                                                        "type": "string",
-                                                                        "example": "1N7L603"
-                                                                    },
-                                                                    "product": {
-                                                                        "type": "object",
-                                                                        "properties": {
-                                                                            "name": {
-                                                                                "type": "string",
-                                                                                "example": "cubecos"
-                                                                            },
-                                                                            "features": {
-                                                                                "type": "object",
-                                                                                "properties": {
-                                                                                    "name": {
-                                                                                        "type": "string",
-                                                                                        "example": "instance"
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    },
-                                                                    "issue": {
-                                                                        "type": "object",
-                                                                        "properties": {
-                                                                            "by": {
-                                                                                "type": "string",
-                                                                                "example": "Bigstack co., ltd."
-                                                                            },
-                                                                            "to": {
-                                                                                "type": "string",
-                                                                                "example": "bigstack"
-                                                                            },
-                                                                            "hardware": {
-                                                                                "type": "string",
-                                                                                "example": "*"
-                                                                            },
-                                                                            "date": {
-                                                                                "type": "string",
-                                                                                "example": "2025-01-01T01:00:00Z"
-                                                                            }
-                                                                        }
-                                                                    },
-                                                                    "serviceLevelAgreement": {
-                                                                        "type": "object",
-                                                                        "properties": {
-                                                                            "uptime": {
-                                                                                "type": "number",
-                                                                                "example": 99.99
-                                                                            },
-                                                                            "period": {
-                                                                                "type": "string",
-                                                                                "example": "24x7"
-                                                                            },
-                                                                            "meanTimeBetweenFailure": {
-                                                                                "type": "string",
-                                                                                "example": "5 mins"
-                                                                            },
-                                                                            "meanTimeToRepair": {
-                                                                                "type": "string",
-                                                                                "example": "15 mins"
-                                                                            }
-                                                                        }
-                                                                    },
-                                                                    "expire": {
-                                                                        "type": "object",
-                                                                        "properties": {
-                                                                            "date": {
-                                                                                "type": "string",
-                                                                                "example": "2025-01-01T01:00:00Z"
-                                                                            },
-                                                                            "days": {
-                                                                                "type": "integer",
-                                                                                "example": 30
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            },
-                                                            "status": {
-                                                                "type": "string",
-                                                                "example": "up"
-                                                            },
-                                                            "vcpu": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "totalCores": {
-                                                                        "type": "integer",
-                                                                        "example": 80
-                                                                    },
-                                                                    "usedCores": {
-                                                                        "type": "integer",
-                                                                        "example": 31
-                                                                    },
-                                                                    "freeCores": {
-                                                                        "type": "integer",
-                                                                        "example": 49
-                                                                    }
-                                                                }
-                                                            },
-                                                            "memory": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "totalMiB": {
-                                                                        "type": "integer",
-                                                                        "example": 257371
-                                                                    },
-                                                                    "usedMiB": {
-                                                                        "type": "integer",
-                                                                        "example": 98255
-                                                                    },
-                                                                    "freeMiB": {
-                                                                        "type": "integer",
-                                                                        "example": 159116
-                                                                    }
-                                                                }
-                                                            },
-                                                            "storage": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "totalMiB": {
-                                                                        "type": "integer",
-                                                                        "example": 102400
-                                                                    },
-                                                                    "usedMiB": {
-                                                                        "type": "integer",
-                                                                        "example": 51200
-                                                                    },
-                                                                    "freeMiB": {
-                                                                        "type": "integer",
-                                                                        "example": 51200
-                                                                    }
-                                                                }
-                                                            },
-                                                            "uptimeSeconds": {
-                                                                "type": "number",
-                                                                "example": 5658305.34
-                                                            },
-                                                            "labels": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "isGpuEnabled": {
-                                                                        "type": "string",
-                                                                        "example": "true"
-                                                                    }
-                                                                }
+                                                            "expiry": {
+                                                                "date": "2025-03-24 06:51:50 UTC",
+                                                                "days": 44
                                                             }
+                                                        },
+                                                        "status": "up",
+                                                        "vcpu": {
+                                                            "totalCores": 48,
+                                                            "usedCores": 38,
+                                                            "usedPercent": 79.1666,
+                                                            "freeCores": 10,
+                                                            "freePercent": 20.8333
+                                                        },
+                                                        "memory": {
+                                                            "totalMiB": 257822,
+                                                            "usedMiB": 95400,
+                                                            "usedPercent": 37.0022,
+                                                            "freeMiB": 162422,
+                                                            "freePercent": 62.9977
+                                                        },
+                                                        "storage": {
+                                                            "totalMiB": 12571648,
+                                                            "usedMiB": 716800,
+                                                            "usedPercent": 5.7017,
+                                                            "freeMiB": 11854848,
+                                                            "freePercent": 94.2982
+                                                        },
+                                                        "uptimeSeconds": 5734686.37,
+                                                        "labels": {
+                                                            "isGpuEnabled": "false"
                                                         }
                                                     }
-                                                },
+                                                ],
                                                 "page": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "total": {
-                                                            "type": "integer",
-                                                            "example": 10
-                                                        },
-                                                        "number": {
-                                                            "type": "integer",
-                                                            "example": 1
-                                                        },
-                                                        "size": {
-                                                            "type": "integer",
-                                                            "example": 1
-                                                        }
-                                                    }
+                                                    "total": 1,
+                                                    "number": 1,
+                                                    "size": 1
                                                 }
-                                            }
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "fetch nodes successfully"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ok"
+                                            },
+                                            "msg": "fetch nodes list successfully",
+                                            "status": "ok"
                                         }
                                     }
                                 }
@@ -4242,6 +3625,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/tokens": {
             "post": {
+                "operationId": "getToken",
                 "tags": [
                     "Tokens"
                 ],
@@ -4264,19 +3648,7 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "description": "the name of user to generate the token",
-                                        "example": "example-name"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "description": "the password of user to generate the token",
-                                        "example": "example-password"
-                                    }
-                                }
+                                "$ref": "#/components/schemas/GetTokensRequest"
                             }
                         }
                     }
@@ -4287,45 +3659,23 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 201
-                                        },
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "token": {
-                                                    "type": "string",
-                                                    "example": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIwdDdGdWlJZC1lbnhVUWRZWGVZalZ6Q0pQZFRWMmxaU0NZanRkQW01S3djIn0.eyJleHAiOjE3MzgwODM0MTYsImlhdCI6MTczODA3NjIxNiwianRpIjoiZjg3MGQzNjAtNzhhZi00NGNmLWI2YjktMTNmMWM0NzhkMWU0IiwiaXNzIjoiaHR0cHM6Ly8xMC4zMi4xMC4xODA6MTA0NDMvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6IjNhNDUwOTU5LTYyYTctNDA2Mi04OGM0LWMyMGYxNTIxOTYxZiIsInR5cCI6IkJlYXJlciIsImF6cCI6InRva2VuLWNvbm5lY3QiLCJzZXNzaW9uX3N0YXRlIjoiMDViNDNhYjItNmRmMy00NjRkLWJlYTEtMGQxYmE2NzFiZWI5IiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJkZWZhdWx0LXJvbGVzLW1hc3RlciIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBlbWFpbCBwcm9maWxlIiwic2lkIjoiMDViNDNhYjItNmRmMy00NjRkLWJlYTEtMGQxYmE2NzFiZWI5IiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJiaWdzdGFjayJ9.HC5CPPvRpkwdiufRg_Ous0k_3ifOWsgNoIqNCYaW3pX5yzizaOxzPXn9jDUkXEbirCf01OPiGtq1e5EXUg41pKHSL45MGJEQDn28fqrUBTN5Ixxwq83_54o7jQLqdV1PBaxw-SEZCa8_XArwtBsXRjm8A3cKnuzRU4xb5TGrOc1VDydQOLUFjCqMwV-V65CQ0Vt03NyiAjVeeBLiL5truT0F2ZgiuQEhDHaCgBR1wSeReYBYBhOGLiq0QA4GzgNlmTjdOC7RrXV1w7QPv2i_7IPbWCUNrFnZPGr2KJBLiIot72t2UmLsjSJ6a7jx7u1vxQ-Wx5TQQ_TiglGcghMwFg"
-                                                },
-                                                "refresh": {
-                                                    "type": "string",
-                                                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI1OGRkY2JhNC1hM2ZkLTQ2MTYtODgyYi1lMGY1ZjRlNzAyMTIifQ.eyJleHAiOjE3MzgwNzgwMTYsImlhdCI6MTczODA3NjIxNiwianRpIjoiN2Y0ZWU4MTYtMzdjZi00OGQyLTk2ZjktNTI5YjVkNDhjYzQzIiwiaXNzIjoiaHR0cHM6Ly8xMC4zMi4xMC4xODA6MTA0NDMvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiaHR0cHM6Ly8xMC4zMi4xMC4xODA6MTA0NDMvYXV0aC9yZWFsbXMvbWFzdGVyIiwic3ViIjoiM2E0NTA5NTktNjJhNy00MDYyLTg4YzQtYzIwZjE1MjE5NjFmIiwidHlwIjoiUmVmcmVzaCIsImF6cCI6InRva2VuLWNvbm5lY3QiLCJzZXNzaW9uX3N0YXRlIjoiMDViNDNhYjItNmRmMy00NjRkLWJlYTEtMGQxYmE2NzFiZWI5Iiwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSIsInNpZCI6IjA1YjQzYWIyLTZkZjMtNDY0ZC1iZWExLTBkMWJhNjcxYmViOSJ9.yeFgPdQHu5Xp7CCpCeOiGoOGTf5Hesrad0VHtdWg2Vc"
-                                                },
+                                    "$ref": "#/components/schemas/GetTokensResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Token",
+                                        "value": {
+                                            "code": 201,
+                                            "data": {
+                                                "token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIwdDdGdWlJZC1lbnhVUWRZWGVZalZ6Q0pQZFRWMmxaU0NZanRkQW01S3djIn0.eyJleHAiOjE3Mzg5NjA2NzYsImlhdCI6MTczODk1MzQ3NiwianRpIjoiZjZjZTJlMjMtYzgwNC00N2YxLWE0OWEtZjdlNWZlYTgyYThjIiwiaXNzIjoiaHR0cHM6Ly8xMC4zMi4xMC4xODA6MTA0NDMvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjpbIm1hc3Rlci1yZWFsbSIsImFjY291bnQiXSwic3ViIjoiMDY1OTVlMDAtZWIzOS00YWUxLTkzYjctZDMyNzg1MDdiZTUzIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoidG9rZW4tY29ubmVjdCIsInNlc3Npb25fc3RhdGUiOiJlOTE0MWVhZC01MTQ1LTRjZmQtODhiZC00ZjYxYzI0MzA0NzAiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImNyZWF0ZS1yZWFsbSIsImRlZmF1bHQtcm9sZXMtbWFzdGVyIiwib2ZmbGluZV9hY2Nlc3MiLCJhZG1pbiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsibWFzdGVyLXJlYWxtIjp7InJvbGVzIjpbInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwidmlldy1yZWFsbSIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInF1ZXJ5LXJlYWxtcyIsInZpZXctYXV0aG9yaXphdGlvbiIsInF1ZXJ5LWNsaWVudHMiLCJxdWVyeS11c2VycyIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIiwicXVlcnktZ3JvdXBzIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBlbWFpbCBwcm9maWxlIiwic2lkIjoiZTkxNDFlYWQtNTE0NS00Y2ZkLTg4YmQtNGY2MWMyNDMwNDcwIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhZG1pbiJ9.LkywGnG2BhQ90n-f3vJvX-frq1wRS6DAop5MUcCFb5FSuGvv3oP_byeiuHvh9rh06QWcwhpiTU_L_hOaUzMXF9spJjos8s2iOwK-4o46Ka_4Q2gnlitjd8ZG5wGfuqKRp0vb25RsBpNr6rxGFzOxxmULkjEXOGXbcrqQJBWIaWdRldYunLFRVErIpmH23w4KHKWSB5XkwqpkD9HnLH_PqbaunGpp2acgZ826JpevC8vhEhIg6fxXcDnCKhkw7nNvfs3rCC08Qci32WtzujeKH6js1ASRkKWOUxVkfIkzZ5Yg4Tfdb79_Tgy2iXLT3teeNTepmLsaftn2JzLn_6vHwg",
+                                                "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI1OGRkY2JhNC1hM2ZkLTQ2MTYtODgyYi1lMGY1ZjRlNzAyMTIifQ.eyJleHAiOjE3Mzg5NTUyNzYsImlhdCI6MTczODk1MzQ3NiwianRpIjoiNjkyZDkxMTAtMjExMy00NTU1LTgxMTctNWYxZTA2NzlmYmUxIiwiaXNzIjoiaHR0cHM6Ly8xMC4zMi4xMC4xODA6MTA0NDMvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiaHR0cHM6Ly8xMC4zMi4xMC4xODA6MTA0NDMvYXV0aC9yZWFsbXMvbWFzdGVyIiwic3ViIjoiMDY1OTVlMDAtZWIzOS00YWUxLTkzYjctZDMyNzg1MDdiZTUzIiwidHlwIjoiUmVmcmVzaCIsImF6cCI6InRva2VuLWNvbm5lY3QiLCJzZXNzaW9uX3N0YXRlIjoiZTkxNDFlYWQtNTE0NS00Y2ZkLTg4YmQtNGY2MWMyNDMwNDcwIiwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSIsInNpZCI6ImU5MTQxZWFkLTUxNDUtNGNmZC04OGJkLTRmNjFjMjQzMDQ3MCJ9._B9rU8TG_YSvwsri48bfne3RxFhc4Yq83bzR43nL4-c",
                                                 "expires": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "access": {
-                                                            "type": "integer",
-                                                            "example": 7200
-                                                        },
-                                                        "refresh": {
-                                                            "type": "integer",
-                                                            "example": 1800
-                                                        }
-                                                    }
+                                                    "access": 7200,
+                                                    "refresh": 1800
                                                 }
-                                            }
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "create token successfully"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "created"
+                                            },
+                                            "msg": "create token successfully",
+                                            "status": "created"
                                         }
                                     }
                                 }
@@ -4379,6 +3729,1495 @@ const docTemplate = `{
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "GetMeResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "name"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "GetDataCentersResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "version",
+                                "virtualIp",
+                                "isHaEnabled",
+                                "isLocal"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "bigstack-data-center"
+                                },
+                                "version": {
+                                    "type": "string",
+                                    "example": "Cube Appliance 3.0.0"
+                                },
+                                "virtualIp": {
+                                    "type": "string",
+                                    "example": "10.10.10.10"
+                                },
+                                "isHaEnabled": {
+                                    "type": "boolean",
+                                    "example": false
+                                },
+                                "isLocal": {
+                                    "type": "boolean",
+                                    "example": true
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "fetch data center list successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "GetEventsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "events",
+                            "page"
+                        ],
+                        "properties": {
+                            "events": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "type",
+                                        "severity",
+                                        "id",
+                                        "description",
+                                        "host",
+                                        "category",
+                                        "service",
+                                        "metadata",
+                                        "time"
+                                    ],
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "example": "system"
+                                        },
+                                        "severity": {
+                                            "type": "string",
+                                            "example": "Info"
+                                        },
+                                        "id": {
+                                            "type": "string",
+                                            "example": "NET00003I"
+                                        },
+                                        "description": {
+                                            "type": "string",
+                                            "example": "instance 0125741a-7dbe-4309-bc1a-53d2880d2925 at 192.168.0.91 is reachable"
+                                        },
+                                        "host": {
+                                            "type": "string",
+                                            "example": "bigstack-host"
+                                        },
+                                        "category": {
+                                            "type": "string",
+                                            "example": "net"
+                                        },
+                                        "service": {
+                                            "type": "string",
+                                            "example": "neutron"
+                                        },
+                                        "metadata": {
+                                            "type": "object",
+                                            "required": [
+                                                "id",
+                                                "ip"
+                                            ],
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "0125741a-7dbe-4309-bc1a-53d2880d2925"
+                                                },
+                                                "ip": {
+                                                    "type": "string",
+                                                    "example": "192.168.0.91"
+                                                }
+                                            }
+                                        },
+                                        "time": {
+                                            "type": "string",
+                                            "example": "2025-01-01T01:00:00Z"
+                                        }
+                                    }
+                                }
+                            },
+                            "page": {
+                                "type": "object",
+                                "required": [
+                                    "total",
+                                    "number",
+                                    "size"
+                                ],
+                                "properties": {
+                                    "total": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "number": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "size": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "fetch events successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "GetAbstractedEventsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "events": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "type",
+                                        "severity",
+                                        "id",
+                                        "description",
+                                        "host",
+                                        "category",
+                                        "service",
+                                        "metadata",
+                                        "time"
+                                    ],
+                                    "properties": {
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "severity": {
+                                            "type": "string"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "host": {
+                                            "type": "string"
+                                        },
+                                        "category": {
+                                            "type": "string"
+                                        },
+                                        "service": {
+                                            "type": "string"
+                                        },
+                                        "metadata": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "ip": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "time": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "limit": {
+                                "type": "object",
+                                "required": [
+                                    "number",
+                                    "description"
+                                ],
+                                "properties": {
+                                    "number": {
+                                        "type": "integer"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "GetHealthsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "overall",
+                            "inUse",
+                            "error",
+                            "fixing"
+                        ],
+                        "properties": {
+                            "overall": {
+                                "type": "object",
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "object",
+                                        "required": [
+                                            "current",
+                                            "description"
+                                        ],
+                                        "properties": {
+                                            "current": {
+                                                "type": "string",
+                                                "example": "ng"
+                                            },
+                                            "description": {
+                                                "type": "string",
+                                                "example": "ceph has 2 ceph_osd down"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "services": {
+                                "type": "array",
+                                "items": {
+                                    "required": [
+                                        "service",
+                                        "category",
+                                        "status",
+                                        "modules"
+                                    ],
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "clusterLink"
+                                        },
+                                        "category": {
+                                            "type": "string",
+                                            "example": "core"
+                                        },
+                                        "status": {
+                                            "type": "object",
+                                            "required": [
+                                                "current"
+                                            ],
+                                            "properties": {
+                                                "current": {
+                                                    "type": "string",
+                                                    "example": "ok"
+                                                }
+                                            }
+                                        },
+                                        "modules": {
+                                            "type": "array",
+                                            "required": [
+                                                "name",
+                                                "isAutoRepairable",
+                                                "status"
+                                            ],
+                                            "items": {
+                                                "type": "object",
+                                                "required": [
+                                                    "name",
+                                                    "isAutoRepairable",
+                                                    "status"
+                                                ],
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "link"
+                                                    },
+                                                    "isAutoRepairable": {
+                                                        "type": "boolean",
+                                                        "example": false
+                                                    },
+                                                    "status": {
+                                                        "type": "object",
+                                                        "required": [
+                                                            "current"
+                                                        ],
+                                                        "properties": {
+                                                            "current": {
+                                                                "type": "string",
+                                                                "example": "ok"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "fetch health successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "PatchRepairResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PatchModuleRepairResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 202
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "the request of unhealthy module repair is accepted and repairing"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "accepted"
+                    }
+                }
+            },
+            "GetModuleHealthHistoryResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "health",
+                            "page"
+                        ],
+                        "properties": {
+                            "health": {
+                                "type": "object",
+                                "required": [
+                                    "category",
+                                    "service",
+                                    "module",
+                                    "history"
+                                ],
+                                "properties": {
+                                    "category": {
+                                        "type": "string"
+                                    },
+                                    "service": {
+                                        "type": "string"
+                                    },
+                                    "module": {
+                                        "type": "string"
+                                    },
+                                    "history": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "time",
+                                                "status"
+                                            ],
+                                            "properties": {
+                                                "time": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "error": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string"
+                                                        },
+                                                        "nodes": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "description": {
+                                                            "type": "string"
+                                                        },
+                                                        "details": {
+                                                            "type": "string"
+                                                        },
+                                                        "log": {
+                                                            "type": "string",
+                                                            "format": "uri"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "page": {
+                                "type": "object",
+                                "properties": {
+                                    "total": {
+                                        "type": "integer"
+                                    },
+                                    "number": {
+                                        "type": "integer"
+                                    },
+                                    "size": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "GetIntegrationsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "isHeaderShortcutEnabled",
+                                "description",
+                                "isBuiltIn",
+                                "url"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "openstack"
+                                },
+                                "isHeaderShortcutEnabled": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "example": "openstack dashboard"
+                                },
+                                "isBuiltIn": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "url": {
+                                    "type": "string",
+                                    "example": "https://10.10.10.10/skyline"
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "fetch integrations successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "GetLicensesResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "licenses": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "type",
+                                        "hostname",
+                                        "serial",
+                                        "product",
+                                        "issue",
+                                        "quantity",
+                                        "serviceLevelAgreement",
+                                        "expiry"
+                                    ],
+                                    "properties": {
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "hostname": {
+                                            "type": "string"
+                                        },
+                                        "serial": {
+                                            "type": "string"
+                                        },
+                                        "product": {
+                                            "type": "object",
+                                            "required": [
+                                                "name",
+                                                "features"
+                                            ],
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "features": {
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "issue": {
+                                            "type": "object",
+                                            "required": [
+                                                "by",
+                                                "to",
+                                                "hardware",
+                                                "date"
+                                            ],
+                                            "properties": {
+                                                "by": {
+                                                    "type": "string"
+                                                },
+                                                "to": {
+                                                    "type": "string"
+                                                },
+                                                "hardware": {
+                                                    "type": "string"
+                                                },
+                                                "date": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "quantity": {
+                                            "type": "object",
+                                            "required": [
+                                                "type",
+                                                "vcpu"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "vcpu": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "serviceLevelAgreement": {
+                                            "type": "object",
+                                            "required": [
+                                                "uptime",
+                                                "period",
+                                                "meanTimeBetweenFailure",
+                                                "meanTimeToRecovery"
+                                            ],
+                                            "properties": {
+                                                "uptime": {
+                                                    "type": "number"
+                                                },
+                                                "period": {
+                                                    "type": "string"
+                                                },
+                                                "meanTimeBetweenFailure": {
+                                                    "type": "string"
+                                                },
+                                                "meanTimeToRecovery": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "expiry": {
+                                            "type": "object",
+                                            "required": [
+                                                "date",
+                                                "days"
+                                            ],
+                                            "properties": {
+                                                "date": {
+                                                    "type": "string"
+                                                },
+                                                "days": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "page": {
+                                "type": "object",
+                                "required": [
+                                    "total",
+                                    "number",
+                                    "size"
+                                ],
+                                "properties": {
+                                    "total": {
+                                        "type": "integer"
+                                    },
+                                    "number": {
+                                        "type": "integer"
+                                    },
+                                    "size": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "GetMetricsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "host",
+                            "vm"
+                        ],
+                        "properties": {
+                            "host": {
+                                "type": "object",
+                                "required": [
+                                    "role",
+                                    "status",
+                                    "usage"
+                                ],
+                                "properties": {
+                                    "role": {
+                                        "type": "object",
+                                        "required": [
+                                            "controlConverged",
+                                            "control",
+                                            "compute",
+                                            "storage",
+                                            "others"
+                                        ],
+                                        "properties": {
+                                            "controlConverged": {
+                                                "type": "integer",
+                                                "example": 10
+                                            },
+                                            "control": {
+                                                "type": "integer",
+                                                "example": 3
+                                            },
+                                            "compute": {
+                                                "type": "integer",
+                                                "example": 5
+                                            },
+                                            "storage": {
+                                                "type": "integer",
+                                                "example": 2
+                                            },
+                                            "others": {
+                                                "type": "integer",
+                                                "example": 0
+                                            }
+                                        }
+                                    },
+                                    "usage": {
+                                        "type": "object",
+                                        "required": [
+                                            "vcpu",
+                                            "memory",
+                                            "storage"
+                                        ],
+                                        "properties": {
+                                            "vcpu": {
+                                                "type": "object",
+                                                "required": [
+                                                    "totalCores",
+                                                    "usedCores",
+                                                    "usedPercent",
+                                                    "freeCores",
+                                                    "freePercent"
+                                                ],
+                                                "properties": {
+                                                    "totalCores": {
+                                                        "type": "integer",
+                                                        "example": 80
+                                                    },
+                                                    "usedCores": {
+                                                        "type": "integer",
+                                                        "example": 31
+                                                    },
+                                                    "usedPercent": {
+                                                        "type": "number",
+                                                        "example": 38.75
+                                                    },
+                                                    "freeCores": {
+                                                        "type": "integer",
+                                                        "example": 49
+                                                    },
+                                                    "freePercent": {
+                                                        "type": "number",
+                                                        "example": 61.25
+                                                    }
+                                                }
+                                            },
+                                            "memory": {
+                                                "type": "object",
+                                                "required": [
+                                                    "totalMiB",
+                                                    "usedMiB",
+                                                    "usedPercent",
+                                                    "freeMiB",
+                                                    "freePercent"
+                                                ],
+                                                "properties": {
+                                                    "totalMiB": {
+                                                        "type": "integer",
+                                                        "example": 257371
+                                                    },
+                                                    "usedMiB": {
+                                                        "type": "integer",
+                                                        "example": 98255
+                                                    },
+                                                    "usedPercent": {
+                                                        "type": "number",
+                                                        "example": 38.2
+                                                    },
+                                                    "freeMiB": {
+                                                        "type": "integer",
+                                                        "example": 159116
+                                                    },
+                                                    "freePercent": {
+                                                        "type": "number",
+                                                        "example": 61.8
+                                                    }
+                                                }
+                                            },
+                                            "storage": {
+                                                "type": "object",
+                                                "required": [
+                                                    "totalMiB",
+                                                    "usedMiB",
+                                                    "usedPercent",
+                                                    "freeMiB",
+                                                    "freePercent"
+                                                ],
+                                                "properties": {
+                                                    "totalMiB": {
+                                                        "type": "integer",
+                                                        "example": 102400
+                                                    },
+                                                    "usedMiB": {
+                                                        "type": "integer",
+                                                        "example": 51200
+                                                    },
+                                                    "usedPercent": {
+                                                        "type": "number",
+                                                        "example": 50.12
+                                                    },
+                                                    "freeMiB": {
+                                                        "type": "integer",
+                                                        "example": 51200
+                                                    },
+                                                    "freePercent": {
+                                                        "type": "number",
+                                                        "example": 50.12
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "vm": {
+                                "type": "object",
+                                "required": [
+                                    "status",
+                                    "usage"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "object",
+                                        "required": [
+                                            "total",
+                                            "running",
+                                            "stopped",
+                                            "paused",
+                                            "suspend",
+                                            "error",
+                                            "unknown"
+                                        ],
+                                        "properties": {
+                                            "total": {
+                                                "type": "integer",
+                                                "example": 10
+                                            },
+                                            "running": {
+                                                "type": "integer",
+                                                "example": 8
+                                            },
+                                            "stopped": {
+                                                "type": "integer",
+                                                "example": 2
+                                            },
+                                            "paused": {
+                                                "type": "integer",
+                                                "example": 0
+                                            },
+                                            "suspend": {
+                                                "type": "integer",
+                                                "example": 0
+                                            },
+                                            "error": {
+                                                "type": "integer",
+                                                "example": 0
+                                            },
+                                            "unknown": {
+                                                "type": "integer",
+                                                "example": 0
+                                            }
+                                        }
+                                    },
+                                    "usage": {
+                                        "type": "object",
+                                        "required": [
+                                            "vcpu",
+                                            "memory",
+                                            "storage"
+                                        ],
+                                        "properties": {
+                                            "vcpu": {
+                                                "type": "object",
+                                                "required": [
+                                                    "totalCores",
+                                                    "usedCores",
+                                                    "freeCores",
+                                                    "usedPercent",
+                                                    "freePercent"
+                                                ],
+                                                "properties": {
+                                                    "totalCores": {
+                                                        "type": "integer",
+                                                        "example": 80
+                                                    },
+                                                    "usedCores": {
+                                                        "type": "integer",
+                                                        "example": 31
+                                                    },
+                                                    "freeCores": {
+                                                        "type": "integer",
+                                                        "example": 49
+                                                    },
+                                                    "usedPercent": {
+                                                        "type": "number",
+                                                        "example": 38.75
+                                                    },
+                                                    "freePercent": {
+                                                        "type": "number",
+                                                        "example": 61.25
+                                                    }
+                                                }
+                                            },
+                                            "memory": {
+                                                "type": "object",
+                                                "required": [
+                                                    "totalMiB",
+                                                    "usedMiB",
+                                                    "freeMiB",
+                                                    "usedPercent",
+                                                    "freePercent"
+                                                ],
+                                                "properties": {
+                                                    "totalMiB": {
+                                                        "type": "integer",
+                                                        "example": 257371
+                                                    },
+                                                    "usedMiB": {
+                                                        "type": "integer",
+                                                        "example": 98255
+                                                    },
+                                                    "freeMiB": {
+                                                        "type": "integer",
+                                                        "example": 159116
+                                                    },
+                                                    "usedPercent": {
+                                                        "type": "number",
+                                                        "example": 38.2
+                                                    },
+                                                    "freePercent": {
+                                                        "type": "number",
+                                                        "example": 61.8
+                                                    }
+                                                }
+                                            },
+                                            "storage": {
+                                                "type": "object",
+                                                "required": [
+                                                    "totalMiB",
+                                                    "usedMiB",
+                                                    "freeMiB",
+                                                    "usedPercent",
+                                                    "freePercent"
+                                                ],
+                                                "properties": {
+                                                    "totalMiB": {
+                                                        "type": "integer",
+                                                        "example": 102400
+                                                    },
+                                                    "usedMiB": {
+                                                        "type": "integer",
+                                                        "example": 51200
+                                                    },
+                                                    "freeMiB": {
+                                                        "type": "integer",
+                                                        "example": 51200
+                                                    },
+                                                    "usedPercent": {
+                                                        "type": "number",
+                                                        "example": 50.1
+                                                    },
+                                                    "freePercent": {
+                                                        "type": "number",
+                                                        "example": 50.1
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "fetch summary successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "GetNodesResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "nodes",
+                            "page"
+                        ],
+                        "properties": {
+                            "nodes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "id",
+                                        "hostname",
+                                        "role",
+                                        "address",
+                                        "managementIP",
+                                        "license",
+                                        "status",
+                                        "vcpu",
+                                        "memory",
+                                        "storage",
+                                        "uptimeSeconds",
+                                        "labels"
+                                    ],
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "hostname": {
+                                            "type": "string"
+                                        },
+                                        "role": {
+                                            "type": "string"
+                                        },
+                                        "address": {
+                                            "type": "string"
+                                        },
+                                        "managementIP": {
+                                            "type": "string"
+                                        },
+                                        "license": {
+                                            "type": "object",
+                                            "required": [
+                                                "status",
+                                                "hostname",
+                                                "serial",
+                                                "product",
+                                                "issue",
+                                                "serviceLevelAgreement",
+                                                "expire"
+                                            ],
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "hostname": {
+                                                    "type": "string"
+                                                },
+                                                "serial": {
+                                                    "type": "string"
+                                                },
+                                                "product": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "name",
+                                                        "features"
+                                                    ],
+                                                    "properties": {
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "features": {
+                                                            "type": "object",
+                                                            "required": [
+                                                                "name"
+                                                            ],
+                                                            "properties": {
+                                                                "name": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "issue": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "by",
+                                                        "to",
+                                                        "hardware",
+                                                        "date"
+                                                    ],
+                                                    "properties": {
+                                                        "by": {
+                                                            "type": "string"
+                                                        },
+                                                        "to": {
+                                                            "type": "string"
+                                                        },
+                                                        "hardware": {
+                                                            "type": "string"
+                                                        },
+                                                        "date": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "serviceLevelAgreement": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "uptime",
+                                                        "period",
+                                                        "meanTimeBetweenFailure",
+                                                        "meanTimeToRepair",
+                                                        "expire"
+                                                    ],
+                                                    "properties": {
+                                                        "uptime": {
+                                                            "type": "number"
+                                                        },
+                                                        "period": {
+                                                            "type": "string"
+                                                        },
+                                                        "meanTimeBetweenFailure": {
+                                                            "type": "string"
+                                                        },
+                                                        "meanTimeToRepair": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "expire": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "date",
+                                                        "days"
+                                                    ],
+                                                    "properties": {
+                                                        "date": {
+                                                            "type": "string"
+                                                        },
+                                                        "days": {
+                                                            "type": "integer"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "vcpu": {
+                                            "type": "object",
+                                            "required": [
+                                                "totalCores",
+                                                "usedCores",
+                                                "freeCores"
+                                            ],
+                                            "properties": {
+                                                "totalCores": {
+                                                    "type": "integer"
+                                                },
+                                                "usedCores": {
+                                                    "type": "integer"
+                                                },
+                                                "freeCores": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "memory": {
+                                            "type": "object",
+                                            "required": [
+                                                "totalMiB",
+                                                "usedMiB",
+                                                "freeMiB"
+                                            ],
+                                            "properties": {
+                                                "totalMiB": {
+                                                    "type": "integer"
+                                                },
+                                                "usedMiB": {
+                                                    "type": "integer"
+                                                },
+                                                "freeMiB": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "storage": {
+                                            "type": "object",
+                                            "required": [
+                                                "totalMiB",
+                                                "usedMiB",
+                                                "freeMiB"
+                                            ],
+                                            "properties": {
+                                                "totalMiB": {
+                                                    "type": "integer"
+                                                },
+                                                "usedMiB": {
+                                                    "type": "integer"
+                                                },
+                                                "freeMiB": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "uptimeSeconds": {
+                                            "type": "number"
+                                        },
+                                        "labels": {
+                                            "type": "object",
+                                            "required": [
+                                                "isGpuEnabled"
+                                            ],
+                                            "properties": {
+                                                "isGpuEnabled": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "page": {
+                                "type": "object",
+                                "required": [
+                                    "total",
+                                    "number",
+                                    "size"
+                                ],
+                                "properties": {
+                                    "total": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "number": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "size": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "fetch nodes successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "GetTokensRequest": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "password"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "the name of user to generate the token",
+                        "example": "test-name"
+                    },
+                    "password": {
+                        "type": "string",
+                        "description": "the password of user to generate the token",
+                        "example": "test-password"
+                    }
+                }
+            },
+            "GetTokensResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "token",
+                            "refresh",
+                            "expires"
+                        ],
+                        "properties": {
+                            "token": {
+                                "type": "string"
+                            },
+                            "refresh": {
+                                "type": "string"
+                            },
+                            "expires": {
+                                "type": "object",
+                                "required": [
+                                    "access",
+                                    "refresh"
+                                ],
+                                "properties": {
+                                    "access": {
+                                        "type": "integer"
+                                    },
+                                    "refresh": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
                     }
                 }
             }
