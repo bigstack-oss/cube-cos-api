@@ -47,6 +47,7 @@ func newRouter() *gin.Engine {
 	router.Any("/saml/*any", gin.WrapH(saml.SpAuth))
 	router.Use(gin.Recovery())
 	router.Use(initReqInfo)
+	router.Use(verifyDevSecret())
 	router.Use(verifyAuthToken())
 	router.Use(conditionalSaml())
 	return router
@@ -59,8 +60,27 @@ func initReqInfo(c *gin.Context) {
 	c.Next()
 }
 
+// TODO M1: Due to we still don't have a mechanism for API communicate
+// so use a dev secret for it when developing, but should be removed before M1 release
+func verifyDevSecret() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		secret := c.GetHeader("secret")
+		if secret == "Dev@Cube" {
+			c.Set("isSecretValid", true)
+		}
+
+		c.Next()
+	}
+}
+
 func verifyAuthToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		_, found := c.Get("isSecretValid")
+		if found {
+			c.Next()
+			return
+		}
+
 		token := parseToken(c)
 		err := oidc.VerifyToken(token)
 		if err == nil {
@@ -88,7 +108,13 @@ func parseToken(c *gin.Context) string {
 func conditionalSaml() gin.HandlerFunc {
 	doSamlAuth := adapter.Wrap(saml.SpAuth.RequireAccount)
 	return func(c *gin.Context) {
-		_, found := c.Get("isTokenValid")
+		_, found := c.Get("isSecretValid")
+		if found {
+			c.Next()
+			return
+		}
+
+		_, found = c.Get("isTokenValid")
 		if found {
 			c.Next()
 			return
