@@ -1,0 +1,61 @@
+package licenses
+
+import (
+	"errors"
+	"mime/multipart"
+	"path/filepath"
+	"strings"
+
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/gin-gonic/gin"
+	log "go-micro.dev/v5/logger"
+)
+
+const (
+	licenseExtension = ".license"
+	licenseStorePath = "/var/support"
+)
+
+func getLicenseStorePath(filename string) (string, error) {
+	filePath, err := filepath.Abs(filepath.Join(licenseStorePath, filename))
+	if err != nil {
+		return "", err
+	}
+
+	if !strings.HasPrefix(filePath, licenseStorePath) {
+		return "", errors.New("invalid filename")
+	}
+
+	return filePath, nil
+}
+
+func importOrDelegateLicense(c *gin.Context, nodeName string) error {
+	licenseFile, err := c.FormFile("license")
+	if err != nil {
+		log.Errorf("failed to get license file: %s", api.GetReqId(c), err.Error())
+		return err
+	}
+
+	if nodeName != definition.Hostname {
+		return sendLicenseToOtherNodes(nodeName, licenseFile)
+	}
+
+	return importLicenseToNode(c, licenseFile)
+}
+
+func importLicenseToNode(c *gin.Context, licenseFile *multipart.FileHeader) error {
+	filePath, err := getLicenseStorePath(licenseFile.Filename)
+	if err != nil {
+		log.Errorf("failed to generate license store path: %s", err.Error())
+		return err
+	}
+
+	if err := c.SaveUploadedFile(licenseFile, filePath); err != nil {
+		log.Errorf("failed to save license file: %s", err.Error())
+		return err
+	}
+
+	return cubecos.ImportNodeLicense(filePath)
+}
