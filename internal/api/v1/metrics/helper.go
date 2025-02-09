@@ -10,10 +10,9 @@ import (
 type helper struct {
 	c *gin.Context
 
-	metricGroup  string
-	metricType   string
-	resourceType string
-	reportType   string
+	metricType string
+	viewType   string
+	entityType string
 
 	definition.Period
 	limit int
@@ -32,19 +31,31 @@ func initReqHelper(c *gin.Context) (*helper, error) {
 }
 
 func (h *helper) getMetrics() (interface{}, error) {
-	switch h.metricGroup {
-	case "cpu":
-		return h.getCpuMetrics()
-	case "memory":
-		return h.getMemoryMetrics()
-	case "storage":
-		return h.getStorageMetrics()
-	case "network":
-		return h.getNetworkMetrics()
+	switch h.metricType {
+	case "cpuUsage":
+		return h.getCpuUsageMetrics()
+	case "memoryUsage":
+		return h.getMemoryUsageMetrics()
+	case "diskUsage":
+		return h.getDiskUsageMetrics()
+	case "diskBandwidth":
+		return h.getDiskBandwidthMetrics()
+	case "diskIops":
+		return h.getDiskIopsMetrics()
+	case "diskReadIops":
+		return h.getDiskReadIopsMetrics()
+	case "diskWriteIops":
+		return h.getDiskWriteIopsMetrics()
+	case "diskLatency":
+		return h.getDiskLatencyMetrics()
+	case "networkTrafficIn":
+		return h.getNetworkTrafficInMetrics()
+	case "networkTrafficOut":
+		return h.getNetworkTrafficOutMetrics()
 	}
 
 	return nil, fmt.Errorf(
-		"invalid metric group(%s) to get metrics",
-		h.resourceType,
+		"invalid metric type(%s) to get metrics",
+		h.metricType,
 	)
 }

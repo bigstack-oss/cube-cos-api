@@ -6,41 +6,45 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 )
 
-func (h *helper) getCpuMetrics() (interface{}, error) {
-	switch h.resourceType {
-	case "hosts":
-		return h.getHostCpuMetrics()
-	case "vms":
-		return h.getVmCpuMetrics()
-	}
-
-	return nil, fmt.Errorf(
-		"invalid resource type(%s) to get cpu metrics",
-		h.resourceType,
-	)
-}
-
-func (h *helper) getHostCpuMetrics() (interface{}, error) {
-	switch h.reportType {
+func (h *helper) getCpuUsageMetrics() (interface{}, error) {
+	switch h.viewType {
 	case "summary":
-		return cubecos.GetHostCpuSummary()
+		return h.getCpuUsageSummary()
+	case "history":
+		return nil, fmt.Errorf("history is not supported yet for cpu metrics")
 	case "rank":
-		return cubecos.GetHostCpuRank(h.rank.head)
+		return h.getCpuUsageRank()
 	}
 
 	return nil, fmt.Errorf(
-		"invalid report type(%s) to get host cpu metrics",
-		h.reportType,
+		"invalid view type(%s) to get cpu metrics",
+		h.viewType,
 	)
 }
 
-func (h *helper) getVmCpuMetrics() (interface{}, error) {
-	if h.reportType == "rank" {
-		return cubecos.GetVmCpuRank(h.rank.head)
+func (h *helper) getCpuUsageSummary() (interface{}, error) {
+	switch h.entityType {
+	case "hosts":
+		return cubecos.GetCpuSummaryOfHosts()
+	case "vms":
+		return nil, fmt.Errorf("vms is not supported yet for cpu summary")
 	}
 
 	return nil, fmt.Errorf(
-		"invalid report type(%s) to get vm cpu metrics",
-		h.reportType,
+		"invalid entity type(%s) to get cpu summary",
+		h.entityType,
+	)
+}
+func (h *helper) getCpuUsageRank() (interface{}, error) {
+	switch h.entityType {
+	case "hosts":
+		return cubecos.GetCpuUsageRankOfHosts(h.rank.head)
+	case "vms":
+		return cubecos.GetCpuUsageRankOfVms(h.rank.head)
+	}
+
+	return nil, fmt.Errorf(
+		"invalid entity type(%s) to get cpu rank",
+		h.entityType,
 	)
 }
