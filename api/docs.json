@@ -1406,6 +1406,7 @@
         },
         "/api/v1/datacenters/{dataCenter}/metrics": {
             "get": {
+                "operationId": "getMetrics",
                 "tags": [
                     "Metrics"
                 ],
@@ -1420,16 +1421,6 @@
                         },
                         "description": "The name of the data center to operate",
                         "example": "example-data-center"
-                    },
-                    {
-                        "in": "query",
-                        "name": "watch",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "description": "The toggle to enable http chunked transfer for continues server push.",
-                        "example": true
                     }
                 ],
                 "responses": {
@@ -1438,254 +1429,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 200
-                                        },
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "host": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "role": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "controlConverged": {
-                                                                    "type": "integer",
-                                                                    "example": 10
-                                                                },
-                                                                "control": {
-                                                                    "type": "integer",
-                                                                    "example": 3
-                                                                },
-                                                                "compute": {
-                                                                    "type": "integer",
-                                                                    "example": 5
-                                                                },
-                                                                "storage": {
-                                                                    "type": "integer",
-                                                                    "example": 2
-                                                                },
-                                                                "others": {
-                                                                    "type": "integer",
-                                                                    "example": 0
-                                                                }
-                                                            }
-                                                        },
-                                                        "usage": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "vcpu": {
-                                                                    "type": "object",
-                                                                    "properties": {
-                                                                        "totalCores": {
-                                                                            "type": "integer",
-                                                                            "example": 80
-                                                                        },
-                                                                        "usedCores": {
-                                                                            "type": "integer",
-                                                                            "example": 31
-                                                                        },
-                                                                        "usedPercent": {
-                                                                            "type": "number",
-                                                                            "example": 38.75
-                                                                        },
-                                                                        "freeCores": {
-                                                                            "type": "integer",
-                                                                            "example": 49
-                                                                        },
-                                                                        "freePercent": {
-                                                                            "type": "number",
-                                                                            "example": 61.25
-                                                                        }
-                                                                    }
-                                                                },
-                                                                "memory": {
-                                                                    "type": "object",
-                                                                    "properties": {
-                                                                        "totalMiB": {
-                                                                            "type": "integer",
-                                                                            "example": 257371
-                                                                        },
-                                                                        "usedMiB": {
-                                                                            "type": "integer",
-                                                                            "example": 98255
-                                                                        },
-                                                                        "usedPercent": {
-                                                                            "type": "number",
-                                                                            "example": 38.2
-                                                                        },
-                                                                        "freeMiB": {
-                                                                            "type": "integer",
-                                                                            "example": 159116
-                                                                        },
-                                                                        "freePercent": {
-                                                                            "type": "number",
-                                                                            "example": 61.8
-                                                                        }
-                                                                    }
-                                                                },
-                                                                "storage": {
-                                                                    "type": "object",
-                                                                    "properties": {
-                                                                        "totalMiB": {
-                                                                            "type": "integer",
-                                                                            "example": 102400
-                                                                        },
-                                                                        "usedMiB": {
-                                                                            "type": "integer",
-                                                                            "example": 51200
-                                                                        },
-                                                                        "usedPercent": {
-                                                                            "type": "number",
-                                                                            "example": 50
-                                                                        },
-                                                                        "freeMiB": {
-                                                                            "type": "integer",
-                                                                            "example": 51200
-                                                                        },
-                                                                        "freePercent": {
-                                                                            "type": "number",
-                                                                            "example": 50
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                "vm": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "status": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "total": {
-                                                                    "type": "integer",
-                                                                    "example": 10
-                                                                },
-                                                                "running": {
-                                                                    "type": "integer",
-                                                                    "example": 8
-                                                                },
-                                                                "stopped": {
-                                                                    "type": "integer",
-                                                                    "example": 2
-                                                                },
-                                                                "paused": {
-                                                                    "type": "integer",
-                                                                    "example": 0
-                                                                },
-                                                                "suspend": {
-                                                                    "type": "integer",
-                                                                    "example": 0
-                                                                },
-                                                                "error": {
-                                                                    "type": "integer",
-                                                                    "example": 0
-                                                                },
-                                                                "unknown": {
-                                                                    "type": "integer",
-                                                                    "example": 0
-                                                                }
-                                                            }
-                                                        },
-                                                        "usage": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "vcpu": {
-                                                                    "type": "object",
-                                                                    "properties": {
-                                                                        "totalCores": {
-                                                                            "type": "integer",
-                                                                            "example": 80
-                                                                        },
-                                                                        "usedCores": {
-                                                                            "type": "integer",
-                                                                            "example": 31
-                                                                        },
-                                                                        "freeCores": {
-                                                                            "type": "integer",
-                                                                            "example": 49
-                                                                        },
-                                                                        "usedPercent": {
-                                                                            "type": "number",
-                                                                            "example": 38.75
-                                                                        },
-                                                                        "freePercent": {
-                                                                            "type": "number",
-                                                                            "example": 61.25
-                                                                        }
-                                                                    }
-                                                                },
-                                                                "memory": {
-                                                                    "type": "object",
-                                                                    "properties": {
-                                                                        "totalMiB": {
-                                                                            "type": "integer",
-                                                                            "example": 257371
-                                                                        },
-                                                                        "usedMiB": {
-                                                                            "type": "integer",
-                                                                            "example": 98255
-                                                                        },
-                                                                        "freeMiB": {
-                                                                            "type": "integer",
-                                                                            "example": 159116
-                                                                        },
-                                                                        "usedPercent": {
-                                                                            "type": "number",
-                                                                            "example": 38.2
-                                                                        },
-                                                                        "freePercent": {
-                                                                            "type": "number",
-                                                                            "example": 61.8
-                                                                        }
-                                                                    }
-                                                                },
-                                                                "storage": {
-                                                                    "type": "object",
-                                                                    "properties": {
-                                                                        "totalMiB": {
-                                                                            "type": "integer",
-                                                                            "example": 102400
-                                                                        },
-                                                                        "usedMiB": {
-                                                                            "type": "integer",
-                                                                            "example": 51200
-                                                                        },
-                                                                        "freeMiB": {
-                                                                            "type": "integer",
-                                                                            "example": 51200
-                                                                        },
-                                                                        "usedPercent": {
-                                                                            "type": "number",
-                                                                            "example": 50
-                                                                        },
-                                                                        "freePercent": {
-                                                                            "type": "number",
-                                                                            "example": 50
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "fetch summary successfully"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ok"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/GetMetricsResponse"
                                 }
                             }
                         }
@@ -2165,97 +1909,56 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "oneOf": [
-                                        {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
                                             "type": "object",
                                             "properties": {
-                                                "code": {
-                                                    "type": "integer",
-                                                    "example": 200
-                                                },
-                                                "data": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "read": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "time": {
-                                                                        "type": "string",
-                                                                        "example": "2025-01-01T01:00:00Z"
-                                                                    },
-                                                                    "bytes": {
-                                                                        "type": "number",
-                                                                        "example": 682.6666
-                                                                    }
-                                                                }
-                                                            }
-                                                        },
-                                                        "write": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "time": {
-                                                                        "type": "string",
-                                                                        "example": "2025-01-01T01:00:00Z"
-                                                                    },
-                                                                    "bytes": {
-                                                                        "type": "number",
-                                                                        "example": 4.5
-                                                                    }
-                                                                }
+                                                "read": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "time": {
+                                                                "type": "string",
+                                                                "example": "2025-01-01T01:00:00Z"
+                                                            },
+                                                            "bytes": {
+                                                                "type": "number",
+                                                                "example": 682.6666
                                                             }
                                                         }
                                                     }
                                                 },
-                                                "msg": {
-                                                    "type": "string",
-                                                    "example": "fetch metrics successfully"
-                                                },
-                                                "status": {
-                                                    "type": "string",
-                                                    "example": "ok"
+                                                "write": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "time": {
+                                                                "type": "string",
+                                                                "example": "2025-01-01T01:00:00Z"
+                                                            },
+                                                            "bytes": {
+                                                                "type": "number",
+                                                                "example": 4.5
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             }
                                         },
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "status": {
-                                                    "type": "string",
-                                                    "example": "ok"
-                                                }
-                                            }
-                                        }
-                                    ]
-                                },
-                                "examples": {
-                                    "example1": {
-                                        "value": {
-                                            "code": 200,
-                                            "data": {
-                                                "read": [
-                                                    {
-                                                        "time": "2025-01-01T01:00:00Z",
-                                                        "bytes": 682.6666
-                                                    }
-                                                ],
-                                                "write": [
-                                                    {
-                                                        "time": "2025-01-01T01:00:00Z",
-                                                        "bytes": 4.5
-                                                    }
-                                                ]
-                                            },
-                                            "msg": "fetch metrics successfully",
-                                            "status": "ok"
-                                        }
-                                    },
-                                    "example2": {
-                                        "value": {
-                                            "status": "ok"
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fetch metrics successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
                                         }
                                     }
                                 }
@@ -3035,7 +2738,7 @@
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/metrics/network/hosts?metricType=egress&reportType=rank": {
+        "/api/v1/datacenters/{dataCenter}/metrics/network/hosts": {
             "get": {
                 "tags": [
                     "Metrics"
@@ -3145,7 +2848,7 @@
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/metrics/cpu/vms?metricType=usage&reportType=rank": {
+        "/api/v1/datacenters/{dataCenter}/metrics/cpu/vms": {
             "get": {
                 "tags": [
                     "Metrics"
@@ -3259,7 +2962,7 @@
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/metrics/memory/vms?metricType=usage&reportType=rank": {
+        "/api/v1/datacenters/{dataCenter}/metrics/memory/vms": {
             "get": {
                 "tags": [
                     "Metrics"
@@ -3373,7 +3076,7 @@
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/metrics/storage/vms?metricType={metricType}&reportType=rank": {
+        "/api/v1/datacenters/{dataCenter}/metrics/storage/vms": {
             "get": {
                 "tags": [
                     "Metrics"
@@ -3487,7 +3190,7 @@
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/metrics/network/vms?metricType={metricType}&reportType=rank": {
+        "/api/v1/datacenters/{dataCenter}/metrics/network/vms": {
             "get": {
                 "tags": [
                     "Metrics"
@@ -5341,12 +5044,12 @@
                     "name": {
                         "type": "string",
                         "description": "the name of user to generate the token",
-                        "example": "test-name"
+                        "example": "example-name"
                     },
                     "password": {
                         "type": "string",
                         "description": "the password of user to generate the token",
-                        "example": "test-password"
+                        "example": "example-password"
                     }
                 }
             },
