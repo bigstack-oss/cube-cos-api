@@ -20,7 +20,7 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
-			Path:    "/metrics/:metricGroup/:resourceType",
+			Path:    "/metrics/:metricType/:viewType/:entityType",
 			Func:    getMetrics,
 		},
 	}

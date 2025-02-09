@@ -13,7 +13,7 @@ import (
 
 func (h *helper) parseParams() error {
 	parsers := []func() error{
-		h.parseReport, h.parseMetric, h.parseResource,
+		h.parseView, h.parseMetric, h.parseEntity,
 		h.parsePeriod, h.parseRank, h.parseLimit, h.parseWatch,
 	}
 
@@ -27,40 +27,37 @@ func (h *helper) parseParams() error {
 	return nil
 }
 
-func (h *helper) parseReport() error {
-	h.reportType = h.c.DefaultQuery("reportType", "")
-	if !cubecos.IsMetricReportTypeValid(h.reportType) {
-		return errors.New("reportType should be summary, timeSeries, or rank")
+func (h *helper) parseView() error {
+	h.viewType = h.c.Param("viewType")
+	if !cubecos.IsMetricReportTypeValid(h.viewType) {
+		return errors.New("viewType should be summary, history, or rank")
 	}
 
 	return nil
 }
 
 func (h *helper) parseMetric() error {
-	h.metricGroup = h.c.Param("metricGroup")
-	if !cubecos.IsMetricGroupValid(h.metricGroup) {
-		return errors.New("metricGroup should be cpu, memory, storage, or network")
-	}
-
-	h.metricType = h.c.DefaultQuery("metricType", "")
+	h.metricType = h.c.Param("metricType")
 	if !cubecos.IsMetricTypeValid(h.metricType) {
-		return errors.New("metricType should be bandwidth, iops, latency, ingress, or egress")
+		return errors.New(
+			"metricType should be cpuUsage, memoryUsage, diskUsage, diskBandwidth, diskIops, diskLatency, diskReadIops, diskWriteIops, networkTrafficIn, or networkTrafficOut",
+		)
 	}
 
 	return nil
 }
 
-func (h *helper) parseResource() error {
-	h.resourceType = h.c.Param("resourceType")
-	if !cubecos.IsResourceTypeValid(h.resourceType) {
-		return errors.New("resourceType should be hosts or vms")
+func (h *helper) parseEntity() error {
+	h.entityType = h.c.Param("entityType")
+	if !cubecos.IsEntityTypeValid(h.entityType) {
+		return errors.New("entityType should be hosts or vms")
 	}
 
 	return nil
 }
 
 func (h *helper) parseLimit() error {
-	if h.reportType != "rank" {
+	if h.viewType != "rank" {
 		return nil
 	}
 
@@ -74,7 +71,7 @@ func (h *helper) parseLimit() error {
 }
 
 func (h *helper) parsePeriod() error {
-	if h.reportType != "timeSeries" {
+	if h.viewType != "history" {
 		return nil
 	}
 
@@ -98,7 +95,7 @@ func (h *helper) parsePeriod() error {
 }
 
 func (h *helper) parseRank() error {
-	if h.reportType != "rank" {
+	if h.viewType != "rank" {
 		return nil
 	}
 

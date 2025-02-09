@@ -6,68 +6,62 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 )
 
-func (h *helper) getNetworkMetrics() (interface{}, error) {
-	switch h.resourceType {
+func (h *helper) getNetworkTrafficInMetrics() (interface{}, error) {
+	switch h.viewType {
+	case "summary":
+		return nil, fmt.Errorf("summary is not supported yet for network traffic in metrics")
+	case "history":
+		return nil, fmt.Errorf("history is not supported yet for network traffic in metrics")
+	case "rank":
+		return h.getNetworkTrafficInRank()
+	}
+
+	return nil, fmt.Errorf(
+		"invalid view type(%s) to get network traffic in metrics",
+		h.viewType,
+	)
+}
+
+func (h *helper) getNetworkTrafficInRank() (interface{}, error) {
+	switch h.entityType {
 	case "hosts":
-		return h.getHostNetworkMetrics()
+		return cubecos.GetNetworkTrafficInRankOfHosts()
 	case "vms":
-		return h.getVmNetworkMetrics()
+		return cubecos.GetNetworkTrafficInRankOfVms(h.rank.head)
 	}
 
 	return nil, fmt.Errorf(
-		"invalid resource type(%s) to get network metrics",
-		h.resourceType,
+		"invalid entity type(%s) to get network traffic in rank",
+		h.entityType,
 	)
 }
 
-func (h *helper) getHostNetworkMetrics() (interface{}, error) {
-	switch h.reportType {
+func (h *helper) getNetworkTrafficOutMetrics() (interface{}, error) {
+	switch h.viewType {
+	case "summary":
+		return nil, fmt.Errorf("summary is not supported yet for network traffic out metrics")
+	case "history":
+		return nil, fmt.Errorf("history is not supported yet for network traffic out metrics")
 	case "rank":
-		return h.getHostNetworkRank()
+		return h.getNetworkTrafficOutRank()
 	}
 
 	return nil, fmt.Errorf(
-		"invalid report type(%s) to get host network metrics",
-		h.reportType,
+		"invalid view type(%s) to get network traffic out metrics",
+		h.viewType,
 	)
 }
 
-func (h *helper) getHostNetworkRank() (interface{}, error) {
-	switch h.metricType {
-	case "ingress":
-		return cubecos.GetHostNetworkIngressRank()
-	case "egress":
-		return cubecos.GetHostNetworkEgressRank()
+func (h *helper) getNetworkTrafficOutRank() (interface{}, error) {
+	switch h.entityType {
+	case "hosts":
+		return cubecos.GetNetworkTrafficOutRankOfHosts()
+	case "vms":
+		return cubecos.GetNetworkTrafficOutRankOfVms(h.rank.head)
 	}
 
 	return nil, fmt.Errorf(
-		"invalid metric type(%s) to get host network rank",
-		h.metricType,
-	)
-}
-
-func (h *helper) getVmNetworkMetrics() (interface{}, error) {
-	switch h.reportType {
-	case "rank":
-		return h.getVmNetworkRank()
-	}
-
-	return nil, fmt.Errorf(
-		"invalid report type(%s) to get vm network metrics",
-		h.reportType,
-	)
-}
-
-func (h *helper) getVmNetworkRank() (interface{}, error) {
-	switch h.metricType {
-	case "ingress":
-		return cubecos.GetVmsNetworkIngressRank(h.rank.head)
-	case "egress":
-		return cubecos.GetVmsNetworkEgressRank(h.rank.head)
-	}
-
-	return nil, fmt.Errorf(
-		"invalid metric type(%s) to get vms net rank metrics",
-		h.metricType,
+		"invalid entity type(%s) to get network traffic out rank",
+		h.entityType,
 	)
 }
