@@ -82,9 +82,11 @@ func verifyAuthToken() gin.HandlerFunc {
 		}
 
 		token := parseToken(c)
-		err := oidc.VerifyToken(token)
+		claims, err := oidc.VerifyToken(token)
 		if err == nil {
 			c.Set("isTokenValid", true)
+			c.Set("authType", "oidc")
+			c.Set("authUser", claims.PreferredUsername)
 		}
 
 		c.Next()
@@ -126,6 +128,7 @@ func conditionalSaml() gin.HandlerFunc {
 			return
 		}
 
+		c.Set("authType", "saml")
 		doSamlAuth(c)
 	}
 }
