@@ -11,7 +11,11 @@ import (
 	"github.com/coreos/go-oidc"
 )
 
-func VerifyToken(token string) error {
+type claims struct {
+	PreferredUsername string `json:"preferred_username"`
+}
+
+func VerifyToken(token string) (*claims, error) {
 	http.DefaultClient = &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -23,19 +27,25 @@ func VerifyToken(token string) error {
 	defer cancel()
 	provider, err := oidc.NewProvider(client, genRealmUrl())
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	ctx, cancel = context.WithTimeout(wait.CtxSeconds(10))
 	oidcConf := &oidc.Config{SkipClientIDCheck: true}
 	defer cancel()
 	verifier := provider.Verifier(oidcConf)
-	_, err = verifier.Verify(ctx, token)
+	oidcToken, err := verifier.Verify(ctx, token)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	c := &claims{}
+	err = oidcToken.Claims(c)
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
 func genRealmUrl() string {

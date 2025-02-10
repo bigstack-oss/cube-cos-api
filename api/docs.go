@@ -110,6 +110,28 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/GetDataCentersResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Data centers",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "name": "example-data-center",
+                                                    "version": "Cube Appliance 3.0.0",
+                                                    "virtualIp": "10.10.10.10",
+                                                    "isLocal": true,
+                                                    "isHaEnabled": false,
+                                                    "additional": {
+                                                        "helpUrl": "https://www.bigstack.co/contact-us"
+                                                    }
+                                                }
+                                            ],
+                                            "msg": "fetch data center list successfully",
+                                            "status": "ok"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -164,7 +186,12 @@ const docTemplate = `{
                         "name": "type",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "enum": [
+                                "system",
+                                "host",
+                                "instance"
+                            ]
                         },
                         "description": "The type of event to query, the value can be only 'system', 'host', and 'instance'.",
                         "example": "system"
@@ -305,7 +332,12 @@ const docTemplate = `{
                         "name": "type",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "enum": [
+                                "start",
+                                "host",
+                                "instance"
+                            ]
                         },
                         "description": "The type of event to query, the value can be only 'system', 'host', and 'instance'.",
                         "example": "system"
@@ -565,7 +597,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/healths": {
             "get": {
-                "operationId": "GetHealths",
+                "operationId": "getHealths",
                 "tags": [
                     "Health"
                 ],
@@ -1488,7 +1520,19 @@ const docTemplate = `{
                         "name": "metricType",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "enum": [
+                                "cpuUsage",
+                                "memoryUsage",
+                                "diskUsage",
+                                "diskBandwidth",
+                                "diskIops",
+                                "diskLatency",
+                                "diskReadIops",
+                                "diskWriteIops",
+                                "networkTrafficIn",
+                                "networkTrafficOut"
+                            ]
                         },
                         "description": "The type of metric to query, the value can be 'cpuUsage', 'memoryUsage', 'diskUsage', 'diskBandwidth', 'diskIops', 'diskLatency', 'diskReadIops', 'diskWriteIops', 'networkTrafficIn', or 'networkTrafficOut'.",
                         "example": 1
@@ -1498,7 +1542,12 @@ const docTemplate = `{
                         "name": "viewType",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "enum": [
+                                "summary",
+                                "history",
+                                "rank"
+                            ]
                         },
                         "description": "The type of view to query, the value can be only 'summary', 'history', or 'rank'.",
                         "example": 1
@@ -1508,7 +1557,11 @@ const docTemplate = `{
                         "name": "entityType",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "enum": [
+                                "hosts",
+                                "vms"
+                            ]
                         },
                         "description": "The type of entity to query, the value can be 'hosts' or 'vms'",
                         "example": "hosts"
@@ -2575,28 +2628,32 @@ const docTemplate = `{
                                 "version",
                                 "virtualIp",
                                 "isHaEnabled",
-                                "isLocal"
+                                "isLocal",
+                                "additional"
                             ],
                             "properties": {
                                 "name": {
-                                    "type": "string",
-                                    "example": "bigstack-data-center"
+                                    "type": "string"
                                 },
                                 "version": {
-                                    "type": "string",
-                                    "example": "Cube Appliance 3.0.0"
+                                    "type": "string"
                                 },
                                 "virtualIp": {
-                                    "type": "string",
-                                    "example": "10.10.10.10"
+                                    "type": "string"
                                 },
                                 "isHaEnabled": {
-                                    "type": "boolean",
-                                    "example": false
+                                    "type": "boolean"
                                 },
                                 "isLocal": {
-                                    "type": "boolean",
-                                    "example": true
+                                    "type": "boolean"
+                                },
+                                "additional": {
+                                    "type": "object",
+                                    "properties": {
+                                        "helpUrl": {
+                                            "type": "string"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -2747,6 +2804,10 @@ const docTemplate = `{
                     },
                     "data": {
                         "type": "object",
+                        "required": [
+                            "events",
+                            "limit"
+                        ],
                         "properties": {
                             "events": {
                                 "type": "array",
@@ -2844,9 +2905,7 @@ const docTemplate = `{
                         "type": "object",
                         "required": [
                             "overall",
-                            "inUse",
-                            "error",
-                            "fixing"
+                            "services"
                         ],
                         "properties": {
                             "overall": {
@@ -2878,7 +2937,7 @@ const docTemplate = `{
                                 "type": "array",
                                 "items": {
                                     "required": [
-                                        "service",
+                                        "name",
                                         "category",
                                         "status",
                                         "modules"

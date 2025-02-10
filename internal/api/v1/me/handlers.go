@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/crewjam/saml/samlsp"
 	"github.com/gin-gonic/gin"
+	log "go-micro.dev/v5/logger"
 )
 
 var (
@@ -20,7 +20,12 @@ var (
 )
 
 func getMe(c *gin.Context) {
-	username := samlsp.AttributeFromContext(c.Request.Context(), "username")
+	username, err := getUsername(c)
+	if err != nil {
+		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+	}
+
 	api.SetStatusOk(
 		c,
 		"fetch own user info successfully",

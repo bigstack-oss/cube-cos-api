@@ -11,6 +11,11 @@ type DataCenter struct {
 	VirtualIp   string `json:"virtualIp" bson:"virtualIp"`
 	IsLocal     bool   `json:"isLocal" bson:"isLocal"`
 	IsHaEnabled bool   `json:"isHaEnabled" bson:"isHaEnabled"`
+	Additional  `json:"additional,omitempty" bson:"additional"`
+}
+
+type Additional struct {
+	HelpUrl string `json:"helpUrl,omitempty" bson:"helpUrl"`
 }
 
 // M1 TODO: have to think about if we

@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	Nodes = "nodes"
+	Nodes             = "nodes"
+	DataCenterHelpUrl = "https://www.bigstack.co/contact-us"
 )
 
 var (
