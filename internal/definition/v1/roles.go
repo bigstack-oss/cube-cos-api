@@ -165,10 +165,13 @@ func parseNodesByRole(svc *registry.Service, roleName string) []*Node {
 
 func newNode(node *registry.Node) *Node {
 	return &Node{
-		Role:     node.Metadata["role"],
-		Id:       node.Metadata["nodeID"],
-		Hostname: node.Metadata["hostname"],
-		Address:  node.Address,
+		Role:       node.Metadata["role"],
+		Id:         node.Metadata["nodeID"],
+		DataCenter: node.Metadata["dataCenter"],
+		Protocol:   node.Metadata["protocol"],
+		Hostname:   node.Metadata["hostname"],
+		Token:      node.Metadata["token"],
+		Address:    node.Address,
 		Labels: map[string]string{
 			"isGpuEnabled": node.Metadata["isGpuEnabled"],
 		},

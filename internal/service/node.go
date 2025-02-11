@@ -23,10 +23,13 @@ func parseNodes(svc *registry.Service) []definition.Node {
 
 func newNode(node *registry.Node) definition.Node {
 	return definition.Node{
-		Role:     node.Metadata["role"],
-		Id:       definition.HostID,
-		Hostname: definition.Hostname,
-		Address:  node.Address,
+		Role:       node.Metadata["role"],
+		Id:         definition.HostID,
+		DataCenter: node.Metadata["dataCenter"],
+		Protocol:   node.Metadata["protocol"],
+		Hostname:   definition.Hostname,
+		Token:      node.Metadata["token"],
+		Address:    node.Address,
 	}
 }
 
@@ -47,12 +50,16 @@ func GetNodesByRole(roleName string) ([]definition.Node, error) {
 	nodes := []definition.Node{}
 	for _, svc := range svcs {
 		roleNodes := parseNodes(svc)
-		if len(roleNodes) == 0 {
-			continue
-		}
-
-		nodes = append(nodes, roleNodes...)
+		setNodesIfRoleMatched(&nodes, roleNodes, roleName)
 	}
 
 	return nodes, nil
+}
+
+func setNodesIfRoleMatched(nodes *[]definition.Node, roleNodes []definition.Node, roleName string) {
+	for _, node := range roleNodes {
+		if node.Role == roleName {
+			*nodes = append(*nodes, node)
+		}
+	}
 }

@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"net/url"
 
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
@@ -32,6 +33,7 @@ var (
 
 type Node struct {
 	Id            string `json:"id" yaml:"id"`
+	DataCenter    string `json:"dataCenter" yaml:"dataCenter"`
 	Hostname      string `json:"hostname" yaml:"hostname"`
 	Role          string `json:"role" yaml:"role"`
 	Protocol      string `json:"protocol,omitempty" yaml:"protocol,omitempty" bson:"protocol,omitempty"`
@@ -43,7 +45,32 @@ type Node struct {
 	Memory        SpaceStatistic    `json:"memory" yaml:"memory" bson:"memory"`
 	Storage       SpaceStatistic    `json:"storage" yaml:"storage" bson:"storage"`
 	UptimeSeconds float64           `json:"uptimeSeconds" yaml:"uptimeSeconds" bson:"uptimeSeconds"`
+	Token         string            `json:"-" yaml:"-" bson:"-"`
 	Labels        map[string]string `json:"labels,omitempty" yaml:"labels,omitempty" bson:"labels,omitempty"`
+}
+
+func (n *Node) GetBearerToken() string {
+	return fmt.Sprintf("Bearer %s", n.Token)
+}
+
+func (n *Node) GetMetricUrl(metric, view string) string {
+	u := url.URL{
+		Scheme: n.Protocol,
+		Host:   n.Address,
+		Path: fmt.Sprintf(
+			"/api/v1/datacenters/%s/metrics/%s/%s/hosts/%s",
+			n.DataCenter,
+			metric,
+			view,
+			n.Hostname,
+		),
+	}
+
+	return u.String()
+}
+
+func IsCurrentHost(hostname string) bool {
+	return Hostname == hostname
 }
 
 func GenerateNodeHashByMacAddr() (string, error) {
@@ -111,5 +138,23 @@ func GetControllerNodes() ([]*Node, error) {
 	return nil, fmt.Errorf(
 		"failed to get control nodes(control or control-converged): %s",
 		err.Error(),
+	)
+}
+
+func GetNodeByHostname(hostname string) (*Node, error) {
+	nodes, err := ListNodes()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, node := range nodes {
+		if node.Hostname == hostname {
+			return node, nil
+		}
+	}
+
+	return nil, fmt.Errorf(
+		"failed to get node by hostname %s",
+		hostname,
 	)
 }

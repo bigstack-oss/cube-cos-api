@@ -15,12 +15,18 @@ var (
 			Version: api.V1,
 			Method:  http.MethodGet,
 			Path:    "/metrics",
-			Func:    getDataCenterMetricsSummary,
+			Func:    getDataCenterSummary,
 		},
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
 			Path:    "/metrics/:metricType/:viewType/:entityType",
+			Func:    getMetrics,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodGet,
+			Path:    "/metrics/:metricType/:viewType/:entityType/:entityId",
 			Func:    getMetrics,
 		},
 	}
@@ -30,7 +36,7 @@ func init() {
 	go streamSummary()
 }
 
-func getDataCenterMetricsSummary(c *gin.Context) {
+func getDataCenterSummary(c *gin.Context) {
 	watch, err := parseWatch(c)
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)

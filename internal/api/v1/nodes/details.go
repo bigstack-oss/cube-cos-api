@@ -32,9 +32,9 @@ func addNodeDetailsToNodes(c *gin.Context, nodes *[]*definition.Node) {
 
 func addMetricToNode(node *definition.Node, hypervisor *hypervisors.Hypervisor) {
 	node.Vcpu = definition.ComputeStatistic{
-		TotalCores:  hypervisor.VCPUs,
-		UsedCores:   hypervisor.VCPUsUsed,
-		FreeCores:   hypervisor.VCPUs - hypervisor.VCPUsUsed,
+		TotalCores:  float64(hypervisor.VCPUs),
+		UsedCores:   float64(hypervisor.VCPUsUsed),
+		FreeCores:   float64(hypervisor.VCPUs - hypervisor.VCPUsUsed),
 		UsedPercent: math.RoundDown(float64(hypervisor.VCPUsUsed)/float64(hypervisor.VCPUs)*100, 4),
 		FreePercent: math.RoundDown(float64(hypervisor.VCPUs-hypervisor.VCPUsUsed)/float64(hypervisor.VCPUs)*100, 4),
 	}

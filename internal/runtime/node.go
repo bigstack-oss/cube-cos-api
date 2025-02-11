@@ -82,12 +82,15 @@ func initNodePeerSyncer() {
 	service.RegisterOperator(node.Name(), &node.Operator{})
 }
 
-func genMetadata() map[string]string {
+func genNodeMetadata() map[string]string {
 	return map[string]string{
 		"role":         definition.CurrentRole,
 		"hostname":     definition.Hostname,
+		"dataCenter":   definition.DataCenterName,
 		"nodeID":       definition.HostID,
+		"protocol":     conf.Opts.Kind,
 		"isGpuEnabled": fmt.Sprintf("%t", definition.IsGpuEnabled),
+		"token":        definition.DefaultNodeToken,
 	}
 }
 

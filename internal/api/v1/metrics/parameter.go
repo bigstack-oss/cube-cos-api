@@ -13,7 +13,7 @@ import (
 
 func (h *helper) parseParams() error {
 	parsers := []func() error{
-		h.parseView, h.parseMetric, h.parseEntity,
+		h.parseView, h.parseMetric, h.parseEntity, h.parseEntityId,
 		h.parsePeriod, h.parseRank, h.parseLimit, h.parseWatch,
 	}
 
@@ -51,6 +51,22 @@ func (h *helper) parseEntity() error {
 	h.entityType = h.c.Param("entityType")
 	if !cubecos.IsEntityTypeValid(h.entityType) {
 		return errors.New("entityType should be hosts or vms")
+	}
+
+	return nil
+}
+
+func (h *helper) parseEntityId() error {
+	h.entityId = h.c.Param("entityId")
+	if h.entityId == "" {
+		return nil
+	}
+
+	switch h.entityType {
+	case "hosts":
+		h.entityType = "host"
+	case "vms":
+		h.entityType = "vm"
 	}
 
 	return nil

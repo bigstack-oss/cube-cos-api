@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"crypto/sha512"
+	"encoding/hex"
 	"fmt"
 
 	"github.com/Nerzal/gocloak/v13"
@@ -24,7 +26,8 @@ var (
 	DefaultOidcClientOpts   = gocloak.Client{
 		ClientID:                  gocloak.StringP(DefaultOidcClientId),
 		Protocol:                  gocloak.StringP("openid-connect"),
-		PublicClient:              gocloak.BoolP(true),
+		PublicClient:              gocloak.BoolP(false),
+		ClientAuthenticatorType:   gocloak.StringP("client-secret"),
 		StandardFlowEnabled:       gocloak.BoolP(true),
 		DirectAccessGrantsEnabled: gocloak.BoolP(true),
 		Attributes: &map[string]string{
@@ -32,5 +35,11 @@ var (
 		},
 	}
 
+	DefaultNodeToken  = ""
 	LogoutRedirectUrl = ""
 )
+
+func GenNodeToken(hostname, advertiseAddr string) string {
+	hash := sha512.Sum512([]byte(hostname + advertiseAddr + DefaultOidcClientSecret))
+	return hex.EncodeToString(hash[:])
+}
