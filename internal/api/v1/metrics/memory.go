@@ -24,8 +24,12 @@ func (h *helper) getMemoryUsageMetrics() (interface{}, error) {
 
 func (h *helper) getMemoryUsageSummary() (interface{}, error) {
 	switch h.entityType {
+	case "host":
+		return cubecos.GetMemoryUsageSummaryOfHost(h.entityId)
 	case "hosts":
 		return cubecos.GetMemoryUsageSummaryOfHosts()
+	case "vm":
+		return nil, fmt.Errorf("vm is not supported yet for memory summary")
 	case "vms":
 		return nil, fmt.Errorf("vms is not supported yet for memory summary")
 	}

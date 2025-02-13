@@ -11,7 +11,7 @@ func (h *helper) getCpuUsageMetrics() (interface{}, error) {
 	case "summary":
 		return h.getCpuUsageSummary()
 	case "history":
-		return nil, fmt.Errorf("history is not supported yet for cpu metrics")
+		return h.getCpuHistory()
 	case "rank":
 		return h.getCpuUsageRank()
 	}
@@ -24,8 +24,12 @@ func (h *helper) getCpuUsageMetrics() (interface{}, error) {
 
 func (h *helper) getCpuUsageSummary() (interface{}, error) {
 	switch h.entityType {
+	case "host":
+		return cubecos.GetCpuSummaryOfHost(h.entityId)
 	case "hosts":
 		return cubecos.GetCpuSummaryOfHosts()
+	case "vm":
+		return nil, fmt.Errorf("vm is not supported yet for cpu summary")
 	case "vms":
 		return nil, fmt.Errorf("vms is not supported yet for cpu summary")
 	}
@@ -35,6 +39,21 @@ func (h *helper) getCpuUsageSummary() (interface{}, error) {
 		h.entityType,
 	)
 }
+
+func (h *helper) getCpuHistory() (interface{}, error) {
+	switch h.entityType {
+	case "host":
+		return cubecos.GetCpuHistoryOfHost(h.entityId, h.Period)
+	case "vm":
+		return nil, fmt.Errorf("vm is not supported yet for cpu history")
+	}
+
+	return nil, fmt.Errorf(
+		"invalid entity type(%s) to get cpu history",
+		h.entityType,
+	)
+}
+
 func (h *helper) getCpuUsageRank() (interface{}, error) {
 	switch h.entityType {
 	case "hosts":

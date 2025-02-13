@@ -20,7 +20,7 @@ func GetVmStatus() (*VmStatus, error) {
 	return genVmStatusOverview(servers), nil
 }
 
-func GetVmUsage() (*definition.Usage, error) {
+func GetVmUsage() (*definition.VmUsage, error) {
 	h := openstack.GetGlobalHelper()
 	stats, err := h.GetHypervisorStatistics()
 	if err != nil {
@@ -53,12 +53,12 @@ func genVmStatusOverview(servers []servers.Server) *VmStatus {
 	return vm
 }
 
-func genHypervisorUsage(stats *hypervisors.Statistics) *definition.Usage {
-	return &definition.Usage{
+func genHypervisorUsage(stats *hypervisors.Statistics) *definition.VmUsage {
+	return &definition.VmUsage{
 		Vcpu: definition.ComputeStatistic{
-			TotalCores:  stats.VCPUs,
-			UsedCores:   stats.VCPUsUsed,
-			FreeCores:   stats.VCPUs - stats.VCPUsUsed,
+			TotalCores:  float64(stats.VCPUs),
+			UsedCores:   float64(stats.VCPUsUsed),
+			FreeCores:   float64(stats.VCPUs - stats.VCPUsUsed),
 			UsedPercent: math.RoundDown(float64(stats.VCPUsUsed)/float64(stats.VCPUs), 4),
 			FreePercent: math.RoundDown(float64(stats.VCPUs-stats.VCPUsUsed)/float64(stats.VCPUs), 4),
 		},

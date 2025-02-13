@@ -2,7 +2,8 @@ package api
 
 import "github.com/swaggo/swag"
 
-const docTemplate = `{
+const docTemplate = `
+{
     "openapi": "3.0.0",
     "info": {
         "description": "",
@@ -1466,6 +1467,123 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/GetMetricsResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Overview of data center metrics",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "dataCenter": {
+                                                    "usage": {
+                                                        "cpu": {
+                                                            "totalCores": 96,
+                                                            "usedCores": 8.7942,
+                                                            "usedPercent": 9.17,
+                                                            "freeCores": 87.2057,
+                                                            "freePercent": 90.83
+                                                        },
+                                                        "memory": {
+                                                            "totalMiB": 515645.789,
+                                                            "usedMiB": 291691.289,
+                                                            "usedPercent": 56.5681,
+                                                            "freeMiB": 223954.5,
+                                                            "freePercent": 43.4318
+                                                        }
+                                                    }
+                                                },
+                                                "host": {
+                                                    "role": {
+                                                        "controlConverged": 2,
+                                                        "control": 0,
+                                                        "compute": 0,
+                                                        "storage": 0,
+                                                        "others": 0
+                                                    },
+                                                    "usages": [
+                                                        {
+                                                            "role": "control-converged",
+                                                            "name": "example-node-0",
+                                                            "address": "10.10.10.10",
+                                                            "usage": {
+                                                                "cpu": {
+                                                                    "totalCores": 48,
+                                                                    "usedCores": 4.3971,
+                                                                    "usedPercent": 4.335,
+                                                                    "freeCores": 43.6028,
+                                                                    "freePercent": 95.6649
+                                                                },
+                                                                "memory": {
+                                                                    "totalMiB": 257822.8945,
+                                                                    "usedMiB": 145845.6445,
+                                                                    "usedPercent": 56.5681,
+                                                                    "freeMiB": 111977.25,
+                                                                    "freePercent": 43.4318
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "role": "control-converged",
+                                                            "name": "example-node-1",
+                                                            "address": "10.10.10.11",
+                                                            "usage": {
+                                                                "cpu": {
+                                                                    "totalCores": 48,
+                                                                    "usedCores": 4.3971,
+                                                                    "usedPercent": 4.335,
+                                                                    "freeCores": 43.6028,
+                                                                    "freePercent": 95.6649
+                                                                },
+                                                                "memory": {
+                                                                    "totalMiB": 257822.8945,
+                                                                    "usedMiB": 145845.6445,
+                                                                    "usedPercent": 56.5681,
+                                                                    "freeMiB": 111977.25,
+                                                                    "freePercent": 43.4318
+                                                                }
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                "vm": {
+                                                    "status": {
+                                                        "total": 16,
+                                                        "running": 14,
+                                                        "stopped": 2,
+                                                        "suspend": 0,
+                                                        "paused": 0,
+                                                        "error": 0,
+                                                        "unknown": 0
+                                                    },
+                                                    "usage": {
+                                                        "vcpu": {
+                                                            "totalCores": 48,
+                                                            "usedCores": 38,
+                                                            "usedPercent": 0.7916,
+                                                            "freeCores": 10,
+                                                            "freePercent": 0.2083
+                                                        },
+                                                        "memory": {
+                                                            "totalMiB": 257822,
+                                                            "usedMiB": 96424,
+                                                            "usedPercent": 0.3739,
+                                                            "freeMiB": 161398,
+                                                            "freePercent": 0.626
+                                                        },
+                                                        "storage": {
+                                                            "totalMiB": 12571648,
+                                                            "usedMiB": 716800,
+                                                            "usedPercent": 0.057,
+                                                            "freeMiB": 11854848,
+                                                            "freePercent": 0.9429
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "msg": "fetch metrics successfully",
+                                            "status": "ok"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1787,11 +1905,11 @@ const docTemplate = `{
                                         "value": {
                                             "code": 200,
                                             "data": {
-                                                "totalCores": 0,
-                                                "usedCores": 0,
-                                                "usedPercent": 9.6774,
-                                                "freeCores": 0,
-                                                "freePercent": 90.3225
+                                                "totalCores": 48,
+                                                "usedCores": 4.7778,
+                                                "usedPercent": 6.6988,
+                                                "freeCores": 43.2221,
+                                                "freePercent": 93.3011
                                             },
                                             "msg": "fetch metrics successfully",
                                             "status": "ok"
@@ -1805,14 +1923,48 @@ const docTemplate = `{
                                                 {
                                                     "id": "example-node-0",
                                                     "name": "example-node-0",
-                                                    "usedPercent": 9.8248,
-                                                    "freePercent": 90.1752
+                                                    "freePercent": 12.1752,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:19:00Z",
+                                                            "usedPercent": 10.3202
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:20:00Z",
+                                                            "usedPercent": 10.1465
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:21:00Z",
+                                                            "usedPercent": 14.5854
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:22:00Z",
+                                                            "usedPercent": 11.9773
+                                                        }
+                                                    ]
                                                 },
                                                 {
                                                     "id": "example-node-1",
                                                     "name": "example-node-1",
                                                     "usedPercent": 8.8248,
-                                                    "freePercent": 91.1752
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:19:00Z",
+                                                            "usedPercent": 9.3202
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:20:00Z",
+                                                            "usedPercent": 9.1465
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:21:00Z",
+                                                            "usedPercent": 7.5854
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:22:00Z",
+                                                            "usedPercent": 6.9773
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             "msg": "fetch metrics successfully",
@@ -1842,14 +1994,48 @@ const docTemplate = `{
                                                 {
                                                     "id": "example-node-0",
                                                     "name": "example-node-0",
-                                                    "usedPercent": 38.1752,
-                                                    "freePercent": 61.8248
+                                                    "usedPercent": 56.4807,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:23:00Z",
+                                                            "usedPercent": 56.4997
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:24:00Z",
+                                                            "usedPercent": 56.4998
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:25:00Z",
+                                                            "usedPercent": 56.4963
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:26:00Z",
+                                                            "usedPercent": 56.4758
+                                                        }
+                                                    ]
                                                 },
                                                 {
                                                     "id": "example-node-1",
                                                     "name": "example-node-1",
                                                     "usedPercent": 37.1752,
-                                                    "freePercent": 62.8248
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:23:00Z",
+                                                            "usedPercent": 36.4997
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:24:00Z",
+                                                            "usedPercent": 36.4998
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:25:00Z",
+                                                            "usedPercent": 36.4963
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:26:00Z",
+                                                            "usedPercent": 36.4758
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             "msg": "fetch metrics successfully",
@@ -1864,14 +2050,48 @@ const docTemplate = `{
                                                 {
                                                     "id": "example-node-0",
                                                     "name": "example-node-0",
-                                                    "usedPercent": 38.1752,
-                                                    "freePercent": 61.8248
+                                                    "usedPercent": 25.3645,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:26:00Z",
+                                                            "usedPercent": 25.7166
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:27:00Z",
+                                                            "usedPercent": 25.7188
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:28:00Z",
+                                                            "usedPercent": 25.7209
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:29:00Z",
+                                                            "usedPercent": 25.7243
+                                                        }
+                                                    ]
                                                 },
                                                 {
                                                     "id": "example-node-1",
                                                     "name": "example-node-1",
-                                                    "usedPercent": 37.1752,
-                                                    "freePercent": 62.8248
+                                                    "usedPercent": 15.3645,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:26:00Z",
+                                                            "usedPercent": 15.7166
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:27:00Z",
+                                                            "usedPercent": 15.7188
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:28:00Z",
+                                                            "usedPercent": 15.7209
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:29:00Z",
+                                                            "usedPercent": 15.7243
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             "msg": "fetch metrics successfully",
@@ -1994,45 +2214,45 @@ const docTemplate = `{
                                                 "read": [
                                                     {
                                                         "time": "2025-02-08T22:58:00Z",
-                                                        "ms": 4999.5
+                                                        "millisecond": 4999.5
                                                     },
                                                     {
                                                         "time": "2025-02-08T22:59:00Z",
-                                                        "ms": 21365.5666
+                                                        "millisecond": 21365.5666
                                                     },
                                                     {
                                                         "time": "2025-02-08T23:00:00Z",
-                                                        "ms": 39951.6333
+                                                        "millisecond": 39951.6333
                                                     },
                                                     {
                                                         "time": "2025-02-08T23:01:00Z",
-                                                        "ms": 6255.1333
+                                                        "millisecond": 6255.1333
                                                     },
                                                     {
                                                         "time": "2025-02-08T23:02:00Z",
-                                                        "ms": 5838730.85
+                                                        "millisecond": 5838730.85
                                                     }
                                                 ],
                                                 "write": [
                                                     {
                                                         "time": "2025-02-08T22:58:00Z",
-                                                        "ms": 12624417.95
+                                                        "millisecond": 12624417.95
                                                     },
                                                     {
                                                         "time": "2025-02-08T22:59:00Z",
-                                                        "ms": 29347351.6333
+                                                        "millisecond": 29347351.6333
                                                     },
                                                     {
                                                         "time": "2025-02-08T23:00:00Z",
-                                                        "ms": 5219905.3
+                                                        "millisecond": 5219905.3
                                                     },
                                                     {
                                                         "time": "2025-02-08T23:01:00Z",
-                                                        "ms": 9249751.6666
+                                                        "millisecond": 9249751.6666
                                                     },
                                                     {
                                                         "time": "2025-02-08T23:02:00Z",
-                                                        "ms": 10661656.35
+                                                        "millisecond": 10661656.35
                                                     }
                                                 ]
                                             },
@@ -2048,12 +2268,48 @@ const docTemplate = `{
                                                 {
                                                     "id": "example-node-0",
                                                     "name": "example-node-0",
-                                                    "packets": 20739.3592
+                                                    "packets": 7466.5592,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:32:00Z",
+                                                            "packets": 50064.9333
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:33:00Z",
+                                                            "packets": 7141170.1333
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:34:00Z",
+                                                            "packets": 39644.1333
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:35:00Z",
+                                                            "packets": 45140
+                                                        }
+                                                    ]
                                                 },
                                                 {
                                                     "id": "example-node-1",
                                                     "name": "example-node-1",
-                                                    "packets": 1739.3592
+                                                    "packets": 1126.5592,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:32:00Z",
+                                                            "packets": 1467.9333
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:33:00Z",
+                                                            "packets": 1321.1333
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:34:00Z",
+                                                            "packets": 1211.1333
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:35:00Z",
+                                                            "packets": 1131.5145
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             "msg": "fetch metrics successfully",
@@ -2068,12 +2324,48 @@ const docTemplate = `{
                                                 {
                                                     "id": "example-node-0",
                                                     "name": "example-node-0",
-                                                    "packets": 20739.3592
+                                                    "packets": 3595.9166,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:35:00Z",
+                                                            "packets": 13138
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:36:00Z",
+                                                            "packets": 41106.6666
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:37:00Z",
+                                                            "packets": 149872.1333
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:38:00Z",
+                                                            "packets": 12152.6666
+                                                        }
+                                                    ]
                                                 },
                                                 {
                                                     "id": "example-node-1",
                                                     "name": "example-node-1",
-                                                    "packets": 1739.3592
+                                                    "packets": 1595.9166,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:35:00Z",
+                                                            "packets": 3138
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:36:00Z",
+                                                            "packets": 11106.6666
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:37:00Z",
+                                                            "packets": 149872.1333
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:38:00Z",
+                                                            "packets": 12152.6666
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             "msg": "fetch metrics successfully",
@@ -2088,14 +2380,48 @@ const docTemplate = `{
                                                 {
                                                     "id": "example-vm-0",
                                                     "name": "example-vm-0",
-                                                    "usedPercent": 9.8248,
-                                                    "freePercent": 90.1752
+                                                    "usedPercent": 22,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:34:52Z",
+                                                            "usedPercent": 21
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:35:22Z",
+                                                            "usedPercent": 23
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:35:52Z",
+                                                            "usedPercent": 20
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:36:22Z",
+                                                            "usedPercent": 22
+                                                        }
+                                                    ]
                                                 },
                                                 {
                                                     "id": "example-vm-1",
                                                     "name": "example-vm-1",
-                                                    "usedPercent": 8.8248,
-                                                    "freePercent": 91.1752
+                                                    "usedPercent": 16,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:34:52Z",
+                                                            "usedPercent": 20
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:35:22Z",
+                                                            "usedPercent": 18
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:35:52Z",
+                                                            "usedPercent": 20
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:36:23Z",
+                                                            "usedPercent": 18
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             "msg": "fetch metrics successfully",
@@ -2125,14 +2451,48 @@ const docTemplate = `{
                                                 {
                                                     "id": "example-vm-0",
                                                     "name": "example-vm-0",
-                                                    "usedPercent": 38.1752,
-                                                    "freePercent": 61.8248
+                                                    "usedPercent": 60.6915,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:35:52Z",
+                                                            "usedPercent": 61.6362
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:36:23Z",
+                                                            "usedPercent": 61.4931
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:36:53Z",
+                                                            "usedPercent": 60.9485
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:37:23Z",
+                                                            "usedPercent": 60.3947
+                                                        }
+                                                    ]
                                                 },
                                                 {
                                                     "id": "example-vm-1",
                                                     "name": "example-vm-1",
-                                                    "usedPercent": 37.1752,
-                                                    "freePercent": 62.8248
+                                                    "usedPercent": 36.6008,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:35:53Z",
+                                                            "usedPercent": 36.6073
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:36:23Z",
+                                                            "usedPercent": 36.6105
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:36:53Z",
+                                                            "usedPercent": 36.6105
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:37:23Z",
+                                                            "usedPercent": 36.6101
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             "msg": "fetch metrics successfully",
@@ -2148,17 +2508,41 @@ const docTemplate = `{
                                                     "id": "9d56d601-85f0-4bfe-992d-ba72ab174552",
                                                     "name": "example-vm-0",
                                                     "device": "sda",
-                                                    "usage": 300.45,
-                                                    "usedPercent": 0,
-                                                    "freePercent": 0
+                                                    "ops": 1640.3,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:38:53+08:00",
+                                                            "ops": 1345.3
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:39:23+08:00",
+                                                            "ops": 1123.3
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:39:53+08:00",
+                                                            "ops": 1345.3
+                                                        }
+                                                    ]
                                                 },
                                                 {
                                                     "id": "301c55e3-5133-4c2c-9dda-4c31c382918d",
                                                     "name": "example-vm-1",
                                                     "device": "sdc",
-                                                    "usage": 245.43,
-                                                    "usedPercent": 0,
-                                                    "freePercent": 0
+                                                    "ops": 235.35,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:38:53+08:00",
+                                                            "ops": 124.3
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:39:23+08:00",
+                                                            "ops": 214.3
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:39:53+08:00",
+                                                            "ops": 324.3
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             "msg": "fetch metrics successfully",
@@ -2174,17 +2558,41 @@ const docTemplate = `{
                                                     "id": "9d56d601-85f0-4bfe-992d-ba72ab174552",
                                                     "name": "example-vm-0",
                                                     "device": "sda",
-                                                    "usage": 157060.8919,
-                                                    "usedPercent": 0,
-                                                    "freePercent": 0
+                                                    "ops": 184158.3022,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:43:53+08:00",
+                                                            "ops": 182514.0885
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:44:23+08:00",
+                                                            "ops": 165440.9962
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:44:53+08:00",
+                                                            "ops": 784010.6095
+                                                        }
+                                                    ]
                                                 },
                                                 {
                                                     "id": "301c55e3-5133-4c2c-9dda-4c31c382918d",
                                                     "name": "example-vm-1",
                                                     "device": "sdc",
-                                                    "usage": 65907.0124,
-                                                    "usedPercent": 0,
-                                                    "freePercent": 0
+                                                    "ops": 39589.3872,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:43:53+08:00",
+                                                            "ops": 46107.319
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:44:23+08:00",
+                                                            "ops": 45280.7243
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:44:53+08:00",
+                                                            "ops": 42949.9957
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             "msg": "fetch metrics successfully",
@@ -2199,16 +2607,50 @@ const docTemplate = `{
                                                 {
                                                     "id": "9d56d601-85f0-4bfe-992d-ba72ab174552",
                                                     "name": "example-vm-0",
-                                                    "usage": 20739.3592,
-                                                    "usedPercent": 0,
-                                                    "freePercent": 0
+                                                    "device": "tap8c5cff7e-b9",
+                                                    "packets": 49756.9502,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:45:53Z",
+                                                            "packets": 370067.1842
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:46:23Z",
+                                                            "packets": 409181.4363
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:46:53Z",
+                                                            "packets": 711269.641
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:47:23Z",
+                                                            "packets": 398196.6271
+                                                        }
+                                                    ]
                                                 },
                                                 {
                                                     "id": "301c55e3-5133-4c2c-9dda-4c31c382918d",
                                                     "name": "example-vm-1",
-                                                    "usage": 1739.3592,
-                                                    "usedPercent": 0,
-                                                    "freePercent": 0
+                                                    "device": "tapdf5be3d9-c6",
+                                                    "packets": 25784.0787,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:45:53Z",
+                                                            "packets": 184756.5743
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:46:23Z",
+                                                            "packets": 207790.9312
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:46:53Z",
+                                                            "packets": 270692.8834
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:47:23Z",
+                                                            "packets": 200824.0072
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             "msg": "fetch metrics successfully",
@@ -2223,16 +2665,50 @@ const docTemplate = `{
                                                 {
                                                     "id": "9d56d601-85f0-4bfe-992d-ba72ab174552",
                                                     "name": "example-vm-0",
-                                                    "usage": 20739.3592,
-                                                    "usedPercent": 0,
-                                                    "freePercent": 0
+                                                    "device": "tap8c5cff7e-b9",
+                                                    "packets": 54213.0697,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:46:53Z",
+                                                            "packets": 1027891.3544
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:47:23Z",
+                                                            "packets": 462342.2831
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:47:53Z",
+                                                            "packets": 435980.7214
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:48:23Z",
+                                                            "packets": 447617.6397
+                                                        }
+                                                    ]
                                                 },
                                                 {
                                                     "id": "301c55e3-5133-4c2c-9dda-4c31c382918d",
                                                     "name": "example-vm-1",
-                                                    "usage": 1739.3592,
-                                                    "usedPercent": 0,
-                                                    "freePercent": 0
+                                                    "device": "tapdf5be3d9-c6",
+                                                    "packets": 13561.1536,
+                                                    "history": [
+                                                        {
+                                                            "time": "2025-02-14T00:46:53Z",
+                                                            "packets": 128726.0911
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:47:23Z",
+                                                            "packets": 109373.8789
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:47:53Z",
+                                                            "packets": 109977.441
+                                                        },
+                                                        {
+                                                            "time": "2025-02-14T00:48:23Z",
+                                                            "packets": 111826.9696
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             "msg": "fetch metrics successfully",
@@ -3435,59 +3911,25 @@ const docTemplate = `{
                     "data": {
                         "type": "object",
                         "required": [
+                            "dataCenter",
                             "host",
                             "vm"
                         ],
                         "properties": {
-                            "host": {
+                            "dataCenter": {
                                 "type": "object",
                                 "required": [
-                                    "role",
-                                    "status",
                                     "usage"
                                 ],
                                 "properties": {
-                                    "role": {
-                                        "type": "object",
-                                        "required": [
-                                            "controlConverged",
-                                            "control",
-                                            "compute",
-                                            "storage",
-                                            "others"
-                                        ],
-                                        "properties": {
-                                            "controlConverged": {
-                                                "type": "integer",
-                                                "example": 10
-                                            },
-                                            "control": {
-                                                "type": "integer",
-                                                "example": 3
-                                            },
-                                            "compute": {
-                                                "type": "integer",
-                                                "example": 5
-                                            },
-                                            "storage": {
-                                                "type": "integer",
-                                                "example": 2
-                                            },
-                                            "others": {
-                                                "type": "integer",
-                                                "example": 0
-                                            }
-                                        }
-                                    },
                                     "usage": {
                                         "type": "object",
                                         "required": [
-                                            "vcpu",
-                                            "memory",
-                                            "storage"
+                                            "cpu",
+                                            "memory"
                                         ],
                                         "properties": {
-                                            "vcpu": {
+                                            "cpu": {
                                                 "type": "object",
                                                 "required": [
                                                     "totalCores",
@@ -3550,36 +3992,131 @@ const docTemplate = `{
                                                         "example": 61.8
                                                     }
                                                 }
+                                            }
+                                        }
+                                    }
+                                }                                
+                            },
+                            "host": {
+                                "type": "object",
+                                "required": [
+                                    "role",
+                                    "usages"
+                                ],
+                                "properties": {
+                                    "role": {
+                                        "type": "object",
+                                        "required": [
+                                            "controlConverged",
+                                            "control",
+                                            "compute",
+                                            "storage",
+                                            "others"
+                                        ],
+                                        "properties": {
+                                            "controlConverged": {
+                                                "type": "integer",
+                                                "example": 10
+                                            },
+                                            "control": {
+                                                "type": "integer",
+                                                "example": 3
+                                            },
+                                            "compute": {
+                                                "type": "integer",
+                                                "example": 5
                                             },
                                             "storage": {
-                                                "type": "object",
-                                                "required": [
-                                                    "totalMiB",
-                                                    "usedMiB",
-                                                    "usedPercent",
-                                                    "freeMiB",
-                                                    "freePercent"
-                                                ],
-                                                "properties": {
-                                                    "totalMiB": {
-                                                        "type": "integer",
-                                                        "example": 102400
-                                                    },
-                                                    "usedMiB": {
-                                                        "type": "integer",
-                                                        "example": 51200
-                                                    },
-                                                    "usedPercent": {
-                                                        "type": "number",
-                                                        "example": 50.12
-                                                    },
-                                                    "freeMiB": {
-                                                        "type": "integer",
-                                                        "example": 51200
-                                                    },
-                                                    "freePercent": {
-                                                        "type": "number",
-                                                        "example": 50.12
+                                                "type": "integer",
+                                                "example": 2
+                                            },
+                                            "others": {
+                                                "type": "integer",
+                                                "example": 0
+                                            }
+                                        }
+                                    },
+                                    "usages": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "role",
+                                                "name",
+                                                "address",
+                                                "usage"
+                                            ],
+                                            "properties": {
+                                                "role": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "address": {
+                                                    "type": "string"
+                                                },
+                                                "usage": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "cpu",
+                                                        "memory"
+                                                    ],
+                                                    "properties": {
+                                                        "cpu": {
+                                                            "type": "object",
+                                                            "required": [
+                                                                "totalCores",
+                                                                "usedCores",
+                                                                "usedPercent",
+                                                                "freeCores",
+                                                                "freePercent"
+                                                            ],
+                                                            "properties": {
+                                                                "totalCores": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "usedCores": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "usedPercent": {
+                                                                    "type": "number"
+                                                                },
+                                                                "freeCores": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "freePercent": {
+                                                                    "type": "number"
+                                                                }
+                                                            }
+                                                        },
+                                                        "memory": {
+                                                            "type": "object",
+                                                            "required": [
+                                                                "totalMiB",
+                                                                "usedMiB",
+                                                                "usedPercent",
+                                                                "freeMiB",
+                                                                "freePercent"
+                                                            ],
+                                                            "properties": {
+                                                                "totalMiB": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "usedMiB": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "usedPercent": {
+                                                                    "type": "number"
+                                                                },
+                                                                "freeMiB": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "freePercent": {
+                                                                    "type": "number"
+                                                                }
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
@@ -3825,7 +4362,7 @@ const docTemplate = `{
                                 "id",
                                 "name",
                                 "usedPercent",
-                                "freePercent"
+                                "history"
                             ],
                             "properties": {
                                 "id": {
@@ -3837,8 +4374,24 @@ const docTemplate = `{
                                 "usedPercent": {
                                     "type": "number"
                                 },
-                                "freePercent": {
-                                    "type": "number"
+                                "history": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "time",
+                                            "usedPercent"
+                                        ],
+                                        "properties": {
+                                            "time": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "usedPercent": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -3922,7 +4475,7 @@ const docTemplate = `{
                                 "id",
                                 "name",
                                 "usedPercent",
-                                "freePercent"
+                                "history"
                             ],
                             "properties": {
                                 "id": {
@@ -3934,8 +4487,24 @@ const docTemplate = `{
                                 "usedPercent": {
                                     "type": "number"
                                 },
-                                "freePercent": {
-                                    "type": "number"
+                                "history": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "time",
+                                            "usedPercent"
+                                        ],
+                                        "properties": {
+                                            "time": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "usedPercent": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -3970,7 +4539,7 @@ const docTemplate = `{
                                 "id",
                                 "name",
                                 "usedPercent",
-                                "freePercent"
+                                "history"
                             ],
                             "properties": {
                                 "id": {
@@ -3982,8 +4551,24 @@ const docTemplate = `{
                                 "usedPercent": {
                                     "type": "number"
                                 },
-                                "freePercent": {
-                                    "type": "number"
+                                "history": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "time",
+                                            "usedPercent"
+                                        ],
+                                        "properties": {
+                                            "time": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "usedPercent": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -4157,14 +4742,14 @@ const docTemplate = `{
                                     "type": "object",
                                     "required": [
                                         "time",
-                                        "ms"
+                                        "millisecond"
                                     ],
                                     "properties": {
                                         "time": {
                                             "type": "string",
                                             "format": "date-time"
                                         },
-                                        "ms": {
+                                        "millisecond": {
                                             "type": "number"
                                         }
                                     }
@@ -4176,14 +4761,14 @@ const docTemplate = `{
                                     "type": "object",
                                     "required": [
                                         "time",
-                                        "ms"
+                                        "millisecond"
                                     ],
                                     "properties": {
                                         "time": {
                                             "type": "string",
                                             "format": "date-time"
                                         },
-                                        "ms": {
+                                        "millisecond": {
                                             "type": "number"
                                         }
                                     }
@@ -4218,7 +4803,8 @@ const docTemplate = `{
                             "required": [
                                 "id",
                                 "name",
-                                "packets"
+                                "packets",
+                                "history"
                             ],
                             "properties": {
                                 "id": {
@@ -4229,6 +4815,25 @@ const docTemplate = `{
                                 },
                                 "packets": {
                                     "type": "number"
+                                },
+                                "history": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "time",
+                                            "packets"
+                                        ],
+                                        "properties": {
+                                            "time": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "packets": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -4262,7 +4867,8 @@ const docTemplate = `{
                             "required": [
                                 "id",
                                 "name",
-                                "packets"
+                                "packets",
+                                "history"
                             ],
                             "properties": {
                                 "id": {
@@ -4273,6 +4879,25 @@ const docTemplate = `{
                                 },
                                 "packets": {
                                     "type": "number"
+                                },
+                                "history": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "time",
+                                            "packets"
+                                        ],
+                                        "properties": {
+                                            "time": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "packets": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -4307,7 +4932,7 @@ const docTemplate = `{
                                 "id",
                                 "name",
                                 "usedPercent",
-                                "freePercent"
+                                "history"
                             ],
                             "properties": {
                                 "id": {
@@ -4319,8 +4944,24 @@ const docTemplate = `{
                                 "usedPercent": {
                                     "type": "number"
                                 },
-                                "freePercent": {
-                                    "type": "number"
+                                "history": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "time",
+                                            "usedPercent"
+                                        ],
+                                        "properties": {
+                                            "time": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "usedPercent": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -4404,7 +5045,7 @@ const docTemplate = `{
                                 "id",
                                 "name",
                                 "usedPercent",
-                                "freePercent"
+                                "history"
                             ],
                             "properties": {
                                 "id": {
@@ -4416,8 +5057,24 @@ const docTemplate = `{
                                 "usedPercent": {
                                     "type": "number"
                                 },
-                                "freePercent": {
-                                    "type": "number"
+                                "history": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "time",
+                                            "usedPercent"
+                                        ],
+                                        "properties": {
+                                            "time": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "usedPercent": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -4452,9 +5109,8 @@ const docTemplate = `{
                                 "id",
                                 "name",
                                 "device",
-                                "usage",
-                                "usedPercent",
-                                "freePercent"
+                                "ops",
+                                "history"
                             ],
                             "properties": {
                                 "id": {
@@ -4466,14 +5122,27 @@ const docTemplate = `{
                                 "device": {
                                     "type": "string"
                                 },
-                                "usage": {
+                                "ops": {
                                     "type": "number"
                                 },
-                                "usedPercent": {
-                                    "type": "number"
-                                },
-                                "freePercent": {
-                                    "type": "number"
+                                "history": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "time",
+                                            "ops"
+                                        ],
+                                        "properties": {
+                                            "time": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "ops": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -4508,9 +5177,8 @@ const docTemplate = `{
                                 "id",
                                 "name",
                                 "device",
-                                "usage",
-                                "usedPercent",
-                                "freePercent"
+                                "ops",
+                                "history"
                             ],
                             "properties": {
                                 "id": {
@@ -4522,14 +5190,27 @@ const docTemplate = `{
                                 "device": {
                                     "type": "string"
                                 },
-                                "usage": {
+                                "ops": {
                                     "type": "number"
                                 },
-                                "usedPercent": {
-                                    "type": "number"
-                                },
-                                "freePercent": {
-                                    "type": "number"
+                                "history": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "time",
+                                            "ops"
+                                        ],
+                                        "properties": {
+                                            "time": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "ops": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -4563,9 +5244,9 @@ const docTemplate = `{
                             "required": [
                                 "id",
                                 "name",
-                                "usage",
-                                "usedPercent",
-                                "freePercent"
+                                "device",
+                                "packets",
+                                "history"
                             ],
                             "properties": {
                                 "id": {
@@ -4574,14 +5255,30 @@ const docTemplate = `{
                                 "name": {
                                     "type": "string"
                                 },
-                                "usage": {
+                                "device": {
+                                    "type": "string"
+                                },
+                                "packets": {
                                     "type": "number"
                                 },
-                                "usedPercent": {
-                                    "type": "number"
-                                },
-                                "freePercent": {
-                                    "type": "number"
+                                "history": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "time",
+                                            "packets"
+                                        ],
+                                        "properties": {
+                                            "time": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "packets": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -4615,9 +5312,9 @@ const docTemplate = `{
                             "required": [
                                 "id",
                                 "name",
-                                "usage",
-                                "usedPercent",
-                                "freePercent"
+                                "device",
+                                "packets",
+                                "history"
                             ],
                             "properties": {
                                 "id": {
@@ -4626,14 +5323,30 @@ const docTemplate = `{
                                 "name": {
                                     "type": "string"
                                 },
-                                "usage": {
+                                "device": {
+                                    "type": "string"
+                                },
+                                "packets": {
                                     "type": "number"
                                 },
-                                "usedPercent": {
-                                    "type": "number"
-                                },
-                                "freePercent": {
-                                    "type": "number"
+                                "history": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "time",
+                                            "packets"
+                                        ],
+                                        "properties": {
+                                            "time": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "packets": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

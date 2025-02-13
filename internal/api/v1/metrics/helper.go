@@ -13,6 +13,7 @@ type helper struct {
 	metricType string
 	viewType   string
 	entityType string
+	entityId   string
 
 	definition.Period
 	limit int

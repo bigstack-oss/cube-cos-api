@@ -66,6 +66,18 @@ func initDependencies() error {
 		return err
 	}
 
+	err = newDefaultOidcSecret()
+	if err != nil {
+		log.Errorf("failed to init oidc secret in keycloak: %s", err.Error())
+		return err
+	}
+
+	err = newDefaultNodeToken()
+	if err != nil {
+		log.Errorf("failed to init node token in keycloak: %s", err.Error())
+		return err
+	}
+
 	err = newKeycloakSamlMapper()
 	if err != nil {
 		log.Errorf("failed to init saml mapper in keycloak: %s", err.Error())
@@ -152,6 +164,51 @@ func newKeycloakOidcAuth() error {
 	}
 
 	return err
+}
+
+func newDefaultOidcSecret() error {
+	h := keycloak.GetGlobalHelper()
+	err := h.LoginAdmin()
+	if err != nil {
+		log.Errorf("failed to login admin: %s", err.Error())
+		return err
+	}
+
+	clients, err := h.GetClients(
+		definition.DefaultKeycloakRealm,
+		gocloak.GetClientsParams{ClientID: gocloak.StringP(definition.DefaultOidcClientId)},
+	)
+	if err != nil {
+		log.Errorf("failed to get clients: %s", err.Error())
+		return err
+	}
+	if len(clients) == 0 {
+		return fmt.Errorf("oidc client not found")
+	}
+
+	secret, err := h.GetClientSecret(
+		definition.DefaultKeycloakRealm,
+		*clients[0].ID,
+	)
+	if err != nil {
+		log.Errorf("failed to get client secret: %s", err.Error())
+		return err
+	}
+
+	definition.DefaultOidcClientSecret = *secret.Value
+	return nil
+}
+
+func newDefaultNodeToken() error {
+	definition.DefaultNodeToken = definition.GenNodeToken(
+		definition.Hostname,
+		definition.AdvertiseAddr,
+	)
+	if definition.DefaultNodeToken == "" {
+		return fmt.Errorf("failed to generate node token")
+	}
+
+	return nil
 }
 
 func newKeycloakSamlMapper() error {
