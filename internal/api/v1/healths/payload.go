@@ -165,7 +165,7 @@ func genFakeHealthSummary() cubecos.Health {
 			{
 				Name:     "storage",
 				Category: "storage",
-				Status: status.Details{
+				Status: &status.Details{
 					Current:     "ng",
 					Description: "ceph has 2 ceph_osd down",
 				},
@@ -188,7 +188,7 @@ func genFakeHealthSummary() cubecos.Health {
 					},
 					{
 						Name: "ceph_osd",
-						Status: status.Details{
+						Status: &status.Details{
 							Current:     "ng",
 							Description: "2 osd down",
 						},

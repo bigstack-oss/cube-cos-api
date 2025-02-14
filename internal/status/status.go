@@ -16,8 +16,8 @@ const (
 	Error     = "error"
 )
 
-func NewOk() Details {
-	return Details{Current: Ok}
+func NewOk() *Details {
+	return &Details{Current: Ok}
 }
 
 type Details struct {
