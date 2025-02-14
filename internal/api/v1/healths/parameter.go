@@ -9,7 +9,7 @@ import (
 )
 
 func parseModule(c *gin.Context) (*definition.Module, error) {
-	m := c.Param("module")
+	m := c.Param("moduleType")
 	module, found := cubecos.Modules[m]
 	if !found {
 		return nil, fmt.Errorf("module(%s) not found", m)

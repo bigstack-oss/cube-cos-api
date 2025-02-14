@@ -23,7 +23,7 @@ func init() {
 	go streamNodes()
 }
 
-// TODO M1: have to check why sometime take a long time to get the nodes list
+// M1 TODO: have to check why sometime take a long time to get the nodes list
 // suspect the cluster-wise license fetching might be slow by hex cli
 func getNodes(c *gin.Context) {
 	h, err := initReqHelper(c)

@@ -16,14 +16,14 @@ type Health struct {
 	Services               []definition.Service `json:"services" bson:"services"`
 }
 
-type HealthCheckResult struct {
-	Category string             `json:"category"`
-	Service  string             `json:"service"`
-	Module   string             `json:"module"`
-	History  []HealthCheckPoint `json:"history"`
+type HealthStatus struct {
+	Category string        `json:"category"`
+	Service  string        `json:"service"`
+	Module   string        `json:"module"`
+	History  []HealthCheck `json:"history"`
 }
 
-type HealthCheckPoint struct {
+type HealthCheck struct {
 	Time   string `json:"time"`
 	Status string `json:"status"`
 	*Error `json:"error,omitempty"`

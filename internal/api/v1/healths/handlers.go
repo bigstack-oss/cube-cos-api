@@ -20,6 +20,18 @@ var (
 		},
 		{
 			Version: api.V1,
+			Method:  http.MethodGet,
+			Path:    "/healths/services/:serviceType",
+			Func:    getHealthHistoryOfService,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodGet,
+			Path:    "/healths/services/:serviceType/modules/:moduleType",
+			Func:    getHealthHistoryOfModule,
+		},
+		{
+			Version: api.V1,
 			Method:  http.MethodPatch,
 			Path:    "/healths",
 			Func:    checkAndRepairAllModules,
@@ -27,35 +39,29 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodPatch,
-			Path:    "/healths/:module",
+			Path:    "/healths/services/:serviceType/modules/:moduleType",
 			Func:    forceRepairModule,
-		},
-		{
-			Version: api.V1,
-			Method:  http.MethodGet,
-			Path:    "/healths/:module/history",
-			Func:    getModuleHealthHistory,
 		},
 	}
 )
 
 func init() {
-	go streamHealthSummary()
+	go streamHealth()
 }
 
-// TODO M1: the health info will be replaced by the real data around 2025-02-10
+// M1 TODO: the health info will be replaced by the real data around 2025-02-10
 // there're a few implementations to need to be checked with the team.
 func getHealthSummary(c *gin.Context) {
-	watch, err := api.ParseWatch(c)
+	h, err := initReqHelper(c, "getHealthSummary")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	summary := genFakeHealthSummary()
-	if watch {
-		watchHealthSummary(c, &summary)
+	summary := h.genFakeHealthSummary()
+	if h.watch {
+		watchHealth(h, &summary)
 		return
 	}
 
@@ -105,28 +111,44 @@ func forceRepairModule(c *gin.Context) {
 	)
 }
 
-func getModuleHealthHistory(c *gin.Context) {
-	h, err := initReqHelper(c)
+func getHealthHistoryOfService(c *gin.Context) {
+	h, err := initReqHelper(c, "getHealthHistoryOfService")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	checkResult := h.genFakeHealthCheckResult()
-	page, err := h.genPageInfo()
+	history := h.genFakeHealthHistoryOfService()
+	if h.watch {
+		watchHealth(h, history)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"fetch service health history successfully",
+		history,
+	)
+}
+
+func getHealthHistoryOfModule(c *gin.Context) {
+	h, err := initReqHelper(c, "getHealthHistoryOfModule")
 	if err != nil {
-		log.Errorf("request(%s): failed to gen page info: %v", api.GetReqId(c), err)
-		api.SetInternalServerError(c, err)
+		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	health := h.genFakeHealthHistoryOfModule()
+	if h.watch {
+		watchHealth(h, health)
 		return
 	}
 
 	api.SetStatusOk(
 		c,
 		"fetch module health history successfully",
-		data{
-			Health: checkResult,
-			Page:   page,
-		},
+		health,
 	)
 }
