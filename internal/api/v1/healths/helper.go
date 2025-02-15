@@ -2,7 +2,6 @@ package healths
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
@@ -12,8 +11,14 @@ import (
 
 type helper struct {
 	c *gin.Context
+
+	service string
+	module  string
+	handler string
+
 	period
 	definition.Page
+	watch bool
 }
 
 type period struct {
@@ -21,21 +26,16 @@ type period struct {
 	stop  string
 }
 
-type data struct {
-	Health          cubecos.HealthCheckResult `json:"health"`
-	definition.Page `json:"page"`
-}
-
-func (p period) StartAsTime() time.Time {
+func (p period) StartTime() time.Time {
 	t, err := time.Parse(time.RFC3339, p.start)
 	if err != nil {
-		return time.Now()
+		return time.Now().Add(-time.Hour)
 	}
 
 	return t
 }
 
-func (p period) StopAsTime() time.Time {
+func (p period) StopTime() time.Time {
 	t, err := time.Parse(time.RFC3339, p.stop)
 	if err != nil {
 		return time.Now()
@@ -44,24 +44,64 @@ func (p period) StopAsTime() time.Time {
 	return t
 }
 
-func initReqHelper(c *gin.Context) (*helper, error) {
-	h := &helper{c: c}
+func initReqHelper(c *gin.Context, handler string) (*helper, error) {
+	h := &helper{c: c, handler: handler}
+	switch h.handler {
+	case "getHealthSummary":
+		return h.parseSummaryParams()
+	case "getHealthHistoryOfService":
+		return h.parseServiceHealthParams()
+	case "getHealthHistoryOfModule":
+		return h.parseModuleHealthParams()
+	}
+
+	return h, nil
+}
+
+func (h *helper) parseSummaryParams() (*helper, error) {
+	h.parseWatch()
+	return h, nil
+}
+
+func (h *helper) parseServiceHealthParams() (*helper, error) {
+	h.parseWatch()
 
 	err := h.parsePeriod()
 	if err != nil {
 		return nil, err
 	}
 
-	err = h.parsePage()
+	h.service = h.c.Param("serviceType")
+	if !cubecos.IsValidService(h.service) {
+		return nil, fmt.Errorf("invalid serviceType: %s", h.service)
+	}
+
+	return h, nil
+}
+
+func (h *helper) parseModuleHealthParams() (*helper, error) {
+	h.parseWatch()
+
+	err := h.parsePeriod()
 	if err != nil {
 		return nil, err
+	}
+
+	h.service = h.c.Param("serviceType")
+	if !cubecos.IsValidService(h.service) {
+		return nil, fmt.Errorf("invalid serviceType: %s", h.service)
+	}
+
+	h.module = h.c.Param("moduleType")
+	if !cubecos.IsValidServiceAndModule(h.service, h.module) {
+		return nil, fmt.Errorf("invalid serviceType' %s' or module '%s'", h.service, h.module)
 	}
 
 	return h, nil
 }
 
 func (h *helper) parsePeriod() error {
-	qStart := h.c.DefaultQuery("start", definition.TimeRFC3339(-24*time.Hour))
+	qStart := h.c.DefaultQuery("start", definition.TimeRFC3339(-time.Hour))
 	start, err := time.Parse(time.RFC3339, qStart)
 	if err != nil {
 		return fmt.Errorf("'start' time format should be aligned with RFC3339: %s", qStart)
@@ -84,31 +124,6 @@ func (h *helper) parsePeriod() error {
 	return nil
 }
 
-func (h *helper) parsePage() error {
-	num := h.c.DefaultQuery("pageNum", "")
-	size := h.c.DefaultQuery("pageSize", "")
-	if !isPageRequired(num, size) {
-		return nil
-	}
-
-	if num == "" {
-		return fmt.Errorf("pageNum should be provided if pageSize is provided")
-	}
-
-	if size == "" {
-		return fmt.Errorf("pageSize should greater than 0 if pageNum is provided")
-	}
-
-	var err error
-	h.Page.Number, err = strconv.Atoi(num)
-	if err != nil {
-		return fmt.Errorf("pageNum should be an integer: %s", num)
-	}
-
-	h.Page.Size, err = strconv.Atoi(size)
-	if err != nil {
-		return fmt.Errorf("pageSize should be an integer: %s", size)
-	}
-
-	return nil
+func (h *helper) parseWatch() {
+	h.watch = h.c.DefaultQuery("watch", "false") == "true"
 }

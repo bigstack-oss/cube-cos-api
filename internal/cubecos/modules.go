@@ -231,12 +231,14 @@ var (
 	Modules           = map[string]definition.Module{}
 	ModuleToService   = map[string]string{}
 	ServiceToCategory = map[string]string{}
+	ServiceToModules  = map[string][]definition.Module{}
 )
 
 func init() {
 	initModuleMap()
 	initModuleToServiceMap()
 	initServiceToCategoryMap()
+	initServiceToModulesMap()
 }
 
 func initModuleMap() {
@@ -259,4 +261,30 @@ func initServiceToCategoryMap() {
 	for _, service := range OrderSensitiveServices {
 		ServiceToCategory[service.Name] = service.Category
 	}
+}
+
+func initServiceToModulesMap() {
+	for _, service := range OrderSensitiveServices {
+		ServiceToModules[service.Name] = service.Modules
+	}
+}
+
+func IsValidService(service string) bool {
+	_, ok := ServiceToModules[service]
+	return ok
+}
+
+func IsValidServiceAndModule(service, module string) bool {
+	modules, ok := ServiceToModules[service]
+	if !ok {
+		return false
+	}
+
+	for _, m := range modules {
+		if m.Name == module {
+			return true
+		}
+	}
+
+	return false
 }

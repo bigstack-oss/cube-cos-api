@@ -74,7 +74,7 @@ func initDependencies() error {
 
 	err = newDefaultNodeToken()
 	if err != nil {
-		log.Errorf("failed to init node token in keycloak: %s", err.Error())
+		log.Errorf("failed to init node token: %s", err.Error())
 		return err
 	}
 

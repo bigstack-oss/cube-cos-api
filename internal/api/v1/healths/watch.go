@@ -7,12 +7,16 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/gin-gonic/gin"
 	json "github.com/json-iterator/go"
 )
 
-type watcher chan cubecos.Health
+type dataChan chan interface{}
+
+type watcher struct {
+	helper
+	dataChan
+}
 
 var (
 	stream = struct {
@@ -21,18 +25,24 @@ var (
 	}{}
 )
 
-func streamHealthSummary() {
+// M1 TODO:
+// have to discuss with the FE to about should we auto shift the period in every round of watch?
+func streamHealth() {
 	for {
 		wait.Seconds(2)
 		if len(stream.Watchers) == 0 {
 			continue
 		}
 
-		summary := genFakeHealthSummary()
 		stream.Lock()
 		for _, w := range stream.Watchers {
+			health, err := streamHealthByHandlerType(&w.helper)
+			if err != nil {
+				continue
+			}
+
 			select {
-			case w <- summary:
+			case w.dataChan <- health:
 			default:
 			}
 		}
@@ -41,20 +51,33 @@ func streamHealthSummary() {
 	}
 }
 
-func watchHealthSummary(c *gin.Context, summary *cubecos.Health) {
-	setChunkedTransfer(c)
-	flusher, ok := c.Writer.(http.Flusher)
+func streamHealthByHandlerType(h *helper) (interface{}, error) {
+	switch h.handler {
+	case "getHealthSummary":
+		return h.genFakeHealthSummary(), nil
+	case "getHealthHistoryOfService":
+		return h.genFakeHealthHistoryOfService(), nil
+	case "getHealthHistoryOfModule":
+		return h.genFakeHealthHistoryOfModule(), nil
+	}
+
+	return nil, errors.New("no internal function supported")
+}
+
+func watchHealth(h *helper, health interface{}) {
+	setChunkedTransfer(h.c)
+	flusher, ok := h.c.Writer.(http.Flusher)
 	if !ok {
-		api.SetBadRequest(c, errors.New("http chunked transfer is not supported"))
+		api.SetBadRequest(h.c, errors.New("http chunked transfer is not supported"))
 		return
 	}
 
-	watcher := make(watcher)
+	watcher := watcher{helper: *h, dataChan: make(dataChan)}
 	addWatcher(watcher)
 	defer removeWatcher(watcher)
 
-	sendFirstSummary(c, flusher, summary)
-	streamingSummary(c, flusher, watcher)
+	sendFirstHealth(h.c, flusher, health)
+	streamingHealth(h.c, flusher, watcher)
 }
 
 func setChunkedTransfer(c *gin.Context) {
@@ -85,18 +108,18 @@ func removeWatcher(watcherToRemove watcher) {
 	}
 }
 
-func sendFirstSummary(c *gin.Context, flusher http.Flusher, healthSummary *cubecos.Health) {
-	c.Writer.Write(streamingResp(healthSummary))
+func sendFirstHealth(c *gin.Context, flusher http.Flusher, health interface{}) {
+	c.Writer.Write(streamingResp(health))
 	c.Writer.Write([]byte("\n"))
 	flusher.Flush()
 }
 
-func streamingSummary(c *gin.Context, flusher http.Flusher, watcher watcher) {
+func streamingHealth(c *gin.Context, flusher http.Flusher, watcher watcher) {
 	ctx := c.Request.Context()
 	for {
 		select {
-		case healthSummary := <-watcher:
-			c.Writer.Write(streamingResp(&healthSummary))
+		case health := <-watcher.dataChan:
+			c.Writer.Write(streamingResp(&health))
 			c.Writer.Write([]byte("\n"))
 			flusher.Flush()
 		case <-ctx.Done():
@@ -106,12 +129,12 @@ func streamingSummary(c *gin.Context, flusher http.Flusher, watcher watcher) {
 	}
 }
 
-func streamingResp(healthSummary *cubecos.Health) []byte {
+func streamingResp(health interface{}) []byte {
 	b, err := json.Marshal(gin.H{
 		"code":   http.StatusOK,
 		"status": "ok",
 		"msg":    "fetch health summary successfully",
-		"data":   *healthSummary,
+		"data":   health,
 	})
 	if err != nil {
 		return []byte{}

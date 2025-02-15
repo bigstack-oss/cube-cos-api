@@ -10,7 +10,7 @@ import (
 )
 
 // M1 TODO: this will be removed once the real data is available in the COS side
-func genFakeHealthSummary() cubecos.Health {
+func (h *helper) genFakeHealthSummary() interface{} {
 	return cubecos.Health{
 		Overall: &cubecos.Overall{
 			Status: status.Details{
@@ -165,7 +165,7 @@ func genFakeHealthSummary() cubecos.Health {
 			{
 				Name:     "storage",
 				Category: "storage",
-				Status: status.Details{
+				Status: &status.Details{
 					Current:     "ng",
 					Description: "ceph has 2 ceph_osd down",
 				},
@@ -188,7 +188,7 @@ func genFakeHealthSummary() cubecos.Health {
 					},
 					{
 						Name: "ceph_osd",
-						Status: status.Details{
+						Status: &status.Details{
 							Current:     "ng",
 							Description: "2 osd down",
 						},
@@ -434,17 +434,51 @@ func genFakeHealthSummary() cubecos.Health {
 	}
 }
 
+func (h *helper) genFakeHealthHistoryOfService() []cubecos.HealthStatus {
+	modules := cubecos.ServiceToModules[h.service]
+	statuses := []cubecos.HealthStatus{}
+
+	for _, module := range modules {
+		interval := 5 * time.Minute
+		history := []cubecos.HealthCheck{}
+		count := 0
+
+		for t := h.StartTime(); !t.After(h.StopTime()); t = t.Add(interval) {
+			timestamp := h.StartTime().Add(time.Duration(count) * interval).Format(time.RFC3339)
+			status := "ok"
+			checkResult := cubecos.HealthCheck{Time: timestamp, Status: status}
+			if count%5 == 0 {
+				h.setFakeError(&checkResult)
+			}
+
+			history = append(history, checkResult)
+			count++
+		}
+
+		statuses = append(
+			statuses,
+			cubecos.HealthStatus{
+				Category: cubecos.ServiceToCategory[h.service],
+				Name:     h.service,
+				Module:   module.Name,
+				History:  history,
+			},
+		)
+	}
+
+	return statuses
+}
+
 // M1 TODO: this will be removed once the real data is available in the COS side
-func (h *helper) genFakeHealthCheckResult() cubecos.HealthCheckResult {
-	now := time.Now().UTC()
+func (h *helper) genFakeHealthHistoryOfModule() cubecos.HealthStatus {
 	interval := 5 * time.Minute
-	history := []cubecos.HealthCheckPoint{}
+	history := []cubecos.HealthCheck{}
 	count := 0
 
-	for t := h.StartAsTime(); !t.After(h.StopAsTime()); t = t.Add(interval) {
-		timestamp := now.Add(-time.Duration(count) * interval).Format(time.RFC3339)
+	for t := h.StartTime(); !t.After(h.StopTime()); t = t.Add(interval) {
+		timestamp := h.StartTime().Add(time.Duration(count) * interval).Format(time.RFC3339)
 		status := "ok"
-		checkResult := cubecos.HealthCheckPoint{Time: timestamp, Status: status}
+		checkResult := cubecos.HealthCheck{Time: timestamp, Status: status}
 		if count%5 == 0 {
 			h.setFakeError(&checkResult)
 		}
@@ -453,15 +487,15 @@ func (h *helper) genFakeHealthCheckResult() cubecos.HealthCheckResult {
 		count++
 	}
 
-	return cubecos.HealthCheckResult{
-		Category: "cloud computing",
-		Service:  "compute",
-		Module:   "nova",
+	return cubecos.HealthStatus{
+		Category: cubecos.ServiceToCategory[h.service],
+		Name:     h.service,
+		Module:   h.module,
 		History:  history,
 	}
 }
 
-func (h *helper) setFakeError(checkResult *cubecos.HealthCheckPoint) {
+func (h *helper) setFakeError(checkResult *cubecos.HealthCheck) {
 	checkResult.Status = "ng"
 	checkResult.Error = &cubecos.Error{
 		Type:        "service down",
