@@ -18,7 +18,7 @@ type Health struct {
 
 type HealthStatus struct {
 	Category string        `json:"category"`
-	Service  string        `json:"service"`
+	Name     string        `json:"name"`
 	Module   string        `json:"module"`
 	History  []HealthCheck `json:"history"`
 }

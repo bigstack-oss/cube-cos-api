@@ -45,16 +45,13 @@ func (p period) StopTime() time.Time {
 }
 
 func initReqHelper(c *gin.Context, handler string) (*helper, error) {
-	h := &helper{c: c}
-	switch handler {
+	h := &helper{c: c, handler: handler}
+	switch h.handler {
 	case "getHealthSummary":
-		h.handler = "getHealthSummary"
 		return h.parseSummaryParams()
 	case "getHealthHistoryOfService":
-		h.handler = "getHealthHistoryOfService"
 		return h.parseServiceHealthParams()
 	case "getHealthHistoryOfModule":
-		h.handler = "getHealthHistoryOfModule"
 		return h.parseModuleHealthParams()
 	}
 
@@ -76,7 +73,7 @@ func (h *helper) parseServiceHealthParams() (*helper, error) {
 
 	h.service = h.c.Param("serviceType")
 	if !cubecos.IsValidService(h.service) {
-		return nil, fmt.Errorf("invalid service: %s", h.service)
+		return nil, fmt.Errorf("invalid serviceType: %s", h.service)
 	}
 
 	return h, nil
@@ -92,12 +89,12 @@ func (h *helper) parseModuleHealthParams() (*helper, error) {
 
 	h.service = h.c.Param("serviceType")
 	if !cubecos.IsValidService(h.service) {
-		return nil, fmt.Errorf("invalid service: %s", h.service)
+		return nil, fmt.Errorf("invalid serviceType: %s", h.service)
 	}
 
 	h.module = h.c.Param("moduleType")
 	if !cubecos.IsValidServiceAndModule(h.service, h.module) {
-		return nil, fmt.Errorf("invalid service' %s' or module '%s'", h.service, h.module)
+		return nil, fmt.Errorf("invalid serviceType' %s' or module '%s'", h.service, h.module)
 	}
 
 	return h, nil

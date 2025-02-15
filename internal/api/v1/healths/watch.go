@@ -11,8 +11,6 @@ import (
 	json "github.com/json-iterator/go"
 )
 
-// type watcher chan cubecos.Health
-
 type dataChan chan interface{}
 
 type watcher struct {

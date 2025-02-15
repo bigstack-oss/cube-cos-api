@@ -3,7 +3,7 @@ package v1
 import "github.com/bigstack-oss/cube-cos-api/internal/status"
 
 type Service struct {
-	Name     string          `json:"service" bson:"service"`
+	Name     string          `json:"name" bson:"name"`
 	Category string          `json:"category" bson:"category"`
 	Status   *status.Details `json:"status,omitempty" bson:"status,omitempty"`
 	Modules  []Module        `json:"modules" bson:"modules"`

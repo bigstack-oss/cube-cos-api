@@ -459,7 +459,7 @@ func (h *helper) genFakeHealthHistoryOfService() []cubecos.HealthStatus {
 			statuses,
 			cubecos.HealthStatus{
 				Category: cubecos.ServiceToCategory[h.service],
-				Service:  h.service,
+				Name:     h.service,
 				Module:   module.Name,
 				History:  history,
 			},
@@ -489,7 +489,7 @@ func (h *helper) genFakeHealthHistoryOfModule() cubecos.HealthStatus {
 
 	return cubecos.HealthStatus{
 		Category: cubecos.ServiceToCategory[h.service],
-		Service:  h.service,
+		Name:     h.service,
 		Module:   h.module,
 		History:  history,
 	}
