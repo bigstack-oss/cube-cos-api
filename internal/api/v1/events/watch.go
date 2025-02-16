@@ -55,6 +55,8 @@ func streamEventsByHandlerType(h *helper) (*data, error) {
 		return h.genEvents()
 	case "getEventAbstract":
 		return h.genEventAbstract()
+	case "genEventRank":
+		return h.genEventRank()
 	}
 
 	return nil, errors.New("no internal function supported")

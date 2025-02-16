@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/influxdata/influxdb-client-go/v2/api"
@@ -81,6 +82,60 @@ func GetEvents(stmt string) ([]definition.Event, error) {
 	return events, nil
 }
 
+func GetEventRank(stmt string) ([]definition.EventStat, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
+	defer cancel()
+
+	h := influx.GetGlobalHelper()
+	c, err := h.QueryApiClient.Query(ctx, stmt)
+	if err != nil {
+		log.Errorf("failed to get query cursor: %v", err)
+		return nil, err
+	}
+
+	defer c.Close()
+	events := []definition.EventStat{}
+	err = parseEventStats(c, &events)
+	if err != nil {
+		log.Errorf("failed to parse events from cursor: %v", err)
+		return nil, err
+	}
+
+	setPercentageToEachEvent(&events)
+	return events, nil
+}
+
+func setPercentageToEachEvent(events *[]definition.EventStat) {
+	total := int64(0)
+	for _, event := range *events {
+		total = total + event.Number
+	}
+
+	for i := range *events {
+		percent := float64((*events)[i].Number) / float64(total) * 100
+		(*events)[i].Percent = math.RoundDown(percent, 4)
+	}
+}
+
+func parseEventStats(c *api.QueryTableResult, events *[]definition.EventStat) error {
+	for c.Next() {
+		event := genEventStatsByRecord(c.Record())
+		*events = append(*events, event)
+	}
+	if c.Err() != nil {
+		return c.Err()
+	}
+
+	return nil
+}
+
+func genEventStatsByRecord(record *query.FluxRecord) definition.EventStat {
+	return definition.EventStat{
+		Id:     record.ValueByKey("key").(string),
+		Number: record.ValueByKey("number").(int64),
+	}
+}
+
 func parseEvents(c *api.QueryTableResult, events *[]definition.Event) error {
 	for c.Next() {
 		record := c.Record()
@@ -98,22 +153,27 @@ func parseEvents(c *api.QueryTableResult, events *[]definition.Event) error {
 func genEventByRecord(record *query.FluxRecord) definition.Event {
 	date, err := time.Parse(eventTimeLayout, record.Time().Local().String())
 	if err != nil {
-		log.Warnf("failed to parse date from record: %v", record)
+		log.Debugf("failed to parse date from record: %v", record)
 	}
 
 	severity, ok := record.ValueByKey("severity").(string)
 	if !ok {
-		log.Warnf("failed to parse severity from record: %v", record)
+		log.Debugf("failed to parse severity from record: %v", record)
 	}
 
 	eventId, ok := record.ValueByKey("key").(string)
 	if !ok {
-		log.Warnf("failed to parse key from record: %v", record)
+		log.Debugf("failed to parse key from record: %v", record)
 	}
 
 	msg, ok := record.ValueByKey("message").(string)
 	if !ok {
-		log.Warnf("failed to parse message from record: %v", record)
+		log.Debugf("failed to parse message from record: %v", record)
+	}
+
+	host, ok := record.ValueByKey("host").(string)
+	if !ok {
+		log.Debugf("failed to parse host from record: %v", record)
 	}
 
 	return definition.Event{
@@ -121,7 +181,7 @@ func genEventByRecord(record *query.FluxRecord) definition.Event {
 		Severity:    definition.SeverityFullName(severity),
 		Id:          eventId,
 		Description: msg,
-		Host:        "",
+		Host:        host,
 		Time:        definition.TimeLocalISO8601(date),
 	}
 }
@@ -129,14 +189,14 @@ func genEventByRecord(record *query.FluxRecord) definition.Event {
 func setMetadataToEvent(event *definition.Event, record *query.FluxRecord) {
 	metadata, ok := record.ValueByKey("metadata").(string)
 	if !ok {
-		log.Warnf("failed to parse metadata from record: %v", record)
+		log.Debugf("failed to parse metadata from record: %v", record)
 		return
 	}
 
 	metaObj := map[string]interface{}{}
 	err := json.Unmarshal([]byte(metadata), &metaObj)
 	if err != nil {
-		log.Warnf("failed to parse metadata from record: %v", record)
+		log.Debugf("failed to parse metadata from record: %v", record)
 		return
 	}
 

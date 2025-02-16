@@ -3,6 +3,7 @@ package events
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -14,9 +15,15 @@ import (
 )
 
 type helper struct {
-	c         *gin.Context
-	handler   string
+	c       *gin.Context
+	handler string
+
 	eventType string
+	eventId   string
+	category  string
+	severity  string
+	host      string
+	instance  string
 
 	period
 	definition.Page
@@ -31,15 +38,15 @@ type period struct {
 }
 
 func initReqHelper(c *gin.Context, handler string) (*helper, error) {
-	h := &helper{c: c}
+	h := &helper{c: c, handler: handler}
 
 	switch handler {
 	case "getEvents":
-		h.handler = "getEvents"
 		return h.parseEventListingParams()
 	case "getEventAbstract":
-		h.handler = "getEventAbstract"
 		return h.parseEventAbstractParams()
+	case "genEventRank":
+		return h.parseEventRankParams()
 	}
 
 	return nil, errors.New("no internal function supported")
@@ -47,6 +54,11 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 
 func (h *helper) parseEventListingParams() (*helper, error) {
 	err := h.parseType()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parseId()
 	if err != nil {
 		return nil, err
 	}
@@ -88,6 +100,35 @@ func (h *helper) parseEventAbstractParams() (*helper, error) {
 	return h, nil
 }
 
+func (h *helper) parseEventRankParams() (*helper, error) {
+	err := h.parseType()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parsePeriod()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parseLimit()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parseRankFactors()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parseWatch()
+	if err != nil {
+		return nil, err
+	}
+
+	return h, nil
+}
+
 func (h *helper) parseType() error {
 	t := h.c.DefaultQuery("type", "")
 	if !cubecos.IsEventTypeValid(t) {
@@ -98,6 +139,11 @@ func (h *helper) parseType() error {
 	}
 
 	h.eventType = t
+	return nil
+}
+
+func (h *helper) parseId() error {
+	h.eventId = h.c.DefaultQuery("id", "")
 	return nil
 }
 
@@ -173,6 +219,14 @@ func (h *helper) parseLimit() error {
 	return nil
 }
 
+func (h *helper) parseRankFactors() error {
+	h.category = h.c.DefaultQuery("category", "")
+	h.severity = h.c.DefaultQuery("severity", "")
+	h.host = h.c.DefaultQuery("host", "")
+	h.instance = h.c.DefaultQuery("instance", "")
+	return nil
+}
+
 func (h *helper) parseWatch() error {
 	var err error
 	h.watch, err = api.ParseWatch(h.c)
@@ -218,4 +272,52 @@ func (h *helper) genEventAbstract() (*data, error) {
 			Description: fmt.Sprintf("the top %d recent events", h.limit),
 		},
 	}, nil
+}
+
+func (h *helper) genEventRank() (*data, error) {
+	stmt, err := h.genRankStmt()
+	if err != nil {
+		log.Errorf("request(%s): %v", api.GetReqId(h.c), err)
+		return nil, err
+	}
+
+	rank, err := cubecos.GetEventRank(stmt)
+	if err != nil {
+		log.Errorf("request(%s): failed to get events: %v", api.GetReqId(h.c), err)
+		return nil, err
+	}
+
+	h.setQueryUrlToEachEvent(&rank)
+	return &data{
+		Events: rank,
+		Limit: &definition.Limit{
+			Number:      h.limit,
+			Description: fmt.Sprintf("The top %d event IDs with the highest proportion", len(rank)),
+		},
+	}, nil
+}
+
+func (h *helper) setQueryUrlToEachEvent(events *[]definition.EventStat) {
+	for i, event := range *events {
+		(*events)[i].Query = h.genEventQueryUrl(event)
+	}
+}
+
+func (h *helper) genEventQueryUrl(event definition.EventStat) string {
+	u := url.URL{}
+	u.Scheme = "https"
+	u.Host = h.c.Request.Host
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/events", definition.DataCenterName)
+	u.RawQuery = h.genEventQuery(event)
+	return u.String()
+}
+
+func (h *helper) genEventQuery(event definition.EventStat) string {
+	return fmt.Sprintf(
+		"type=%s&id=%s&start=%s&stop=%s&pageNum=1&pageSize=20",
+		h.eventType,
+		event.Id,
+		h.period.start,
+		h.period.stop,
+	)
 }

@@ -15,7 +15,8 @@ type DataCenter struct {
 }
 
 type Additional struct {
-	HelpUrl string `json:"helpUrl,omitempty" bson:"helpUrl"`
+	HelpUrl     string `json:"helpUrl,omitempty" bson:"helpUrl"`
+	V1ApiDocUrl string `json:"v1ApiDoc,omitempty" bson:"v1ApiDoc"`
 }
 
 // M1 TODO: have to think about if we

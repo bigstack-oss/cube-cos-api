@@ -22,6 +22,12 @@ var (
 			Path:    "/events/abstract",
 			Func:    getEventAbstract,
 		},
+		{
+			Version: api.V1,
+			Method:  http.MethodGet,
+			Path:    "/events/rank",
+			Func:    genEventRank,
+		},
 	}
 )
 
@@ -80,5 +86,32 @@ func getEventAbstract(c *gin.Context) {
 		c,
 		"fetch event abstract successfully",
 		abstract,
+	)
+}
+
+func genEventRank(c *gin.Context) {
+	h, err := initReqHelper(c, "genEventRank")
+	if err != nil {
+		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	rank, err := h.genEventRank()
+	if err != nil {
+		log.Errorf("request(%s): failed to gen event rank: %v", api.GetReqId(c), err)
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	if h.watch {
+		watchEvents(h, rank)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"fetch event rank successfully",
+		rank,
 	)
 }
