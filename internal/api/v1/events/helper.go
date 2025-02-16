@@ -19,6 +19,7 @@ type helper struct {
 	handler string
 
 	eventType string
+	eventId   string
 	category  string
 	severity  string
 	host      string
@@ -53,6 +54,11 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 
 func (h *helper) parseEventListingParams() (*helper, error) {
 	err := h.parseType()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parseId()
 	if err != nil {
 		return nil, err
 	}
@@ -133,6 +139,11 @@ func (h *helper) parseType() error {
 	}
 
 	h.eventType = t
+	return nil
+}
+
+func (h *helper) parseId() error {
+	h.eventId = h.c.DefaultQuery("id", "")
 	return nil
 }
 
@@ -296,15 +307,16 @@ func (h *helper) genEventQueryUrl(event definition.EventStat) string {
 	u := url.URL{}
 	u.Scheme = "https"
 	u.Host = h.c.Request.Host
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/events/%s", definition.DataCenterName, event.Id)
-	u.RawQuery = h.genEventQuery()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/events", definition.DataCenterName)
+	u.RawQuery = h.genEventQuery(event)
 	return u.String()
 }
 
-func (h *helper) genEventQuery() string {
+func (h *helper) genEventQuery(event definition.EventStat) string {
 	return fmt.Sprintf(
-		"?type=%s&start=%s&stop=%s",
+		"type=%s&id=%s&start=%s&stop=%s&pageNum=1&pageSize=20",
 		h.eventType,
+		event.Id,
 		h.period.start,
 		h.period.stop,
 	)

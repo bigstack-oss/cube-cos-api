@@ -153,27 +153,27 @@ func parseEvents(c *api.QueryTableResult, events *[]definition.Event) error {
 func genEventByRecord(record *query.FluxRecord) definition.Event {
 	date, err := time.Parse(eventTimeLayout, record.Time().Local().String())
 	if err != nil {
-		log.Warnf("failed to parse date from record: %v", record)
+		log.Debugf("failed to parse date from record: %v", record)
 	}
 
 	severity, ok := record.ValueByKey("severity").(string)
 	if !ok {
-		log.Warnf("failed to parse severity from record: %v", record)
+		log.Debugf("failed to parse severity from record: %v", record)
 	}
 
 	eventId, ok := record.ValueByKey("key").(string)
 	if !ok {
-		log.Warnf("failed to parse key from record: %v", record)
+		log.Debugf("failed to parse key from record: %v", record)
 	}
 
 	msg, ok := record.ValueByKey("message").(string)
 	if !ok {
-		log.Warnf("failed to parse message from record: %v", record)
+		log.Debugf("failed to parse message from record: %v", record)
 	}
 
 	host, ok := record.ValueByKey("host").(string)
 	if !ok {
-		log.Warnf("failed to parse host from record: %v", record)
+		log.Debugf("failed to parse host from record: %v", record)
 	}
 
 	return definition.Event{
@@ -189,14 +189,14 @@ func genEventByRecord(record *query.FluxRecord) definition.Event {
 func setMetadataToEvent(event *definition.Event, record *query.FluxRecord) {
 	metadata, ok := record.ValueByKey("metadata").(string)
 	if !ok {
-		log.Warnf("failed to parse metadata from record: %v", record)
+		log.Debugf("failed to parse metadata from record: %v", record)
 		return
 	}
 
 	metaObj := map[string]interface{}{}
 	err := json.Unmarshal([]byte(metadata), &metaObj)
 	if err != nil {
-		log.Warnf("failed to parse metadata from record: %v", record)
+		log.Debugf("failed to parse metadata from record: %v", record)
 		return
 	}
 

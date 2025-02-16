@@ -17,6 +17,10 @@ func (h *helper) isPageRequired() bool {
 	return h.Page.Number > 0 || h.Page.Size > 0
 }
 
+func (h *helper) isIdRequired() bool {
+	return h.eventId != ""
+}
+
 func (h *helper) genPageInfo(events []definition.Event) (definition.Page, error) {
 	if !h.isPageRequired() {
 		return definition.Page{

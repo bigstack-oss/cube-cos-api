@@ -13,6 +13,14 @@ var (
 			|> count()
 	`
 
+	eventIdCountQueryTemplate = `
+	from(bucket: "events")
+		|> range(start: %s, stop: %s)
+		|> filter(fn: (r) => r._measurement == "%s")
+		|> filter(fn: (r) => r.key == "%s")
+		|> count()
+`
+
 	eventNonPagingQueryTemplate = `
 		from(bucket: "events")
 			|> range(start: %s, stop: %s)
@@ -22,10 +30,31 @@ var (
 			|> sort(columns: ["_time"], desc: true)
 	`
 
+	eventIdNonPagingQueryTemplate = `
+		from(bucket: "events")
+			|> range(start: %s, stop: %s)
+			|> filter(fn: (r) => r._measurement == "%s")
+			|> filter(fn: (r) => r.key == "%s")
+			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+			|> group()
+			|> sort(columns: ["_time"], desc: true)
+	`
+
 	eventPagingQueryTemplate = `
 		from(bucket: "events")
 			|> range(start: %s, stop: %s)
 			|> filter(fn: (r) => r._measurement == "%s")
+			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+			|> group()
+			|> sort(columns: ["_time"], desc: true)
+			|> limit(n: %d, offset: %d)
+	`
+
+	eventIdPagingQueryTemplate = `
+		from(bucket: "events")
+			|> range(start: %s, stop: %s)
+			|> filter(fn: (r) => r._measurement == "%s")
+			|> filter(fn: (r) => r.key == "%s")
 			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
 			|> group()
 			|> sort(columns: ["_time"], desc: true)
@@ -89,6 +118,16 @@ var (
 )
 
 func (h *helper) genCountQueryStmt() string {
+	if h.isIdRequired() {
+		return fmt.Sprintf(
+			eventIdCountQueryTemplate,
+			h.period.start,
+			h.period.stop,
+			h.eventType,
+			h.eventId,
+		)
+	}
+
 	return fmt.Sprintf(
 		eventCountQueryTemplate,
 		h.period.start,
@@ -106,6 +145,16 @@ func (h *helper) genListingStmt() string {
 }
 
 func (h *helper) genNonPagingQueryStmt() string {
+	if h.isIdRequired() {
+		return fmt.Sprintf(
+			eventIdNonPagingQueryTemplate,
+			h.period.start,
+			h.period.stop,
+			h.eventType,
+			h.eventId,
+		)
+	}
+
 	return fmt.Sprintf(
 		eventNonPagingQueryTemplate,
 		h.period.start,
@@ -116,6 +165,18 @@ func (h *helper) genNonPagingQueryStmt() string {
 
 func (h *helper) genPagingQueryStmt() string {
 	offset := (h.Page.Number - 1) * h.Page.Size
+	if h.isIdRequired() {
+		return fmt.Sprintf(
+			eventIdPagingQueryTemplate,
+			h.period.start,
+			h.period.stop,
+			h.eventType,
+			h.eventId,
+			h.Page.Size,
+			offset,
+		)
+	}
+
 	return fmt.Sprintf(
 		eventPagingQueryTemplate,
 		h.period.start,
