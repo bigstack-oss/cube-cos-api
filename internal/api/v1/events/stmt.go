@@ -54,7 +54,7 @@ var (
 			|> keep(columns: ["key", "category", "severity", "number"])
 			|> group()
 			|> sort(columns: ["number"], desc: true)
-			|> limit(n: %s)
+			|> limit(n: %d)
 	`
 
 	eventHostRankQueryTemplate = `
@@ -69,7 +69,7 @@ var (
 			|> keep(columns: ["key", "category", "host", "number"])
 			|> group()
 			|> sort(columns: ["number"], desc: true)
-			|> limit(n: %s)
+			|> limit(n: %d)
 	`
 
 	eventInstanceRankQueryTemplate = `
@@ -84,7 +84,7 @@ var (
 			|> keep(columns: ["key", "category", "instance", "number"])
 			|> group()
 			|> sort(columns: ["number"], desc: true)
-			|> limit(n: %s)
+			|> limit(n: %d)
 	`
 )
 
@@ -152,7 +152,8 @@ func (h *helper) genSystemRankStmt() string {
 		eventSystemRankQueryTemplate,
 		h.period.start,
 		h.period.stop,
-		h.eventType,
+		h.category,
+		h.severity,
 		h.limit,
 	)
 }
@@ -162,7 +163,8 @@ func (h *helper) genHostRankStmt() string {
 		eventHostRankQueryTemplate,
 		h.period.start,
 		h.period.stop,
-		h.eventType,
+		h.category,
+		h.host,
 		h.limit,
 	)
 }
@@ -172,7 +174,8 @@ func (h *helper) genInstanceRankStmt() string {
 		eventInstanceRankQueryTemplate,
 		h.period.start,
 		h.period.stop,
-		h.eventType,
+		h.category,
+		h.instance,
 		h.limit,
 	)
 }

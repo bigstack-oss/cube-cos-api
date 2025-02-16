@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/influxdata/influxdb-client-go/v2/api"
@@ -111,7 +112,8 @@ func setPercentageToEachEvent(events *[]definition.EventStat) {
 	}
 
 	for i := range *events {
-		(*events)[i].Percent = float64((*events)[i].Number) / float64(total)
+		percent := float64((*events)[i].Number) / float64(total) * 100
+		(*events)[i].Percent = math.RoundDown(percent, 4)
 	}
 }
 

@@ -3,6 +3,7 @@ package events
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -14,9 +15,14 @@ import (
 )
 
 type helper struct {
-	c         *gin.Context
-	handler   string
+	c       *gin.Context
+	handler string
+
 	eventType string
+	category  string
+	severity  string
+	host      string
+	instance  string
 
 	period
 	definition.Page
@@ -31,15 +37,15 @@ type period struct {
 }
 
 func initReqHelper(c *gin.Context, handler string) (*helper, error) {
-	h := &helper{c: c}
+	h := &helper{c: c, handler: handler}
 
 	switch handler {
 	case "getEvents":
-		h.handler = "getEvents"
 		return h.parseEventListingParams()
 	case "getEventAbstract":
-		h.handler = "getEventAbstract"
 		return h.parseEventAbstractParams()
+	case "getEventRank":
+		return h.parseEventRankParams()
 	}
 
 	return nil, errors.New("no internal function supported")
@@ -76,6 +82,35 @@ func (h *helper) parseEventAbstractParams() (*helper, error) {
 	}
 
 	err = h.parseLimit()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parseWatch()
+	if err != nil {
+		return nil, err
+	}
+
+	return h, nil
+}
+
+func (h *helper) parseEventRankParams() (*helper, error) {
+	err := h.parseType()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parsePeriod()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parseLimit()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parseRankFactors()
 	if err != nil {
 		return nil, err
 	}
@@ -173,6 +208,14 @@ func (h *helper) parseLimit() error {
 	return nil
 }
 
+func (h *helper) parseRankFactors() error {
+	h.category = h.c.DefaultQuery("category", "")
+	h.severity = h.c.DefaultQuery("severity", "")
+	h.host = h.c.DefaultQuery("host", "")
+	h.instance = h.c.DefaultQuery("instance", "")
+	return nil
+}
+
 func (h *helper) parseWatch() error {
 	var err error
 	h.watch, err = api.ParseWatch(h.c)
@@ -233,11 +276,36 @@ func (h *helper) getEventRank() (*data, error) {
 		return nil, err
 	}
 
+	h.setQueryUrlToEachEvent(&rank)
 	return &data{
 		Events: rank,
 		Limit: &definition.Limit{
 			Number:      h.limit,
-			Description: fmt.Sprintf("the top %d recent events", h.limit),
+			Description: fmt.Sprintf("The top %d event IDs with the highest proportion", len(rank)),
 		},
 	}, nil
+}
+
+func (h *helper) setQueryUrlToEachEvent(events *[]definition.EventStat) {
+	for i, event := range *events {
+		(*events)[i].Query = h.genEventQueryUrl(event)
+	}
+}
+
+func (h *helper) genEventQueryUrl(event definition.EventStat) string {
+	u := url.URL{}
+	u.Scheme = "https"
+	u.Host = h.c.Request.Host
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/events/%s", definition.DataCenterName, event.Id)
+	u.RawQuery = h.genEventQuery()
+	return u.String()
+}
+
+func (h *helper) genEventQuery() string {
+	return fmt.Sprintf(
+		"?type=%s&start=%s&stop=%s",
+		h.eventType,
+		h.period.start,
+		h.period.stop,
+	)
 }
