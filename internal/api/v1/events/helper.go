@@ -44,7 +44,7 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 		return h.parseEventListingParams()
 	case "getEventAbstract":
 		return h.parseEventAbstractParams()
-	case "getEventRank":
+	case "genEventRank":
 		return h.parseEventRankParams()
 	}
 
@@ -263,7 +263,7 @@ func (h *helper) genEventAbstract() (*data, error) {
 	}, nil
 }
 
-func (h *helper) getEventRank() (*data, error) {
+func (h *helper) genEventRank() (*data, error) {
 	stmt, err := h.genRankStmt()
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(h.c), err)
