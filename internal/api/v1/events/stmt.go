@@ -41,6 +41,51 @@ var (
 			|> sort(columns: ["_time"], desc: true)
 			|> limit(n: %d)
 	`
+
+	eventSystemRankQueryTemplate = `
+		from(bucket: "events")
+			|> range(start: %s, stop: %s)
+			|> filter(fn: (r) => r._measurement == "system")
+			|> filter(fn: (r) => r.category == "%s")
+			|> filter(fn: (r) => r.severity == "%s")
+			|> group(columns: ["key", "category", "severity"])
+			|> count(column: "_value")
+			|> rename(columns: {_value: "number"})
+			|> keep(columns: ["key", "category", "severity", "number"])
+			|> group()
+			|> sort(columns: ["number"], desc: true)
+			|> limit(n: %s)
+	`
+
+	eventHostRankQueryTemplate = `
+		from(bucket: "events")
+			|> range(start: %s, stop: %s)
+			|> filter(fn: (r) => r._measurement == "host")
+			|> filter(fn: (r) => r.category == "%s")
+			|> filter(fn: (r) => r.host == "%s")
+			|> group(columns: ["key", "category", "host"])
+			|> count(column: "_value")
+			|> rename(columns: {_value: "number"})
+			|> keep(columns: ["key", "category", "host", "number"])
+			|> group()
+			|> sort(columns: ["number"], desc: true)
+			|> limit(n: %s)
+	`
+
+	eventInstanceRankQueryTemplate = `
+		from(bucket: "events")
+			|> range(start: %s, stop: %s)
+			|> filter(fn: (r) => r._measurement == "instance")
+			|> filter(fn: (r) => r.category == "%s")
+			|> filter(fn: (r) => r.instance == "%s")
+			|> group(columns: ["key", "category", "instance"])
+			|> count(column: "_value")
+			|> rename(columns: {_value: "number"})
+			|> keep(columns: ["key", "category", "instance", "number"])
+			|> group()
+			|> sort(columns: ["number"], desc: true)
+			|> limit(n: %s)
+	`
 )
 
 func (h *helper) genCountQueryStmt() string {
@@ -84,6 +129,49 @@ func (h *helper) genPagingQueryStmt() string {
 func (h *helper) genAbstractStmt() string {
 	return fmt.Sprintf(
 		eventLimitingQueryTemplate,
+		h.eventType,
+		h.limit,
+	)
+}
+
+func (h *helper) genRankStmt() (string, error) {
+	switch h.eventType {
+	case "system":
+		return h.genSystemRankStmt(), nil
+	case "host":
+		return h.genHostRankStmt(), nil
+	case "instance":
+		return h.genInstanceRankStmt(), nil
+	}
+
+	return "", fmt.Errorf("unsupported event type: %s", h.eventType)
+}
+
+func (h *helper) genSystemRankStmt() string {
+	return fmt.Sprintf(
+		eventSystemRankQueryTemplate,
+		h.period.start,
+		h.period.stop,
+		h.eventType,
+		h.limit,
+	)
+}
+
+func (h *helper) genHostRankStmt() string {
+	return fmt.Sprintf(
+		eventHostRankQueryTemplate,
+		h.period.start,
+		h.period.stop,
+		h.eventType,
+		h.limit,
+	)
+}
+
+func (h *helper) genInstanceRankStmt() string {
+	return fmt.Sprintf(
+		eventInstanceRankQueryTemplate,
+		h.period.start,
+		h.period.stop,
 		h.eventType,
 		h.limit,
 	)

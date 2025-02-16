@@ -18,6 +18,13 @@ type Event struct {
 	Time        string                 `json:"time"`
 }
 
+type EventStat struct {
+	Id      string  `json:"id"`
+	Percent float64 `json:"percent"`
+	Number  int64   `json:"number"`
+	Query   string  `json:"query"`
+}
+
 func SeverityFullName(severity string) string {
 	switch strings.ToLower(severity) {
 	case "c":

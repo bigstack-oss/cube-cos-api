@@ -81,6 +81,59 @@ func GetEvents(stmt string) ([]definition.Event, error) {
 	return events, nil
 }
 
+func GetEventRank(stmt string) ([]definition.EventStat, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
+	defer cancel()
+
+	h := influx.GetGlobalHelper()
+	c, err := h.QueryApiClient.Query(ctx, stmt)
+	if err != nil {
+		log.Errorf("failed to get query cursor: %v", err)
+		return nil, err
+	}
+
+	defer c.Close()
+	events := []definition.EventStat{}
+	err = parseEventStats(c, &events)
+	if err != nil {
+		log.Errorf("failed to parse events from cursor: %v", err)
+		return nil, err
+	}
+
+	setPercentageToEachEvent(&events)
+	return events, nil
+}
+
+func setPercentageToEachEvent(events *[]definition.EventStat) {
+	total := int64(0)
+	for _, event := range *events {
+		total = total + event.Number
+	}
+
+	for i := range *events {
+		(*events)[i].Percent = float64((*events)[i].Number) / float64(total)
+	}
+}
+
+func parseEventStats(c *api.QueryTableResult, events *[]definition.EventStat) error {
+	for c.Next() {
+		event := genEventStatsByRecord(c.Record())
+		*events = append(*events, event)
+	}
+	if c.Err() != nil {
+		return c.Err()
+	}
+
+	return nil
+}
+
+func genEventStatsByRecord(record *query.FluxRecord) definition.EventStat {
+	return definition.EventStat{
+		Id:     record.ValueByKey("key").(string),
+		Number: record.ValueByKey("number").(int64),
+	}
+}
+
 func parseEvents(c *api.QueryTableResult, events *[]definition.Event) error {
 	for c.Next() {
 		record := c.Record()
@@ -116,12 +169,17 @@ func genEventByRecord(record *query.FluxRecord) definition.Event {
 		log.Warnf("failed to parse message from record: %v", record)
 	}
 
+	host, ok := record.ValueByKey("host").(string)
+	if !ok {
+		log.Warnf("failed to parse host from record: %v", record)
+	}
+
 	return definition.Event{
 		Type:        record.Measurement(),
 		Severity:    definition.SeverityFullName(severity),
 		Id:          eventId,
 		Description: msg,
-		Host:        "",
+		Host:        host,
 		Time:        definition.TimeLocalISO8601(date),
 	}
 }

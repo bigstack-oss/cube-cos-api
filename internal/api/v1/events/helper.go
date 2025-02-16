@@ -219,3 +219,25 @@ func (h *helper) genEventAbstract() (*data, error) {
 		},
 	}, nil
 }
+
+func (h *helper) getEventRank() (*data, error) {
+	stmt, err := h.genRankStmt()
+	if err != nil {
+		log.Errorf("request(%s): %v", api.GetReqId(h.c), err)
+		return nil, err
+	}
+
+	rank, err := cubecos.GetEventRank(stmt)
+	if err != nil {
+		log.Errorf("request(%s): failed to get events: %v", api.GetReqId(h.c), err)
+		return nil, err
+	}
+
+	return &data{
+		Events: rank,
+		Limit: &definition.Limit{
+			Number:      h.limit,
+			Description: fmt.Sprintf("the top %d recent events", h.limit),
+		},
+	}, nil
+}
