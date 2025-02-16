@@ -596,6 +596,16 @@
                     },
                     {
                         "in": "query",
+                        "name": "id",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The id of the event to query.",
+                        "example": "NET00003I"
+                    },
+                    {
+                        "in": "query",
                         "name": "start",
                         "required": false,
                         "schema": {
@@ -732,7 +742,7 @@
                         "schema": {
                             "type": "string",
                             "enum": [
-                                "start",
+                                "system",
                                 "host",
                                 "instance"
                             ]
@@ -935,6 +945,212 @@
                                                 }
                                             },
                                             "msg": "fetch event abstract successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid 'start' time: 2021-09-01T111:00:00Z"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch events: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/events/rank": {
+            "get": {
+                "operationId": "getRankedEvents",
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Retrieve the ranked events",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "type",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "system",
+                                "host",
+                                "instance"
+                            ]
+                        },
+                        "description": "The type of event to query, the value can be only 'system', 'host', and 'instance'.",
+                        "example": "system"
+                    },
+                    {
+                        "in": "query",
+                        "name": "category",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The category of the event to query.",
+                        "example": "NET"
+                    },
+                    {
+                        "in": "query",
+                        "name": "severity",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The severity of the event to query, the value can be only 'Info', 'Warning', and 'Error'.",
+                        "example": "Info"
+                    },
+                    {
+                        "in": "query",
+                        "name": "host",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The host of the event to query.",
+                        "example": "dell180"
+                    },
+                    {
+                        "in": "query",
+                        "name": "instance",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The instance of the event to query.",
+                        "example": "ccc449e4-a26c-47ac-afc1-c792ab1ed20a"
+                    },
+                    {
+                        "in": "query",
+                        "name": "start",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
+                        "example": "2025-01-01T01:00:00Z"
+                    },
+                    {
+                        "in": "query",
+                        "name": "stop",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
+                        "example": "2025-01-01T01:00:00Z"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The limit of the abstracted events to return (default is 10).",
+                        "example": 10
+                    },
+                    {
+                        "in": "query",
+                        "name": "watch",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "The toggle to enable http chunked transfer for continues server push.",
+                        "example": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the abstracted events successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetRankedEventsResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Abstracted recent events",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "events": [
+                                                    {
+                                                        "id": "NET00003I",
+                                                        "percent": 98.2142,
+                                                        "number": 440,
+                                                        "query": "https://example-datat-center.host/api/v1/datacenters/example-data-center/events?type=system&id=NET00003I&start=2024-12-01T00:00:00Z&stop=2025-02-17T00:00:00Z&pageNum=1&pageSize=20"
+                                                    },
+                                                    {
+                                                        "id": "NET00001I",
+                                                        "percent": 1.7857,
+                                                        "number": 8,
+                                                        "query": "https://example-datat-center.host/api/v1/datacenters/example-data-center/events?type=system&id=NET00001I&start=2024-12-01T00:00:00Z&stop=2025-02-17T00:00:00Z&pageNum=1&pageSize=20"
+                                                    }
+                                                ],
+                                                "limit": {
+                                                    "number": 25,
+                                                    "description": "The top 2 event IDs with the highest proportion"
+                                                }
+                                            },
+                                            "msg": "fetch event rank successfully",
                                             "status": "ok"
                                         }
                                     }
@@ -4320,6 +4536,76 @@
                                             }
                                         },
                                         "time": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "limit": {
+                                "type": "object",
+                                "required": [
+                                    "number",
+                                    "description"
+                                ],
+                                "properties": {
+                                    "number": {
+                                        "type": "integer"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "GetRankedEventsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "events",
+                            "limit"
+                        ],
+                        "properties": {
+                            "events": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "id",
+                                        "percent",
+                                        "number",
+                                        "query"
+                                    ],
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "percent": {
+                                            "type": "number"
+                                        },
+                                        "number": {
+                                            "type": "integer"
+                                        },
+                                        "query": {
                                             "type": "string"
                                         }
                                     }
