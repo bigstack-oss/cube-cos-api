@@ -71,6 +71,12 @@ var Handlers = []api.Handler{
 		Path:    "/settings/slack-webhooks",
 		Func:    getSlackWebhooks,
 	},
+	{
+		Version: api.V1,
+		Method:  "PUT",
+		Path:    "/settings/slack-webhooks/:id",
+		Func:    updateSlackWebhook,
+	},
 }
 
 func createEmailSender(c *gin.Context) {
@@ -210,4 +216,21 @@ func getSlackWebhooks(c *gin.Context) {
 	}
 
 	api.SetStatusOk(c, "slack webhooks retrieved successfully", slackWebhooks)
+}
+
+func updateSlackWebhook(c *gin.Context) {
+	var slackWebhook v1.SlackWebhook
+	if err := c.ShouldBindJSON(&slackWebhook); err != nil {
+		log.Errorf("request(%s): failed to decode slack webhook: %s", api.GetReqId(c), err.Error())
+		return
+	}
+
+	slackWebhook.ID = c.Param("id")
+	if err := updateSlackWebhookRecord(slackWebhook); err != nil {
+		log.Errorf("request(%s): failed to update slack webhook: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(c, "slack webhook updated successfully", nil)
 }

@@ -156,3 +156,19 @@ func getSlackWebhookRecords() ([]v1.SlackWebhook, error) {
 	}
 	return webhooks, nil
 }
+
+func updateSlackWebhookRecord(webhook v1.SlackWebhook) error {
+	h := cubeMongo.GetGlobalHelper()
+	filter := bson.M{"id": webhook.ID}
+	update := bson.M{"$set": webhook}
+	if err := h.UpdateOne(
+		v1.SettingsDB(),
+		v1.SlackWebhookCollection(),
+		filter,
+		update,
+	); err != nil {
+		log.Errorf("failed to update slack webhook record (%s)", err.Error())
+		return err
+	}
+	return nil
+}
