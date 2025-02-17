@@ -33,15 +33,15 @@ type SlackWebhook struct {
 }
 
 func EmailSenderCollection() string {
-	return "emailSender"
+	return "emailSenders"
 }
 
 func EmailRecipientCollection() string {
-	return "emailRecipient"
+	return "emailRecipients"
 }
 
 func SlackWebhookCollection() string {
-	return "slackWebhook"
+	return "slackWebhooks"
 }
 
 func SettingsDB() string {
