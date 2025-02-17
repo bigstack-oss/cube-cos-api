@@ -21,7 +21,7 @@ var Handlers = []api.Handler{
 		Version: api.V1,
 		Method:  "GET",
 		Path:    "/settings/emailSenders",
-		Func:    getEmailSender,
+		Func:    getEmailSenders,
 	},
 	{
 		Version: api.V1,
@@ -101,19 +101,19 @@ func createEmailSender(c *gin.Context) {
 	api.SetStatusCreated(c, "email sender created successfully", nil)
 }
 
-func getEmailSender(c *gin.Context) {
-	emailSender, err := getEmailSenderRecord()
+func getEmailSenders(c *gin.Context) {
+	emailSenders, err := getEmailSenderRecords()
 	if errors.Is(err, mongo.ErrNoDocuments) {
 		api.SetStatusNotFound(c, errors.New("email sender not found"))
 		return
 	}
 	if err != nil {
-		log.Errorf("request(%s): failed to get email sender: %s", api.GetReqId(c), err.Error())
+		log.Errorf("request(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOk(c, "email sender retrieved successfully", emailSender)
+	api.SetStatusOk(c, "email senders retrieved successfully", emailSenders)
 }
 
 func updateEmailSender(c *gin.Context) {

@@ -28,19 +28,25 @@ func upsertEmailSenderRecord(emailSender v1.EmailSender) error {
 	return nil
 }
 
-func getEmailSenderRecord() (v1.EmailSender, error) {
+func getEmailSenderRecords() ([]v1.EmailSender, error) {
 	h := cubeMongo.GetGlobalHelper()
-	emailSender := v1.EmailSender{}
-	res, err := h.Get(v1.SettingsDB(), v1.EmailSenderCollection(), bson.M{"deleted": bson.M{"$ne": true}})
+	senders := []v1.EmailSender{}
+	cursor, err := h.GetQueryCursor(v1.SettingsDB(), v1.EmailSenderCollection(), bson.M{"deleted": bson.M{"$ne": true}})
 	if err != nil {
-		log.Errorf("failed to get email sender record (%s)", err.Error())
-		return emailSender, err
+		log.Errorf("failed to get cursor for email sender (%s)", err.Error())
+		return senders, err
 	}
-	if err := res.Decode(&emailSender); err != nil {
-		log.Errorf("failed to decode email sender record (%s)", err.Error())
-		return emailSender, err
+	defer cursor.Close(context.Background())
+
+	for cursor.Next(context.Background()) {
+		sender := v1.EmailSender{}
+		if err := cursor.Decode(&sender); err != nil {
+			log.Errorf("failed to decode email sender record (%s)", err.Error())
+			continue
+		}
+		senders = append(senders, sender)
 	}
-	return emailSender, nil
+	return senders, nil
 }
 
 func deleteEmailSenderRecord() error {
