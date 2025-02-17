@@ -65,6 +65,12 @@ var Handlers = []api.Handler{
 		Path:    "/settings/slack-webhooks",
 		Func:    createSlackWebhook,
 	},
+	{
+		Version: api.V1,
+		Method:  "GET",
+		Path:    "/settings/slack-webhooks",
+		Func:    getSlackWebhooks,
+	},
 }
 
 func createEmailSender(c *gin.Context) {
@@ -193,4 +199,15 @@ func createSlackWebhook(c *gin.Context) {
 	}
 
 	api.SetStatusCreated(c, "slack webhook created successfully", nil)
+}
+
+func getSlackWebhooks(c *gin.Context) {
+	slackWebhooks, err := getSlackWebhookRecords()
+	if err != nil {
+		log.Errorf("request(%s): failed to get slack webhooks: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(c, "slack webhooks retrieved successfully", slackWebhooks)
 }

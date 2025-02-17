@@ -135,3 +135,24 @@ func createSlackWebhookRecord(webhook v1.SlackWebhook) error {
 	}
 	return nil
 }
+
+func getSlackWebhookRecords() ([]v1.SlackWebhook, error) {
+	h := cubeMongo.GetGlobalHelper()
+	webhooks := []v1.SlackWebhook{}
+	cursor, err := h.GetQueryCursor(v1.SettingsDB(), v1.SlackWebhookCollection(), bson.M{"deleted": bson.M{"$ne": true}})
+	if err != nil {
+		log.Errorf("failed to get cursor for slack webhook (%s)", err.Error())
+		return webhooks, err
+	}
+	defer cursor.Close(context.Background())
+
+	for cursor.Next(context.Background()) {
+		webhook := v1.SlackWebhook{}
+		if err := cursor.Decode(&webhook); err != nil {
+			log.Errorf("failed to decode slack webhook record (%s)", err.Error())
+			continue
+		}
+		webhooks = append(webhooks, webhook)
+	}
+	return webhooks, nil
+}
