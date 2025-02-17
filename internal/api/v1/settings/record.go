@@ -172,3 +172,17 @@ func updateSlackWebhookRecord(webhook v1.SlackWebhook) error {
 	}
 	return nil
 }
+
+func deleteSlackWebhookRecord(id string) error {
+	h := cubeMongo.GetGlobalHelper()
+	if err := h.UpdateOne(
+		v1.SettingsDB(),
+		v1.SlackWebhookCollection(),
+		bson.M{"id": id},
+		bson.M{"$set": bson.M{"deleted": true}},
+	); err != nil {
+		log.Errorf("failed to delete slack webhook record (%s)", err.Error())
+		return err
+	}
+	return nil
+}

@@ -77,6 +77,12 @@ var Handlers = []api.Handler{
 		Path:    "/settings/slack-webhooks/:id",
 		Func:    updateSlackWebhook,
 	},
+	{
+		Version: api.V1,
+		Method:  "DELETE",
+		Path:    "/settings/slack-webhooks/:id",
+		Func:    deleteSlackWebhook,
+	},
 }
 
 func createEmailSender(c *gin.Context) {
@@ -233,4 +239,15 @@ func updateSlackWebhook(c *gin.Context) {
 	}
 
 	api.SetStatusOk(c, "slack webhook updated successfully", nil)
+}
+
+func deleteSlackWebhook(c *gin.Context) {
+	webhookID := c.Param("id")
+	if err := deleteSlackWebhookRecord(webhookID); err != nil {
+		log.Errorf("request(%s): failed to delete slack webhook: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(c, "slack webhook deleted successfully", nil)
 }
