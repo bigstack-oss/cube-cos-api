@@ -14,7 +14,7 @@ func upsertEmailSenderRecord(emailSender v1.EmailSender) error {
 	opts := options.Update().SetUpsert(true)
 	if err := h.UpdateOne(
 		v1.SettingsDB(),
-		emailSender.Collection(),
+		v1.EmailSenderCollection(),
 		bson.M{},
 		bson.M{"$set": emailSender},
 		opts,
@@ -28,7 +28,7 @@ func upsertEmailSenderRecord(emailSender v1.EmailSender) error {
 func getEmailSenderRecord() (v1.EmailSender, error) {
 	h := cubeMongo.GetGlobalHelper()
 	emailSender := v1.EmailSender{}
-	res, err := h.Get(v1.SettingsDB(), emailSender.Collection(), bson.M{"deleted": bson.M{"$ne": true}})
+	res, err := h.Get(v1.SettingsDB(), v1.EmailSenderCollection(), bson.M{"deleted": bson.M{"$ne": true}})
 	if err != nil {
 		log.Errorf("failed to get email sender record (%s)", err.Error())
 		return emailSender, err
@@ -44,7 +44,7 @@ func deleteEmailSenderRecord() error {
 	h := cubeMongo.GetGlobalHelper()
 	if err := h.UpdateOne(
 		v1.SettingsDB(),
-		v1.EmailSender{}.Collection(),
+		v1.EmailSenderCollection(),
 		bson.M{},
 		bson.M{"$set": bson.M{"deleted": true}},
 	); err != nil {

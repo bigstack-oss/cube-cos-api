@@ -16,7 +16,7 @@ type EmailSender struct {
 	Note string `json:"note,omitempty" bson:"note,omitempty"`
 }
 
-func (es EmailSender) Collection() string {
+func EmailSenderCollection() string {
 	return "emailSender"
 }
 
