@@ -121,3 +121,17 @@ func deleteEmailRecipientRecord(id string) error {
 	}
 	return nil
 }
+
+func createSlackWebhookRecord(webhook v1.SlackWebhook) error {
+	h := cubeMongo.GetGlobalHelper()
+	webhook.ID = uuid.NewString()
+	if err := h.Insert(
+		v1.SettingsDB(),
+		v1.SlackWebhookCollection(),
+		webhook,
+	); err != nil {
+		log.Errorf("failed to insert slack webhook record (%s)", err.Error())
+		return err
+	}
+	return nil
+}

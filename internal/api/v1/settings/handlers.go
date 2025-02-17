@@ -59,6 +59,12 @@ var Handlers = []api.Handler{
 		Path:    "/settings/email-recipients/:id",
 		Func:    deleteEmailRecipient,
 	},
+	{
+		Version: api.V1,
+		Method:  "POST",
+		Path:    "/settings/slack-webhooks",
+		Func:    createSlackWebhook,
+	},
 }
 
 func createEmailSender(c *gin.Context) {
@@ -171,4 +177,20 @@ func deleteEmailRecipient(c *gin.Context) {
 	}
 
 	api.SetStatusOk(c, "email recipient deleted successfully", nil)
+}
+
+func createSlackWebhook(c *gin.Context) {
+	var slackWebhook v1.SlackWebhook
+	if err := c.ShouldBindJSON(&slackWebhook); err != nil {
+		log.Errorf("request(%s): failed to decode slack webhook: %s", api.GetReqId(c), err.Error())
+		return
+	}
+
+	if err := createSlackWebhookRecord(slackWebhook); err != nil {
+		log.Errorf("request(%s): failed to create slack webhook: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusCreated(c, "slack webhook created successfully", nil)
 }
