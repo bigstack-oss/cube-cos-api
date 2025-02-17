@@ -107,3 +107,17 @@ func updateEmailRecipientRecord(emailRecipient v1.EmailRecipient) error {
 	}
 	return nil
 }
+
+func deleteEmailRecipientRecord(id string) error {
+	h := cubeMongo.GetGlobalHelper()
+	if err := h.UpdateOne(
+		v1.SettingsDB(),
+		v1.EmailRecipientCollection(),
+		bson.M{"id": id},
+		bson.M{"$set": bson.M{"deleted": true}},
+	); err != nil {
+		log.Errorf("failed to delete email recipient record (%s)", err.Error())
+		return err
+	}
+	return nil
+}
