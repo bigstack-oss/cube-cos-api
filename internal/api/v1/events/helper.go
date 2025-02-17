@@ -47,6 +47,8 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 		return h.parseEventAbstractParams()
 	case "genEventRank":
 		return h.parseEventRankParams()
+	case "getEventFilterConditions":
+		return h.parseEventFilterConditions()
 	}
 
 	return nil, errors.New("no internal function supported")
@@ -122,6 +124,15 @@ func (h *helper) parseEventRankParams() (*helper, error) {
 	}
 
 	err = h.parseWatch()
+	if err != nil {
+		return nil, err
+	}
+
+	return h, nil
+}
+
+func (h *helper) parseEventFilterConditions() (*helper, error) {
+	err := h.parsePeriod()
 	if err != nil {
 		return nil, err
 	}
@@ -222,6 +233,7 @@ func (h *helper) parseLimit() error {
 func (h *helper) parseRankFactors() error {
 	h.category = h.c.DefaultQuery("category", "")
 	h.severity = h.c.DefaultQuery("severity", "")
+	h.severity = definition.SeverityShortName(h.severity)
 	h.host = h.c.DefaultQuery("host", "")
 	h.instance = h.c.DefaultQuery("instance", "")
 	return nil
@@ -320,4 +332,69 @@ func (h *helper) genEventQuery(event definition.EventStat) string {
 		h.period.start,
 		h.period.stop,
 	)
+}
+
+func (h *helper) genEventFilterConditions() (*definition.EventFilter, error) {
+	systemCategories, err := cubecos.GetEventFilterConditions(h.genFilterConditionStmt("system", "category"))
+	if err != nil {
+		log.Errorf("request(%s): failed to get system categories: %v", api.GetReqId(h.c), err)
+		return nil, err
+	}
+
+	systemSeverities, err := cubecos.GetEventFilterConditions(h.genFilterConditionStmt("system", "severity"))
+	if err != nil {
+		log.Errorf("request(%s): failed to get system severities: %v", api.GetReqId(h.c), err)
+		return nil, err
+	}
+
+	hostCategories, err := cubecos.GetEventFilterConditions(h.genFilterConditionStmt("host", "category"))
+	if err != nil {
+		log.Errorf("request(%s): failed to get host categories: %v", api.GetReqId(h.c), err)
+		return nil, err
+	}
+
+	hostNames, err := cubecos.GetEventFilterConditions(h.genFilterConditionStmt("host", "host"))
+	if err != nil {
+		log.Errorf("request(%s): failed to get host names: %v", api.GetReqId(h.c), err)
+		return nil, err
+	}
+
+	instanceCategories, err := cubecos.GetEventFilterConditions(h.genFilterConditionStmt("instance", "category"))
+	if err != nil {
+		log.Errorf("request(%s): failed to get instance categories: %v", api.GetReqId(h.c), err)
+		return nil, err
+	}
+
+	instanceIds, err := cubecos.GetEventFilterConditions(h.genFilterConditionStmt("instance", "instance"))
+	if err != nil {
+		log.Errorf("request(%s): failed to get instances: %v", api.GetReqId(h.c), err)
+		return nil, err
+	}
+
+	return &definition.EventFilter{
+		System: definition.SystemFilter{
+			Categories: systemCategories,
+			Severities: convertSystemSeverities(systemSeverities),
+		},
+		Host: definition.HostFilter{
+			Categories: hostCategories,
+			Names:      hostNames,
+		},
+		Instance: definition.InstanceFilter{
+			Categories: instanceCategories,
+			Ids:        instanceIds,
+		},
+	}, nil
+}
+
+func convertSystemSeverities(severities []string) []string {
+	converted := []string{}
+	for _, s := range severities {
+		converted = append(
+			converted,
+			definition.SeverityFullName(s),
+		)
+	}
+
+	return converted
 }

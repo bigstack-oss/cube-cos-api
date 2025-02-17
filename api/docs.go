@@ -721,6 +721,153 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/events/filterConditions": {
+            "get": {
+                "operationId": "getEventFilterConditions",
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Retrieve the event filter conditions",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "start",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
+                        "example": "2025-01-01T01:00:00Z"
+                    },
+                    {
+                        "in": "query",
+                        "name": "stop",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
+                        "example": "2025-01-01T01:00:00Z"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the event filter conditions successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetEventFilterConditionResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Event filter conditions",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "system": {
+                                                    "severities": [
+                                                        "Critical",
+                                                        "Info",
+                                                        "Warning"
+                                                    ],
+                                                    "categories": [
+                                                        "KSN",
+                                                        "NET",
+                                                        "SDN",
+                                                        "SRV"
+                                                    ]
+                                                },
+                                                "instance": {
+                                                    "ids": [
+                                                        "028952d3-c0ba-4494-96c0-2bf1bab407e5",
+                                                        "02ecd121-c19b-41c7-8ed7-390745b01af4",
+                                                        "12893f22-a353-4dce-a164-f889e0f39951",
+                                                        "fbd5d7c2-38c8-436b-97f4-d9e5b322d02b"
+                                                    ],
+                                                    "categories": [
+                                                        "CPU",
+                                                        "MEM"
+                                                    ]
+                                                },
+                                                "host": {
+                                                    "names": [
+                                                        "example-node-0"
+                                                    ],
+                                                    "categories": [
+                                                        "DSK",
+                                                        "MEM"
+                                                    ]
+                                                }
+                                            },
+                                            "msg": "fetch event filter conditions successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid 'start' time: 2021-09-01T111:00:00Z"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch event filter conditions: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/events/abstract": {
             "get": {
                 "operationId": "getAbstractedEvents",
@@ -1107,7 +1254,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "integer"
                         },
-                        "description": "The limit of the abstracted events to return (default is 10).",
+                        "description": "The limit of the rank of event to return (default is 10).",
                         "example": 10
                     },
                     {
@@ -1123,7 +1270,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Retrieve the abstracted events successfully",
+                        "description": "Retrieve the rank of event successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1131,7 +1278,7 @@ const docTemplate = `{
                                 },
                                 "examples": {
                                     "example1": {
-                                        "summary": "Abstracted recent events",
+                                        "summary": "Ranked events",
                                         "value": {
                                             "code": 200,
                                             "data": {
@@ -4627,6 +4774,99 @@ const docTemplate = `{
                                     },
                                     "description": {
                                         "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "GetEventFilterConditionResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "system",
+                            "instance",
+                            "host"
+                        ],
+                        "properties": {
+                            "system": {
+                                "type": "object",
+                                "required": [
+                                    "severities",
+                                    "categories"
+                                ],
+                                "properties": {
+                                    "severities": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "categories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "instance": {
+                                "type": "object",
+                                "required": [
+                                    "ids",
+                                    "categories"
+                                ],
+                                "properties": {
+                                    "ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "categories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "host": {
+                                "type": "object",
+                                "required": [
+                                    "names",
+                                    "categories"
+                                ],
+                                "properties": {
+                                    "severities": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "categories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
                                     }
                                 }
                             }

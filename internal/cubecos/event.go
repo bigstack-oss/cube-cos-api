@@ -105,6 +105,42 @@ func GetEventRank(stmt string) ([]definition.EventStat, error) {
 	return events, nil
 }
 
+func GetEventFilterConditions(stmt string) ([]string, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
+	defer cancel()
+
+	h := influx.GetGlobalHelper()
+	c, err := h.QueryApiClient.Query(ctx, stmt)
+	if err != nil {
+		log.Errorf("failed to get cursor of event filter condition: %v", err)
+		return nil, err
+	}
+
+	defer c.Close()
+	values := []string{}
+	err = parseEventValues(c, &values)
+	if err != nil {
+		log.Errorf("failed to parse filter condition from cursor: %v", err)
+		return nil, err
+	}
+
+	return values, nil
+}
+
+func parseEventValues(c *api.QueryTableResult, values *[]string) error {
+	for c.Next() {
+		*values = append(
+			*values,
+			c.Record().Value().(string),
+		)
+	}
+	if c.Err() != nil {
+		return c.Err()
+	}
+
+	return nil
+}
+
 func setPercentageToEachEvent(events *[]definition.EventStat) {
 	total := int64(0)
 	for _, event := range *events {

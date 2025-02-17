@@ -14,12 +14,12 @@ var (
 	`
 
 	eventIdCountQueryTemplate = `
-	from(bucket: "events")
-		|> range(start: %s, stop: %s)
-		|> filter(fn: (r) => r._measurement == "%s")
-		|> filter(fn: (r) => r.key == "%s")
-		|> count()
-`
+		from(bucket: "events")
+			|> range(start: %s, stop: %s)
+			|> filter(fn: (r) => r._measurement == "%s")
+			|> filter(fn: (r) => r.key == "%s")
+			|> count()
+	`
 
 	eventNonPagingQueryTemplate = `
 		from(bucket: "events")
@@ -114,6 +114,15 @@ var (
 			|> group()
 			|> sort(columns: ["number"], desc: true)
 			|> limit(n: %d)
+	`
+
+	eventFilterConditionQueryTemplate = `
+		from(bucket: "events")
+			|> range(start: %s, stop: %s)
+			|> filter(fn: (r) => r._measurement == "%s")
+			|> keep(columns: ["%s"])
+			|> group()                    
+			|> distinct(column: "%s")
 	`
 )
 
@@ -238,5 +247,16 @@ func (h *helper) genInstanceRankStmt() string {
 		h.category,
 		h.instance,
 		h.limit,
+	)
+}
+
+func (h *helper) genFilterConditionStmt(eventType, column string) string {
+	return fmt.Sprintf(
+		eventFilterConditionQueryTemplate,
+		h.period.start,
+		h.period.stop,
+		eventType,
+		column,
+		column,
 	)
 }

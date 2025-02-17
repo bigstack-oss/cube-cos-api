@@ -25,6 +25,27 @@ type EventStat struct {
 	Query   string  `json:"query"`
 }
 
+type EventFilter struct {
+	System   SystemFilter   `json:"system"`
+	Instance InstanceFilter `json:"instance"`
+	Host     HostFilter     `json:"host"`
+}
+
+type SystemFilter struct {
+	Severities []string `json:"severities"`
+	Categories []string `json:"categories"`
+}
+
+type InstanceFilter struct {
+	Ids        []string `json:"ids"`
+	Categories []string `json:"categories"`
+}
+
+type HostFilter struct {
+	Names      []string `json:"names"`
+	Categories []string `json:"categories"`
+}
+
 func SeverityFullName(severity string) string {
 	switch strings.ToLower(severity) {
 	case "c":
@@ -35,5 +56,18 @@ func SeverityFullName(severity string) string {
 		return "Info"
 	}
 
-	return "Unknown"
+	return severity
+}
+
+func SeverityShortName(severity string) string {
+	switch strings.ToLower(severity) {
+	case "critical":
+		return "C"
+	case "warning":
+		return "W"
+	case "info":
+		return "I"
+	}
+
+	return severity
 }
