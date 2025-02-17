@@ -3,6 +3,7 @@ package settings
 import (
 	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/google/uuid"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -49,6 +50,20 @@ func deleteEmailSenderRecord() error {
 		bson.M{"$set": bson.M{"deleted": true}},
 	); err != nil {
 		log.Errorf("failed to delete email sender record (%s)", err.Error())
+		return err
+	}
+	return nil
+}
+
+func createEmailRecipientRecord(emailRecipient v1.EmailRecipient) error {
+	h := cubeMongo.GetGlobalHelper()
+	emailRecipient.ID = uuid.NewString()
+	if err := h.Insert(
+		v1.SettingsDB(),
+		v1.EmailRecipientCollection(),
+		emailRecipient,
+	); err != nil {
+		log.Errorf("failed to insert email recipient record (%s)", err.Error())
 		return err
 	}
 	return nil

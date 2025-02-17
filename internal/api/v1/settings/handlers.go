@@ -35,6 +35,12 @@ var Handlers = []api.Handler{
 		Path:    "/settings/email-sender",
 		Func:    deleteEmailSender,
 	},
+	{
+		Version: api.V1,
+		Method:  "POST",
+		Path:    "/settings/email-recipients",
+		Func:    createEmailRecipient,
+	},
 }
 
 func createEmailSender(c *gin.Context) {
@@ -92,4 +98,20 @@ func deleteEmailSender(c *gin.Context) {
 	}
 
 	api.SetStatusOk(c, "email sender deleted successfully", nil)
+}
+
+func createEmailRecipient(c *gin.Context) {
+	var emailRecipient v1.EmailRecipient
+	if err := c.ShouldBindJSON(&emailRecipient); err != nil {
+		log.Errorf("request(%s): failed to decode email recipient: %s", api.GetReqId(c), err.Error())
+		return
+	}
+
+	if err := createEmailRecipientRecord(emailRecipient); err != nil {
+		log.Errorf("request(%s): failed to create email recipient: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusCreated(c, "email recipient created successfully", nil)
 }
