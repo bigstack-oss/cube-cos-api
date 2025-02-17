@@ -39,3 +39,17 @@ func getEmailSenderRecord() (v1.EmailSender, error) {
 	}
 	return emailSender, nil
 }
+
+func deleteEmailSenderRecord() error {
+	h := cubeMongo.GetGlobalHelper()
+	if err := h.UpdateOne(
+		v1.SettingsDB(),
+		v1.EmailSender{}.Collection(),
+		bson.M{},
+		bson.M{"$set": bson.M{"deleted": true}},
+	); err != nil {
+		log.Errorf("failed to delete email sender record (%s)", err.Error())
+		return err
+	}
+	return nil
+}

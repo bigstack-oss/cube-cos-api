@@ -29,6 +29,12 @@ var Handlers = []api.Handler{
 		Path:    "/settings/email-sender",
 		Func:    updateEmailSender,
 	},
+	{
+		Version: api.V1,
+		Method:  "DELETE",
+		Path:    "/settings/email-sender",
+		Func:    deleteEmailSender,
+	},
 }
 
 func createEmailSender(c *gin.Context) {
@@ -76,4 +82,14 @@ func updateEmailSender(c *gin.Context) {
 	}
 
 	api.SetStatusOk(c, "email sender updated successfully", nil)
+}
+
+func deleteEmailSender(c *gin.Context) {
+	if err := deleteEmailSenderRecord(); err != nil {
+		log.Errorf("request(%s): failed to delete email sender: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(c, "email sender deleted successfully", nil)
 }
