@@ -91,3 +91,19 @@ func getEmailRecipientRecords() ([]v1.EmailRecipient, error) {
 	}
 	return recipients, nil
 }
+
+func updateEmailRecipientRecord(emailRecipient v1.EmailRecipient) error {
+	h := cubeMongo.GetGlobalHelper()
+	filter := bson.M{"id": emailRecipient.ID}
+	update := bson.M{"$set": emailRecipient}
+	if err := h.UpdateOne(
+		v1.SettingsDB(),
+		v1.EmailRecipientCollection(),
+		filter,
+		update,
+	); err != nil {
+		log.Errorf("failed to update email recipient record (%s)", err.Error())
+		return err
+	}
+	return nil
+}

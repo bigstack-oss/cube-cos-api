@@ -47,6 +47,12 @@ var Handlers = []api.Handler{
 		Path:    "/settings/email-recipients",
 		Func:    getEmailRecipients,
 	},
+	{
+		Version: api.V1,
+		Method:  "PUT",
+		Path:    "/settings/email-recipients/:id",
+		Func:    updateEmailRecipient,
+	},
 }
 
 func createEmailSender(c *gin.Context) {
@@ -131,4 +137,21 @@ func getEmailRecipients(c *gin.Context) {
 	}
 
 	api.SetStatusOk(c, "email recipients retrieved successfully", emailRecipients)
+}
+
+func updateEmailRecipient(c *gin.Context) {
+	var emailRecipient v1.EmailRecipient
+	if err := c.ShouldBindJSON(&emailRecipient); err != nil {
+		log.Errorf("request(%s): failed to decode email recipient: %s", api.GetReqId(c), err.Error())
+		return
+	}
+
+	emailRecipient.ID = c.Param("id")
+	if err := updateEmailRecipientRecord(emailRecipient); err != nil {
+		log.Errorf("request(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(c, "email recipient updated successfully", nil)
 }
