@@ -70,6 +70,17 @@ func SetUnauthorized(c *gin.Context, err error) {
 	)
 }
 
+func SetStatusNotFound(c *gin.Context, err error) {
+	c.JSON(
+		http.StatusNotFound,
+		gin.H{
+			Code:   http.StatusNotFound,
+			Status: "not found",
+			Msg:    err.Error(),
+		},
+	)
+}
+
 func SetStatusConflict(c *gin.Context, err error) {
 	c.JSON(
 		http.StatusConflict,
