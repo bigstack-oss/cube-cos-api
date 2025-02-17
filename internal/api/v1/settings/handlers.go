@@ -41,6 +41,12 @@ var Handlers = []api.Handler{
 		Path:    "/settings/email-recipients",
 		Func:    createEmailRecipient,
 	},
+	{
+		Version: api.V1,
+		Method:  "GET",
+		Path:    "/settings/email-recipients",
+		Func:    getEmailRecipients,
+	},
 }
 
 func createEmailSender(c *gin.Context) {
@@ -114,4 +120,15 @@ func createEmailRecipient(c *gin.Context) {
 	}
 
 	api.SetStatusCreated(c, "email recipient created successfully", nil)
+}
+
+func getEmailRecipients(c *gin.Context) {
+	emailRecipients, err := getEmailRecipientRecords()
+	if err != nil {
+		log.Errorf("request(%s): failed to get email recipients: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(c, "email recipients retrieved successfully", emailRecipients)
 }

@@ -1,6 +1,8 @@
 package settings
 
 import (
+	"context"
+
 	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/google/uuid"
@@ -67,4 +69,25 @@ func createEmailRecipientRecord(emailRecipient v1.EmailRecipient) error {
 		return err
 	}
 	return nil
+}
+
+func getEmailRecipientRecords() ([]v1.EmailRecipient, error) {
+	h := cubeMongo.GetGlobalHelper()
+	recipients := []v1.EmailRecipient{}
+	cursor, err := h.GetQueryCursor(v1.SettingsDB(), v1.EmailRecipientCollection(), bson.M{"deleted": bson.M{"$ne": true}})
+	if err != nil {
+		log.Errorf("failed to get cursor for email recipient (%s)", err.Error())
+		return recipients, err
+	}
+	defer cursor.Close(context.Background())
+
+	for cursor.Next(context.Background()) {
+		recipient := v1.EmailRecipient{}
+		if err := cursor.Decode(&recipient); err != nil {
+			log.Errorf("failed to decode email recipient record (%s)", err.Error())
+			continue
+		}
+		recipients = append(recipients, recipient)
+	}
+	return recipients, nil
 }
