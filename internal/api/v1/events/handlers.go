@@ -28,6 +28,12 @@ var (
 			Path:    "/events/rank",
 			Func:    genEventRank,
 		},
+		{
+			Version: api.V1,
+			Method:  http.MethodGet,
+			Path:    "/events/filterConditions",
+			Func:    getEventFilterConditions,
+		},
 	}
 )
 
@@ -113,5 +119,27 @@ func genEventRank(c *gin.Context) {
 		c,
 		"fetch event rank successfully",
 		rank,
+	)
+}
+
+func getEventFilterConditions(c *gin.Context) {
+	h, err := initReqHelper(c, "getEventFilterConditions")
+	if err != nil {
+		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	conditions, err := h.genEventFilterConditions()
+	if err != nil {
+		log.Errorf("request(%s): failed to gen event filter conditions: %v", api.GetReqId(c), err)
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"fetch event filter conditions successfully",
+		conditions,
 	)
 }
