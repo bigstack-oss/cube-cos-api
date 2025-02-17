@@ -24,12 +24,24 @@ type EmailRecipient struct {
 	Note string   `json:"note,omitempty" bson:"note,omitempty"`
 }
 
+type SlackWebhook struct {
+	ID      string `json:"id" bson:"id"`
+	Deleted bool   `json:"-" bson:"deleted"`
+
+	URL     string `json:"url" bson:"url"`
+	Channel string `json:"channel" bson:"channel"`
+}
+
 func EmailSenderCollection() string {
 	return "emailSender"
 }
 
 func EmailRecipientCollection() string {
 	return "emailRecipient"
+}
+
+func SlackWebhookCollection() string {
+	return "slackWebhook"
 }
 
 func SettingsDB() string {
