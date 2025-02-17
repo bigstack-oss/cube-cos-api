@@ -16,8 +16,20 @@ type EmailSender struct {
 	Note string `json:"note,omitempty" bson:"note,omitempty"`
 }
 
+type EmailRecipient struct {
+	ID      string `json:"id" bson:"id"`
+	Deleted bool   `json:"-" bson:"deleted"`
+
+	To   []string `json:"to" bson:"to"`
+	Note string   `json:"note,omitempty" bson:"note,omitempty"`
+}
+
 func EmailSenderCollection() string {
 	return "emailSender"
+}
+
+func EmailRecipientCollection() string {
+	return "emailRecipient"
 }
 
 func SettingsDB() string {
