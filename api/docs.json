@@ -4233,6 +4233,980 @@
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/settings": {
+            "get": {
+                "operationId": "getSetting",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Retrieve setting",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Setting retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetSettingResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch setting: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/settings/emailSenders": {
+            "post": {
+                "operationId": "createEmailSender",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Create a new email sender",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailSender"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Email Sender",
+                                    "value": {
+                                        "host": "smtp.example.com",
+                                        "port": 587,
+                                        "username": "user@example.com",
+                                        "password": "securepassword",
+                                        "from": "noreply@example.com",
+                                        "note": "Primary email sender"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Email sender created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostEmailSenderResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch email sender: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "operationId": "getEmailSenders",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Retrieve email senders",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Email senders retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetEmailSendersResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Email Senders List",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "emailSenders": [
+                                                    {
+                                                        "host": "smtp.example.com",
+                                                        "port": 587,
+                                                        "username": "user@example.com",
+                                                        "password": "securepassword",
+                                                        "from": "noreply@example.com",
+                                                        "note": "Primary email sender"
+                                                    }
+                                                ]
+                                            },
+                                            "msg": "email senders retrieved successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch email sender: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updateEmailSender",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Update email sender",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailSender"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Email Sender",
+                                    "value": {
+                                        "host": "smtp.example.com",
+                                        "port": 587,
+                                        "username": "user@example.com",
+                                        "password": "securepassword",
+                                        "from": "noreply@example.com",
+                                        "note": "Updated email sender"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Email sender updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PutEmailSenderResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch email sender: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteEmailSender",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Delete email sender",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Email sender deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeleteEmailSenderResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch email sender: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/settings/emailRecipients": {
+            "post": {
+                "operationId": "createEmailRecipient",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Create email recipient",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailRecipient"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Email Recipient",
+                                    "value": {
+                                        "to": [
+                                            "user1@example.com",
+                                            "user2@example.com"
+                                        ],
+                                        "note": "Primary recipients"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Email recipient created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostEmailRecipientResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to create email recipients: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "operationId": "getEmailRecipients",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Retrieve email recipients",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Email recipients retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetEmailRecipientsResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Email Recipients List",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "emailRecipients": [
+                                                    {
+                                                        "id": "8c2e39d7-e72b-4581-bfa5-117160df7cfb",
+                                                        "to": [
+                                                            "user1@example.com",
+                                                            "user2@example.com"
+                                                        ],
+                                                        "note": "Primary recipients"
+                                                    }
+                                                ]
+                                            },
+                                            "msg": "email recipients retrieved successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch email recipients: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/settings/emailRecipients/{id}": {
+            "put": {
+                "operationId": "updateEmailRecipient",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Update email recipient",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ID of the email recipient to update"
+                    },
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailRecipient"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Email Recipient",
+                                    "value": {
+                                        "to": [
+                                            "user1@example.com"
+                                        ],
+                                        "note": "Updated recipients"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Email recipient updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PutEmailRecipientResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to update email recipient: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteEmailRecipient",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Delete email recipient",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ID of the email recipient to delete"
+                    },
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Email recipient deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeleteEmailRecipientResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to delete email recipient: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/settings/slackWebhooks": {
+            "post": {
+                "operationId": "createSlackWebhook",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Create slack webhook",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SlackWebhook"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Slack Webhook",
+                                    "value": {
+                                        "url": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
+                                        "channel": "#alerts"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Slack webhook created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostSlackWebhookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to create slack webhook: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "operationId": "getSlackWebhooks",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Retrieve slack webhooks",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Slack webhooks retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetSlackWebhooksResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Slack Webhooks List",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "slackWebhooks": [
+                                                    {
+                                                        "id": "8c2e39d7-e72b-4581-bfa5-117160df7cfb",
+                                                        "url": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
+                                                        "channel": "#alerts"
+                                                    }
+                                                ]
+                                            },
+                                            "msg": "slack webhooks retrieved successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "500": {
+                                    "description": "Internal Server Error",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "code": {
+                                                        "type": "integer",
+                                                        "example": 500
+                                                    },
+                                                    "msg": {
+                                                        "type": "string",
+                                                        "example": "failed to fetch slack webhook: internal server error"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "internal server error"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/settings/slackWebhooks/{id}": {
+            "put": {
+                "operationId": "updateSlackWebhook",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Update slack webhook",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ID of the slack webhook to update"
+                    },
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SlackWebhook"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Slack Webhook",
+                                    "value": {
+                                        "url": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
+                                        "channel": "#alerts-updated"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Slack webhook updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PutSlackWebhookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "500": {
+                                    "description": "Internal Server Error",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "code": {
+                                                        "type": "integer",
+                                                        "example": 500
+                                                    },
+                                                    "msg": {
+                                                        "type": "string",
+                                                        "example": "failed to update slack webhook: internal server error"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "internal server error"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteSlackWebhook",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Delete slack webhook",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ID of the slack webhook to delete"
+                    },
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Slack webhook deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeleteSlackWebhookResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "500": {
+                                    "description": "Internal Server Error",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "code": {
+                                                        "type": "integer",
+                                                        "example": 500
+                                                    },
+                                                    "msg": {
+                                                        "type": "string",
+                                                        "example": "failed to delete slack webhook: internal server error"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "internal server error"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/tokens": {
             "post": {
                 "operationId": "getToken",
@@ -7279,6 +8253,463 @@
                     },
                     "status": {
                         "type": "string"
+                    }
+                }
+            },
+            "Setting": {
+                "type": "object",
+                "properties": {
+                    "emailSenders": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EmailSender"
+                        }
+                    },
+                    "emailRecipients": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EmailRecipient"
+                        }
+                    },
+                    "slackWebhooks": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SlackWebhook"
+                        }
+                    }
+                }
+            },
+            "EmailSender": {
+                "type": "object",
+                "properties": {
+                    "host": {
+                        "type": "string",
+                        "example": "smtp.example.com"
+                    },
+                    "port": {
+                        "type": "integer",
+                        "example": 587
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "user@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "securepassword"
+                    },
+                    "from": {
+                        "type": "string",
+                        "example": "noreply@example.com"
+                    },
+                    "note": {
+                        "type": "string",
+                        "example": "Primary email sender"
+                    }
+                }
+            },
+            "EmailRecipient": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "recipient-id-123"
+                    },
+                    "to": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "user1@example.com",
+                            "user2@example.com"
+                        ]
+                    },
+                    "note": {
+                        "type": "string",
+                        "example": "Primary recipients"
+                    }
+                }
+            },
+            "SlackWebhook": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "webhook-id-123"
+                    },
+                    "url": {
+                        "type": "string",
+                        "example": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+                    },
+                    "channel": {
+                        "type": "string",
+                        "example": "#alerts"
+                    }
+                }
+            },
+            "GetSettingResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Setting"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "fetch setting successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "PostEmailSenderResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 201
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": null
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "email senders created successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "GetEmailSendersResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "emailSenders": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/EmailSender"
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "email senders retrieved successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "PutEmailSenderResponse": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": null
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "email senders updated successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "DeleteEmailSenderResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": null
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "email senders deleted successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "PostEmailRecipientResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 201
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": null
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "email recipient created successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "GetEmailRecipientsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "emailRecipients": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/EmailRecipient"
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "email recipients retrieved successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "PutEmailRecipientResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": null
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "email recipient updated successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "DeleteEmailRecipientResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": null
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "email recipient deleted successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "PostSlackWebhookResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 201
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": null
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "slack webhook created successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "GetSlackWebhooksResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "slackWebhooks": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/SlackWebhook"
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "slack webhooks retrieved successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "PutSlackWebhookResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": null
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "slack webhook updated successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "DeleteSlackWebhookResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": null
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "slack webhook deleted successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
                     }
                 }
             }
