@@ -1,7 +1,10 @@
 package v1
 
 const (
-	Settings = "settings"
+	Settings        = "settings"
+	EmailSenders    = "emailSenders"
+	EmailRecipients = "emailRecipients"
+	SlackWebhooks   = "slackWebhooks"
 )
 
 type EmailSender struct {
@@ -33,15 +36,15 @@ type SlackWebhook struct {
 }
 
 func EmailSenderCollection() string {
-	return "emailSenders"
+	return EmailSenders
 }
 
 func EmailRecipientCollection() string {
-	return "emailRecipients"
+	return EmailRecipients
 }
 
 func SlackWebhookCollection() string {
-	return "slackWebhooks"
+	return SlackWebhooks
 }
 
 func SettingsDB() string {
