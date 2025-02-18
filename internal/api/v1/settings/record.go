@@ -67,11 +67,14 @@ func getEmailSenderRecords() ([]v1.EmailSender, error) {
 	for cursor.Next(nxtCtx) {
 		sender := v1.EmailSender{}
 		if err := cursor.Decode(&sender); err != nil {
-			log.Errorf("failed to decode email sender record (%s)", err.Error())
 			continue
 		}
 		senders = append(senders, sender)
 	}
+	if cursor.Err() != nil {
+		log.Errorf("failed to iterate email sender records (%s)", cursor.Err().Error())
+	}
+
 	return senders, nil
 }
 
@@ -115,10 +118,12 @@ func getEmailRecipientRecords() ([]v1.EmailRecipient, error) {
 	for cursor.Next(nxtCtx) {
 		recipient := v1.EmailRecipient{}
 		if err := cursor.Decode(&recipient); err != nil {
-			log.Errorf("failed to decode email recipient record (%s)", err.Error())
 			continue
 		}
 		recipients = append(recipients, recipient)
+	}
+	if cursor.Err() != nil {
+		log.Errorf("failed to iterate email recipient records (%s)", cursor.Err().Error())
 	}
 	return recipients, nil
 }
@@ -175,10 +180,12 @@ func getSlackWebhookRecords() ([]v1.SlackWebhook, error) {
 	for cursor.Next(nxtCtx) {
 		webhook := v1.SlackWebhook{}
 		if err := cursor.Decode(&webhook); err != nil {
-			log.Errorf("failed to decode slack webhook record (%s)", err.Error())
 			continue
 		}
 		webhooks = append(webhooks, webhook)
+	}
+	if cursor.Err() != nil {
+		log.Errorf("failed to iterate slack webhook records (%s)", cursor.Err().Error())
 	}
 	return webhooks, nil
 }
