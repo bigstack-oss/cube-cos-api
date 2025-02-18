@@ -13,6 +13,12 @@ import (
 var Handlers = []api.Handler{
 	{
 		Version: api.V1,
+		Method:  "GET",
+		Path:    "/settings",
+		Func:    getSetting,
+	},
+	{
+		Version: api.V1,
 		Method:  "POST",
 		Path:    "/settings/emailSenders",
 		Func:    createEmailSender,
@@ -83,6 +89,17 @@ var Handlers = []api.Handler{
 		Path:    "/settings/slackWebhooks/:id",
 		Func:    deleteSlackWebhook,
 	},
+}
+
+func getSetting(c *gin.Context) {
+	setting, err := getSettingRecord()
+	if err != nil {
+		log.Errorf("request(%s): failed to get setting: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(c, "setting retrieved successfully", setting)
 }
 
 func createEmailSender(c *gin.Context) {

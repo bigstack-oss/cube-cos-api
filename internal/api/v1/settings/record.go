@@ -11,6 +11,29 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+func getSettingRecord() (v1.Setting, error) {
+	sender, err := getEmailSenderRecords()
+	if err != nil {
+		log.Errorf("failed to get email sender records (%s)", err.Error())
+		return v1.Setting{}, err
+	}
+	recipient, err := getEmailRecipientRecords()
+	if err != nil {
+		log.Errorf("failed to get email recipient records (%s)", err.Error())
+		return v1.Setting{}, err
+	}
+	webhook, err := getSlackWebhookRecords()
+	if err != nil {
+		log.Errorf("failed to get slack webhook records (%s)", err.Error())
+		return v1.Setting{}, err
+	}
+	return v1.Setting{
+		EmailSenders:    sender,
+		EmailRecipients: recipient,
+		SlackWebhooks:   webhook,
+	}, nil
+}
+
 func upsertEmailSenderRecord(emailSender v1.EmailSender) error {
 	h := cubeMongo.GetGlobalHelper()
 

@@ -7,6 +7,12 @@ const (
 	SlackWebhooks   = "slackWebhooks"
 )
 
+type Setting struct {
+	EmailSenders    []EmailSender    `json:"emailSenders" bson:"emailSenders"`
+	EmailRecipients []EmailRecipient `json:"emailRecipients" bson:"emailRecipients"`
+	SlackWebhooks   []SlackWebhook   `json:"slackWebhooks" bson:"slackWebhooks"`
+}
+
 type EmailSender struct {
 	Deleted bool `json:"-" bson:"deleted"`
 
