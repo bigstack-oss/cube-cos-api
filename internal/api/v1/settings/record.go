@@ -4,6 +4,7 @@ import (
 	"context"
 
 	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/google/uuid"
 	log "go-micro.dev/v5/logger"
@@ -54,14 +55,21 @@ func upsertEmailSenderRecord(emailSender v1.EmailSender) error {
 func getEmailSenderRecords() ([]v1.EmailSender, error) {
 	h := cubeMongo.GetGlobalHelper()
 	senders := []v1.EmailSender{}
+
+	curCtx, curCancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer curCancel()
+
 	cursor, err := h.GetQueryCursor(v1.SettingsDB(), v1.EmailSenderCollection(), bson.M{"deleted": bson.M{"$ne": true}})
 	if err != nil {
 		log.Errorf("failed to get cursor for email sender (%s)", err.Error())
 		return senders, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(curCtx)
 
-	for cursor.Next(context.Background()) {
+	nxtCtx, nxtCancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer nxtCancel()
+
+	for cursor.Next(nxtCtx) {
 		sender := v1.EmailSender{}
 		if err := cursor.Decode(&sender); err != nil {
 			log.Errorf("failed to decode email sender record (%s)", err.Error())
@@ -103,14 +111,21 @@ func createEmailRecipientRecord(emailRecipient v1.EmailRecipient) error {
 func getEmailRecipientRecords() ([]v1.EmailRecipient, error) {
 	h := cubeMongo.GetGlobalHelper()
 	recipients := []v1.EmailRecipient{}
+
+	curCtx, curCancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer curCancel()
+
 	cursor, err := h.GetQueryCursor(v1.SettingsDB(), v1.EmailRecipientCollection(), bson.M{"deleted": bson.M{"$ne": true}})
 	if err != nil {
 		log.Errorf("failed to get cursor for email recipient (%s)", err.Error())
 		return recipients, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(curCtx)
 
-	for cursor.Next(context.Background()) {
+	nxtCtx, nxtCancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer nxtCancel()
+
+	for cursor.Next(nxtCtx) {
 		recipient := v1.EmailRecipient{}
 		if err := cursor.Decode(&recipient); err != nil {
 			log.Errorf("failed to decode email recipient record (%s)", err.Error())
@@ -168,14 +183,21 @@ func createSlackWebhookRecord(webhook v1.SlackWebhook) error {
 func getSlackWebhookRecords() ([]v1.SlackWebhook, error) {
 	h := cubeMongo.GetGlobalHelper()
 	webhooks := []v1.SlackWebhook{}
+
+	curCtx, curCancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer curCancel()
+
 	cursor, err := h.GetQueryCursor(v1.SettingsDB(), v1.SlackWebhookCollection(), bson.M{"deleted": bson.M{"$ne": true}})
 	if err != nil {
 		log.Errorf("failed to get cursor for slack webhook (%s)", err.Error())
 		return webhooks, err
 	}
-	defer cursor.Close(context.Background())
+	defer cursor.Close(curCtx)
 
-	for cursor.Next(context.Background()) {
+	nxtCtx, nxtCancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer nxtCancel()
+
+	for cursor.Next(nxtCtx) {
 		webhook := v1.SlackWebhook{}
 		if err := cursor.Decode(&webhook); err != nil {
 			log.Errorf("failed to decode slack webhook record (%s)", err.Error())
