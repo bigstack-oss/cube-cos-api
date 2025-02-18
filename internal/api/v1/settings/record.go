@@ -37,19 +37,14 @@ func getSettingRecord() (v1.Setting, error) {
 
 func upsertEmailSenderRecord(emailSender v1.EmailSender) error {
 	h := cubeMongo.GetGlobalHelper()
-
 	opts := options.Update().SetUpsert(true)
-	if err := h.UpdateOne(
+	return h.UpdateOne(
 		v1.SettingsDB(),
 		v1.EmailSenderCollection(),
 		bson.M{},
 		bson.M{"$set": emailSender},
 		opts,
-	); err != nil {
-		log.Errorf("failed to insert email sender record (%s)", err.Error())
-		return err
-	}
-	return nil
+	)
 }
 
 func getEmailSenderRecords() ([]v1.EmailSender, error) {
@@ -82,30 +77,22 @@ func getEmailSenderRecords() ([]v1.EmailSender, error) {
 
 func deleteEmailSenderRecord() error {
 	h := cubeMongo.GetGlobalHelper()
-	if err := h.UpdateOne(
+	return h.UpdateOne(
 		v1.SettingsDB(),
 		v1.EmailSenderCollection(),
 		bson.M{},
 		bson.M{"$set": bson.M{"deleted": true}},
-	); err != nil {
-		log.Errorf("failed to delete email sender record (%s)", err.Error())
-		return err
-	}
-	return nil
+	)
 }
 
 func createEmailRecipientRecord(emailRecipient v1.EmailRecipient) error {
 	h := cubeMongo.GetGlobalHelper()
 	emailRecipient.ID = uuid.NewString()
-	if err := h.Insert(
+	return h.Insert(
 		v1.SettingsDB(),
 		v1.EmailRecipientCollection(),
 		emailRecipient,
-	); err != nil {
-		log.Errorf("failed to insert email recipient record (%s)", err.Error())
-		return err
-	}
-	return nil
+	)
 }
 
 func getEmailRecipientRecords() ([]v1.EmailRecipient, error) {
@@ -140,44 +127,32 @@ func updateEmailRecipientRecord(emailRecipient v1.EmailRecipient) error {
 	h := cubeMongo.GetGlobalHelper()
 	filter := bson.M{"id": emailRecipient.ID}
 	update := bson.M{"$set": emailRecipient}
-	if err := h.UpdateOne(
+	return h.UpdateOne(
 		v1.SettingsDB(),
 		v1.EmailRecipientCollection(),
 		filter,
 		update,
-	); err != nil {
-		log.Errorf("failed to update email recipient record (%s)", err.Error())
-		return err
-	}
-	return nil
+	)
 }
 
 func deleteEmailRecipientRecord(id string) error {
 	h := cubeMongo.GetGlobalHelper()
-	if err := h.UpdateOne(
+	return h.UpdateOne(
 		v1.SettingsDB(),
 		v1.EmailRecipientCollection(),
 		bson.M{"id": id},
 		bson.M{"$set": bson.M{"deleted": true}},
-	); err != nil {
-		log.Errorf("failed to delete email recipient record (%s)", err.Error())
-		return err
-	}
-	return nil
+	)
 }
 
 func createSlackWebhookRecord(webhook v1.SlackWebhook) error {
 	h := cubeMongo.GetGlobalHelper()
 	webhook.ID = uuid.NewString()
-	if err := h.Insert(
+	return h.Insert(
 		v1.SettingsDB(),
 		v1.SlackWebhookCollection(),
 		webhook,
-	); err != nil {
-		log.Errorf("failed to insert slack webhook record (%s)", err.Error())
-		return err
-	}
-	return nil
+	)
 }
 
 func getSlackWebhookRecords() ([]v1.SlackWebhook, error) {
@@ -212,28 +187,20 @@ func updateSlackWebhookRecord(webhook v1.SlackWebhook) error {
 	h := cubeMongo.GetGlobalHelper()
 	filter := bson.M{"id": webhook.ID}
 	update := bson.M{"$set": webhook}
-	if err := h.UpdateOne(
+	return h.UpdateOne(
 		v1.SettingsDB(),
 		v1.SlackWebhookCollection(),
 		filter,
 		update,
-	); err != nil {
-		log.Errorf("failed to update slack webhook record (%s)", err.Error())
-		return err
-	}
-	return nil
+	)
 }
 
 func deleteSlackWebhookRecord(id string) error {
 	h := cubeMongo.GetGlobalHelper()
-	if err := h.UpdateOne(
+	return h.UpdateOne(
 		v1.SettingsDB(),
 		v1.SlackWebhookCollection(),
 		bson.M{"id": id},
 		bson.M{"$set": bson.M{"deleted": true}},
-	); err != nil {
-		log.Errorf("failed to delete slack webhook record (%s)", err.Error())
-		return err
-	}
-	return nil
+	)
 }
