@@ -5014,27 +5014,20 @@
                         "description": "Internal Server Error",
                         "content": {
                             "application/json": {
-                                "500": {
-                                    "description": "Internal Server Error",
-                                    "content": {
-                                        "application/json": {
-                                            "schema": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "code": {
-                                                        "type": "integer",
-                                                        "example": 500
-                                                    },
-                                                    "msg": {
-                                                        "type": "string",
-                                                        "example": "failed to fetch slack webhook: internal server error"
-                                                    },
-                                                    "status": {
-                                                        "type": "string",
-                                                        "example": "internal server error"
-                                                    }
-                                                }
-                                            }
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to update slack webhook: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
                                         }
                                     }
                                 }
@@ -5106,27 +5099,20 @@
                         "description": "Internal Server Error",
                         "content": {
                             "application/json": {
-                                "500": {
-                                    "description": "Internal Server Error",
-                                    "content": {
-                                        "application/json": {
-                                            "schema": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "code": {
-                                                        "type": "integer",
-                                                        "example": 500
-                                                    },
-                                                    "msg": {
-                                                        "type": "string",
-                                                        "example": "failed to update slack webhook: internal server error"
-                                                    },
-                                                    "status": {
-                                                        "type": "string",
-                                                        "example": "internal server error"
-                                                    }
-                                                }
-                                            }
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to update slack webhook: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
                                         }
                                     }
                                 }
@@ -5177,27 +5163,20 @@
                         "description": "Internal Server Error",
                         "content": {
                             "application/json": {
-                                "500": {
-                                    "description": "Internal Server Error",
-                                    "content": {
-                                        "application/json": {
-                                            "schema": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "code": {
-                                                        "type": "integer",
-                                                        "example": 500
-                                                    },
-                                                    "msg": {
-                                                        "type": "string",
-                                                        "example": "failed to delete slack webhook: internal server error"
-                                                    },
-                                                    "status": {
-                                                        "type": "string",
-                                                        "example": "internal server error"
-                                                    }
-                                                }
-                                            }
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to delete slack webhook: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
                                         }
                                     }
                                 }
