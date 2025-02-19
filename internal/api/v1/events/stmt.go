@@ -89,31 +89,39 @@ var (
 )
 
 func (h *helper) genCountQueryStmt() string {
-	if h.isIdRequired() {
-		return fmt.Sprintf(
-			eventIdCountQueryTemplate,
-			h.period.start,
-			h.period.stop,
-			h.eventType,
-			h.eventId,
-		)
-	}
+	// if h.isIdRequired() {
+	// 	return fmt.Sprintf(
+	// 		eventIdCountQueryTemplate,
+	// 		h.period.start,
+	// 		h.period.stop,
+	// 		h.eventType,
+	// 		h.eventId,
+	// 	)
+	// }
 
-	return fmt.Sprintf(
-		eventCountQueryTemplate,
-		h.period.start,
-		h.period.stop,
-		h.eventType,
-	)
+	// return fmt.Sprintf(
+	// 	eventCountQueryTemplate,
+	// 	h.period.start,
+	// 	h.period.stop,
+	// 	h.eventType,
+	// )
+
+	query := influx.Query{}
+	query.Bucket("events").
+		Range(h.genStartStopRange()).
+		Measurement(h.eventType)
+
+	h.addFilters(&query)
+	return query.Count("").String()
 }
 
 func (h *helper) genListingStmt() string {
 	query := influx.Query{}
 	query.Bucket("events").
-		Range(fmt.Sprintf("start: %s, stop: %s", h.period.start, h.period.stop)).
+		Range(h.genStartStopRange()).
 		Measurement(h.eventType)
 
-	h.applyFilterCondition(&query)
+	h.addFilters(&query)
 
 	query.
 		Pivot(`rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value"`).
@@ -130,7 +138,7 @@ func (h *helper) genListingStmt() string {
 		String()
 }
 
-func (h *helper) applyFilterCondition(query *influx.Query) {
+func (h *helper) addFilters(query *influx.Query) {
 	if h.isIdRequired() {
 		query.Filter(fmt.Sprintf(`fn: (r) => r.key == "%s"`, h.eventId))
 	}
@@ -157,11 +165,15 @@ func (h *helper) applyFilterCondition(query *influx.Query) {
 }
 
 func (h *helper) genAbstractStmt() string {
-	return fmt.Sprintf(
-		eventLimitingQueryTemplate,
-		h.eventType,
-		h.limit,
-	)
+	query := influx.Query{}
+	return query.Bucket("events").
+		Range("start: 0").
+		Measurement(h.eventType).
+		Pivot(`rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value"`).
+		Group("").
+		Sort(`columns: ["_time"], desc: true`).
+		Limit(fmt.Sprintf(`n: %d`, h.limit)).
+		String()
 }
 
 func (h *helper) genRankStmt() (string, error) {
@@ -178,45 +190,103 @@ func (h *helper) genRankStmt() (string, error) {
 }
 
 func (h *helper) genSystemRankStmt() string {
-	return fmt.Sprintf(
-		eventSystemRankQueryTemplate,
-		h.period.start,
-		h.period.stop,
-		h.category,
-		h.severity,
-		h.limit,
-	)
+	// return fmt.Sprintf(
+	// 	eventSystemRankQueryTemplate,
+	// 	h.period.start,
+	// 	h.period.stop,
+	// 	h.category,
+	// 	h.severity,
+	// 	h.limit,
+	// )
+	query := influx.Query{}
+	return query.Bucket("events").
+		Range(h.genStartStopRange()).
+		Measurement("system").
+		Filter(fmt.Sprintf(`fn: (r) => r.category == "%s"`, h.category)).
+		Filter(fmt.Sprintf(`fn: (r) => r.severity == "%s"`, h.severity)).
+		Group(`columns: ["key", "category", "severity"]`).
+		Count(`column: "_value"`).
+		Rename(`columns: {_value: "number"}`).
+		Keep(`columns: ["key", "category", "severity", "number"]`).
+		Group("").
+		Sort(`columns: ["number"], desc: true`).
+		Limit(fmt.Sprintf(`n: %d`, h.limit)).
+		String()
 }
 
 func (h *helper) genHostRankStmt() string {
-	return fmt.Sprintf(
-		eventHostRankQueryTemplate,
-		h.period.start,
-		h.period.stop,
-		h.category,
-		h.host,
-		h.limit,
-	)
+	// return fmt.Sprintf(
+	// 	eventHostRankQueryTemplate,
+	// 	h.period.start,
+	// 	h.period.stop,
+	// 	h.category,
+	// 	h.host,
+	// 	h.limit,
+	// )
+	query := influx.Query{}
+	return query.Bucket("events").
+		Range(h.genStartStopRange()).
+		Measurement("host").
+		Filter(fmt.Sprintf(`fn: (r) => r.category == "%s"`, h.category)).
+		Filter(fmt.Sprintf(`fn: (r) => r.host == "%s"`, h.host)).
+		Group(`columns: ["key", "category", "host"]`).
+		Count(`column: "_value"`).
+		Rename(`columns: {_value: "number"}`).
+		Keep(`columns: ["key", "category", "host", "number"]`).
+		Group("").
+		Sort(`columns: ["number"], desc: true`).
+		Limit(fmt.Sprintf(`n: %d`, h.limit)).
+		String()
 }
 
 func (h *helper) genInstanceRankStmt() string {
-	return fmt.Sprintf(
-		eventInstanceRankQueryTemplate,
-		h.period.start,
-		h.period.stop,
-		h.category,
-		h.instance,
-		h.limit,
-	)
+	// return fmt.Sprintf(
+	// 	eventInstanceRankQueryTemplate,
+	// 	h.period.start,
+	// 	h.period.stop,
+	// 	h.category,
+	// 	h.instance,
+	// 	h.limit,
+	// )
+	query := influx.Query{}
+	return query.Bucket("events").
+		Range(h.genStartStopRange()).
+		Measurement("instance").
+		Filter(fmt.Sprintf(`fn: (r) => r.category == "%s"`, h.category)).
+		Filter(fmt.Sprintf(`fn: (r) => r.instance == "%s"`, h.instance)).
+		Group(`columns: ["key", "category", "instance"]`).
+		Count(`column: "_value"`).
+		Rename(`columns: {_value: "number"}`).
+		Keep(`columns: ["key", "category", "instance", "number"]`).
+		Group("").
+		Sort(`columns: ["number"], desc: true`).
+		Limit(fmt.Sprintf(`n: %d`, h.limit)).
+		String()
 }
 
 func (h *helper) genFilterConditionStmt(eventType, column string) string {
+	// return fmt.Sprintf(
+	// 	eventFilterConditionQueryTemplate,
+	// 	h.period.start,
+	// 	h.period.stop,
+	// 	eventType,
+	// 	column,
+	// 	column,
+	// )
+	query := influx.Query{}
+	return query.Bucket("events").
+		Range(h.genStartStopRange()).
+		Measurement(eventType).
+		Keep(fmt.Sprintf(`columns: ["%s"]`, column)).
+		Group("").
+		Distinct(fmt.Sprintf(`column: "%s"`, column)).
+		String()
+}
+
+func (h *helper) genStartStopRange() string {
 	return fmt.Sprintf(
-		eventFilterConditionQueryTemplate,
+		"start: %s, stop: %s",
 		h.period.start,
 		h.period.stop,
-		eventType,
-		column,
-		column,
 	)
 }
