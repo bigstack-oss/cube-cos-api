@@ -1446,7 +1446,9 @@ const docTemplate = `{
                                             "data": {
                                                 "overall": {
                                                     "status": {
-                                                        "current": "ok"
+                                                        "current": "ok",
+                                                        "isFixing": false,
+                                                        "description": "ceph has 2 ceph_osd down, reason unknown"
                                                     }
                                                 },
                                                 "services": [
@@ -5898,12 +5900,17 @@ const docTemplate = `{
                                         "type": "object",
                                         "required": [
                                             "current",
+                                            "isFixing",
                                             "description"
                                         ],
                                         "properties": {
                                             "current": {
                                                 "type": "string",
                                                 "example": "ng"
+                                            },
+                                            "isFixing": {
+                                                "type": "boolean",
+                                                "example": false
                                             },
                                             "description": {
                                                 "type": "string",

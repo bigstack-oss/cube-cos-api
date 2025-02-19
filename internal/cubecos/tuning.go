@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	policyFile = "/etc/policies/tuning/tuning1_0.yml"
+	TuningPolicyFile = "/etc/policies/tuning/tuning1_0.yml"
 
 	// private tunings
 	CubeSysHa                = "cubesys.ha"
@@ -880,7 +880,7 @@ func init() {
 	definition.SetSpecToTuning(WatcherDebugEnabled, WatcherDebugEnabledSpec)
 }
 
-func ReadHexTuning(parameterName string) (string, error) {
+func ReadTuning(parameterName string) (string, error) {
 	b, err := exec.Command("hex_tuning_helper", "/etc/settings.txt", "", parameterName).Output()
 	if err != nil {
 		log.Errorf("failed to read hex tunning value: %s", err.Error())
@@ -895,7 +895,7 @@ func ReadHexTuning(parameterName string) (string, error) {
 	return keyValue[1], nil
 }
 
-func ApplyHexTuning(isolatedDir string) error {
+func ApplyTuning(isolatedDir string) error {
 	out, err := exec.Command("hex_config", "apply", isolatedDir).CombinedOutput()
 	if err != nil {
 		log.Errorf("failed to apply hex tunning value: %s", string(out))
@@ -905,8 +905,8 @@ func ApplyHexTuning(isolatedDir string) error {
 	return nil
 }
 
-func IsHexTuningApplied(tuning definition.Tuning) error {
-	value, err := ReadHexTuning(tuning.Name)
+func IsTuningApplied(tuning definition.Tuning) error {
+	value, err := ReadTuning(tuning.Name)
 	if err != nil {
 		return err
 	}
@@ -918,7 +918,7 @@ func IsHexTuningApplied(tuning definition.Tuning) error {
 	return nil
 }
 
-func ApplyHexTunings(tunings []definition.Tuning) error {
+func ApplyTunings(tunings []definition.Tuning) error {
 	newTunings, err := genTuningsAsYaml(tunings)
 	if err != nil {
 		return err
@@ -930,7 +930,7 @@ func ApplyHexTunings(tunings []definition.Tuning) error {
 		return err
 	}
 
-	err = ApplyHexTuning(tmpTuningDir)
+	err = ApplyTuning(tmpTuningDir)
 	if err != nil {
 		return err
 	}
@@ -970,7 +970,6 @@ func writeTuningToFile(tmpDir string, yml []byte) error {
 	}
 
 	defer file.Close()
-
 	_, err = io.Writer.Write(file, yml)
 	if err != nil {
 		log.Errorf("failed to write tuning info to isolated file: %s", err.Error())
@@ -993,8 +992,8 @@ func ReleaseTuningLock() error {
 	return nil
 }
 
-func GetPolicy() (*definition.Policy, error) {
-	b, err := os.ReadFile(policyFile)
+func GetPolicy(filePath string) (*definition.Policy, error) {
+	b, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -1008,15 +1007,17 @@ func GetPolicy() (*definition.Policy, error) {
 	return policy, nil
 }
 
-func IsHexTuningDeleted(tuning definition.Tuning) error {
-	_, err := ReadHexTuning(tuning.Name)
+func IsTuningDeleted(tuning definition.Tuning) bool {
+	_, err := ReadTuning(tuning.Name)
 	if err == nil {
-		return fmt.Errorf("tuning value is not deleted: %s", tuning.Name)
+		log.Errorf("tuning value is not deleted: %s", tuning.Name)
+		return false
 	}
 
 	if !errors.Is(err, cuberr.TuningParamNotFound) {
-		return fmt.Errorf("failed to check if tuning is deleted: %s", err.Error())
+		log.Errorf("failed to check if tuning is deleted: %s", err.Error())
+		return false
 	}
 
-	return nil
+	return true
 }

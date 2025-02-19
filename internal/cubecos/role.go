@@ -15,7 +15,7 @@ const (
 )
 
 func GetNodeRole() (string, error) {
-	role, err := ReadHexTuning(cubeSysRole)
+	role, err := ReadTuning(cubeSysRole)
 	if err != nil {
 		return "", err
 	}

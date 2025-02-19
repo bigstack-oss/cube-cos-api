@@ -2,9 +2,9 @@ package tunings
 
 import (
 	"context"
-	"time"
 
 	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -28,7 +28,7 @@ func getTuningRecords() ([]definition.Tuning, error) {
 		}
 
 		appendTuningRecords(cursor, &tunings)
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
 		cursor.Close(ctx)
 		cancel()
 	}
@@ -37,9 +37,13 @@ func getTuningRecords() ([]definition.Tuning, error) {
 }
 
 func appendTuningRecords(cursor *mongo.Cursor, tunings *[]definition.Tuning) {
-	for cursor.Next(context.Background()) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
+	defer cancel()
+
+	for cursor.Next(ctx) {
 		tuning := definition.Tuning{}
-		if err := cursor.Decode(&tuning); err != nil {
+		err := cursor.Decode(&tuning)
+		if err != nil {
 			log.Errorf("failed to decode tuning record (%s)", err.Error())
 			continue
 		}

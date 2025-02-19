@@ -24,31 +24,31 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
-			Path:    "/tunings/specs",
+			Path:    "/tunings/parameters",
 			Func:    getTuningSpecs,
 		},
 		{
 			Version: api.V1,
-			Method:  http.MethodPut,
-			Path:    "/tunings/:ParameterName",
+			Method:  http.MethodPatch,
+			Path:    "/tunings/parameters/:parameterName",
 			Func:    applyTuning,
 		},
 		{
 			Version: api.V1,
-			Method:  http.MethodPut,
+			Method:  http.MethodPatch,
 			Path:    "/tunings",
 			Func:    applyTunings,
 		},
 		{
 			Version: api.V1,
-			Method:  http.MethodPut,
-			Path:    "/tunings/:ParameterName/status",
+			Method:  http.MethodPatch,
+			Path:    "/tunings/parameters/:parameterName/status",
 			Func:    updateTuningStatus,
 		},
 		{
 			Version: api.V1,
 			Method:  http.MethodDelete,
-			Path:    "/tuning/:ParameterName",
+			Path:    "/tuning/parameters/:parameterName",
 			Func:    deleteTuning,
 		},
 		{
