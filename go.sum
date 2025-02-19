@@ -55,8 +55,8 @@ github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250211152310-bcc0f38ab3be h1:ZnmaMEmrfz7ku3PREmcbxx+4FT54ToMhe5J2fGBIa40=
-github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250211152310-bcc0f38ab3be/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250219160408-6821709333e1 h1:jeFxWJhDi9hB6IZ7JEhMlc8ko/yJZd013/p2hth7oZw=
+github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250219160408-6821709333e1/go.mod h1:+ZNIuqsaaCjORQF8yZarHnH7o9N6gpLMorPrHgLzSFc=
 github.com/bitly/go-simplejson v0.5.0 h1:6IH+V8/tVMab511d5bn4M7EwGXZf9Hj6i2xSwkNEM+Y=
 github.com/bitly/go-simplejson v0.5.0/go.mod h1:cXHtHw4XUPsvGaxgjIAn8PhEWG9NfngEKAMDJEczWVA=
 github.com/bmatcuk/doublestar v1.1.1/go.mod h1:UD6OnuiIn0yFxxA2le/rnRU1G4RaI4UvFv1sNto9p6w=

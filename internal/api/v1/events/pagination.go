@@ -17,8 +17,28 @@ func (h *helper) isPageRequired() bool {
 	return h.Page.Number > 0 || h.Page.Size > 0
 }
 
+func (h *helper) isKeywordRequired() bool {
+	return h.keyword != ""
+}
+
+func (h *helper) isCategoryRequired() bool {
+	return h.category != ""
+}
+
 func (h *helper) isIdRequired() bool {
 	return h.eventId != ""
+}
+
+func (h *helper) isSeverityRequired() bool {
+	return h.severity != ""
+}
+
+func (h *helper) isHostRequired() bool {
+	return h.host != ""
+}
+
+func (h *helper) isInstanceRequired() bool {
+	return h.instance != ""
 }
 
 func (h *helper) genPageInfo(events []definition.Event) (definition.Page, error) {

@@ -2,6 +2,8 @@ package events
 
 import (
 	"fmt"
+
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 )
 
 var (
@@ -19,46 +21,6 @@ var (
 			|> filter(fn: (r) => r._measurement == "%s")
 			|> filter(fn: (r) => r.key == "%s")
 			|> count()
-	`
-
-	eventNonPagingQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "%s")
-			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
-			|> group()
-			|> sort(columns: ["_time"], desc: true)
-	`
-
-	eventIdNonPagingQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "%s")
-			|> filter(fn: (r) => r.key == "%s")
-			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
-			|> group()
-			|> sort(columns: ["_time"], desc: true)
-	`
-
-	eventPagingQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "%s")
-			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
-			|> group()
-			|> sort(columns: ["_time"], desc: true)
-			|> limit(n: %d, offset: %d)
-	`
-
-	eventIdPagingQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "%s")
-			|> filter(fn: (r) => r.key == "%s")
-			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
-			|> group()
-			|> sort(columns: ["_time"], desc: true)
-			|> limit(n: %d, offset: %d)
 	`
 
 	eventLimitingQueryTemplate = `
@@ -146,54 +108,52 @@ func (h *helper) genCountQueryStmt() string {
 }
 
 func (h *helper) genListingStmt() string {
+	query := influx.Query{}
+	query.Bucket("events").
+		Range(fmt.Sprintf("start: %s, stop: %s", h.period.start, h.period.stop)).
+		Measurement(h.eventType)
+
+	h.applyFilterCondition(&query)
+
+	query.
+		Pivot(`rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value"`).
+		Group("").
+		Sort(`columns: ["_time"], desc: true`)
+
 	if !h.isPageRequired() {
-		return h.genNonPagingQueryStmt()
+		return query.String()
 	}
 
-	return h.genPagingQueryStmt()
-}
-
-func (h *helper) genNonPagingQueryStmt() string {
-	if h.isIdRequired() {
-		return fmt.Sprintf(
-			eventIdNonPagingQueryTemplate,
-			h.period.start,
-			h.period.stop,
-			h.eventType,
-			h.eventId,
-		)
-	}
-
-	return fmt.Sprintf(
-		eventNonPagingQueryTemplate,
-		h.period.start,
-		h.period.stop,
-		h.eventType,
-	)
-}
-
-func (h *helper) genPagingQueryStmt() string {
 	offset := (h.Page.Number - 1) * h.Page.Size
+	return query.
+		Limit(fmt.Sprintf(`n: %d, offset: %d`, h.Page.Size, offset)).
+		String()
+}
+
+func (h *helper) applyFilterCondition(query *influx.Query) {
 	if h.isIdRequired() {
-		return fmt.Sprintf(
-			eventIdPagingQueryTemplate,
-			h.period.start,
-			h.period.stop,
-			h.eventType,
-			h.eventId,
-			h.Page.Size,
-			offset,
-		)
+		query.Filter(fmt.Sprintf(`fn: (r) => r.key == "%s"`, h.eventId))
 	}
 
-	return fmt.Sprintf(
-		eventPagingQueryTemplate,
-		h.period.start,
-		h.period.stop,
-		h.eventType,
-		h.Page.Size,
-		offset,
-	)
+	if h.isCategoryRequired() {
+		query.Filter(fmt.Sprintf(`fn: (r) => r.category == "%s"`, h.category))
+	}
+
+	if h.isSeverityRequired() {
+		query.Filter(fmt.Sprintf(`fn: (r) => r.severity == "%s"`, h.severity))
+	}
+
+	if h.isHostRequired() {
+		query.Filter(fmt.Sprintf(`fn: (r) => r.host == "%s"`, h.host))
+	}
+
+	if h.isInstanceRequired() {
+		query.Filter(fmt.Sprintf(`fn: (r) => r._value =~ /%s/`, h.instance))
+	}
+
+	if h.isKeywordRequired() {
+		query.Filter(fmt.Sprintf(`fn: (r) => r._value =~ /%s/`, h.keyword))
+	}
 }
 
 func (h *helper) genAbstractStmt() string {
