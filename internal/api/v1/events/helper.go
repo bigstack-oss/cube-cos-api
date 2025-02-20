@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
@@ -12,6 +13,17 @@ import (
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
+)
+
+var (
+	filterConditions = []string{
+		"id",
+		"category",
+		"severity",
+		"host",
+		"instance",
+		"keyword",
+	}
 )
 
 type helper struct {
@@ -24,6 +36,7 @@ type helper struct {
 	severity  string
 	host      string
 	instance  string
+	keyword   string
 
 	period
 	definition.Page
@@ -60,17 +73,17 @@ func (h *helper) parseEventListingParams() (*helper, error) {
 		return nil, err
 	}
 
-	err = h.parseId()
-	if err != nil {
-		return nil, err
-	}
-
 	err = h.parsePeriod()
 	if err != nil {
 		return nil, err
 	}
 
 	err = h.parsePage()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parseFilterConditions()
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +131,7 @@ func (h *helper) parseEventRankParams() (*helper, error) {
 		return nil, err
 	}
 
-	err = h.parseRankFactors()
+	err = h.parseFilterConditions()
 	if err != nil {
 		return nil, err
 	}
@@ -150,11 +163,6 @@ func (h *helper) parseType() error {
 	}
 
 	h.eventType = t
-	return nil
-}
-
-func (h *helper) parseId() error {
-	h.eventId = h.c.DefaultQuery("id", "")
 	return nil
 }
 
@@ -230,12 +238,36 @@ func (h *helper) parseLimit() error {
 	return nil
 }
 
-func (h *helper) parseRankFactors() error {
-	h.category = h.c.DefaultQuery("category", "")
-	h.severity = h.c.DefaultQuery("severity", "")
-	h.severity = definition.SeverityShortName(h.severity)
-	h.host = h.c.DefaultQuery("host", "")
-	h.instance = h.c.DefaultQuery("instance", "")
+func (h *helper) parseFilterConditions() error {
+	receivedParams := h.c.Request.URL.Query()
+	for _, c := range filterConditions {
+		v, found := receivedParams[c]
+		if !found {
+			continue
+		}
+		if len(v) == 0 {
+			continue
+		}
+		if v[0] == "" {
+			continue
+		}
+
+		switch c {
+		case "id":
+			h.eventId = v[0]
+		case "category":
+			h.category = strings.ToUpper(v[0])
+		case "severity":
+			h.severity = definition.SeverityShortName(v[0])
+		case "host":
+			h.host = v[0]
+		case "instance":
+			h.instance = v[0]
+		case "keyword":
+			h.keyword = v[0]
+		}
+	}
+
 	return nil
 }
 

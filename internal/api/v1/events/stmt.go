@@ -2,206 +2,61 @@ package events
 
 import (
 	"fmt"
+
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 )
 
-var (
-	eventCountQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "%s")
-			|> filter(fn: (r) => r._field == "message")
-			|> count()
-	`
-
-	eventIdCountQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "%s")
-			|> filter(fn: (r) => r.key == "%s")
-			|> count()
-	`
-
-	eventNonPagingQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "%s")
-			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
-			|> group()
-			|> sort(columns: ["_time"], desc: true)
-	`
-
-	eventIdNonPagingQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "%s")
-			|> filter(fn: (r) => r.key == "%s")
-			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
-			|> group()
-			|> sort(columns: ["_time"], desc: true)
-	`
-
-	eventPagingQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "%s")
-			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
-			|> group()
-			|> sort(columns: ["_time"], desc: true)
-			|> limit(n: %d, offset: %d)
-	`
-
-	eventIdPagingQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "%s")
-			|> filter(fn: (r) => r.key == "%s")
-			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
-			|> group()
-			|> sort(columns: ["_time"], desc: true)
-			|> limit(n: %d, offset: %d)
-	`
-
-	eventLimitingQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: 0)
-			|> filter(fn: (r) => r._measurement == "%s")
-			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
-			|> group()
-			|> sort(columns: ["_time"], desc: true)
-			|> limit(n: %d)
-	`
-
-	eventSystemRankQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "system")
-			|> filter(fn: (r) => r.category == "%s")
-			|> filter(fn: (r) => r.severity == "%s")
-			|> group(columns: ["key", "category", "severity"])
-			|> count(column: "_value")
-			|> rename(columns: {_value: "number"})
-			|> keep(columns: ["key", "category", "severity", "number"])
-			|> group()
-			|> sort(columns: ["number"], desc: true)
-			|> limit(n: %d)
-	`
-
-	eventHostRankQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "host")
-			|> filter(fn: (r) => r.category == "%s")
-			|> filter(fn: (r) => r.host == "%s")
-			|> group(columns: ["key", "category", "host"])
-			|> count(column: "_value")
-			|> rename(columns: {_value: "number"})
-			|> keep(columns: ["key", "category", "host", "number"])
-			|> group()
-			|> sort(columns: ["number"], desc: true)
-			|> limit(n: %d)
-	`
-
-	eventInstanceRankQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "instance")
-			|> filter(fn: (r) => r.category == "%s")
-			|> filter(fn: (r) => r.instance == "%s")
-			|> group(columns: ["key", "category", "instance"])
-			|> count(column: "_value")
-			|> rename(columns: {_value: "number"})
-			|> keep(columns: ["key", "category", "instance", "number"])
-			|> group()
-			|> sort(columns: ["number"], desc: true)
-			|> limit(n: %d)
-	`
-
-	eventFilterConditionQueryTemplate = `
-		from(bucket: "events")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => r._measurement == "%s")
-			|> keep(columns: ["%s"])
-			|> group()                    
-			|> distinct(column: "%s")
-	`
+const (
+	convertValueToField = `rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value"`
+	descByTime          = `columns: ["_time"], desc: true`
 )
 
 func (h *helper) genCountQueryStmt() string {
-	if h.isIdRequired() {
-		return fmt.Sprintf(
-			eventIdCountQueryTemplate,
-			h.period.start,
-			h.period.stop,
-			h.eventType,
-			h.eventId,
-		)
-	}
+	query := influx.Query{}
+	query.Bucket("events").
+		Range(h.genStartStopRange()).
+		Measurement(h.eventType)
 
-	return fmt.Sprintf(
-		eventCountQueryTemplate,
-		h.period.start,
-		h.period.stop,
-		h.eventType,
-	)
+	query = h.addFilters(query)
+	return query.Count("").String()
+}
+
+func (h *helper) genFilterConditionStmt(eventType, column string) string {
+	query := influx.Query{}
+	return query.Bucket("events").
+		Range(h.genStartStopRange()).
+		Measurement(eventType).
+		Keep(fmt.Sprintf(`columns: ["%s"]`, column)).
+		Group("").
+		Distinct(fmt.Sprintf(`column: "%s"`, column)).
+		String()
 }
 
 func (h *helper) genListingStmt() string {
+	query := influx.Query{}
+	query.Bucket("events").Range(h.genStartStopRange()).Measurement(h.eventType)
+	query = h.addFilters(query)
+	query.Pivot(convertValueToField).Group("").Sort(descByTime)
 	if !h.isPageRequired() {
-		return h.genNonPagingQueryStmt()
+		return query.String()
 	}
 
-	return h.genPagingQueryStmt()
-}
-
-func (h *helper) genNonPagingQueryStmt() string {
-	if h.isIdRequired() {
-		return fmt.Sprintf(
-			eventIdNonPagingQueryTemplate,
-			h.period.start,
-			h.period.stop,
-			h.eventType,
-			h.eventId,
-		)
-	}
-
-	return fmt.Sprintf(
-		eventNonPagingQueryTemplate,
-		h.period.start,
-		h.period.stop,
-		h.eventType,
-	)
-}
-
-func (h *helper) genPagingQueryStmt() string {
 	offset := (h.Page.Number - 1) * h.Page.Size
-	if h.isIdRequired() {
-		return fmt.Sprintf(
-			eventIdPagingQueryTemplate,
-			h.period.start,
-			h.period.stop,
-			h.eventType,
-			h.eventId,
-			h.Page.Size,
-			offset,
-		)
-	}
-
-	return fmt.Sprintf(
-		eventPagingQueryTemplate,
-		h.period.start,
-		h.period.stop,
-		h.eventType,
-		h.Page.Size,
-		offset,
-	)
+	return query.
+		Limit(fmt.Sprintf(`n: %d, offset: %d`, h.Page.Size, offset)).
+		String()
 }
 
 func (h *helper) genAbstractStmt() string {
-	return fmt.Sprintf(
-		eventLimitingQueryTemplate,
-		h.eventType,
-		h.limit,
-	)
+	query := influx.Query{}
+	return query.Bucket("events").
+		Range("start: 0").
+		Measurement(h.eventType).
+		Pivot(convertValueToField).
+		Group("").
+		Sort(descByTime).
+		Limit(fmt.Sprintf(`n: %d`, h.limit)).
+		String()
 }
 
 func (h *helper) genRankStmt() (string, error) {
@@ -218,45 +73,96 @@ func (h *helper) genRankStmt() (string, error) {
 }
 
 func (h *helper) genSystemRankStmt() string {
-	return fmt.Sprintf(
-		eventSystemRankQueryTemplate,
-		h.period.start,
-		h.period.stop,
-		h.category,
-		h.severity,
-		h.limit,
-	)
+	query := influx.Query{}
+	return query.Bucket("events").
+		Range(h.genStartStopRange()).
+		Measurement("system").
+		Filter(h.genFilter("category", h.category)).
+		Filter(h.genFilter("severity", h.severity)).
+		Group(`columns: ["key", "category", "severity"]`).
+		Count(`column: "_value"`).
+		Rename(`columns: {_value: "number"}`).
+		Keep(`columns: ["key", "category", "severity", "number"]`).
+		Group("").
+		Sort(`columns: ["number"], desc: true`).
+		Limit(fmt.Sprintf(`n: %d`, h.limit)).
+		String()
 }
 
 func (h *helper) genHostRankStmt() string {
-	return fmt.Sprintf(
-		eventHostRankQueryTemplate,
-		h.period.start,
-		h.period.stop,
-		h.category,
-		h.host,
-		h.limit,
-	)
+	query := influx.Query{}
+	return query.Bucket("events").
+		Range(h.genStartStopRange()).
+		Measurement("host").
+		Filter(h.genFilter("category", h.category)).
+		Filter(h.genFilter("host", h.host)).
+		Group(`columns: ["key", "category", "host"]`).
+		Count(`column: "_value"`).
+		Rename(`columns: {_value: "number"}`).
+		Keep(`columns: ["key", "category", "host", "number"]`).
+		Group("").
+		Sort(`columns: ["number"], desc: true`).
+		Limit(fmt.Sprintf(`n: %d`, h.limit)).
+		String()
 }
 
 func (h *helper) genInstanceRankStmt() string {
+	query := influx.Query{}
+	return query.Bucket("events").
+		Range(h.genStartStopRange()).
+		Measurement("instance").
+		Filter(h.genFilter("category", h.category)).
+		Filter(h.genFilter("instance", h.instance)).
+		Group(`columns: ["key", "category", "instance"]`).
+		Count(`column: "_value"`).
+		Rename(`columns: {_value: "number"}`).
+		Keep(`columns: ["key", "category", "instance", "number"]`).
+		Group("").
+		Sort(`columns: ["number"], desc: true`).
+		Limit(fmt.Sprintf(`n: %d`, h.limit)).
+		String()
+}
+
+func (h *helper) genStartStopRange() string {
 	return fmt.Sprintf(
-		eventInstanceRankQueryTemplate,
+		"start: %s, stop: %s",
 		h.period.start,
 		h.period.stop,
-		h.category,
-		h.instance,
-		h.limit,
 	)
 }
 
-func (h *helper) genFilterConditionStmt(eventType, column string) string {
-	return fmt.Sprintf(
-		eventFilterConditionQueryTemplate,
-		h.period.start,
-		h.period.stop,
-		eventType,
-		column,
-		column,
-	)
+func (h *helper) addFilters(query influx.Query) influx.Query {
+	if h.isIdRequired() {
+		query.Filter(h.genFilter("key", h.eventId))
+	}
+
+	if h.isCategoryRequired() {
+		query.Filter(h.genFilter("category", h.category))
+	}
+
+	if h.isSeverityRequired() {
+		query.Filter(h.genFilter("severity", h.severity))
+	}
+
+	if h.isHostRequired() {
+		query.Filter(h.genFilter("host", h.host))
+	}
+
+	if h.isInstanceRequired() {
+		query.Filter(h.genFuzzyFilter("_value", h.instance))
+	}
+
+	if h.isKeywordRequired() {
+		query.Filter(h.genFuzzyFilter("_value", h.keyword))
+	}
+
+	return query
+}
+
+func (h *helper) genFilter(key, value string) string {
+	return fmt.Sprintf(`fn: (r) => r.%s == "%s"`, key, value)
+}
+
+func (h *helper) genFuzzyFilter(key, value string) string {
+	return fmt.Sprintf(`fn: (r) => r.%s =~ /%s/`, key, value)
 }
