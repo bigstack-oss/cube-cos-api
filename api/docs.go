@@ -519,15 +519,6 @@ const docTemplate = `{
                                                             "name": "kapacitor"
                                                         }
                                                     ]
-                                                },
-                                                {
-                                                    "name": "node",
-                                                    "category": "",
-                                                    "modules": [
-                                                        {
-                                                            "name": "node"
-                                                        }
-                                                    ]
                                                 }
                                             ],
                                             "msg": "fetch service details successfully",
@@ -600,6 +591,16 @@ const docTemplate = `{
                     },
                     {
                         "in": "query",
+                        "name": "keyword",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The keyword of the event to query.",
+                        "example": "10.10.10.10 is reachable"
+                    },
+                    {
+                        "in": "query",
                         "name": "id",
                         "required": false,
                         "schema": {
@@ -607,6 +608,46 @@ const docTemplate = `{
                         },
                         "description": "The id of the event to query.",
                         "example": "NET00003I"
+                    },
+                    {
+                        "in": "query",
+                        "name": "category",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The category of the event to query.",
+                        "example": "NET"
+                    },
+                    {
+                        "in": "query",
+                        "name": "severity",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The severity of the event to query, the value can be only 'Info', 'Warning', and 'Error'.",
+                        "example": "Info"
+                    },
+                    {
+                        "in": "query",
+                        "name": "host",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The host of the event to query.",
+                        "example": "example-node-0"
+                    },
+                    {
+                        "in": "query",
+                        "name": "instance",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The instance of the event to query.",
+                        "example": "ccc449e4-a26c-47ac-afc1-c792ab1ed20a"
                     },
                     {
                         "in": "query",
@@ -1634,8 +1675,7 @@ const docTemplate = `{
                                 "dataPipe",
                                 "metrics",
                                 "logAnalytics",
-                                "notifications",
-                                "node"
+                                "notifications"
                             ]
                         },
                         "description": "The name of the service to retrieve health history. use GET /api/v1/datacenters/{dataCenter}/services to get the service list and their modules."
@@ -1954,9 +1994,7 @@ const docTemplate = `{
                                 "dataPipe",
                                 "metrics",
                                 "logAnalytics",
-                                "notifications",
-                                "node"
-                            ]
+                                "notifications"                            ]
                         },
                         "description": "The name of the service to retrieve health history. use GET /api/v1/datacenters/{dataCenter}/services to get the service list and their modules."
                     },
@@ -2018,8 +2056,7 @@ const docTemplate = `{
                                 "opensearch",
                                 "opensearch-dashboards",
                                 "influxdb",
-                                "kapacitor",
-                                "node"
+                                "kapacitor"
                             ]
                         },
                         "description": "The name of the module to retrieve health history. use GET /api/v1/datacenters/{dataCenter}/services/{serviceType} to get the module list."
@@ -2209,8 +2246,7 @@ const docTemplate = `{
                                 "dataPipe",
                                 "metrics",
                                 "logAnalytics",
-                                "notifications",
-                                "node"
+                                "notifications"
                             ]
                         },
                         "description": "The name of the service which cover the module you tend to repair. use GET /api/v1/datacenters/{dataCenter}/services to get the service list and their modules."
@@ -2273,8 +2309,7 @@ const docTemplate = `{
                                 "opensearch",
                                 "opensearch-dashboards",
                                 "influxdb",
-                                "kapacitor",
-                                "node"
+                                "kapacitor"
                             ]
                         },
                         "description": "The name of the module to repair. use GET /api/v1/datacenters/{dataCenter}/services/{serviceType} to get the module list."
@@ -5018,27 +5053,20 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "content": {
                             "application/json": {
-                                "500": {
-                                    "description": "Internal Server Error",
-                                    "content": {
-                                        "application/json": {
-                                            "schema": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "code": {
-                                                        "type": "integer",
-                                                        "example": 500
-                                                    },
-                                                    "msg": {
-                                                        "type": "string",
-                                                        "example": "failed to fetch slack webhook: internal server error"
-                                                    },
-                                                    "status": {
-                                                        "type": "string",
-                                                        "example": "internal server error"
-                                                    }
-                                                }
-                                            }
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to update slack webhook: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
                                         }
                                     }
                                 }
@@ -5110,27 +5138,20 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "content": {
                             "application/json": {
-                                "500": {
-                                    "description": "Internal Server Error",
-                                    "content": {
-                                        "application/json": {
-                                            "schema": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "code": {
-                                                        "type": "integer",
-                                                        "example": 500
-                                                    },
-                                                    "msg": {
-                                                        "type": "string",
-                                                        "example": "failed to update slack webhook: internal server error"
-                                                    },
-                                                    "status": {
-                                                        "type": "string",
-                                                        "example": "internal server error"
-                                                    }
-                                                }
-                                            }
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to update slack webhook: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
                                         }
                                     }
                                 }
@@ -5181,27 +5202,20 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "content": {
                             "application/json": {
-                                "500": {
-                                    "description": "Internal Server Error",
-                                    "content": {
-                                        "application/json": {
-                                            "schema": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "code": {
-                                                        "type": "integer",
-                                                        "example": 500
-                                                    },
-                                                    "msg": {
-                                                        "type": "string",
-                                                        "example": "failed to delete slack webhook: internal server error"
-                                                    },
-                                                    "status": {
-                                                        "type": "string",
-                                                        "example": "internal server error"
-                                                    }
-                                                }
-                                            }
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to delete slack webhook: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
                                         }
                                     }
                                 }

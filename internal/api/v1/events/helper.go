@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
@@ -255,7 +256,7 @@ func (h *helper) parseFilterConditions() error {
 		case "id":
 			h.eventId = v[0]
 		case "category":
-			h.category = v[0]
+			h.category = strings.ToUpper(v[0])
 		case "severity":
 			h.severity = definition.SeverityShortName(v[0])
 		case "host":

@@ -221,7 +221,8 @@ var (
 			},
 		},
 		{
-			Name: "node",
+			Name:               "node",
+			IsInternalViewOnly: true,
 			Modules: []definition.Module{
 				{Name: "node", IsAutoRepairable: false},
 			},

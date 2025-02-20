@@ -13,7 +13,7 @@ spec:
       system: /etc/settings.sys
     logoutRedirect: "/api/v1/datacenters"
     keycloak:
-      host: https://10.32.10.180:10443/auth
+      host: https://10.32.10.113:10443/auth
       tlsInsecureSkipVerify: true
       auth:
         realm: master
@@ -41,7 +41,7 @@ spec:
       confFile: /etc/admin-openrc.sh
       auth:
         type: "password"
-        url: "http://10.32.10.180:5000/v3"
+        url: "http://10.32.10.113:5000/v3"
         username: "admin_cli"
         password: "dk7LPiAZHTiC1mce"
         enableAutoRenew: true
