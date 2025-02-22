@@ -74,6 +74,7 @@ func initNodeIdentities() error {
 	definition.AdvertisePort = conf.Opts.Spec.Listen.Port
 	definition.IsGpuEnabled = cubecos.IsGpuEnabled()
 	definition.LogoutRedirectUrl = genLogoutRedirectUrl()
+	cubecos.SyncTunings()
 
 	return nil
 }

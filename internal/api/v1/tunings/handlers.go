@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/tunings"
 	"github.com/gin-gonic/gin"
@@ -61,7 +62,7 @@ var (
 )
 
 func getTunings(c *gin.Context) {
-	tunings, err := getTuningRecords()
+	tunings, err := cubecos.ListNodeTunings(definition.ListTuningOptions{AllNodes: true})
 	if err != nil {
 		log.Errorf("request(%s): failed to get tunings: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -77,7 +78,7 @@ func getTunings(c *gin.Context) {
 
 func getTuningSpecs(c *gin.Context) {
 	specs := []definition.TuningSpec{}
-	definition.GetAllTunings().Range(func(key, value interface{}) bool {
+	definition.GetTuningSpecs().Range(func(key, value interface{}) bool {
 		spec := deepcopy.Copy(value).(*definition.TuningSpec)
 		spec.Roles = selectRolesUsingActivityAndLabels(spec)
 		specs = append(specs, *spec)

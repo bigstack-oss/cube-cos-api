@@ -889,7 +889,7 @@ func ReadTuning(parameterName string) (string, error) {
 
 	keyValue := strings.Split(string(b), "'")
 	if len(keyValue) < 2 {
-		return "", cuberr.TuningParamNotFound
+		return "", cuberr.TuningNotFound
 	}
 
 	return keyValue[1], nil
@@ -1014,10 +1014,49 @@ func IsTuningDeleted(tuning definition.Tuning) bool {
 		return false
 	}
 
-	if !errors.Is(err, cuberr.TuningParamNotFound) {
+	if !errors.Is(err, cuberr.TuningNotFound) {
 		log.Errorf("failed to check if tuning is deleted: %s", err.Error())
 		return false
 	}
 
 	return true
+}
+
+func ListNodeTunings(opts definition.ListTuningOptions) ([]definition.Tuning, error) {
+	if opts.AllNodes {
+		return definition.ListCurrentTunings(), nil
+	}
+
+	return nil, nil
+}
+
+func SyncTunings() {
+	for _, tuning := range definition.ListTuningSpecs() {
+		value, err := ReadTuning(tuning.Name)
+		if err == nil {
+			checkAndUpdateTuning(tuning.Name, value)
+		}
+
+		if errors.Is(err, cuberr.TuningNotFound) {
+			setDefaultTuning(tuning)
+		}
+	}
+}
+
+func checkAndUpdateTuning(key, value string) {
+	tuning := definition.GetCurrentTuning(key)
+	if tuning.Value == value {
+		return
+	}
+
+	tuning.Value = value
+	definition.SetCurrentTuning(tuning)
+}
+
+func setDefaultTuning(tuning definition.TuningSpec) {
+	definition.SetCurrentTuning(definition.Tuning{
+		Enabled: true,
+		Name:    tuning.Name,
+		Value:   tuning.ExampleValue.Default,
+	})
 }

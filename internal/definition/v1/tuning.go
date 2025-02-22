@@ -15,6 +15,7 @@ const (
 
 var (
 	tuningSpecs            = sync.Map{}
+	currentTunings         = sync.Map{}
 	CreateRecordIfNotExist = options.Update().SetUpsert(true)
 )
 
@@ -41,12 +42,16 @@ type ExampleValue struct {
 }
 
 type Tuning struct {
-	Enabled bool   `json:"enabled" yaml:"enabled"`
-	Name    string `json:"name" yaml:"name"`
-	Value   string `json:"value" yaml:"value"`
+	Enabled bool        `json:"enabled" yaml:"enabled"`
+	Name    string      `json:"name" yaml:"name"`
+	Value   interface{} `json:"value" yaml:"value"`
 
 	Node   `json:"node,omitempty" yaml:"node,omitempty" bson:"node,omitempty"`
 	Status status.Details `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
+}
+
+type ListTuningOptions struct {
+	AllNodes bool
 }
 
 func SetSpecToTuning(tuningName string, tuningSpec *TuningSpec) {
@@ -62,8 +67,45 @@ func GetRolesToHandleTuning(tuningName string) ([]*Role, bool) {
 	return val.(*TuningSpec).Roles, true
 }
 
-func GetAllTunings() *sync.Map {
+func GetTuningSpecs() *sync.Map {
 	return &tuningSpecs
+}
+
+func ListTuningSpecs() []TuningSpec {
+	specs := []TuningSpec{}
+	tuningSpecs.Range(func(key, value interface{}) bool {
+		specs = append(specs, value.(TuningSpec))
+		return true
+	})
+
+	return specs
+}
+
+func GetCurrentTunings() *sync.Map {
+	return &currentTunings
+}
+
+func GetCurrentTuning(name string) Tuning {
+	val, loaded := currentTunings.Load(name)
+	if !loaded {
+		return Tuning{}
+	}
+
+	return val.(Tuning)
+}
+
+func SetCurrentTuning(tuning Tuning) {
+	currentTunings.Store(tuning.Name, tuning)
+}
+
+func ListCurrentTunings() []Tuning {
+	tunings := []Tuning{}
+	currentTunings.Range(func(key, value interface{}) bool {
+		tunings = append(tunings, value.(Tuning))
+		return true
+	})
+
+	return tunings
 }
 
 func ShouldCurrentRoleHandleTheTuning(tuningName string, roleName string) bool {
