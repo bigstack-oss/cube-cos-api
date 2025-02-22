@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/tunings"
 	"github.com/gin-gonic/gin"
@@ -62,7 +61,14 @@ var (
 )
 
 func getTunings(c *gin.Context) {
-	tunings, err := cubecos.ListTunings(definition.ListTuningOptions{AllNodes: true})
+	h, err := initReqHelper(c, "getTunings")
+	if err != nil {
+		log.Errorf("request(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	tunings, err := h.ListTunings()
 	if err != nil {
 		log.Errorf("request(%s): failed to get tunings: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)

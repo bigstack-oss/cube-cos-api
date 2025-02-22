@@ -3,8 +3,16 @@ package api
 import (
 	"net/http"
 
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 )
+
+type TuningListData struct {
+	Code   int         `json:"code"`
+	Status string      `json:"status"`
+	Msg    string      `json:"msg"`
+	Data   []v1.Tuning `json:"data"`
+}
 
 func SetStatusOk(c *gin.Context, msg string, data interface{}) {
 	c.JSON(

@@ -35,7 +35,7 @@ func initReqHelper(c *gin.Context) (*helper, error) {
 func (h *helper) parsePage() error {
 	num := h.c.DefaultQuery("pageNum", "")
 	size := h.c.DefaultQuery("pageSize", "")
-	if !h.Page.IsRequired() {
+	if !isPageReceived(num, size) {
 		return nil
 	}
 
@@ -104,4 +104,8 @@ func (h *helper) getNodesResp() (*data, error) {
 		Nodes: pagedNodes,
 		Page:  page,
 	}, nil
+}
+
+func isPageReceived(num, size string) bool {
+	return num != "" || size != ""
 }

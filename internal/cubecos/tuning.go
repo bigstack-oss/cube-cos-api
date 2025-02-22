@@ -6,9 +6,13 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/google/uuid"
 	log "go-micro.dev/v5/logger"
@@ -1038,11 +1042,96 @@ func IsTuningDeleted(tuning definition.Tuning) bool {
 }
 
 func ListTunings(opts definition.ListTuningOptions) ([]definition.Tuning, error) {
+	localTunings := definition.ListCurrentTunings()
 	if !opts.AllNodes {
-		return definition.ListCurrentTunings(), nil
+		return localTunings, nil
 	}
 
-	return definition.ListCurrentTunings(), nil
+	allTunings, err := ListTuningsFromOtherNodes()
+	if err != nil {
+		return nil, err
+	}
+
+	allTunings[definition.Hostname] = localTunings
+	return aggregateTunings(allTunings), nil
+}
+
+func ListTuningsFromOtherNodes() (map[string][]definition.Tuning, error) {
+	nodes, err := definition.ListNodes()
+	if err != nil {
+		log.Errorf("failed to list nodes for tunings: %s", err.Error())
+		return nil, err
+	}
+
+	nodeTunings := map[string][]definition.Tuning{}
+	for _, node := range nodes {
+		if definition.IsCurrentHost(node.Hostname) {
+			continue
+		}
+
+		tunings, err := getNodeTunings(*node)
+		if err != nil {
+			log.Errorf("failed to get tunings from node %s: %s", node.Name, err.Error())
+			continue
+		}
+
+		nodeTunings[node.Name] = tunings
+	}
+
+	return nodeTunings, nil
+}
+
+func getNodeTunings(node definition.Node) ([]v1.Tuning, error) {
+	h := http.GetGlobalHelper()
+	resp, err := h.R().
+		SetResult(&api.TuningListData{}).
+		SetHeader("Authorization", node.GetBearerToken()).
+		Get(node.GetTuningUrl())
+	if err != nil {
+		return nil, err
+	}
+	if resp.IsError() {
+		return nil, fmt.Errorf(
+			"failed to get tunings from %s: %d %s",
+			node.Hostname,
+			resp.StatusCode(),
+			string(resp.Body()),
+		)
+	}
+
+	tuningList := resp.Result().(*api.TuningListData)
+	return tuningList.Data, nil
+}
+
+func tuningKey(item definition.Tuning) string {
+	return item.Name + "|" + fmt.Sprintf("%v", item.Value) + "|" + strconv.FormatBool(item.Enabled)
+}
+
+func setTunings(mergedMap map[string]definition.Tuning, tunings []definition.Tuning) {
+	for _, tuning := range tunings {
+		key := tuningKey(tuning)
+		existing, found := mergedMap[key]
+		if found {
+			existing.Hosts = append(existing.Hosts, tuning.Hosts...)
+			mergedMap[key] = existing
+		} else {
+			mergedMap[key] = tuning
+		}
+	}
+}
+
+func aggregateTunings(nodeToTuning map[string][]definition.Tuning) []definition.Tuning {
+	mergedMap := make(map[string]definition.Tuning)
+	for _, tunings := range nodeToTuning {
+		setTunings(mergedMap, tunings)
+	}
+
+	tunings := []definition.Tuning{}
+	for _, item := range mergedMap {
+		tunings = append(tunings, item)
+	}
+
+	return tunings
 }
 
 func SyncTunings() {
