@@ -12,6 +12,7 @@ const (
 	CheckingAndRepairing = "checkingAndRepairing"
 
 	Completed = "completed"
+	Updated   = "updated"
 	Ok        = "ok"
 	Error     = "error"
 )

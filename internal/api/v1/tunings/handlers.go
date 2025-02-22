@@ -62,7 +62,7 @@ var (
 )
 
 func getTunings(c *gin.Context) {
-	tunings, err := cubecos.ListNodeTunings(definition.ListTuningOptions{AllNodes: true})
+	tunings, err := cubecos.ListTunings(definition.ListTuningOptions{AllNodes: true})
 	if err != nil {
 		log.Errorf("request(%s): failed to get tunings: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -71,7 +71,7 @@ func getTunings(c *gin.Context) {
 
 	api.SetStatusOk(
 		c,
-		"fetch tunings list successfully",
+		"fetch tuning list successfully",
 		tunings,
 	)
 }

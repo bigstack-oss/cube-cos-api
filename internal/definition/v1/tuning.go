@@ -27,14 +27,14 @@ type Policy struct {
 }
 
 type TuningSpec struct {
-	Name         string `json:"name"`
-	ExampleValue `json:"exampleValue"`
-	Description  string  `json:"description"`
-	Roles        []*Role `json:"roles"`
-	Selector     `json:"selector"`
+	Name             string `json:"name"`
+	TuningLimitation `json:"exampleValue"`
+	Description      string  `json:"description"`
+	Roles            []*Role `json:"roles"`
+	Selector         `json:"selector"`
 }
 
-type ExampleValue struct {
+type TuningLimitation struct {
 	Type    string      `json:"type"`
 	Default interface{} `json:"default"`
 	Min     interface{} `json:"min"`
@@ -42,12 +42,16 @@ type ExampleValue struct {
 }
 
 type Tuning struct {
-	Enabled bool        `json:"enabled" yaml:"enabled"`
-	Name    string      `json:"name" yaml:"name"`
-	Value   interface{} `json:"value" yaml:"value"`
+	Name        string           `json:"name" yaml:"name"`
+	Value       interface{}      `json:"value" yaml:"value"`
+	Hosts       []string         `json:"hosts" yaml:"hosts"`
+	Description string           `json:"description" yaml:"description"`
+	Enabled     bool             `json:"enabled" yaml:"enabled"`
+	IsModified  bool             `json:"isModified" yaml:"isModified"`
+	Limitation  TuningLimitation `json:"limitation" yaml:"limitation"`
 
-	Node   `json:"node,omitempty" yaml:"node,omitempty" bson:"node,omitempty"`
-	Status status.Details `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
+	*Node  `json:"node,omitempty" yaml:"node,omitempty" bson:"node,omitempty"`
+	Status *status.Details `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
 }
 
 type ListTuningOptions struct {
@@ -74,7 +78,8 @@ func GetTuningSpecs() *sync.Map {
 func ListTuningSpecs() []TuningSpec {
 	specs := []TuningSpec{}
 	tuningSpecs.Range(func(key, value interface{}) bool {
-		specs = append(specs, value.(TuningSpec))
+		spec := value.(*TuningSpec)
+		specs = append(specs, *spec)
 		return true
 	})
 
@@ -133,7 +138,7 @@ func (t *Tuning) Bytes() ([]byte, error) {
 }
 
 func (t *Tuning) SetNodeInfo(role, address string) {
-	t.Node = Node{
+	t.Node = &Node{
 		Role:     role,
 		Id:       HostID,
 		Hostname: Hostname,

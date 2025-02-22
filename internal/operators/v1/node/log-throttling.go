@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/cnf/structhash"
 	"go-micro.dev/v5/cache"
@@ -26,13 +27,13 @@ func convertAction(action string) string {
 	return action
 }
 
-func logWithThrottling(event *registry.Result) {
+func logThrottling(event *registry.Result) {
 	key, err := structhash.Hash(event, 1)
 	if err != nil {
 		return
 	}
 
-	getCtx, getCancel := context.WithTimeout(context.Background(), time.Second*10)
+	getCtx, getCancel := context.WithTimeout(wait.CtxSeconds(10))
 	defer getCancel()
 	_, _, err = logCache.Get(getCtx, key)
 	if err == nil {
@@ -42,7 +43,7 @@ func logWithThrottling(event *registry.Result) {
 		return
 	}
 
-	putCtx, putCancel := context.WithTimeout(context.Background(), time.Second*10)
+	putCtx, putCancel := context.WithTimeout(wait.CtxSeconds(10))
 	defer putCancel()
 	err = logCache.Put(putCtx, key, []byte{}, time.Second*10)
 	if err != nil {

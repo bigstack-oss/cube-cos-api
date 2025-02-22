@@ -10,7 +10,7 @@ import (
 )
 
 func IsHaEnabled() (bool, error) {
-	strIsHaEnabled, err := ReadTuning(CubeSysHa)
+	strIsHaEnabled, err := GetTuningValue(CubeSysHa)
 	if err != nil {
 		return false, err
 	}
@@ -42,7 +42,7 @@ func GetDataCenterName() (string, error) {
 		return os.Hostname()
 	}
 
-	return ReadTuning(CubeSysController)
+	return GetTuningValue(CubeSysController)
 }
 
 func GetDataCenterVersion() (string, error) {
