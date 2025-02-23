@@ -1256,7 +1256,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The host of the event to query.",
-                        "example": "dell180"
+                        "example": "example-data-center"
                     },
                     {
                         "in": "query",
@@ -1447,8 +1447,7 @@ const docTemplate = `{
                                                 "overall": {
                                                     "status": {
                                                         "current": "ok",
-                                                        "isFixing": false,
-                                                        "description": "ceph has 2 ceph_osd down, reason unknown"
+                                                        "isFixing": false
                                                     }
                                                 },
                                                 "services": [
@@ -1481,6 +1480,7 @@ const docTemplate = `{
                                                 "overall": {
                                                     "status": {
                                                         "current": "ng",
+                                                        "isFixing": false,
                                                         "description": "ceph has 2 ceph_osd down"
                                                     }
                                                 },
@@ -1719,11 +1719,11 @@ const docTemplate = `{
                                                                 "type": "service down",
                                                                 "reason": "1 node down",
                                                                 "nodes": [
-                                                                    "dell180"
+                                                                    "example-data-center"
                                                                 ],
                                                                 "description": "nova has 1 node down due to the memory exhausted, and the abnormal memory competition from PID(24887) is detected",
                                                                 "details": "{ ... the best efforts of error summary / direction ...} ",
-                                                                "log": "http://{dataCenter}:8888/log/nova/dell180-20250205113459-b3gc.log"
+                                                                "log": "http://{dataCenter}:8888/log/nova/example-data-center-20250205113459-b3gc.log"
                                                             }
                                                         },
                                                         {
@@ -1749,11 +1749,11 @@ const docTemplate = `{
                                                                 "type": "service down",
                                                                 "reason": "1 node down",
                                                                 "nodes": [
-                                                                    "dell180"
+                                                                    "example-data-center"
                                                                 ],
                                                                 "description": "nova has 1 node down due to the memory exhausted, and the abnormal memory competition from PID(24887) is detected",
                                                                 "details": "{ ... the best efforts of error summary / direction ...} ",
-                                                                "log": "http://{dataCenter}:8888/log/nova/dell180-20250205113459-b3gc.log"
+                                                                "log": "http://{dataCenter}:8888/log/nova/example-data-center-20250205113459-b3gc.log"
                                                             }
                                                         },
                                                         {
@@ -1779,11 +1779,11 @@ const docTemplate = `{
                                                                 "type": "service down",
                                                                 "reason": "1 node down",
                                                                 "nodes": [
-                                                                    "dell180"
+                                                                    "example-data-center"
                                                                 ],
                                                                 "description": "nova has 1 node down due to the memory exhausted, and the abnormal memory competition from PID(24887) is detected",
                                                                 "details": "{ ... the best efforts of error summary / direction ...} ",
-                                                                "log": "http://{dataCenter}:8888/log/nova/dell180-20250205113459-b3gc.log"
+                                                                "log": "http://{dataCenter}:8888/log/nova/example-data-center-20250205113459-b3gc.log"
                                                             }
                                                         },
                                                         {
@@ -1808,11 +1808,11 @@ const docTemplate = `{
                                                                 "type": "service down",
                                                                 "reason": "1 node down",
                                                                 "nodes": [
-                                                                    "dell180"
+                                                                    "example-data-center"
                                                                 ],
                                                                 "description": "nova has 1 node down due to the memory exhausted, and the abnormal memory competition from PID(24887) is detected",
                                                                 "details": "{ ... the best efforts of error summary / direction ...} ",
-                                                                "log": "http://{dataCenter}:8888/log/nova/dell180-20250205113459-b3gc.log"
+                                                                "log": "http://{dataCenter}:8888/log/nova/example-data-center-20250205113459-b3gc.log"
                                                             }
                                                         },
                                                         {
@@ -1838,11 +1838,11 @@ const docTemplate = `{
                                                                 "type": "service down",
                                                                 "reason": "1 node down",
                                                                 "nodes": [
-                                                                    "dell180"
+                                                                    "example-data-center"
                                                                 ],
                                                                 "description": "nova has 1 node down due to the memory exhausted, and the abnormal memory competition from PID(24887) is detected",
                                                                 "details": "{ ... the best efforts of error summary / direction ...} ",
-                                                                "log": "http://{dataCenter}:8888/log/nova/dell180-20250205113459-b3gc.log"
+                                                                "log": "http://{dataCenter}:8888/log/nova/example-data-center-20250205113459-b3gc.log"
                                                             }
                                                         },
                                                         {
@@ -1868,11 +1868,11 @@ const docTemplate = `{
                                                                 "type": "service down",
                                                                 "reason": "1 node down",
                                                                 "nodes": [
-                                                                    "dell180"
+                                                                    "example-data-center"
                                                                 ],
                                                                 "description": "nova has 1 node down due to the memory exhausted, and the abnormal memory competition from PID(24887) is detected",
                                                                 "details": "{ ... the best efforts of error summary / direction ...} ",
-                                                                "log": "http://{dataCenter}:8888/log/nova/dell180-20250205113459-b3gc.log"
+                                                                "log": "http://{dataCenter}:8888/log/nova/example-data-center-20250205113459-b3gc.log"
                                                             }
                                                         },
                                                         {
@@ -1996,7 +1996,8 @@ const docTemplate = `{
                                 "dataPipe",
                                 "metrics",
                                 "logAnalytics",
-                                "notifications"                            ]
+                                "notifications"
+                            ]
                         },
                         "description": "The name of the service to retrieve health history. use GET /api/v1/datacenters/{dataCenter}/services to get the service list and their modules."
                     },
@@ -2131,7 +2132,7 @@ const docTemplate = `{
                                                             ],
                                                             "description": "nova has 1 node down due to the memory exhausted, and the abnormal memory competition from PID(24887) is detected",
                                                             "details": "{ ... best effort error summary / direction ...}",
-                                                            "log": "http://datacenter1:8888/log/nova/dell180-20250205113459-b3gc.log"
+                                                            "log": "http://datacenter1:8888/log/nova/example-data-center-20250205113459-b3gc.log"
                                                         }
                                                     },
                                                     {
@@ -5336,6 +5337,225 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/datacenters/{dataCenter}/tunings": {
+            "get": {
+                "operationId": "listTunings",
+                "tags": [
+                    "Tunings"
+                ],
+                "summary": "Retrieve the list of tunings from a host or data center",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageNum",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The page number of the tunings list",
+                        "example": 1
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The page size of the tunings list",
+                        "example": 10
+                    },
+                    {
+                        "in": "query",
+                        "name": "watch",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "watch the tuning list continuously",
+                        "example": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the list of tunings from a host or data center successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListTuningResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Tuning list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "tunings": [
+                                                    {
+                                                        "name": "neutron.debug.enabled",
+                                                        "value": false,
+                                                        "hosts": [
+                                                            "example-node-0"
+                                                        ],
+                                                        "description": "Set to true to enable neutron verbose log.",
+                                                        "enabled": true,
+                                                        "isModified": false,
+                                                        "limitation": {
+                                                            "type": "bool",
+                                                            "default": false
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "cubesys.provider.extra",
+                                                        "value": "",
+                                                        "hosts": [
+                                                            "example-node-0"
+                                                        ],
+                                                        "description": "Set extra provider interfaces ('pvd-' prefix and <= 15 chars) [IF.2:pvd-xxx,eth2:pvd-yyy,...].",
+                                                        "enabled": true,
+                                                        "isModified": false,
+                                                        "limitation": {
+                                                            "type": "string",
+                                                            "default": ""
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "barbican.debug.enabled",
+                                                        "value": false,
+                                                        "hosts": [
+                                                            "example-node-0"
+                                                        ],
+                                                        "description": "Set to true to enable barbican verbose log.",
+                                                        "enabled": true,
+                                                        "isModified": false,
+                                                        "limitation": {
+                                                            "type": "bool",
+                                                            "default": false
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "cinder.backup.endpoint",
+                                                        "value": "",
+                                                        "hosts": [
+                                                            "example-node-0"
+                                                        ],
+                                                        "description": "Set cinder backup storage endpoint.",
+                                                        "enabled": true,
+                                                        "isModified": false,
+                                                        "limitation": {
+                                                            "type": "string",
+                                                            "default": ""
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "influxdb.curator.rp",
+                                                        "value": 7,
+                                                        "hosts": [
+                                                            "example-node-0",
+                                                            "example-node-1"
+                                                        ],
+                                                        "description": "influxdb curator retention policy in days.",
+                                                        "enabled": true,
+                                                        "isModified": false,
+                                                        "limitation": {
+                                                            "type": "int",
+                                                            "default": 7,
+                                                            "min": 0,
+                                                            "max": 365
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "influxdb.curator.rp",
+                                                        "value": 23,
+                                                        "hosts": [
+                                                            "example-node-3"
+                                                        ],
+                                                        "description": "influxdb curator retention policy in days.",
+                                                        "enabled": false,
+                                                        "isModified": true,
+                                                        "limitation": {
+                                                            "type": "int",
+                                                            "default": 7,
+                                                            "min": 0,
+                                                            "max": 365
+                                                        }
+                                                    }
+                                                ],
+                                                "page": {
+                                                    "total": 15,
+                                                    "number": 1,
+                                                    "size": 5
+                                                }
+                                            },
+                                            "msg": "fetch tuning list successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list tuning: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -5900,21 +6120,17 @@ const docTemplate = `{
                                         "type": "object",
                                         "required": [
                                             "current",
-                                            "isFixing",
-                                            "description"
+                                            "isFixing"
                                         ],
                                         "properties": {
                                             "current": {
-                                                "type": "string",
-                                                "example": "ng"
+                                                "type": "string"
                                             },
                                             "isFixing": {
-                                                "type": "boolean",
-                                                "example": false
+                                                "type": "boolean"
                                             },
                                             "description": {
-                                                "type": "string",
-                                                "example": "ceph has 2 ceph_osd down"
+                                                "type": "string"
                                             }
                                         }
                                     }
@@ -8731,6 +8947,111 @@ const docTemplate = `{
                     "msg": {
                         "type": "string",
                         "example": "slack webhook deleted successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "ListTuningResponse": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "value",
+                                "hosts",
+                                "description",
+                                "enabled",
+                                "isModified",
+                                "limitation"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": "string"
+                                },
+                                "hosts": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "description": {
+                                    "type": "string"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "isModified": {
+                                    "type": "boolean"
+                                },
+                                "limitation": {
+                                    "type": "object",
+                                    "required": [
+                                        "type",
+                                        "default",
+                                        "min",
+                                        "max"
+                                    ],
+                                    "properties": {
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "default": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "integer"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "boolean"
+                                                }
+                                            ]
+                                        },
+                                        "min": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "integer"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                }
+                                            ]
+                                        },
+                                        "max": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "integer"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "tuning list retrieved successfully"
                     },
                     "status": {
                         "type": "string",

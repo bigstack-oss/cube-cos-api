@@ -35,10 +35,6 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 	return h, nil
 }
 
-func (h *helper) parseScope() {
-	h.allNodes = h.c.DefaultQuery("allNodes", "false") == "true"
-}
-
 func (h *helper) parsePage() error {
 	num := h.c.DefaultQuery("pageNum", "")
 	size := h.c.DefaultQuery("pageSize", "")
@@ -74,6 +70,10 @@ func (h *helper) parsePage() error {
 	}
 
 	return nil
+}
+
+func (h *helper) parseScope() {
+	h.allNodes = h.c.DefaultQuery("allNodes", "false") == "true"
 }
 
 func (h *helper) parseWatch() {

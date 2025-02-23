@@ -114,7 +114,7 @@ var (
 	BarbicanDebugEnabledSpec = &definition.TuningSpec{
 		Name:        BarbicanDebugEnabled,
 		Description: "Set to true to enable barbican verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -123,7 +123,7 @@ var (
 	CephDebugEnabledSpec = &definition.TuningSpec{
 		Name:        CephDebugEnabled,
 		Description: "Set to true to enable ceph debug logs.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -132,7 +132,7 @@ var (
 	CephMirrorMetaSyncSpec = &definition.TuningSpec{
 		Name:        CephMirrorMetaSync,
 		Description: "Set to true to enable automatically volume metadata sync.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: true,
 		},
@@ -141,7 +141,7 @@ var (
 	CinderBackupAccountSpec = &definition.TuningSpec{
 		Name:        CinderBackupAccount,
 		Description: "Set cinder backup storage account.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
 		},
@@ -150,7 +150,7 @@ var (
 	CinderBackupEndpointSpec = &definition.TuningSpec{
 		Name:        CinderBackupEndpoint,
 		Description: "Set cinder backup storage endpoint.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
 		},
@@ -159,7 +159,7 @@ var (
 	CinderBackupOverrideSpec = &definition.TuningSpec{
 		Name:        CinderBackupOverride,
 		Description: "Enable override cinder backup configurations.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -168,7 +168,7 @@ var (
 	CinderBackupPoolSpec = &definition.TuningSpec{
 		Name:        CinderBackupPool,
 		Description: "Set cinder backup storage pool.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
 		},
@@ -177,7 +177,7 @@ var (
 	CinderBackupSecretSpec = &definition.TuningSpec{
 		Name:        CinderBackupSecret,
 		Description: "Set cinder backup storage account secret.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
 		},
@@ -186,7 +186,7 @@ var (
 	CinderBackupTypeSpec = &definition.TuningSpec{
 		Name:        CinderBackupType,
 		Description: "Set cinder backup storage type <cube-storage|cube-swift>.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
 		},
@@ -195,7 +195,7 @@ var (
 	CinderDebugEnabledSpec = &definition.TuningSpec{
 		Name:        CinderDebugEnabled,
 		Description: "Set to true to enable cinder verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -204,7 +204,7 @@ var (
 	CinderExternalAccountSpec = &definition.TuningSpec{
 		Name:        CinderExternalAccount,
 		Description: "Set cinder external storage account.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
 		},
@@ -213,7 +213,7 @@ var (
 	CinderExternalDriverSpec = &definition.TuningSpec{
 		Name:        CinderExternalDriver,
 		Description: "Set cinder external storage type name <cube|purestorage>.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
 		},
@@ -222,7 +222,7 @@ var (
 	CinderExternalEndpointSpec = &definition.TuningSpec{
 		Name:        CinderExternalEndpoint,
 		Description: "Set cinder external storage endpoint.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
 		},
@@ -231,7 +231,7 @@ var (
 	CinderExternalNameSpec = &definition.TuningSpec{
 		Name:        CinderExternalName,
 		Description: "Set cinder external storage rule name.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
 		},
@@ -240,7 +240,7 @@ var (
 	CinderExternalPoolSpec = &definition.TuningSpec{
 		Name:        CinderExternalPool,
 		Description: "Set cinder external storage pool.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
 		},
@@ -249,7 +249,7 @@ var (
 	CinderExternalSecretSpec = &definition.TuningSpec{
 		Name:        CinderExternalSecret,
 		Description: "Set cinder external storage account secret.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
 		},
@@ -258,7 +258,7 @@ var (
 	CubesysAlertLevelSpec = &definition.TuningSpec{
 		Name:        CubesysAlertLevel,
 		Description: "Set health alert sensible level. (0: default, 1: highly sensitive)",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 0,
 			Min:     0,
@@ -269,7 +269,7 @@ var (
 	CubesysAlertLevelSSpec = &definition.TuningSpec{
 		Name:        CubesysAlertLevelS,
 		Description: "Set health alert sensible level for service %s. (0: default, 1: highly sensitive)",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 0,
 			Min:     0,
@@ -280,7 +280,7 @@ var (
 	CubesysConntableMaxSpec = &definition.TuningSpec{
 		Name:        CubesysConntableMax,
 		Description: "Set max connection table size.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 262144,
 			Min:     0,
@@ -291,7 +291,7 @@ var (
 	CubesysLogDefaultRetentionSpec = &definition.TuningSpec{
 		Name:        CubesysLogDefaultRetention,
 		Description: "Set log file retention policy in days.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 14,
 			Min:     0,
@@ -302,7 +302,7 @@ var (
 	CubesysProviderExtraSpec = &definition.TuningSpec{
 		Name:        CubesysProviderExtra,
 		Description: "Set extra provider interfaces ('pvd-' prefix and <= 15 chars) [IF.2:pvd-xxx,eth2:pvd-yyy,...].",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
 		},
@@ -311,7 +311,7 @@ var (
 	CyborgDebugEnabledSpec = &definition.TuningSpec{
 		Name:        CyborgDebugEnabled,
 		Description: "Set to true to enable cyborg verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -320,7 +320,7 @@ var (
 	DebugEnableCoreDumpSSpec = &definition.TuningSpec{
 		Name:        DebugEnableCoreDumpS,
 		Description: "Enable core dump for process %s",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -329,7 +329,7 @@ var (
 	DebugEnableKdumpSpec = &definition.TuningSpec{
 		Name:        DebugEnableKdump,
 		Description: "Enable kdump to collect dump from kernel panic",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -338,7 +338,7 @@ var (
 	DebugLevelSSpec = &definition.TuningSpec{
 		Name:        DebugLevelS,
 		Description: "Set debug level for process %s",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 0,
 			Min:     0,
@@ -349,7 +349,7 @@ var (
 	DebugMaxCoreDumpSpec = &definition.TuningSpec{
 		Name:        DebugMaxCoreDump,
 		Description: "Set the total number of core files before oldest are removed",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 0,
 			Min:     0,
@@ -360,7 +360,7 @@ var (
 	DesignateDebugEnabledSpec = &definition.TuningSpec{
 		Name:        DesignateDebugEnabled,
 		Description: "Set to true to enable designate verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -369,7 +369,7 @@ var (
 	GlanceDebugEnabledSpec = &definition.TuningSpec{
 		Name:        GlanceDebugEnabled,
 		Description: "Set to true to enable glance verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -378,7 +378,7 @@ var (
 	GlanceExportRpSpec = &definition.TuningSpec{
 		Name:        GlanceExportRp,
 		Description: "glance export retention policy in copies.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 3,
 			Min:     0,
@@ -389,7 +389,7 @@ var (
 	HeatDebugEnabledSpec = &definition.TuningSpec{
 		Name:        HeatDebugEnabled,
 		Description: "Set to true to enable heat verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -398,7 +398,7 @@ var (
 	InfluxdbCuratorRpSpec = &definition.TuningSpec{
 		Name:        InfluxdbCuratorRp,
 		Description: "influxdb curator retention policy in days.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 7,
 			Min:     0,
@@ -409,7 +409,7 @@ var (
 	IronicDebugEnabledSpec = &definition.TuningSpec{
 		Name:        IronicDebugEnabled,
 		Description: "Set to true to enable ironic verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -418,7 +418,7 @@ var (
 	IronicDeployServerSpec = &definition.TuningSpec{
 		Name:        IronicDeployServer,
 		Description: "Set to true to enable ironic deploy server (dhcp/tftp/pxe/http).",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -427,7 +427,7 @@ var (
 	KapacitorAlertCheckEnabledSpec = &definition.TuningSpec{
 		Name:        KapacitorAlertCheckEnabled,
 		Description: "Set true to enable kapacitor alert check.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -436,7 +436,7 @@ var (
 	KapacitorAlertCheckEventIdSpec = &definition.TuningSpec{
 		Name:        KapacitorAlertCheckEventId,
 		Description: "Set kapacitor alert check eventid.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "SYS00002W",
 		},
@@ -445,7 +445,7 @@ var (
 	KapacitorAlertCheckIntervalSpec = &definition.TuningSpec{
 		Name:        KapacitorAlertCheckInterval,
 		Description: "Set kapacitor alert check interval (default to 60m).",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "60m",
 		},
@@ -454,7 +454,7 @@ var (
 	KapacitorAlertExtraPrefixSpec = &definition.TuningSpec{
 		Name:        KapacitorAlertExtraPrefix,
 		Description: "Set kapacitor alert message prefix.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "Cube",
 		},
@@ -463,7 +463,7 @@ var (
 	KapacitorAlertFlowBaseSpec = &definition.TuningSpec{
 		Name:        KapacitorAlertFlowBase,
 		Description: "Set kapacitor alert base for abnormal flow.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "7d",
 		},
@@ -472,7 +472,7 @@ var (
 	KapacitorAlertFlowThresholdSpec = &definition.TuningSpec{
 		Name:        KapacitorAlertFlowThreshold,
 		Description: "Set kapacitor alert threshold for abnormal flow.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 30,
 			Min:     0,
@@ -483,7 +483,7 @@ var (
 	KapacitorAlertFlowUnitSpec = &definition.TuningSpec{
 		Name:        KapacitorAlertFlowUnit,
 		Description: "Set kapacitor alert unit for abnormal flow.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "5m",
 		},
@@ -492,7 +492,7 @@ var (
 	KeystoneDebugEnabledSpec = &definition.TuningSpec{
 		Name:        KeystoneDebugEnabled,
 		Description: "Set to true to enable keystone verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -501,7 +501,7 @@ var (
 	ManilaDebugEnabledSpec = &definition.TuningSpec{
 		Name:        ManilaDebugEnabled,
 		Description: "Set to true to enable manila verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -510,7 +510,7 @@ var (
 	ManilaVolumeTypeSpec = &definition.TuningSpec{
 		Name:        ManilaVolumeType,
 		Description: "Set manila backend volume type.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "CubeStorage",
 		},
@@ -519,7 +519,7 @@ var (
 	MasakariHostEvacuateAllSpec = &definition.TuningSpec{
 		Name:        MasakariHostEvacuateAll,
 		Description: "Set to true to enable evacuate all instances when host goes down.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: true,
 		},
@@ -528,7 +528,7 @@ var (
 	MasakariWaitPeriodSpec = &definition.TuningSpec{
 		Name:        MasakariWaitPeriod,
 		Description: "Set wait period after service update",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 0,
 			Min:     0,
@@ -539,7 +539,7 @@ var (
 	MonascaDebugEnabledSpec = &definition.TuningSpec{
 		Name:        MonascaDebugEnabled,
 		Description: "Set to true to enable monasca verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -548,7 +548,7 @@ var (
 	MysqlBackupCuratorRpSpec = &definition.TuningSpec{
 		Name:        MysqlBackupCuratorRp,
 		Description: "mysql backup retention policy in weeks.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 14,
 			Min:     0,
@@ -559,7 +559,7 @@ var (
 	NetIfMtuNameSpec = &definition.TuningSpec{
 		Name:        NetIfMtuName,
 		Description: "Set interface MTU (MTU of parent interface must be greater than its VLAN interface).",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 1500,
 			Min:     68,
@@ -570,7 +570,7 @@ var (
 	NetIpv4TcpSyncookiesSpec = &definition.TuningSpec{
 		Name:        NetIpv4TcpSyncookies,
 		Description: "Turn on the Linux SYN cookies implementation.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: true,
 		},
@@ -579,7 +579,7 @@ var (
 	NetLacpDefaultRateSpec = &definition.TuningSpec{
 		Name:        NetLacpDefaultRate,
 		Description: "Set default LACP rate (fast/slow).",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "fast",
 		},
@@ -588,7 +588,7 @@ var (
 	NetLacpDefaultXmitSpec = &definition.TuningSpec{
 		Name:        NetLacpDefaultXmit,
 		Description: "Set default LACP transmit hash policy (layer2/layer2+3/layer3+4).",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "layer3+4",
 		},
@@ -597,7 +597,7 @@ var (
 	NeutronDebugEnabledSpec = &definition.TuningSpec{
 		Name:        NeutronDebugEnabled,
 		Description: "Set to true to enable neutron verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -606,7 +606,7 @@ var (
 	NovaControlHostMemorySpec = &definition.TuningSpec{
 		Name:        NovaControlHostMemory,
 		Description: "Amount of memory in MB to reserve for the control host.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 0,
 			Min:     0,
@@ -617,7 +617,7 @@ var (
 	NovaControlHostVcpuSpec = &definition.TuningSpec{
 		Name:        NovaControlHostVcpu,
 		Description: "Amount of vcpu to reserve for the control host.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 0,
 			Min:     0,
@@ -628,7 +628,7 @@ var (
 	NovaDebugEnabledSpec = &definition.TuningSpec{
 		Name:        NovaDebugEnabled,
 		Description: "Set to true to enable nova verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -637,7 +637,7 @@ var (
 	NovaGpuTypeSpec = &definition.TuningSpec{
 		Name:        NovaGpuType,
 		Description: "Specify a supported gpu type instances would get.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
 		},
@@ -650,7 +650,7 @@ var (
 	NovaOvercommitCpuRatioSpec = &definition.TuningSpec{
 		Name:        NovaOvercommitCpuRatio,
 		Description: "Specify an allowed CPU overcommitted ratio.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "float",
 			Default: 16.0,
 		},
@@ -659,7 +659,7 @@ var (
 	NovaOvercommitDiskRatioSpec = &definition.TuningSpec{
 		Name:        NovaOvercommitDiskRatio,
 		Description: "Specify an allowed disk overcommitted ratio.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "float",
 			Default: 1.0,
 		},
@@ -668,7 +668,7 @@ var (
 	NovaOvercommitRamRatioSpec = &definition.TuningSpec{
 		Name:        NovaOvercommitRamRatio,
 		Description: "Specify an allowed RAM overcommitted ratio.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "float",
 			Default: 1.5,
 		},
@@ -677,7 +677,7 @@ var (
 	NtpDebugEnabledSpec = &definition.TuningSpec{
 		Name:        NtpDebugEnabled,
 		Description: "Set to true to enable ntp verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -686,7 +686,7 @@ var (
 	OctaviaDebugEnabledSpec = &definition.TuningSpec{
 		Name:        OctaviaDebugEnabled,
 		Description: "Set to true to enable octavia verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -695,7 +695,7 @@ var (
 	OctaviaHaSpec = &definition.TuningSpec{
 		Name:        OctaviaHa,
 		Description: "Set to true to enable octavia HA mode.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -704,7 +704,7 @@ var (
 	OpensearchCuratorRpSpec = &definition.TuningSpec{
 		Name:        OpensearchCuratorRp,
 		Description: "opensearch curator retention policy in days.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 7,
 			Min:     0,
@@ -715,7 +715,7 @@ var (
 	OpensearchHeapSizeSpec = &definition.TuningSpec{
 		Name:        OpensearchHeapSize,
 		Description: "Set opensearch heap size in MB.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 1024,
 			Min:     256,
@@ -726,7 +726,7 @@ var (
 	SenlinDebugEnabledSpec = &definition.TuningSpec{
 		Name:        SenlinDebugEnabled,
 		Description: "Set to true to enable senlin verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -735,7 +735,7 @@ var (
 	SkylineDebugEnabledSpec = &definition.TuningSpec{
 		Name:        SkylineDebugEnabled,
 		Description: "Set to true to enable skyline verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -744,7 +744,7 @@ var (
 	SnapshotApplyActionSpec = &definition.TuningSpec{
 		Name:        SnapshotApplyAction,
 		Description: "Set snapshot apply action <apply|revert>.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "apply",
 		},
@@ -753,7 +753,7 @@ var (
 	SnapshotApplyPolicyIgnoreSpec = &definition.TuningSpec{
 		Name:        SnapshotApplyPolicyIgnore,
 		Description: "Set snapshot apply policy ignore <true|false>.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -762,7 +762,7 @@ var (
 	SshdBindToAllInterfacesSpec = &definition.TuningSpec{
 		Name:        SshdBindToAllInterfaces,
 		Description: "Set to true to bind sshd to all interfaces.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -771,7 +771,7 @@ var (
 	SshdSessionInactivitySpec = &definition.TuningSpec{
 		Name:        SshdSessionInactivity,
 		Description: "Set sshd session inactivity timeout in seconds.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "int",
 			Default: 0,
 			Min:     0,
@@ -782,7 +782,7 @@ var (
 	TimeTimezoneSpec = &definition.TuningSpec{
 		Name:        TimeTimezone,
 		Description: "Set system timezone.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "UTC",
 		},
@@ -791,7 +791,7 @@ var (
 	UpdateSecurityAutoUpdateSpec = &definition.TuningSpec{
 		Name:        UpdateSecurityAutoUpdate,
 		Description: "Set to true to enable security autoupdate.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -800,7 +800,7 @@ var (
 	WatcherDebugEnabledSpec = &definition.TuningSpec{
 		Name:        WatcherDebugEnabled,
 		Description: "Set to true to enable watcher verbose log.",
-		TuningLimitation: definition.TuningLimitation{
+		Limitation: definition.TuningLimitation{
 			Type:    "bool",
 			Default: false,
 		},
@@ -1140,7 +1140,7 @@ func SyncTunings() {
 		if err == nil {
 			srcTuning.IsModified = true
 			srcTuning.Description = spec.Description
-			srcTuning.Limitation = spec.TuningLimitation
+			srcTuning.Limitation = spec.Limitation
 			srcTuning.Hosts = []string{definition.Hostname}
 			checkAndUpdateTuning(spec.Name, *srcTuning)
 		}
@@ -1176,9 +1176,9 @@ func setDefaultTuning(tuning definition.TuningSpec) {
 	definition.SetCurrentTuning(definition.Tuning{
 		Enabled:     true,
 		Name:        tuning.Name,
-		Value:       tuning.TuningLimitation.Default,
+		Value:       tuning.Limitation.Default,
 		Hosts:       []string{definition.Hostname},
 		Description: tuning.Description,
-		Limitation:  tuning.TuningLimitation,
+		Limitation:  tuning.Limitation,
 	})
 }

@@ -27,18 +27,18 @@ type Policy struct {
 }
 
 type TuningSpec struct {
-	Name             string `json:"name"`
-	TuningLimitation `json:"exampleValue"`
-	Description      string  `json:"description"`
-	Roles            []*Role `json:"roles"`
-	Selector         `json:"selector"`
+	Name        string           `json:"name"`
+	Limitation  TuningLimitation `json:"limitation"`
+	Description string           `json:"description"`
+	Roles       []*Role          `json:"roles"`
+	Selector    `json:"selector"`
 }
 
 type TuningLimitation struct {
 	Type    string      `json:"type"`
 	Default interface{} `json:"default"`
-	Min     interface{} `json:"min"`
-	Max     interface{} `json:"max"`
+	Min     interface{} `json:"min,omitempty"`
+	Max     interface{} `json:"max,omitempty"`
 }
 
 type Tuning struct {
