@@ -8,7 +8,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -30,17 +29,14 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 		return nil, err
 	}
 
-	err = h.parseScope()
-	if err != nil {
-		return nil, err
-	}
+	h.parseScope()
+	h.parseWatch()
 
 	return h, nil
 }
 
-func (h *helper) parseScope() error {
+func (h *helper) parseScope() {
 	h.allNodes = h.c.DefaultQuery("allNodes", "false") == "true"
-	return nil
 }
 
 func (h *helper) parsePage() error {
@@ -80,8 +76,12 @@ func (h *helper) parsePage() error {
 	return nil
 }
 
+func (h *helper) parseWatch() {
+	h.watch = h.c.DefaultQuery("watch", "false") == "true"
+}
+
 func (h *helper) ListTunings() (*data, error) {
-	tunings, err := cubecos.ListTunings(v1.ListTuningOptions{AllNodes: h.allNodes})
+	tunings, err := cubecos.ListTunings(definition.ListTuningOptions{AllNodes: h.allNodes})
 	if err != nil {
 		log.Errorf("request(%s): failed to get tunings: %s", api.GetReqId(h.c), err.Error())
 		api.SetInternalServerError(h.c, err)
@@ -108,7 +108,7 @@ func (h *helper) ListTunings() (*data, error) {
 	}, nil
 }
 
-func (h *helper) paginateTunings(tunings []v1.Tuning) ([]v1.Tuning, error) {
+func (h *helper) paginateTunings(tunings []definition.Tuning) ([]definition.Tuning, error) {
 	if !h.Page.IsRequired() {
 		return tunings, nil
 	}
@@ -126,7 +126,7 @@ func (h *helper) paginateTunings(tunings []v1.Tuning) ([]v1.Tuning, error) {
 	return tunings[left:right], nil
 }
 
-func (h *helper) genPageInfo(tunings []v1.Tuning) (definition.Page, error) {
+func (h *helper) genPageInfo(tunings []definition.Tuning) (definition.Page, error) {
 	if !h.Page.IsRequired() {
 		return definition.Page{
 			Total:  1,

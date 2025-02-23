@@ -60,6 +60,10 @@ var (
 	}
 )
 
+func init() {
+	go streamTunings()
+}
+
 func getTunings(c *gin.Context) {
 	h, err := initReqHelper(c, "getTunings")
 	if err != nil {
@@ -72,6 +76,11 @@ func getTunings(c *gin.Context) {
 	if err != nil {
 		log.Errorf("request(%s): failed to get tunings: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
+		return
+	}
+
+	if h.watch {
+		watchTunings(h, tunings)
 		return
 	}
 
