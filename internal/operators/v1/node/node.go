@@ -60,7 +60,7 @@ func (o *Operator) watchAndSyncNodeRoles(watcher *registry.Watcher) {
 	event, err := (*watcher).Next()
 	if err == nil {
 		definition.SyncNodesOfRole()
-		logWithThrottling(event)
+		logThrottling(event)
 		return
 	}
 

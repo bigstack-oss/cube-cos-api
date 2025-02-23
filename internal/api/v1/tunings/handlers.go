@@ -24,31 +24,31 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
-			Path:    "/tunings/specs",
+			Path:    "/tunings/parameters",
 			Func:    getTuningSpecs,
 		},
 		{
 			Version: api.V1,
-			Method:  http.MethodPut,
-			Path:    "/tunings/:ParameterName",
+			Method:  http.MethodPatch,
+			Path:    "/tunings/parameters/:parameterName",
 			Func:    applyTuning,
 		},
 		{
 			Version: api.V1,
-			Method:  http.MethodPut,
+			Method:  http.MethodPatch,
 			Path:    "/tunings",
 			Func:    applyTunings,
 		},
 		{
 			Version: api.V1,
-			Method:  http.MethodPut,
-			Path:    "/tunings/:ParameterName/status",
+			Method:  http.MethodPatch,
+			Path:    "/tunings/parameters/:parameterName/status",
 			Func:    updateTuningStatus,
 		},
 		{
 			Version: api.V1,
 			Method:  http.MethodDelete,
-			Path:    "/tuning/:ParameterName",
+			Path:    "/tuning/parameters/:parameterName",
 			Func:    deleteTuning,
 		},
 		{
@@ -60,24 +60,40 @@ var (
 	}
 )
 
+func init() {
+	go streamTunings()
+}
+
 func getTunings(c *gin.Context) {
-	tunings, err := getTuningRecords()
+	h, err := initReqHelper(c, "getTunings")
+	if err != nil {
+		log.Errorf("request(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	tunings, err := h.ListTunings()
 	if err != nil {
 		log.Errorf("request(%s): failed to get tunings: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
+	if h.watch {
+		watchTunings(h, tunings)
+		return
+	}
+
 	api.SetStatusOk(
 		c,
-		"fetch tunings list successfully",
+		"fetch tuning list successfully",
 		tunings,
 	)
 }
 
 func getTuningSpecs(c *gin.Context) {
 	specs := []definition.TuningSpec{}
-	definition.GetAllTunings().Range(func(key, value interface{}) bool {
+	definition.GetTuningSpecs().Range(func(key, value interface{}) bool {
 		spec := deepcopy.Copy(value).(*definition.TuningSpec)
 		spec.Roles = selectRolesUsingActivityAndLabels(spec)
 		specs = append(specs, *spec)

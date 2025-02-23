@@ -25,22 +25,22 @@ func (o *Operator) operateReq(tuning definition.Tuning) error {
 }
 
 func (o *Operator) deleteTuning(tuning definition.Tuning) error {
-	policy, err := cubecos.GetPolicy()
+	policy, err := cubecos.GetPolicy(cubecos.TuningPolicyFile)
 	if err != nil {
 		log.Errorf("failed to get all tunings: %s", err.Error())
 		return err
 	}
 
 	policy.DeleteTuning(tuning.Name)
-	err = cubecos.ApplyHexTunings(policy.Tunings)
+	err = cubecos.ApplyTunings(policy.Tunings)
 	if err != nil {
 		log.Errorf("failed to delete tunings: %s", err.Error())
 		return err
 	}
 
-	err = cubecos.IsHexTuningDeleted(tuning)
-	if err != nil {
-		log.Errorf("failed to check if tuning %s is deleted: %s", tuning.Name, err.Error())
+	if !cubecos.IsTuningDeleted(tuning) {
+		err := fmt.Errorf("tuning %s is not deleted", tuning.Name)
+		log.Errorf(err.Error())
 		return err
 	}
 
@@ -48,19 +48,19 @@ func (o *Operator) deleteTuning(tuning definition.Tuning) error {
 }
 
 func (o *Operator) applyTuning(tuning definition.Tuning) error {
-	policy, err := cubecos.GetPolicy()
+	policy, err := cubecos.GetPolicy(cubecos.TuningPolicyFile)
 	if err != nil {
 		return err
 	}
 
 	policy.AppendTunings([]definition.Tuning{tuning})
-	err = cubecos.ApplyHexTunings(policy.Tunings)
+	err = cubecos.ApplyTunings(policy.Tunings)
 	if err != nil {
 		log.Errorf("failed to apply tuning %s: %s", tuning.Name, err.Error())
 		return err
 	}
 
-	err = cubecos.IsHexTuningApplied(tuning)
+	err = cubecos.IsTuningApplied(tuning)
 	if err != nil {
 		log.Errorf("failed to check if tuning %s is applied: %s", tuning.Name, err.Error())
 		return err

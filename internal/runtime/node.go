@@ -14,7 +14,7 @@ import (
 
 func initNodeIdentities() error {
 	var err error
-	definition.Hostname, err = os.Hostname()
+	definition.Hostname, err = getHostname()
 	if err != nil {
 		log.Errorf("failed to get hostname: %s", err.Error())
 		return err
@@ -74,8 +74,17 @@ func initNodeIdentities() error {
 	definition.AdvertisePort = conf.Opts.Spec.Listen.Port
 	definition.IsGpuEnabled = cubecos.IsGpuEnabled()
 	definition.LogoutRedirectUrl = genLogoutRedirectUrl()
+	cubecos.SyncTunings()
 
 	return nil
+}
+
+func getHostname() (string, error) {
+	if conf.Opts.Spec.Identity.Os.Hostname != "" {
+		return conf.Opts.Spec.Identity.Os.Hostname, nil
+	}
+
+	return os.Hostname()
 }
 
 func initNodePeerSyncer() {

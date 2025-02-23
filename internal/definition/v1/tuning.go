@@ -15,6 +15,7 @@ const (
 
 var (
 	tuningSpecs            = sync.Map{}
+	currentTunings         = sync.Map{}
 	CreateRecordIfNotExist = options.Update().SetUpsert(true)
 )
 
@@ -26,27 +27,35 @@ type Policy struct {
 }
 
 type TuningSpec struct {
-	Name         string `json:"name"`
-	ExampleValue `json:"exampleValue"`
-	Description  string  `json:"description"`
-	Roles        []*Role `json:"roles"`
-	Selector     `json:"selector"`
+	Name        string           `json:"name"`
+	Limitation  TuningLimitation `json:"limitation"`
+	Description string           `json:"description"`
+	Roles       []*Role          `json:"roles"`
+	Selector    `json:"selector"`
 }
 
-type ExampleValue struct {
+type TuningLimitation struct {
 	Type    string      `json:"type"`
 	Default interface{} `json:"default"`
-	Min     interface{} `json:"min"`
-	Max     interface{} `json:"max"`
+	Min     interface{} `json:"min,omitempty"`
+	Max     interface{} `json:"max,omitempty"`
 }
 
 type Tuning struct {
-	Enabled bool   `json:"enabled" yaml:"enabled"`
-	Name    string `json:"name" yaml:"name"`
-	Value   string `json:"value" yaml:"value"`
+	Name        string           `json:"name" yaml:"name"`
+	Value       interface{}      `json:"value" yaml:"value"`
+	Hosts       []string         `json:"hosts" yaml:"hosts"`
+	Description string           `json:"description" yaml:"description"`
+	Enabled     bool             `json:"enabled" yaml:"enabled"`
+	IsModified  bool             `json:"isModified" yaml:"isModified"`
+	Limitation  TuningLimitation `json:"limitation" yaml:"limitation"`
 
-	Node   `json:"node,omitempty" yaml:"node,omitempty" bson:"node,omitempty"`
-	Status status.Details `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
+	*Node  `json:"node,omitempty" yaml:"node,omitempty" bson:"node,omitempty"`
+	Status *status.Details `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
+}
+
+type ListTuningOptions struct {
+	AllNodes bool
 }
 
 func SetSpecToTuning(tuningName string, tuningSpec *TuningSpec) {
@@ -62,8 +71,46 @@ func GetRolesToHandleTuning(tuningName string) ([]*Role, bool) {
 	return val.(*TuningSpec).Roles, true
 }
 
-func GetAllTunings() *sync.Map {
+func GetTuningSpecs() *sync.Map {
 	return &tuningSpecs
+}
+
+func ListTuningSpecs() []TuningSpec {
+	specs := []TuningSpec{}
+	tuningSpecs.Range(func(key, value interface{}) bool {
+		spec := value.(*TuningSpec)
+		specs = append(specs, *spec)
+		return true
+	})
+
+	return specs
+}
+
+func GetCurrentTunings() *sync.Map {
+	return &currentTunings
+}
+
+func GetCurrentTuning(name string) Tuning {
+	val, loaded := currentTunings.Load(name)
+	if !loaded {
+		return Tuning{}
+	}
+
+	return val.(Tuning)
+}
+
+func SetCurrentTuning(tuning Tuning) {
+	currentTunings.Store(tuning.Name, tuning)
+}
+
+func ListCurrentTunings() []Tuning {
+	tunings := []Tuning{}
+	currentTunings.Range(func(key, value interface{}) bool {
+		tunings = append(tunings, value.(Tuning))
+		return true
+	})
+
+	return tunings
 }
 
 func ShouldCurrentRoleHandleTheTuning(tuningName string, roleName string) bool {
@@ -91,7 +138,7 @@ func (t *Tuning) Bytes() ([]byte, error) {
 }
 
 func (t *Tuning) SetNodeInfo(role, address string) {
-	t.Node = Node{
+	t.Node = &Node{
 		Role:     role,
 		Id:       HostID,
 		Hostname: Hostname,

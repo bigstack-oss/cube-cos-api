@@ -29,6 +29,7 @@ func init() {
 	flag.IntVar(&Opts.Spec.Listen.Port, "listen.port", Opts.Spec.Listen.Port, "")
 	flag.StringVar(&Opts.Spec.Identity.Os.Policy, "identity.os.policy", Opts.Spec.Identity.Os.Policy, "")
 	flag.StringVar(&Opts.Spec.Identity.Os.System, "identity.os.system", Opts.Spec.Identity.Os.System, "")
+	flag.StringVar(&Opts.Spec.Identity.Os.Hostname, "identity.os.hostname", Opts.Spec.Identity.Os.Hostname, "")
 	flag.StringVar(&Opts.Spec.Identity.LogoutRedirect, "identity.logoutRedirect", Opts.Spec.Identity.LogoutRedirect, "")
 	flag.StringVar(&Opts.Spec.Identity.Keycloak.Host, "identity.keycloak.host", Opts.Spec.Identity.Keycloak.Host, "")
 	flag.StringVar(&Opts.Spec.Identity.Keycloak.Realm, "identity.keycloak.realm", Opts.Spec.Identity.Keycloak.Realm, "")
@@ -106,8 +107,9 @@ type Identity struct {
 }
 
 type Os struct {
-	Policy string `json:"policy" yaml:"policy"`
-	System string `json:"system" yaml:"system"`
+	Policy   string `json:"policy" yaml:"policy"`
+	System   string `json:"system" yaml:"system"`
+	Hostname string `json:"hostname" yaml:"hostname"`
 }
 
 type ResourceControl struct {

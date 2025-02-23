@@ -12,6 +12,7 @@ const (
 	CheckingAndRepairing = "checkingAndRepairing"
 
 	Completed = "completed"
+	Updated   = "updated"
 	Ok        = "ok"
 	Error     = "error"
 )
@@ -30,7 +31,7 @@ type Details struct {
 	MaxPendingDuration int    `json:"maxPendingDuration,omitempty" bson:"maxPendingDuration"`
 	IsFixing           bool   `json:"isFixing" bson:"isFixing"`
 
-	Description string `json:"descriptions" bson:"description"`
+	Description string `json:"description" bson:"description"`
 }
 
 func (s *Details) ClearDesired() {

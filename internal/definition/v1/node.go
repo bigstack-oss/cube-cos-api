@@ -69,6 +69,17 @@ func (n *Node) GetMetricUrl(metric, view string) string {
 	return u.String()
 }
 
+func (n *Node) GetTuningUrl() string {
+	u := url.URL{
+		Scheme:   n.Protocol,
+		Host:     n.Address,
+		Path:     fmt.Sprintf("/api/v1/datacenters/%s/tunings", n.DataCenter),
+		RawQuery: "allNodes=false",
+	}
+
+	return u.String()
+}
+
 func IsCurrentHost(hostname string) bool {
 	return Hostname == hostname
 }

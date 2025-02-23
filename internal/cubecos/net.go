@@ -10,7 +10,7 @@ const ()
 
 func GetControllerVirtualIp(mgmtNet string) (string, error) {
 	if definition.IsHaEnabled {
-		return ReadHexTuning(CubeSysControllerVip)
+		return GetTuningValue(CubeSysControllerVip)
 	}
 
 	if mgmtNet == "" {
@@ -18,11 +18,11 @@ func GetControllerVirtualIp(mgmtNet string) (string, error) {
 	}
 
 	netIfAddrMgmtIp := fmt.Sprintf("%s%s", CubeNetIfAddrPrefix, mgmtNet)
-	return ReadHexTuning(netIfAddrMgmtIp)
+	return GetTuningValue(netIfAddrMgmtIp)
 }
 
 func GetMgmtNet() (string, error) {
-	return ReadHexTuning(CubeSysManagementNetwork)
+	return GetTuningValue(CubeSysManagementNetwork)
 }
 
 func GetManagementIp(mgmtNet string) (string, error) {
@@ -31,5 +31,5 @@ func GetManagementIp(mgmtNet string) (string, error) {
 	}
 
 	netIfAddrMgmtIp := fmt.Sprintf("%s%s", CubeNetIfAddrPrefix, mgmtNet)
-	return ReadHexTuning(netIfAddrMgmtIp)
+	return GetTuningValue(netIfAddrMgmtIp)
 }
