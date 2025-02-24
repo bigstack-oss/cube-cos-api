@@ -18,6 +18,7 @@ type helper struct {
 	handler string
 
 	allNodes bool
+	hosts    []string
 	keyword  string
 	definition.Page
 
@@ -34,6 +35,7 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 	h.parseScope()
 	h.parseKeyword()
 	h.parseWatch()
+	h.parseHosts()
 
 	return h, nil
 }
@@ -83,6 +85,10 @@ func (h *helper) parseKeyword() {
 	h.keyword = h.c.DefaultQuery("keyword", "")
 }
 
+func (h *helper) parseHosts() {
+	h.hosts = h.c.QueryArray("host")
+}
+
 func (h *helper) parseWatch() {
 	h.watch = h.c.DefaultQuery("watch", "false") == "true"
 }
@@ -91,26 +97,21 @@ func (h *helper) ListTunings() (*data, error) {
 	tunings, err := cubecos.ListTunings(definition.ListTuningOptions{AllNodes: h.allNodes})
 	if err != nil {
 		log.Errorf("request(%s): failed to get tunings: %s", api.GetReqId(h.c), err.Error())
-		api.SetInternalServerError(h.c, err)
 		return nil, err
 	}
 
-	if h.isKeywordRequired() {
-		tunings = h.filterTunings(tunings)
-	}
+	tunings = h.filterTunings(tunings)
+	h.sortTunings(&tunings)
 
 	pagedTunings, err := h.paginateTunings(tunings)
 	if err != nil {
 		log.Errorf("request(%s): failed to paginate tunings: %s", api.GetReqId(h.c), err.Error())
-		api.SetInternalServerError(h.c, err)
 		return nil, err
 	}
 
-	h.sortTunings(&pagedTunings)
 	page, err := h.genPageInfo(tunings)
 	if err != nil {
 		log.Errorf("request(%s): failed to gen page info: %s", api.GetReqId(h.c), err.Error())
-		api.SetInternalServerError(h.c, err)
 		return nil, err
 	}
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"reflect"
 	"sync"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
@@ -90,7 +91,7 @@ func removeWatcher(watcherToRemove watcher) {
 	defer stream.Unlock()
 
 	for i, watcher := range stream.Watchers {
-		if watcher != watcherToRemove {
+		if !reflect.DeepEqual(watcher, watcherToRemove) {
 			continue
 		}
 

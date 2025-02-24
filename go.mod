@@ -5,6 +5,7 @@ go 1.22.2
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
 	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250219193912-ee94b7180d82
+	github.com/blevesearch/bleve/v2 v2.4.4
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
 	github.com/coreos/go-oidc v2.3.0+incompatible
 	github.com/crewjam/saml v0.4.14
@@ -41,7 +42,6 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bitly/go-simplejson v0.5.0 // indirect
 	github.com/bits-and-blooms/bitset v1.12.0 // indirect
-	github.com/blevesearch/bleve/v2 v2.4.4 // indirect
 	github.com/blevesearch/bleve_index_api v1.1.12 // indirect
 	github.com/blevesearch/geo v0.1.20 // indirect
 	github.com/blevesearch/go-faiss v1.0.24 // indirect
