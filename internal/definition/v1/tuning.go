@@ -19,7 +19,7 @@ var (
 	CreateRecordIfNotExist = options.Update().SetUpsert(true)
 )
 
-type Policy struct {
+type TuningPolicy struct {
 	Name    string   `json:"name" yaml:"name"`
 	Version string   `json:"version" yaml:"version"`
 	Enabled bool     `json:"enabled" yaml:"enabled"`
@@ -146,11 +146,11 @@ func (t *Tuning) SetNodeInfo(role, address string) {
 	}
 }
 
-func (t *Policy) AppendTunings(tunings []Tuning) {
+func (t *TuningPolicy) AppendTunings(tunings []Tuning) {
 	t.Tunings = append(t.Tunings, tunings...)
 }
 
-func (t *Policy) DeleteTuning(tuningName string) {
+func (t *TuningPolicy) DeleteTuning(tuningName string) {
 	newTunings := []Tuning{}
 	for _, tuning := range t.Tunings {
 		if tuning.Name != tuningName {
