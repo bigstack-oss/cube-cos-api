@@ -887,7 +887,7 @@ func init() {
 func GetTuningValue(name string) (string, error) {
 	b, err := exec.Command("hex_tuning_helper", "/etc/settings.txt", "", name).Output()
 	if err != nil {
-		log.Errorf("failed to read hex tunning value: %s", err.Error())
+		log.Errorf("failed to read hex tuning value: %s", err.Error())
 		return "", err
 	}
 
@@ -917,7 +917,7 @@ func GetTuning(name string) (*definition.Tuning, error) {
 func ApplyTuning(isolatedDir string) error {
 	out, err := exec.Command("hex_config", "apply", isolatedDir).CombinedOutput()
 	if err != nil {
-		log.Errorf("failed to apply hex tunning value: %s", string(out))
+		log.Errorf("failed to apply hex tuning value: %s", string(out))
 		return err
 	}
 
