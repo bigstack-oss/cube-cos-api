@@ -5354,6 +5354,26 @@
                     },
                     {
                         "in": "query",
+                        "name": "host",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the host to retrieve the tunings, can specify multiple hosts to retrieve the tunings, for example: host=example-node-0&host=example-node-1",
+                        "example": "example-node-0"
+                    },
+                    {
+                        "in": "query",
+                        "name": "keyword",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The keyword to search the tunings",
+                        "example": "can be any string"
+                    },
+                    {
+                        "in": "query",
                         "name": "pageNum",
                         "required": false,
                         "schema": {
