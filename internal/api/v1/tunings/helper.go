@@ -3,6 +3,7 @@ package tunings
 import (
 	"fmt"
 	"math"
+	"sort"
 	"strconv"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
@@ -31,6 +32,7 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 	}
 
 	h.parseScope()
+	h.parseKeyword()
 	h.parseWatch()
 
 	return h, nil
@@ -77,6 +79,10 @@ func (h *helper) parseScope() {
 	h.allNodes = h.c.DefaultQuery("allNodes", "false") == "true"
 }
 
+func (h *helper) parseKeyword() {
+	h.keyword = h.c.DefaultQuery("keyword", "")
+}
+
 func (h *helper) parseWatch() {
 	h.watch = h.c.DefaultQuery("watch", "false") == "true"
 }
@@ -100,6 +106,7 @@ func (h *helper) ListTunings() (*data, error) {
 		return nil, err
 	}
 
+	h.sortTunings(&pagedTunings)
 	page, err := h.genPageInfo(tunings)
 	if err != nil {
 		log.Errorf("request(%s): failed to gen page info: %s", api.GetReqId(h.c), err.Error())
@@ -129,6 +136,12 @@ func (h *helper) paginateTunings(tunings []definition.Tuning) ([]definition.Tuni
 	}
 
 	return tunings[left:right], nil
+}
+
+func (h *helper) sortTunings(tunings *[]definition.Tuning) {
+	sort.Slice(*tunings, func(i, j int) bool {
+		return (*tunings)[i].Name < (*tunings)[j].Name
+	})
 }
 
 func (h *helper) genPageInfo(tunings []definition.Tuning) (definition.Page, error) {

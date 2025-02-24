@@ -1,8 +1,6 @@
 package tunings
 
 import (
-	"os"
-
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
@@ -58,31 +56,22 @@ func (h *helper) filterTunings(tunings []definition.Tuning) []definition.Tuning 
 }
 
 func (h *helper) searchTunings(tunings []definition.Tuning) (*bleve.SearchResult, error) {
-	indexMap := bleve.NewIndexMapping()
-	tmpCache := "/tmp/cube-cos-api/tuning-search-index"
-	err := os.RemoveAll(tmpCache)
-	if err != nil {
-		log.Errorf("failed to remove tmp cache: %v", err)
-		return nil, err
-	}
-
-	index, err := bleve.New(tmpCache, indexMap)
-	if err != nil {
-		log.Errorf("failed to create tuning search index: %v", err)
-		return nil, err
-	}
-
-	defer index.Close()
+	searcher := definition.GetTuningSearcher()
 	for _, tuning := range tunings {
-		err = index.Index(tuning.Name, tuning)
+		err := searcher.Index(tuning.Name, tuning)
 		if err != nil {
 			continue
 		}
 	}
 
-	query := bleve.NewMatchQuery(h.keyword)
-	req := bleve.NewSearchRequest(query)
-	return index.Search(req)
+	return searcher.Search(
+		bleve.NewSearchRequestOptions(
+			bleve.NewMatchQuery(h.keyword),
+			1000,
+			0,
+			false,
+		),
+	)
 }
 
 func genTuningMap(tunings []definition.Tuning) map[string]definition.Tuning {

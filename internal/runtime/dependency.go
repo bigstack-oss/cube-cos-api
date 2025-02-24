@@ -84,6 +84,11 @@ func initDependencies() error {
 		return err
 	}
 
+	err = newTuningSearchIndex()
+	if err != nil {
+		log.Errorf("failed to init tuning search index: %s", err.Error())
+	}
+
 	return nil
 }
 
@@ -258,4 +263,8 @@ func genSamlMapper() gocloak.ProtocolMapperRepresentation {
 			"attribute.nameformat": "Basic",
 		},
 	}
+}
+
+func newTuningSearchIndex() error {
+	return definition.InitTuningSearchIndex()
 }
