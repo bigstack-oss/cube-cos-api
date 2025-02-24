@@ -900,7 +900,7 @@ func GetTuningValue(name string) (string, error) {
 }
 
 func GetTuning(name string) (*definition.Tuning, error) {
-	policy, err := GetPolicy(TuningPolicyFile)
+	policy, err := GetTuningPolicy(TuningPolicyFile)
 	if err != nil {
 		return nil, err
 	}
@@ -958,7 +958,7 @@ func ApplyTunings(tunings []definition.Tuning) error {
 }
 
 func genTuningsAsYaml(tunings []definition.Tuning) ([]byte, error) {
-	tuningTemplate := definition.Policy{
+	tuningTemplate := definition.TuningPolicy{
 		Name:    "tuning",
 		Version: "1.0",
 		Enabled: true,
@@ -1011,13 +1011,13 @@ func ReleaseTuningLock() error {
 	return nil
 }
 
-func GetPolicy(filePath string) (*definition.Policy, error) {
+func GetTuningPolicy(filePath string) (*definition.TuningPolicy, error) {
 	b, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	policy := &definition.Policy{}
+	policy := &definition.TuningPolicy{}
 	err = yaml.Unmarshal(b, policy)
 	if err != nil {
 		return nil, err
