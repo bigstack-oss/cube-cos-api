@@ -1,7 +1,11 @@
 package tunings
 
 import (
+	"os"
+
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/blevesearch/bleve/v2"
+	log "go-micro.dev/v5/logger"
 )
 
 func listNodesBySelector(nodes []*definition.Node, selector definition.Selector) []*definition.Node {
@@ -35,4 +39,61 @@ func selectRolesUsingActivityAndLabels(tuningSpec *definition.TuningSpec) []*def
 	}
 
 	return roles
+}
+
+func (h *helper) filterTunings(tunings []definition.Tuning) []definition.Tuning {
+	result, err := h.searchTunings(tunings)
+	if err != nil {
+		log.Errorf("failed to search tunings: %s", err.Error())
+		return nil
+	}
+
+	tuningMap := genTuningMap(tunings)
+	filtered := []definition.Tuning{}
+	for _, hit := range result.Hits {
+		filtered = append(filtered, tuningMap[hit.ID])
+	}
+
+	return filtered
+}
+
+func (h *helper) searchTunings(tunings []definition.Tuning) (*bleve.SearchResult, error) {
+	indexMap := bleve.NewIndexMapping()
+	tmpCache := "/tmp/cube-cos-api/tuning-search-index"
+	err := os.RemoveAll(tmpCache)
+	if err != nil {
+		log.Errorf("failed to remove tmp cache: %v", err)
+		return nil, err
+	}
+
+	index, err := bleve.New(tmpCache, indexMap)
+	if err != nil {
+		log.Errorf("failed to create tuning search index: %v", err)
+		return nil, err
+	}
+
+	defer index.Close()
+	for _, tuning := range tunings {
+		err = index.Index(tuning.Name, tuning)
+		if err != nil {
+			continue
+		}
+	}
+
+	query := bleve.NewMatchQuery(h.keyword)
+	req := bleve.NewSearchRequest(query)
+	return index.Search(req)
+}
+
+func genTuningMap(tunings []definition.Tuning) map[string]definition.Tuning {
+	tuningMap := map[string]definition.Tuning{}
+	for _, tuning := range tunings {
+		tuningMap[tuning.Name] = tuning
+	}
+
+	return tuningMap
+}
+
+func (h *helper) isKeywordRequired() bool {
+	return h.keyword != ""
 }

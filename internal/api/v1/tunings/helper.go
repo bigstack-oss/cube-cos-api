@@ -17,6 +17,7 @@ type helper struct {
 	handler string
 
 	allNodes bool
+	keyword  string
 	definition.Page
 
 	watch bool
@@ -86,6 +87,10 @@ func (h *helper) ListTunings() (*data, error) {
 		log.Errorf("request(%s): failed to get tunings: %s", api.GetReqId(h.c), err.Error())
 		api.SetInternalServerError(h.c, err)
 		return nil, err
+	}
+
+	if h.isKeywordRequired() {
+		tunings = h.filterTunings(tunings)
 	}
 
 	pagedTunings, err := h.paginateTunings(tunings)
