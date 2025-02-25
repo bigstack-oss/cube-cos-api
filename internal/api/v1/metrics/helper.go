@@ -16,6 +16,8 @@ type helper struct {
 	entityId   string
 
 	definition.Period
+	past string
+
 	limit int
 	rank
 	watch bool

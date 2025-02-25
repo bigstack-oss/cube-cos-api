@@ -12,6 +12,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
+	duration "github.com/xhit/go-str2duration"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -39,6 +40,8 @@ type helper struct {
 	keyword   string
 
 	period
+	past string
+
 	definition.Page
 	limit int
 
@@ -69,6 +72,11 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 
 func (h *helper) parseEventListingParams() (*helper, error) {
 	err := h.parseType()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parsePast()
 	if err != nil {
 		return nil, err
 	}
@@ -121,6 +129,11 @@ func (h *helper) parseEventRankParams() (*helper, error) {
 		return nil, err
 	}
 
+	err = h.parsePast()
+	if err != nil {
+		return nil, err
+	}
+
 	err = h.parsePeriod()
 	if err != nil {
 		return nil, err
@@ -145,7 +158,12 @@ func (h *helper) parseEventRankParams() (*helper, error) {
 }
 
 func (h *helper) parseEventFilterConditions() (*helper, error) {
-	err := h.parsePeriod()
+	err := h.parsePast()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parsePeriod()
 	if err != nil {
 		return nil, err
 	}
@@ -167,6 +185,10 @@ func (h *helper) parseType() error {
 }
 
 func (h *helper) parsePeriod() error {
+	if h.arePeriodAndPastRequired() {
+		return fmt.Errorf("'past' and 'start'/'stop' cannot be used together")
+	}
+
 	qStart := h.c.DefaultQuery("start", definition.TimeRFC3339(-24*time.Hour))
 	start, err := time.Parse(time.RFC3339, qStart)
 	if err != nil {
@@ -183,6 +205,7 @@ func (h *helper) parsePeriod() error {
 		start: definition.TimeUTC(start),
 		stop:  definition.TimeUTC(stop),
 	}
+
 	return nil
 }
 
@@ -429,4 +452,30 @@ func convertSystemSeverities(severities []string) []string {
 	}
 
 	return converted
+}
+
+func (h *helper) parsePast() error {
+	h.past = h.c.DefaultQuery("past", "")
+	if h.past == "" {
+		return nil
+	}
+
+	_, err := duration.Str2Duration(h.past)
+	if err != nil {
+		return fmt.Errorf("invalid 'past' duration: %s", h.past)
+	}
+
+	return nil
+}
+
+func (h *helper) arePeriodAndPastRequired() bool {
+	return h.isPeriodRequired() && h.isPastRequired()
+}
+
+func (h *helper) isPeriodRequired() bool {
+	return h.stop != "" || h.start != ""
+}
+
+func (h *helper) isPastRequired() bool {
+	return h.past != ""
 }

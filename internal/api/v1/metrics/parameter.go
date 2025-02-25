@@ -9,12 +9,13 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/trick"
+	duration "github.com/xhit/go-str2duration"
 )
 
 func (h *helper) parseParams() error {
 	parsers := []func() error{
 		h.parseView, h.parseMetric, h.parseEntity, h.parseEntityId,
-		h.parsePeriod, h.parseRank, h.parseLimit, h.parseWatch,
+		h.parsePast, h.parsePeriod, h.parseRank, h.parseLimit, h.parseWatch,
 	}
 
 	for _, parse := range parsers {
@@ -86,9 +87,27 @@ func (h *helper) parseLimit() error {
 	return nil
 }
 
+func (h *helper) parsePast() error {
+	h.past = h.c.DefaultQuery("past", "")
+	if h.past == "" {
+		return nil
+	}
+
+	_, err := duration.Str2Duration(h.past)
+	if err != nil {
+		return fmt.Errorf("invalid 'past' duration: %s", h.past)
+	}
+
+	return nil
+}
+
 func (h *helper) parsePeriod() error {
 	if h.viewType != "history" {
 		return nil
+	}
+
+	if h.arePeriodAndPastRequired() {
+		return fmt.Errorf("'past' and 'start'/'stop' cannot be used together")
 	}
 
 	qStart := h.c.DefaultQuery("start", definition.TimeRFC3339(-24*time.Hour))
@@ -107,6 +126,7 @@ func (h *helper) parsePeriod() error {
 		Start: definition.TimeUTC(trick.Minus2MinsOnMetricStart(start)),
 		Stop:  definition.TimeUTC(stop),
 	}
+
 	return nil
 }
 
@@ -139,4 +159,28 @@ func (h *helper) parseWatch() error {
 	}
 
 	return nil
+}
+
+func (h *helper) arePeriodAndPastRequired() bool {
+	return h.isPeriodRequired() && h.isPastRequired()
+}
+
+func (h *helper) isPeriodRequired() bool {
+	return h.Period.Start != "" || h.Period.Stop != ""
+}
+
+func (h *helper) isPastRequired() bool {
+	return h.past != ""
+}
+
+func (h *helper) genTimeDuration() string {
+	if h.isPastRequired() {
+		return fmt.Sprintf("start: %s", h.past)
+	}
+
+	return fmt.Sprintf(
+		"start: %s, stop: %s",
+		h.Period.Start,
+		h.Period.Stop,
+	)
 }

@@ -602,7 +602,7 @@ func GetVmSummary() (*VmSummary, error) {
 	}, nil
 }
 
-func GetCpuSummaryOfHosts() (*definition.ComputeStatistic, error) {
+func GetCpuSummaryOfHosts(stmt string) (*definition.ComputeStatistic, error) {
 	c, cancel, err := influx.GetQueryCursor(hostCpuUsageStmt)
 	if err != nil {
 		return nil, err
