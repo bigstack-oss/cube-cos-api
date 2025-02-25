@@ -603,7 +603,7 @@ func GetVmSummary() (*VmSummary, error) {
 }
 
 func GetCpuSummaryOfHosts(stmt string) (*definition.ComputeStatistic, error) {
-	c, cancel, err := influx.GetQueryCursor(hostCpuUsageStmt)
+	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -644,8 +644,8 @@ func GetCpuSummaryOfHost(hostname string) (*definition.ComputeStatistic, error) 
 	}, nil
 }
 
-func GetCpuHistoryOfHost(entityId string, period definition.Period) ([]definition.TimeUsedPercent, error) {
-	stmt := fmt.Sprintf(hostCpuUsageHistoryStmt, entityId)
+func GetCpuHistoryOfHost(stmt string) ([]definition.TimeUsedPercent, error) {
+	// stmt := fmt.Sprintf(hostCpuUsageHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -702,8 +702,7 @@ func askTheHostForCpuSummary(hostname string) (*definition.ComputeStatistic, err
 	return resp.Result().(*definition.ComputeStatistic), nil
 }
 
-func GetCpuUsageRankOfHosts(top int) ([]definition.HostPercentageUsage, error) {
-	stmt := fmt.Sprintf(hostCpuUsageRankStmt, top)
+func GetCpuUsageRankOfHosts(stmt string) ([]definition.HostPercentageUsage, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -722,7 +721,7 @@ func GetCpuUsageRankOfHosts(top int) ([]definition.HostPercentageUsage, error) {
 
 func appendHistoryToCpuUsageRank(rank []definition.HostPercentageUsage) {
 	for i, host := range rank {
-		history, err := GetCpuHistoryOfHost(host.Id, definition.Period{})
+		history, err := GetCpuHistoryOfHost(genHostCpuUsageHistoryStmt(host.Id))
 		if err != nil {
 			log.Errorf("failed to get cpu history of host %s: %v", host.Id, err)
 			continue
@@ -800,8 +799,8 @@ func askTheHostForMemorySummary(hostname string) (*definition.SpaceStatistic, er
 	return resp.Result().(*definition.SpaceStatistic), nil
 }
 
-func GetMemoryUsageRankOfHosts() ([]definition.HostPercentageUsage, error) {
-	c, cancel, err := influx.GetQueryCursor(hostMemoryUsageRankStmt)
+func GetMemoryUsageRankOfHosts(stmt string) ([]definition.HostPercentageUsage, error) {
+	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -861,16 +860,14 @@ func parseMemoryUsageHistory(c *api.QueryTableResult) ([]definition.TimeUsedPerc
 	return points, nil
 }
 
-func GetDiskStorageBandwidthHistory(period definition.Period) (*definition.StorageBandwidthSeries, error) {
-	stmt := fmt.Sprintf(hostStorageReadBandwidthStmt, period.Start, period.Stop)
-	read, err := getDiskBandwidthHistory(stmt)
+func GetDiskStorageBandwidthHistory(readStmt, writeStmt string) (*definition.StorageBandwidthSeries, error) {
+	read, err := getDiskBandwidthHistory(readStmt)
 	if err != nil {
 		log.Errorf("failed to get host storage read bandwidth series: %v", err)
 		return nil, err
 	}
 
-	stmt = fmt.Sprintf(hostStorageWriteBandwidthStmt, period.Start, period.Stop)
-	write, err := getDiskBandwidthHistory(stmt)
+	write, err := getDiskBandwidthHistory(writeStmt)
 	if err != nil {
 		log.Errorf("failed to get host storage write bandwidth series: %v", err)
 		return nil, err
@@ -882,14 +879,12 @@ func GetDiskStorageBandwidthHistory(period definition.Period) (*definition.Stora
 	}, nil
 }
 
-func GetDiskIopsHistoryOfHosts(period definition.Period) (*definition.StorageIopsSeries, error) {
-	readStmt := fmt.Sprintf(hostStorageReadIopsStmt, period.Start, period.Stop)
+func GetDiskIopsHistoryOfHosts(readStmt, writeStmt string) (*definition.StorageIopsSeries, error) {
 	readSeries, err := getDiskIopsHistoryOfHosts(readStmt)
 	if err != nil {
 		return nil, err
 	}
 
-	writeStmt := fmt.Sprintf(hostStorageWriteIopsStmt, period.Start, period.Stop)
 	writeSeries, err := getDiskIopsHistoryOfHosts(writeStmt)
 	if err != nil {
 		return nil, err
@@ -901,14 +896,12 @@ func GetDiskIopsHistoryOfHosts(period definition.Period) (*definition.StorageIop
 	}, nil
 }
 
-func GeDiskLatencyHistoryOfHosts(period definition.Period) (*definition.StorageLatencySeries, error) {
-	readStmt := fmt.Sprintf(hostStorageReadLatencyStmt, period.Start, period.Stop)
+func GeDiskLatencyHistoryOfHosts(readStmt, writeStmt string) (*definition.StorageLatencySeries, error) {
 	readSeries, err := geDiskLatencyHistoryOfHosts(readStmt)
 	if err != nil {
 		return nil, err
 	}
 
-	writeStmt := fmt.Sprintf(hostStorageWriteLatencyStmt, period.Start, period.Stop)
 	writeSeries, err := geDiskLatencyHistoryOfHosts(writeStmt)
 	if err != nil {
 		return nil, err
@@ -942,8 +935,7 @@ func geDiskLatencyHistoryOfHosts(stmt string) ([]definition.TimeMillisecondPoint
 	return parseDiskLatencyHistory(c)
 }
 
-func GetDiskUsageRankOfHosts(top int) ([]definition.HostPercentageUsage, error) {
-	stmt := fmt.Sprintf(hostStorageUsageRankStmt, top)
+func GetDiskUsageRankOfHosts(stmt string) ([]definition.HostPercentageUsage, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1106,8 +1098,7 @@ func GetNetworkTrafficOutHistoryOfHost(entityId string, period definition.Period
 	return parseNetworkTrafficHistory(c)
 }
 
-func GetCpuUsageRankOfVms(top int) ([]definition.VmPercentageUsage, error) {
-	stmt := fmt.Sprintf(vmCpuUsageRankStmt, top)
+func GetCpuUsageRankOfVms(stmt string) ([]definition.VmPercentageUsage, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1168,8 +1159,7 @@ func parseCpuUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeUsedPer
 	return points, nil
 }
 
-func GetMemoryUsageRankOfVms(top int) ([]definition.VmMetricsUsage, error) {
-	stmt := fmt.Sprintf(vmMemoryRankStmt, top)
+func GetMemoryUsageRankOfVms(stmt string) ([]definition.VmMetricsUsage, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1230,8 +1220,7 @@ func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeUsed
 	return points, nil
 }
 
-func GetDiskReadIopsRankOfVms(top int) ([]definition.VmDiskIopsUsage, error) {
-	stmt := fmt.Sprintf(vmStorageIopsReadRankStmt, top)
+func GetDiskReadIopsRankOfVms(stmt string) ([]definition.VmDiskIopsUsage, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1272,8 +1261,7 @@ func GetDiskReadIopsHistoryOfVm(entityId, device string) ([]definition.TimeOpsPo
 	return parseDiskOpsHistory(c)
 }
 
-func GetDiskWriteIopsRankOfVms(top int) ([]definition.VmDiskIopsUsage, error) {
-	stmt := fmt.Sprintf(vmStorageIopsWriteRankStmt, top)
+func GetDiskWriteIopsRankOfVms(stmt string) ([]definition.VmDiskIopsUsage, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1314,8 +1302,7 @@ func GetDiskWriteIopsHistoryOfVm(entityId, device string) ([]definition.TimeOpsP
 	return parseDiskOpsHistory(c)
 }
 
-func GetNetworkTrafficInRankOfVms(top int) ([]definition.VmNetworkTrafficUsage, error) {
-	stmt := fmt.Sprintf(vmNetworkIngressRankStmt, top)
+func GetNetworkTrafficInRankOfVms(stmt string) ([]definition.VmNetworkTrafficUsage, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1356,8 +1343,7 @@ func GetNetworkTrafficInHistoryOfVm(entityId, device string) ([]definition.TimeP
 	return parseNetworkTrafficHistory(c)
 }
 
-func GetNetworkTrafficOutRankOfVms(top int) ([]definition.VmNetworkTrafficUsage, error) {
-	stmt := fmt.Sprintf(vmNetworkEgressRankStmt, top)
+func GetNetworkTrafficOutRankOfVms(stmt string) ([]definition.VmNetworkTrafficUsage, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1645,6 +1631,16 @@ func hostNetworkIngressRank(c *api.QueryTableResult) ([]definition.HostNetworkPa
 	}
 
 	return rank, nil
+}
+
+func genHostCpuUsageHistoryStmt(hostId string) string {
+	query := influx.Query{}
+	return query.Bucket("telegraf").
+		Range("start: -1h").
+		Filter(fmt.Sprintf(`fn: (r) => r._measurement == "cpu" and r.host == "%s" and r._field == "usage_idle"`, hostId)).
+		Map(`fn: (r) => ({ r with _value: 100.0 - r._value })`).
+		Rename(`columns: {_value: "used"}`).
+		String()
 }
 
 func parseVmNetworkPacketRank(c *api.QueryTableResult) ([]definition.VmNetworkTrafficUsage, error) {

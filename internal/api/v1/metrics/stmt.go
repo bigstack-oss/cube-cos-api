@@ -9,7 +9,7 @@ import (
 func (h *helper) genHostCpuUsageStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range("start: -2m").
+		Range("start: -1h").
 		Filter(`fn: (r) => r._measurement == "cpu" and r._field == "usage_idle"`).
 		AggregateWindow(`every: 60s, fn: mean, createEmpty: false`).
 		Map(`fn: (r) => ({ r with _value: 100.0 - r._value })`).
@@ -20,7 +20,7 @@ func (h *helper) genHostCpuUsageStmt() string {
 func (h *helper) genHostMemoryUsageStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range("start: -2m").
+		Range("start: -1h").
 		Filter(`fn: (r) => r._measurement == "mem" and (r._field == "used" or r._field == "total"`).
 		AggregateWindow(`every: 60s, fn: mean, createEmpty: false`).
 		Pivot(`rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value"`).
@@ -32,7 +32,7 @@ func (h *helper) genHostMemoryUsageStmt() string {
 func (h *helper) genHostMemoryUsageRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range("start: -2m").
+		Range("start: -1h").
 		Filter(`fn: (r) => r._measurement == "mem" and r._field == "used_percent" and r.role == "cube"`).
 		Last().
 		Group(`columns: ["host"]`).
@@ -43,7 +43,7 @@ func (h *helper) genHostMemoryUsageRankStmt() string {
 func (h *helper) genHostCpuUsageRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range("start: -2m").
+		Range("start: -1h").
 		Filter(`fn: (r) => r._measurement == "cpu" and r._field == "usage_idle" and r.role == "cube"`).
 		Group(`columns: ["host"]`).
 		Last().
@@ -137,7 +137,7 @@ func (h *helper) genHostStorageWriteLatencyStmt() string {
 func (h *helper) genHostStorageUsageRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range(h.genTimeDuration()).
+		Range("start: -1h").
 		Filter(`fn: (r) => r._measurement == "disk" and r._field == "used_percent" and r.role == "cube"`).
 		Group(`columns: ["host"]`).
 		Last().
@@ -149,7 +149,7 @@ func (h *helper) genHostStorageUsageRankStmt() string {
 func (h *helper) genHostNetworkIngressRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range(h.genTimeDuration()).
+		Range("start: -5m").
 		Filter(`fn: (r) => r._measurement == "net" and r.interface =~ /^eth[0-9]+$/ and r.role == "cube" and r._field == "bytes_recv"`).
 		AggregateWindow(`every: 1m, fn: sum, createEmpty: false`).
 		Derivative(`unit: 1s, nonNegative: true`).
@@ -163,7 +163,7 @@ func (h *helper) genHostNetworkIngressRankStmt() string {
 func (h *helper) genHostNetworkEgressRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range(h.genTimeDuration()).
+		Range("start: -5m").
 		Filter(`fn: (r) => r._measurement == "net" and r.interface =~ /^eth[0-9]+$/ and r.role == "cube" and r._field == "bytes_sent"`).
 		AggregateWindow(`every: 1m, fn: sum, createEmpty: false`).
 		Derivative(`unit: 1s, nonNegative: true`).
@@ -177,7 +177,7 @@ func (h *helper) genHostNetworkEgressRankStmt() string {
 func (h *helper) genHostCpuUsageHistoryStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range(h.genTimeDuration()).
+		Range("start: -1h").
 		Filter(fmt.Sprintf(`fn: (r) => r._measurement == "cpu" and r.host == "%s" and r._field == "usage_idle"`, h.entityId)).
 		Map(`fn: (r) => ({ r with _value: 100.0 - r._value })`).
 		Rename(`columns: {_value: "used"}`).
@@ -187,7 +187,7 @@ func (h *helper) genHostCpuUsageHistoryStmt() string {
 func (h *helper) genHostMemoryUsageHistoryStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range(h.genTimeDuration()).
+		Range("start: -1h").
 		Filter(fmt.Sprintf(`fn: (r) => r._measurement == "mem" and r.host == "%s" and r._field == "used_percent"`, h.entityId)).
 		Rename(`columns: {_value: "used"}`).
 		Keep(`columns: ["_time", "used", "host"]`).
@@ -197,7 +197,7 @@ func (h *helper) genHostMemoryUsageHistoryStmt() string {
 func (h *helper) genHostDiskUsageHistoryStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range(h.genTimeDuration()).
+		Range("start: -1h").
 		Filter(fmt.Sprintf(`fn: (r) => r._measurement == "disk" and r.host == "%s" and r._field == "used_percent"`, h.entityId)).
 		Rename(`columns: {_value: "used"}`).
 		Keep(`columns: ["_time", "used"]`).
@@ -207,7 +207,7 @@ func (h *helper) genHostDiskUsageHistoryStmt() string {
 func (h *helper) genHostNetworkIngressHistoryStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range(h.genTimeDuration()).
+		Range("start: -1h").
 		Filter(fmt.Sprintf(`fn: (r) => r._measurement == "net" and r.host == "%s" and r._field == "bytes_recv" and r.interface =~ /^eth[0-9]+$/`, h.entityId)).
 		AggregateWindow(`every: 1m, fn: sum`).
 		Derivative(`unit: 1s, nonNegative: true`).
@@ -219,7 +219,7 @@ func (h *helper) genHostNetworkIngressHistoryStmt() string {
 func (h *helper) genHostNetworkEgressHistoryStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range(h.genTimeDuration()).
+		Range("start: -1h").
 		Filter(fmt.Sprintf(`fn: (r) => r._measurement == "net" and r.host == "%s" and r._field == "bytes_sent" and r.interface =~ /^eth[0-9]+$/`, h.entityId)).
 		AggregateWindow(`every: 1m, fn: sum`).
 		Derivative(`unit: 1s, nonNegative: true`).
@@ -231,7 +231,7 @@ func (h *helper) genHostNetworkEgressHistoryStmt() string {
 func (h *helper) genVmCpuUsageRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("monasca").
-		Range(h.genTimeDuration()).
+		Range("start: -5m").
 		Filter(`fn: (r) => r._measurement == "vm.cpu.utilization_norm_perc" and r._field == "value"`).
 		Group(`columns: ["resource_id", "vm_name"]`).
 		Last().
@@ -245,7 +245,7 @@ func (h *helper) genVmCpuUsageRankStmt() string {
 func (h *helper) genVmMemoryRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("monasca").
-		Range(h.genTimeDuration()).
+		Range("start: -5m").
 		Measurement("vm.mem.free_perc").
 		Filter(`fn: (r) => r._field == "value"`).
 		Group(`columns: ["resource_id", "vm_name"]`).
@@ -260,7 +260,7 @@ func (h *helper) genVmMemoryRankStmt() string {
 func (h *helper) genVmStorageIopsReadRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("monasca").
-		Range(h.genTimeDuration()).
+		Range("start: -5m").
 		Measurement("vm.io.read_bytes_sec").
 		Filter(`fn: (r) => r._field == "value"`).
 		Group(`columns: ["resource_id", "vm_name", "device"]`).
@@ -275,7 +275,7 @@ func (h *helper) genVmStorageIopsReadRankStmt() string {
 func (h *helper) genVmStorageIopsWriteRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("monasca").
-		Range(h.genTimeDuration()).
+		Range("start: -5m").
 		Measurement("vm.io.write_bytes_sec").
 		Filter(`fn: (r) => r._field == "value"`).
 		Group(`columns: ["resource_id", "vm_name", "device"]`).
@@ -290,7 +290,7 @@ func (h *helper) genVmStorageIopsWriteRankStmt() string {
 func (h *helper) genVmNetworkIngressRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("monasca").
-		Range(h.genTimeDuration()).
+		Range("start: -5m").
 		Filter(`fn: (r) => r._measurement == "vm.net.in_bytes_sec" and r._field == "value"`).
 		Group(`columns: ["resource_id", "vm_name", "device"]`).
 		Last().
@@ -303,7 +303,7 @@ func (h *helper) genVmNetworkIngressRankStmt() string {
 func (h *helper) genVmNetworkEgressRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("monasca").
-		Range(h.genTimeDuration()).
+		Range("start: -5m").
 		Filter(`fn: (r) => r._measurement == "vm.net.out_bytes_sec" and r._field == "value"`).
 		Group(`columns: ["resource_id", "vm_name", "device"]`).
 		Last().

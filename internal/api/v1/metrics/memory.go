@@ -43,9 +43,9 @@ func (h *helper) getMemoryUsageSummary() (interface{}, error) {
 func (h *helper) getMemoryUsageRank() (interface{}, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GetMemoryUsageRankOfHosts()
+		return cubecos.GetMemoryUsageRankOfHosts(h.genHostMemoryUsageRankStmt())
 	case "vms":
-		return cubecos.GetMemoryUsageRankOfVms(h.rank.head)
+		return cubecos.GetMemoryUsageRankOfVms(h.genVmMemoryRankStmt())
 	}
 
 	return nil, fmt.Errorf(

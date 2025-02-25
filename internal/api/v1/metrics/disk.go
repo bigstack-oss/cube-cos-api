@@ -25,7 +25,10 @@ func (h *helper) getDiskBandwidthMetrics() (interface{}, error) {
 func (h *helper) getDiskBandwidthHistory() (interface{}, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GetDiskStorageBandwidthHistory(h.Period)
+		return cubecos.GetDiskStorageBandwidthHistory(
+			h.genHostStorageReadBandwidthStmt(),
+			h.genHostStorageWriteBandwidthStmt(),
+		)
 	case "vms":
 		return nil, fmt.Errorf("vms is not supported yet for disk bandwidth history")
 	}
@@ -55,7 +58,7 @@ func (h *helper) getDiskUsageMetrics() (interface{}, error) {
 func (h *helper) getDiskUsageRank() (interface{}, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GetDiskUsageRankOfHosts(h.rank.head)
+		return cubecos.GetDiskUsageRankOfHosts(h.genHostStorageUsageRankStmt())
 	case "vms":
 		return nil, fmt.Errorf("vms is not supported yet for disk usage rank")
 	}
@@ -85,7 +88,10 @@ func (h *helper) getDiskIopsMetrics() (interface{}, error) {
 func (h *helper) getDiskIopsHistory() (interface{}, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GetDiskIopsHistoryOfHosts(h.Period)
+		return cubecos.GetDiskIopsHistoryOfHosts(
+			h.genHostStorageReadIopsStmt(),
+			h.genHostStorageWriteIopsStmt(),
+		)
 	case "vms":
 		return nil, fmt.Errorf("vms is not supported yet for disk iops")
 	}
@@ -117,7 +123,7 @@ func (h *helper) getDiskReadIopsRank() (interface{}, error) {
 	case "hosts":
 		return nil, fmt.Errorf("hosts is not supported yet for disk read iops rank")
 	case "vms":
-		return cubecos.GetDiskReadIopsRankOfVms(h.rank.head)
+		return cubecos.GetDiskReadIopsRankOfVms(h.genVmStorageIopsReadRankStmt())
 	}
 
 	return nil, fmt.Errorf(
@@ -147,7 +153,7 @@ func (h *helper) getDiskWriteIopsRank() (interface{}, error) {
 	case "hosts":
 		return nil, fmt.Errorf("hosts is not supported yet for disk write iops rank")
 	case "vms":
-		return cubecos.GetDiskWriteIopsRankOfVms(h.rank.head)
+		return cubecos.GetDiskWriteIopsRankOfVms(h.genVmStorageIopsWriteRankStmt())
 	}
 
 	return nil, fmt.Errorf(
@@ -175,7 +181,10 @@ func (h *helper) getDiskLatencyMetrics() (interface{}, error) {
 func (h *helper) getDiskLatencyHistory() (interface{}, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GeDiskLatencyHistoryOfHosts(h.Period)
+		return cubecos.GeDiskLatencyHistoryOfHosts(
+			h.genHostStorageReadLatencyStmt(),
+			h.genHostStorageWriteLatencyStmt(),
+		)
 	case "vms":
 		return nil, fmt.Errorf("vms is not supported yet for disk latency")
 	}

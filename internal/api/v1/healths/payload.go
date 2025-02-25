@@ -439,9 +439,9 @@ func (h *helper) genFakeHealthHistoryOfService() []cubecos.HealthStatus {
 	modules := cubecos.ServiceToModules[h.service]
 	statuses := []cubecos.HealthStatus{}
 
-	pastTime, err := duration.Str2Duration(h.past)
-	if err != nil {
-		pastTime = 1 * time.Hour
+	pastTime := 1 * time.Hour
+	if h.isPastRequired() {
+		pastTime, _ = duration.Str2Duration(h.past)
 	}
 	h.period.stop = definition.TimeLocalISO8601(time.Now())
 	h.period.start = definition.TimeLocalISO8601(time.Now().Add(-pastTime))
@@ -483,9 +483,9 @@ func (h *helper) genFakeHealthHistoryOfModule() cubecos.HealthStatus {
 	history := []cubecos.HealthCheck{}
 	count := 0
 
-	pastTime, err := duration.Str2Duration(h.past)
-	if err != nil {
-		pastTime = 1 * time.Hour
+	pastTime := 1 * time.Hour
+	if h.isPastRequired() {
+		pastTime, _ = duration.Str2Duration(h.past)
 	}
 	h.period.stop = definition.TimeLocalISO8601(time.Now())
 	h.period.start = definition.TimeLocalISO8601(time.Now().Add(-pastTime))
