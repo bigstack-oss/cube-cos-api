@@ -1,15 +1,13 @@
 package tunings
 
 import (
-	"fmt"
-	"math"
 	"sort"
-	"strconv"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
+	"github.com/mohae/deepcopy"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -20,8 +18,8 @@ type helper struct {
 	allNodes bool
 	hosts    []string
 	keyword  string
-	definition.Page
 
+	definition.Page
 	watch bool
 }
 
@@ -38,59 +36,6 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 	h.parseHosts()
 
 	return h, nil
-}
-
-func (h *helper) parsePage() error {
-	num := h.c.DefaultQuery("pageNum", "")
-	size := h.c.DefaultQuery("pageSize", "")
-	if !isPageReceived(num, size) {
-		return nil
-	}
-
-	if num == "" {
-		return fmt.Errorf("pageNum should be provided if pageSize is provided")
-	}
-
-	if size == "" {
-		return fmt.Errorf("pageSize should be provided if pageNum is provided")
-	}
-
-	var err error
-	h.Page.Number, err = strconv.Atoi(num)
-	if err != nil {
-		return fmt.Errorf("pageNum should be an integer: %s", num)
-	}
-
-	h.Page.Size, err = strconv.Atoi(size)
-	if err != nil {
-		return fmt.Errorf("pageSize should be an integer: %s", size)
-	}
-
-	if h.Page.Number <= 0 {
-		return fmt.Errorf("pageNum should be greater than 0 if pageSize is provided")
-	}
-
-	if h.Page.Size <= 0 {
-		return fmt.Errorf("pageSize should be greater than 0 if pageNum is provided")
-	}
-
-	return nil
-}
-
-func (h *helper) parseScope() {
-	h.allNodes = h.c.DefaultQuery("allNodes", "false") == "true"
-}
-
-func (h *helper) parseKeyword() {
-	h.keyword = h.c.DefaultQuery("keyword", "")
-}
-
-func (h *helper) parseHosts() {
-	h.hosts = h.c.QueryArray("host")
-}
-
-func (h *helper) parseWatch() {
-	h.watch = h.c.DefaultQuery("watch", "false") == "true"
 }
 
 func (h *helper) ListTunings() (*data, error) {
@@ -121,46 +66,21 @@ func (h *helper) ListTunings() (*data, error) {
 	}, nil
 }
 
-func (h *helper) paginateTunings(tunings []definition.Tuning) ([]definition.Tuning, error) {
-	if !h.Page.IsRequired() {
-		return tunings, nil
-	}
-
-	left := (h.Page.Number - 1) * h.Page.Size
-	if left > len(tunings) {
-		left = len(tunings)
-	}
-
-	right := left + h.Page.Size
-	if right > len(tunings) {
-		right = len(tunings)
-	}
-
-	return tunings[left:right], nil
-}
-
-func (h *helper) sortTunings(tunings *[]definition.Tuning) {
-	sort.Slice(*tunings, func(i, j int) bool {
-		return (*tunings)[i].Name < (*tunings)[j].Name
+func (h *helper) ListTuningSpecs() ([]definition.TuningSpec, error) {
+	specs := []definition.TuningSpec{}
+	definition.GetTuningSpecs().Range(func(key, value interface{}) bool {
+		spec := deepcopy.Copy(value).(*definition.TuningSpec)
+		spec.Roles = selectRolesUsingActivityAndLabels(spec)
+		specs = append(specs, *spec)
+		return true
 	})
+
+	h.sortTuningSpecs(&specs)
+	return specs, nil
 }
 
-func (h *helper) genPageInfo(tunings []definition.Tuning) (definition.Page, error) {
-	if !h.Page.IsRequired() {
-		return definition.Page{
-			Total:  1,
-			Number: 1,
-			Size:   len(tunings),
-		}, nil
-	}
-
-	return definition.Page{
-		Total:  int64(math.Ceil(float64(len(tunings)) / float64(h.Page.Size))),
-		Number: h.Page.Number,
-		Size:   h.Page.Size,
-	}, nil
-}
-
-func isPageReceived(num, size string) bool {
-	return num != "" || size != ""
+func (h *helper) sortTuningSpecs(specs *[]definition.TuningSpec) {
+	sort.Slice(*specs, func(i, j int) bool {
+		return (*specs)[i].Name < (*specs)[j].Name
+	})
 }
