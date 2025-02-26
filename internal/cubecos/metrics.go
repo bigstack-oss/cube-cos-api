@@ -645,7 +645,6 @@ func GetCpuSummaryOfHost(hostname string) (*definition.ComputeStatistic, error) 
 }
 
 func GetCpuHistoryOfHost(stmt string) ([]definition.TimeUsedPercent, error) {
-	// stmt := fmt.Sprintf(hostCpuUsageHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err

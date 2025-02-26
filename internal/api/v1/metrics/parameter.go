@@ -166,7 +166,7 @@ func (h *helper) arePeriodAndPastRequired() bool {
 }
 
 func (h *helper) isPeriodRequired() bool {
-	return h.Period.Start != "" || h.Period.Stop != ""
+	return h.c.DefaultQuery("stop", "") != "" || h.c.DefaultQuery("start", "") != ""
 }
 
 func (h *helper) isPastRequired() bool {
@@ -175,7 +175,7 @@ func (h *helper) isPastRequired() bool {
 
 func (h *helper) genTimeDuration() string {
 	if h.isPastRequired() {
-		return fmt.Sprintf("start: %s", h.past)
+		return fmt.Sprintf("start: -%s", h.past)
 	}
 
 	return fmt.Sprintf(

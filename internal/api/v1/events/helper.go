@@ -380,6 +380,15 @@ func (h *helper) genEventQueryUrl(event definition.EventStat) string {
 }
 
 func (h *helper) genEventQuery(event definition.EventStat) string {
+	if h.isPastRequired() {
+		return fmt.Sprintf(
+			"type=%s&id=%s&past=%s&pageNum=1&pageSize=20",
+			h.eventType,
+			event.Id,
+			h.past,
+		)
+	}
+
 	return fmt.Sprintf(
 		"type=%s&id=%s&start=%s&stop=%s&pageNum=1&pageSize=20",
 		h.eventType,
@@ -473,7 +482,7 @@ func (h *helper) arePeriodAndPastRequired() bool {
 }
 
 func (h *helper) isPeriodRequired() bool {
-	return h.stop != "" || h.start != ""
+	return h.c.DefaultQuery("stop", "") != "" || h.c.DefaultQuery("start", "") != ""
 }
 
 func (h *helper) isPastRequired() bool {

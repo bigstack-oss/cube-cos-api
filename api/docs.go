@@ -651,6 +651,16 @@ const docTemplate = `{
                     },
                     {
                         "in": "query",
+                        "name": "past",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The past time of the event to query, use the unit of 's'(second), 'm'(minute), 'h'(hour), and 'd'(day) suffix to specify the time range.",
+                        "example": "1d"
+                    },
+                    {
+                        "in": "query",
                         "name": "start",
                         "required": false,
                         "schema": {
@@ -779,6 +789,22 @@ const docTemplate = `{
                         },
                         "description": "The name of the data center to operate",
                         "example": "example-data-center"
+                    },
+                    {
+                        "in": "query",
+                        "name": "past",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1h",
+                                "24h",
+                                "7d",
+                                "14d"
+                            ]
+                        },
+                        "description": "The past time of the filter conditions to query, click 'try it out' to see a few options, but can specify with the 's'(second), 'm'(minute), 'h'(hour), and 'd'(day) suffix for other time ranges.",
+                        "example": "1d"
                     },
                     {
                         "in": "query",
@@ -1267,6 +1293,22 @@ const docTemplate = `{
                         },
                         "description": "The instance of the event to query.",
                         "example": "ccc449e4-a26c-47ac-afc1-c792ab1ed20a"
+                    },
+                    {
+                        "in": "query",
+                        "name": "past",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1h",
+                                "24h",
+                                "7d",
+                                "14d"
+                            ]
+                        },
+                        "description": "The past time of the event rank to query, click 'try it out' to see a few options, but can specify with the 's'(second), 'm'(minute), 'h'(hour), and 'd'(day) suffix for other time ranges.",
+                        "example": "1d"
                     },
                     {
                         "in": "query",
@@ -2063,6 +2105,23 @@ const docTemplate = `{
                             ]
                         },
                         "description": "The name of the module to retrieve health history. use GET /api/v1/datacenters/{dataCenter}/services/{serviceType} to get the module list."
+                    },
+                    {
+                        "in": "query",
+                        "name": "past",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1h",
+                                "24h",
+                                "7d",
+                                "14d",
+                                "30d"
+                            ]
+                        },
+                        "description": "The past time of the health history to query, click 'try it out' to see a few options, but can specify with the 's'(second), 'm'(minute), 'h'(hour), and 'd'(day) suffix for other time ranges.",
+                        "example": "1d"
                     },
                     {
                         "in": "query",

@@ -125,7 +125,7 @@ func (h *helper) genInstanceRankStmt() string {
 
 func (h *helper) genTimeDuration() string {
 	if h.isPastRequired() {
-		return fmt.Sprintf("start: %s", h.past)
+		return fmt.Sprintf("start: -%s", h.past)
 	}
 
 	return fmt.Sprintf(
