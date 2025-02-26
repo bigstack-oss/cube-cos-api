@@ -27,6 +27,10 @@ func TimeRFC3339(duration time.Duration) string {
 	return time.Now().Add(duration).UTC().Format(time.RFC3339)
 }
 
+func TimPastRFC3339(duration time.Duration) string {
+	return time.Now().Add(duration).UTC().Format(time.RFC3339)
+}
+
 func TimeLocalISO8601(t time.Time) string {
 	return fmt.Sprintf("%sZ", t.Format(ISO8601))
 }

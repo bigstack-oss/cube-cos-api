@@ -7,6 +7,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
+	duration "github.com/xhit/go-str2duration"
 )
 
 type helper struct {
@@ -17,6 +18,8 @@ type helper struct {
 	handler string
 
 	period
+	past string
+
 	definition.Page
 	watch bool
 }
@@ -66,7 +69,12 @@ func (h *helper) parseSummaryParams() (*helper, error) {
 func (h *helper) parseServiceHealthParams() (*helper, error) {
 	h.parseWatch()
 
-	err := h.parsePeriod()
+	err := h.parsePast()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parsePeriod()
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +90,12 @@ func (h *helper) parseServiceHealthParams() (*helper, error) {
 func (h *helper) parseModuleHealthParams() (*helper, error) {
 	h.parseWatch()
 
-	err := h.parsePeriod()
+	err := h.parsePast()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parsePeriod()
 	if err != nil {
 		return nil, err
 	}
@@ -101,6 +114,10 @@ func (h *helper) parseModuleHealthParams() (*helper, error) {
 }
 
 func (h *helper) parsePeriod() error {
+	if h.arePeriodAndPastRequired() {
+		return fmt.Errorf("'past' and 'start'/'stop' cannot be used together")
+	}
+
 	qStart := h.c.DefaultQuery("start", definition.TimeRFC3339(-time.Hour))
 	start, err := time.Parse(time.RFC3339, qStart)
 	if err != nil {
@@ -126,4 +143,30 @@ func (h *helper) parsePeriod() error {
 
 func (h *helper) parseWatch() {
 	h.watch = h.c.DefaultQuery("watch", "false") == "true"
+}
+
+func (h *helper) parsePast() error {
+	h.past = h.c.DefaultQuery("past", "")
+	if h.past == "" {
+		return nil
+	}
+
+	_, err := duration.Str2Duration(h.past)
+	if err != nil {
+		return fmt.Errorf("invalid 'past' duration: %s", h.past)
+	}
+
+	return nil
+}
+
+func (h *helper) arePeriodAndPastRequired() bool {
+	return h.isPeriodRequired() && h.isPastRequired()
+}
+
+func (h *helper) isPeriodRequired() bool {
+	return h.c.DefaultQuery("stop", "") != "" || h.c.DefaultQuery("start", "") != ""
+}
+
+func (h *helper) isPastRequired() bool {
+	return h.c.DefaultQuery("past", "") != ""
 }

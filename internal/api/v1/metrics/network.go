@@ -27,7 +27,7 @@ func (h *helper) getNetworkTrafficInRank() (interface{}, error) {
 	case "hosts":
 		return cubecos.GetNetworkTrafficInRankOfHosts()
 	case "vms":
-		return cubecos.GetNetworkTrafficInRankOfVms(h.rank.head)
+		return cubecos.GetNetworkTrafficInRankOfVms(h.genVmNetworkIngressRankStmt())
 	}
 
 	return nil, fmt.Errorf(
@@ -57,7 +57,7 @@ func (h *helper) getNetworkTrafficOutRank() (interface{}, error) {
 	case "hosts":
 		return cubecos.GetNetworkTrafficOutRankOfHosts()
 	case "vms":
-		return cubecos.GetNetworkTrafficOutRankOfVms(h.rank.head)
+		return cubecos.GetNetworkTrafficOutRankOfVms(h.genVmNetworkEgressRankStmt())
 	}
 
 	return nil, fmt.Errorf(

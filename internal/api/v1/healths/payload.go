@@ -7,6 +7,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	duration "github.com/xhit/go-str2duration"
 )
 
 // M1 TODO: this will be removed once the real data is available in the COS side
@@ -438,12 +439,19 @@ func (h *helper) genFakeHealthHistoryOfService() []cubecos.HealthStatus {
 	modules := cubecos.ServiceToModules[h.service]
 	statuses := []cubecos.HealthStatus{}
 
+	pastTime := 1 * time.Hour
+	if h.isPastRequired() {
+		pastTime, _ = duration.Str2Duration(h.past)
+	}
+	h.period.stop = definition.TimeLocalISO8601(time.Now())
+	h.period.start = definition.TimeLocalISO8601(time.Now().Add(-pastTime))
+
 	for _, module := range modules {
 		interval := 5 * time.Minute
 		history := []cubecos.HealthCheck{}
 		count := 0
 
-		for t := h.StartTime(); !t.After(h.StopTime()); t = t.Add(interval) {
+		for start := h.StartTime(); !start.After(h.StopTime()); start = start.Add(interval) {
 			timestamp := h.StartTime().Add(time.Duration(count) * interval).Format(time.RFC3339)
 			status := "ok"
 			checkResult := cubecos.HealthCheck{Time: timestamp, Status: status}
@@ -475,7 +483,14 @@ func (h *helper) genFakeHealthHistoryOfModule() cubecos.HealthStatus {
 	history := []cubecos.HealthCheck{}
 	count := 0
 
-	for t := h.StartTime(); !t.After(h.StopTime()); t = t.Add(interval) {
+	pastTime := 1 * time.Hour
+	if h.isPastRequired() {
+		pastTime, _ = duration.Str2Duration(h.past)
+	}
+	h.period.stop = definition.TimeLocalISO8601(time.Now())
+	h.period.start = definition.TimeLocalISO8601(time.Now().Add(-pastTime))
+
+	for start := h.StartTime(); !start.After(h.StopTime()); start = start.Add(interval) {
 		timestamp := h.StartTime().Add(time.Duration(count) * interval).Format(time.RFC3339)
 		status := "ok"
 		checkResult := cubecos.HealthCheck{Time: timestamp, Status: status}

@@ -8,13 +8,16 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/gin-gonic/gin"
 	json "github.com/json-iterator/go"
-	log "go-micro.dev/v5/logger"
 )
 
-type watcher chan cubecos.Summary
+type dataChan chan interface{}
+
+type watcher struct {
+	helper
+	dataChan
+}
 
 var (
 	stream = struct {
@@ -23,29 +26,39 @@ var (
 	}{}
 )
 
-func streamSummary() {
+func streamHealth() {
 	for {
 		wait.Seconds(2)
 		if len(stream.Watchers) == 0 {
 			continue
 		}
 
-		summary, err := cubecos.GetDataCenterSummary()
-		if err != nil {
-			log.Errorf("summary: failed to fetch data center summary: %v", err)
-			continue
-		}
-
 		stream.Lock()
 		for _, w := range stream.Watchers {
+			resp, err := streamEventsByHandlerType(&w.helper)
+			if err != nil {
+				continue
+			}
+
 			select {
-			case w <- *summary:
+			case w.dataChan <- resp:
 			default:
 			}
 		}
 
 		stream.Unlock()
 	}
+}
+
+func streamEventsByHandlerType(h *helper) (interface{}, error) {
+	switch h.handler {
+	case "getDataCenterSummary":
+		return h.getDataCenterSummary()
+	case "getMetrics":
+		return h.getMetrics()
+	}
+
+	return nil, errors.New("no internal function supported")
 }
 
 func parseWatch(c *gin.Context) (bool, error) {
@@ -58,20 +71,20 @@ func parseWatch(c *gin.Context) (bool, error) {
 	return watch, nil
 }
 
-func watchSummary(c *gin.Context, summary *cubecos.Summary) {
-	setChunkedTransfer(c)
-	flusher, ok := c.Writer.(http.Flusher)
+func watchHealth(h *helper, health interface{}) {
+	setChunkedTransfer(h.c)
+	flusher, ok := h.c.Writer.(http.Flusher)
 	if !ok {
-		api.SetBadRequest(c, errors.New("http chunked transfer is not supported"))
+		api.SetBadRequest(h.c, errors.New("http chunked transfer is not supported"))
 		return
 	}
 
-	watcher := make(watcher)
+	watcher := watcher{helper: *h, dataChan: make(dataChan)}
 	addWatcher(watcher)
 	defer removeWatcher(watcher)
 
-	sendFirstSummary(c, flusher, summary)
-	streamingSummary(c, flusher, watcher)
+	sendFirstHealth(h.c, flusher, health)
+	streamingHealth(h.c, flusher, watcher)
 }
 
 func setChunkedTransfer(c *gin.Context) {
@@ -102,33 +115,33 @@ func removeWatcher(watcherToRemove watcher) {
 	}
 }
 
-func sendFirstSummary(c *gin.Context, flusher http.Flusher, summary *cubecos.Summary) {
-	c.Writer.Write(streamingResp(summary))
+func sendFirstHealth(c *gin.Context, flusher http.Flusher, health interface{}) {
+	c.Writer.Write(streamingResp(health))
 	c.Writer.Write([]byte("\n"))
 	flusher.Flush()
 }
 
-func streamingSummary(c *gin.Context, flusher http.Flusher, watcher watcher) {
+func streamingHealth(c *gin.Context, flusher http.Flusher, watcher watcher) {
 	ctx := c.Request.Context()
 	for {
 		select {
-		case summary := <-watcher:
-			c.Writer.Write(streamingResp(&summary))
+		case health := <-watcher.dataChan:
+			c.Writer.Write(streamingResp(&health))
 			c.Writer.Write([]byte("\n"))
 			flusher.Flush()
 		case <-ctx.Done():
-			api.SetStatusOk(c, "summary watching is stopped successfully", nil)
+			api.SetStatusOk(c, "health watching is stopped successfully", nil)
 			return
 		}
 	}
 }
 
-func streamingResp(summary *cubecos.Summary) []byte {
+func streamingResp(health interface{}) []byte {
 	b, err := json.Marshal(gin.H{
 		"code":   http.StatusOK,
 		"status": "ok",
-		"msg":    "fetch data center summary successfully",
-		"data":   *summary,
+		"msg":    "fetch data center health successfully",
+		"data":   health,
 	})
 	if err != nil {
 		return []byte{}

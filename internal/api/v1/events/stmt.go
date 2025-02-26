@@ -14,7 +14,7 @@ const (
 func (h *helper) genCountQueryStmt() string {
 	query := influx.Query{}
 	query.Bucket("events").
-		Range(h.genStartStopRange()).
+		Range(h.genTimeDuration()).
 		Measurement(h.eventType)
 
 	query = h.addFilters(query)
@@ -24,7 +24,7 @@ func (h *helper) genCountQueryStmt() string {
 func (h *helper) genFilterConditionStmt(eventType, column string) string {
 	query := influx.Query{}
 	return query.Bucket("events").
-		Range(h.genStartStopRange()).
+		Range(h.genTimeDuration()).
 		Measurement(eventType).
 		Keep(fmt.Sprintf(`columns: ["%s"]`, column)).
 		Group("").
@@ -34,7 +34,7 @@ func (h *helper) genFilterConditionStmt(eventType, column string) string {
 
 func (h *helper) genListingStmt() string {
 	query := influx.Query{}
-	query.Bucket("events").Range(h.genStartStopRange()).Measurement(h.eventType)
+	query.Bucket("events").Range(h.genTimeDuration()).Measurement(h.eventType)
 	query = h.addFilters(query)
 	query.Pivot(convertValueToField).Group("").Sort(descByTime)
 	if !h.isPageRequired() {
@@ -75,7 +75,7 @@ func (h *helper) genRankStmt() (string, error) {
 func (h *helper) genSystemRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("events").
-		Range(h.genStartStopRange()).
+		Range(h.genTimeDuration()).
 		Measurement("system").
 		Filter(h.genFilter("category", h.category)).
 		Filter(h.genFilter("severity", h.severity)).
@@ -92,7 +92,7 @@ func (h *helper) genSystemRankStmt() string {
 func (h *helper) genHostRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("events").
-		Range(h.genStartStopRange()).
+		Range(h.genTimeDuration()).
 		Measurement("host").
 		Filter(h.genFilter("category", h.category)).
 		Filter(h.genFilter("host", h.host)).
@@ -109,7 +109,7 @@ func (h *helper) genHostRankStmt() string {
 func (h *helper) genInstanceRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("events").
-		Range(h.genStartStopRange()).
+		Range(h.genTimeDuration()).
 		Measurement("instance").
 		Filter(h.genFilter("category", h.category)).
 		Filter(h.genFilter("instance", h.instance)).
@@ -123,7 +123,11 @@ func (h *helper) genInstanceRankStmt() string {
 		String()
 }
 
-func (h *helper) genStartStopRange() string {
+func (h *helper) genTimeDuration() string {
+	if h.isPastRequired() {
+		return fmt.Sprintf("start: -%s", h.past)
+	}
+
 	return fmt.Sprintf(
 		"start: %s, stop: %s",
 		h.period.start,

@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -33,26 +32,26 @@ var (
 )
 
 func init() {
-	go streamSummary()
+	go streamHealth()
 }
 
 func getDataCenterSummary(c *gin.Context) {
-	watch, err := parseWatch(c)
+	h, err := initReqHelper(c, "getDataCenterSummary")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	summary, err := cubecos.GetDataCenterSummary()
+	summary, err := h.getDataCenterSummary()
 	if err != nil {
 		log.Errorf("request(%s): failed to fetch data center summary: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	if watch {
-		watchSummary(c, summary)
+	if h.watch {
+		watchHealth(h, summary)
 		return
 	}
 
@@ -60,7 +59,7 @@ func getDataCenterSummary(c *gin.Context) {
 }
 
 func getMetrics(c *gin.Context) {
-	h, err := initReqHelper(c)
+	h, err := initReqHelper(c, "getMetrics")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
@@ -71,6 +70,11 @@ func getMetrics(c *gin.Context) {
 	if err != nil {
 		log.Errorf("request(%s): failed to fetch metrics: %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
+		return
+	}
+
+	if h.watch {
+		watchHealth(h, metrics)
 		return
 	}
 

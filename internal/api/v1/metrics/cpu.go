@@ -27,7 +27,7 @@ func (h *helper) getCpuUsageSummary() (interface{}, error) {
 	case "host":
 		return cubecos.GetCpuSummaryOfHost(h.entityId)
 	case "hosts":
-		return cubecos.GetCpuSummaryOfHosts()
+		return cubecos.GetCpuSummaryOfHosts(h.genHostCpuUsageStmt())
 	case "vm":
 		return nil, fmt.Errorf("vm is not supported yet for cpu summary")
 	case "vms":
@@ -43,7 +43,8 @@ func (h *helper) getCpuUsageSummary() (interface{}, error) {
 func (h *helper) getCpuHistory() (interface{}, error) {
 	switch h.entityType {
 	case "host":
-		return cubecos.GetCpuHistoryOfHost(h.entityId, h.Period)
+		stmt := h.genHostCpuUsageHistoryStmt()
+		return cubecos.GetCpuHistoryOfHost(stmt)
 	case "vm":
 		return nil, fmt.Errorf("vm is not supported yet for cpu history")
 	}
@@ -57,9 +58,11 @@ func (h *helper) getCpuHistory() (interface{}, error) {
 func (h *helper) getCpuUsageRank() (interface{}, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GetCpuUsageRankOfHosts(h.rank.head)
+		stmt := h.genHostCpuUsageRankStmt()
+		return cubecos.GetCpuUsageRankOfHosts(stmt)
 	case "vms":
-		return cubecos.GetCpuUsageRankOfVms(h.rank.head)
+		stmt := h.genVmCpuUsageRankStmt()
+		return cubecos.GetCpuUsageRankOfVms(stmt)
 	}
 
 	return nil, fmt.Errorf(
