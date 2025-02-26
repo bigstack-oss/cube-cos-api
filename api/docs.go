@@ -5635,6 +5635,1510 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/datacenters/{dataCenter}/tunings/specs": {
+            "get": {
+                "operationId": "listTuningSpecs",
+                "tags": [
+                    "Tunings"
+                ],
+                "summary": "Retrieve the list of tuning spec",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the list of tuning spec successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListTuningSpecResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Tuning spec list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "name": "barbican.debug.enabled",
+                                                    "description": "Set to true to enable barbican verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "ceph.debug.enabled",
+                                                    "description": "Set to true to enable ceph debug logs.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "ceph.mirror.meta.sync",
+                                                    "description": "Set to true to enable automatically volume metadata sync.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": true
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cinder.backup.account",
+                                                    "description": "Set cinder backup storage account.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": ""
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cinder.backup.endpoint",
+                                                    "description": "Set cinder backup storage endpoint.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": ""
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cinder.backup.override",
+                                                    "description": "Enable override cinder backup configurations.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cinder.backup.pool",
+                                                    "description": "Set cinder backup storage pool.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": ""
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cinder.backup.secret",
+                                                    "description": "Set cinder backup storage account secret.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": ""
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cinder.backup.type",
+                                                    "description": "Set cinder backup storage type <cube-storage|cube-swift>.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": ""
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cinder.debug.enabled",
+                                                    "description": "Set to true to enable cinder verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cinder.external.%d.account",
+                                                    "description": "Set cinder external storage account.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": ""
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cinder.external.%d.driver",
+                                                    "description": "Set cinder external storage type name <cube|purestorage>.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": ""
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cinder.external.%d.endpoint",
+                                                    "description": "Set cinder external storage endpoint.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": ""
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cinder.external.%d.name",
+                                                    "description": "Set cinder external storage rule name.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": ""
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cinder.external.%d.pool",
+                                                    "description": "Set cinder external storage pool.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": ""
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cinder.external.%d.secret",
+                                                    "description": "Set cinder external storage account secret.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": ""
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cubesys.alert.level",
+                                                    "description": "Set health alert sensible level. (0: default, 1: highly sensitive)",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 0,
+                                                        "min": 0,
+                                                        "max": 2147483647
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cubesys.alert.level.%s",
+                                                    "description": "Set health alert sensible level for service %s. (0: default, 1: highly sensitive)",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 0,
+                                                        "min": 0,
+                                                        "max": 2147483647
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cubesys.conntable.max",
+                                                    "description": "Set max connection table size.",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 262144,
+                                                        "min": 0,
+                                                        "max": 2147483647
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cubesys.log.default.retention",
+                                                    "description": "Set log file retention policy in days.",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 14,
+                                                        "min": 0,
+                                                        "max": 365
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cubesys.provider.extra",
+                                                    "description": "Set extra provider interfaces ('pvd-' prefix and <= 15 chars) [IF.2:pvd-xxx,eth2:pvd-yyy,...].",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": ""
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "cyborg.debug.enabled",
+                                                    "description": "Set to true to enable cyborg verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "debug.enable_core_dump.%s",
+                                                    "description": "Enable core dump for process %s",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "debug.enable_kdump",
+                                                    "description": "Enable kdump to collect dump from kernel panic",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "debug.level.%s",
+                                                    "description": "Set debug level for process %s",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 0,
+                                                        "min": 0,
+                                                        "max": 9
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "debug.max_core_dump",
+                                                    "description": "Set the total number of core files before oldest are removed",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 0,
+                                                        "min": 0,
+                                                        "max": 999
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "designate.debug.enabled",
+                                                    "description": "Set to true to enable designate verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "glance.debug.enabled",
+                                                    "description": "Set to true to enable glance verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "glance.export.rp",
+                                                    "description": "glance export retention policy in copies.",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 3,
+                                                        "min": 0,
+                                                        "max": 255
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "heat.debug.enabled",
+                                                    "description": "Set to true to enable heat verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "influxdb.curator.rp",
+                                                    "description": "influxdb curator retention policy in days.",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 7,
+                                                        "min": 0,
+                                                        "max": 365
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "ironic.debug.enabled",
+                                                    "description": "Set to true to enable ironic verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "ironic.deploy.server",
+                                                    "description": "Set to true to enable ironic deploy server (dhcp/tftp/pxe/http).",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "kapacitor.alert.check.enabled",
+                                                    "description": "Set true to enable kapacitor alert check.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "kapacitor.alert.check.eventid",
+                                                    "description": "Set kapacitor alert check eventid.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": "SYS00002W"
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "kapacitor.alert.check.interval",
+                                                    "description": "Set kapacitor alert check interval (default to 60m).",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": "60m"
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "kapacitor.alert.extra.prefix",
+                                                    "description": "Set kapacitor alert message prefix.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": "Cube"
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "kapacitor.alert.flow.base",
+                                                    "description": "Set kapacitor alert base for abnormal flow.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": "7d"
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "kapacitor.alert.flow.threshold",
+                                                    "description": "Set kapacitor alert threshold for abnormal flow.",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 30,
+                                                        "min": 0,
+                                                        "max": 65535
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "kapacitor.alert.flow.unit",
+                                                    "description": "Set kapacitor alert unit for abnormal flow.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": "5m"
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "keystone.debug.enabled",
+                                                    "description": "Set to true to enable keystone verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "manila.debug.enabled",
+                                                    "description": "Set to true to enable manila verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "manila.volume.type",
+                                                    "description": "Set manila backend volume type.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": "CubeStorage"
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "masakari.host.evacuate_all",
+                                                    "description": "Set to true to enable evacuate all instances when host goes down.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": true
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "masakari.wait.period",
+                                                    "description": "Set wait period after service update",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 0,
+                                                        "min": 0,
+                                                        "max": 99999
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "monasca.debug.enabled",
+                                                    "description": "Set to true to enable monasca verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "mysql.backup.curator.rp",
+                                                    "description": "mysql backup retention policy in weeks.",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 14,
+                                                        "min": 0,
+                                                        "max": 52
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "net.if.mtu.<name>",
+                                                    "description": "Set interface MTU (MTU of parent interface must be greater than its VLAN interface).",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 1500,
+                                                        "min": 68,
+                                                        "max": 65536
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "net.ipv4.tcp_syncookies",
+                                                    "description": "Turn on the Linux SYN cookies implementation.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": true
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "net.lacp.default.rate",
+                                                    "description": "Set default LACP rate (fast/slow).",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": "fast"
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "net.lacp.default.xmit",
+                                                    "description": "Set default LACP transmit hash policy (layer2/layer2+3/layer3+4).",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": "layer3+4"
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "neutron.debug.enabled",
+                                                    "description": "Set to true to enable neutron verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "nova.control.host.memory",
+                                                    "description": "Amount of memory in MB to reserve for the control host.",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 0,
+                                                        "min": 0,
+                                                        "max": 524288
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "nova.control.host.vcpu",
+                                                    "description": "Amount of vcpu to reserve for the control host.",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 0,
+                                                        "min": 0,
+                                                        "max": 128
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "nova.debug.enabled",
+                                                    "description": "Set to true to enable nova verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "nova.gpu.type",
+                                                    "description": "Specify a supported gpu type instances would get.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": ""
+                                                    },
+                                                    "roles": []
+                                                },
+                                                {
+                                                    "name": "nova.overcommit.cpu.ratio",
+                                                    "description": "Specify an allowed CPU overcommitted ratio.",
+                                                    "limitation": {
+                                                        "type": "float",
+                                                        "default": 16
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "nova.overcommit.disk.ratio",
+                                                    "description": "Specify an allowed disk overcommitted ratio.",
+                                                    "limitation": {
+                                                        "type": "float",
+                                                        "default": 1
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "nova.overcommit.ram.ratio",
+                                                    "description": "Specify an allowed RAM overcommitted ratio.",
+                                                    "limitation": {
+                                                        "type": "float",
+                                                        "default": 1.5
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "ntp.debug.enabled",
+                                                    "description": "Set to true to enable ntp verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "octavia.debug.enabled",
+                                                    "description": "Set to true to enable octavia verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "octavia.ha",
+                                                    "description": "Set to true to enable octavia HA mode.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "opensearch.curator.rp",
+                                                    "description": "opensearch curator retention policy in days.",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 7,
+                                                        "min": 0,
+                                                        "max": 365
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "opensearch.heap.size",
+                                                    "description": "Set opensearch heap size in MB.",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 1024,
+                                                        "min": 256,
+                                                        "max": 65536
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "senlin.debug.enabled",
+                                                    "description": "Set to true to enable senlin verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "skyline.debug.enabled",
+                                                    "description": "Set to true to enable skyline verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "snapshot.apply.action",
+                                                    "description": "Set snapshot apply action <apply|revert>.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": "apply"
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "snapshot.apply.policy.ignore",
+                                                    "description": "Set snapshot apply policy ignore <true|false>.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "sshd.bind_to_all_interfaces",
+                                                    "description": "Set to true to bind sshd to all interfaces.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "sshd.session.inactivity",
+                                                    "description": "Set sshd session inactivity timeout in seconds.",
+                                                    "limitation": {
+                                                        "type": "int",
+                                                        "default": 0,
+                                                        "min": 0,
+                                                        "max": 86400
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "time.timezone",
+                                                    "description": "Set system timezone.",
+                                                    "limitation": {
+                                                        "type": "string",
+                                                        "default": "UTC"
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "update.security.autoupdate",
+                                                    "description": "Set to true to enable security autoupdate.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "watcher.debug.enabled",
+                                                    "description": "Set to true to enable watcher verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ],
+                                            "msg": "fetch tuning specs successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list tuning specs: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -9135,6 +10639,119 @@ const docTemplate = `{
                     "status": {
                         "type": "string",
                         "example": "ok"
+                    }
+                }
+            },
+            "ListTuningSpecResponse": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "description",
+                                "limitation",
+                                "roles",
+                                "selector"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                },
+                                "limitation": {
+                                    "type": "object",
+                                    "required": [
+                                        "type",
+                                        "default"
+                                    ],
+                                    "properties": {
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "default": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "integer"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "boolean"
+                                                }
+                                            ]
+                                        },
+                                        "min": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "integer"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                }
+                                            ]
+                                        },
+                                        "max": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "integer"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "roles": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "hosts": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "name",
+                                                        "ip"
+                                                    ],
+                                                    "properties": {
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "ip": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
                     }
                 }
             }

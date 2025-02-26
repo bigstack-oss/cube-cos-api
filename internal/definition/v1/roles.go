@@ -221,7 +221,3 @@ func getRole(name string) *Role {
 func (r *Role) IsNodeEmpty() bool {
 	return len(r.Nodes) == 0
 }
-
-func (r *Role) IsHostEmpty() bool {
-	return len(r.Hosts) == 0
-}

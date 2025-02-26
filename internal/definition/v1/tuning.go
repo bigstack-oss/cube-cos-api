@@ -39,7 +39,7 @@ type TuningSpec struct {
 	Description string           `json:"description"`
 	Limitation  TuningLimitation `json:"limitation"`
 	Roles       []*Role          `json:"roles"`
-	Selector    `json:"selector"`
+	Selector    `json:"-"`
 }
 
 type TuningLimitation struct {
