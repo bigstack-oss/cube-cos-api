@@ -61,7 +61,13 @@ var (
 
 type Role struct {
 	Name  string  `json:"name" bson:"name"`
-	Nodes []*Node `json:"nodes" bson:"nodes"`
+	Hosts []Host  `json:"hosts" bson:"hosts"`
+	Nodes []*Node `json:"-"`
+}
+
+type Host struct {
+	Name string `json:"name"`
+	Ip   string `json:"ip"`
 }
 
 func newControlRole() *Role {
@@ -137,8 +143,21 @@ func SyncNodesOfRole() {
 		role := getRole(role)
 		if role != nil {
 			role.Nodes = nodes
+			role.Hosts = convertNodesToHosts(nodes)
 		}
 	}
+}
+
+func convertNodesToHosts(nodes []*Node) []Host {
+	hosts := []Host{}
+	for _, node := range nodes {
+		hosts = append(hosts, Host{
+			Name: node.Hostname,
+			Ip:   node.Address,
+		})
+	}
+
+	return hosts
 }
 
 func parseNodes(svc *registry.Service) []*Node {
@@ -200,5 +219,5 @@ func getRole(name string) *Role {
 }
 
 func (r *Role) IsNodeEmpty() bool {
-	return r.Nodes == nil || len(r.Nodes) == 0
+	return len(r.Nodes) == 0
 }

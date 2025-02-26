@@ -10,27 +10,9 @@ const (
 	maxSearchResults = 10000
 )
 
-func listNodesBySelector(nodes []*definition.Node, selector definition.Selector) []*definition.Node {
-	if !selector.Enabled {
-		return nodes
-	}
-
-	filteredNodes := []*definition.Node{}
-	for _, node := range nodes {
-		for key, value := range selector.Labels {
-			if node.Labels[key] == value {
-				filteredNodes = append(filteredNodes, node)
-				break
-			}
-		}
-	}
-
-	return filteredNodes
-}
-
 func selectRolesUsingActivityAndLabels(tuningSpec *definition.TuningSpec) []*definition.Role {
 	for i, role := range tuningSpec.Roles {
-		tuningSpec.Roles[i].Nodes = listNodesBySelector(role.Nodes, tuningSpec.Selector)
+		tuningSpec.Roles[i].Nodes = getNodesBySelector(role.Nodes, tuningSpec.Selector)
 	}
 
 	roles := []*definition.Role{}
@@ -41,6 +23,24 @@ func selectRolesUsingActivityAndLabels(tuningSpec *definition.TuningSpec) []*def
 	}
 
 	return roles
+}
+
+func getNodesBySelector(nodes []*definition.Node, selector definition.Selector) []*definition.Node {
+	if !selector.Enabled {
+		return nodes
+	}
+
+	filtered := []*definition.Node{}
+	for _, node := range nodes {
+		for key, value := range selector.Labels {
+			if node.Labels[key] == value {
+				filtered = append(filtered, node)
+				break
+			}
+		}
+	}
+
+	return filtered
 }
 
 func (h *helper) filterTunings(tunings []definition.Tuning) []definition.Tuning {
@@ -127,16 +127,4 @@ func genTuningMap(tunings []definition.Tuning) map[string]definition.Tuning {
 	}
 
 	return tuningMap
-}
-
-func (h *helper) isFilterRequired() bool {
-	return h.isKeywordRequired() || h.isHostsRequired()
-}
-
-func (h *helper) isKeywordRequired() bool {
-	return h.keyword != ""
-}
-
-func (h *helper) isHostsRequired() bool {
-	return len(h.hosts) > 0
 }

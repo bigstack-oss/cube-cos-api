@@ -8,7 +8,6 @@ import (
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/tunings"
 	"github.com/gin-gonic/gin"
-	"github.com/mohae/deepcopy"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -92,13 +91,19 @@ func getTunings(c *gin.Context) {
 }
 
 func getTuningSpecs(c *gin.Context) {
-	specs := []definition.TuningSpec{}
-	definition.GetTuningSpecs().Range(func(key, value interface{}) bool {
-		spec := deepcopy.Copy(value).(*definition.TuningSpec)
-		spec.Roles = selectRolesUsingActivityAndLabels(spec)
-		specs = append(specs, *spec)
-		return true
-	})
+	h, err := initReqHelper(c, "getTuningSpecs")
+	if err != nil {
+		log.Errorf("request(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	specs, err := h.ListTuningSpecs()
+	if err != nil {
+		log.Errorf("request(%s): failed to get tuning specs: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
 
 	api.SetStatusOk(
 		c,
