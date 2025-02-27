@@ -1,7 +1,10 @@
 package config
 
 import (
+	"bufio"
 	"flag"
+	"os"
+	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
@@ -31,7 +34,10 @@ func init() {
 	flag.StringVar(&Opts.Spec.Identity.Os.System, "identity.os.system", Opts.Spec.Identity.Os.System, "")
 	flag.StringVar(&Opts.Spec.Identity.Os.Hostname, "identity.os.hostname", Opts.Spec.Identity.Os.Hostname, "")
 	flag.StringVar(&Opts.Spec.Identity.LogoutRedirect, "identity.logoutRedirect", Opts.Spec.Identity.LogoutRedirect, "")
-	flag.StringVar(&Opts.Spec.Identity.Keycloak.Host, "identity.keycloak.host", Opts.Spec.Identity.Keycloak.Host, "")
+	flag.StringVar(&Opts.Spec.Identity.Keycloak.Scheme, "identity.keycloak.host.scheme", Opts.Spec.Identity.Keycloak.Scheme, "")
+	flag.StringVar(&Opts.Spec.Identity.Keycloak.Ip, "identity.keycloak.host.ip", Opts.Spec.Identity.Keycloak.Ip, "")
+	flag.IntVar(&Opts.Spec.Identity.Keycloak.Port, "identity.keycloak.host.port", Opts.Spec.Identity.Keycloak.Port, "")
+	flag.StringVar(&Opts.Spec.Identity.Keycloak.Path, "identity.keycloak.host.path", Opts.Spec.Identity.Keycloak.Path, "")
 	flag.StringVar(&Opts.Spec.Identity.Keycloak.Realm, "identity.keycloak.realm", Opts.Spec.Identity.Keycloak.Realm, "")
 	flag.StringVar(&Opts.Spec.Identity.Keycloak.Auth.Username, "identity.keycloak.auth.username", Opts.Spec.Identity.Keycloak.Auth.Username, "")
 	flag.StringVar(&Opts.Spec.Identity.Keycloak.Auth.Password, "identity.keycloak.auth.password", Opts.Spec.Identity.Keycloak.Auth.Password, "")
@@ -145,6 +151,10 @@ func ReadAndOverrideOpts() error {
 		return err
 	}
 
+	if err := setOpenStack(); err != nil {
+		return err
+	}
+
 	overrideOptsFromFlagArgs()
 	return nil
 }
@@ -173,6 +183,42 @@ func parseOptsFromFile() error {
 
 	err = conf.Get().Scan(&Opts)
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func setOpenStack() error {
+	file, err := os.Open(Opts.Spec.ResourceControl.Openstack.ConfFile)
+	if err != nil {
+		// we allow the OpenStack conf file to be absent here
+		return nil
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// retrieve key value pairs from "export key=value"
+		kv := strings.SplitN(line, "=", 2)
+		if len(kv) != 2 {
+			continue
+		}
+
+		tk := strings.Split(kv[0], " ")
+		key := tk[len(tk)-1]
+		value := kv[1]
+
+		if key == "OS_AUTH_URL" && value != "" && Opts.Spec.ResourceControl.Openstack.Auth.Url == "" {
+			Opts.Spec.ResourceControl.Openstack.Auth.Url = value
+		} else if key == "OS_PASSWORD" && value != "" && Opts.Spec.ResourceControl.Openstack.Auth.Password == "" {
+			Opts.Spec.ResourceControl.Openstack.Auth.Password = value
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
 		return err
 	}
 

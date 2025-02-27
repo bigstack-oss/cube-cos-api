@@ -8,6 +8,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/coreos/go-oidc"
 )
 
@@ -49,9 +50,19 @@ func VerifyToken(token string) (*claims, error) {
 }
 
 func genRealmUrl() string {
+	ip := ""
+	if config.Opts.Spec.Identity.Keycloak.Ip != "" {
+		ip = config.Opts.Spec.Identity.Keycloak.Ip
+	} else {
+		ip = definition.DataCenterVip
+	}
+
 	return fmt.Sprintf(
-		"%s/realms/%s",
-		config.Opts.Spec.Identity.Keycloak.Host,
+		"%s://%s:%d%s/realms/%s",
+		config.Opts.Spec.Identity.Keycloak.Scheme,
+		ip,
+		config.Opts.Spec.Identity.Keycloak.Port,
+		config.Opts.Spec.Identity.Keycloak.Path,
 		config.Opts.Spec.Identity.Keycloak.Realm,
 	)
 }

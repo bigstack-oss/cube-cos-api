@@ -132,8 +132,15 @@ func newGlobalOpenstackHelper(opts openstack.Options) error {
 }
 
 func newGlobalKeycloakHelper(opts keycloak.Options) error {
+	ip := ""
+	if opts.Ip != "" {
+		ip = opts.Ip
+	} else {
+		ip = definition.DataCenterVip
+	}
+
 	return keycloak.NewGlobalHelper(
-		keycloak.Host(opts.Host),
+		keycloak.Host(opts.Scheme, ip, opts.Port, opts.Path),
 		keycloak.Realm(opts.Realm),
 		keycloak.Username(opts.Username),
 		keycloak.Password(opts.Password),
