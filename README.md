@@ -1,5 +1,30 @@
 # CubeCOS API
 
+## Staging Development
+
+1. Build rpm
+
+```bash
+./rpm.sh
+```
+
+2. Send the built rpm to a running CubeCOS
+3. Install the rpm and start the service
+
+```bash
+dnf install "<path to cube-cos-api rpm>"
+systemctl enable cube-cos-api
+systemctl start cube-cos-api
+```
+
+4. Clean up
+
+```bash
+systemctl stop cube-cos-api
+systemctl disable cube-cos-api
+dnf remove cube-cos-api
+```
+
 ## License
 
 Copyright (c) 2025 [Bigstack co., ltd](https://bigstack.co/)
