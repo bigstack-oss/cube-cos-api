@@ -120,6 +120,14 @@ func newGlobalInfluxHelper(opts influx.Options) error {
 	)
 }
 func newGlobalOpenstackHelper(opts openstack.Options) error {
+	if opts.Auth.Source == "file" {
+		return openstack.NewGlobalHelper(
+			openstack.AuthSource(opts.Auth.Source),
+			openstack.AuthFile(opts.Auth.File),
+			openstack.EnableAutoRenew(opts.Auth.EnableAutoRenew),
+		)
+	}
+
 	return openstack.NewGlobalHelper(
 		openstack.AuthType(opts.Auth.Type),
 		openstack.AuthUrl(opts.Auth.Url),
@@ -132,15 +140,15 @@ func newGlobalOpenstackHelper(opts openstack.Options) error {
 }
 
 func newGlobalKeycloakHelper(opts keycloak.Options) error {
-	ip := ""
 	if opts.Ip != "" {
-		ip = opts.Ip
-	} else {
-		ip = definition.DataCenterVip
+		opts.Ip = definition.DataCenterVip
 	}
 
 	return keycloak.NewGlobalHelper(
-		keycloak.Host(opts.Scheme, ip, opts.Port, opts.Path),
+		keycloak.Scheme(opts.Scheme),
+		keycloak.Ip(opts.Ip),
+		keycloak.Port(opts.Port),
+		keycloak.Path(opts.Path),
 		keycloak.Realm(opts.Realm),
 		keycloak.Username(opts.Username),
 		keycloak.Password(opts.Password),

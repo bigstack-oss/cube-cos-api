@@ -7,7 +7,7 @@ License:        Apache License 2.0
 URL:            https://github.com/bigstack-oss/cube-cos-api
 Source0:        https://github.com/bigstack-oss/cube-cos-api/tree/%{build_number}
 
-BuildRequires:  golang systemd
+BuildRequires: systemd golang
 
 %description
 The API service for CubeCOS.
@@ -21,17 +21,16 @@ mv ./source/* .
 rmdir source
 
 %build
-go mod tidy -v
+GOWORK=off go mod tidy -v
 go clean -v
-go build -v cmd/main.go
+GOWORK=off GOOS=linux GOARCH=amd64 go build -o %{name} -v cmd/main.go
 
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/usr/local/bin
-cp ./main %{name}
 mv %{name} $RPM_BUILD_ROOT/usr/local/bin
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/cube/api
-cp ./configs/cube-cos-api.yaml $RPM_BUILD_ROOT/%{_sysconfdir}/cube/api
+cp ./configs/cube-cos-api.yaml.template $RPM_BUILD_ROOT/%{_sysconfdir}/cube/api/cube-cos-api.yaml
 mkdir -p $RPM_BUILD_ROOT/%{_unitdir}
 cp ./init/cube-cos-api.service $RPM_BUILD_ROOT/%{_unitdir}
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/cube/api

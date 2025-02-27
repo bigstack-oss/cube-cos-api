@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
@@ -50,19 +51,13 @@ func VerifyToken(token string) (*claims, error) {
 }
 
 func genRealmUrl() string {
-	ip := ""
-	if config.Opts.Spec.Identity.Keycloak.Ip != "" {
-		ip = config.Opts.Spec.Identity.Keycloak.Ip
-	} else {
-		ip = definition.DataCenterVip
+	if config.Opts.Spec.Identity.Keycloak.Ip == "" {
+		config.Opts.Spec.Identity.Keycloak.Ip = definition.DataCenterVip
 	}
 
-	return fmt.Sprintf(
-		"%s://%s:%d%s/realms/%s",
-		config.Opts.Spec.Identity.Keycloak.Scheme,
-		ip,
-		config.Opts.Spec.Identity.Keycloak.Port,
-		config.Opts.Spec.Identity.Keycloak.Path,
-		config.Opts.Spec.Identity.Keycloak.Realm,
-	)
+	u := url.URL{}
+	u.Scheme = config.Opts.Spec.Identity.Keycloak.Scheme
+	u.Host = fmt.Sprintf("%s:%d", config.Opts.Spec.Identity.Keycloak.Ip, config.Opts.Spec.Identity.Keycloak.Port)
+	u.Path = fmt.Sprintf("%s/realms/%s", config.Opts.Spec.Identity.Keycloak.Path, config.Opts.Spec.Identity.Keycloak.Realm)
+	return u.String()
 }

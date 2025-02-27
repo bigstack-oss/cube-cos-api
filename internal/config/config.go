@@ -1,10 +1,7 @@
 package config
 
 import (
-	"bufio"
 	"flag"
-	"os"
-	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
@@ -51,7 +48,8 @@ func init() {
 	flag.IntVar(&Opts.Spec.Identity.Saml.ServiceProvider.Host.Port, "identity.saml.serviceProvider.host.port", Opts.Spec.Identity.Saml.ServiceProvider.Host.Port, "")
 	flag.BoolVar(&Opts.Spec.Identity.Saml.ServiceProvider.TlsInsecureSkipVerify, "identity.saml.serviceProvider.tlsInsecureSkipVerify", Opts.Spec.Identity.Saml.ServiceProvider.TlsInsecureSkipVerify, "")
 	flag.StringVar(&Opts.Spec.ResourceControl.K3s.Auth, "resourceControl.k3s.auth", Opts.Spec.ResourceControl.K3s.Auth, "")
-	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.ConfFile, "resourceControl.openstack.confFile", Opts.Spec.ResourceControl.Openstack.ConfFile, "")
+	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Source, "resourceControl.openstack.auth.source", Opts.Spec.ResourceControl.Openstack.Auth.Source, "")
+	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.File, "resourceControl.openstack.auth.file", Opts.Spec.ResourceControl.Openstack.Auth.File, "")
 	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Type, "resourceControl.openstack.auth.type", Opts.Spec.ResourceControl.Openstack.Auth.Type, "")
 	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Url, "resourceControl.openstack.auth.url", Opts.Spec.ResourceControl.Openstack.Auth.Url, "")
 	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Username, "resourceControl.openstack.auth.username", Opts.Spec.ResourceControl.Openstack.Auth.Username, "")
@@ -151,10 +149,6 @@ func ReadAndOverrideOpts() error {
 		return err
 	}
 
-	if err := setOpenStack(); err != nil {
-		return err
-	}
-
 	overrideOptsFromFlagArgs()
 	return nil
 }
@@ -183,42 +177,6 @@ func parseOptsFromFile() error {
 
 	err = conf.Get().Scan(&Opts)
 	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func setOpenStack() error {
-	file, err := os.Open(Opts.Spec.ResourceControl.Openstack.ConfFile)
-	if err != nil {
-		// we allow the OpenStack conf file to be absent here
-		return nil
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		// retrieve key value pairs from "export key=value"
-		kv := strings.SplitN(line, "=", 2)
-		if len(kv) != 2 {
-			continue
-		}
-
-		tk := strings.Split(kv[0], " ")
-		key := tk[len(tk)-1]
-		value := kv[1]
-
-		if key == "OS_AUTH_URL" && value != "" && Opts.Spec.ResourceControl.Openstack.Auth.Url == "" {
-			Opts.Spec.ResourceControl.Openstack.Auth.Url = value
-		} else if key == "OS_PASSWORD" && value != "" && Opts.Spec.ResourceControl.Openstack.Auth.Password == "" {
-			Opts.Spec.ResourceControl.Openstack.Auth.Password = value
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
 		return err
 	}
 

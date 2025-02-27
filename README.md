@@ -1,15 +1,36 @@
-# CubeCOS API
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <img src="assets/images/bigstack.png" alt="Logo" width="80" height="80">
+  <h3 align="center">CubeCOS API</h3>
+  <p align="center">
+    A Central Communication Interface of CubeCOS
+  </p>
+</div>
 
-## Staging Development
+<br/><br/>
 
-1. Build rpm
+#### ▎To Start Developing
+
+<br/>
+
+1). Build rpm
 
 ```bash
-./rpm.sh
+task rpm:build
 ```
 
-2. Send the built rpm to a running CubeCOS
-3. Install the rpm and start the service
+<br/>
+
+2). Send the built rpm to a running CubeCOS
+
+```
+scp <path of rpm> <user>@<cubecos>:<path to place rpm>
+```
+
+<br/>
+
+3). Install the rpm and start the service
 
 ```bash
 dnf install "<path to cube-cos-api rpm>"
@@ -17,7 +38,9 @@ systemctl enable cube-cos-api
 systemctl start cube-cos-api
 ```
 
-4. Clean up
+<br/>
+
+4). Clean up
 
 ```bash
 systemctl stop cube-cos-api
@@ -25,7 +48,13 @@ systemctl disable cube-cos-api
 dnf remove cube-cos-api
 ```
 
-## License
+<br/>
+
+---
+
+<br/>
+
+#### ▎License
 
 Copyright (c) 2025 [Bigstack co., ltd](https://bigstack.co/)
 

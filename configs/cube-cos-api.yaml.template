@@ -17,7 +17,7 @@ spec:
         scheme: "https"
         ip: ""
         port: 10443
-        path: "/auth"
+        path: "auth"
         tlsInsecureSkipVerify: true
       auth:
         realm: master
@@ -42,17 +42,10 @@ spec:
     k3s:
       auth: /etc/rancher/k3s/k3s.yaml
     openstack:
-      confFile: /etc/admin-openrc.sh
       auth:
-        type: "password"
-        url: ""
-        username: "admin_cli"
-        password: ""
+        source: "file"
+        file: /etc/admin-openrc.sh
         enableAutoRenew: true
-        project:
-          name: "admin"
-          domain:
-            name: "default"
   store:
     mongodb:
       uri: mongodb://0.0.0.0:27017

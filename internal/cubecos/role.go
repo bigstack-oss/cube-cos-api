@@ -28,7 +28,7 @@ func GetNodeRole() (string, error) {
 }
 
 func IsGpuEnabled() bool {
-	provider, err := openstack.NewProvider(conf.Opts.Spec.ResourceControl.Openstack.ConfFile)
+	provider, err := openstack.NewProvider(conf.Opts.Spec.ResourceControl.Openstack.Auth.File)
 	if err != nil {
 		log.Errorf("failed to create openstack provider: %s", err.Error())
 		return false
