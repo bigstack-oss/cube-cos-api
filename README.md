@@ -14,6 +14,22 @@
 
 <br/>
 
+0). Get the environment ready
+
+We would need an `x86_64` / `amd64` based machine to build the rpm package.
+
+We would need to have `golang` ready on the machine.
+
+We would need rpm build tools.
+
+For Fedora Linux based OS:
+
+```bash
+sudo dnf install -y rpmdevtools rpmlint
+```
+
+<br/>
+
 1). Build rpm
 
 ```bash
