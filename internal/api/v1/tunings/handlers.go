@@ -17,26 +17,26 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
-			Path:    "/tunings",
+			Path:    "/tunings/parameters",
 			Func:    getTunings,
 		},
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
-			Path:    "/tunings/parameters",
+			Path:    "/tunings/specs",
 			Func:    getTuningSpecs,
 		},
 		{
 			Version: api.V1,
 			Method:  http.MethodPatch,
 			Path:    "/tunings/parameters/:parameterName",
-			Func:    applyTuning,
+			Func:    patchTuning,
 		},
 		{
 			Version: api.V1,
 			Method:  http.MethodPatch,
 			Path:    "/tunings",
-			Func:    applyTunings,
+			Func:    patchTunings,
 		},
 		{
 			Version: api.V1,
@@ -112,22 +112,23 @@ func getTuningSpecs(c *gin.Context) {
 	)
 }
 
-func applyTuning(c *gin.Context) {
-	tuning, err := decodeTuningReq(c.Request.Body)
+func patchTuning(c *gin.Context) {
+	h, err := initReqHelper(c, "patchTuning")
+	if err != nil {
+		log.Errorf("request(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	tuning, err := h.decodeTuningReq(c.Request.Body)
 	if err != nil {
 		log.Errorf("request(%s): failed to decode tuning: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	if !definition.ShouldCurrentRoleHandleTheTuning(tuning.Name, definition.CurrentRole) {
-		err := fmt.Errorf("role %s is not responsible for tuning %s", definition.CurrentRole, tuning.Name)
-		log.Errorf("request(%s): %s", err.Error())
-		api.SetBadRequest(c, err)
-		return
-	}
-
-	delegateToCurrentNode(*tuning)
+	tuning.Status.SetDesiredToUpdate()
+	h.delegateTuningReq(tuning)
 	api.SetStatusOk(
 		c,
 		"tuning applied",
@@ -135,7 +136,7 @@ func applyTuning(c *gin.Context) {
 	)
 }
 
-func applyTunings(c *gin.Context) {
+func patchTunings(c *gin.Context) {
 	tunings, err := decodeTuningsReq(c.Request.Body)
 	if err != nil {
 		log.Errorf("request(%s): failed to decode tunings: %s", api.GetReqId(c), err.Error())
@@ -153,15 +154,20 @@ func applyTunings(c *gin.Context) {
 }
 
 func updateTuningStatus(c *gin.Context) {
-	tuning, err := decodeTuningReq(c.Request.Body)
+	h, err := initReqHelper(c, "updateTuningStatus")
+	if err != nil {
+		log.Errorf("request(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	tuning, err := h.decodeTuningReq(c.Request.Body)
 	if err != nil {
 		log.Errorf("request(%s): failed to decode tuning: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	tuning.Status.SetCurrentToCompleted()
-	tuning.Status.SetDesiredToUpdate()
 	err = updateRecordStatus(tuning)
 	if err != nil {
 		log.Errorf("request(%s): failed to update tuning status: %s", api.GetReqId(c), err.Error())
@@ -177,22 +183,29 @@ func updateTuningStatus(c *gin.Context) {
 }
 
 func deleteTuning(c *gin.Context) {
-	tuning, err := decodeTuningReq(c.Request.Body)
+	h, err := initReqHelper(c, "deleteTuning")
+	if err != nil {
+		log.Errorf("request(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	tuning, err := h.decodeTuningReq(c.Request.Body)
 	if err != nil {
 		log.Errorf("request(%s): failed to decode tuning: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	if !definition.ShouldCurrentRoleHandleTheTuning(tuning.Name, definition.CurrentRole) {
+	if !definition.ShouldIHandleTheTuning(tuning.Name) {
 		err := fmt.Errorf("role %s is not responsible for tuning %s", definition.CurrentRole, tuning.Name)
 		log.Errorf("request(%s): %s", err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	tuning.Status.SetDesiredToDelete()
-	syncTuningRecord(*tuning)
+	tuning.SetUpdating()
+	syncRecord(*tuning)
 	reqQueue.Add(tuning)
 
 	api.SetStatusOk(

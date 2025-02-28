@@ -11,9 +11,9 @@ import (
 
 func (o *Operator) operateReq(tuning definition.Tuning) error {
 	switch tuning.Status.Desired {
-	case status.Create, status.Update:
+	case status.Update:
 		return o.applyTuning(tuning)
-	case status.Delete:
+	case status.Reset:
 		return o.deleteTuning(tuning)
 	}
 

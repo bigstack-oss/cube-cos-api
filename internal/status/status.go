@@ -6,6 +6,7 @@ const (
 	Create = "create"
 	Update = "update"
 	Delete = "delete"
+	Reset  = "reset"
 
 	Pending              = "pending"
 	Repairing            = "repairing"

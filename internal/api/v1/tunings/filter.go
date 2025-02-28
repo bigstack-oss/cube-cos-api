@@ -2,6 +2,7 @@ package tunings
 
 import (
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
 )
@@ -101,13 +102,14 @@ func (h *helper) filteredByHosts(tunings []definition.Tuning) []definition.Tunin
 			filtered = append(filtered, tuning)
 		}
 	}
+
 	return filtered
 }
 
-func (h *helper) containsHosts(hosts []string) bool {
+func (h *helper) containsHosts(hosts []v1.Host) bool {
 	hostSet := make(map[string]struct{}, len(hosts))
 	for _, h := range hosts {
-		hostSet[h] = struct{}{}
+		hostSet[h.Name] = struct{}{}
 	}
 
 	for _, h := range h.hosts {

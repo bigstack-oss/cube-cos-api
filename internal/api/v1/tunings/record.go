@@ -55,7 +55,7 @@ func appendTuningRecords(cursor *mongo.Cursor, tunings *[]definition.Tuning) {
 	}
 }
 
-func syncTuningRecord(tuning definition.Tuning) {
+func syncRecord(tuning definition.Tuning) {
 	h := cubeMongo.GetGlobalHelper()
 	filter := bson.M{"node.id": tuning.Node.Id, "name": tuning.Name}
 	update := bson.M{"$set": tuning}

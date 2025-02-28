@@ -53,6 +53,10 @@ func (n *Node) GetBearerToken() string {
 	return fmt.Sprintf("Bearer %s", n.Token)
 }
 
+func (n *Node) GenAuthHeader() (string, string) {
+	return "Authorization", n.GetBearerToken()
+}
+
 func (n *Node) GetMetricUrl(metric, view string) string {
 	u := url.URL{
 		Scheme: n.Protocol,
@@ -78,6 +82,18 @@ func (n *Node) GetTuningUrl() string {
 	}
 
 	return u.String()
+}
+
+func (n *Node) PatchTuningUrl(tuning Tuning) string {
+	u := url.URL{}
+	u.Scheme = "http"
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/tunings/parameters/%s", DataCenterName, tuning.Name)
+	return u.String()
+}
+
+func (n *Node) IsLocal() bool {
+	return n.Address == AdvertiseAddr && n.Role == CurrentRole
 }
 
 func IsCurrentHost(hostname string) bool {

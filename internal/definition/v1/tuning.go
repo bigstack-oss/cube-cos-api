@@ -4,6 +4,7 @@ import (
 	"strings"
 	"sync"
 
+	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/blevesearch/bleve/v2"
 	json "github.com/json-iterator/go"
@@ -43,31 +44,92 @@ type TuningSpec struct {
 }
 
 type TuningLimitation struct {
-	Type    string      `json:"type"`
-	Default interface{} `json:"default"`
-	Min     interface{} `json:"min,omitempty"`
-	Max     interface{} `json:"max,omitempty"`
+	Type    string `json:"type"`
+	Default any    `json:"default"`
+	Min     int    `json:"min,omitempty"`
+	Max     int    `json:"max,omitempty"`
 }
 
 type Tuning struct {
 	Name        string           `json:"name" yaml:"name"`
-	Value       interface{}      `json:"value" yaml:"value"`
-	Hosts       []string         `json:"hosts" yaml:"hosts"`
+	Value       any              `json:"value" yaml:"value"`
 	Description string           `json:"description" yaml:"description"`
 	Enabled     bool             `json:"enabled" yaml:"enabled"`
 	IsModified  bool             `json:"isModified" yaml:"isModified"`
 	Limitation  TuningLimitation `json:"limitation" yaml:"limitation"`
 
-	*Node  `json:"node,omitempty" yaml:"node,omitempty" bson:"node,omitempty"`
-	Status *status.Details `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
+	*Node `json:"node,omitempty" yaml:"node,omitempty" bson:"node,omitempty"`
+	Hosts []Host `json:"hosts" yaml:"hosts"`
+
+	Status     status.Details `json:"status" yaml:"status"`
+	IsUpdating bool           `json:"isUpdating" yaml:"isUpdating"`
 }
 
 type ListTuningOptions struct {
 	AllNodes bool
 }
 
-func SetSpecToTuning(tuningName string, tuningSpec *TuningSpec) {
-	tuningSpecs.Store(tuningName, tuningSpec)
+func (t *Tuning) SetUpdating() {
+	t.IsUpdating = true
+}
+
+func (t *Tuning) SetUpdated() {
+	t.IsUpdating = false
+}
+
+func (t *Tuning) CopyAndOverrideHost(node Node) Tuning {
+	return Tuning{
+		Name:        t.Name,
+		Value:       t.Value,
+		Description: t.Description,
+		Enabled:     t.Enabled,
+		IsModified:  t.IsModified,
+		Limitation:  t.Limitation,
+		Hosts:       []Host{{Name: node.Hostname, Ip: node.Address}},
+	}
+}
+
+func CheckTuningSpec(tuning *Tuning) error {
+	spec, loaded := tuningSpecs.Load(tuning.Name)
+	if !loaded {
+		return cuberr.TuningNotFound
+	}
+
+	if !isTuningValueValid(spec.(*TuningSpec)) {
+		return cuberr.TuningValueInvalid
+	}
+
+	return nil
+}
+
+func isTuningValueValid(spec *TuningSpec) bool {
+	switch spec.Limitation.Type {
+	case "int":
+		value, ok := spec.Limitation.Default.(int)
+		if !ok {
+			return false
+		}
+
+		if value <= spec.Limitation.Max && value >= spec.Limitation.Min {
+			return true
+		}
+	case "string":
+		_, ok := spec.Limitation.Default.(string)
+		if !ok {
+			return false
+		}
+	case "bool":
+		_, ok := spec.Limitation.Default.(bool)
+		if !ok {
+			return false
+		}
+	}
+
+	return false
+}
+
+func SetSpecToTuning(name string, spec *TuningSpec) {
+	tuningSpecs.Store(name, spec)
 }
 
 func GetRolesToHandleTuning(tuningName string) ([]*Role, bool) {
@@ -85,7 +147,7 @@ func GetTuningSpecs() *sync.Map {
 
 func ListTuningSpecs() []TuningSpec {
 	specs := []TuningSpec{}
-	tuningSpecs.Range(func(key, value interface{}) bool {
+	tuningSpecs.Range(func(key, value any) bool {
 		spec := value.(*TuningSpec)
 		specs = append(specs, *spec)
 		return true
@@ -113,7 +175,7 @@ func SetCurrentTuning(tuning Tuning) {
 
 func ListCurrentTunings() []Tuning {
 	tunings := []Tuning{}
-	currentTunings.Range(func(key, value interface{}) bool {
+	currentTunings.Range(func(key, value any) bool {
 		tunings = append(tunings, value.(Tuning))
 		return true
 	})
@@ -121,14 +183,14 @@ func ListCurrentTunings() []Tuning {
 	return tunings
 }
 
-func ShouldCurrentRoleHandleTheTuning(tuningName string, roleName string) bool {
-	val, loaded := tuningSpecs.Load(tuningName)
+func ShouldIHandleTheTuning(name string) bool {
+	spec, loaded := tuningSpecs.Load(name)
 	if !loaded {
 		return false
 	}
 
-	for _, r := range val.([]*Role) {
-		if r.Name == roleName {
+	for _, r := range spec.([]*Role) {
+		if r.Name == CurrentRole {
 			return true
 		}
 	}

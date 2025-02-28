@@ -11,19 +11,57 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
+func (h *helper) delegateTuningReq(tuning *definition.Tuning) {
+	for _, host := range tuning.Hosts {
+		node, err := definition.GetNodeByHostname(host.Name)
+		if err != nil {
+			log.Errorf("failed to get node by hostname(%s): %s", host.Name, err.Error())
+			continue
+		}
+
+		if node.IsLocal() {
+			delegateToLocal(*tuning)
+			continue
+		}
+
+		err = h.delegateToOtherNode(tuning, node)
+		if err != nil {
+			log.Errorf("failed to delegate %s to %s: %s", tuning.Name, node.Name, err.Error())
+		}
+	}
+}
+
+func (h *helper) delegateToOtherNode(tuning *definition.Tuning, node *definition.Node) error {
+	url := node.PatchTuningUrl(*tuning)
+	body := tuning.CopyAndOverrideHost(*node)
+	http := cubeHttp.GetGlobalHelper()
+	resp, err := http.R().SetHeader(node.GenAuthHeader()).SetBody(body).Patch(url)
+	if err != nil {
+		log.Errorf("failed to send tuning %s to %s: %s", tuning.Name, node.Id, err.Error())
+		return err
+	}
+
+	if resp.IsError() {
+		log.Errorf("failed to send tuning %s to %s: %d %s", tuning.Name, node.Hostname, string(resp.Body()))
+		return errors.New(string(resp.Body()))
+	}
+
+	return nil
+}
+
+func delegateToLocal(tuning definition.Tuning) {
+	syncRecord(tuning)
+	reqQueue.Add(tuning)
+}
+
 func delegateTuningsReq(tunings []definition.Tuning) {
 	for _, tuning := range tunings {
-		if definition.ShouldCurrentRoleHandleTheTuning(tuning.Name, definition.CurrentRole) {
-			delegateToCurrentNode(tuning)
+		if definition.ShouldIHandleTheTuning(tuning.Name) {
+			delegateToLocal(tuning)
 		}
 
 		delegateToOtherNodes(tuning)
 	}
-}
-
-func delegateToCurrentNode(tuning definition.Tuning) {
-	syncTuningRecord(tuning)
-	reqQueue.Add(tuning)
 }
 
 func delegateToOtherNodes(tuning definition.Tuning) {

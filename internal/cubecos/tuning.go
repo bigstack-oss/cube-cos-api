@@ -1141,7 +1141,7 @@ func SyncTunings() {
 			srcTuning.IsModified = true
 			srcTuning.Description = spec.Description
 			srcTuning.Limitation = spec.Limitation
-			srcTuning.Hosts = []string{definition.Hostname}
+			srcTuning.Hosts = []v1.Host{{Name: definition.Hostname}}
 			checkAndUpdateTuning(spec.Name, *srcTuning)
 		}
 
@@ -1177,7 +1177,7 @@ func setDefaultTuning(tuning definition.TuningSpec) {
 		Enabled:     true,
 		Name:        tuning.Name,
 		Value:       tuning.Limitation.Default,
-		Hosts:       []string{definition.Hostname},
+		Hosts:       []v1.Host{{Name: definition.Hostname}},
 		Description: tuning.Description,
 		Limitation:  tuning.Limitation,
 	})
