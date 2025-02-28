@@ -140,7 +140,7 @@ func newGlobalOpenstackHelper(opts openstack.Options) error {
 }
 
 func newGlobalKeycloakHelper(opts keycloak.Options) error {
-	if opts.Ip != "" {
+	if opts.Ip == "" {
 		opts.Ip = definition.DataCenterVip
 	}
 
