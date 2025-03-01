@@ -70,6 +70,15 @@ type Host struct {
 	Ip   string `json:"ip"`
 }
 
+func (h *Host) GetNode() *Node {
+	node, err := GetNodeByHostname(h.Name)
+	if err != nil {
+		return nil
+	}
+
+	return node
+}
+
 func newControlRole() *Role {
 	return &Role{Name: RoleControl}
 }
@@ -130,7 +139,7 @@ func GetEdgeCoreRole() *Role {
 	return EdgeCoreRole
 }
 
-func SyncNodesOfRole() {
+func SyncRoleNodes() {
 	update.Lock()
 	defer update.Unlock()
 
@@ -153,7 +162,7 @@ func convertNodesToHosts(nodes []*Node) []Host {
 	for _, node := range nodes {
 		hosts = append(hosts, Host{
 			Name: node.Hostname,
-			Ip:   node.Address,
+			Ip:   node.Ip,
 		})
 	}
 
@@ -190,6 +199,7 @@ func newNode(node *registry.Node) *Node {
 		Protocol:   node.Metadata["protocol"],
 		Hostname:   node.Metadata["hostname"],
 		Token:      node.Metadata["token"],
+		Ip:         node.Metadata["ip"],
 		Address:    node.Address,
 		Labels: map[string]string{
 			"isGpuEnabled": node.Metadata["isGpuEnabled"],

@@ -13,9 +13,9 @@ import (
 
 func (h *helper) delegateTuningReq(tuning *definition.Tuning) {
 	for _, host := range tuning.Hosts {
-		node, err := definition.GetNodeByHostname(host.Name)
-		if err != nil {
-			log.Errorf("failed to get node by hostname(%s): %s", host.Name, err.Error())
+		node := host.GetNode()
+		if node == nil {
+			log.Errorf("failed to get node by hostname(%s)", host.Name)
 			continue
 		}
 
@@ -24,7 +24,7 @@ func (h *helper) delegateTuningReq(tuning *definition.Tuning) {
 			continue
 		}
 
-		err = h.delegateToOtherNode(tuning, node)
+		err := h.delegateToOtherNode(tuning, node)
 		if err != nil {
 			log.Errorf("failed to delegate %s to %s: %s", tuning.Name, node.Name, err.Error())
 		}

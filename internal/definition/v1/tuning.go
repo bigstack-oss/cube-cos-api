@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -16,8 +18,8 @@ const (
 )
 
 var (
-	tuningSpecs    = sync.Map{}
-	currentTunings = sync.Map{}
+	tuningSpecs  = sync.Map{}
+	localTunings = sync.Map{}
 
 	tuningSearcher bleve.Index
 
@@ -61,8 +63,7 @@ type Tuning struct {
 	*Node `json:"node,omitempty" yaml:"node,omitempty" bson:"node,omitempty"`
 	Hosts []Host `json:"hosts" yaml:"hosts"`
 
-	Status     status.Details `json:"status" yaml:"status"`
-	IsUpdating bool           `json:"isUpdating" yaml:"isUpdating"`
+	Status *status.Details `json:"status,omitempty" yaml:"status"`
 }
 
 type ListTuningOptions struct {
@@ -70,11 +71,11 @@ type ListTuningOptions struct {
 }
 
 func (t *Tuning) SetUpdating() {
-	t.IsUpdating = true
+	t.Status.Current = status.Updating
 }
 
 func (t *Tuning) SetUpdated() {
-	t.IsUpdating = false
+	t.Status.Current = status.Updated
 }
 
 func (t *Tuning) CopyAndOverrideHost(node Node) Tuning {
@@ -85,8 +86,12 @@ func (t *Tuning) CopyAndOverrideHost(node Node) Tuning {
 		Enabled:     t.Enabled,
 		IsModified:  t.IsModified,
 		Limitation:  t.Limitation,
-		Hosts:       []Host{{Name: node.Hostname, Ip: node.Address}},
+		Hosts:       []Host{{Name: node.Hostname, Ip: node.Ip}},
 	}
+}
+
+func (t *Tuning) SearchKey() string {
+	return t.Name + "|" + fmt.Sprintf("%v", t.Value) + "|" + strconv.FormatBool(t.Enabled) + "|" + strconv.FormatBool(t.IsModified)
 }
 
 func CheckTuningSpec(tuning *Tuning) error {
@@ -128,7 +133,7 @@ func isTuningValueValid(spec *TuningSpec) bool {
 	return false
 }
 
-func SetSpecToTuning(name string, spec *TuningSpec) {
+func SetTuningSpec(name string, spec *TuningSpec) {
 	tuningSpecs.Store(name, spec)
 }
 
@@ -156,12 +161,12 @@ func ListTuningSpecs() []TuningSpec {
 	return specs
 }
 
-func GetCurrentTunings() *sync.Map {
-	return &currentTunings
+func GetLocalTunings() *sync.Map {
+	return &localTunings
 }
 
-func GetCurrentTuning(name string) Tuning {
-	val, loaded := currentTunings.Load(name)
+func GetLocalTuning(name string) Tuning {
+	val, loaded := localTunings.Load(name)
 	if !loaded {
 		return Tuning{}
 	}
@@ -169,13 +174,13 @@ func GetCurrentTuning(name string) Tuning {
 	return val.(Tuning)
 }
 
-func SetCurrentTuning(tuning Tuning) {
-	currentTunings.Store(tuning.Name, tuning)
+func SetLocalTuning(tuning Tuning) {
+	localTunings.Store(tuning.Name, tuning)
 }
 
-func ListCurrentTunings() []Tuning {
+func ListLocalTunings() []Tuning {
 	tunings := []Tuning{}
-	currentTunings.Range(func(key, value any) bool {
+	localTunings.Range(func(key, value any) bool {
 		tunings = append(tunings, value.(Tuning))
 		return true
 	})

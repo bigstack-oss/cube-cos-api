@@ -68,7 +68,7 @@ func (h *helper) ListTunings() (*data, error) {
 
 func (h *helper) ListTuningSpecs() ([]definition.TuningSpec, error) {
 	specs := []definition.TuningSpec{}
-	definition.GetTuningSpecs().Range(func(key, value interface{}) bool {
+	definition.GetTuningSpecs().Range(func(key, value any) bool {
 		spec := deepcopy.Copy(value).(*definition.TuningSpec)
 		spec.Roles = selectRolesUsingActivityAndLabels(spec)
 		specs = append(specs, *spec)

@@ -9,6 +9,7 @@ const (
 	Reset  = "reset"
 
 	Pending              = "pending"
+	Updating             = "updating"
 	Repairing            = "repairing"
 	CheckingAndRepairing = "checkingAndRepairing"
 

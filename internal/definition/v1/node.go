@@ -21,8 +21,10 @@ var (
 	DataCenterName    string
 	DataCenterVersion string
 	DataCenterVip     string
+	ListenIp          string
 	ListenAddr        string
 	ListenPort        int
+	AdvertiseIp       string
 	AdvertiseAddr     string
 	AdvertisePort     int
 	MgmtNet           string
@@ -38,6 +40,7 @@ type Node struct {
 	Role          string `json:"role" yaml:"role"`
 	Protocol      string `json:"protocol,omitempty" yaml:"protocol,omitempty" bson:"protocol,omitempty"`
 	Address       string `json:"address" yaml:"address"`
+	Ip            string `json:"ip" yaml:"ip"`
 	ManagementIP  string `json:"managementIP" yaml:"managementIP"`
 	License       `json:"license,omitempty" yaml:"license,omitempty" bson:"license,omitempty"`
 	Status        string            `json:"status" yaml:"status"`

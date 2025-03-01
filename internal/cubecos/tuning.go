@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"strconv"
+	"slices"
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
@@ -809,79 +809,79 @@ var (
 )
 
 func init() {
-	definition.SetSpecToTuning(BarbicanDebugEnabled, BarbicanDebugEnabledSpec)
-	definition.SetSpecToTuning(CephDebugEnabled, CephDebugEnabledSpec)
-	definition.SetSpecToTuning(CephMirrorMetaSync, CephMirrorMetaSyncSpec)
-	definition.SetSpecToTuning(CinderBackupAccount, CinderBackupAccountSpec)
-	definition.SetSpecToTuning(CinderBackupEndpoint, CinderBackupEndpointSpec)
-	definition.SetSpecToTuning(CinderBackupOverride, CinderBackupOverrideSpec)
-	definition.SetSpecToTuning(CinderBackupPool, CinderBackupPoolSpec)
-	definition.SetSpecToTuning(CinderBackupSecret, CinderBackupSecretSpec)
-	definition.SetSpecToTuning(CinderBackupType, CinderBackupTypeSpec)
-	definition.SetSpecToTuning(CinderDebugEnabled, CinderDebugEnabledSpec)
-	definition.SetSpecToTuning(CinderExternalAccount, CinderExternalAccountSpec)
-	definition.SetSpecToTuning(CinderExternalDriver, CinderExternalDriverSpec)
-	definition.SetSpecToTuning(CinderExternalEndpoint, CinderExternalEndpointSpec)
-	definition.SetSpecToTuning(CinderExternalName, CinderExternalNameSpec)
-	definition.SetSpecToTuning(CinderExternalPool, CinderExternalPoolSpec)
-	definition.SetSpecToTuning(CinderExternalSecret, CinderExternalSecretSpec)
-	definition.SetSpecToTuning(CubesysAlertLevel, CubesysAlertLevelSpec)
-	definition.SetSpecToTuning(CubesysAlertLevelS, CubesysAlertLevelSSpec)
-	definition.SetSpecToTuning(CubesysConntableMax, CubesysConntableMaxSpec)
-	definition.SetSpecToTuning(CubesysLogDefaultRetention, CubesysLogDefaultRetentionSpec)
-	definition.SetSpecToTuning(CubesysProviderExtra, CubesysProviderExtraSpec) // no setup logic in cubecos
-	definition.SetSpecToTuning(CyborgDebugEnabled, CyborgDebugEnabledSpec)
-	definition.SetSpecToTuning(DebugEnableCoreDumpS, DebugEnableCoreDumpSSpec)
-	definition.SetSpecToTuning(DebugEnableKdump, DebugEnableKdumpSpec)
-	definition.SetSpecToTuning(DebugLevelS, DebugLevelSSpec)
-	definition.SetSpecToTuning(DebugMaxCoreDump, DebugMaxCoreDumpSpec)
-	definition.SetSpecToTuning(DesignateDebugEnabled, DesignateDebugEnabledSpec) // need to check edge part
-	definition.SetSpecToTuning(GlanceDebugEnabled, GlanceDebugEnabledSpec)       // no setup logic in cubecos
-	definition.SetSpecToTuning(GlanceExportRp, GlanceExportRpSpec)
-	definition.SetSpecToTuning(HeatDebugEnabled, HeatDebugEnabledSpec)
-	definition.SetSpecToTuning(InfluxdbCuratorRp, InfluxdbCuratorRpSpec)
-	definition.SetSpecToTuning(IronicDebugEnabled, IronicDebugEnabledSpec)
-	definition.SetSpecToTuning(IronicDeployServer, IronicDeployServerSpec)
-	definition.SetSpecToTuning(KapacitorAlertCheckEnabled, KapacitorAlertCheckEnabledSpec)
-	definition.SetSpecToTuning(KapacitorAlertCheckEventId, KapacitorAlertCheckEventIdSpec)
-	definition.SetSpecToTuning(KapacitorAlertCheckInterval, KapacitorAlertCheckIntervalSpec)
-	definition.SetSpecToTuning(KapacitorAlertExtraPrefix, KapacitorAlertExtraPrefixSpec)
-	definition.SetSpecToTuning(KapacitorAlertFlowBase, KapacitorAlertFlowBaseSpec)
-	definition.SetSpecToTuning(KapacitorAlertFlowThreshold, KapacitorAlertFlowThresholdSpec)
-	definition.SetSpecToTuning(KapacitorAlertFlowUnit, KapacitorAlertFlowUnitSpec)
-	definition.SetSpecToTuning(KeystoneDebugEnabled, KeystoneDebugEnabledSpec) // no setup logic in cubecos
-	definition.SetSpecToTuning(ManilaDebugEnabled, ManilaDebugEnabledSpec)
-	definition.SetSpecToTuning(ManilaVolumeType, ManilaVolumeTypeSpec)
-	definition.SetSpecToTuning(MasakariHostEvacuateAll, MasakariHostEvacuateAllSpec)
-	definition.SetSpecToTuning(MasakariWaitPeriod, MasakariWaitPeriodSpec) // need to check IsEdge(s_eCubeRole) means what
-	definition.SetSpecToTuning(MonascaDebugEnabled, MonascaDebugEnabledSpec)
-	definition.SetSpecToTuning(MysqlBackupCuratorRp, MysqlBackupCuratorRpSpec)
-	definition.SetSpecToTuning(NetIfMtuName, NetIfMtuNameSpec)
-	definition.SetSpecToTuning(NetIpv4TcpSyncookies, NetIpv4TcpSyncookiesSpec)
-	definition.SetSpecToTuning(NetLacpDefaultRate, NetLacpDefaultRateSpec)
-	definition.SetSpecToTuning(NetLacpDefaultXmit, NetLacpDefaultXmitSpec)
-	definition.SetSpecToTuning(NeutronDebugEnabled, NeutronDebugEnabledSpec)
-	definition.SetSpecToTuning(NovaControlHostMemory, NovaControlHostMemorySpec)
-	definition.SetSpecToTuning(NovaControlHostVcpu, NovaControlHostVcpuSpec) // why no compute role
-	definition.SetSpecToTuning(NovaDebugEnabled, NovaDebugEnabledSpec)
-	definition.SetSpecToTuning(NovaGpuType, NovaGpuTypeSpec)
-	definition.SetSpecToTuning(NovaOvercommitCpuRatio, NovaOvercommitCpuRatioSpec)
-	definition.SetSpecToTuning(NovaOvercommitDiskRatio, NovaOvercommitDiskRatioSpec)
-	definition.SetSpecToTuning(NovaOvercommitRamRatio, NovaOvercommitRamRatioSpec)
-	definition.SetSpecToTuning(NtpDebugEnabled, NtpDebugEnabledSpec) // no setup logic in cubecos
-	definition.SetSpecToTuning(OctaviaDebugEnabled, OctaviaDebugEnabledSpec)
-	definition.SetSpecToTuning(OctaviaHa, OctaviaHaSpec)
-	definition.SetSpecToTuning(OpensearchCuratorRp, OpensearchCuratorRpSpec)
-	definition.SetSpecToTuning(OpensearchHeapSize, OpensearchHeapSizeSpec)
-	definition.SetSpecToTuning(SenlinDebugEnabled, SenlinDebugEnabledSpec)   // EOL in OpenStack, consider to remove
-	definition.SetSpecToTuning(SkylineDebugEnabled, SkylineDebugEnabledSpec) // why only check IsControl() but no IsConverged()
-	definition.SetSpecToTuning(SnapshotApplyAction, SnapshotApplyActionSpec) // no setup logic in cubecos
-	definition.SetSpecToTuning(SnapshotApplyPolicyIgnore, SnapshotApplyPolicyIgnoreSpec)
-	definition.SetSpecToTuning(SshdBindToAllInterfaces, SshdBindToAllInterfacesSpec)
-	definition.SetSpecToTuning(SshdSessionInactivity, SshdSessionInactivitySpec)
-	definition.SetSpecToTuning(TimeTimezone, TimeTimezoneSpec)
-	definition.SetSpecToTuning(UpdateSecurityAutoUpdate, UpdateSecurityAutoUpdateSpec)
-	definition.SetSpecToTuning(WatcherDebugEnabled, WatcherDebugEnabledSpec)
+	definition.SetTuningSpec(BarbicanDebugEnabled, BarbicanDebugEnabledSpec)
+	definition.SetTuningSpec(CephDebugEnabled, CephDebugEnabledSpec)
+	definition.SetTuningSpec(CephMirrorMetaSync, CephMirrorMetaSyncSpec)
+	definition.SetTuningSpec(CinderBackupAccount, CinderBackupAccountSpec)
+	definition.SetTuningSpec(CinderBackupEndpoint, CinderBackupEndpointSpec)
+	definition.SetTuningSpec(CinderBackupOverride, CinderBackupOverrideSpec)
+	definition.SetTuningSpec(CinderBackupPool, CinderBackupPoolSpec)
+	definition.SetTuningSpec(CinderBackupSecret, CinderBackupSecretSpec)
+	definition.SetTuningSpec(CinderBackupType, CinderBackupTypeSpec)
+	definition.SetTuningSpec(CinderDebugEnabled, CinderDebugEnabledSpec)
+	definition.SetTuningSpec(CinderExternalAccount, CinderExternalAccountSpec)
+	definition.SetTuningSpec(CinderExternalDriver, CinderExternalDriverSpec)
+	definition.SetTuningSpec(CinderExternalEndpoint, CinderExternalEndpointSpec)
+	definition.SetTuningSpec(CinderExternalName, CinderExternalNameSpec)
+	definition.SetTuningSpec(CinderExternalPool, CinderExternalPoolSpec)
+	definition.SetTuningSpec(CinderExternalSecret, CinderExternalSecretSpec)
+	definition.SetTuningSpec(CubesysAlertLevel, CubesysAlertLevelSpec)
+	definition.SetTuningSpec(CubesysAlertLevelS, CubesysAlertLevelSSpec)
+	definition.SetTuningSpec(CubesysConntableMax, CubesysConntableMaxSpec)
+	definition.SetTuningSpec(CubesysLogDefaultRetention, CubesysLogDefaultRetentionSpec)
+	definition.SetTuningSpec(CubesysProviderExtra, CubesysProviderExtraSpec) // no setup logic in cubecos
+	definition.SetTuningSpec(CyborgDebugEnabled, CyborgDebugEnabledSpec)
+	definition.SetTuningSpec(DebugEnableCoreDumpS, DebugEnableCoreDumpSSpec)
+	definition.SetTuningSpec(DebugEnableKdump, DebugEnableKdumpSpec)
+	definition.SetTuningSpec(DebugLevelS, DebugLevelSSpec)
+	definition.SetTuningSpec(DebugMaxCoreDump, DebugMaxCoreDumpSpec)
+	definition.SetTuningSpec(DesignateDebugEnabled, DesignateDebugEnabledSpec) // need to check edge part
+	definition.SetTuningSpec(GlanceDebugEnabled, GlanceDebugEnabledSpec)       // no setup logic in cubecos
+	definition.SetTuningSpec(GlanceExportRp, GlanceExportRpSpec)
+	definition.SetTuningSpec(HeatDebugEnabled, HeatDebugEnabledSpec)
+	definition.SetTuningSpec(InfluxdbCuratorRp, InfluxdbCuratorRpSpec)
+	definition.SetTuningSpec(IronicDebugEnabled, IronicDebugEnabledSpec)
+	definition.SetTuningSpec(IronicDeployServer, IronicDeployServerSpec)
+	definition.SetTuningSpec(KapacitorAlertCheckEnabled, KapacitorAlertCheckEnabledSpec)
+	definition.SetTuningSpec(KapacitorAlertCheckEventId, KapacitorAlertCheckEventIdSpec)
+	definition.SetTuningSpec(KapacitorAlertCheckInterval, KapacitorAlertCheckIntervalSpec)
+	definition.SetTuningSpec(KapacitorAlertExtraPrefix, KapacitorAlertExtraPrefixSpec)
+	definition.SetTuningSpec(KapacitorAlertFlowBase, KapacitorAlertFlowBaseSpec)
+	definition.SetTuningSpec(KapacitorAlertFlowThreshold, KapacitorAlertFlowThresholdSpec)
+	definition.SetTuningSpec(KapacitorAlertFlowUnit, KapacitorAlertFlowUnitSpec)
+	definition.SetTuningSpec(KeystoneDebugEnabled, KeystoneDebugEnabledSpec) // no setup logic in cubecos
+	definition.SetTuningSpec(ManilaDebugEnabled, ManilaDebugEnabledSpec)
+	definition.SetTuningSpec(ManilaVolumeType, ManilaVolumeTypeSpec)
+	definition.SetTuningSpec(MasakariHostEvacuateAll, MasakariHostEvacuateAllSpec)
+	definition.SetTuningSpec(MasakariWaitPeriod, MasakariWaitPeriodSpec) // need to check IsEdge(s_eCubeRole) means what
+	definition.SetTuningSpec(MonascaDebugEnabled, MonascaDebugEnabledSpec)
+	definition.SetTuningSpec(MysqlBackupCuratorRp, MysqlBackupCuratorRpSpec)
+	definition.SetTuningSpec(NetIfMtuName, NetIfMtuNameSpec)
+	definition.SetTuningSpec(NetIpv4TcpSyncookies, NetIpv4TcpSyncookiesSpec)
+	definition.SetTuningSpec(NetLacpDefaultRate, NetLacpDefaultRateSpec)
+	definition.SetTuningSpec(NetLacpDefaultXmit, NetLacpDefaultXmitSpec)
+	definition.SetTuningSpec(NeutronDebugEnabled, NeutronDebugEnabledSpec)
+	definition.SetTuningSpec(NovaControlHostMemory, NovaControlHostMemorySpec)
+	definition.SetTuningSpec(NovaControlHostVcpu, NovaControlHostVcpuSpec) // why no compute role
+	definition.SetTuningSpec(NovaDebugEnabled, NovaDebugEnabledSpec)
+	definition.SetTuningSpec(NovaGpuType, NovaGpuTypeSpec)
+	definition.SetTuningSpec(NovaOvercommitCpuRatio, NovaOvercommitCpuRatioSpec)
+	definition.SetTuningSpec(NovaOvercommitDiskRatio, NovaOvercommitDiskRatioSpec)
+	definition.SetTuningSpec(NovaOvercommitRamRatio, NovaOvercommitRamRatioSpec)
+	definition.SetTuningSpec(NtpDebugEnabled, NtpDebugEnabledSpec) // no setup logic in cubecos
+	definition.SetTuningSpec(OctaviaDebugEnabled, OctaviaDebugEnabledSpec)
+	definition.SetTuningSpec(OctaviaHa, OctaviaHaSpec)
+	definition.SetTuningSpec(OpensearchCuratorRp, OpensearchCuratorRpSpec)
+	definition.SetTuningSpec(OpensearchHeapSize, OpensearchHeapSizeSpec)
+	definition.SetTuningSpec(SenlinDebugEnabled, SenlinDebugEnabledSpec)   // EOL in OpenStack, consider to remove
+	definition.SetTuningSpec(SkylineDebugEnabled, SkylineDebugEnabledSpec) // why only check IsControl() but no IsConverged()
+	definition.SetTuningSpec(SnapshotApplyAction, SnapshotApplyActionSpec) // no setup logic in cubecos
+	definition.SetTuningSpec(SnapshotApplyPolicyIgnore, SnapshotApplyPolicyIgnoreSpec)
+	definition.SetTuningSpec(SshdBindToAllInterfaces, SshdBindToAllInterfacesSpec)
+	definition.SetTuningSpec(SshdSessionInactivity, SshdSessionInactivitySpec)
+	definition.SetTuningSpec(TimeTimezone, TimeTimezoneSpec)
+	definition.SetTuningSpec(UpdateSecurityAutoUpdate, UpdateSecurityAutoUpdateSpec)
+	definition.SetTuningSpec(WatcherDebugEnabled, WatcherDebugEnabledSpec)
 }
 
 func GetTuningValue(name string) (string, error) {
@@ -1042,7 +1042,7 @@ func IsTuningDeleted(tuning definition.Tuning) bool {
 }
 
 func ListTunings(opts definition.ListTuningOptions) ([]definition.Tuning, error) {
-	localTunings := definition.ListCurrentTunings()
+	localTunings := definition.ListLocalTunings()
 	if !opts.AllNodes {
 		return localTunings, nil
 	}
@@ -1065,7 +1065,7 @@ func ListTuningsFromOtherNodes() (map[string][]definition.Tuning, error) {
 
 	nodeTunings := map[string][]definition.Tuning{}
 	for _, node := range nodes {
-		if definition.IsCurrentHost(node.Hostname) {
+		if node.IsLocal() {
 			continue
 		}
 
@@ -1103,23 +1103,6 @@ func getNodeTunings(node definition.Node) ([]v1.Tuning, error) {
 	return tuningList.Data, nil
 }
 
-func tuningKey(item definition.Tuning) string {
-	return item.Name + "|" + fmt.Sprintf("%v", item.Value) + "|" + strconv.FormatBool(item.Enabled)
-}
-
-func setTunings(mergedMap map[string]definition.Tuning, tunings []definition.Tuning) {
-	for _, tuning := range tunings {
-		key := tuningKey(tuning)
-		existing, found := mergedMap[key]
-		if found {
-			existing.Hosts = append(existing.Hosts, tuning.Hosts...)
-			mergedMap[key] = existing
-		} else {
-			mergedMap[key] = tuning
-		}
-	}
-}
-
 func aggregateTunings(nodeToTuning map[string][]definition.Tuning) []definition.Tuning {
 	mergedMap := make(map[string]definition.Tuning)
 	for _, tunings := range nodeToTuning {
@@ -1134,6 +1117,19 @@ func aggregateTunings(nodeToTuning map[string][]definition.Tuning) []definition.
 	return tunings
 }
 
+func setTunings(mergedMap map[string]definition.Tuning, tunings []definition.Tuning) {
+	for _, tuning := range tunings {
+		key := tuning.SearchKey()
+		existing, found := mergedMap[key]
+		if found {
+			existing.Hosts = slices.Concat(existing.Hosts, tuning.Hosts)
+			mergedMap[key] = existing
+		} else {
+			mergedMap[key] = tuning
+		}
+	}
+}
+
 func SyncTunings() {
 	for _, spec := range definition.ListTuningSpecs() {
 		srcTuning, err := GetTuning(spec.Name)
@@ -1141,7 +1137,7 @@ func SyncTunings() {
 			srcTuning.IsModified = true
 			srcTuning.Description = spec.Description
 			srcTuning.Limitation = spec.Limitation
-			srcTuning.Hosts = []v1.Host{{Name: definition.Hostname}}
+			srcTuning.Hosts = []v1.Host{{Name: definition.Hostname, Ip: definition.AdvertiseIp}}
 			checkAndUpdateTuning(spec.Name, *srcTuning)
 		}
 
@@ -1152,12 +1148,12 @@ func SyncTunings() {
 }
 
 func checkAndUpdateTuning(key string, sourceTuning definition.Tuning) {
-	tuning := definition.GetCurrentTuning(key)
+	tuning := definition.GetLocalTuning(key)
 	if !isTuningChanged(tuning, sourceTuning) {
 		return
 	}
 
-	definition.SetCurrentTuning(sourceTuning)
+	definition.SetLocalTuning(sourceTuning)
 }
 
 func isTuningChanged(tuning, fileTuning definition.Tuning) bool {
@@ -1173,12 +1169,13 @@ func isTuningChanged(tuning, fileTuning definition.Tuning) bool {
 }
 
 func setDefaultTuning(tuning definition.TuningSpec) {
-	definition.SetCurrentTuning(definition.Tuning{
+	definition.SetLocalTuning(definition.Tuning{
 		Enabled:     true,
 		Name:        tuning.Name,
 		Value:       tuning.Limitation.Default,
-		Hosts:       []v1.Host{{Name: definition.Hostname}},
+		Hosts:       []v1.Host{{Name: definition.Hostname, Ip: definition.AdvertiseIp}},
 		Description: tuning.Description,
 		Limitation:  tuning.Limitation,
+		IsModified:  false,
 	})
 }
