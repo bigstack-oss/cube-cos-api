@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -14,7 +15,8 @@ import (
 )
 
 const (
-	Tunings = "tunings"
+	Tunings         = "tunings"
+	TuningRecordTTL = 3600
 )
 
 var (
@@ -53,21 +55,42 @@ type TuningLimitation struct {
 }
 
 type Tuning struct {
-	Name        string           `json:"name" yaml:"name"`
-	Value       any              `json:"value" yaml:"value"`
-	Description string           `json:"description" yaml:"description"`
-	Enabled     bool             `json:"enabled" yaml:"enabled"`
-	IsModified  bool             `json:"isModified" yaml:"isModified"`
-	Limitation  TuningLimitation `json:"limitation" yaml:"limitation"`
+	Id          string           `json:"id,omitempty" yaml:"-" bson:"id"`
+	Name        string           `json:"name" yaml:"name" bson:"name"`
+	Value       any              `json:"value" yaml:"value" bson:"value"`
+	Description string           `json:"description" yaml:"-" bson:"-"`
+	Enabled     bool             `json:"enabled" yaml:"enabled" bson:"enabled"`
+	IsModified  bool             `json:"isModified" yaml:"-" bson:"-"`
+	Limitation  TuningLimitation `json:"limitation" yaml:"-" bson:"-"`
 
-	*Node `json:"node,omitempty" yaml:"node,omitempty" bson:"node,omitempty"`
-	Hosts []Host `json:"hosts" yaml:"hosts"`
-
-	Status *status.Details `json:"status,omitempty" yaml:"status"`
+	*Node  `json:"node,omitempty" yaml:"-" bson:"-"`
+	Hosts  []Host          `json:"hosts" yaml:"-" bson:"-"`
+	Roles  []Role          `json:"roles,omitempty" yaml:"-" bson:"-"`
+	Status *status.Details `json:"status,omitempty" yaml:"-" bson:"status,omitempty"`
 }
 
 type ListTuningOptions struct {
 	AllNodes bool
+}
+
+func (t *TuningSpec) IsInLimitedRange(value int) bool {
+	return value <= t.Limitation.Max && value >= t.Limitation.Min
+}
+
+func (t *Tuning) InitStatus(current, desired string) {
+	t.Status = &status.Details{
+		Current:   current,
+		Desired:   desired,
+		CreatedAt: TimeLocal(),
+	}
+}
+
+func (t *Tuning) StrValue() string {
+	return fmt.Sprintf("%v", t.Value)
+}
+
+func (t *Tuning) SetDesired(status string) {
+	t.Status.Desired = status
 }
 
 func (t *Tuning) SetUpdating() {
@@ -76,6 +99,14 @@ func (t *Tuning) SetUpdating() {
 
 func (t *Tuning) SetUpdated() {
 	t.Status.Current = status.Updated
+}
+
+func (t *Tuning) SetError() {
+	t.Status.Current = status.Error
+}
+
+func (t *Tuning) SetCompleted() {
+	t.Status.Current = status.Completed
 }
 
 func (t *Tuning) CopyAndOverrideHost(node Node) Tuning {
@@ -90,44 +121,47 @@ func (t *Tuning) CopyAndOverrideHost(node Node) Tuning {
 	}
 }
 
+func (t *Tuning) GenTaskUpdate() Tuning {
+	return Tuning{
+		Id:     t.Id,
+		Name:   t.Name,
+		Value:  t.Value,
+		Status: t.Status,
+	}
+}
+
 func (t *Tuning) SearchKey() string {
 	return t.Name + "|" + fmt.Sprintf("%v", t.Value) + "|" + strconv.FormatBool(t.Enabled) + "|" + strconv.FormatBool(t.IsModified)
 }
 
-func CheckTuningSpec(tuning *Tuning) error {
+func CheckTuningSpec(tuning Tuning) error {
 	spec, loaded := tuningSpecs.Load(tuning.Name)
 	if !loaded {
 		return cuberr.TuningNotFound
 	}
 
-	if !isTuningValueValid(spec.(*TuningSpec)) {
+	if !isTuningValueValid(tuning, spec.(*TuningSpec)) {
 		return cuberr.TuningValueInvalid
 	}
 
 	return nil
 }
 
-func isTuningValueValid(spec *TuningSpec) bool {
+func isTuningValueValid(tuning Tuning, spec *TuningSpec) bool {
 	switch spec.Limitation.Type {
 	case "int":
-		value, ok := spec.Limitation.Default.(int)
+		value, ok := tuning.Value.(int)
 		if !ok {
 			return false
 		}
 
-		if value <= spec.Limitation.Max && value >= spec.Limitation.Min {
-			return true
-		}
+		return spec.IsInLimitedRange(value)
 	case "string":
-		_, ok := spec.Limitation.Default.(string)
-		if !ok {
-			return false
-		}
+		_, ok := tuning.Value.(string)
+		return ok
 	case "bool":
-		_, ok := spec.Limitation.Default.(bool)
-		if !ok {
-			return false
-		}
+		_, ok := tuning.Value.(bool)
+		return ok
 	}
 
 	return false
@@ -221,8 +255,30 @@ func (t *Tuning) SetNodeInfo(role, address string) {
 	}
 }
 
+func (t *TuningPolicy) UpdateOrAppendTuning(tuning Tuning) {
+	if !t.existingTuningUpdated(tuning) {
+		t.AppendTuning(tuning)
+	}
+}
+
+func (t *TuningPolicy) existingTuningUpdated(tuning Tuning) bool {
+	for i, existing := range t.Tunings {
+		if existing.Name == tuning.Name {
+			t.Tunings[i].Value = tuning.Value
+			t.Tunings[i].Enabled = tuning.Enabled
+			return true
+		}
+	}
+
+	return false
+}
+
+func (t *TuningPolicy) AppendTuning(tuning Tuning) {
+	t.Tunings = append(t.Tunings, tuning)
+}
+
 func (t *TuningPolicy) AppendTunings(tunings []Tuning) {
-	t.Tunings = append(t.Tunings, tunings...)
+	t.Tunings = slices.Concat(t.Tunings, tunings)
 }
 
 func (t *TuningPolicy) DeleteTuning(tuningName string) {
@@ -238,6 +294,10 @@ func (t *TuningPolicy) DeleteTuning(tuningName string) {
 
 func TuningDB() string {
 	return Tunings
+}
+
+func TuningReqCollection() string {
+	return "requests"
 }
 
 func TuningCollection(name string) string {

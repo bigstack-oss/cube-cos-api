@@ -1,6 +1,7 @@
 package tunings
 
 import (
+	"fmt"
 	"io"
 
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
@@ -15,11 +16,6 @@ func (h *helper) decodeTuningReq(reqBody io.ReadCloser) (*definition.Tuning, err
 
 	tuning := &definition.Tuning{}
 	err = json.Unmarshal(b, tuning)
-	if err != nil {
-		return nil, err
-	}
-
-	err = definition.CheckTuningSpec(tuning)
 	if err != nil {
 		return nil, err
 	}
@@ -47,4 +43,20 @@ func decodeTuningsReq(reqBody io.ReadCloser) ([]definition.Tuning, error) {
 	}
 
 	return tunings, nil
+}
+
+func (h *helper) checkTuningPatchReq() error {
+	return definition.CheckTuningSpec(h.tuning)
+}
+
+func (h *helper) checkTaskUpdateReq(tuning *definition.Tuning) error {
+	if tuning.Id == "" {
+		return fmt.Errorf("tuning id is required")
+	}
+
+	if tuning.Status == nil {
+		return fmt.Errorf("tuning status is required")
+	}
+
+	return nil
 }

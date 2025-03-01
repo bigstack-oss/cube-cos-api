@@ -23,6 +23,10 @@ func TimeNowRFC3339() string {
 	return time.Now().UTC().Format(time.RFC3339)
 }
 
+func TimeLocal() time.Time {
+	return time.Now().Local()
+}
+
 func TimeRFC3339(duration time.Duration) string {
 	return time.Now().Add(duration).UTC().Format(time.RFC3339)
 }

@@ -614,7 +614,7 @@ func GetCpuSummaryOfHosts(stmt string) (*definition.ComputeStatistic, error) {
 }
 
 func GetCpuSummaryOfHost(hostname string) (*definition.ComputeStatistic, error) {
-	if !definition.IsCurrentHost(hostname) {
+	if !definition.IsLocalNode(hostname) {
 		return askTheHostForCpuSummary(hostname)
 	}
 
@@ -752,7 +752,7 @@ func GetMemoryUsageSummaryOfHosts() (*definition.SpaceStatistic, error) {
 }
 
 func GetMemoryUsageSummaryOfHost(hostname string) (*definition.SpaceStatistic, error) {
-	if !definition.IsCurrentHost(hostname) {
+	if !definition.IsLocalNode(hostname) {
 		return askTheHostForMemorySummary(hostname)
 	}
 

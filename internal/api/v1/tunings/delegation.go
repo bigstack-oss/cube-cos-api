@@ -11,47 +11,49 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (h *helper) delegateTuningReq(tuning *definition.Tuning) {
-	for _, host := range tuning.Hosts {
-		node := host.GetNode()
-		if node == nil {
-			log.Errorf("failed to get node by hostname(%s)", host.Name)
-			continue
-		}
+func (h *helper) delegateTuningReq() {
+	for _, role := range h.tuning.Roles {
+		for _, host := range role.Hosts {
+			node := host.GetNode()
+			if node == nil {
+				log.Errorf("failed to get node by hostname(%s)", host.Name)
+				continue
+			}
 
-		if node.IsLocal() {
-			delegateToLocal(*tuning)
-			continue
-		}
+			if node.IsLocal() {
+				delegateToLocal(h.tuning)
+				continue
+			}
 
-		err := h.delegateToOtherNode(tuning, node)
-		if err != nil {
-			log.Errorf("failed to delegate %s to %s: %s", tuning.Name, node.Name, err.Error())
+			err := h.delegateToOtherNode(node)
+			if err != nil {
+				log.Errorf("failed to delegate %s to %s: %s", h.tuning.Name, node.Name, err.Error())
+			}
 		}
 	}
 }
 
-func (h *helper) delegateToOtherNode(tuning *definition.Tuning, node *definition.Node) error {
-	url := node.PatchTuningUrl(*tuning)
-	body := tuning.CopyAndOverrideHost(*node)
+func delegateToLocal(tuning definition.Tuning) {
+	addReqRecord(tuning)
+	reqQueue.Add(&tuning)
+}
+
+func (h *helper) delegateToOtherNode(node *definition.Node) error {
+	url := node.PatchTuningUrl(h.tuning)
+	body := h.tuning.CopyAndOverrideHost(*node)
 	http := cubeHttp.GetGlobalHelper()
 	resp, err := http.R().SetHeader(node.GenAuthHeader()).SetBody(body).Patch(url)
 	if err != nil {
-		log.Errorf("failed to send tuning %s to %s: %s", tuning.Name, node.Id, err.Error())
+		log.Errorf("failed to send tuning %s to %s: %s", h.tuning.Name, node.Id, err.Error())
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("failed to send tuning %s to %s: %d %s", tuning.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("failed to send tuning %s to %s: %d %s", h.tuning.Name, node.Hostname, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 
 	return nil
-}
-
-func delegateToLocal(tuning definition.Tuning) {
-	syncRecord(tuning)
-	reqQueue.Add(tuning)
 }
 
 func delegateTuningsReq(tunings []definition.Tuning) {

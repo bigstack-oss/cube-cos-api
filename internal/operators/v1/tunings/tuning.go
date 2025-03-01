@@ -54,10 +54,10 @@ func (o *Operator) Sync() {
 		return
 	}
 
-	tuning := req.(definition.Tuning)
-	err := o.operateReq(tuning)
+	tuning := req.(*definition.Tuning)
+	err := o.operateReq(*tuning)
+	o.handleExit(*tuning, err)
 
-	o.handleExit(tuning, err)
 	ReqQueue.Done(req)
 }
 

@@ -10,13 +10,14 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/google/uuid"
 	log "go-micro.dev/v5/logger"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -925,16 +926,36 @@ func ApplyTuning(isolatedDir string) error {
 }
 
 func IsTuningApplied(tuning definition.Tuning) error {
+	maxTries := 10
+	for range maxTries {
+		if isValueApplied(tuning) {
+			return nil
+		}
+
+		wait.Seconds(2)
+	}
+
+	return fmt.Errorf(
+		"tuning: %s's value(%s) is not applied",
+		tuning.Name,
+		tuning.StrValue(),
+	)
+}
+
+func isValueApplied(tuning definition.Tuning) bool {
 	value, err := GetTuningValue(tuning.Name)
-	if err != nil {
-		return err
+	if tuning.Enabled {
+		return tuning.StrValue() == value
 	}
 
-	if tuning.Value != value {
-		return fmt.Errorf("tuning value is not applied: %s", tuning.Name)
+	if err == nil {
+		return false
 	}
 
-	return nil
+	return errors.Is(
+		err,
+		cuberr.TuningNotFound,
+	)
 }
 
 func ApplyTunings(tunings []definition.Tuning) error {
@@ -1085,7 +1106,7 @@ func getNodeTunings(node definition.Node) ([]v1.Tuning, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&api.TuningListData{}).
-		SetHeader("Authorization", node.GetBearerToken()).
+		SetHeader(node.GenAuthHeader()).
 		Get(node.GetTuningUrl())
 	if err != nil {
 		return nil, err

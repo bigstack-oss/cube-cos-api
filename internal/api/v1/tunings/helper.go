@@ -7,6 +7,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/mohae/deepcopy"
 	log "go-micro.dev/v5/logger"
 )
@@ -14,6 +15,7 @@ import (
 type helper struct {
 	c       *gin.Context
 	handler string
+	tuning  definition.Tuning
 
 	allNodes bool
 	hosts    []string
@@ -36,6 +38,20 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 	h.parseHosts()
 
 	return h, nil
+}
+
+func (h *helper) parseTuningRequest() error {
+	tuning, err := h.decodeTuningReq(h.c.Request.Body)
+	if err != nil {
+		log.Errorf("request(%s): failed to decode tuning request: %s", api.GetReqId(h.c), err.Error())
+		return err
+	}
+
+	h.tuning = *tuning
+	h.tuning.Id = uuid.New().String()
+	h.tuning.Name = h.c.Param("parameterName")
+	h.tuning.InitStatus("updating", "update")
+	return nil
 }
 
 func (h *helper) ListTunings() (*data, error) {

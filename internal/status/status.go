@@ -1,5 +1,7 @@
 package status
 
+import "time"
+
 const (
 	None = ""
 
@@ -28,10 +30,10 @@ type Details struct {
 	Current string `json:"current,omitempty" bson:"current"`
 	Desired string `json:"desired,omitempty" bson:"desired"`
 
-	CreatedAt          string `json:"createdAt,omitempty" bson:"createdAt"`
-	UpdatedAt          string `json:"updatedAt,omitempty" bson:"updatedAt"`
-	MaxPendingDuration int    `json:"maxPendingDuration,omitempty" bson:"maxPendingDuration"`
-	IsFixing           bool   `json:"isFixing" bson:"isFixing"`
+	CreatedAt          time.Time `json:"createdAt,omitempty" bson:"createdAt"`
+	UpdatedAt          time.Time `json:"updatedAt,omitempty" bson:"updatedAt"`
+	MaxPendingDuration int       `json:"maxPendingDuration,omitempty" bson:"maxPendingDuration"`
+	IsFixing           bool      `json:"isFixing" bson:"isFixing"`
 
 	Description string `json:"description" bson:"description"`
 }

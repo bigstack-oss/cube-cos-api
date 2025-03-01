@@ -89,9 +89,17 @@ func (n *Node) GetTuningUrl() string {
 
 func (n *Node) PatchTuningUrl(tuning Tuning) string {
 	u := url.URL{}
-	u.Scheme = "http"
+	u.Scheme = n.Protocol
 	u.Host = n.Address
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/tunings/parameters/%s", DataCenterName, tuning.Name)
+	return u.String()
+}
+
+func (n *Node) PatchTuningTaskUrl(tuning Tuning) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/tunings/tasks/%s", DataCenterName, tuning.Id)
 	return u.String()
 }
 
@@ -99,7 +107,7 @@ func (n *Node) IsLocal() bool {
 	return n.Address == AdvertiseAddr && n.Role == CurrentRole
 }
 
-func IsCurrentHost(hostname string) bool {
+func IsLocalNode(hostname string) bool {
 	return Hostname == hostname
 }
 
@@ -169,6 +177,15 @@ func GetControllerNodes() ([]*Node, error) {
 		"failed to get control nodes(control or control-converged): %s",
 		err.Error(),
 	)
+}
+
+func GetOneOfControllerNode() (*Node, error) {
+	nodes, err := GetControllerNodes()
+	if err != nil {
+		return nil, err
+	}
+
+	return nodes[0], nil
 }
 
 func GetNodeByHostname(hostname string) (*Node, error) {

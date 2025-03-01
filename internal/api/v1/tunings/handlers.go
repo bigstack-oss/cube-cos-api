@@ -41,8 +41,8 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodPatch,
-			Path:    "/tunings/parameters/:parameterName/status",
-			Func:    updateTuningStatus,
+			Path:    "/tunings/tasks/:taskId",
+			Func:    updateTuningTask,
 		},
 		{
 			Version: api.V1,
@@ -120,19 +120,25 @@ func patchTuning(c *gin.Context) {
 		return
 	}
 
-	tuning, err := h.decodeTuningReq(c.Request.Body)
+	err = h.parseTuningRequest()
 	if err != nil {
-		log.Errorf("request(%s): failed to decode tuning: %s", api.GetReqId(c), err.Error())
+		log.Errorf("request(%s): failed to parse tuning request: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	tuning.Status.SetDesiredToUpdate()
-	h.delegateTuningReq(tuning)
+	err = h.checkTuningPatchReq()
+	if err != nil {
+		log.Errorf("request(%s): failed to check tuning: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	h.delegateTuningReq()
 	api.SetStatusOk(
 		c,
-		"tuning applied",
-		*tuning,
+		"tuning update request received",
+		nil,
 	)
 }
 
@@ -153,8 +159,8 @@ func patchTunings(c *gin.Context) {
 	)
 }
 
-func updateTuningStatus(c *gin.Context) {
-	h, err := initReqHelper(c, "updateTuningStatus")
+func updateTuningTask(c *gin.Context) {
+	h, err := initReqHelper(c, "updateTuningTask")
 	if err != nil {
 		log.Errorf("request(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
@@ -168,7 +174,14 @@ func updateTuningStatus(c *gin.Context) {
 		return
 	}
 
-	err = updateRecordStatus(tuning)
+	err = h.checkTaskUpdateReq(tuning)
+	if err != nil {
+		log.Errorf("request(%s): failed to check tuning: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = updateTaskStatus(tuning)
 	if err != nil {
 		log.Errorf("request(%s): failed to update tuning status: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -205,7 +218,7 @@ func deleteTuning(c *gin.Context) {
 	}
 
 	tuning.SetUpdating()
-	syncRecord(*tuning)
+	addReqRecord(*tuning)
 	reqQueue.Add(tuning)
 
 	api.SetStatusOk(
