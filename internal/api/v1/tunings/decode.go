@@ -4,20 +4,24 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	json "github.com/json-iterator/go"
+	log "go-micro.dev/v5/logger"
 )
 
 func (h *helper) decodeTuningReq(reqBody io.ReadCloser) (*definition.Tuning, error) {
 	b, err := io.ReadAll(reqBody)
 	if err != nil {
+		log.Errorf("request(%s): failed to read request body: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
 	tuning := &definition.Tuning{}
 	err = json.Unmarshal(b, tuning)
 	if err != nil {
-		return nil, err
+		log.Errorf("request(%s): failed to decode tuning request: %s", api.GetReqId(h.c), err.Error())
+		return nil, fmt.Errorf("the request body is brought or not valid")
 	}
 
 	return tuning, nil

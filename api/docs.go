@@ -700,14 +700,7 @@ const docTemplate = `{
                         "example": 10
                     },
                     {
-                        "in": "query",
-                        "name": "watch",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "description": "The toggle to enable http chunked transfer for continues server push.",
-                        "example": true
+                        "$ref": "#/components/parameters/watch"
                     }
                 ],
                 "responses": {
@@ -979,14 +972,7 @@ const docTemplate = `{
                         "example": 10
                     },
                     {
-                        "in": "query",
-                        "name": "watch",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "description": "The toggle to enable http chunked transfer for continues server push.",
-                        "example": true
+                        "$ref": "#/components/parameters/watch"
                     }
                 ],
                 "responses": {
@@ -1341,14 +1327,7 @@ const docTemplate = `{
                         "example": 10
                     },
                     {
-                        "in": "query",
-                        "name": "watch",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "description": "The toggle to enable http chunked transfer for continues server push.",
-                        "example": true
+                        "$ref": "#/components/parameters/watch"
                     }
                 ],
                 "responses": {
@@ -1462,14 +1441,7 @@ const docTemplate = `{
                         "example": "example-data-center"
                     },
                     {
-                        "in": "query",
-                        "name": "watch",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "description": "The toggle to enable http chunked transfer for continues server push.",
-                        "example": true
+                        "$ref": "#/components/parameters/watch"
                     }
                 ],
                 "responses": {
@@ -1580,6 +1552,7 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "operationId": "repairAllModulesHealth",
                 "tags": [
                     "Health"
                 ],
@@ -1725,14 +1698,7 @@ const docTemplate = `{
                         "description": "The name of the service to retrieve health history. use GET /api/v1/datacenters/{dataCenter}/services to get the service list and their modules."
                     },
                     {
-                        "in": "query",
-                        "name": "watch",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "description": "The toggle to enable http chunked transfer for continues server push.",
-                        "example": true
+                        "$ref": "#/components/parameters/watch"
                     }
                 ],
                 "responses": {
@@ -2144,14 +2110,7 @@ const docTemplate = `{
                         "example": "2025-01-01T01:00:00Z"
                     },
                     {
-                        "in": "query",
-                        "name": "watch",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "description": "The toggle to enable http chunked transfer for continues server push.",
-                        "example": true
+                        "$ref": "#/components/parameters/watch"
                     }
                 ],
                 "responses": {
@@ -4205,14 +4164,7 @@ const docTemplate = `{
                         "example": 10
                     },
                     {
-                        "in": "query",
-                        "name": "watch",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "description": "The toggle to enable http chunked transfer for continues server push.",
-                        "example": true
+                        "$ref": "#/components/parameters/watch"
                     }
                 ],
                 "responses": {
@@ -5456,14 +5408,7 @@ const docTemplate = `{
                         "example": 10
                     },
                     {
-                        "in": "query",
-                        "name": "watch",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "description": "watch the tuning list continuously",
-                        "example": true
+                        "$ref": "#/components/parameters/watch"
                     }
                 ],
                 "responses": {
@@ -7142,7 +7087,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/tunings/parameters/{parameterName}": {
             "patch": {
-                "operationId": "patchTuning",
+                "operationId": "updateTuning",
                 "tags": [
                     "Tunings"
                 ],
@@ -7174,7 +7119,7 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PatchTuningRequest"
+                                "$ref": "#/components/schemas/UpdateTuningRequest"
                             },
                             "examples": {
                                 "example": {
@@ -7204,7 +7149,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PatchTuningResponse"
+                                    "$ref": "#/components/schemas/UpdateTuningResponse"
                                 },
                                 "examples": {
                                     "example": {
@@ -7213,6 +7158,180 @@ const docTemplate = `{
                                             "code": 202,
                                             "msg": "tuning update request received",
                                             "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid parameter name"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to request tuning update: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "operationId": "resetTuning",
+                "tags": [
+                    "Tunings"
+                ],
+                "summary": "Reset a specific tuning parameter",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "parameterName",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the parameter to reset. use GET /api/v1/datacenters/{dataCenter}/tunings/specs to get the list of parameters",
+                        "example": "barbican.debug.enabled"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetTuningRequest"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Tuning reset request",
+                                    "value": {
+                                        "roles": [
+                                            {
+                                                "name": "control-converged",
+                                                "hosts": [
+                                                    {
+                                                        "name": "example-node-0"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Reset the tuning successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResetTuningResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Tuning reset request received",
+                                        "value": {
+                                            "code": 202,
+                                            "msg": "tuning reset request received",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid parameter name"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
                                         }
                                     }
                                 }
@@ -7272,6 +7391,18 @@ const docTemplate = `{
         }
     },
     "components": {
+        "parameters": {
+            "watch": {
+              "in": "query",
+              "name": "watch",
+              "required": false,
+              "schema": {
+                "type": "boolean"
+              },
+              "description": "The toggle to enable http chunked transfer for continuous server push.",
+              "example": true
+            }
+          },
         "schemas": {
             "GetMeResponse": {
                 "type": "object",
@@ -7384,12 +7515,12 @@ const docTemplate = `{
                         "items": {
                             "type": "object",
                             "required": [
-                                "service",
+                                "name",
                                 "category",
                                 "modules"
                             ],
                             "properties": {
-                                "service": {
+                                "name": {
                                     "type": "string"
                                 },
                                 "category": {
@@ -7837,7 +7968,8 @@ const docTemplate = `{
                                         ],
                                         "properties": {
                                             "current": {
-                                                "type": "string"
+                                                "type": "string",
+                                                "enum": ["ok", "ng"]
                                             },
                                             "isFixing": {
                                                 "type": "boolean"
@@ -7875,7 +8007,7 @@ const docTemplate = `{
                                             "properties": {
                                                 "current": {
                                                     "type": "string",
-                                                    "example": "ok"
+                                                    "enum": ["ok", "ng"]
                                                 }
                                             }
                                         },
@@ -7904,7 +8036,7 @@ const docTemplate = `{
                                                         "properties": {
                                                             "current": {
                                                                 "type": "string",
-                                                                "example": "ok"
+                                                                "enum": ["ok", "ng"]
                                                             }
                                                         }
                                                     }
@@ -7969,7 +8101,8 @@ const docTemplate = `{
                                                 "format": "date-time"
                                             },
                                             "status": {
-                                                "type": "string"
+                                                "type": "string",
+                                                "enum": ["ok", "ng"]
                                             },
                                             "error": {
                                                 "type": "object",
@@ -8102,7 +8235,8 @@ const docTemplate = `{
                                             "format": "date-time"
                                         },
                                         "status": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "enum": ["ok", "ng"]
                                         },
                                         "error": {
                                             "type": "object",
@@ -9930,7 +10064,7 @@ const docTemplate = `{
                                                 "product",
                                                 "issue",
                                                 "serviceLevelAgreement",
-                                                "expire"
+                                                "expiry"
                                             ],
                                             "properties": {
                                                 "status": {
@@ -10012,7 +10146,7 @@ const docTemplate = `{
                                                         }
                                                     }
                                                 },
-                                                "expire": {
+                                                "expiry": {
                                                     "type": "object",
                                                     "required": [
                                                         "date",
@@ -10885,7 +11019,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "PatchTuningRequest": {
+            "UpdateTuningRequest": {
                 "type": "object",
                 "required": [
                     "value",
@@ -10931,7 +11065,63 @@ const docTemplate = `{
                     }
                 }
             },
-            "PatchTuningResponse": {
+            "ResetTuningRequest": {
+                "type": "object",
+                "required": [
+                    "roles"
+                ],
+                "properties": {
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "hosts"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "hosts": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "name"
+                                        ],
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "UpdateTuningResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ResetTuningResponse": {
                 "type": "object",
                 "required": [
                     "code",

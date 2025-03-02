@@ -172,7 +172,7 @@ func resetTuning(c *gin.Context) {
 	h.delegateTuningReq()
 	api.SetStatusAccepted(
 		c,
-		"tuning update request received",
+		"tuning reset request received",
 	)
 }
 
