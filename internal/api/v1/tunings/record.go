@@ -55,16 +55,12 @@ func appendTuningRecords(cursor *mongo.Cursor, tunings *[]definition.Tuning) {
 	}
 }
 
-func syncTuningRecord(tuning definition.Tuning) {
+func addReqRecord(tuning definition.Tuning) {
 	h := cubeMongo.GetGlobalHelper()
-	filter := bson.M{"node.id": tuning.Node.Id, "name": tuning.Name}
-	update := bson.M{"$set": tuning}
-	err := h.UpdateOne(
+	err := h.Insert(
 		definition.TuningDB(),
-		definition.TuningCollection(tuning.Name),
-		filter,
-		update,
-		cubeMongo.CreateRecordIfNotExist,
+		definition.TuningReqCollection(),
+		tuning,
 	)
 	if err != nil {
 		log.Errorf(
@@ -75,13 +71,13 @@ func syncTuningRecord(tuning definition.Tuning) {
 	}
 }
 
-func updateRecordStatus(tuning *definition.Tuning) error {
-	h := cubeMongo.GetGlobalHelper()
-	return h.UpdateOne(
+func updateTaskStatus(tuning *definition.Tuning) error {
+	mongo := cubeMongo.GetGlobalHelper()
+	return mongo.UpdateOne(
 		definition.TuningDB(),
-		definition.TuningCollection(tuning.Name),
-		bson.M{"node.id": tuning.Node.Id, "name": tuning.Name},
-		tuning,
+		definition.TuningReqCollection(),
+		bson.M{"id": tuning.Id},
+		bson.M{"$set": bson.M{"status.current": tuning.Status.Current}},
 		options.Update().SetUpsert(true),
 	)
 }

@@ -15,6 +15,7 @@ import (
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	log "go-micro.dev/v5/logger"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func initDependencies() error {
@@ -87,6 +88,11 @@ func initDependencies() error {
 	err = newTuningSearchIndex()
 	if err != nil {
 		log.Errorf("failed to init tuning search index: %s", err.Error())
+	}
+
+	err = newTuningRecordTTL()
+	if err != nil {
+		log.Errorf("failed to init tuning record ttl: %s", err.Error())
 	}
 
 	return nil
@@ -282,4 +288,14 @@ func genSamlMapper() gocloak.ProtocolMapperRepresentation {
 
 func newTuningSearchIndex() error {
 	return definition.InitTuningSearchIndex()
+}
+
+func newTuningRecordTTL() error {
+	mongo := mongo.GetGlobalHelper()
+	return mongo.CreateExpirationIndex(
+		definition.TuningDB(),
+		definition.TuningReqCollection(),
+		bson.D{{Key: "status.createdAt", Value: 1}},
+		definition.TuningRecordTTL,
+	)
 }

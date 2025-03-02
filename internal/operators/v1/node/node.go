@@ -59,7 +59,7 @@ func (o *Operator) Stop() {
 func (o *Operator) watchAndSyncNodeRoles(watcher *registry.Watcher) {
 	event, err := (*watcher).Next()
 	if err == nil {
-		definition.SyncNodesOfRole()
+		definition.SyncRoleNodes()
 		logThrottling(event)
 		return
 	}

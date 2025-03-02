@@ -11,7 +11,7 @@ func parseNodes(svc *registry.Service) []definition.Node {
 	nodes := []definition.Node{}
 
 	for _, node := range svc.Nodes {
-		if isCurrentNode(node) {
+		if isLocalNode(node) {
 			continue
 		}
 
@@ -27,13 +27,14 @@ func newNode(node *registry.Node) definition.Node {
 		Id:         definition.HostID,
 		DataCenter: node.Metadata["dataCenter"],
 		Protocol:   node.Metadata["protocol"],
+		Ip:         node.Metadata["ip"],
 		Hostname:   definition.Hostname,
 		Token:      node.Metadata["token"],
 		Address:    node.Address,
 	}
 }
 
-func isCurrentNode(node *registry.Node) bool {
+func isLocalNode(node *registry.Node) bool {
 	return node.Address == definition.AdvertiseAddr
 }
 

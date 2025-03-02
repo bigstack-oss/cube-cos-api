@@ -21,8 +21,10 @@ var (
 	DataCenterName    string
 	DataCenterVersion string
 	DataCenterVip     string
+	ListenIp          string
 	ListenAddr        string
 	ListenPort        int
+	AdvertiseIp       string
 	AdvertiseAddr     string
 	AdvertisePort     int
 	MgmtNet           string
@@ -38,6 +40,7 @@ type Node struct {
 	Role          string `json:"role" yaml:"role"`
 	Protocol      string `json:"protocol,omitempty" yaml:"protocol,omitempty" bson:"protocol,omitempty"`
 	Address       string `json:"address" yaml:"address"`
+	Ip            string `json:"ip" yaml:"ip"`
 	ManagementIP  string `json:"managementIP" yaml:"managementIP"`
 	License       `json:"license,omitempty" yaml:"license,omitempty" bson:"license,omitempty"`
 	Status        string            `json:"status" yaml:"status"`
@@ -51,6 +54,10 @@ type Node struct {
 
 func (n *Node) GetBearerToken() string {
 	return fmt.Sprintf("Bearer %s", n.Token)
+}
+
+func (n *Node) GenAuthHeader() (string, string) {
+	return "Authorization", n.GetBearerToken()
 }
 
 func (n *Node) GetMetricUrl(metric, view string) string {
@@ -80,7 +87,27 @@ func (n *Node) GetTuningUrl() string {
 	return u.String()
 }
 
-func IsCurrentHost(hostname string) bool {
+func (n *Node) PatchTuningUrl(tuning Tuning) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/tunings/parameters/%s", DataCenterName, tuning.Name)
+	return u.String()
+}
+
+func (n *Node) PatchTuningTaskUrl(tuning Tuning) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/tunings/tasks/%s", DataCenterName, tuning.Id)
+	return u.String()
+}
+
+func (n *Node) IsLocal() bool {
+	return n.Address == AdvertiseAddr && n.Role == CurrentRole
+}
+
+func IsLocalNode(hostname string) bool {
 	return Hostname == hostname
 }
 
@@ -150,6 +177,15 @@ func GetControllerNodes() ([]*Node, error) {
 		"failed to get control nodes(control or control-converged): %s",
 		err.Error(),
 	)
+}
+
+func GetOneOfControllerNode() (*Node, error) {
+	nodes, err := GetControllerNodes()
+	if err != nil {
+		return nil, err
+	}
+
+	return nodes[0], nil
 }
 
 func GetNodeByHostname(hostname string) (*Node, error) {

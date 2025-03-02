@@ -1,9 +1,13 @@
 package v1
 
 import (
+	"fmt"
+	"slices"
+	"strconv"
 	"strings"
 	"sync"
 
+	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/blevesearch/bleve/v2"
 	json "github.com/json-iterator/go"
@@ -11,12 +15,13 @@ import (
 )
 
 const (
-	Tunings = "tunings"
+	Tunings         = "tunings"
+	TuningRecordTTL = 3600
 )
 
 var (
-	tuningSpecs    = sync.Map{}
-	currentTunings = sync.Map{}
+	tuningSpecs  = sync.Map{}
+	localTunings = sync.Map{}
 
 	tuningSearcher bleve.Index
 
@@ -43,31 +48,127 @@ type TuningSpec struct {
 }
 
 type TuningLimitation struct {
-	Type    string      `json:"type"`
-	Default interface{} `json:"default"`
-	Min     interface{} `json:"min,omitempty"`
-	Max     interface{} `json:"max,omitempty"`
+	Type    string `json:"type"`
+	Default any    `json:"default"`
+	Min     int    `json:"min,omitempty"`
+	Max     int    `json:"max,omitempty"`
 }
 
 type Tuning struct {
-	Name        string           `json:"name" yaml:"name"`
-	Value       interface{}      `json:"value" yaml:"value"`
-	Hosts       []string         `json:"hosts" yaml:"hosts"`
-	Description string           `json:"description" yaml:"description"`
-	Enabled     bool             `json:"enabled" yaml:"enabled"`
-	IsModified  bool             `json:"isModified" yaml:"isModified"`
-	Limitation  TuningLimitation `json:"limitation" yaml:"limitation"`
+	Id          string           `json:"id,omitempty" yaml:"-" bson:"id"`
+	Name        string           `json:"name" yaml:"name" bson:"name"`
+	Value       any              `json:"value" yaml:"value" bson:"value"`
+	Description string           `json:"description" yaml:"-" bson:"-"`
+	Enabled     bool             `json:"enabled" yaml:"enabled" bson:"enabled"`
+	IsModified  bool             `json:"isModified" yaml:"-" bson:"-"`
+	Limitation  TuningLimitation `json:"limitation" yaml:"-" bson:"-"`
 
-	*Node  `json:"node,omitempty" yaml:"node,omitempty" bson:"node,omitempty"`
-	Status *status.Details `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
+	*Node  `json:"node,omitempty" yaml:"-" bson:"-"`
+	Hosts  []Host          `json:"hosts" yaml:"-" bson:"-"`
+	Roles  []Role          `json:"roles,omitempty" yaml:"-" bson:"-"`
+	Status *status.Details `json:"status,omitempty" yaml:"-" bson:"status,omitempty"`
 }
 
 type ListTuningOptions struct {
 	AllNodes bool
 }
 
-func SetSpecToTuning(tuningName string, tuningSpec *TuningSpec) {
-	tuningSpecs.Store(tuningName, tuningSpec)
+func (t *TuningSpec) IsInLimitedRange(value int) bool {
+	return value <= t.Limitation.Max && value >= t.Limitation.Min
+}
+
+func (t *Tuning) InitStatus(current, desired string) {
+	t.Status = &status.Details{
+		Current:   current,
+		Desired:   desired,
+		CreatedAt: TimeLocal(),
+	}
+}
+
+func (t *Tuning) StrValue() string {
+	return fmt.Sprintf("%v", t.Value)
+}
+
+func (t *Tuning) SetDesired(status string) {
+	t.Status.Desired = status
+}
+
+func (t *Tuning) SetUpdating() {
+	t.Status.Current = status.Updating
+}
+
+func (t *Tuning) SetUpdated() {
+	t.Status.Current = status.Updated
+}
+
+func (t *Tuning) SetError() {
+	t.Status.Current = status.Error
+}
+
+func (t *Tuning) SetCompleted() {
+	t.Status.Current = status.Completed
+}
+
+func (t *Tuning) CopyAndOverrideHost(node Node) Tuning {
+	return Tuning{
+		Name:        t.Name,
+		Value:       t.Value,
+		Description: t.Description,
+		Enabled:     t.Enabled,
+		IsModified:  t.IsModified,
+		Limitation:  t.Limitation,
+		Hosts:       []Host{{Name: node.Hostname, Ip: node.Ip}},
+	}
+}
+
+func (t *Tuning) GenTaskUpdate() Tuning {
+	return Tuning{
+		Id:     t.Id,
+		Name:   t.Name,
+		Value:  t.Value,
+		Status: t.Status,
+	}
+}
+
+func (t *Tuning) SearchKey() string {
+	return t.Name + "|" + fmt.Sprintf("%v", t.Value) + "|" + strconv.FormatBool(t.Enabled) + "|" + strconv.FormatBool(t.IsModified)
+}
+
+func CheckTuningSpec(tuning Tuning) error {
+	spec, loaded := tuningSpecs.Load(tuning.Name)
+	if !loaded {
+		return cuberr.TuningNotFound
+	}
+
+	if !isTuningValueValid(tuning, spec.(*TuningSpec)) {
+		return cuberr.TuningValueInvalid
+	}
+
+	return nil
+}
+
+func isTuningValueValid(tuning Tuning, spec *TuningSpec) bool {
+	switch spec.Limitation.Type {
+	case "int":
+		value, ok := tuning.Value.(int)
+		if !ok {
+			return false
+		}
+
+		return spec.IsInLimitedRange(value)
+	case "string":
+		_, ok := tuning.Value.(string)
+		return ok
+	case "bool":
+		_, ok := tuning.Value.(bool)
+		return ok
+	}
+
+	return false
+}
+
+func SetTuningSpec(name string, spec *TuningSpec) {
+	tuningSpecs.Store(name, spec)
 }
 
 func GetRolesToHandleTuning(tuningName string) ([]*Role, bool) {
@@ -85,7 +186,7 @@ func GetTuningSpecs() *sync.Map {
 
 func ListTuningSpecs() []TuningSpec {
 	specs := []TuningSpec{}
-	tuningSpecs.Range(func(key, value interface{}) bool {
+	tuningSpecs.Range(func(key, value any) bool {
 		spec := value.(*TuningSpec)
 		specs = append(specs, *spec)
 		return true
@@ -94,12 +195,12 @@ func ListTuningSpecs() []TuningSpec {
 	return specs
 }
 
-func GetCurrentTunings() *sync.Map {
-	return &currentTunings
+func GetLocalTunings() *sync.Map {
+	return &localTunings
 }
 
-func GetCurrentTuning(name string) Tuning {
-	val, loaded := currentTunings.Load(name)
+func GetLocalTuning(name string) Tuning {
+	val, loaded := localTunings.Load(name)
 	if !loaded {
 		return Tuning{}
 	}
@@ -107,13 +208,13 @@ func GetCurrentTuning(name string) Tuning {
 	return val.(Tuning)
 }
 
-func SetCurrentTuning(tuning Tuning) {
-	currentTunings.Store(tuning.Name, tuning)
+func SetLocalTuning(tuning Tuning) {
+	localTunings.Store(tuning.Name, tuning)
 }
 
-func ListCurrentTunings() []Tuning {
+func ListLocalTunings() []Tuning {
 	tunings := []Tuning{}
-	currentTunings.Range(func(key, value interface{}) bool {
+	localTunings.Range(func(key, value any) bool {
 		tunings = append(tunings, value.(Tuning))
 		return true
 	})
@@ -121,14 +222,14 @@ func ListCurrentTunings() []Tuning {
 	return tunings
 }
 
-func ShouldCurrentRoleHandleTheTuning(tuningName string, roleName string) bool {
-	val, loaded := tuningSpecs.Load(tuningName)
+func ShouldIHandleTheTuning(name string) bool {
+	spec, loaded := tuningSpecs.Load(name)
 	if !loaded {
 		return false
 	}
 
-	for _, r := range val.([]*Role) {
-		if r.Name == roleName {
+	for _, r := range spec.([]*Role) {
+		if r.Name == CurrentRole {
 			return true
 		}
 	}
@@ -154,8 +255,50 @@ func (t *Tuning) SetNodeInfo(role, address string) {
 	}
 }
 
+func (t *TuningPolicy) UpdateOrAppendTuning(tuning Tuning) {
+	if !t.existingTuningUpdated(tuning) {
+		t.AppendTuning(tuning)
+	}
+}
+
+func (t *TuningPolicy) existingTuningUpdated(tuning Tuning) bool {
+	for i, existing := range t.Tunings {
+		if existing.Name == tuning.Name {
+			t.Tunings[i].Value = tuning.Value
+			t.Tunings[i].Enabled = tuning.Enabled
+			return true
+		}
+	}
+
+	return false
+}
+
+func (t *TuningPolicy) AppendTuning(tuning Tuning) {
+	t.Tunings = append(t.Tunings, tuning)
+}
+
 func (t *TuningPolicy) AppendTunings(tunings []Tuning) {
-	t.Tunings = append(t.Tunings, tunings...)
+	t.Tunings = slices.Concat(t.Tunings, tunings)
+}
+
+func (t *TuningPolicy) HasMatchedTuning(tuning Tuning) bool {
+	for _, existing := range t.Tunings {
+		if existing.Name != tuning.Name {
+			continue
+		}
+
+		if existing.StrValue() != tuning.StrValue() {
+			continue
+		}
+
+		if existing.Enabled != tuning.Enabled {
+			continue
+		}
+
+		return true
+	}
+
+	return false
 }
 
 func (t *TuningPolicy) DeleteTuning(tuningName string) {
@@ -171,6 +314,10 @@ func (t *TuningPolicy) DeleteTuning(tuningName string) {
 
 func TuningDB() string {
 	return Tunings
+}
+
+func TuningReqCollection() string {
+	return "requests"
 }
 
 func TuningCollection(name string) string {

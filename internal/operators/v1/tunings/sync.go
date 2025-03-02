@@ -11,10 +11,10 @@ import (
 
 func (o *Operator) operateReq(tuning definition.Tuning) error {
 	switch tuning.Status.Desired {
-	case status.Create, status.Update:
-		return o.applyTuning(tuning)
-	case status.Delete:
-		return o.deleteTuning(tuning)
+	case status.Update:
+		return o.updateTuning(tuning)
+	case status.Reset:
+		return o.resetTuning(tuning)
 	}
 
 	return fmt.Errorf(
@@ -24,7 +24,7 @@ func (o *Operator) operateReq(tuning definition.Tuning) error {
 	)
 }
 
-func (o *Operator) deleteTuning(tuning definition.Tuning) error {
+func (o *Operator) resetTuning(tuning definition.Tuning) error {
 	policy, err := cubecos.GetTuningPolicy(cubecos.TuningPolicyFile)
 	if err != nil {
 		log.Errorf("failed to get all tunings: %s", err.Error())
@@ -47,13 +47,13 @@ func (o *Operator) deleteTuning(tuning definition.Tuning) error {
 	return nil
 }
 
-func (o *Operator) applyTuning(tuning definition.Tuning) error {
+func (o *Operator) updateTuning(tuning definition.Tuning) error {
 	policy, err := cubecos.GetTuningPolicy(cubecos.TuningPolicyFile)
 	if err != nil {
 		return err
 	}
 
-	policy.AppendTunings([]definition.Tuning{tuning})
+	policy.UpdateOrAppendTuning(tuning)
 	err = cubecos.ApplyTunings(policy.Tunings)
 	if err != nil {
 		log.Errorf("failed to apply tuning %s: %s", tuning.Name, err.Error())
@@ -62,7 +62,7 @@ func (o *Operator) applyTuning(tuning definition.Tuning) error {
 
 	err = cubecos.IsTuningApplied(tuning)
 	if err != nil {
-		log.Errorf("failed to check if tuning %s is applied: %s", tuning.Name, err.Error())
+		log.Errorf(err.Error())
 		return err
 	}
 

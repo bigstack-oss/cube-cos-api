@@ -68,10 +68,11 @@ func initNodeIdentities() error {
 		return err
 	}
 
-	definition.ListenAddr = genLocalAddr()
+	definition.ListenIp = conf.Opts.Spec.Listen.Local
 	definition.ListenPort = conf.Opts.Spec.Listen.Port
-	definition.AdvertiseAddr = genServiceDiscoveryAddr()
+	definition.ListenAddr = genLocalAddr()
 	definition.AdvertisePort = conf.Opts.Spec.Listen.Port
+	definition.AdvertiseAddr = genServiceDiscoveryAddr()
 	definition.IsGpuEnabled = cubecos.IsGpuEnabled()
 	definition.LogoutRedirectUrl = genLogoutRedirectUrl()
 	cubecos.SyncTunings()
@@ -98,6 +99,7 @@ func genNodeMetadata() map[string]string {
 		"dataCenter":   definition.DataCenterName,
 		"nodeID":       definition.HostID,
 		"protocol":     conf.Opts.Kind,
+		"ip":           definition.MgmtIP,
 		"isGpuEnabled": fmt.Sprintf("%t", definition.IsGpuEnabled),
 		"token":        definition.DefaultNodeToken,
 	}

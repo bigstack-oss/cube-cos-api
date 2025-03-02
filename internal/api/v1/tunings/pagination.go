@@ -12,16 +12,8 @@ func (h *helper) paginateTunings(tunings []definition.Tuning) ([]definition.Tuni
 		return tunings, nil
 	}
 
-	left := (h.Page.Number - 1) * h.Page.Size
-	if left > len(tunings) {
-		left = len(tunings)
-	}
-
-	right := left + h.Page.Size
-	if right > len(tunings) {
-		right = len(tunings)
-	}
-
+	left := min((h.Page.Number-1)*h.Page.Size, len(tunings))
+	right := min(left+h.Page.Size, len(tunings))
 	return tunings[left:right], nil
 }
 

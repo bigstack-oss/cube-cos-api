@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"reflect"
+	"slices"
 	"sync"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
@@ -95,10 +96,7 @@ func removeWatcher(watcherToRemove watcher) {
 			continue
 		}
 
-		stream.Watchers = append(
-			stream.Watchers[:i],
-			stream.Watchers[i+1:]...,
-		)
+		stream.Watchers = slices.Delete(stream.Watchers, i, i+i)
 		return
 	}
 }

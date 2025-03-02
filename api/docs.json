@@ -7135,6 +7135,136 @@
                     }
                 }
             }
+        },
+        "/api/v1/datacenters/{dataCenter}/tunings/parameters/{parameterName}": {
+            "patch": {
+                "operationId": "patchTuning",
+                "tags": [
+                    "Tunings"
+                ],
+                "summary": "Update value for a specific tuning parameter",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "parameterName",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the parameter to update. use GET /api/v1/datacenters/{dataCenter}/tunings/specs to get the list of parameters",
+                        "example": "barbican.debug.enabled"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchTuningRequest"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Tuning update request",
+                                    "value": {
+                                        "value": true,
+                                        "enabled": true,
+                                        "roles": [
+                                            {
+                                                "name": "control-converged",
+                                                "hosts": [
+                                                    {
+                                                        "name": "example-node-0"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Update the tuning successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PatchTuningResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Tuning update request received",
+                                        "value": {
+                                            "code": 202,
+                                            "msg": "tuning update request received",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to request tuning update: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -10742,6 +10872,71 @@
                                 }
                             }
                         }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PatchTuningRequest": {
+                "type": "object",
+                "required": [
+                    "value",
+                    "enabled",
+                    "roles"
+                ],
+                "properties": {
+                    "value": {
+                        "type": "boolean"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "hosts"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "hosts": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "name",
+                                            "ip"
+                                        ],
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "PatchTuningResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
                     },
                     "msg": {
                         "type": "string"
