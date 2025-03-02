@@ -281,6 +281,26 @@ func (t *TuningPolicy) AppendTunings(tunings []Tuning) {
 	t.Tunings = slices.Concat(t.Tunings, tunings)
 }
 
+func (t *TuningPolicy) HasMatchedTuning(tuning Tuning) bool {
+	for _, existing := range t.Tunings {
+		if existing.Name != tuning.Name {
+			continue
+		}
+
+		if existing.StrValue() != tuning.StrValue() {
+			continue
+		}
+
+		if existing.Enabled != tuning.Enabled {
+			continue
+		}
+
+		return true
+	}
+
+	return false
+}
+
 func (t *TuningPolicy) DeleteTuning(tuningName string) {
 	newTunings := []Tuning{}
 	for _, tuning := range t.Tunings {

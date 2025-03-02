@@ -952,10 +952,20 @@ func isValueApplied(tuning definition.Tuning) bool {
 		return false
 	}
 
-	return errors.Is(
-		err,
-		cuberr.TuningNotFound,
-	)
+	if !noValueInSettings(err) {
+		return false
+	}
+
+	policy, err := GetTuningPolicy(TuningPolicyFile)
+	if err != nil {
+		return false
+	}
+
+	return policy.HasMatchedTuning(tuning)
+}
+
+func noValueInSettings(err error) bool {
+	return errors.Is(err, cuberr.TuningNotFound)
 }
 
 func ApplyTunings(tunings []definition.Tuning) error {
