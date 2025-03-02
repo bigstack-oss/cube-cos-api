@@ -8,7 +8,7 @@ vars:
   dbService: "cube-cos-mongo"
   dbReplicaSet: "cube-cos-rs"
   devCosUser: "root"
-  devCosIp: "<REPLACE_WITH_YOUR_REMOTE_DEV_COS_IP>"
+  devCosIp: "10.32.10.180"
   mongoVersion: "6.0.19"
 
 tasks:

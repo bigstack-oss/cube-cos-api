@@ -30,7 +30,13 @@ var (
 			Version: api.V1,
 			Method:  http.MethodPatch,
 			Path:    "/tunings/parameters/:parameterName",
-			Func:    patchTuning,
+			Func:    updateTuning,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodPut,
+			Path:    "/tunings/parameters/:parameterName",
+			Func:    resetTuning,
 		},
 		{
 			Version: api.V1,
@@ -112,15 +118,15 @@ func getTuningSpecs(c *gin.Context) {
 	)
 }
 
-func patchTuning(c *gin.Context) {
-	h, err := initReqHelper(c, "patchTuning")
+func updateTuning(c *gin.Context) {
+	h, err := initReqHelper(c, "updateTuning")
 	if err != nil {
 		log.Errorf("request(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	err = h.parseTuningRequest()
+	err = h.parseTuningUpdate()
 	if err != nil {
 		log.Errorf("request(%s): failed to parse tuning request: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
@@ -130,6 +136,35 @@ func patchTuning(c *gin.Context) {
 	err = h.checkTuningPatchReq()
 	if err != nil {
 		log.Errorf("request(%s): failed to check tuning: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	h.delegateTuningReq()
+	api.SetStatusAccepted(
+		c,
+		"tuning update request received",
+	)
+}
+
+func resetTuning(c *gin.Context) {
+	h, err := initReqHelper(c, "resetTuning")
+	if err != nil {
+		log.Errorf("request(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.parseTuningReset()
+	if err != nil {
+		log.Errorf("request(%s): failed to parse tuning req: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.checkTuningResetReq()
+	if err != nil {
+		log.Errorf("request(%s): failed to check tuning reset: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}

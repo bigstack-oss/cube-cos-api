@@ -7779,7 +7779,7 @@ const docTemplate = `{
                                     "categories"
                                 ],
                                 "properties": {
-                                    "severities": {
+                                    "names": {
                                         "type": "array",
                                         "items": {
                                             "type": "string"

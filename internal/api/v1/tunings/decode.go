@@ -46,7 +46,29 @@ func decodeTuningsReq(reqBody io.ReadCloser) ([]definition.Tuning, error) {
 }
 
 func (h *helper) checkTuningPatchReq() error {
-	return definition.CheckTuningSpec(h.tuning)
+	err := definition.CheckTuningSpec(h.tuning)
+	if err != nil {
+		return err
+	}
+
+	return h.checkHostsAreValid()
+}
+
+func (h *helper) checkTuningResetReq() error {
+	return h.checkHostsAreValid()
+}
+
+func (h *helper) checkHostsAreValid() error {
+	for _, r := range h.tuning.Roles {
+		for _, h := range r.Hosts {
+			_, err := definition.GetNodeByHostname(h.Name)
+			if err != nil {
+				return fmt.Errorf("host(%s) not found", h.Name)
+			}
+		}
+	}
+
+	return nil
 }
 
 func (h *helper) checkTaskUpdateReq(tuning *definition.Tuning) error {
