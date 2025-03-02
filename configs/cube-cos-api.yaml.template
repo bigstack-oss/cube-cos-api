@@ -13,9 +13,10 @@ spec:
       system: /etc/settings.sys
     logoutRedirect: "/api/v1/datacenters"
     keycloak:
+      # host: https://10.32.10.180:10443/auth
       host:
         scheme: "https"
-        ip: ""
+        ip: "10.32.10.180"
         port: 10443
         path: "auth"
         tlsInsecureSkipVerify: true

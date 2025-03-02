@@ -180,6 +180,15 @@ func GetRolesToHandleTuning(tuningName string) ([]*Role, bool) {
 	return val.(*TuningSpec).Roles, true
 }
 
+func GetTuningSpec(name string) (*TuningSpec, error) {
+	val, loaded := tuningSpecs.Load(name)
+	if !loaded {
+		return nil, cuberr.TuningNotFound
+	}
+
+	return val.(*TuningSpec), nil
+}
+
 func GetTuningSpecs() *sync.Map {
 	return &tuningSpecs
 }
@@ -301,10 +310,10 @@ func (t *TuningPolicy) HasMatchedTuning(tuning Tuning) bool {
 	return false
 }
 
-func (t *TuningPolicy) DeleteTuning(tuningName string) {
+func (t *TuningPolicy) DeleteTuning(name string) {
 	newTunings := []Tuning{}
 	for _, tuning := range t.Tunings {
-		if tuning.Name != tuningName {
+		if tuning.Name != name {
 			newTunings = append(newTunings, tuning)
 		}
 	}

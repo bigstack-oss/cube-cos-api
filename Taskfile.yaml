@@ -8,7 +8,7 @@ vars:
   dbService: "cube-cos-mongo"
   dbReplicaSet: "cube-cos-rs"
   devCosUser: "root"
-  devCosIp: "<REPLACE_WITH_YOUR_REMOTE_DEV_COS_IP>"
+  devCosIp: "<REPLACE_WITH_YOUR_DEV_COS_IP>"
   mongoVersion: "6.0.19"
 
 tasks:
@@ -80,7 +80,7 @@ tasks:
   initRemoteCosWorkspace:
     cmds:
       - ssh {{.devCosUser}}@{{.devCosIp}} "mkdir -p /opt/dev/{{.apiService}}/mongo"
-      - ssh {{.devCosUser}}@{{.devCosIp}} "mkdir -p /etc/{{.apiService}}"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "mkdir -p /etc/cube/api"
       - ssh {{.devCosUser}}@{{.devCosIp}} "grep {{.apiService}} /etc/group || groupadd {{.apiService}}"
       - ssh {{.devCosUser}}@{{.devCosIp}} "id {{.apiService}} || useradd -g {{.apiService}} {{.apiService}}"
   initRemoteCosContainerNetwork:
@@ -89,11 +89,11 @@ tasks:
     ignore_error: true
   moveLocalBinaryToRemoteCos:
     cmds:
-      - scp bin/{{.apiService}} {{.devCosUser}}@{{.devCosIp}}:/usr/bin/{{.apiService}}
-      - ssh {{.devCosUser}}@{{.devCosIp}} "chown -R {{.apiService}}:{{.apiService}} /usr/bin/{{.apiService}}"
+      - scp bin/{{.apiService}} {{.devCosUser}}@{{.devCosIp}}:/usr/local/bin/{{.apiService}}
+      - ssh {{.devCosUser}}@{{.devCosIp}} "chown -R {{.apiService}}:{{.apiService}} /usr/local/bin/{{.apiService}}"
   moveLocalConfigToRemoteCos:
     cmds:
-      - scp configs/{{.apiService}}.yaml {{.devCosUser}}@{{.devCosIp}}:/etc/{{.apiService}}
+      - scp configs/{{.apiService}}.yaml.template {{.devCosUser}}@{{.devCosIp}}:/etc/cube/api/cube-cos-api.yaml
       - scp init/cube-cos-api.service {{.devCosUser}}@{{.devCosIp}}:/lib/systemd/system
   activateSystemdService:
     cmds:

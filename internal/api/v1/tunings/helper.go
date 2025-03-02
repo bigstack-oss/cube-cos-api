@@ -40,7 +40,7 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 	return h, nil
 }
 
-func (h *helper) parseTuningRequest() error {
+func (h *helper) parseTuningUpdate() error {
 	tuning, err := h.decodeTuningReq(h.c.Request.Body)
 	if err != nil {
 		log.Errorf("request(%s): failed to decode tuning request: %s", api.GetReqId(h.c), err.Error())
@@ -51,6 +51,29 @@ func (h *helper) parseTuningRequest() error {
 	h.tuning.Id = uuid.New().String()
 	h.tuning.Name = h.c.Param("parameterName")
 	h.tuning.InitStatus("updating", "update")
+	return nil
+}
+
+func (h *helper) parseTuningReset() error {
+	tuning, err := h.decodeTuningReq(h.c.Request.Body)
+	if err != nil {
+		log.Errorf("request(%s): failed to decode tuning request: %s", api.GetReqId(h.c), err.Error())
+		return err
+	}
+
+	name := h.c.Param("parameterName")
+	spec, err := definition.GetTuningSpec(name)
+	if err != nil {
+		return err
+	}
+
+	h.tuning = *tuning
+	h.tuning.Id = uuid.New().String()
+	h.tuning.Name = name
+	h.tuning.Value = spec.Limitation.Default
+	h.tuning.Enabled = true
+	h.tuning.IsModified = false
+	h.tuning.InitStatus("updating", "reset")
 	return nil
 }
 

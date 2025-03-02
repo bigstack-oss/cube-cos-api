@@ -1058,18 +1058,14 @@ func GetTuningPolicy(filePath string) (*definition.TuningPolicy, error) {
 }
 
 func IsTuningDeleted(tuning definition.Tuning) bool {
-	_, err := GetTuningValue(tuning.Name)
-	if err == nil {
-		log.Errorf("tuning value is not deleted: %s", tuning.Name)
+	_, valueErr := GetTuningValue(tuning.Name)
+	policy, policyErr := GetTuningPolicy(TuningPolicyFile)
+	if policyErr != nil {
 		return false
 	}
 
-	if !errors.Is(err, cuberr.TuningNotFound) {
-		log.Errorf("failed to check if tuning is deleted: %s", err.Error())
-		return false
-	}
-
-	return true
+	return policy.HasMatchedTuning(tuning) &&
+		noValueInSettings(valueErr)
 }
 
 func ListTunings(opts definition.ListTuningOptions) ([]definition.Tuning, error) {
