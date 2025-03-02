@@ -1,0 +1,46 @@
+version: '3'
+
+vars:
+  VERSION:
+    sh: "head -n 1 VERSION"
+  BUILD_NUMBER:
+    sh: "git rev-parse --short HEAD"
+
+tasks:
+  build:
+    desc: "Run all tasks in order to build the RPM"
+    cmds:
+      - task: cleanRpmBuild
+      - task: createRpmBuildDir
+      - task: prepareTarball
+      - task: copySpecFile
+      - task: buildRpm
+      - task: checkRpm
+  cleanRpmBuild:
+    desc: "Clean up any existing rpmbuild directory"
+    cmds:
+      - rm -rf ~/rpmbuild/
+  createRpmBuildDir:
+    desc: "Create rpmbuild directory"
+    cmds:
+      - mkdir -p ~/rpmbuild/BUILD ~/rpmbuild/RPMS ~/rpmbuild/SOURCES ~/rpmbuild/SPECS ~/rpmbuild/SRPMS
+  prepareTarball:
+    desc: "Prepare the tarball"
+    cmds:
+      - mkdir -p ~/source
+      - cp -r ./api ./cmd ./internal ./configs ./init go.mod go.sum LICENSE ~/source
+      - cd ~ && tar -cvzf "cube-cos-api-{{.VERSION}}.tar.gz" source
+      - mv ~/cube-cos-api-{{.VERSION}}.tar.gz ~/rpmbuild/SOURCES
+      - rm -rf ~/source
+  copySpecFile:
+    desc: "Copy spec file"
+    cmds:
+      - cp ./init/cube-cos-api.spec ~/rpmbuild/SPECS
+  buildRpm:
+    desc: "Build the RPM"
+    cmds:
+      - rpmbuild -bb --nodeps --define "version {{.VERSION}}" --define "build_number {{.BUILD_NUMBER}}" ~/rpmbuild/SPECS/cube-cos-api.spec
+  checkRpm:
+    desc: "Check the built RPM"
+    cmds:
+      - ls -ahl ~/rpmbuild/RPMS/x86_64/cube-cos-api-{{.VERSION}}-1.el9.{{.BUILD_NUMBER}}.x86_64.rpm

@@ -1,5 +1,8 @@
 version: "3"
 
+includes:
+  rpm: ./scripts/rpm.yaml
+
 vars:
   apiService: "cube-cos-api"
   dbService: "cube-cos-mongo"

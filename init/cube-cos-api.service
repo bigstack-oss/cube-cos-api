@@ -6,7 +6,7 @@ After=network.target
 User=root
 Group=root
 Type=simple
-ExecStart=/usr/bin/cube-cos-api -conf /etc/cube-cos-api/cube-cos-api.yaml
+ExecStart=/usr/local/bin/cube-cos-api -conf /etc/cube/api/cube-cos-api.yaml
 
 # Give a reasonable amount of time for the server to start up/shut down
 TimeoutSec=120

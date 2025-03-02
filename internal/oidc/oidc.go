@@ -5,9 +5,11 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/coreos/go-oidc"
 )
 
@@ -49,9 +51,13 @@ func VerifyToken(token string) (*claims, error) {
 }
 
 func genRealmUrl() string {
-	return fmt.Sprintf(
-		"%s/realms/%s",
-		config.Opts.Spec.Identity.Keycloak.Host,
-		config.Opts.Spec.Identity.Keycloak.Realm,
-	)
+	if config.Opts.Spec.Identity.Keycloak.Ip == "" {
+		config.Opts.Spec.Identity.Keycloak.Ip = definition.DataCenterVip
+	}
+
+	u := url.URL{}
+	u.Scheme = config.Opts.Spec.Identity.Keycloak.Scheme
+	u.Host = fmt.Sprintf("%s:%d", config.Opts.Spec.Identity.Keycloak.Ip, config.Opts.Spec.Identity.Keycloak.Port)
+	u.Path = fmt.Sprintf("%s/realms/%s", config.Opts.Spec.Identity.Keycloak.Path, config.Opts.Spec.Identity.Keycloak.Realm)
+	return u.String()
 }
