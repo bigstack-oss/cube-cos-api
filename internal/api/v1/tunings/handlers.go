@@ -135,10 +135,9 @@ func patchTuning(c *gin.Context) {
 	}
 
 	h.delegateTuningReq()
-	api.SetStatusOk(
+	api.SetStatusAccepted(
 		c,
 		"tuning update request received",
-		nil,
 	)
 }
 
@@ -150,7 +149,6 @@ func patchTunings(c *gin.Context) {
 		return
 	}
 
-	setBatchPendingUpdate(tunings)
 	delegateTuningsReq(tunings)
 	api.SetStatusOk(
 		c,
@@ -236,7 +234,6 @@ func deleteTunings(c *gin.Context) {
 		return
 	}
 
-	setBatchPendingDeletion(tunings)
 	delegateTuningsReq(tunings)
 	api.SetStatusOk(
 		c,
