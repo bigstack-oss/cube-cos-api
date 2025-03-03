@@ -2852,8 +2852,7 @@ const docTemplate = `{
                                                         "controlConverged": 2,
                                                         "control": 0,
                                                         "compute": 0,
-                                                        "storage": 0,
-                                                        "others": 0
+                                                        "storage": 0
                                                     },
                                                     "usages": [
                                                         {
@@ -2907,8 +2906,7 @@ const docTemplate = `{
                                                         "stopped": 2,
                                                         "suspend": 0,
                                                         "paused": 0,
-                                                        "error": 0,
-                                                        "unknown": 0
+                                                        "error": 0
                                                     },
                                                     "usage": {
                                                         "vcpu": {
@@ -3154,10 +3152,6 @@ const docTemplate = `{
                                                         "error": {
                                                             "type": "integer",
                                                             "example": 0
-                                                        },
-                                                        "unknown": {
-                                                            "type": "integer",
-                                                            "example": 0
                                                         }
                                                     }
                                                 },
@@ -3179,10 +3173,6 @@ const docTemplate = `{
                                                         "storage": {
                                                             "type": "integer",
                                                             "example": 2
-                                                        },
-                                                        "others": {
-                                                            "type": "integer",
-                                                            "example": 0
                                                         }
                                                     }
                                                 },
@@ -5349,7 +5339,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/tunings": {
+        "/api/v1/datacenters/{dataCenter}/tunings/parameters": {
             "get": {
                 "operationId": "listTunings",
                 "tags": [
@@ -8650,8 +8640,7 @@ const docTemplate = `{
                                             "controlConverged",
                                             "control",
                                             "compute",
-                                            "storage",
-                                            "others"
+                                            "storage"
                                         ],
                                         "properties": {
                                             "controlConverged": {
@@ -8669,10 +8658,6 @@ const docTemplate = `{
                                             "storage": {
                                                 "type": "integer",
                                                 "example": 2
-                                            },
-                                            "others": {
-                                                "type": "integer",
-                                                "example": 0
                                             }
                                         }
                                     },
@@ -8779,8 +8764,7 @@ const docTemplate = `{
                                             "stopped",
                                             "paused",
                                             "suspend",
-                                            "error",
-                                            "unknown"
+                                            "error"
                                         ],
                                         "properties": {
                                             "total": {
@@ -8804,10 +8788,6 @@ const docTemplate = `{
                                                 "example": 0
                                             },
                                             "error": {
-                                                "type": "integer",
-                                                "example": 0
-                                            },
-                                            "unknown": {
                                                 "type": "integer",
                                                 "example": 0
                                             }

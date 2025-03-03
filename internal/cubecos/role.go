@@ -72,8 +72,6 @@ func GetRoleStatus() (*Role, error) {
 			role.Storage++
 		case definition.RoleControlConverged:
 			role.ControlConverged++
-		default:
-			role.Others++
 		}
 	}
 

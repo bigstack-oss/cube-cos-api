@@ -1,8 +1,8 @@
 module github.com/bigstack-oss/cube-cos-api
 
-go 1.23
+go 1.24
 
-toolchain go1.23.6
+toolchain go1.24.0
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0

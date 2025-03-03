@@ -2848,8 +2848,7 @@
                                                         "controlConverged": 2,
                                                         "control": 0,
                                                         "compute": 0,
-                                                        "storage": 0,
-                                                        "others": 0
+                                                        "storage": 0
                                                     },
                                                     "usages": [
                                                         {
@@ -2903,8 +2902,7 @@
                                                         "stopped": 2,
                                                         "suspend": 0,
                                                         "paused": 0,
-                                                        "error": 0,
-                                                        "unknown": 0
+                                                        "error": 0
                                                     },
                                                     "usage": {
                                                         "vcpu": {
@@ -3150,10 +3148,6 @@
                                                         "error": {
                                                             "type": "integer",
                                                             "example": 0
-                                                        },
-                                                        "unknown": {
-                                                            "type": "integer",
-                                                            "example": 0
                                                         }
                                                     }
                                                 },
@@ -3175,10 +3169,6 @@
                                                         "storage": {
                                                             "type": "integer",
                                                             "example": 2
-                                                        },
-                                                        "others": {
-                                                            "type": "integer",
-                                                            "example": 0
                                                         }
                                                     }
                                                 },
@@ -5345,7 +5335,7 @@
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/tunings": {
+        "/api/v1/datacenters/{dataCenter}/tunings/parameters": {
             "get": {
                 "operationId": "listTunings",
                 "tags": [
@@ -8646,8 +8636,7 @@
                                             "controlConverged",
                                             "control",
                                             "compute",
-                                            "storage",
-                                            "others"
+                                            "storage"
                                         ],
                                         "properties": {
                                             "controlConverged": {
@@ -8665,10 +8654,6 @@
                                             "storage": {
                                                 "type": "integer",
                                                 "example": 2
-                                            },
-                                            "others": {
-                                                "type": "integer",
-                                                "example": 0
                                             }
                                         }
                                     },
@@ -8775,8 +8760,7 @@
                                             "stopped",
                                             "paused",
                                             "suspend",
-                                            "error",
-                                            "unknown"
+                                            "error"
                                         ],
                                         "properties": {
                                             "total": {
@@ -8800,10 +8784,6 @@
                                                 "example": 0
                                             },
                                             "error": {
-                                                "type": "integer",
-                                                "example": 0
-                                            },
-                                            "unknown": {
                                                 "type": "integer",
                                                 "example": 0
                                             }

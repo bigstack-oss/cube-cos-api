@@ -46,7 +46,7 @@ func genVmStatusOverview(servers []servers.Server) *VmStatus {
 		case "CRASHED":
 			vm.Error++
 		default:
-			vm.Unknown++
+			vm.Error++
 		}
 	}
 

@@ -51,7 +51,6 @@ type Role struct {
 	Control          int `json:"control"`
 	Compute          int `json:"compute"`
 	Storage          int `json:"storage"`
-	Others           int `json:"others"`
 }
 
 type VmSummary struct {
@@ -66,7 +65,6 @@ type VmStatus struct {
 	Suspend int `json:"suspend"`
 	Paused  int `json:"paused"`
 	Error   int `json:"error"`
-	Unknown int `json:"unknown"`
 }
 
 func (s *Summary) Bytes() []byte {

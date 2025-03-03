@@ -15,14 +15,14 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
-			Path:    "/tunings/parameters",
-			Func:    getTunings,
+			Path:    "/tunings/specs",
+			Func:    getTuningSpecs,
 		},
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
-			Path:    "/tunings/specs",
-			Func:    getTuningSpecs,
+			Path:    "/tunings/parameters",
+			Func:    getTunings,
 		},
 		{
 			Version: api.V1,
