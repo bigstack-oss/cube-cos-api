@@ -4278,7 +4278,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/settings": {
             "get": {
-                "operationId": "getSetting",
+                "operationId": "getSettings",
                 "tags": [
                     "Settings"
                 ],

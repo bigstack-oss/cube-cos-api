@@ -15,83 +15,89 @@ var Handlers = []api.Handler{
 		Version: api.V1,
 		Method:  "GET",
 		Path:    "/settings",
-		Func:    getSetting,
+		Func:    getSettings,
+	},
+	{
+		Version: api.V1,
+		Method:  "PUT",
+		Path:    "/settings/titlePrefix",
+		Func:    updateTitlePrefix,
 	},
 	{
 		Version: api.V1,
 		Method:  "POST",
-		Path:    "/settings/emailSenders",
+		Path:    "/settings/email/senders",
 		Func:    createEmailSender,
 	},
 	{
 		Version: api.V1,
 		Method:  "GET",
-		Path:    "/settings/emailSenders",
+		Path:    "/settings/email/senders",
 		Func:    getEmailSenders,
 	},
 	{
 		Version: api.V1,
 		Method:  "PUT",
-		Path:    "/settings/emailSenders",
+		Path:    "/settings/email/senders",
 		Func:    updateEmailSender,
 	},
 	{
 		Version: api.V1,
 		Method:  "DELETE",
-		Path:    "/settings/emailSenders",
+		Path:    "/settings/email/senders",
 		Func:    deleteEmailSender,
 	},
 	{
 		Version: api.V1,
 		Method:  "POST",
-		Path:    "/settings/emailRecipients",
+		Path:    "/settings/email/recipients",
 		Func:    createEmailRecipient,
 	},
 	{
 		Version: api.V1,
 		Method:  "GET",
-		Path:    "/settings/emailRecipients",
+		Path:    "/settings/email/recipients",
 		Func:    getEmailRecipients,
 	},
 	{
 		Version: api.V1,
 		Method:  "PUT",
-		Path:    "/settings/emailRecipients/:id",
+		Path:    "/settings/email/recipients/:id",
 		Func:    updateEmailRecipient,
 	},
 	{
 		Version: api.V1,
 		Method:  "DELETE",
-		Path:    "/settings/emailRecipients/:id",
+		Path:    "/settings/email/recipients/:id",
 		Func:    deleteEmailRecipient,
 	},
 	{
 		Version: api.V1,
 		Method:  "POST",
-		Path:    "/settings/slackWebhooks",
+		Path:    "/settings/slack/webhooks",
 		Func:    createSlackWebhook,
 	},
 	{
 		Version: api.V1,
 		Method:  "GET",
-		Path:    "/settings/slackWebhooks",
+		Path:    "/settings/slack/webhooks",
 		Func:    getSlackWebhooks,
 	},
 	{
 		Version: api.V1,
 		Method:  "PUT",
-		Path:    "/settings/slackWebhooks/:id",
+		Path:    "/settings/slack/webhooks/:id",
 		Func:    updateSlackWebhook,
 	},
 	{
 		Version: api.V1,
 		Method:  "DELETE",
-		Path:    "/settings/slackWebhooks/:id",
+		Path:    "/settings/slack/webhooks/:id",
 		Func:    deleteSlackWebhook,
 	},
 }
 
-func getSetting(c *gin.Context) {
+func getSettings(c *gin.Context) {
 	setting, err := getSettingRecord()
 	if err != nil {
 		log.Errorf("request(%s): failed to get setting: %s", api.GetReqId(c), err.Error())
@@ -100,6 +106,24 @@ func getSetting(c *gin.Context) {
 	}
 
 	api.SetStatusOk(c, "setting retrieved successfully", setting)
+}
+
+func updateTitlePrefix(c *gin.Context) {
+	titlePrefix := v1.TitlePrefix{}
+	if err := c.ShouldBindJSON(&titlePrefix); err != nil {
+		log.Errorf("request(%s): failed to decode title prefix: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err := upsertTitlePrefixRecord(titlePrefix.Value)
+	if err != nil {
+		log.Errorf("request(%s): failed to update title prefix: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(c, "title prefix updated successfully", nil)
 }
 
 func createEmailSender(c *gin.Context) {

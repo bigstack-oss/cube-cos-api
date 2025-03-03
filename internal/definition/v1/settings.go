@@ -2,15 +2,25 @@ package v1
 
 const (
 	Settings        = "settings"
-	EmailSenders    = "emailSenders"
-	EmailRecipients = "emailRecipients"
-	SlackWebhooks   = "slackWebhooks"
+	titlePrefix     = "titlePrefix"
+	emailSenders    = "emailSenders"
+	emailRecipients = "emailRecipients"
+	slackWebhooks   = "slackWebhooks"
 )
 
 type Setting struct {
-	EmailSenders    []EmailSender    `json:"emailSenders" bson:"emailSenders"`
-	EmailRecipients []EmailRecipient `json:"emailRecipients" bson:"emailRecipients"`
-	SlackWebhooks   []SlackWebhook   `json:"slackWebhooks" bson:"slackWebhooks"`
+	TitlePrefix string `json:"titlePrefix" bson:"titlePrefix"`
+	Email       `json:"email" bson:"email"`
+	Slack       `json:"slack" bson:"slack"`
+}
+
+type TitlePrefix struct {
+	Value string `json:"value" bson:"value"`
+}
+
+type Email struct {
+	Senders    []EmailSender    `json:"senders" bson:"senders"`
+	Recipients []EmailRecipient `json:"recipients" bson:"recipients"`
 }
 
 type EmailSender struct {
@@ -33,6 +43,10 @@ type EmailRecipient struct {
 	Note string   `json:"note,omitempty" bson:"note,omitempty"`
 }
 
+type Slack struct {
+	Webhooks []SlackWebhook `json:"webhooks" bson:"webhooks"`
+}
+
 type SlackWebhook struct {
 	ID      string `json:"id" bson:"id"`
 	Deleted bool   `json:"-" bson:"deleted"`
@@ -41,16 +55,20 @@ type SlackWebhook struct {
 	Channel string `json:"channel" bson:"channel"`
 }
 
+func TitlePrefixCollection() string {
+	return titlePrefix
+}
+
 func EmailSenderCollection() string {
-	return EmailSenders
+	return emailSenders
 }
 
 func EmailRecipientCollection() string {
-	return EmailRecipients
+	return emailRecipients
 }
 
 func SlackWebhookCollection() string {
-	return SlackWebhooks
+	return slackWebhooks
 }
 
 func SettingsDB() string {
