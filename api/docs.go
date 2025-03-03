@@ -4930,13 +4930,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/settings/slackWebhooks": {
+        "/api/v1/datacenters/{dataCenter}/settings/slackChannels": {
             "post": {
-                "operationId": "createSlackWebhook",
+                "operationId": "createSlackChannel",
                 "tags": [
                     "Settings"
                 ],
-                "summary": "Create slack webhook",
+                "summary": "Create slack channel",
                 "parameters": [
                     {
                         "in": "path",
@@ -4954,11 +4954,11 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/SlackWebhook"
+                                "$ref": "#/components/schemas/SlackChannel"
                             },
                             "examples": {
                                 "example": {
-                                    "summary": "Slack Webhook",
+                                    "summary": "Slack Channel",
                                     "value": {
                                         "url": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
                                         "channel": "#alerts"
@@ -4970,11 +4970,11 @@ const docTemplate = `{
                 },
                 "responses": {
                     "201": {
-                        "description": "Slack webhook created successfully",
+                        "description": "Slack channel created successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PostSlackWebhookResponse"
+                                    "$ref": "#/components/schemas/PostSlackChannelResponse"
                                 }
                             }
                         }
@@ -4992,7 +4992,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to create slack webhook: internal server error"
+                                            "example": "failed to create slack channel: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -5006,11 +5006,11 @@ const docTemplate = `{
                 }
             },
             "get": {
-                "operationId": "getSlackWebhooks",
+                "operationId": "getSlackChannels",
                 "tags": [
                     "Settings"
                 ],
-                "summary": "Retrieve slack webhooks",
+                "summary": "Retrieve slack channels",
                 "parameters": [
                     {
                         "in": "path",
@@ -5025,19 +5025,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Slack webhooks retrieved successfully",
+                        "description": "Slack channels retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/GetSlackWebhooksResponse"
+                                    "$ref": "#/components/schemas/GetSlackChannelsResponse"
                                 },
                                 "examples": {
                                     "example": {
-                                        "summary": "Slack Webhooks List",
+                                        "summary": "Slack Channels List",
                                         "value": {
                                             "code": 200,
                                             "data": {
-                                                "slackWebhooks": [
+                                                "slackChannels": [
                                                     {
                                                         "id": "8c2e39d7-e72b-4581-bfa5-117160df7cfb",
                                                         "url": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
@@ -5045,7 +5045,7 @@ const docTemplate = `{
                                                     }
                                                 ]
                                             },
-                                            "msg": "slack webhooks retrieved successfully",
+                                            "msg": "slack channels retrieved successfully",
                                             "status": "ok"
                                         }
                                     }
@@ -5066,7 +5066,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to update slack webhook: internal server error"
+                                            "example": "failed to update slack channel: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -5080,13 +5080,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/settings/slackWebhooks/{id}": {
+        "/api/v1/datacenters/{dataCenter}/settings/slackChannels/{id}": {
             "put": {
-                "operationId": "updateSlackWebhook",
+                "operationId": "updateSlackChannel",
                 "tags": [
                     "Settings"
                 ],
-                "summary": "Update slack webhook",
+                "summary": "Update slack channel",
                 "parameters": [
                     {
                         "in": "path",
@@ -5095,7 +5095,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         },
-                        "description": "ID of the slack webhook to update"
+                        "description": "ID of the slack channel to update"
                     },
                     {
                         "in": "path",
@@ -5113,11 +5113,11 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/SlackWebhook"
+                                "$ref": "#/components/schemas/SlackChannel"
                             },
                             "examples": {
                                 "example": {
-                                    "summary": "Slack Webhook",
+                                    "summary": "Slack Channel",
                                     "value": {
                                         "url": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
                                         "channel": "#alerts-updated"
@@ -5129,11 +5129,11 @@ const docTemplate = `{
                 },
                 "responses": {
                     "200": {
-                        "description": "Slack webhook updated successfully",
+                        "description": "Slack channel updated successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PutSlackWebhookResponse"
+                                    "$ref": "#/components/schemas/PutSlackChannelResponse"
                                 }
                             }
                         }
@@ -5151,7 +5151,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to update slack webhook: internal server error"
+                                            "example": "failed to update slack channel: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -5165,11 +5165,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "operationId": "deleteSlackWebhook",
+                "operationId": "deleteSlackChannel",
                 "tags": [
                     "Settings"
                 ],
-                "summary": "Delete slack webhook",
+                "summary": "Delete slack channel",
                 "parameters": [
                     {
                         "in": "path",
@@ -5178,7 +5178,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         },
-                        "description": "ID of the slack webhook to delete"
+                        "description": "ID of the slack channel to delete"
                     },
                     {
                         "in": "path",
@@ -5193,11 +5193,11 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Slack webhook deleted successfully",
+                        "description": "Slack channel deleted successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/DeleteSlackWebhookResponse"
+                                    "$ref": "#/components/schemas/DeleteSlackChannelResponse"
                                 }
                             }
                         }
@@ -5215,7 +5215,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to delete slack webhook: internal server error"
+                                            "example": "failed to delete slack channel: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -10339,10 +10339,10 @@ const docTemplate = `{
                             "$ref": "#/components/schemas/EmailRecipient"
                         }
                     },
-                    "slackWebhooks": {
+                    "slackChannels": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/SlackWebhook"
+                            "$ref": "#/components/schemas/SlackChannel"
                         }
                     }
                 }
@@ -10399,12 +10399,12 @@ const docTemplate = `{
                     }
                 }
             },
-            "SlackWebhook": {
+            "SlackChannel": {
                 "type": "object",
                 "properties": {
                     "id": {
                         "type": "string",
-                        "example": "webhook-id-123"
+                        "example": "channel-id-123"
                     },
                     "url": {
                         "type": "string",
@@ -10666,7 +10666,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "PostSlackWebhookResponse": {
+            "PostSlackChannelResponse": {
                 "type": "object",
                 "required": [
                     "code",
@@ -10685,7 +10685,7 @@ const docTemplate = `{
                     },
                     "msg": {
                         "type": "string",
-                        "example": "slack webhook created successfully"
+                        "example": "slack channel created successfully"
                     },
                     "status": {
                         "type": "string",
@@ -10693,7 +10693,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "GetSlackWebhooksResponse": {
+            "GetSlackChannelsResponse": {
                 "type": "object",
                 "required": [
                     "code",
@@ -10709,17 +10709,17 @@ const docTemplate = `{
                     "data": {
                         "type": "object",
                         "properties": {
-                            "slackWebhooks": {
+                            "slackChannels": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/components/schemas/SlackWebhook"
+                                    "$ref": "#/components/schemas/SlackChannel"
                                 }
                             }
                         }
                     },
                     "msg": {
                         "type": "string",
-                        "example": "slack webhooks retrieved successfully"
+                        "example": "slack channels retrieved successfully"
                     },
                     "status": {
                         "type": "string",
@@ -10727,7 +10727,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "PutSlackWebhookResponse": {
+            "PutSlackChannelResponse": {
                 "type": "object",
                 "required": [
                     "code",
@@ -10746,7 +10746,7 @@ const docTemplate = `{
                     },
                     "msg": {
                         "type": "string",
-                        "example": "slack webhook updated successfully"
+                        "example": "slack channel updated successfully"
                     },
                     "status": {
                         "type": "string",
@@ -10754,7 +10754,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "DeleteSlackWebhookResponse": {
+            "DeleteSlackChannelResponse": {
                 "type": "object",
                 "required": [
                     "code",
@@ -10773,7 +10773,7 @@ const docTemplate = `{
                     },
                     "msg": {
                         "type": "string",
-                        "example": "slack webhook deleted successfully"
+                        "example": "slack channel deleted successfully"
                     },
                     "status": {
                         "type": "string",

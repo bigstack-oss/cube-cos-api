@@ -15,14 +15,14 @@ type TuningListData struct {
 }
 
 func SetStatusOk(c *gin.Context, msg string, data interface{}) {
+	resp := gin.H{Code: http.StatusOK, Status: "ok", Msg: msg}
+	if data != nil {
+		resp[Data] = data
+	}
+
 	c.JSON(
 		http.StatusOK,
-		gin.H{
-			Code:   http.StatusOK,
-			Status: "ok",
-			Msg:    msg,
-			Data:   data,
-		},
+		resp,
 	)
 }
 
