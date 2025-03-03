@@ -32,6 +32,12 @@ var Handlers = []api.Handler{
 	},
 	{
 		Version: api.V1,
+		Method:  "POST",
+		Path:    "/settings/email/senders/:host",
+		Func:    tryEmailSender,
+	},
+	{
+		Version: api.V1,
 		Method:  "GET",
 		Path:    "/settings/email/senders",
 		Func:    listEmailSenders,
@@ -160,6 +166,48 @@ func createEmailSender(c *gin.Context) {
 	api.SetStatusCreated(
 		c,
 		"email sender created successfully",
+		nil,
+	)
+}
+
+func tryEmailSender(c *gin.Context) {
+	recipient := email.Recipient{}
+	err := c.ShouldBindJSON(&recipient)
+	if err != nil {
+		log.Errorf("request(%s): failed to decode email recipient: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = recipient.CheckFormat()
+	if err != nil {
+		log.Errorf("request(%s): invalid email format: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	senders, err := getEmailSenders()
+	if err != nil {
+		log.Errorf("request(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+	if len(senders) == 0 {
+		log.Error("no email senders found")
+		api.SetBadRequest(c, errors.New("no email senders found"))
+		return
+	}
+
+	err = sendTrialEmail(senders[0], recipient.Email)
+	if err != nil {
+		log.Errorf("request(%s): failed to try email sender: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"email sender tried successfully",
 		nil,
 	)
 }

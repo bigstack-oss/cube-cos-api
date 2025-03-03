@@ -1,7 +1,9 @@
 package email
 
 import (
+	"fmt"
 	"net/mail"
+	"net/smtp"
 )
 
 const (
@@ -20,6 +22,14 @@ type Sender struct {
 	Username string `json:"username" bson:"username"`
 	Password string `json:"password" bson:"password"`
 	Email    string `json:"from" bson:"from"`
+}
+
+func (s *Sender) Address() string {
+	return fmt.Sprintf("%s:%d", s.Host, s.Port)
+}
+
+func (s *Sender) UserAuth() smtp.Auth {
+	return smtp.PlainAuth("", s.Username, s.Password, s.Host)
 }
 
 type Recipient struct {
