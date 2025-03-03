@@ -180,6 +180,28 @@ func insertSlackChannel(channel slack.Channel) error {
 	)
 }
 
+func getSlackChannel(name string) (*slack.Channel, error) {
+	h := mongo.GetGlobalHelper()
+	resp, err := h.Get(
+		v1.SettingsDB(),
+		slack.ChannelCollection(),
+		bson.M{"name": name},
+	)
+	if err != nil {
+		log.Errorf("failed to get slack channel (%s)", err.Error())
+		return nil, err
+	}
+
+	channel := slack.Channel{}
+	err = resp.Decode(&channel)
+	if err != nil {
+		log.Errorf("failed to decode slack channel (%s)", err.Error())
+		return nil, err
+	}
+
+	return &channel, nil
+}
+
 func getSlackChannels() ([]slack.Channel, error) {
 	h := mongo.GetGlobalHelper()
 	cursor, err := h.GetQueryCursor(

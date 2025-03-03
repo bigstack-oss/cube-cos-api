@@ -86,6 +86,12 @@ var Handlers = []api.Handler{
 	},
 	{
 		Version: api.V1,
+		Method:  "POST",
+		Path:    "/settings/slack/channels/:name",
+		Func:    trySlackChannel,
+	},
+	{
+		Version: api.V1,
 		Method:  "GET",
 		Path:    "/settings/slack/channels",
 		Func:    listSlackChannels,
@@ -399,6 +405,28 @@ func createSlackChannel(c *gin.Context) {
 	api.SetStatusCreated(
 		c,
 		"slack channel created successfully",
+		nil,
+	)
+}
+
+func trySlackChannel(c *gin.Context) {
+	channel, err := getSlackChannel(c.Param("name"))
+	if err != nil {
+		log.Errorf("request(%s): failed to get slack channel: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	err = sendTrialSlackMessage(*channel)
+	if err != nil {
+		log.Errorf("request(%s): failed to try slack channel: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"slack channel tried successfully",
 		nil,
 	)
 }
