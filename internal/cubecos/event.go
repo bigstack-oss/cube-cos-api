@@ -218,7 +218,7 @@ func genEventByRecord(record *query.FluxRecord) definition.Event {
 		Id:          eventId,
 		Description: msg,
 		Host:        host,
-		Time:        definition.TimeLocalISO8601(date),
+		Time:        definition.TimeISO8601Z(date),
 	}
 }
 

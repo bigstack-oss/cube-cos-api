@@ -42,6 +42,19 @@ type TrafficStatistic struct {
 	Egress  float64 `json:"egress"`
 }
 
+type MetricRank struct {
+	Unit string      `json:"unit"`
+	Rank []RankPoint `json:"rank"`
+}
+
+type RankPoint struct {
+	Id      string      `json:"id"`
+	Name    string      `json:"name"`
+	Device  string      `json:"device,omitempty"`
+	Value   any         `json:"value"`
+	History []TimeValue `json:"history"`
+}
+
 type HostPercentageUsage struct {
 	Id          string            `json:"id"`
 	Name        string            `json:"name"`
@@ -87,12 +100,14 @@ type HostNetworkPacket struct {
 	History []TimePacketsPoint `json:"history"`
 }
 
-type StorageBandwidthSeries struct {
-	Read  []TimeBytesPoint `json:"read"`
-	Write []TimeBytesPoint `json:"write"`
+type StorageTimeSeries struct {
+	Unit  string      `json:"unit"`
+	Read  []TimeValue `json:"read"`
+	Write []TimeValue `json:"write"`
 }
 
 type StorageIopsSeries struct {
+	Unit  string         `json:"unit"`
 	Read  []TimeOpsPoint `json:"read"`
 	Write []TimeOpsPoint `json:"write"`
 }
@@ -125,4 +140,9 @@ type TimeUsedPercent struct {
 type TimePacketsPoint struct {
 	Time    string  `json:"time"`
 	Packets float64 `json:"packets"`
+}
+
+type TimeValue struct {
+	Time  string `json:"time"`
+	Value any    `json:"value"`
 }

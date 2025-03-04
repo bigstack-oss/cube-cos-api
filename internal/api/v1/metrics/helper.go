@@ -34,7 +34,7 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{c: c, handler: handler}
 	switch handler {
 	case "getDataCenterSummary":
-		return h, nil
+		return h, h.parseWatch()
 	}
 
 	return h, h.parseParams()

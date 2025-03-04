@@ -443,8 +443,8 @@ func (h *helper) genFakeHealthHistoryOfService() []cubecos.HealthStatus {
 	if h.isPastRequired() {
 		pastTime, _ = duration.Str2Duration(h.past)
 	}
-	h.period.stop = definition.TimeLocalISO8601(time.Now())
-	h.period.start = definition.TimeLocalISO8601(time.Now().Add(-pastTime))
+	h.period.stop = definition.TimeISO8601Z(time.Now())
+	h.period.start = definition.TimeISO8601Z(time.Now().Add(-pastTime))
 
 	for _, module := range modules {
 		interval := 5 * time.Minute
@@ -452,7 +452,7 @@ func (h *helper) genFakeHealthHistoryOfService() []cubecos.HealthStatus {
 		count := 0
 
 		for start := h.StartTime(); !start.After(h.StopTime()); start = start.Add(interval) {
-			timestamp := h.StartTime().Add(time.Duration(count) * interval).Format(time.RFC3339)
+			timestamp := h.StartTime().Add(time.Duration(count) * interval).Format(definition.ISO8601Z)
 			status := "ok"
 			checkResult := cubecos.HealthCheck{Time: timestamp, Status: status}
 			if count%5 == 0 {
@@ -487,11 +487,11 @@ func (h *helper) genFakeHealthHistoryOfModule() cubecos.HealthStatus {
 	if h.isPastRequired() {
 		pastTime, _ = duration.Str2Duration(h.past)
 	}
-	h.period.stop = definition.TimeLocalISO8601(time.Now())
-	h.period.start = definition.TimeLocalISO8601(time.Now().Add(-pastTime))
+	h.period.stop = definition.TimeISO8601Z(time.Now())
+	h.period.start = definition.TimeISO8601Z(time.Now().Add(-pastTime))
 
 	for start := h.StartTime(); !start.After(h.StopTime()); start = start.Add(interval) {
-		timestamp := h.StartTime().Add(time.Duration(count) * interval).Format(time.RFC3339)
+		timestamp := h.StartTime().Add(time.Duration(count) * interval).Format(definition.ISO8601Z)
 		status := "ok"
 		checkResult := cubecos.HealthCheck{Time: timestamp, Status: status}
 		if count%5 == 0 {

@@ -32,7 +32,7 @@ var (
 )
 
 func init() {
-	go streamHealth()
+	go streamMetrics()
 }
 
 func getDataCenterSummary(c *gin.Context) {

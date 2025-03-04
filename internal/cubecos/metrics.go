@@ -43,160 +43,6 @@ var (
 		"rank":    true,
 	}
 
-	hostCpuUsageStmt = `
-		from(bucket: "telegraf")
-			|> range(start: -2m)
-			|> filter(fn: (r) => r._measurement == "cpu" and r._field == "usage_idle")
-			|> aggregateWindow(every: 60s, fn: mean, createEmpty: false)
-			|> map(fn: (r) => ({ r with _value: 100.0 - r._value }))
-			|> last()
-	`
-
-	hostMemoryUsageStmt = `
-	    from(bucket: "telegraf")
-			|> range(start: -2m)
-			|> filter(fn: (r) => r._measurement == "mem" and (r._field == "used" or r._field == "total"))
-			|> aggregateWindow(every: 60s, fn: mean, createEmpty: false)
-			|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-			|> map(fn: (r) => ({ r with _value: (r.used * 100.0) / r.total }))
-			|> last()
-	`
-
-	hostMemoryUsageRankStmt = `
-		from(bucket: "telegraf")
-			|> range(start: -2m)
-			|> filter(fn: (r) => 
-				r._measurement == "mem" and
-				r._field == "used_percent" and
-				r.role == "cube"
-			)
-			|> last()
-			|> group(columns: ["host"])
-			|> top(n: 10, columns: ["_value"])
-	`
-
-	hostCpuUsageRankStmt = `
-		from(bucket: "telegraf")
-			|> range(start: -2m)
-			|> filter(fn: (r) => 
-				r._measurement == "cpu" and
-				r._field == "usage_idle" and
-				r.role == "cube"
-			)
-			|> group(columns: ["host"])
-			|> last()
-			|> map(fn: (r) => ({ r with used: 100.0 - r._value }))
-			|> group()
-			|> top(n: %d, columns: ["used"])
-			|> keep(columns: ["host", "used"])
-	`
-
-	hostStorageReadBandwidthStmt = `
-		from(bucket: "ceph")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => 
-				r._measurement == "ceph_daemon_stats" and
-				r.ceph_daemon =~ /^osd\.[0-9]+$/ and
-				r.type_instance == "osd.op_r_out_bytes"
-			)
-			|> aggregateWindow(every: 60s, fn: sum, createEmpty: false)
-			|> derivative(unit: 1s, nonNegative: true)
-			|> group(columns: ["_time"])
-			|> max(column: "_value")
-			|> group()
-	`
-
-	hostStorageWriteBandwidthStmt = `
-		from(bucket: "ceph")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => 
-				r._measurement == "ceph_daemon_stats" and
-				r.ceph_daemon =~ /^osd\.[0-9]+$/ and
-				r.type_instance == "osd.op_w_in_bytes"
-			)
-			|> aggregateWindow(every: 60s, fn: sum, createEmpty: false)
-			|> derivative(unit: 1s, nonNegative: true)
-			|> group(columns: ["_time"])
-			|> max(column: "_value")
-			|> group()
-	`
-
-	hostStorageReadIopsStmt = `
-		from(bucket: "ceph")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => 
-				r._measurement == "ceph_daemon_stats" and
-				r.ceph_daemon =~ /^osd\.[0-9]+$/ and
-				r.type_instance == "osd.op_r"
-			)
-			|> aggregateWindow(every: 60s, fn: sum, createEmpty: false)
-			|> derivative(unit: 1s, nonNegative: true)
-			|> group(columns: ["_time"])
-			|> max(column: "_value")
-			|> group()
-	`
-
-	hostStorageWriteIopsStmt = `
-		from(bucket: "ceph")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => 
-				r._measurement == "ceph_daemon_stats" and
-				r.ceph_daemon =~ /^osd\.[0-9]+$/ and
-				r.type_instance == "osd.op_w"
-			)
-			|> aggregateWindow(every: 60s, fn: sum, createEmpty: false)
-			|> derivative(unit: 1s, nonNegative: true)
-			|> group(columns: ["_time"])
-			|> max(column: "_value")
-			|> group()
-	`
-
-	hostStorageReadLatencyStmt = `
-		from(bucket: "ceph")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => 
-				r._measurement == "ceph_daemon_stats" and
-				r.ceph_daemon =~ /^osd\.[0-9]+$/ and
-				r.type_instance == "osd.op_r_latency"
-			)
-			|> aggregateWindow(every: 60s, fn: sum, createEmpty: false)
-			|> difference()
-			|> derivative(unit: 1s, nonNegative: true)
-			|> group(columns: ["_time"])
-			|> max(column: "_value")
-			|> group()
-	`
-
-	hostStorageWriteLatencyStmt = `
-		from(bucket: "ceph")
-			|> range(start: %s, stop: %s)
-			|> filter(fn: (r) => 
-				r._measurement == "ceph_daemon_stats" and
-				r.ceph_daemon =~ /^osd\.[0-9]+$/ and
-				r.type_instance == "osd.op_w_latency"
-			)
-			|> aggregateWindow(every: 60s, fn: sum, createEmpty: false)
-			|> difference()
-			|> derivative(unit: 1s, nonNegative: true)
-			|> group(columns: ["_time"])
-			|> max(column: "_value")
-			|> group()
-	`
-
-	hostStorageUsageRankStmt = `
-		from(bucket: "telegraf")
-			|> range(start: -2m)
-			|> filter(fn: (r) => 
-				r._measurement == "disk" and 
-				r._field == "used_percent" and 
-				r.role == "cube"
-			)
-			|> group(columns: ["host"])
-			|> last()
-			|> keep(columns: ["host", "_value"])
-			|> top(n: %d, columns: ["_value"])
-	`
-
 	hostNetworkIngressRankStmt = `
 		from(bucket: "telegraf")
 			|> range(start: -5m)
@@ -229,14 +75,6 @@ var (
 			|> group(columns: ["host"])
 			|> max(column: "used")
 			|> top(n: 10, columns: ["used"])
-	`
-
-	hostCpuUsageHistoryStmt = `
-		from(bucket: "telegraf")
-			|> range(start: -1h)
-			|> filter(fn: (r) => r._measurement == "cpu" and r.host == "%s" and r._field == "usage_idle")
-			|> map(fn: (r) => ({ r with _value: 100.0 - r._value }))
-			|> rename(columns: {_value: "used"})
 	`
 
 	hostMemoryUsageHistoryStmt = `
@@ -283,88 +121,6 @@ var (
 			|> derivative(unit: 1s, nonNegative: true)
 			|> map(fn: (r) => ({ r with _value: r._value * 8.0 }))
 			|> filter(fn: (r) => r._value != 0)
-	`
-
-	vmCpuUsageRankStmt = `
-		from(bucket: "monasca")
-			|> range(start: -5m)
-			|> filter(fn: (r) => 
-				r._measurement == "vm.cpu.utilization_norm_perc" and 
-				r._field == "value"
-			)
-			|> group(columns: ["resource_id", "vm_name"])
-			|> last()
-			|> map(fn: (r) => ({ r with _value: float(v: r._value) }))
-			|> group()
-			|> sort(columns: ["_value"], desc: true)
-			|> limit(n: %d)
-	`
-
-	vmMemoryRankStmt = `
-		from(bucket: "monasca")
-			|> range(start: -5m)
-			|> filter(fn: (r) => r._measurement == "vm.mem.free_perc")
-			|> filter(fn: (r) => r._field == "value")
-			|> group(columns: ["resource_id", "vm_name"])
-			|> last()
-			|> map(fn: (r) => ({ r with used: 100.0 - r._value }))
-			|> group(columns: [])
-			|> top(n: %d, columns: ["used"])
-			|> keep(columns: ["resource_id", "vm_name", "used", "_time"])
-	`
-
-	vmStorageIopsReadRankStmt = `
-		from(bucket: "monasca")
-			|> range(start: -5m)
-			|> filter(fn: (r) => r._measurement == "vm.io.read_bytes_sec")
-			|> filter(fn: (r) => r._field == "value")
-			|> group(columns: ["resource_id", "vm_name", "device"])
-			|> last()
-			|> group(columns: [])
-			|> top(n: %d, columns: ["_value"])
-			|> rename(columns: {_value: "used"})
-			|> keep(columns: ["resource_id", "vm_name", "device", "used"])
-	`
-
-	vmStorageIopsWriteRankStmt = `
-		from(bucket: "monasca")
-			|> range(start: -5m)
-			|> filter(fn: (r) => r._measurement == "vm.io.write_bytes_sec")
-			|> filter(fn: (r) => r._field == "value")
-			|> group(columns: ["resource_id", "vm_name", "device"])
-			|> last()
-			|> group(columns: [])
-			|> top(n: %d, columns: ["_value"])
-			|> rename(columns: {_value: "used"})
-			|> keep(columns: ["resource_id", "vm_name", "device", "used"])
-`
-
-	vmNetworkIngressRankStmt = `
-		from(bucket: "monasca")
-			|> range(start: -5m)
-			|> filter(fn: (r) => 
-				r._measurement == "vm.net.in_bytes_sec" and
-				r._field == "value"
-			)
-			|> group(columns: ["resource_id", "vm_name", "device"])
-			|> last()
-			|> map(fn: (r) => ({ r with used: r._value * 8.0 }))
-			|> group(columns: [])
-			|> top(n: %d, columns: ["used"])
-	`
-
-	vmNetworkEgressRankStmt = `
-		from(bucket: "monasca")
-			|> range(start: -5m)
-			|> filter(fn: (r) => 
-				r._measurement == "vm.net.out_bytes_sec" and
-				r._field == "value"
-			)
-			|> group(columns: ["resource_id", "vm_name", "device"])
-			|> last()
-			|> map(fn: (r) => ({ r with used: r._value * 8.0 }))
-			|> group(columns: [])
-			|> top(n: %d, columns: ["used"])
 	`
 
 	vmCpuUsageHistoryStmt = `
@@ -644,7 +400,7 @@ func GetCpuSummaryOfHost(hostname string) (*definition.ComputeStatistic, error) 
 	}, nil
 }
 
-func GetCpuHistoryOfHost(stmt string) ([]definition.TimeUsedPercent, error) {
+func GetCpuHistoryOfHost(stmt string) ([]definition.TimeValue, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -655,19 +411,19 @@ func GetCpuHistoryOfHost(stmt string) ([]definition.TimeUsedPercent, error) {
 	return parseCpuUsageHistory(c)
 }
 
-func parseCpuUsageHistory(c *api.QueryTableResult) ([]definition.TimeUsedPercent, error) {
-	points := []definition.TimeUsedPercent{}
+func parseCpuUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
+	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
 
 		points = append(
 			points,
-			definition.TimeUsedPercent{
-				Time:        definition.TimeLocalISO8601(date),
-				UsedPercent: parseUsedOfHost(c.Record()),
+			definition.TimeValue{
+				Time:  definition.TimeISO8601Z(date),
+				Value: parseUsedOfHost(c.Record()),
 			},
 		)
 	}
@@ -701,7 +457,24 @@ func askTheHostForCpuSummary(hostname string) (*definition.ComputeStatistic, err
 	return resp.Result().(*definition.ComputeStatistic), nil
 }
 
-func GetCpuUsageRankOfHosts(stmt string) ([]definition.HostPercentageUsage, error) {
+// func GetCpuUsageRankOfHosts(stmt string) ([]definition.HostPercentageUsage, error) {
+// 	c, cancel, err := influx.GetQueryCursor(stmt)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	defer cancel()
+// 	defer c.Close()
+// 	rank, err := parseCpuUsageRankOfHost(c)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	appendHistoryToCpuUsageRank(rank)
+// 	return rank, nil
+// }
+
+func GetCpuUsageRankOfHosts(stmt string) (*definition.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -715,10 +488,13 @@ func GetCpuUsageRankOfHosts(stmt string) ([]definition.HostPercentageUsage, erro
 	}
 
 	appendHistoryToCpuUsageRank(rank)
-	return rank, nil
+	return &definition.MetricRank{
+		Unit: "percentage",
+		Rank: rank,
+	}, nil
 }
 
-func appendHistoryToCpuUsageRank(rank []definition.HostPercentageUsage) {
+func appendHistoryToCpuUsageRank(rank []definition.RankPoint) {
 	for i, host := range rank {
 		history, err := GetCpuHistoryOfHost(genHostCpuUsageHistoryStmt(host.Id))
 		if err != nil {
@@ -798,7 +574,7 @@ func askTheHostForMemorySummary(hostname string) (*definition.SpaceStatistic, er
 	return resp.Result().(*definition.SpaceStatistic), nil
 }
 
-func GetMemoryUsageRankOfHosts(stmt string) ([]definition.HostPercentageUsage, error) {
+func GetMemoryUsageRankOfHosts(stmt string) (*definition.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -812,10 +588,13 @@ func GetMemoryUsageRankOfHosts(stmt string) ([]definition.HostPercentageUsage, e
 	}
 
 	appendHistoryToMemoryUsageRank(rank)
-	return rank, nil
+	return &definition.MetricRank{
+		Unit: "percentage",
+		Rank: rank,
+	}, nil
 }
 
-func appendHistoryToMemoryUsageRank(rank []definition.HostPercentageUsage) {
+func appendHistoryToMemoryUsageRank(rank []definition.RankPoint) {
 	for i, host := range rank {
 		history, err := GetMemoryHistoryOfHost(host.Id, definition.Period{})
 		if err != nil {
@@ -827,7 +606,7 @@ func appendHistoryToMemoryUsageRank(rank []definition.HostPercentageUsage) {
 	}
 }
 
-func GetMemoryHistoryOfHost(entityId string, period definition.Period) ([]definition.TimeUsedPercent, error) {
+func GetMemoryHistoryOfHost(entityId string, period definition.Period) ([]definition.TimeValue, error) {
 	stmt := fmt.Sprintf(hostMemoryUsageHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -839,19 +618,19 @@ func GetMemoryHistoryOfHost(entityId string, period definition.Period) ([]defini
 	return parseMemoryUsageHistory(c)
 }
 
-func parseMemoryUsageHistory(c *api.QueryTableResult) ([]definition.TimeUsedPercent, error) {
-	points := []definition.TimeUsedPercent{}
+func parseMemoryUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
+	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
 
 		points = append(
 			points,
-			definition.TimeUsedPercent{
-				Time:        definition.TimeLocalISO8601(date),
-				UsedPercent: parseUsedOfHost(c.Record()),
+			definition.TimeValue{
+				Time:  definition.TimeISO8601Z(date),
+				Value: parseUsedOfHost(c.Record()),
 			},
 		)
 	}
@@ -859,7 +638,7 @@ func parseMemoryUsageHistory(c *api.QueryTableResult) ([]definition.TimeUsedPerc
 	return points, nil
 }
 
-func GetDiskStorageBandwidthHistory(readStmt, writeStmt string) (*definition.StorageBandwidthSeries, error) {
+func GetDiskStorageBandwidthHistory(readStmt, writeStmt string) (*definition.StorageTimeSeries, error) {
 	read, err := getDiskBandwidthHistory(readStmt)
 	if err != nil {
 		log.Errorf("failed to get host storage read bandwidth series: %v", err)
@@ -872,13 +651,14 @@ func GetDiskStorageBandwidthHistory(readStmt, writeStmt string) (*definition.Sto
 		return nil, err
 	}
 
-	return &definition.StorageBandwidthSeries{
+	return &definition.StorageTimeSeries{
+		Unit:  "bytes",
 		Read:  read,
 		Write: write,
 	}, nil
 }
 
-func GetDiskIopsHistoryOfHosts(readStmt, writeStmt string) (*definition.StorageIopsSeries, error) {
+func GetDiskIopsHistoryOfHosts(readStmt, writeStmt string) (*definition.StorageTimeSeries, error) {
 	readSeries, err := getDiskIopsHistoryOfHosts(readStmt)
 	if err != nil {
 		return nil, err
@@ -889,13 +669,14 @@ func GetDiskIopsHistoryOfHosts(readStmt, writeStmt string) (*definition.StorageI
 		return nil, err
 	}
 
-	return &definition.StorageIopsSeries{
+	return &definition.StorageTimeSeries{
+		Unit:  "ops",
 		Read:  readSeries,
 		Write: writeSeries,
 	}, nil
 }
 
-func GeDiskLatencyHistoryOfHosts(readStmt, writeStmt string) (*definition.StorageLatencySeries, error) {
+func GeDiskLatencyHistoryOfHosts(readStmt, writeStmt string) (*definition.StorageTimeSeries, error) {
 	readSeries, err := geDiskLatencyHistoryOfHosts(readStmt)
 	if err != nil {
 		return nil, err
@@ -906,13 +687,14 @@ func GeDiskLatencyHistoryOfHosts(readStmt, writeStmt string) (*definition.Storag
 		return nil, err
 	}
 
-	return &definition.StorageLatencySeries{
+	return &definition.StorageTimeSeries{
+		Unit:  "milliseconds",
 		Read:  readSeries,
 		Write: writeSeries,
 	}, nil
 }
 
-func getDiskIopsHistoryOfHosts(stmt string) ([]definition.TimeOpsPoint, error) {
+func getDiskIopsHistoryOfHosts(stmt string) ([]definition.TimeValue, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -923,7 +705,7 @@ func getDiskIopsHistoryOfHosts(stmt string) ([]definition.TimeOpsPoint, error) {
 	return parseDiskOpsHistory(c)
 }
 
-func geDiskLatencyHistoryOfHosts(stmt string) ([]definition.TimeMillisecondPoint, error) {
+func geDiskLatencyHistoryOfHosts(stmt string) ([]definition.TimeValue, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -934,7 +716,7 @@ func geDiskLatencyHistoryOfHosts(stmt string) ([]definition.TimeMillisecondPoint
 	return parseDiskLatencyHistory(c)
 }
 
-func GetDiskUsageRankOfHosts(stmt string) ([]definition.HostPercentageUsage, error) {
+func GetDiskUsageRankOfHosts(stmt string) (*definition.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -948,10 +730,13 @@ func GetDiskUsageRankOfHosts(stmt string) ([]definition.HostPercentageUsage, err
 	}
 
 	appendHistoryToDiskUsageRank(rank)
-	return rank, nil
+	return &definition.MetricRank{
+		Unit: "percentage",
+		Rank: rank,
+	}, nil
 }
 
-func appendHistoryToDiskUsageRank(rank []definition.HostPercentageUsage) {
+func appendHistoryToDiskUsageRank(rank []definition.RankPoint) {
 	for i, host := range rank {
 		history, err := GetDiskUsageHistoryOfHost(host.Id, definition.Period{})
 		if err != nil {
@@ -963,7 +748,7 @@ func appendHistoryToDiskUsageRank(rank []definition.HostPercentageUsage) {
 	}
 }
 
-func GetDiskUsageHistoryOfHost(entityId string, period definition.Period) ([]definition.TimeUsedPercent, error) {
+func GetDiskUsageHistoryOfHost(entityId string, period definition.Period) ([]definition.TimeValue, error) {
 	stmt := fmt.Sprintf(hostDiskUsageHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -975,19 +760,19 @@ func GetDiskUsageHistoryOfHost(entityId string, period definition.Period) ([]def
 	return parseDiskUsageHistory(c)
 }
 
-func parseDiskUsageHistory(c *api.QueryTableResult) ([]definition.TimeUsedPercent, error) {
-	points := []definition.TimeUsedPercent{}
+func parseDiskUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
+	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
 
 		points = append(
 			points,
-			definition.TimeUsedPercent{
-				Time:        definition.TimeLocalISO8601(date),
-				UsedPercent: parseUsedOfHost(c.Record()),
+			definition.TimeValue{
+				Time:  definition.TimeISO8601Z(date),
+				Value: parseUsedOfHost(c.Record()),
 			},
 		)
 	}
@@ -995,7 +780,7 @@ func parseDiskUsageHistory(c *api.QueryTableResult) ([]definition.TimeUsedPercen
 	return points, nil
 }
 
-func GetNetworkTrafficInRankOfHosts() ([]definition.HostNetworkPacket, error) {
+func GetNetworkTrafficInRankOfHosts() (*definition.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(hostNetworkIngressRankStmt)
 	if err != nil {
 		return nil, err
@@ -1009,10 +794,13 @@ func GetNetworkTrafficInRankOfHosts() ([]definition.HostNetworkPacket, error) {
 	}
 
 	appendHistoryToNetworkTrafficInRank(rank)
-	return rank, nil
+	return &definition.MetricRank{
+		Unit: "packets",
+		Rank: rank,
+	}, nil
 }
 
-func appendHistoryToNetworkTrafficInRank(rank []definition.HostNetworkPacket) {
+func appendHistoryToNetworkTrafficInRank(rank []definition.RankPoint) {
 	for i, host := range rank {
 		history, err := GetNetworkTrafficInHistoryOfHost(host.Id, definition.Period{})
 		if err != nil {
@@ -1024,7 +812,7 @@ func appendHistoryToNetworkTrafficInRank(rank []definition.HostNetworkPacket) {
 	}
 }
 
-func GetNetworkTrafficInHistoryOfHost(entityId string, period definition.Period) ([]definition.TimePacketsPoint, error) {
+func GetNetworkTrafficInHistoryOfHost(entityId string, period definition.Period) ([]definition.TimeValue, error) {
 	stmt := fmt.Sprintf(hostNetworkIngressHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -1036,19 +824,19 @@ func GetNetworkTrafficInHistoryOfHost(entityId string, period definition.Period)
 	return parseNetworkTrafficHistory(c)
 }
 
-func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]definition.TimePacketsPoint, error) {
-	points := []definition.TimePacketsPoint{}
+func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
+	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
 
 		points = append(
 			points,
-			definition.TimePacketsPoint{
-				Time:    definition.TimeLocalISO8601(date),
-				Packets: math.RoundDown(c.Record().Value().(float64), 4),
+			definition.TimeValue{
+				Time:  definition.TimeISO8601Z(date),
+				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
 	}
@@ -1056,7 +844,7 @@ func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]definition.TimePacke
 	return points, nil
 }
 
-func GetNetworkTrafficOutRankOfHosts() ([]definition.HostNetworkPacket, error) {
+func GetNetworkTrafficOutRankOfHosts() (*definition.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(hostNetworkEgressRankStmt)
 	if err != nil {
 		return nil, err
@@ -1070,10 +858,13 @@ func GetNetworkTrafficOutRankOfHosts() ([]definition.HostNetworkPacket, error) {
 	}
 
 	appendHistoryToNetworkTrafficOutRank(rank)
-	return rank, nil
+	return &definition.MetricRank{
+		Unit: "packets",
+		Rank: rank,
+	}, nil
 }
 
-func appendHistoryToNetworkTrafficOutRank(rank []definition.HostNetworkPacket) {
+func appendHistoryToNetworkTrafficOutRank(rank []definition.RankPoint) {
 	for i, host := range rank {
 		history, err := GetNetworkTrafficOutHistoryOfHost(host.Id, definition.Period{})
 		if err != nil {
@@ -1085,7 +876,7 @@ func appendHistoryToNetworkTrafficOutRank(rank []definition.HostNetworkPacket) {
 	}
 }
 
-func GetNetworkTrafficOutHistoryOfHost(entityId string, period definition.Period) ([]definition.TimePacketsPoint, error) {
+func GetNetworkTrafficOutHistoryOfHost(entityId string, period definition.Period) ([]definition.TimeValue, error) {
 	stmt := fmt.Sprintf(hostNetworkEgressHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -1097,7 +888,7 @@ func GetNetworkTrafficOutHistoryOfHost(entityId string, period definition.Period
 	return parseNetworkTrafficHistory(c)
 }
 
-func GetCpuUsageRankOfVms(stmt string) ([]definition.VmPercentageUsage, error) {
+func GetCpuUsageRankOfVms(stmt string) (*definition.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1111,10 +902,13 @@ func GetCpuUsageRankOfVms(stmt string) ([]definition.VmPercentageUsage, error) {
 	}
 
 	appendHistoryToCpuUsageRankOfVm(rank)
-	return rank, nil
+	return &definition.MetricRank{
+		Unit: "percentage",
+		Rank: rank,
+	}, nil
 }
 
-func appendHistoryToCpuUsageRankOfVm(rank []definition.VmPercentageUsage) {
+func appendHistoryToCpuUsageRankOfVm(rank []definition.RankPoint) {
 	for i, vm := range rank {
 		history, err := GetCpuHistoryOfVm(vm.Id, definition.Period{})
 		if err != nil {
@@ -1126,7 +920,7 @@ func appendHistoryToCpuUsageRankOfVm(rank []definition.VmPercentageUsage) {
 	}
 }
 
-func GetCpuHistoryOfVm(entityId string, period definition.Period) ([]definition.TimeUsedPercent, error) {
+func GetCpuHistoryOfVm(entityId string, period definition.Period) ([]definition.TimeValue, error) {
 	stmt := fmt.Sprintf(vmCpuUsageHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -1138,19 +932,19 @@ func GetCpuHistoryOfVm(entityId string, period definition.Period) ([]definition.
 	return parseCpuUsageHistoryOfVm(c)
 }
 
-func parseCpuUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeUsedPercent, error) {
-	points := []definition.TimeUsedPercent{}
+func parseCpuUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeValue, error) {
+	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
 
 		points = append(
 			points,
-			definition.TimeUsedPercent{
-				Time:        definition.TimeLocalISO8601(date),
-				UsedPercent: parseUsed(c.Record()),
+			definition.TimeValue{
+				Time:  definition.TimeISO8601Z(date),
+				Value: parseUsed(c.Record()),
 			},
 		)
 	}
@@ -1158,7 +952,7 @@ func parseCpuUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeUsedPer
 	return points, nil
 }
 
-func GetMemoryUsageRankOfVms(stmt string) ([]definition.VmMetricsUsage, error) {
+func GetMemoryUsageRankOfVms(stmt string) (*definition.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1172,10 +966,13 @@ func GetMemoryUsageRankOfVms(stmt string) ([]definition.VmMetricsUsage, error) {
 	}
 
 	appendHistoryToMemoryUsageRankOfVm(rank)
-	return rank, nil
+	return &definition.MetricRank{
+		Unit: "percentage",
+		Rank: rank,
+	}, nil
 }
 
-func appendHistoryToMemoryUsageRankOfVm(rank []definition.VmMetricsUsage) {
+func appendHistoryToMemoryUsageRankOfVm(rank []definition.RankPoint) {
 	for i, vm := range rank {
 		history, err := GetMemoryHistoryOfVm(vm.Id, definition.Period{})
 		if err != nil {
@@ -1187,7 +984,7 @@ func appendHistoryToMemoryUsageRankOfVm(rank []definition.VmMetricsUsage) {
 	}
 }
 
-func GetMemoryHistoryOfVm(entityId string, period definition.Period) ([]definition.TimeUsedPercent, error) {
+func GetMemoryHistoryOfVm(entityId string, period definition.Period) ([]definition.TimeValue, error) {
 	stmt := fmt.Sprintf(vmMemoryUsageHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -1199,19 +996,19 @@ func GetMemoryHistoryOfVm(entityId string, period definition.Period) ([]definiti
 	return parseMemoryUsageHistoryOfVm(c)
 }
 
-func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeUsedPercent, error) {
-	points := []definition.TimeUsedPercent{}
+func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeValue, error) {
+	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
 
 		points = append(
 			points,
-			definition.TimeUsedPercent{
-				Time:        definition.TimeLocalISO8601(date),
-				UsedPercent: parseUsed(c.Record()),
+			definition.TimeValue{
+				Time:  definition.TimeISO8601Z(date),
+				Value: parseUsed(c.Record()),
 			},
 		)
 	}
@@ -1219,7 +1016,7 @@ func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeUsed
 	return points, nil
 }
 
-func GetDiskReadIopsRankOfVms(stmt string) ([]definition.VmDiskIopsUsage, error) {
+func GetDiskReadIopsRankOfVms(stmt string) (*definition.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1233,10 +1030,13 @@ func GetDiskReadIopsRankOfVms(stmt string) ([]definition.VmDiskIopsUsage, error)
 	}
 
 	appendHistoryToDiskReadIopsRankOfVm(rank)
-	return rank, nil
+	return &definition.MetricRank{
+		Unit: "ops",
+		Rank: rank,
+	}, nil
 }
 
-func appendHistoryToDiskReadIopsRankOfVm(rank []definition.VmDiskIopsUsage) {
+func appendHistoryToDiskReadIopsRankOfVm(rank []definition.RankPoint) {
 	for i, vm := range rank {
 		history, err := GetDiskReadIopsHistoryOfVm(vm.Id, vm.Device)
 		if err != nil {
@@ -1248,7 +1048,7 @@ func appendHistoryToDiskReadIopsRankOfVm(rank []definition.VmDiskIopsUsage) {
 	}
 }
 
-func GetDiskReadIopsHistoryOfVm(entityId, device string) ([]definition.TimeOpsPoint, error) {
+func GetDiskReadIopsHistoryOfVm(entityId, device string) ([]definition.TimeValue, error) {
 	stmt := fmt.Sprintf(vmStorageIopsReadHistoryStmt, entityId, device)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -1260,7 +1060,7 @@ func GetDiskReadIopsHistoryOfVm(entityId, device string) ([]definition.TimeOpsPo
 	return parseDiskOpsHistory(c)
 }
 
-func GetDiskWriteIopsRankOfVms(stmt string) ([]definition.VmDiskIopsUsage, error) {
+func GetDiskWriteIopsRankOfVms(stmt string) (*definition.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1274,10 +1074,13 @@ func GetDiskWriteIopsRankOfVms(stmt string) ([]definition.VmDiskIopsUsage, error
 	}
 
 	appendHistoryToDiskWriteIopsRankOfVm(rank)
-	return rank, nil
+	return &definition.MetricRank{
+		Unit: "ops",
+		Rank: rank,
+	}, nil
 }
 
-func appendHistoryToDiskWriteIopsRankOfVm(rank []definition.VmDiskIopsUsage) {
+func appendHistoryToDiskWriteIopsRankOfVm(rank []definition.RankPoint) {
 	for i, vm := range rank {
 		history, err := GetDiskWriteIopsHistoryOfVm(vm.Id, vm.Device)
 		if err != nil {
@@ -1289,7 +1092,7 @@ func appendHistoryToDiskWriteIopsRankOfVm(rank []definition.VmDiskIopsUsage) {
 	}
 }
 
-func GetDiskWriteIopsHistoryOfVm(entityId, device string) ([]definition.TimeOpsPoint, error) {
+func GetDiskWriteIopsHistoryOfVm(entityId, device string) ([]definition.TimeValue, error) {
 	stmt := fmt.Sprintf(vmStorageIopsWriteHistoryStmt, entityId, device)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -1301,7 +1104,7 @@ func GetDiskWriteIopsHistoryOfVm(entityId, device string) ([]definition.TimeOpsP
 	return parseDiskOpsHistory(c)
 }
 
-func GetNetworkTrafficInRankOfVms(stmt string) ([]definition.VmNetworkTrafficUsage, error) {
+func GetNetworkTrafficInRankOfVms(stmt string) (*definition.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1315,10 +1118,13 @@ func GetNetworkTrafficInRankOfVms(stmt string) ([]definition.VmNetworkTrafficUsa
 	}
 
 	appendHistoryToNetworkTrafficInRankOfVm(rank)
-	return rank, nil
+	return &definition.MetricRank{
+		Unit: "packets",
+		Rank: rank,
+	}, nil
 }
 
-func appendHistoryToNetworkTrafficInRankOfVm(rank []definition.VmNetworkTrafficUsage) {
+func appendHistoryToNetworkTrafficInRankOfVm(rank []definition.RankPoint) {
 	for i, vm := range rank {
 		history, err := GetNetworkTrafficInHistoryOfVm(vm.Id, vm.Device)
 		if err != nil {
@@ -1330,7 +1136,7 @@ func appendHistoryToNetworkTrafficInRankOfVm(rank []definition.VmNetworkTrafficU
 	}
 }
 
-func GetNetworkTrafficInHistoryOfVm(entityId, device string) ([]definition.TimePacketsPoint, error) {
+func GetNetworkTrafficInHistoryOfVm(entityId, device string) ([]definition.TimeValue, error) {
 	stmt := fmt.Sprintf(vmNetworkIngressHistoryStmt, entityId, device)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -1342,7 +1148,7 @@ func GetNetworkTrafficInHistoryOfVm(entityId, device string) ([]definition.TimeP
 	return parseNetworkTrafficHistory(c)
 }
 
-func GetNetworkTrafficOutRankOfVms(stmt string) ([]definition.VmNetworkTrafficUsage, error) {
+func GetNetworkTrafficOutRankOfVms(stmt string) (*definition.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1356,10 +1162,13 @@ func GetNetworkTrafficOutRankOfVms(stmt string) ([]definition.VmNetworkTrafficUs
 	}
 
 	appendHistoryToNetworkTrafficOutRankOfVm(rank)
-	return rank, nil
+	return &definition.MetricRank{
+		Unit: "packets",
+		Rank: rank,
+	}, nil
 }
 
-func appendHistoryToNetworkTrafficOutRankOfVm(rank []definition.VmNetworkTrafficUsage) {
+func appendHistoryToNetworkTrafficOutRankOfVm(rank []definition.RankPoint) {
 	for i, vm := range rank {
 		history, err := GetNetworkTrafficOutHistoryOfVm(vm.Id, vm.Device)
 		if err != nil {
@@ -1371,7 +1180,7 @@ func appendHistoryToNetworkTrafficOutRankOfVm(rank []definition.VmNetworkTraffic
 	}
 }
 
-func GetNetworkTrafficOutHistoryOfVm(entityId, device string) ([]definition.TimePacketsPoint, error) {
+func GetNetworkTrafficOutHistoryOfVm(entityId, device string) ([]definition.TimeValue, error) {
 	stmt := fmt.Sprintf(vmNetworkEgressHistoryStmt, entityId, device)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -1383,15 +1192,15 @@ func GetNetworkTrafficOutHistoryOfVm(entityId, device string) ([]definition.Time
 	return parseNetworkTrafficHistory(c)
 }
 
-func parseCpuUsageRankOfHost(c *api.QueryTableResult) ([]definition.HostPercentageUsage, error) {
-	rank := []definition.HostPercentageUsage{}
+func parseCpuUsageRankOfHost(c *api.QueryTableResult) ([]definition.RankPoint, error) {
+	rank := []definition.RankPoint{}
 	for c.Next() {
 		rank = append(
 			rank,
-			definition.HostPercentageUsage{
-				Id:          parseHost(c.Record()),
-				Name:        parseHost(c.Record()),
-				UsedPercent: parseUsedOfHost(c.Record()),
+			definition.RankPoint{
+				Id:    parseHost(c.Record()),
+				Name:  parseHost(c.Record()),
+				Value: parseUsedOfHost(c.Record()),
 			},
 		)
 	}
@@ -1402,15 +1211,15 @@ func parseCpuUsageRankOfHost(c *api.QueryTableResult) ([]definition.HostPercenta
 	return rank, nil
 }
 
-func parseVmCpuUsageRank(c *api.QueryTableResult) ([]definition.VmPercentageUsage, error) {
-	rank := []definition.VmPercentageUsage{}
+func parseVmCpuUsageRank(c *api.QueryTableResult) ([]definition.RankPoint, error) {
+	rank := []definition.RankPoint{}
 	for c.Next() {
 		rank = append(
 			rank,
-			definition.VmPercentageUsage{
-				Id:          parseResourceId(c.Record()),
-				Name:        parseVmName(c.Record()),
-				UsedPercent: math.RoundDown(c.Record().Value().(float64), 4),
+			definition.RankPoint{
+				Id:    parseResourceId(c.Record()),
+				Name:  parseVmName(c.Record()),
+				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
 	}
@@ -1443,15 +1252,15 @@ func parseCpuUsage(record *query.FluxRecord) definition.ComputeStatistic {
 	}
 }
 
-func parseMemoryUsageRankOfHost(c *api.QueryTableResult) ([]definition.HostPercentageUsage, error) {
-	rank := []definition.HostPercentageUsage{}
+func parseMemoryUsageRankOfHost(c *api.QueryTableResult) ([]definition.RankPoint, error) {
+	rank := []definition.RankPoint{}
 	for c.Next() {
 		rank = append(
 			rank,
-			definition.HostPercentageUsage{
-				Id:          parseHost(c.Record()),
-				Name:        parseHost(c.Record()),
-				UsedPercent: parseUsed(c.Record()),
+			definition.RankPoint{
+				Id:    parseHost(c.Record()),
+				Name:  parseHost(c.Record()),
+				Value: parseUsed(c.Record()),
 			},
 		)
 	}
@@ -1462,15 +1271,15 @@ func parseMemoryUsageRankOfHost(c *api.QueryTableResult) ([]definition.HostPerce
 	return rank, nil
 }
 
-func parseVmMemoryRank(c *api.QueryTableResult) ([]definition.VmMetricsUsage, error) {
-	rank := []definition.VmMetricsUsage{}
+func parseVmMemoryRank(c *api.QueryTableResult) ([]definition.RankPoint, error) {
+	rank := []definition.RankPoint{}
 	for c.Next() {
 		rank = append(
 			rank,
-			definition.VmMetricsUsage{
-				Id:          parseResourceId(c.Record()),
-				Name:        parseVmName(c.Record()),
-				UsedPercent: parseCpuUsedOfVm(c.Record()),
+			definition.RankPoint{
+				Id:    parseResourceId(c.Record()),
+				Name:  parseVmName(c.Record()),
+				Value: parseCpuUsedOfVm(c.Record()),
 			},
 		)
 	}
@@ -1503,15 +1312,15 @@ func parseMemoryUsage(record *query.FluxRecord) definition.SpaceStatistic {
 	}
 }
 
-func parseHostStorageUsageRank(c *api.QueryTableResult) ([]definition.HostPercentageUsage, error) {
-	rank := []definition.HostPercentageUsage{}
+func parseHostStorageUsageRank(c *api.QueryTableResult) ([]definition.RankPoint, error) {
+	rank := []definition.RankPoint{}
 	for c.Next() {
 		rank = append(
 			rank,
-			definition.HostPercentageUsage{
-				Id:          parseHost(c.Record()),
-				Name:        parseHost(c.Record()),
-				UsedPercent: parseUsed(c.Record()),
+			definition.RankPoint{
+				Id:    parseHost(c.Record()),
+				Name:  parseHost(c.Record()),
+				Value: parseUsed(c.Record()),
 			},
 		)
 	}
@@ -1522,19 +1331,19 @@ func parseHostStorageUsageRank(c *api.QueryTableResult) ([]definition.HostPercen
 	return rank, nil
 }
 
-func parseDiskOpsHistory(c *api.QueryTableResult) ([]definition.TimeOpsPoint, error) {
-	points := []definition.TimeOpsPoint{}
+func parseDiskOpsHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
+	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
 
 		points = append(
 			points,
-			definition.TimeOpsPoint{
-				Time: date.Format(time.RFC3339),
-				Ops:  math.RoundDown(c.Record().Value().(float64), 4),
+			definition.TimeValue{
+				Time:  definition.TimeISO8601Z(date),
+				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
 	}
@@ -1542,19 +1351,19 @@ func parseDiskOpsHistory(c *api.QueryTableResult) ([]definition.TimeOpsPoint, er
 	return points, nil
 }
 
-func parseDiskLatencyHistory(c *api.QueryTableResult) ([]definition.TimeMillisecondPoint, error) {
-	points := []definition.TimeMillisecondPoint{}
+func parseDiskLatencyHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
+	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
 
 		points = append(
 			points,
-			definition.TimeMillisecondPoint{
-				Time:        definition.TimeLocalISO8601(date),
-				Millisecond: math.RoundDown(c.Record().Value().(float64), 4),
+			definition.TimeValue{
+				Time:  definition.TimeISO8601Z(date),
+				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
 	}
@@ -1562,16 +1371,16 @@ func parseDiskLatencyHistory(c *api.QueryTableResult) ([]definition.TimeMillisec
 	return points, nil
 }
 
-func parsDiskIopsRankOfVm(c *api.QueryTableResult) ([]definition.VmDiskIopsUsage, error) {
-	rank := []definition.VmDiskIopsUsage{}
+func parsDiskIopsRankOfVm(c *api.QueryTableResult) ([]definition.RankPoint, error) {
+	rank := []definition.RankPoint{}
 	for c.Next() {
 		rank = append(
 			rank,
-			definition.VmDiskIopsUsage{
+			definition.RankPoint{
 				Id:     parseResourceId(c.Record()),
 				Name:   parseVmName(c.Record()),
 				Device: parseDevice(c.Record()),
-				Ops:    parseStorageUsedOfVm(c.Record()),
+				Value:  parseStorageUsedOfVm(c.Record()),
 			},
 		)
 	}
@@ -1582,7 +1391,7 @@ func parsDiskIopsRankOfVm(c *api.QueryTableResult) ([]definition.VmDiskIopsUsage
 	return rank, nil
 }
 
-func getDiskBandwidthHistory(stmt string) ([]definition.TimeBytesPoint, error) {
+func getDiskBandwidthHistory(stmt string) ([]definition.TimeValue, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1593,19 +1402,19 @@ func getDiskBandwidthHistory(stmt string) ([]definition.TimeBytesPoint, error) {
 	return parseDiskBandwidthHistory(c)
 }
 
-func parseDiskBandwidthHistory(c *api.QueryTableResult) ([]definition.TimeBytesPoint, error) {
-	points := []definition.TimeBytesPoint{}
+func parseDiskBandwidthHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
+	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
 
 		points = append(
 			points,
-			definition.TimeBytesPoint{
-				Time:  definition.TimeLocalISO8601(date),
-				Bytes: math.RoundDown(c.Record().Value().(float64), 4),
+			definition.TimeValue{
+				Time:  definition.TimeISO8601Z(date),
+				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
 	}
@@ -1613,15 +1422,15 @@ func parseDiskBandwidthHistory(c *api.QueryTableResult) ([]definition.TimeBytesP
 	return points, nil
 }
 
-func hostNetworkIngressRank(c *api.QueryTableResult) ([]definition.HostNetworkPacket, error) {
-	rank := []definition.HostNetworkPacket{}
+func hostNetworkIngressRank(c *api.QueryTableResult) ([]definition.RankPoint, error) {
+	rank := []definition.RankPoint{}
 	for c.Next() {
 		rank = append(
 			rank,
-			definition.HostNetworkPacket{
-				Id:      parseHost(c.Record()),
-				Name:    parseHost(c.Record()),
-				Packets: parseUsed(c.Record()),
+			definition.RankPoint{
+				Id:    parseHost(c.Record()),
+				Name:  parseHost(c.Record()),
+				Value: parseUsed(c.Record()),
 			},
 		)
 	}
@@ -1642,16 +1451,16 @@ func genHostCpuUsageHistoryStmt(hostId string) string {
 		String()
 }
 
-func parseVmNetworkPacketRank(c *api.QueryTableResult) ([]definition.VmNetworkTrafficUsage, error) {
-	rank := []definition.VmNetworkTrafficUsage{}
+func parseVmNetworkPacketRank(c *api.QueryTableResult) ([]definition.RankPoint, error) {
+	rank := []definition.RankPoint{}
 	for c.Next() {
 		rank = append(
 			rank,
-			definition.VmNetworkTrafficUsage{
-				Id:      parseResourceId(c.Record()),
-				Name:    parseVmName(c.Record()),
-				Device:  parseDevice(c.Record()),
-				Packets: parseUsed(c.Record()),
+			definition.RankPoint{
+				Id:     parseResourceId(c.Record()),
+				Name:   parseVmName(c.Record()),
+				Device: parseDevice(c.Record()),
+				Value:  parseUsed(c.Record()),
 			},
 		)
 	}

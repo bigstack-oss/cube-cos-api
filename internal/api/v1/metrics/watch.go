@@ -26,7 +26,7 @@ var (
 	}{}
 )
 
-func streamHealth() {
+func streamMetrics() {
 	for {
 		wait.Seconds(2)
 		if len(stream.Watchers) == 0 {
@@ -35,7 +35,7 @@ func streamHealth() {
 
 		stream.Lock()
 		for _, w := range stream.Watchers {
-			resp, err := streamEventsByHandlerType(&w.helper)
+			resp, err := streamMetricsByHandlerType(&w.helper)
 			if err != nil {
 				continue
 			}
@@ -50,7 +50,7 @@ func streamHealth() {
 	}
 }
 
-func streamEventsByHandlerType(h *helper) (interface{}, error) {
+func streamMetricsByHandlerType(h *helper) (interface{}, error) {
 	switch h.handler {
 	case "getDataCenterSummary":
 		return h.getDataCenterSummary()
