@@ -1,14 +1,13 @@
 module github.com/bigstack-oss/cube-cos-api
 
-go 1.23
+go 1.24
 
-toolchain go1.23.6
+toolchain go1.24.0
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
-	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250301163609-add028efa876
+	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250304105712-83df70bfc0d8
 	github.com/blevesearch/bleve/v2 v2.4.4
-	github.com/cenkalti/backoff/v5 v5.0.2
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
 	github.com/coreos/go-oidc v2.3.0+incompatible
 	github.com/crewjam/saml v0.4.14
@@ -26,6 +25,7 @@ require (
 	github.com/micro/plugins/v5/wrapper/ratelimiter/uber v1.0.2
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/shirou/gopsutil/v4 v4.25.1
+	github.com/slack-go/slack v0.16.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.3
@@ -91,6 +91,7 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gophercloud/gophercloud v1.14.1 // indirect
+	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
 	github.com/jonboulle/clockwork v0.2.2 // indirect

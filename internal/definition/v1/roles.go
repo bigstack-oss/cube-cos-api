@@ -67,7 +67,7 @@ type Role struct {
 
 type Host struct {
 	Name string `json:"name"`
-	Ip   string `json:"ip"`
+	Ip   string `json:"ip,omitzero"`
 }
 
 func (h *Host) GetNode() *Node {

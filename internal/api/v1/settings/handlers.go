@@ -5,9 +5,10 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var Handlers = []api.Handler{
@@ -15,256 +16,485 @@ var Handlers = []api.Handler{
 		Version: api.V1,
 		Method:  "GET",
 		Path:    "/settings",
-		Func:    getSetting,
-	},
-	{
-		Version: api.V1,
-		Method:  "POST",
-		Path:    "/settings/emailSenders",
-		Func:    createEmailSender,
-	},
-	{
-		Version: api.V1,
-		Method:  "GET",
-		Path:    "/settings/emailSenders",
-		Func:    getEmailSenders,
+		Func:    listSettings,
 	},
 	{
 		Version: api.V1,
 		Method:  "PUT",
-		Path:    "/settings/emailSenders",
-		Func:    updateEmailSender,
+		Path:    "/settings/titlePrefix",
+		Func:    patchTitlePrefix,
+	},
+	{
+		Version: api.V1,
+		Method:  "POST",
+		Path:    "/settings/email/senders",
+		Func:    createEmailSender,
+	},
+	{
+		Version: api.V1,
+		Method:  "POST",
+		Path:    "/settings/email/senders/:senderHost",
+		Func:    tryEmailSender,
+	},
+	{
+		Version: api.V1,
+		Method:  "GET",
+		Path:    "/settings/email/senders",
+		Func:    listEmailSenders,
+	},
+	{
+		Version: api.V1,
+		Method:  "PUT",
+		Path:    "/settings/email/senders/:senderHost",
+		Func:    patchEmailSender,
 	},
 	{
 		Version: api.V1,
 		Method:  "DELETE",
-		Path:    "/settings/emailSenders",
+		Path:    "/settings/email/senders/:senderHost",
 		Func:    deleteEmailSender,
 	},
 	{
 		Version: api.V1,
 		Method:  "POST",
-		Path:    "/settings/emailRecipients",
+		Path:    "/settings/email/recipients",
 		Func:    createEmailRecipient,
 	},
 	{
 		Version: api.V1,
 		Method:  "GET",
-		Path:    "/settings/emailRecipients",
-		Func:    getEmailRecipients,
+		Path:    "/settings/email/recipients",
+		Func:    listEmailRecipients,
 	},
 	{
 		Version: api.V1,
 		Method:  "PUT",
-		Path:    "/settings/emailRecipients/:id",
-		Func:    updateEmailRecipient,
+		Path:    "/settings/email/recipients/:recipientEmail",
+		Func:    patchEmailRecipient,
 	},
 	{
 		Version: api.V1,
 		Method:  "DELETE",
-		Path:    "/settings/emailRecipients/:id",
+		Path:    "/settings/email/recipients/:recipientEmail",
 		Func:    deleteEmailRecipient,
 	},
 	{
 		Version: api.V1,
 		Method:  "POST",
-		Path:    "/settings/slackWebhooks",
-		Func:    createSlackWebhook,
+		Path:    "/settings/slack/channels",
+		Func:    createSlackChannel,
+	},
+	{
+		Version: api.V1,
+		Method:  "POST",
+		Path:    "/settings/slack/channels/:channelName",
+		Func:    trySlackChannel,
 	},
 	{
 		Version: api.V1,
 		Method:  "GET",
-		Path:    "/settings/slackWebhooks",
-		Func:    getSlackWebhooks,
+		Path:    "/settings/slack/channels",
+		Func:    listSlackChannels,
 	},
 	{
 		Version: api.V1,
 		Method:  "PUT",
-		Path:    "/settings/slackWebhooks/:id",
-		Func:    updateSlackWebhook,
+		Path:    "/settings/slack/channels/:channelName",
+		Func:    putSlackChannel,
 	},
 	{
 		Version: api.V1,
 		Method:  "DELETE",
-		Path:    "/settings/slackWebhooks/:id",
-		Func:    deleteSlackWebhook,
+		Path:    "/settings/slack/channels/:channelName",
+		Func:    deleteSlackChannel,
 	},
 }
 
-func getSetting(c *gin.Context) {
-	setting, err := getSettingRecord()
+func listSettings(c *gin.Context) {
+	setting, err := getAllSettings()
 	if err != nil {
 		log.Errorf("request(%s): failed to get setting: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOk(c, "setting retrieved successfully", setting)
+	api.SetStatusOk(
+		c,
+		"all setting retrieved successfully",
+		setting,
+	)
 }
 
-func createEmailSender(c *gin.Context) {
-	var emailSender v1.EmailSender
-	if err := c.ShouldBindJSON(&emailSender); err != nil {
-		log.Errorf("request(%s): failed to decode email sender: %s", api.GetReqId(c), err.Error())
+func patchTitlePrefix(c *gin.Context) {
+	titlePrefix := v1.TitlePrefix{}
+	err := c.ShouldBindJSON(&titlePrefix)
+	if err != nil {
+		log.Errorf("request(%s): failed to decode title prefix: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
 		return
 	}
 
-	if err := upsertEmailSenderRecord(emailSender); err != nil {
+	err = upsertTitlePrefix(titlePrefix.Value)
+	if err != nil {
+		log.Errorf("request(%s): failed to update title prefix: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"title prefix updated successfully",
+		nil,
+	)
+}
+
+func createEmailSender(c *gin.Context) {
+	sender := email.Sender{}
+	err := c.ShouldBindJSON(&sender)
+	if err != nil {
+		log.Errorf("request(%s): failed to decode email sender: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	if isSenderExist(sender.Host) {
+		api.SetStatusConflict(c, errors.New("sender host already exists"))
+		return
+	}
+
+	err = insertEmailSender(sender)
+	if err != nil {
 		log.Errorf("request(%s): failed to create email sender: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusCreated(c, "email sender created successfully", nil)
+	api.SetStatusCreated(
+		c,
+		"email sender created successfully",
+		nil,
+	)
 }
 
-func getEmailSenders(c *gin.Context) {
-	emailSenders, err := getEmailSenderRecords()
-	if errors.Is(err, mongo.ErrNoDocuments) {
-		api.SetStatusNotFound(c, errors.New("email sender not found"))
+func tryEmailSender(c *gin.Context) {
+	recipient := email.Recipient{}
+	err := c.ShouldBindJSON(&recipient)
+	if err != nil {
+		log.Errorf("request(%s): failed to decode email recipient: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
 		return
 	}
+
+	err = recipient.CheckFormat()
+	if err != nil {
+		log.Errorf("request(%s): invalid email format: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	senders, err := getEmailSenders()
 	if err != nil {
 		log.Errorf("request(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
+	if len(senders) == 0 {
+		log.Error("no email senders found")
+		api.SetBadRequest(c, errors.New("no email senders found"))
+		return
+	}
 
-	api.SetStatusOk(c, "email senders retrieved successfully", emailSenders)
+	err = sendTrialEmail(senders[0], recipient.Email)
+	if err != nil {
+		log.Errorf("request(%s): failed to try email sender: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"email sender tried successfully",
+		nil,
+	)
 }
 
-func updateEmailSender(c *gin.Context) {
-	var emailSender v1.EmailSender
-	if err := c.ShouldBindJSON(&emailSender); err != nil {
+func listEmailSenders(c *gin.Context) {
+	senders, err := getEmailSenders()
+	if err != nil {
+		log.Errorf("request(%s): failed to list email senders: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"email senders retrieved successfully",
+		senders,
+	)
+}
+
+func patchEmailSender(c *gin.Context) {
+	sender := email.Sender{}
+	err := c.ShouldBindJSON(&sender)
+	if err != nil {
 		log.Errorf("request(%s): failed to decode email sender: %s", api.GetReqId(c), err.Error())
 		return
 	}
 
-	if err := upsertEmailSenderRecord(emailSender); err != nil {
+	err = checkSenderUpdate(c, sender)
+	if err != nil {
+		log.Errorf("request(%s): failed to update email sender: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+	}
+
+	sender.Host = c.Param("senderHost")
+	err = updateEmailSender(sender)
+	if err != nil {
 		log.Errorf("request(%s): failed to update email sender: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOk(c, "email sender updated successfully", nil)
+	api.SetStatusOk(
+		c,
+		"email sender updated successfully",
+		nil,
+	)
 }
 
 func deleteEmailSender(c *gin.Context) {
-	if err := deleteEmailSenderRecord(); err != nil {
+	host := c.Param("senderHost")
+	if !isSenderExist(host) {
+		api.SetBadRequest(c, errors.New("sender not found"))
+		return
+	}
+
+	err := removeEmailSender(host)
+	if err != nil {
 		log.Errorf("request(%s): failed to delete email sender: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOk(c, "email sender deleted successfully", nil)
+	api.SetStatusOk(
+		c,
+		"email sender deleted successfully",
+		nil,
+	)
 }
 
 func createEmailRecipient(c *gin.Context) {
-	var emailRecipient v1.EmailRecipient
-	if err := c.ShouldBindJSON(&emailRecipient); err != nil {
+	recipient := email.Recipient{}
+	err := c.ShouldBindJSON(&recipient)
+	if err != nil {
 		log.Errorf("request(%s): failed to decode email recipient: %s", api.GetReqId(c), err.Error())
 		return
 	}
 
-	if err := createEmailRecipientRecord(emailRecipient); err != nil {
+	err = recipient.CheckFormat()
+	if err != nil {
+		log.Errorf("request(%s): invalid email format: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	if isRecipientExist(recipient.Email) {
+		api.SetStatusConflict(c, errors.New("recipient already exists"))
+		return
+	}
+
+	err = insertEmailRecipient(recipient)
+	if err != nil {
 		log.Errorf("request(%s): failed to create email recipient: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusCreated(c, "email recipient created successfully", nil)
+	api.SetStatusCreated(
+		c,
+		"email recipient created successfully",
+		nil,
+	)
 }
 
-func getEmailRecipients(c *gin.Context) {
-	emailRecipients, err := getEmailRecipientRecords()
+func listEmailRecipients(c *gin.Context) {
+	recipients, err := getEmailRecipients()
 	if err != nil {
-		log.Errorf("request(%s): failed to get email recipients: %s", api.GetReqId(c), err.Error())
+		log.Errorf("request(%s): failed to list email recipients: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOk(c, "email recipients retrieved successfully", emailRecipients)
+	api.SetStatusOk(
+		c,
+		"email recipients retrieved successfully",
+		recipients,
+	)
 }
 
-func updateEmailRecipient(c *gin.Context) {
-	var emailRecipient v1.EmailRecipient
-	if err := c.ShouldBindJSON(&emailRecipient); err != nil {
+func patchEmailRecipient(c *gin.Context) {
+	recipient := email.Recipient{}
+	err := c.ShouldBindJSON(&recipient)
+	if err != nil {
 		log.Errorf("request(%s): failed to decode email recipient: %s", api.GetReqId(c), err.Error())
 		return
 	}
 
-	emailRecipient.ID = c.Param("id")
-	if err := updateEmailRecipientRecord(emailRecipient); err != nil {
+	err = checkRecipientUpdate(c, recipient)
+	if err != nil {
+		log.Errorf("request(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	recipient.Email = c.Param("recipientEmail")
+	err = updateEmailRecipient(recipient)
+	if err != nil {
 		log.Errorf("request(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOk(c, "email recipient updated successfully", nil)
+	api.SetStatusOk(
+		c,
+		"email recipient updated successfully",
+		nil,
+	)
 }
 
 func deleteEmailRecipient(c *gin.Context) {
-	recipientID := c.Param("id")
-	if err := deleteEmailRecipientRecord(recipientID); err != nil {
+	recipient := c.Param("recipientEmail")
+	if !isRecipientExist(recipient) {
+		api.SetBadRequest(c, errors.New("recipient not found"))
+		return
+	}
+
+	err := removeEmailRecipient(recipient)
+	if err != nil {
 		log.Errorf("request(%s): failed to delete email recipient: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOk(c, "email recipient deleted successfully", nil)
+	api.SetStatusOk(
+		c,
+		"email recipient deleted successfully",
+		nil,
+	)
 }
 
-func createSlackWebhook(c *gin.Context) {
-	var slackWebhook v1.SlackWebhook
-	if err := c.ShouldBindJSON(&slackWebhook); err != nil {
-		log.Errorf("request(%s): failed to decode slack webhook: %s", api.GetReqId(c), err.Error())
-		return
-	}
-
-	if err := createSlackWebhookRecord(slackWebhook); err != nil {
-		log.Errorf("request(%s): failed to create slack webhook: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
-		return
-	}
-
-	api.SetStatusCreated(c, "slack webhook created successfully", nil)
-}
-
-func getSlackWebhooks(c *gin.Context) {
-	slackWebhooks, err := getSlackWebhookRecords()
+func createSlackChannel(c *gin.Context) {
+	channel := slack.Channel{}
+	err := c.ShouldBindJSON(&channel)
 	if err != nil {
-		log.Errorf("request(%s): failed to get slack webhooks: %s", api.GetReqId(c), err.Error())
+		log.Errorf("request(%s): failed to decode slack channel: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	if isChannelExist(channel.Name) {
+		api.SetBadRequest(c, errors.New("channel already exists"))
+		return
+	}
+
+	err = insertSlackChannel(channel)
+	if err != nil {
+		log.Errorf("request(%s): failed to create slack channel: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOk(c, "slack webhooks retrieved successfully", slackWebhooks)
+	api.SetStatusCreated(
+		c,
+		"slack channel created successfully",
+		nil,
+	)
 }
 
-func updateSlackWebhook(c *gin.Context) {
-	var slackWebhook v1.SlackWebhook
-	if err := c.ShouldBindJSON(&slackWebhook); err != nil {
-		log.Errorf("request(%s): failed to decode slack webhook: %s", api.GetReqId(c), err.Error())
-		return
-	}
-
-	slackWebhook.ID = c.Param("id")
-	if err := updateSlackWebhookRecord(slackWebhook); err != nil {
-		log.Errorf("request(%s): failed to update slack webhook: %s", api.GetReqId(c), err.Error())
+func trySlackChannel(c *gin.Context) {
+	channel, err := getSlackChannel(c.Param("channelName"))
+	if err != nil {
+		log.Errorf("request(%s): failed to get slack channel: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOk(c, "slack webhook updated successfully", nil)
+	err = sendTrialSlackMessage(*channel)
+	if err != nil {
+		log.Errorf("request(%s): failed to try slack channel: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"slack channel tried successfully",
+		nil,
+	)
 }
 
-func deleteSlackWebhook(c *gin.Context) {
-	webhookID := c.Param("id")
-	if err := deleteSlackWebhookRecord(webhookID); err != nil {
-		log.Errorf("request(%s): failed to delete slack webhook: %s", api.GetReqId(c), err.Error())
+func listSlackChannels(c *gin.Context) {
+	channels, err := getSlackChannels()
+	if err != nil {
+		log.Errorf("request(%s): failed to list slack channels: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	api.SetStatusOk(c, "slack webhook deleted successfully", nil)
+	api.SetStatusOk(
+		c,
+		"slack channels retrieved successfully",
+		channels,
+	)
+}
+
+func putSlackChannel(c *gin.Context) {
+	channel := slack.Channel{}
+	err := c.ShouldBindJSON(&channel)
+	if err != nil {
+		log.Errorf("request(%s): failed to decode slack channel: %s", api.GetReqId(c), err.Error())
+		return
+	}
+
+	err = checkSlackChannelUpdate(c, channel)
+	if err != nil {
+		log.Errorf("request(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	channel.Name = c.Param("channelName")
+	err = updateSlackChannel(channel)
+	if err != nil {
+		log.Errorf("request(%s): failed to update slack channel: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"slack channel updated successfully",
+		nil,
+	)
+}
+
+func deleteSlackChannel(c *gin.Context) {
+	name := c.Param("channelName")
+	if !isChannelExist(name) {
+		api.SetBadRequest(c, errors.New("channel not found"))
+		return
+	}
+
+	err := removeSlackChannel(name)
+	if err != nil {
+		log.Errorf("request(%s): failed to delete slack channel: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"slack channel deleted successfully",
+		nil,
+	)
 }

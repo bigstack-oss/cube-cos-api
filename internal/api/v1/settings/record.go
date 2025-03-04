@@ -3,211 +3,300 @@ package settings
 import (
 	"context"
 
-	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/google/uuid"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func getSettingRecord() (v1.Setting, error) {
-	sender, err := getEmailSenderRecords()
+func getAllSettings() (*v1.Setting, error) {
+	titlePrefix, err := getTitlePrefix()
 	if err != nil {
-		log.Errorf("failed to get email sender records (%s)", err.Error())
-		return v1.Setting{}, err
+		log.Errorf("failed to get title prefix (%s)", err.Error())
+		return nil, err
 	}
-	recipient, err := getEmailRecipientRecords()
+
+	senders, err := getEmailSenders()
 	if err != nil {
-		log.Errorf("failed to get email recipient records (%s)", err.Error())
-		return v1.Setting{}, err
+		log.Errorf("failed to get email sender (%s)", err.Error())
+		return nil, err
 	}
-	webhook, err := getSlackWebhookRecords()
+
+	recipients, err := getEmailRecipients()
 	if err != nil {
-		log.Errorf("failed to get slack webhook records (%s)", err.Error())
-		return v1.Setting{}, err
+		log.Errorf("failed to get email recipient (%s)", err.Error())
+		return nil, err
 	}
-	return v1.Setting{
-		EmailSenders:    sender,
-		EmailRecipients: recipient,
-		SlackWebhooks:   webhook,
+
+	channels, err := getSlackChannels()
+	if err != nil {
+		log.Errorf("failed to get slack channel (%s)", err.Error())
+		return nil, err
+	}
+
+	return &v1.Setting{
+		TitlePrefix: titlePrefix,
+		Email: email.Options{
+			Senders:    senders,
+			Recipients: recipients,
+		},
+		Slack: slack.Options{
+			Channels: channels,
+		},
 	}, nil
 }
 
-func upsertEmailSenderRecord(emailSender v1.EmailSender) error {
-	h := cubeMongo.GetGlobalHelper()
-	opts := options.Update().SetUpsert(true)
+func upsertTitlePrefix(titlePrefix string) error {
+	h := mongo.GetGlobalHelper()
 	return h.UpdateOne(
 		v1.SettingsDB(),
-		v1.EmailSenderCollection(),
-		bson.M{},
-		bson.M{"$set": emailSender},
-		opts,
+		v1.TitlePrefixCollection(),
+		bson.M{"value": bson.M{"$ne": ""}},
+		bson.M{"$set": bson.M{"value": titlePrefix}},
+		options.Update().SetUpsert(true),
 	)
 }
 
-func getEmailSenderRecords() ([]v1.EmailSender, error) {
-	h := cubeMongo.GetGlobalHelper()
-	senders := []v1.EmailSender{}
-
-	curCtx, curCancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer curCancel()
-
-	cursor, err := h.GetQueryCursor(v1.SettingsDB(), v1.EmailSenderCollection(), bson.M{"deleted": bson.M{"$ne": true}})
+func getTitlePrefix() (string, error) {
+	h := mongo.GetGlobalHelper()
+	cursor, err := h.GetQueryCursor(
+		v1.SettingsDB(),
+		v1.TitlePrefixCollection(),
+		bson.M{},
+	)
 	if err != nil {
 		log.Errorf("failed to get cursor for email sender (%s)", err.Error())
-		return senders, err
-	}
-	defer cursor.Close(curCtx)
-
-	nxtCtx, nxtCancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer nxtCancel()
-
-	for cursor.Next(nxtCtx) {
-		sender := v1.EmailSender{}
-		if err := cursor.Decode(&sender); err != nil {
-			continue
-		}
-		senders = append(senders, sender)
-	}
-	if cursor.Err() != nil {
-		log.Errorf("failed to iterate email sender records (%s)", cursor.Err().Error())
+		return "", err
 	}
 
-	return senders, nil
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	defer cursor.Close(ctx)
+	return parseTitlePrefix(cursor)
 }
 
-func deleteEmailSenderRecord() error {
-	h := cubeMongo.GetGlobalHelper()
-	return h.UpdateOne(
+func insertEmailSender(sender email.Sender) error {
+	h := mongo.GetGlobalHelper()
+	return h.Insert(
+		v1.SettingsDB(),
+		email.SenderCollection(),
+		sender,
+	)
+}
+
+func getEmailSenders() ([]email.Sender, error) {
+	h := mongo.GetGlobalHelper()
+	cursor, err := h.GetQueryCursor(
 		v1.SettingsDB(),
 		v1.EmailSenderCollection(),
 		bson.M{},
-		bson.M{"$set": bson.M{"deleted": true}},
+	)
+	if err != nil {
+		log.Errorf("failed to get cursor for email sender (%s)", err.Error())
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	defer cursor.Close(ctx)
+	return parseEmailSender(cursor)
+}
+
+func updateEmailSender(sender email.Sender) error {
+	h := mongo.GetGlobalHelper()
+	return h.UpdateOne(
+		v1.SettingsDB(),
+		email.SenderCollection(),
+		bson.M{"host": sender.Host},
+		bson.M{"$set": bson.M{
+			"host":     sender.Host,
+			"port":     sender.Port,
+			"username": sender.Username,
+			"password": sender.Password,
+			"email":    sender.Email,
+		},
+		},
 	)
 }
 
-func createEmailRecipientRecord(emailRecipient v1.EmailRecipient) error {
-	h := cubeMongo.GetGlobalHelper()
-	emailRecipient.ID = uuid.NewString()
+func removeEmailSender(host string) error {
+	h := mongo.GetGlobalHelper()
+	return h.DeleteOne(
+		v1.SettingsDB(),
+		email.SenderCollection(),
+		bson.M{"host": host},
+	)
+}
+
+func insertEmailRecipient(recipient email.Recipient) error {
+	h := mongo.GetGlobalHelper()
 	return h.Insert(
 		v1.SettingsDB(),
-		v1.EmailRecipientCollection(),
-		emailRecipient,
+		email.RecipientCollection(),
+		recipient,
 	)
 }
 
-func getEmailRecipientRecords() ([]v1.EmailRecipient, error) {
-	h := cubeMongo.GetGlobalHelper()
-	recipients := []v1.EmailRecipient{}
-
-	curCtx, curCancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer curCancel()
-
-	cursor, err := h.GetQueryCursor(v1.SettingsDB(), v1.EmailRecipientCollection(), bson.M{"deleted": bson.M{"$ne": true}})
+func getEmailRecipients() ([]email.Recipient, error) {
+	h := mongo.GetGlobalHelper()
+	cursor, err := h.GetQueryCursor(
+		v1.SettingsDB(),
+		email.RecipientCollection(),
+		bson.M{},
+	)
 	if err != nil {
 		log.Errorf("failed to get cursor for email recipient (%s)", err.Error())
-		return recipients, err
+		return nil, err
 	}
-	defer cursor.Close(curCtx)
 
-	nxtCtx, nxtCancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer nxtCancel()
-
-	for cursor.Next(nxtCtx) {
-		recipient := v1.EmailRecipient{}
-		if err := cursor.Decode(&recipient); err != nil {
-			continue
-		}
-		recipients = append(recipients, recipient)
-	}
-	if cursor.Err() != nil {
-		log.Errorf("failed to iterate email recipient records (%s)", cursor.Err().Error())
-	}
-	return recipients, nil
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	defer cursor.Close(ctx)
+	return parseEmailRecipient(cursor)
 }
 
-func updateEmailRecipientRecord(emailRecipient v1.EmailRecipient) error {
-	h := cubeMongo.GetGlobalHelper()
-	filter := bson.M{"id": emailRecipient.ID}
-	update := bson.M{"$set": emailRecipient}
+func updateEmailRecipient(recipient email.Recipient) error {
+	h := mongo.GetGlobalHelper()
 	return h.UpdateOne(
 		v1.SettingsDB(),
-		v1.EmailRecipientCollection(),
-		filter,
-		update,
+		email.RecipientCollection(),
+		bson.M{"email": recipient.Email},
+		bson.M{
+			"$set": bson.M{
+				"note": recipient.Note,
+			},
+		},
 	)
 }
 
-func deleteEmailRecipientRecord(id string) error {
-	h := cubeMongo.GetGlobalHelper()
-	return h.UpdateOne(
+func removeEmailRecipient(recipient string) error {
+	h := mongo.GetGlobalHelper()
+	return h.DeleteOne(
 		v1.SettingsDB(),
-		v1.EmailRecipientCollection(),
-		bson.M{"id": id},
-		bson.M{"$set": bson.M{"deleted": true}},
+		email.RecipientCollection(),
+		bson.M{"email": recipient},
 	)
 }
 
-func createSlackWebhookRecord(webhook v1.SlackWebhook) error {
-	h := cubeMongo.GetGlobalHelper()
-	webhook.ID = uuid.NewString()
+func insertSlackChannel(channel slack.Channel) error {
+	h := mongo.GetGlobalHelper()
 	return h.Insert(
 		v1.SettingsDB(),
-		v1.SlackWebhookCollection(),
-		webhook,
+		slack.ChannelCollection(),
+		channel,
 	)
 }
 
-func getSlackWebhookRecords() ([]v1.SlackWebhook, error) {
-	h := cubeMongo.GetGlobalHelper()
-	webhooks := []v1.SlackWebhook{}
-
-	curCtx, curCancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer curCancel()
-
-	cursor, err := h.GetQueryCursor(v1.SettingsDB(), v1.SlackWebhookCollection(), bson.M{"deleted": bson.M{"$ne": true}})
+func getSlackChannel(name string) (*slack.Channel, error) {
+	h := mongo.GetGlobalHelper()
+	resp, err := h.Get(
+		v1.SettingsDB(),
+		slack.ChannelCollection(),
+		bson.M{"name": name},
+	)
 	if err != nil {
-		log.Errorf("failed to get cursor for slack webhook (%s)", err.Error())
-		return webhooks, err
+		log.Errorf("failed to get slack channel (%s)", err.Error())
+		return nil, err
 	}
-	defer cursor.Close(curCtx)
 
-	nxtCtx, nxtCancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer nxtCancel()
+	channel := slack.Channel{}
+	err = resp.Decode(&channel)
+	if err != nil {
+		log.Errorf("failed to decode slack channel (%s)", err.Error())
+		return nil, err
+	}
 
-	for cursor.Next(nxtCtx) {
-		webhook := v1.SlackWebhook{}
-		if err := cursor.Decode(&webhook); err != nil {
-			continue
-		}
-		webhooks = append(webhooks, webhook)
-	}
-	if cursor.Err() != nil {
-		log.Errorf("failed to iterate slack webhook records (%s)", cursor.Err().Error())
-	}
-	return webhooks, nil
+	return &channel, nil
 }
 
-func updateSlackWebhookRecord(webhook v1.SlackWebhook) error {
-	h := cubeMongo.GetGlobalHelper()
-	filter := bson.M{"id": webhook.ID}
-	update := bson.M{"$set": webhook}
+func getSlackChannels() ([]slack.Channel, error) {
+	h := mongo.GetGlobalHelper()
+	cursor, err := h.GetQueryCursor(
+		v1.SettingsDB(),
+		slack.ChannelCollection(),
+		bson.M{},
+	)
+	if err != nil {
+		log.Errorf("failed to get cursor for slack channel (%s)", err.Error())
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	defer cursor.Close(ctx)
+	return parseSlackChannel(cursor)
+}
+
+func updateSlackChannel(channel slack.Channel) error {
+	h := mongo.GetGlobalHelper()
 	return h.UpdateOne(
 		v1.SettingsDB(),
-		v1.SlackWebhookCollection(),
-		filter,
-		update,
+		slack.ChannelCollection(),
+		bson.M{"name": channel.Name},
+		bson.M{
+			"$set": bson.M{
+				"channel":     channel.Name,
+				"url":         channel.URL,
+				"description": channel.Description,
+			},
+		},
 	)
 }
 
-func deleteSlackWebhookRecord(id string) error {
-	h := cubeMongo.GetGlobalHelper()
-	return h.UpdateOne(
+func removeSlackChannel(name string) error {
+	h := mongo.GetGlobalHelper()
+	return h.DeleteOne(
 		v1.SettingsDB(),
-		v1.SlackWebhookCollection(),
-		bson.M{"id": id},
-		bson.M{"$set": bson.M{"deleted": true}},
+		slack.ChannelCollection(),
+		bson.M{"name": name},
 	)
+}
+
+func isSenderExist(sender string) bool {
+	h := mongo.GetGlobalHelper()
+	count, err := h.GetCount(
+		v1.SettingsDB(),
+		email.SenderCollection(),
+		bson.M{"host": sender},
+	)
+	if err != nil {
+		log.Errorf("failed to get count of email sender (%s)", err.Error())
+		return false
+	}
+
+	return count > 0
+}
+
+func isRecipientExist(recipient string) bool {
+	h := mongo.GetGlobalHelper()
+	count, err := h.GetCount(
+		v1.SettingsDB(),
+		email.RecipientCollection(),
+		bson.M{"email": recipient},
+	)
+	if err != nil {
+		log.Errorf("failed to get count of email recipient (%s)", err.Error())
+		return false
+	}
+
+	return count > 0
+}
+
+func isChannelExist(channel string) bool {
+	h := mongo.GetGlobalHelper()
+	count, err := h.GetCount(
+		v1.SettingsDB(),
+		slack.ChannelCollection(),
+		bson.M{"name": channel},
+	)
+	if err != nil {
+		log.Errorf("failed to get count of slack channel (%s)", err.Error())
+		return false
+	}
+
+	return count > 0
 }

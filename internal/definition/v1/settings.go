@@ -1,56 +1,42 @@
 package v1
 
+import (
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
+)
+
 const (
 	Settings        = "settings"
-	EmailSenders    = "emailSenders"
-	EmailRecipients = "emailRecipients"
-	SlackWebhooks   = "slackWebhooks"
+	titlePrefix     = "titlePrefix"
+	emailSenders    = "emailSenders"
+	emailRecipients = "emailRecipients"
+	slackChannels   = "slackChannels"
 )
 
 type Setting struct {
-	EmailSenders    []EmailSender    `json:"emailSenders" bson:"emailSenders"`
-	EmailRecipients []EmailRecipient `json:"emailRecipients" bson:"emailRecipients"`
-	SlackWebhooks   []SlackWebhook   `json:"slackWebhooks" bson:"slackWebhooks"`
+	TitlePrefix string        `json:"titlePrefix" bson:"titlePrefix"`
+	Email       email.Options `json:"email" bson:"email"`
+	Slack       slack.Options `json:"slack" bson:"slack"`
 }
 
-type EmailSender struct {
-	Deleted bool `json:"-" bson:"deleted"`
-
-	Host     string `json:"host" bson:"host"`
-	Port     int    `json:"port" bson:"port"`
-	Username string `json:"username" bson:"username"`
-	Password string `json:"password" bson:"password"`
-	From     string `json:"from" bson:"from"`
-
-	Note string `json:"note,omitempty" bson:"note,omitempty"`
+type TitlePrefix struct {
+	Value string `json:"value" bson:"value"`
 }
 
-type EmailRecipient struct {
-	ID      string `json:"id" bson:"id"`
-	Deleted bool   `json:"-" bson:"deleted"`
-
-	To   []string `json:"to" bson:"to"`
-	Note string   `json:"note,omitempty" bson:"note,omitempty"`
-}
-
-type SlackWebhook struct {
-	ID      string `json:"id" bson:"id"`
-	Deleted bool   `json:"-" bson:"deleted"`
-
-	URL     string `json:"url" bson:"url"`
-	Channel string `json:"channel" bson:"channel"`
+func TitlePrefixCollection() string {
+	return titlePrefix
 }
 
 func EmailSenderCollection() string {
-	return EmailSenders
+	return emailSenders
 }
 
 func EmailRecipientCollection() string {
-	return EmailRecipients
+	return emailRecipients
 }
 
-func SlackWebhookCollection() string {
-	return SlackWebhooks
+func SlackChannelCollection() string {
+	return slackChannels
 }
 
 func SettingsDB() string {
