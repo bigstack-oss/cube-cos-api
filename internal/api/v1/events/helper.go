@@ -174,9 +174,8 @@ func (h *helper) parseEventFilterConditions() (*helper, error) {
 func (h *helper) parseType() error {
 	t := h.c.DefaultQuery("type", "")
 	if !cubecos.IsEventTypeValid(t) {
-		return fmt.Errorf(
-			"'type' can't be null and should be one of 'system', 'host', or 'instance': %s",
-			t,
+		return errors.New(
+			"'type' can't be null and should be one of 'system', 'host', or 'instance'",
 		)
 	}
 
@@ -190,13 +189,13 @@ func (h *helper) parsePeriod() error {
 	}
 
 	qStart := h.c.DefaultQuery("start", definition.TimeRFC3339(-24*time.Hour))
-	start, err := time.Parse(time.RFC3339, qStart)
+	start, err := time.Parse(definition.RFC3339, qStart)
 	if err != nil {
 		return fmt.Errorf("'start' time format should be aligned with RFC3339: %s", qStart)
 	}
 
 	qStop := h.c.DefaultQuery("stop", definition.TimeNowRFC3339())
-	stop, err := time.Parse(time.RFC3339, qStop)
+	stop, err := time.Parse(definition.RFC3339, qStop)
 	if err != nil {
 		return fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", qStop)
 	}

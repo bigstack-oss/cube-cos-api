@@ -414,7 +414,7 @@ func GetCpuHistoryOfHost(stmt string) ([]definition.TimeValue, error) {
 func parseCpuUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
 	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -422,7 +422,7 @@ func parseCpuUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, erro
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeLocalISO8601(date),
+				Time:  definition.TimeISO8601Z(date),
 				Value: parseUsedOfHost(c.Record()),
 			},
 		)
@@ -621,7 +621,7 @@ func GetMemoryHistoryOfHost(entityId string, period definition.Period) ([]defini
 func parseMemoryUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
 	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -629,7 +629,7 @@ func parseMemoryUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, e
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeLocalISO8601(date),
+				Time:  definition.TimeISO8601Z(date),
 				Value: parseUsedOfHost(c.Record()),
 			},
 		)
@@ -763,7 +763,7 @@ func GetDiskUsageHistoryOfHost(entityId string, period definition.Period) ([]def
 func parseDiskUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
 	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -771,7 +771,7 @@ func parseDiskUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, err
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeLocalISO8601(date),
+				Time:  definition.TimeISO8601Z(date),
 				Value: parseUsedOfHost(c.Record()),
 			},
 		)
@@ -827,7 +827,7 @@ func GetNetworkTrafficInHistoryOfHost(entityId string, period definition.Period)
 func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
 	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -835,7 +835,7 @@ func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]definition.TimeValue
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeLocalISO8601(date),
+				Time:  definition.TimeISO8601Z(date),
 				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
@@ -935,7 +935,7 @@ func GetCpuHistoryOfVm(entityId string, period definition.Period) ([]definition.
 func parseCpuUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeValue, error) {
 	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -943,7 +943,7 @@ func parseCpuUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeValue, 
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeLocalISO8601(date),
+				Time:  definition.TimeISO8601Z(date),
 				Value: parseUsed(c.Record()),
 			},
 		)
@@ -999,7 +999,7 @@ func GetMemoryHistoryOfVm(entityId string, period definition.Period) ([]definiti
 func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeValue, error) {
 	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1007,7 +1007,7 @@ func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeValu
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeLocalISO8601(date),
+				Time:  definition.TimeISO8601Z(date),
 				Value: parseUsed(c.Record()),
 			},
 		)
@@ -1334,7 +1334,7 @@ func parseHostStorageUsageRank(c *api.QueryTableResult) ([]definition.RankPoint,
 func parseDiskOpsHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
 	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1342,7 +1342,7 @@ func parseDiskOpsHistory(c *api.QueryTableResult) ([]definition.TimeValue, error
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  date.Format(time.RFC3339),
+				Time:  definition.TimeISO8601Z(date),
 				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
@@ -1354,7 +1354,7 @@ func parseDiskOpsHistory(c *api.QueryTableResult) ([]definition.TimeValue, error
 func parseDiskLatencyHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
 	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1362,7 +1362,7 @@ func parseDiskLatencyHistory(c *api.QueryTableResult) ([]definition.TimeValue, e
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeLocalISO8601(date),
+				Time:  definition.TimeISO8601Z(date),
 				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
@@ -1405,7 +1405,7 @@ func getDiskBandwidthHistory(stmt string) ([]definition.TimeValue, error) {
 func parseDiskBandwidthHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
 	points := []definition.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(eventTimeLayout, c.Record().Time().Local().String())
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1413,7 +1413,7 @@ func parseDiskBandwidthHistory(c *api.QueryTableResult) ([]definition.TimeValue,
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeLocalISO8601(date),
+				Time:  definition.TimeISO8601Z(date),
 				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
