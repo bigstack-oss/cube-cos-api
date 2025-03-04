@@ -20,7 +20,7 @@ var Handlers = []api.Handler{
 	},
 	{
 		Version: api.V1,
-		Method:  "PATCH",
+		Method:  "PUT",
 		Path:    "/settings/titlePrefix",
 		Func:    patchTitlePrefix,
 	},
@@ -33,7 +33,7 @@ var Handlers = []api.Handler{
 	{
 		Version: api.V1,
 		Method:  "POST",
-		Path:    "/settings/email/senders/:host",
+		Path:    "/settings/email/senders/:senderHost",
 		Func:    tryEmailSender,
 	},
 	{
@@ -44,14 +44,14 @@ var Handlers = []api.Handler{
 	},
 	{
 		Version: api.V1,
-		Method:  "PATCH",
-		Path:    "/settings/email/senders/:host",
+		Method:  "PUT",
+		Path:    "/settings/email/senders/:senderHost",
 		Func:    patchEmailSender,
 	},
 	{
 		Version: api.V1,
 		Method:  "DELETE",
-		Path:    "/settings/email/senders:host",
+		Path:    "/settings/email/senders/:senderHost",
 		Func:    deleteEmailSender,
 	},
 	{
@@ -68,14 +68,14 @@ var Handlers = []api.Handler{
 	},
 	{
 		Version: api.V1,
-		Method:  "PATCH",
-		Path:    "/settings/email/recipients/:email",
+		Method:  "PUT",
+		Path:    "/settings/email/recipients/:recipientEmail",
 		Func:    patchEmailRecipient,
 	},
 	{
 		Version: api.V1,
 		Method:  "DELETE",
-		Path:    "/settings/email/recipients/:email",
+		Path:    "/settings/email/recipients/:recipientEmail",
 		Func:    deleteEmailRecipient,
 	},
 	{
@@ -87,7 +87,7 @@ var Handlers = []api.Handler{
 	{
 		Version: api.V1,
 		Method:  "POST",
-		Path:    "/settings/slack/channels/:name",
+		Path:    "/settings/slack/channels/:channelName",
 		Func:    trySlackChannel,
 	},
 	{
@@ -98,14 +98,14 @@ var Handlers = []api.Handler{
 	},
 	{
 		Version: api.V1,
-		Method:  "PATCH",
-		Path:    "/settings/slack/channels/:name",
+		Method:  "PUT",
+		Path:    "/settings/slack/channels/:channelName",
 		Func:    putSlackChannel,
 	},
 	{
 		Version: api.V1,
 		Method:  "DELETE",
-		Path:    "/settings/slack/channels/:name",
+		Path:    "/settings/slack/channels/:channelName",
 		Func:    deleteSlackChannel,
 	},
 }
@@ -157,8 +157,8 @@ func createEmailSender(c *gin.Context) {
 		return
 	}
 
-	if !isSenderExist(sender.Host) {
-		api.SetBadRequest(c, errors.New("sender not found"))
+	if isSenderExist(sender.Host) {
+		api.SetStatusConflict(c, errors.New("sender host already exists"))
 		return
 	}
 
@@ -234,12 +234,6 @@ func listEmailSenders(c *gin.Context) {
 }
 
 func patchEmailSender(c *gin.Context) {
-	host := c.Param("host")
-	if !isSenderExist(host) {
-		api.SetBadRequest(c, errors.New("sender not found"))
-		return
-	}
-
 	sender := email.Sender{}
 	err := c.ShouldBindJSON(&sender)
 	if err != nil {
@@ -247,6 +241,13 @@ func patchEmailSender(c *gin.Context) {
 		return
 	}
 
+	err = checkSenderUpdate(c, sender)
+	if err != nil {
+		log.Errorf("request(%s): failed to update email sender: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+	}
+
+	sender.Host = c.Param("senderHost")
 	err = updateEmailSender(sender)
 	if err != nil {
 		log.Errorf("request(%s): failed to update email sender: %s", api.GetReqId(c), err.Error())
@@ -262,7 +263,7 @@ func patchEmailSender(c *gin.Context) {
 }
 
 func deleteEmailSender(c *gin.Context) {
-	host := c.Param("host")
+	host := c.Param("senderHost")
 	if !isSenderExist(host) {
 		api.SetBadRequest(c, errors.New("sender not found"))
 		return
@@ -297,8 +298,8 @@ func createEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	if !isRecipientExist(recipient.Email) {
-		api.SetBadRequest(c, errors.New("recipient already exists"))
+	if isRecipientExist(recipient.Email) {
+		api.SetStatusConflict(c, errors.New("recipient already exists"))
 		return
 	}
 
@@ -332,12 +333,6 @@ func listEmailRecipients(c *gin.Context) {
 }
 
 func patchEmailRecipient(c *gin.Context) {
-	recipientEmail := c.Param("email")
-	if !isRecipientExist(recipientEmail) {
-		api.SetBadRequest(c, errors.New("recipient not found"))
-		return
-	}
-
 	recipient := email.Recipient{}
 	err := c.ShouldBindJSON(&recipient)
 	if err != nil {
@@ -345,7 +340,14 @@ func patchEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	recipient.Email = recipientEmail
+	err = checkRecipientUpdate(c, recipient)
+	if err != nil {
+		log.Errorf("request(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	recipient.Email = c.Param("recipientEmail")
 	err = updateEmailRecipient(recipient)
 	if err != nil {
 		log.Errorf("request(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
@@ -361,7 +363,7 @@ func patchEmailRecipient(c *gin.Context) {
 }
 
 func deleteEmailRecipient(c *gin.Context) {
-	recipient := c.Param("email")
+	recipient := c.Param("recipientEmail")
 	if !isRecipientExist(recipient) {
 		api.SetBadRequest(c, errors.New("recipient not found"))
 		return
@@ -390,7 +392,7 @@ func createSlackChannel(c *gin.Context) {
 		return
 	}
 
-	if !isChannelExist(channel.Name) {
+	if isChannelExist(channel.Name) {
 		api.SetBadRequest(c, errors.New("channel already exists"))
 		return
 	}
@@ -410,7 +412,7 @@ func createSlackChannel(c *gin.Context) {
 }
 
 func trySlackChannel(c *gin.Context) {
-	channel, err := getSlackChannel(c.Param("name"))
+	channel, err := getSlackChannel(c.Param("channelName"))
 	if err != nil {
 		log.Errorf("request(%s): failed to get slack channel: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -447,20 +449,21 @@ func listSlackChannels(c *gin.Context) {
 }
 
 func putSlackChannel(c *gin.Context) {
-	name := c.Param("name")
-	if !isChannelExist(name) {
-		api.SetBadRequest(c, errors.New("channel not found"))
-		return
-	}
-
 	channel := slack.Channel{}
 	if err := c.ShouldBindJSON(&channel); err != nil {
 		log.Errorf("request(%s): failed to decode slack channel: %s", api.GetReqId(c), err.Error())
 		return
 	}
 
-	channel.Name = name
-	err := updateSlackChannel(channel)
+	err := checkSlackChannelUpdate(c, channel)
+	if err != nil {
+		log.Errorf("request(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	channel.Name = c.Param("channelName")
+	err = updateSlackChannel(channel)
 	if err != nil {
 		log.Errorf("request(%s): failed to update slack channel: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -475,7 +478,7 @@ func putSlackChannel(c *gin.Context) {
 }
 
 func deleteSlackChannel(c *gin.Context) {
-	name := c.Param("name")
+	name := c.Param("channelName")
 	if !isChannelExist(name) {
 		api.SetBadRequest(c, errors.New("channel not found"))
 		return

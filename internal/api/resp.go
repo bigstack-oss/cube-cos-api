@@ -27,14 +27,14 @@ func SetStatusOk(c *gin.Context, msg string, data interface{}) {
 }
 
 func SetStatusCreated(c *gin.Context, msg string, data interface{}) {
+	resp := gin.H{Code: http.StatusOK, Status: "ok", Msg: msg}
+	if data != nil {
+		resp[Data] = data
+	}
+
 	c.JSON(
 		http.StatusCreated,
-		gin.H{
-			Code:   http.StatusCreated,
-			Status: "created",
-			Msg:    msg,
-			Data:   data,
-		},
+		resp,
 	)
 }
 

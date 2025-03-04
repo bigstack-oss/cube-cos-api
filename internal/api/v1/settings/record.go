@@ -112,7 +112,14 @@ func updateEmailSender(sender email.Sender) error {
 		v1.SettingsDB(),
 		email.SenderCollection(),
 		bson.M{"host": sender.Host},
-		bson.M{"$set": sender},
+		bson.M{"$set": bson.M{
+			"host":     sender.Host,
+			"port":     sender.Port,
+			"username": sender.Username,
+			"password": sender.Password,
+			"email":    sender.Email,
+		},
+		},
 	)
 }
 
@@ -158,7 +165,11 @@ func updateEmailRecipient(recipient email.Recipient) error {
 		v1.SettingsDB(),
 		email.RecipientCollection(),
 		bson.M{"email": recipient.Email},
-		bson.M{"$set": recipient},
+		bson.M{
+			"$set": bson.M{
+				"note": recipient.Note,
+			},
+		},
 	)
 }
 
@@ -226,7 +237,13 @@ func updateSlackChannel(channel slack.Channel) error {
 		v1.SettingsDB(),
 		slack.ChannelCollection(),
 		bson.M{"name": channel.Name},
-		bson.M{"$set": channel},
+		bson.M{
+			"$set": bson.M{
+				"channel":     channel.Name,
+				"url":         channel.URL,
+				"description": channel.Description,
+			},
+		},
 	)
 }
 

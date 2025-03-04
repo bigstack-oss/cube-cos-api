@@ -6,7 +6,7 @@ toolchain go1.24.0
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
-	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250304045128-bd1c0ea7233a
+	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250304105712-83df70bfc0d8
 	github.com/blevesearch/bleve/v2 v2.4.4
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
 	github.com/coreos/go-oidc v2.3.0+incompatible

@@ -21,7 +21,7 @@ type Sender struct {
 	Port     int    `json:"port" bson:"port"`
 	Username string `json:"username" bson:"username"`
 	Password string `json:"password" bson:"password"`
-	Email    string `json:"from" bson:"from"`
+	Email    string `json:"email" bson:"email"`
 }
 
 func (s *Sender) Address() string {
@@ -34,7 +34,7 @@ func (s *Sender) UserAuth() smtp.Auth {
 
 type Recipient struct {
 	Email string `json:"email" bson:"email"`
-	Note  string `json:"note,omitempty" bson:"note,omitempty"`
+	Note  string `json:"note" bson:"note"`
 }
 
 func (r *Recipient) CheckFormat() error {
