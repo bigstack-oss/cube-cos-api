@@ -688,6 +688,7 @@ func GeDiskLatencyHistoryOfHosts(readStmt, writeStmt string) (*definition.Storag
 	}
 
 	return &definition.StorageTimeSeries{
+		Unit:  "milliseconds",
 		Read:  readSeries,
 		Write: writeSeries,
 	}, nil
