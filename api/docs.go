@@ -646,7 +646,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
-                        "example": "2025-01-01T01:00:00Z"
+                        "example": "2025-01-01T01:00:00+00:00"
                     },
                     {
                         "in": "query",
@@ -656,7 +656,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
-                        "example": "2025-01-01T01:00:00Z"
+                        "example": "2025-01-01T01:00:00+00:00"
                     },
                     {
                         "in": "query",
@@ -706,7 +706,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "invalid 'start' time: 2021-09-01T111:00:00Z"
+                                            "example": "invalid 'start' time: 2021-09-01T111:00:00+00:00"
                                         },
                                         "status": {
                                             "type": "string",
@@ -779,7 +779,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
-                        "example": "2025-01-01T01:00:00Z"
+                        "example": "2025-01-01T01:00:00+00:00"
                     },
                     {
                         "in": "query",
@@ -789,7 +789,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
-                        "example": "2025-01-01T01:00:00Z"
+                        "example": "2025-01-01T01:00:00+00:00"
                     }
                 ],
                 "responses": {
@@ -862,7 +862,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "invalid 'start' time: 2021-09-01T111:00:00Z"
+                                            "example": "invalid 'start' time: 2021-09-01T111:00:00+00:00"
                                         },
                                         "status": {
                                             "type": "string",
@@ -968,7 +968,7 @@ const docTemplate = `{
                                                             "id": "ccc449e4-a26c-47ac-afc1-c792ab1ed20a",
                                                             "ip": "192.168.0.10"
                                                         },
-                                                        "time": "2025-02-04T06:05:08Z"
+                                                        "time": "2025-02-04T06:05:08+00:00"
                                                     },
                                                     {
                                                         "type": "system",
@@ -983,7 +983,7 @@ const docTemplate = `{
                                                             "id": "441ddbcb-c6a3-48cd-933c-c416d52032b8",
                                                             "ip": "192.168.0.127"
                                                         },
-                                                        "time": "2025-02-03T19:30:15Z"
+                                                        "time": "2025-02-03T19:30:15+00:00"
                                                     },
                                                     {
                                                         "type": "system",
@@ -998,7 +998,7 @@ const docTemplate = `{
                                                             "id": "17fa8b83-3f9c-4541-a4a8-10b972f19bd2",
                                                             "ip": "10.254.1.149"
                                                         },
-                                                        "time": "2025-02-03T19:15:15Z"
+                                                        "time": "2025-02-03T19:15:15+00:00"
                                                     },
                                                     {
                                                         "type": "system",
@@ -1014,7 +1014,7 @@ const docTemplate = `{
                                                             "network_id": "cae0e230-9713-4717-a94e-7e2a50cb2d86",
                                                             "port_id": "5f20ef48-a1ea-4ef9-8463-6a790b2026c2"
                                                         },
-                                                        "time": "2025-02-03T17:32:09Z"
+                                                        "time": "2025-02-03T17:32:09+00:00"
                                                     },
                                                     {
                                                         "type": "system",
@@ -1030,7 +1030,7 @@ const docTemplate = `{
                                                             "network_id": "cae0e230-9713-4717-a94e-7e2a50cb2d86",
                                                             "port_id": "1caa0da6-8c58-4a80-9bac-2eda77c23c92"
                                                         },
-                                                        "time": "2025-02-03T17:32:09Z"
+                                                        "time": "2025-02-03T17:32:09+00:00"
                                                     },
                                                     {
                                                         "type": "system",
@@ -1045,7 +1045,7 @@ const docTemplate = `{
                                                             "id": "e5a85381-023c-4087-a607-c74687dc3b52",
                                                             "ip": "10.254.1.235"
                                                         },
-                                                        "time": "2025-02-03T17:30:15Z"
+                                                        "time": "2025-02-03T17:30:15+00:00"
                                                     },
                                                     {
                                                         "type": "system",
@@ -1060,7 +1060,7 @@ const docTemplate = `{
                                                             "id": "66cdfddb-efe1-4b67-b864-76c5d106524c",
                                                             "ip": "10.254.131.183"
                                                         },
-                                                        "time": "2025-02-03T17:30:15Z"
+                                                        "time": "2025-02-03T17:30:15+00:00"
                                                     },
                                                     {
                                                         "type": "system",
@@ -1075,7 +1075,7 @@ const docTemplate = `{
                                                             "id": "f682fc8d-2c8d-4557-9b84-049e5a72b713",
                                                             "ip": "192.168.0.157"
                                                         },
-                                                        "time": "2025-02-03T17:15:15Z"
+                                                        "time": "2025-02-03T17:15:15+00:00"
                                                     },
                                                     {
                                                         "type": "system",
@@ -1090,7 +1090,7 @@ const docTemplate = `{
                                                             "id": "6942ec52-f089-434d-ba5c-6137015b91b1",
                                                             "ip": "192.168.0.108"
                                                         },
-                                                        "time": "2025-02-03T16:50:15Z"
+                                                        "time": "2025-02-03T16:50:15+00:00"
                                                     },
                                                     {
                                                         "type": "system",
@@ -1105,7 +1105,7 @@ const docTemplate = `{
                                                             "id": "2d9ce9a4-5fe9-4011-84ae-8ecb20f64594",
                                                             "ip": "192.168.0.111"
                                                         },
-                                                        "time": "2025-02-03T16:35:15Z"
+                                                        "time": "2025-02-03T16:35:15+00:00"
                                                     }
                                                 ],
                                                 "limit": {
@@ -1134,7 +1134,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "invalid 'start' time: 2021-09-01T111:00:00Z"
+                                            "example": "invalid 'start' time: 2021-09-01T111:00:00+00:00"
                                         },
                                         "status": {
                                             "type": "string",
@@ -1262,7 +1262,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
-                        "example": "2025-01-01T01:00:00Z"
+                        "example": "2025-01-01T01:00:00+00:00"
                     },
                     {
                         "in": "query",
@@ -1272,7 +1272,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
-                        "example": "2025-01-01T01:00:00Z"
+                        "example": "2025-01-01T01:00:00+00:00"
                     },
                     {
                         "in": "query",
@@ -1342,7 +1342,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "invalid 'start' time: 2021-09-01T111:00:00Z"
+                                            "example": "invalid 'start' time: 2021-09-01T111:00:00+00:00"
                                         },
                                         "status": {
                                             "type": "string",
@@ -1658,7 +1658,7 @@ const docTemplate = `{
                                                     "module": "nova",
                                                     "history": [
                                                         {
-                                                            "time": "2025-02-15T08:44:36Z",
+                                                            "time": "2025-02-15T08:44:36+00:00",
                                                             "status": "ng",
                                                             "error": {
                                                                 "type": "service down",
@@ -1672,23 +1672,23 @@ const docTemplate = `{
                                                             }
                                                         },
                                                         {
-                                                            "time": "2025-02-15T08:49:36Z",
+                                                            "time": "2025-02-15T08:49:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T08:54:36Z",
+                                                            "time": "2025-02-15T08:54:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T08:59:36Z",
+                                                            "time": "2025-02-15T08:59:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:04:36Z",
+                                                            "time": "2025-02-15T09:04:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:09:36Z",
+                                                            "time": "2025-02-15T09:09:36+00:00",
                                                             "status": "ng",
                                                             "error": {
                                                                 "type": "service down",
@@ -1702,23 +1702,23 @@ const docTemplate = `{
                                                             }
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:14:36Z",
+                                                            "time": "2025-02-15T09:14:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:19:36Z",
+                                                            "time": "2025-02-15T09:19:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:24:36Z",
+                                                            "time": "2025-02-15T09:24:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:29:36Z",
+                                                            "time": "2025-02-15T09:29:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:34:36Z",
+                                                            "time": "2025-02-15T09:34:36+00:00",
                                                             "status": "ng",
                                                             "error": {
                                                                 "type": "service down",
@@ -1732,11 +1732,11 @@ const docTemplate = `{
                                                             }
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:39:36Z",
+                                                            "time": "2025-02-15T09:39:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:44:36Z",
+                                                            "time": "2025-02-15T09:44:36+00:00",
                                                             "status": "ok"
                                                         }
                                                     ]
@@ -1747,7 +1747,7 @@ const docTemplate = `{
                                                     "module": "cyborg",
                                                     "history": [
                                                         {
-                                                            "time": "2025-02-15T08:44:36Z",
+                                                            "time": "2025-02-15T08:44:36+00:00",
                                                             "status": "ng",
                                                             "error": {
                                                                 "type": "service down",
@@ -1761,23 +1761,23 @@ const docTemplate = `{
                                                             }
                                                         },
                                                         {
-                                                            "time": "2025-02-15T08:49:36Z",
+                                                            "time": "2025-02-15T08:49:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T08:54:36Z",
+                                                            "time": "2025-02-15T08:54:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T08:59:36Z",
+                                                            "time": "2025-02-15T08:59:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:04:36Z",
+                                                            "time": "2025-02-15T09:04:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:09:36Z",
+                                                            "time": "2025-02-15T09:09:36+00:00",
                                                             "status": "ng",
                                                             "error": {
                                                                 "type": "service down",
@@ -1791,23 +1791,23 @@ const docTemplate = `{
                                                             }
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:14:36Z",
+                                                            "time": "2025-02-15T09:14:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:19:36Z",
+                                                            "time": "2025-02-15T09:19:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:24:36Z",
+                                                            "time": "2025-02-15T09:24:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:29:36Z",
+                                                            "time": "2025-02-15T09:29:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:34:36Z",
+                                                            "time": "2025-02-15T09:34:36+00:00",
                                                             "status": "ng",
                                                             "error": {
                                                                 "type": "service down",
@@ -1821,11 +1821,11 @@ const docTemplate = `{
                                                             }
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:39:36Z",
+                                                            "time": "2025-02-15T09:39:36+00:00",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:44:36Z",
+                                                            "time": "2025-02-15T09:44:36+00:00",
                                                             "status": "ok"
                                                         }
                                                     ]
@@ -2027,7 +2027,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The start time of the health history to query, the value should be in RFC3339 format (default is 24 hours ago).",
-                        "example": "2025-01-01T01:00:00Z"
+                        "example": "2025-01-01T01:00:00+00:00"
                     },
                     {
                         "in": "query",
@@ -2037,7 +2037,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The end time of the health history to query, the value should be in RFC3339 format (default is now).",
-                        "example": "2025-01-01T01:00:00Z"
+                        "example": "2025-01-01T01:00:00+00:00"
                     },
                     {
                         "$ref": "#/components/parameters/watch"
@@ -2062,15 +2062,15 @@ const docTemplate = `{
                                                 "module": "nova",
                                                 "history": [
                                                     {
-                                                        "time": "2025-02-01T03:00:00Z",
+                                                        "time": "2025-02-01T03:00:00+00:00",
                                                         "status": "ok"
                                                     },
                                                     {
-                                                        "time": "2025-02-01T02:55:00Z",
+                                                        "time": "2025-02-01T02:55:00+00:00",
                                                         "status": "ok"
                                                     },
                                                     {
-                                                        "time": "2025-02-01T02:50:00Z",
+                                                        "time": "2025-02-01T02:50:00+00:00",
                                                         "status": "ng",
                                                         "error": {
                                                             "type": "service down",
@@ -2084,7 +2084,7 @@ const docTemplate = `{
                                                         }
                                                     },
                                                     {
-                                                        "time": "2025-02-01T02:45:00Z",
+                                                        "time": "2025-02-01T02:45:00+00:00",
                                                         "status": "ok"
                                                     }
                                                 ]
@@ -2931,7 +2931,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
-                        "example": "2025-01-01T01:00:00Z"
+                        "example": "2025-01-01T01:00:00+00:00"
                     },
                     {
                         "in": "query",
@@ -2941,7 +2941,7 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
-                        "example": "2025-01-01T01:00:00Z"
+                        "example": "2025-01-01T01:00:00+00:00"
                     }
                 ],
                 "responses": {
@@ -3033,19 +3033,19 @@ const docTemplate = `{
                                                         "value": 12.1752,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:19:00Z",
+                                                                "time": "2025-02-14T00:19:00+00:00",
                                                                 "value": 10.3202
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:20:00Z",
+                                                                "time": "2025-02-14T00:20:00+00:00",
                                                                 "value": 10.1465
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:21:00Z",
+                                                                "time": "2025-02-14T00:21:00+00:00",
                                                                 "value": 14.5854
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:22:00Z",
+                                                                "time": "2025-02-14T00:22:00+00:00",
                                                                 "value": 11.9773
                                                             }
                                                         ]
@@ -3056,19 +3056,19 @@ const docTemplate = `{
                                                         "value": 8.8248,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:19:00Z",
+                                                                "time": "2025-02-14T00:19:00+00:00",
                                                                 "value": 9.3202
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:20:00Z",
+                                                                "time": "2025-02-14T00:20:00+00:00",
                                                                 "value": 9.1465
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:21:00Z",
+                                                                "time": "2025-02-14T00:21:00+00:00",
                                                                 "value": 7.5854
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:22:00Z",
+                                                                "time": "2025-02-14T00:22:00+00:00",
                                                                 "value": 6.9773
                                                             }
                                                         ]
@@ -3107,19 +3107,19 @@ const docTemplate = `{
                                                         "value": 56.4807,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:23:00Z",
+                                                                "time": "2025-02-14T00:23:00+00:00",
                                                                 "value": 56.4997
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:24:00Z",
+                                                                "time": "2025-02-14T00:24:00+00:00",
                                                                 "value": 56.4998
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:25:00Z",
+                                                                "time": "2025-02-14T00:25:00+00:00",
                                                                 "value": 56.4963
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:26:00Z",
+                                                                "time": "2025-02-14T00:26:00+00:00",
                                                                 "value": 56.4758
                                                             }
                                                         ]
@@ -3130,19 +3130,19 @@ const docTemplate = `{
                                                         "value": 37.1752,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:23:00Z",
+                                                                "time": "2025-02-14T00:23:00+00:00",
                                                                 "value": 36.4997
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:24:00Z",
+                                                                "time": "2025-02-14T00:24:00+00:00",
                                                                 "value": 36.4998
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:25:00Z",
+                                                                "time": "2025-02-14T00:25:00+00:00",
                                                                 "value": 36.4963
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:26:00Z",
+                                                                "time": "2025-02-14T00:26:00+00:00",
                                                                 "value": 36.4758
                                                             }
                                                         ]
@@ -3166,19 +3166,19 @@ const docTemplate = `{
                                                         "value": 25.3645,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:26:00Z",
+                                                                "time": "2025-02-14T00:26:00+00:00",
                                                                 "value": 25.7166
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:27:00Z",
+                                                                "time": "2025-02-14T00:27:00+00:00",
                                                                 "value": 25.7188
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:28:00Z",
+                                                                "time": "2025-02-14T00:28:00+00:00",
                                                                 "value": 25.7209
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:29:00Z",
+                                                                "time": "2025-02-14T00:29:00+00:00",
                                                                 "value": 25.7243
                                                             }
                                                         ]
@@ -3189,19 +3189,19 @@ const docTemplate = `{
                                                         "value": 15.3645,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:26:00Z",
+                                                                "time": "2025-02-14T00:26:00+00:00",
                                                                 "value": 15.7166
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:27:00Z",
+                                                                "time": "2025-02-14T00:27:00+00:00",
                                                                 "value": 15.7188
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:28:00Z",
+                                                                "time": "2025-02-14T00:28:00+00:00",
                                                                 "value": 15.7209
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:29:00Z",
+                                                                "time": "2025-02-14T00:29:00+00:00",
                                                                 "value": 15.7243
                                                             }
                                                         ]
@@ -3220,45 +3220,45 @@ const docTemplate = `{
                                                 "unit": "bytes",
                                                 "read": [
                                                     {
-                                                        "time": "2025-02-08T22:58:00Z",
+                                                        "time": "2025-02-08T22:58:00+00:00",
                                                         "value": 0.7333
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:59:00Z",
+                                                        "time": "2025-02-08T22:59:00+00:00",
                                                         "value": 0
                                                     },
                                                     {
-                                                        "time": "2025-02-08T23:00:00Z",
+                                                        "time": "2025-02-08T23:00:00+00:00",
                                                         "value": 955.7333
                                                     },
                                                     {
-                                                        "time": "2025-02-08T23:01:00Z",
+                                                        "time": "2025-02-08T23:01:00+00:00",
                                                         "value": 0
                                                     },
                                                     {
-                                                        "time": "2025-02-08T23:02:00Z",
+                                                        "time": "2025-02-08T23:02:00+00:00",
                                                         "value": 1434
                                                     }
                                                 ],
                                                 "write": [
                                                     {
-                                                        "time": "2025-02-08T22:51:00Z",
+                                                        "time": "2025-02-08T22:51:00+00:00",
                                                         "value": 81578.6666
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:52:00Z",
+                                                        "time": "2025-02-08T22:52:00+00:00",
                                                         "value": 87929.15
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:53:00Z",
+                                                        "time": "2025-02-08T22:53:00+00:00",
                                                         "value": 110865.0666
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:54:00Z",
+                                                        "time": "2025-02-08T22:54:00+00:00",
                                                         "value": 110796.8
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:55:00Z",
+                                                        "time": "2025-02-08T22:55:00+00:00",
                                                         "value": 110933.3333
                                                     }
                                                 ]
@@ -3275,45 +3275,45 @@ const docTemplate = `{
                                                 "unit": "ops",
                                                 "read": [
                                                     {
-                                                        "time": "2025-02-08T22:55:00+08:00",
+                                                        "time": "2025-02-08T22:55:00+00:00",
                                                         "value": 1.05
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:56:00+08:00",
+                                                        "time": "2025-02-08T22:56:00+00:00",
                                                         "value": 1.0833
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:57:00+08:00",
+                                                        "time": "2025-02-08T22:57:00+00:00",
                                                         "value": 1
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:58:00+08:00",
+                                                        "time": "2025-02-08T22:58:00+00:00",
                                                         "value": 1.0166
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:59:00+08:00",
+                                                        "time": "2025-02-08T22:59:00+00:00",
                                                         "value": 1
                                                     }
                                                 ],
                                                 "write": [
                                                     {
-                                                        "time": "2025-02-08T22:55:00+08:00",
+                                                        "time": "2025-02-08T22:55:00+00:00",
                                                         "value": 6.8333
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:56:00+08:00",
+                                                        "time": "2025-02-08T22:56:00+00:00",
                                                         "value": 7.8833
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:57:00+08:00",
+                                                        "time": "2025-02-08T22:57:00+00:00",
                                                         "value": 6.85
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:58:00+08:00",
+                                                        "time": "2025-02-08T22:58:00+00:00",
                                                         "value": 4.9333
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:59:00+08:00",
+                                                        "time": "2025-02-08T22:59:00+00:00",
                                                         "value": 6.2166
                                                     }
                                                 ]
@@ -3330,45 +3330,45 @@ const docTemplate = `{
                                                 "unit": "millisecond",
                                                 "read": [
                                                     {
-                                                        "time": "2025-02-08T22:58:00Z",
+                                                        "time": "2025-02-08T22:58:00+00:00",
                                                         "value": 4999.5
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:59:00Z",
+                                                        "time": "2025-02-08T22:59:00+00:00",
                                                         "value": 21365.5666
                                                     },
                                                     {
-                                                        "time": "2025-02-08T23:00:00Z",
+                                                        "time": "2025-02-08T23:00:00+00:00",
                                                         "value": 39951.6333
                                                     },
                                                     {
-                                                        "time": "2025-02-08T23:01:00Z",
+                                                        "time": "2025-02-08T23:01:00+00:00",
                                                         "value": 6255.1333
                                                     },
                                                     {
-                                                        "time": "2025-02-08T23:02:00Z",
+                                                        "time": "2025-02-08T23:02:00+00:00",
                                                         "value": 5838730.85
                                                     }
                                                 ],
                                                 "write": [
                                                     {
-                                                        "time": "2025-02-08T22:58:00Z",
+                                                        "time": "2025-02-08T22:58:00+00:00",
                                                         "value": 12624417.95
                                                     },
                                                     {
-                                                        "time": "2025-02-08T22:59:00Z",
+                                                        "time": "2025-02-08T22:59:00+00:00",
                                                         "value": 29347351.6333
                                                     },
                                                     {
-                                                        "time": "2025-02-08T23:00:00Z",
+                                                        "time": "2025-02-08T23:00:00+00:00",
                                                         "value": 5219905.3
                                                     },
                                                     {
-                                                        "time": "2025-02-08T23:01:00Z",
+                                                        "time": "2025-02-08T23:01:00+00:00",
                                                         "value": 9249751.6666
                                                     },
                                                     {
-                                                        "time": "2025-02-08T23:02:00Z",
+                                                        "time": "2025-02-08T23:02:00+00:00",
                                                         "value": 10661656.35
                                                     }
                                                 ]
@@ -3390,19 +3390,19 @@ const docTemplate = `{
                                                         "value": 7466.5592,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:32:00Z",
+                                                                "time": "2025-02-14T00:32:00+00:00",
                                                                 "value": 50064.9333
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:33:00Z",
+                                                                "time": "2025-02-14T00:33:00+00:00",
                                                                 "value": 7141170.1333
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:34:00Z",
+                                                                "time": "2025-02-14T00:34:00+00:00",
                                                                 "value": 39644.1333
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:35:00Z",
+                                                                "time": "2025-02-14T00:35:00+00:00",
                                                                 "value": 45140
                                                             }
                                                         ]
@@ -3413,19 +3413,19 @@ const docTemplate = `{
                                                         "value": 1126.5592,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:32:00Z",
+                                                                "time": "2025-02-14T00:32:00+00:00",
                                                                 "value": 1467.9333
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:33:00Z",
+                                                                "time": "2025-02-14T00:33:00+00:00",
                                                                 "value": 1321.1333
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:34:00Z",
+                                                                "time": "2025-02-14T00:34:00+00:00",
                                                                 "value": 1211.1333
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:35:00Z",
+                                                                "time": "2025-02-14T00:35:00+00:00",
                                                                 "value": 1131.5145
                                                             }
                                                         ]
@@ -3449,19 +3449,19 @@ const docTemplate = `{
                                                         "value": 3595.9166,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:35:00Z",
+                                                                "time": "2025-02-14T00:35:00+00:00",
                                                                 "value": 13138
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:36:00Z",
+                                                                "time": "2025-02-14T00:36:00+00:00",
                                                                 "value": 41106.6666
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:37:00Z",
+                                                                "time": "2025-02-14T00:37:00+00:00",
                                                                 "value": 149872.1333
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:38:00Z",
+                                                                "time": "2025-02-14T00:38:00+00:00",
                                                                 "value": 12152.6666
                                                             }
                                                         ]
@@ -3472,19 +3472,19 @@ const docTemplate = `{
                                                         "value": 1595.9166,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:35:00Z",
+                                                                "time": "2025-02-14T00:35:00+00:00",
                                                                 "value": 3138
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:36:00Z",
+                                                                "time": "2025-02-14T00:36:00+00:00",
                                                                 "value": 11106.6666
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:37:00Z",
+                                                                "time": "2025-02-14T00:37:00+00:00",
                                                                 "value": 149872.1333
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:38:00Z",
+                                                                "time": "2025-02-14T00:38:00+00:00",
                                                                 "value": 12152.6666
                                                             }
                                                         ]
@@ -3508,19 +3508,19 @@ const docTemplate = `{
                                                         "value": 22,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:34:52Z",
+                                                                "time": "2025-02-14T00:34:52+00:00",
                                                                 "value": 21
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:35:22Z",
+                                                                "time": "2025-02-14T00:35:22+00:00",
                                                                 "value": 23
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:35:52Z",
+                                                                "time": "2025-02-14T00:35:52+00:00",
                                                                 "value": 20
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:36:22Z",
+                                                                "time": "2025-02-14T00:36:22+00:00",
                                                                 "value": 22
                                                             }
                                                         ]
@@ -3531,19 +3531,19 @@ const docTemplate = `{
                                                         "value": 16,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:34:52Z",
+                                                                "time": "2025-02-14T00:34:52+00:00",
                                                                 "value": 20
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:35:22Z",
+                                                                "time": "2025-02-14T00:35:22+00:00",
                                                                 "value": 18
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:35:52Z",
+                                                                "time": "2025-02-14T00:35:52+00:00",
                                                                 "value": 20
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:36:23Z",
+                                                                "time": "2025-02-14T00:36:23+00:00",
                                                                 "value": 18
                                                             }
                                                         ]
@@ -3582,19 +3582,19 @@ const docTemplate = `{
                                                         "value": 60.6915,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:35:52Z",
+                                                                "time": "2025-02-14T00:35:52+00:00",
                                                                 "value": 61.6362
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:36:23Z",
+                                                                "time": "2025-02-14T00:36:23+00:00",
                                                                 "value": 61.4931
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:36:53Z",
+                                                                "time": "2025-02-14T00:36:53+00:00",
                                                                 "value": 60.9485
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:37:23Z",
+                                                                "time": "2025-02-14T00:37:23+00:00",
                                                                 "value": 60.3947
                                                             }
                                                         ]
@@ -3605,19 +3605,19 @@ const docTemplate = `{
                                                         "value": 36.6008,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:35:53Z",
+                                                                "time": "2025-02-14T00:35:53+00:00",
                                                                 "value": 36.6073
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:36:23Z",
+                                                                "time": "2025-02-14T00:36:23+00:00",
                                                                 "value": 36.6105
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:36:53Z",
+                                                                "time": "2025-02-14T00:36:53+00:00",
                                                                 "value": 36.6105
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:37:23Z",
+                                                                "time": "2025-02-14T00:37:23+00:00",
                                                                 "value": 36.6101
                                                             }
                                                         ]
@@ -3642,15 +3642,15 @@ const docTemplate = `{
                                                         "value": 1640.3,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:38:53+08:00",
+                                                                "time": "2025-02-14T00:38:53+00:00",
                                                                 "value": 1345.3
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:39:23+08:00",
+                                                                "time": "2025-02-14T00:39:23+00:00",
                                                                 "value": 1123.3
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:39:53+08:00",
+                                                                "time": "2025-02-14T00:39:53+00:00",
                                                                 "value": 1345.3
                                                             }
                                                         ]
@@ -3662,15 +3662,15 @@ const docTemplate = `{
                                                         "value": 235.35,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:38:53+08:00",
+                                                                "time": "2025-02-14T00:38:53+00:00",
                                                                 "value": 124.3
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:39:23+08:00",
+                                                                "time": "2025-02-14T00:39:23+00:00",
                                                                 "value": 214.3
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:39:53+08:00",
+                                                                "time": "2025-02-14T00:39:53+00:00",
                                                                 "value": 324.3
                                                             }
                                                         ]
@@ -3695,15 +3695,15 @@ const docTemplate = `{
                                                         "value": 184158.3022,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:43:53+08:00",
+                                                                "time": "2025-02-14T00:43:53+00:00",
                                                                 "value": 182514.0885
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:44:23+08:00",
+                                                                "time": "2025-02-14T00:44:23+00:00",
                                                                 "value": 165440.9962
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:44:53+08:00",
+                                                                "time": "2025-02-14T00:44:53+00:00",
                                                                 "value": 784010.6095
                                                             }
                                                         ]
@@ -3715,15 +3715,15 @@ const docTemplate = `{
                                                         "value": 39589.3872,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:43:53+08:00",
+                                                                "time": "2025-02-14T00:43:53+00:00",
                                                                 "value": 46107.319
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:44:23+08:00",
+                                                                "time": "2025-02-14T00:44:23+00:00",
                                                                 "value": 45280.7243
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:44:53+08:00",
+                                                                "time": "2025-02-14T00:44:53+00:00",
                                                                 "value": 42949.9957
                                                             }
                                                         ]
@@ -3748,19 +3748,19 @@ const docTemplate = `{
                                                         "value": 49756.9502,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:45:53Z",
+                                                                "time": "2025-02-14T00:45:53+00:00",
                                                                 "value": 370067.1842
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:46:23Z",
+                                                                "time": "2025-02-14T00:46:23+00:00",
                                                                 "value": 409181.4363
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:46:53Z",
+                                                                "time": "2025-02-14T00:46:53+00:00",
                                                                 "value": 711269.641
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:47:23Z",
+                                                                "time": "2025-02-14T00:47:23+00:00",
                                                                 "value": 398196.6271
                                                             }
                                                         ]
@@ -3772,19 +3772,19 @@ const docTemplate = `{
                                                         "value": 25784.0787,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:45:53Z",
+                                                                "time": "2025-02-14T00:45:53+00:00",
                                                                 "value": 184756.5743
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:46:23Z",
+                                                                "time": "2025-02-14T00:46:23+00:00",
                                                                 "value": 207790.9312
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:46:53Z",
+                                                                "time": "2025-02-14T00:46:53+00:00",
                                                                 "value": 270692.8834
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:47:23Z",
+                                                                "time": "2025-02-14T00:47:23+00:00",
                                                                 "value": 200824.0072
                                                             }
                                                         ]
@@ -3809,19 +3809,19 @@ const docTemplate = `{
                                                         "value": 54213.0697,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:46:53Z",
+                                                                "time": "2025-02-14T00:46:53+00:00",
                                                                 "value": 1027891.3544
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:47:23Z",
+                                                                "time": "2025-02-14T00:47:23+00:00",
                                                                 "value": 462342.2831
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:47:53Z",
+                                                                "time": "2025-02-14T00:47:53+00:00",
                                                                 "value": 435980.7214
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:48:23Z",
+                                                                "time": "2025-02-14T00:48:23+00:00",
                                                                 "value": 447617.6397
                                                             }
                                                         ]
@@ -3833,19 +3833,19 @@ const docTemplate = `{
                                                         "value": 13561.1536,
                                                         "history": [
                                                             {
-                                                                "time": "2025-02-14T00:46:53Z",
+                                                                "time": "2025-02-14T00:46:53+00:00",
                                                                 "value": 128726.0911
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:47:23Z",
+                                                                "time": "2025-02-14T00:47:23+00:00",
                                                                 "value": 109373.8789
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:47:53Z",
+                                                                "time": "2025-02-14T00:47:53+00:00",
                                                                 "value": 109977.441
                                                             },
                                                             {
-                                                                "time": "2025-02-14T00:48:23Z",
+                                                                "time": "2025-02-14T00:48:23+00:00",
                                                                 "value": 111826.9696
                                                             }
                                                         ]
@@ -7563,7 +7563,7 @@ const docTemplate = `{
                                         },
                                         "time": {
                                             "type": "string",
-                                            "example": "2025-01-01T01:00:00Z"
+                                            "example": "2025-01-01T01:00:00+00:00"
                                         }
                                     }
                                 }
