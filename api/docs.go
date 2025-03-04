@@ -34,14 +34,7 @@ const docTemplate = `{
                 "summary": "Retrieve the own user info",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "responses": {
@@ -172,14 +165,7 @@ const docTemplate = `{
                 "summary": "Retrieve the list of services",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "responses": {
@@ -565,14 +551,7 @@ const docTemplate = `{
                 "summary": "Retrieve the list of events",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "query",
@@ -774,14 +753,7 @@ const docTemplate = `{
                 "summary": "Retrieve the event filter conditions",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "query",
@@ -937,14 +909,7 @@ const docTemplate = `{
                 "summary": "Retrieve the abstracted events",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "query",
@@ -1216,14 +1181,7 @@ const docTemplate = `{
                 "summary": "Retrieve the ranked events",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "query",
@@ -1431,14 +1389,7 @@ const docTemplate = `{
                 "summary": "Retrieve the overall health status of all modules",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "$ref": "#/components/parameters/watch"
@@ -1559,14 +1510,7 @@ const docTemplate = `{
                 "summary": "Repair the health for all modules",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "responses": {
@@ -1650,14 +1594,7 @@ const docTemplate = `{
                 "summary": "Retrieve the all modules health status from a service",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -1962,14 +1899,7 @@ const docTemplate = `{
                 "summary": "Retrieve the health history of module",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -2225,14 +2155,7 @@ const docTemplate = `{
                 "summary": "Repair the unhealthy module",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -2431,14 +2354,7 @@ const docTemplate = `{
                 "summary": "Retrieve the list of integrated applications",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "responses": {
@@ -2528,14 +2444,7 @@ const docTemplate = `{
                 "summary": "Retrieve the list of licenses",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "query",
@@ -2651,14 +2560,7 @@ const docTemplate = `{
                 "summary": "Update licenses for the cluster",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -2728,14 +2630,7 @@ const docTemplate = `{
                 "summary": "Update licenses for specific node",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -2805,14 +2700,10 @@ const docTemplate = `{
                 "summary": "Retrieve the metrics of data center",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/watch"
                     }
                 ],
                 "responses": {
@@ -2852,7 +2743,9 @@ const docTemplate = `{
                                                         "controlConverged": 2,
                                                         "control": 0,
                                                         "compute": 0,
-                                                        "storage": 0
+                                                        "storage": 0,
+                                                        "edgeCore": 0,
+                                                        "moderator": 0
                                                     },
                                                     "usages": [
                                                         {
@@ -2977,14 +2870,7 @@ const docTemplate = `{
                 "summary": "Retrieve the various metrics with different view from hosts or vms",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -3116,133 +3002,7 @@ const docTemplate = `{
                                         {
                                             "$ref": "#/components/schemas/GetNetworkTrafficOutRankOfVmsResponse"
                                         }
-                                    ],
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 200
-                                        },
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "vm": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "total": {
-                                                            "type": "integer",
-                                                            "example": 10
-                                                        },
-                                                        "running": {
-                                                            "type": "integer",
-                                                            "example": 8
-                                                        },
-                                                        "stopped": {
-                                                            "type": "integer",
-                                                            "example": 2
-                                                        },
-                                                        "paused": {
-                                                            "type": "integer",
-                                                            "example": 0
-                                                        },
-                                                        "suspend": {
-                                                            "type": "integer",
-                                                            "example": 0
-                                                        },
-                                                        "error": {
-                                                            "type": "integer",
-                                                            "example": 0
-                                                        }
-                                                    }
-                                                },
-                                                "role": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "controlConverged": {
-                                                            "type": "integer",
-                                                            "example": 10
-                                                        },
-                                                        "control": {
-                                                            "type": "integer",
-                                                            "example": 3
-                                                        },
-                                                        "compute": {
-                                                            "type": "integer",
-                                                            "example": 5
-                                                        },
-                                                        "storage": {
-                                                            "type": "integer",
-                                                            "example": 2
-                                                        }
-                                                    }
-                                                },
-                                                "metrics": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "vcpu": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "totalCores": {
-                                                                    "type": "integer",
-                                                                    "example": 80
-                                                                },
-                                                                "usedCores": {
-                                                                    "type": "integer",
-                                                                    "example": 31
-                                                                },
-                                                                "freeCores": {
-                                                                    "type": "integer",
-                                                                    "example": 49
-                                                                }
-                                                            }
-                                                        },
-                                                        "memory": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "totalMiB": {
-                                                                    "type": "integer",
-                                                                    "example": 257371
-                                                                },
-                                                                "usedMiB": {
-                                                                    "type": "integer",
-                                                                    "example": 98255
-                                                                },
-                                                                "freeMiB": {
-                                                                    "type": "integer",
-                                                                    "example": 159116
-                                                                }
-                                                            }
-                                                        },
-                                                        "storage": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "totalMiB": {
-                                                                    "type": "integer",
-                                                                    "example": 102400
-                                                                },
-                                                                "usedMiB": {
-                                                                    "type": "integer",
-                                                                    "example": 51200
-                                                                },
-                                                                "freeMiB": {
-                                                                    "type": "integer",
-                                                                    "example": 51200
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "fetch summary successfully"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ok"
-                                        }
-                                    }
+                                    ]
                                 },
                                 "examples": {
                                     "example1": {
@@ -4124,14 +3884,7 @@ const docTemplate = `{
                 "summary": "Retrieve the list of nodes",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "query",
@@ -4285,14 +4038,7 @@ const docTemplate = `{
                 "summary": "Retrieve setting",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "responses": {
@@ -4390,14 +4136,7 @@ const docTemplate = `{
                 "summary": "Update title prefix",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "requestBody": {
@@ -4465,14 +4204,7 @@ const docTemplate = `{
                 "summary": "Create an email sender",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "requestBody": {
@@ -4542,14 +4274,7 @@ const docTemplate = `{
                 "summary": "Retrieve email senders",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "responses": {
@@ -4618,14 +4343,7 @@ const docTemplate = `{
                 "summary": "Try an email sender",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -4701,14 +4419,7 @@ const docTemplate = `{
                 "summary": "Update an email sender",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -4788,14 +4499,7 @@ const docTemplate = `{
                 "summary": "Delete an email sender",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -4855,14 +4559,7 @@ const docTemplate = `{
                 "summary": "Create an email recipient",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "requestBody": {
@@ -4929,14 +4626,7 @@ const docTemplate = `{
                 "summary": "Retrieve email recipients",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "responses": {
@@ -5006,14 +4696,7 @@ const docTemplate = `{
                 "summary": "Update an email recipient",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -5089,14 +4772,7 @@ const docTemplate = `{
                 "summary": "Delete an email recipient",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -5155,14 +4831,7 @@ const docTemplate = `{
                 "summary": "Create a slack channel",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "requestBody": {
@@ -5230,14 +4899,7 @@ const docTemplate = `{
                 "summary": "Retrieve slack channels",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "responses": {
@@ -5311,14 +4973,7 @@ const docTemplate = `{
                 "summary": "Try a slack channel",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -5375,14 +5030,7 @@ const docTemplate = `{
                 "summary": "Update a slack channel",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -5459,6 +5107,9 @@ const docTemplate = `{
                 "summary": "Delete a slack channel",
                 "parameters": [
                     {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
                         "in": "path",
                         "name": "channelName",
                         "required": true,
@@ -5466,16 +5117,6 @@ const docTemplate = `{
                             "type": "string"
                         },
                         "description": "channel name to delete"
-                    },
-                    {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
                     }
                 ],
                 "responses": {
@@ -5525,14 +5166,7 @@ const docTemplate = `{
                 "summary": "Retrieve the time-limited token for the data center",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "requestBody": {
@@ -5635,14 +5269,7 @@ const docTemplate = `{
                 "summary": "Retrieve the list of tunings from a host or data center",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "query",
@@ -5867,14 +5494,7 @@ const docTemplate = `{
                 "summary": "Retrieve the list of tuning spec",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "responses": {
@@ -7371,14 +6991,7 @@ const docTemplate = `{
                 "summary": "Update value for a specific tuning parameter",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -7523,14 +7136,7 @@ const docTemplate = `{
                 "summary": "Reset a specific tuning parameter",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "dataCenter",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the data center to operate",
-                        "example": "example-data-center"
+                        "$ref": "#/components/parameters/dataCenter"
                     },
                     {
                         "in": "path",
@@ -7669,6 +7275,16 @@ const docTemplate = `{
     },
     "components": {
         "parameters": {
+            "dataCenter": {
+                "in": "path",
+                "name": "dataCenter",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The name of the data center to operate",
+                "example": "example-data-center"
+            },
             "watch": {
                 "in": "query",
                 "name": "watch",
@@ -8942,7 +8558,9 @@ const docTemplate = `{
                                             "controlConverged",
                                             "control",
                                             "compute",
-                                            "storage"
+                                            "storage",
+                                            "edgeCore",
+                                            "moderator"
                                         ],
                                         "properties": {
                                             "controlConverged": {

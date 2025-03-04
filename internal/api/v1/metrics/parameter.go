@@ -153,7 +153,8 @@ func (h *helper) parseRank() error {
 
 func (h *helper) parseWatch() error {
 	var err error
-	h.watch, err = parseWatch(h.c)
+	rawParam := h.c.DefaultQuery("watch", "false")
+	h.watch, err = strconv.ParseBool(rawParam)
 	if err != nil {
 		return errors.New("watch parameter is invalid, it should be true or false if provided")
 	}
