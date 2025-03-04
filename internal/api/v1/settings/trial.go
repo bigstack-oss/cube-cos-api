@@ -1,16 +1,14 @@
 package settings
 
 import (
-	"net/smtp"
-
-	"github.com/slack-go/slack"
-
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/email"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/slack"
+	v1email "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
+	v1slack "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 )
 
-func sendTrialEmail(sender email.Sender, recipient string) error {
-	return smtp.SendMail(
+func sendTrialEmail(sender v1email.Sender, recipient string) error {
+	return email.Send(
 		sender.Address(),
 		sender.UserAuth(),
 		sender.Email,
@@ -19,11 +17,14 @@ func sendTrialEmail(sender email.Sender, recipient string) error {
 	)
 }
 
-func sendTrialSlackMessage(channel v1.Channel) error {
-	api := slack.New(channel.URL)
-	_, _, err := api.PostMessage(
+func sendTrialSlackMessage(channel v1slack.Channel) error {
+	h, err := slack.NewHelper(slack.Token(channel.URL))
+	if err != nil {
+		return err
+	}
+
+	return h.SendTextMsg(
 		channel.Name,
-		slack.MsgOptionText("Hello from CubeCOS", false),
+		"This is a trial message from Cube COS.",
 	)
-	return err
 }
