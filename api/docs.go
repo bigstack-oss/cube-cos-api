@@ -4302,6 +4302,54 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/GetSettingResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Setting list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "titlePrefix": "example title prefix",
+                                                "email": {
+                                                    "recipients": [
+                                                        {
+                                                            "email": "example.user.1@example.com",
+                                                            "note": "example note 1"
+                                                        },
+                                                        {
+                                                            "email": "example.user.2@example.com",
+                                                            "note": "example note 2"
+                                                        }
+                                                    ],
+                                                    "senders": [
+                                                        {
+                                                            "host": "email-smtp.example.mailserver.com",
+                                                            "port": 587,
+                                                            "username": "ABBBBBBMJM56DCCCCJR",
+                                                            "password": "VBHWEEGEEEEEX0f5NLHDXLESxdZR",
+                                                            "email": "noreply@example.com"
+                                                        }
+                                                    ]
+                                                },
+                                                "slack": {
+                                                    "channels": [
+                                                        {
+                                                            "name": "#example-alert-channel-1",
+                                                            "url": "https://hooks.slack.com/services/T9LMBBBBB/B08GQABBBBB/BBBBBBBSevAyxkM2dPYBBBBB",
+                                                            "description": "example alert channel 1"
+                                                        },
+                                                        {
+                                                            "name": "#example-alert-channel-2",
+                                                            "url": "https://hooks.slack.com/services/T9LMCCCCC/C08GQACCCCC/CCCCCCCSevAyxkM2dPYCCCCC",
+                                                            "description": "example alert channel 2"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "msg": "all setting retrieved successfully",
+                                            "status": "ok"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -4333,13 +4381,88 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/settings/emailSenders": {
+        "/api/v1/datacenters/{dataCenter}/settings/titlePrefix": {
+            "put": {
+                "operationId": "updateTitlePrefix",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Update title prefix",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TitlePrefix"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Title prefix",
+                                    "value": {
+                                        "value": "example title prefix"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Title prefix updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpdateTitlePrefixResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to update title prefix: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/settings/email/senders": {
             "post": {
                 "operationId": "createEmailSender",
                 "tags": [
                     "Settings"
                 ],
-                "summary": "Create a new email sender",
+                "summary": "Create an email sender",
                 "parameters": [
                     {
                         "in": "path",
@@ -4363,12 +4486,11 @@ const docTemplate = `{
                                 "example": {
                                     "summary": "Email Sender",
                                     "value": {
-                                        "host": "smtp.example.com",
+                                        "host": "email-smtp.example.mailserver.com",
                                         "port": 587,
-                                        "username": "user@example.com",
-                                        "password": "securepassword",
-                                        "from": "noreply@example.com",
-                                        "note": "Primary email sender"
+                                        "username": "ABBBBBBMJM56DCCCCJR",
+                                        "password": "VBHWEEGEEEEEX0f5NLHDXLESxdZR",
+                                        "email": "noreply@example.com"
                                     }
                                 }
                             }
@@ -4443,18 +4565,15 @@ const docTemplate = `{
                                         "summary": "Email Senders List",
                                         "value": {
                                             "code": 200,
-                                            "data": {
-                                                "emailSenders": [
-                                                    {
-                                                        "host": "smtp.example.com",
-                                                        "port": 587,
-                                                        "username": "user@example.com",
-                                                        "password": "securepassword",
-                                                        "from": "noreply@example.com",
-                                                        "note": "Primary email sender"
-                                                    }
-                                                ]
-                                            },
+                                            "data": [
+                                                {
+                                                    "host": "email-smtp.example.mailserver.com",
+                                                    "port": 587,
+                                                    "username": "example-user",
+                                                    "password": "example-password",
+                                                    "email": "noreply@bigstack.co"
+                                                }
+                                            ],
                                             "msg": "email senders retrieved successfully",
                                             "status": "ok"
                                         }
@@ -4488,13 +4607,15 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "put": {
-                "operationId": "updateEmailSender",
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/settings/email/senders/{senderHost}": {
+            "post": {
+                "operationId": "tryEmailSender",
                 "tags": [
                     "Settings"
                 ],
-                "summary": "Update email sender",
+                "summary": "Try an email sender",
                 "parameters": [
                     {
                         "in": "path",
@@ -4505,6 +4626,99 @@ const docTemplate = `{
                         },
                         "description": "The name of the data center to operate",
                         "example": "example-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "senderHost",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The host of the email sender to operate",
+                        "example": "email-smtp.example.mailserver.com"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TryEmailSender"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Try Email Sender",
+                                    "value": {
+                                        "email": "example.user.1@example.com"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Email sender tried successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TryEmailSenderResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to try email sender: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updateEmailSender",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Update an email sender",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "senderHost",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The host of the email sender to operate",
+                        "example": "email-smtp.example.mailserver.com"
                     }
                 ],
                 "requestBody": {
@@ -4518,12 +4732,11 @@ const docTemplate = `{
                                 "example": {
                                     "summary": "Email Sender",
                                     "value": {
-                                        "host": "smtp.example.com",
+                                        "host": "email-smtp.example.mailserver.com",
                                         "port": 587,
-                                        "username": "user@example.com",
-                                        "password": "securepassword",
-                                        "from": "noreply@example.com",
-                                        "note": "Updated email sender"
+                                        "username": "example-user",
+                                        "password": "example-password",
+                                        "email": "noreply@bigstack.co"
                                     }
                                 }
                             }
@@ -4572,7 +4785,7 @@ const docTemplate = `{
                 "tags": [
                     "Settings"
                 ],
-                "summary": "Delete email sender",
+                "summary": "Delete an email sender",
                 "parameters": [
                     {
                         "in": "path",
@@ -4583,6 +4796,16 @@ const docTemplate = `{
                         },
                         "description": "The name of the data center to operate",
                         "example": "example-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "senderHost",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The host of the email sender to operate",
+                        "example": "email-smtp.example.mailserver.com"
                     }
                 ],
                 "responses": {
@@ -4623,13 +4846,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/settings/emailRecipients": {
+        "/api/v1/datacenters/{dataCenter}/settings/email/recipients": {
             "post": {
                 "operationId": "createEmailRecipient",
                 "tags": [
                     "Settings"
                 ],
-                "summary": "Create email recipient",
+                "summary": "Create an email recipient",
                 "parameters": [
                     {
                         "in": "path",
@@ -4653,11 +4876,8 @@ const docTemplate = `{
                                 "example": {
                                     "summary": "Email Recipient",
                                     "value": {
-                                        "to": [
-                                            "user1@example.com",
-                                            "user2@example.com"
-                                        ],
-                                        "note": "Primary recipients"
+                                        "email": "example.user.1@example.com",
+                                        "note": "example email recipient"
                                     }
                                 }
                             }
@@ -4729,21 +4949,19 @@ const docTemplate = `{
                                 },
                                 "examples": {
                                     "example": {
-                                        "summary": "Email Recipients List",
+                                        "summary": "Email recipients list",
                                         "value": {
                                             "code": 200,
-                                            "data": {
-                                                "emailRecipients": [
-                                                    {
-                                                        "id": "8c2e39d7-e72b-4581-bfa5-117160df7cfb",
-                                                        "to": [
-                                                            "user1@example.com",
-                                                            "user2@example.com"
-                                                        ],
-                                                        "note": "Primary recipients"
-                                                    }
-                                                ]
-                                            },
+                                            "data": [
+                                                {
+                                                    "email": "example.user.1@example.com",
+                                                    "note": "example email recipient 1"
+                                                },
+                                                {
+                                                    "email": "example.user.2@example.com",
+                                                    "note": "example email recipient 2"
+                                                }
+                                            ],
                                             "msg": "email recipients retrieved successfully",
                                             "status": "ok"
                                         }
@@ -4779,23 +4997,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/settings/emailRecipients/{id}": {
+        "/api/v1/datacenters/{dataCenter}/settings/email/recipients/{recipientEmail}": {
             "put": {
                 "operationId": "updateEmailRecipient",
                 "tags": [
                     "Settings"
                 ],
-                "summary": "Update email recipient",
+                "summary": "Update an email recipient",
                 "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "ID of the email recipient to update"
-                    },
                     {
                         "in": "path",
                         "name": "dataCenter",
@@ -4805,6 +5014,15 @@ const docTemplate = `{
                         },
                         "description": "The name of the data center to operate",
                         "example": "example-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "recipientEmail",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "recipient email to update"
                     }
                 ],
                 "requestBody": {
@@ -4818,9 +5036,7 @@ const docTemplate = `{
                                 "example": {
                                     "summary": "Email Recipient",
                                     "value": {
-                                        "to": [
-                                            "user1@example.com"
-                                        ],
+                                        "email": "example.user.1@example.com",
                                         "note": "Updated recipients"
                                     }
                                 }
@@ -4870,17 +5086,8 @@ const docTemplate = `{
                 "tags": [
                     "Settings"
                 ],
-                "summary": "Delete email recipient",
+                "summary": "Delete an email recipient",
                 "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "ID of the email recipient to delete"
-                    },
                     {
                         "in": "path",
                         "name": "dataCenter",
@@ -4890,6 +5097,15 @@ const docTemplate = `{
                         },
                         "description": "The name of the data center to operate",
                         "example": "example-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "recipientEmail",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "recipient email to delete"
                     }
                 ],
                 "responses": {
@@ -4930,13 +5146,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/settings/slackChannels": {
+        "/api/v1/datacenters/{dataCenter}/settings/slack/channels": {
             "post": {
                 "operationId": "createSlackChannel",
                 "tags": [
                     "Settings"
                 ],
-                "summary": "Create slack channel",
+                "summary": "Create a slack channel",
                 "parameters": [
                     {
                         "in": "path",
@@ -4960,8 +5176,9 @@ const docTemplate = `{
                                 "example": {
                                     "summary": "Slack Channel",
                                     "value": {
-                                        "url": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
-                                        "channel": "#alerts"
+                                        "name": "#example-alert-channel-1",
+                                        "url": "https://hooks.slack.com/services/T9LMBBBBB/B08GQABBBBB/BBBBBBBSevAyxkM2dPYBBBBB",
+                                        "description": "example alert channel 1"
                                     }
                                 }
                             }
@@ -5033,15 +5250,20 @@ const docTemplate = `{
                                 },
                                 "examples": {
                                     "example": {
-                                        "summary": "Slack Channels List",
+                                        "summary": "Slack channel List",
                                         "value": {
                                             "code": 200,
                                             "data": {
                                                 "slackChannels": [
                                                     {
-                                                        "id": "8c2e39d7-e72b-4581-bfa5-117160df7cfb",
-                                                        "url": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
-                                                        "channel": "#alerts"
+                                                        "name": "#example-alert-channel-1",
+                                                        "url": "https://hooks.slack.com/services/T9LMBBBBB/B08GQABBBBB/BBBBBBBSevAyxkM2dPYBBBBB",
+                                                        "description": "example alert channel 1"
+                                                    },
+                                                    {
+                                                        "name": "#example-alert-channel-2",
+                                                        "url": "https://hooks.slack.com/services/T9LMCCCCC/C08GQACCCCC/CCCCCCCSevAyxkM2dPYCCCCC",
+                                                        "description": "example alert channel 2"
                                                     }
                                                 ]
                                             },
@@ -5080,23 +5302,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/settings/slackChannels/{id}": {
-            "put": {
-                "operationId": "updateSlackChannel",
+        "/api/v1/datacenters/{dataCenter}/settings/slack/channels/{channelName}": {
+            "post": {
+                "operationId": "trySlackChannel",
                 "tags": [
                     "Settings"
                 ],
-                "summary": "Update slack channel",
+                "summary": "Try a slack channel",
                 "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "ID of the slack channel to update"
-                    },
                     {
                         "in": "path",
                         "name": "dataCenter",
@@ -5106,6 +5319,79 @@ const docTemplate = `{
                         },
                         "description": "The name of the data center to operate",
                         "example": "example-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "channelName",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel name to update"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Slack channel tried successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrySlackChannelResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to try slack channel: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updateSlackChannel",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Update a slack channel",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "dataCenter",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the data center to operate",
+                        "example": "example-data-center"
+                    },
+                    {
+                        "in": "path",
+                        "name": "channelName",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel name to update"
                     }
                 ],
                 "requestBody": {
@@ -5117,10 +5403,11 @@ const docTemplate = `{
                             },
                             "examples": {
                                 "example": {
-                                    "summary": "Slack Channel",
+                                    "summary": "Slack channel",
                                     "value": {
-                                        "url": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
-                                        "channel": "#alerts-updated"
+                                        "name": "#example-alert-channel-1",
+                                        "url": "https://hooks.slack.com/services/T9LMBBBBB/B08GQABBBBB/BBBBBBBSevAyxkM2dPYBBBBB",
+                                        "description": "example alert channel 1"
                                     }
                                 }
                             }
@@ -5169,16 +5456,16 @@ const docTemplate = `{
                 "tags": [
                     "Settings"
                 ],
-                "summary": "Delete slack channel",
+                "summary": "Delete a slack channel",
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "id",
+                        "name": "channelName",
                         "required": true,
                         "schema": {
                             "type": "string"
                         },
-                        "description": "ID of the slack channel to delete"
+                        "description": "channel name to delete"
                     },
                     {
                         "in": "path",
@@ -7383,16 +7670,16 @@ const docTemplate = `{
     "components": {
         "parameters": {
             "watch": {
-              "in": "query",
-              "name": "watch",
-              "required": false,
-              "schema": {
-                "type": "boolean"
-              },
-              "description": "The toggle to enable http chunked transfer for continuous server push.",
-              "example": true
+                "in": "query",
+                "name": "watch",
+                "required": false,
+                "schema": {
+                    "type": "boolean"
+                },
+                "description": "The toggle to enable http chunked transfer for continuous server push.",
+                "example": true
             }
-          },
+        },
         "schemas": {
             "GetMeResponse": {
                 "type": "object",
@@ -7959,7 +8246,10 @@ const docTemplate = `{
                                         "properties": {
                                             "current": {
                                                 "type": "string",
-                                                "enum": ["ok", "ng"]
+                                                "enum": [
+                                                    "ok",
+                                                    "ng"
+                                                ]
                                             },
                                             "isFixing": {
                                                 "type": "boolean"
@@ -7997,7 +8287,10 @@ const docTemplate = `{
                                             "properties": {
                                                 "current": {
                                                     "type": "string",
-                                                    "enum": ["ok", "ng"]
+                                                    "enum": [
+                                                        "ok",
+                                                        "ng"
+                                                    ]
                                                 }
                                             }
                                         },
@@ -8026,7 +8319,10 @@ const docTemplate = `{
                                                         "properties": {
                                                             "current": {
                                                                 "type": "string",
-                                                                "enum": ["ok", "ng"]
+                                                                "enum": [
+                                                                    "ok",
+                                                                    "ng"
+                                                                ]
                                                             }
                                                         }
                                                     }
@@ -8092,7 +8388,10 @@ const docTemplate = `{
                                             },
                                             "status": {
                                                 "type": "string",
-                                                "enum": ["ok", "ng"]
+                                                "enum": [
+                                                    "ok",
+                                                    "ng"
+                                                ]
                                             },
                                             "error": {
                                                 "type": "object",
@@ -8226,7 +8525,10 @@ const docTemplate = `{
                                         },
                                         "status": {
                                             "type": "string",
-                                            "enum": ["ok", "ng"]
+                                            "enum": [
+                                                "ok",
+                                                "ng"
+                                            ]
                                         },
                                         "error": {
                                             "type": "object",
@@ -10324,95 +10626,86 @@ const docTemplate = `{
                     }
                 }
             },
-            "Setting": {
+            "TitlePrefix": {
                 "type": "object",
+                "required": [
+                    "value"
+                ],
                 "properties": {
-                    "emailSenders": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/EmailSender"
-                        }
-                    },
-                    "emailRecipients": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/EmailRecipient"
-                        }
-                    },
-                    "slackChannels": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/SlackChannel"
-                        }
+                    "value": {
+                        "type": "string"
                     }
                 }
             },
             "EmailSender": {
                 "type": "object",
+                "required": [
+                    "host",
+                    "port",
+                    "username",
+                    "password",
+                    "email"
+                ],
                 "properties": {
                     "host": {
-                        "type": "string",
-                        "example": "smtp.example.com"
+                        "type": "string"
                     },
                     "port": {
-                        "type": "integer",
-                        "example": 587
+                        "type": "integer"
                     },
                     "username": {
-                        "type": "string",
-                        "example": "user@example.com"
+                        "type": "string"
                     },
                     "password": {
-                        "type": "string",
-                        "example": "securepassword"
+                        "type": "string"
                     },
-                    "from": {
-                        "type": "string",
-                        "example": "noreply@example.com"
-                    },
-                    "note": {
-                        "type": "string",
-                        "example": "Primary email sender"
+                    "email": {
+                        "type": "string"
+                    }
+                }
+            },
+            "TryEmailSender": {
+                "type": "object",
+                "required": [
+                    "email"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string"
                     }
                 }
             },
             "EmailRecipient": {
                 "type": "object",
+                "required": [
+                    "email",
+                    "note"
+                ],
                 "properties": {
-                    "id": {
-                        "type": "string",
-                        "example": "recipient-id-123"
-                    },
-                    "to": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "example": [
-                            "user1@example.com",
-                            "user2@example.com"
-                        ]
+                    "email": {
+                        "type": "string"
                     },
                     "note": {
-                        "type": "string",
-                        "example": "Primary recipients"
+                        "type": "string"
                     }
                 }
             },
             "SlackChannel": {
                 "type": "object",
+                "required": [
+                    "name",
+                    "url",
+                    "description"
+                ],
                 "properties": {
-                    "id": {
-                        "type": "string",
-                        "example": "channel-id-123"
+                    "name": {
+                        "type": "string"
                     },
                     "url": {
-                        "type": "string",
-                        "example": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+                        "type": "string"
                     },
-                    "channel": {
-                        "type": "string",
-                        "example": "#alerts"
+                    "description": {
+                        "type": "string"
                     }
                 }
             },
@@ -10426,15 +10719,73 @@ const docTemplate = `{
                 ],
                 "properties": {
                     "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "titlePrefix",
+                            "email",
+                            "slack"
+                        ],
+                        "properties": {
+                            "titlePrefix": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": "object",
+                                "required": [
+                                    "senders",
+                                    "recipients"
+                                ],
+                                "properties": {
+                                    "senders": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/EmailSender"
+                                        }
+                                    },
+                                    "recipients": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/EmailRecipient"
+                                        }
+                                    }
+                                }
+                            },
+                            "slack": {
+                                "type": "object",
+                                "properties": {
+                                    "channel": {
+                                        "$ref": "#/components/schemas/SlackChannel"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "UpdateTitlePrefixResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
                         "type": "integer",
                         "example": 200
                     },
-                    "data": {
-                        "$ref": "#/components/schemas/Setting"
-                    },
                     "msg": {
                         "type": "string",
-                        "example": "fetch setting successfully"
+                        "example": "title prefix updated successfully"
                     },
                     "status": {
                         "type": "string",
@@ -10446,7 +10797,6 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "code",
-                    "data",
                     "msg",
                     "status"
                 ],
@@ -10455,13 +10805,31 @@ const docTemplate = `{
                         "type": "integer",
                         "example": 201
                     },
-                    "data": {
-                        "type": "object",
-                        "example": null
-                    },
                     "msg": {
                         "type": "string",
                         "example": "email senders created successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "TryEmailSenderResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "email sender tried successfully"
                     },
                     "status": {
                         "type": "string",
@@ -10505,14 +10873,15 @@ const docTemplate = `{
             },
             "PutEmailSenderResponse": {
                 "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
                 "properties": {
                     "code": {
                         "type": "integer",
                         "example": 200
-                    },
-                    "data": {
-                        "type": "object",
-                        "example": null
                     },
                     "msg": {
                         "type": "string",
@@ -10528,7 +10897,6 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "code",
-                    "data",
                     "msg",
                     "status"
                 ],
@@ -10536,10 +10904,6 @@ const docTemplate = `{
                     "code": {
                         "type": "integer",
                         "example": 200
-                    },
-                    "data": {
-                        "type": "object",
-                        "example": null
                     },
                     "msg": {
                         "type": "string",
@@ -10555,7 +10919,6 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "code",
-                    "data",
                     "msg",
                     "status"
                 ],
@@ -10563,10 +10926,6 @@ const docTemplate = `{
                     "code": {
                         "type": "integer",
                         "example": 201
-                    },
-                    "data": {
-                        "type": "object",
-                        "example": null
                     },
                     "msg": {
                         "type": "string",
@@ -10588,27 +10947,19 @@ const docTemplate = `{
                 ],
                 "properties": {
                     "code": {
-                        "type": "integer",
-                        "example": 200
+                        "type": "integer"
                     },
                     "data": {
-                        "type": "object",
-                        "properties": {
-                            "emailRecipients": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/EmailRecipient"
-                                }
-                            }
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EmailRecipient"
                         }
                     },
                     "msg": {
-                        "type": "string",
-                        "example": "email recipients retrieved successfully"
+                        "type": "string"
                     },
                     "status": {
-                        "type": "string",
-                        "example": "ok"
+                        "type": "string"
                     }
                 }
             },
@@ -10616,7 +10967,6 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "code",
-                    "data",
                     "msg",
                     "status"
                 ],
@@ -10624,10 +10974,6 @@ const docTemplate = `{
                     "code": {
                         "type": "integer",
                         "example": 200
-                    },
-                    "data": {
-                        "type": "object",
-                        "example": null
                     },
                     "msg": {
                         "type": "string",
@@ -10643,7 +10989,6 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "code",
-                    "data",
                     "msg",
                     "status"
                 ],
@@ -10651,10 +10996,6 @@ const docTemplate = `{
                     "code": {
                         "type": "integer",
                         "example": 200
-                    },
-                    "data": {
-                        "type": "object",
-                        "example": null
                     },
                     "msg": {
                         "type": "string",
@@ -10670,7 +11011,6 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "code",
-                    "data",
                     "msg",
                     "status"
                 ],
@@ -10678,10 +11018,6 @@ const docTemplate = `{
                     "code": {
                         "type": "integer",
                         "example": 201
-                    },
-                    "data": {
-                        "type": "object",
-                        "example": null
                     },
                     "msg": {
                         "type": "string",
@@ -10707,14 +11043,9 @@ const docTemplate = `{
                         "example": 200
                     },
                     "data": {
-                        "type": "object",
-                        "properties": {
-                            "slackChannels": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/SlackChannel"
-                                }
-                            }
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SlackChannel"
                         }
                     },
                     "msg": {
@@ -10727,11 +11058,10 @@ const docTemplate = `{
                     }
                 }
             },
-            "PutSlackChannelResponse": {
+            "TrySlackChannelResponse": {
                 "type": "object",
                 "required": [
                     "code",
-                    "data",
                     "msg",
                     "status"
                 ],
@@ -10740,9 +11070,27 @@ const docTemplate = `{
                         "type": "integer",
                         "example": 200
                     },
-                    "data": {
-                        "type": "object",
-                        "example": null
+                    "msg": {
+                        "type": "string",
+                        "example": "slack channel tried successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "PutSlackChannelResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
                     },
                     "msg": {
                         "type": "string",
@@ -10758,7 +11106,6 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "code",
-                    "data",
                     "msg",
                     "status"
                 ],
@@ -10766,10 +11113,6 @@ const docTemplate = `{
                     "code": {
                         "type": "integer",
                         "example": 200
-                    },
-                    "data": {
-                        "type": "object",
-                        "example": null
                     },
                     "msg": {
                         "type": "string",

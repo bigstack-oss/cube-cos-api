@@ -450,12 +450,13 @@ func listSlackChannels(c *gin.Context) {
 
 func putSlackChannel(c *gin.Context) {
 	channel := slack.Channel{}
-	if err := c.ShouldBindJSON(&channel); err != nil {
+	err := c.ShouldBindJSON(&channel)
+	if err != nil {
 		log.Errorf("request(%s): failed to decode slack channel: %s", api.GetReqId(c), err.Error())
 		return
 	}
 
-	err := checkSlackChannelUpdate(c, channel)
+	err = checkSlackChannelUpdate(c, channel)
 	if err != nil {
 		log.Errorf("request(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
