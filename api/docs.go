@@ -116,6 +116,7 @@ const docTemplate = `{
                                                     "virtualIp": "10.10.10.10",
                                                     "isLocal": true,
                                                     "isHaEnabled": false,
+                                                    "utcTimeZone": "+00:00",
                                                     "additional": {
                                                         "helpUrl": "https://www.bigstack.co/contact-us"
                                                     }
@@ -143,6 +144,78 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to fetch data centers: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}": {
+            "get": {
+                "operationId": "getDataCenter",
+                "description": "Retrieve the data center info",
+                "tags": [
+                    "Data Centers"
+                ],
+                "summary": "Retrieve the data center info",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the data center info successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetDataCenterResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Data center",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                    "name": "example-data-center",
+                                                    "version": "Cube Appliance 3.0.0",
+                                                    "virtualIp": "10.10.10.10",
+                                                    "isLocal": true,
+                                                    "isHaEnabled": false,
+                                                    "utcTimeZone": "+00:00",
+                                                    "additional": {
+                                                        "helpUrl": "https://www.bigstack.co/contact-us"
+                                                    }
+                                                },
+                                            "msg": "fetch data center info successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch data center: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -7387,6 +7460,7 @@ const docTemplate = `{
                                 "virtualIp",
                                 "isHaEnabled",
                                 "isLocal",
+                                "utcTimeZone",
                                 "additional"
                             ],
                             "properties": {
@@ -7405,8 +7479,14 @@ const docTemplate = `{
                                 "isLocal": {
                                     "type": "boolean"
                                 },
+                                "utcTimeZone": {
+                                    "type": "string"
+                                },
                                 "additional": {
                                     "type": "object",
+                                    "required": [
+                                        "helpUrl"
+                                    ],
                                     "properties": {
                                         "helpUrl": {
                                             "type": "string"
@@ -7419,6 +7499,72 @@ const docTemplate = `{
                     "msg": {
                         "type": "string",
                         "example": "fetch data center list successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "GetDataCenterResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "version",
+                            "virtualIp",
+                            "isHaEnabled",
+                            "isLocal",
+                            "utcTimeZone",
+                            "additional"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "version": {
+                                "type": "string"
+                            },
+                            "virtualIp": {
+                                "type": "string"
+                            },
+                            "isHaEnabled": {
+                                "type": "boolean"
+                            },
+                            "isLocal": {
+                                "type": "boolean"
+                            },
+                            "utcTimeZone": {
+                                "type": "string"
+                            },
+                            "additional": {
+                                "type": "object",
+                                "required": [
+                                    "helpUrl"
+                                ],
+                                "properties": {
+                                    "helpUrl": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "fetch data center successfully"
                     },
                     "status": {
                         "type": "string",

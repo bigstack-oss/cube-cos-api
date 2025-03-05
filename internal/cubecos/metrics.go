@@ -422,7 +422,7 @@ func parseCpuUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, erro
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeISO8601Z(date),
+				Time:  definition.TimeLocalRFC3339(date),
 				Value: parseUsedOfHost(c.Record()),
 			},
 		)
@@ -629,7 +629,7 @@ func parseMemoryUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, e
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeISO8601Z(date),
+				Time:  definition.TimeLocalRFC3339(date),
 				Value: parseUsedOfHost(c.Record()),
 			},
 		)
@@ -771,7 +771,7 @@ func parseDiskUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, err
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeISO8601Z(date),
+				Time:  definition.TimeLocalRFC3339(date),
 				Value: parseUsedOfHost(c.Record()),
 			},
 		)
@@ -835,7 +835,7 @@ func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]definition.TimeValue
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeISO8601Z(date),
+				Time:  definition.TimeLocalRFC3339(date),
 				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
@@ -943,7 +943,7 @@ func parseCpuUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeValue, 
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeISO8601Z(date),
+				Time:  definition.TimeLocalRFC3339(date),
 				Value: parseUsed(c.Record()),
 			},
 		)
@@ -1007,7 +1007,7 @@ func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]definition.TimeValu
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeISO8601Z(date),
+				Time:  definition.TimeLocalRFC3339(date),
 				Value: parseUsed(c.Record()),
 			},
 		)
@@ -1342,7 +1342,7 @@ func parseDiskOpsHistory(c *api.QueryTableResult) ([]definition.TimeValue, error
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeISO8601Z(date),
+				Time:  definition.TimeLocalRFC3339(date),
 				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
@@ -1362,7 +1362,7 @@ func parseDiskLatencyHistory(c *api.QueryTableResult) ([]definition.TimeValue, e
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeISO8601Z(date),
+				Time:  definition.TimeLocalRFC3339(date),
 				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
@@ -1413,7 +1413,7 @@ func parseDiskBandwidthHistory(c *api.QueryTableResult) ([]definition.TimeValue,
 		points = append(
 			points,
 			definition.TimeValue{
-				Time:  definition.TimeISO8601Z(date),
+				Time:  definition.TimeLocalRFC3339(date),
 				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)

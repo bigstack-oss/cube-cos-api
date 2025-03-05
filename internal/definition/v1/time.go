@@ -12,6 +12,12 @@ const (
 	RFC3339Z = "2006-01-02T15:04:05Z07:00"
 )
 
+var (
+	LocalTimeZone        = "+00:00"
+	LocalTimeZoneSeconds = 0
+	LocalTimeFixedZone   = time.FixedZone("", LocalTimeZoneSeconds)
+)
+
 type Period struct {
 	Start string
 	Stop  string
@@ -37,8 +43,12 @@ func TimeRFC3339(duration time.Duration) string {
 	return time.Now().Add(duration).UTC().Format(time.RFC3339)
 }
 
-func TimRFC3339Z(duration time.Duration) string {
-	return time.Now().Add(duration).UTC().Format(RFC3339Z)
+func TimeRFC3339Z(t time.Time) string {
+	return t.Format(RFC3339Z)
+}
+
+func TimeLocalRFC3339(t time.Time) string {
+	return t.In(LocalTimeFixedZone).Format(time.RFC3339)
 }
 
 func TimPastRFC3339(duration time.Duration) string {

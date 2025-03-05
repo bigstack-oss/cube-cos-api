@@ -17,6 +17,13 @@ var (
 			Func:                 getDataCenters,
 			IsNotUnderDataCenter: true,
 		},
+		{
+			Version:              api.V1,
+			Method:               http.MethodGet,
+			Path:                 "/datacenters/:DataCenter",
+			Func:                 getDataCenter,
+			IsNotUnderDataCenter: true,
+		},
 	}
 )
 
@@ -33,9 +40,28 @@ func getDataCenters(c *gin.Context) {
 				VirtualIp:   definition.DataCenterVip,
 				IsLocal:     true,
 				IsHaEnabled: definition.IsHaEnabled,
+				UtcTimeZone: definition.LocalTimeZone,
 				Additional: definition.Additional{
 					HelpUrl: definition.DataCenterHelpUrl,
 				},
+			},
+		},
+	)
+}
+
+func getDataCenter(c *gin.Context) {
+	api.SetStatusOk(
+		c,
+		"fetch data center list successfully",
+		definition.DataCenter{
+			Name:        definition.DataCenterName,
+			Version:     definition.DataCenterVersion,
+			VirtualIp:   definition.DataCenterVip,
+			IsLocal:     true,
+			IsHaEnabled: definition.IsHaEnabled,
+			UtcTimeZone: definition.LocalTimeZone,
+			Additional: definition.Additional{
+				HelpUrl: definition.DataCenterHelpUrl,
 			},
 		},
 	)
