@@ -2567,7 +2567,7 @@ const docTemplate = `{
                                                             "by": "Bigstack co., ltd.",
                                                             "to": "*",
                                                             "hardware": "*",
-                                                            "date": "2025-02-04 09:54:45 UTC"
+                                                            "date": "2025-02-04T17:54:45+08:00"
                                                         },
                                                         "quantity": {
                                                             "type": "",
@@ -2580,7 +2580,7 @@ const docTemplate = `{
                                                             "meanTimeToRecovery": ""
                                                         },
                                                         "expiry": {
-                                                            "date": "2025-04-05 09:54:45 UTC",
+                                                            "date": "2025-04-05T17:54:45+08:00",
                                                             "days": 58
                                                         }
                                                     }
@@ -4052,7 +4052,7 @@ const docTemplate = `{
                                                                 "by": "Bigstack co., ltd.",
                                                                 "to": "bigstack",
                                                                 "hardware": "*",
-                                                                "date": "2025-01-23 06:51:50 UTC"
+                                                                "date": "2025-02-04T17:54:45+08:00"
                                                             },
                                                             "quantity": {
                                                                 "type": "",
@@ -4065,7 +4065,7 @@ const docTemplate = `{
                                                                 "meanTimeToRecovery": ""
                                                             },
                                                             "expiry": {
-                                                                "date": "2025-03-24 06:51:50 UTC",
+                                                                "date": "2025-04-05T17:54:45+08:00",
                                                                 "days": 44
                                                             }
                                                         },

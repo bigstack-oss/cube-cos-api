@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	log "go-micro.dev/v5/logger"
@@ -55,27 +56,37 @@ func ListLicenses() ([]definition.License, error) {
 
 func convertRawLicensesToApiLicenses(rawLicenses []definition.RawLicense) []definition.License {
 	licenses := []definition.License{}
-
 	for _, rawLicense := range rawLicenses {
-		licenses = append(
-			licenses,
-			definition.License{
-				Type:     rawLicense.Type,
-				Hostname: rawLicense.Hostname,
-				Serial:   rawLicense.Serial,
-				Issue: definition.Issue{
-					By:       rawLicense.IssueBy,
-					To:       rawLicense.IssueTo,
-					Hardware: rawLicense.Hardware,
-					Date:     rawLicense.Date,
-				},
-				Expiry: definition.Expiry{
-					Date: rawLicense.Expiry,
-					Days: rawLicense.Days,
-				},
-			},
-		)
+		licenses = append(licenses, genApiLicense(rawLicense))
 	}
 
 	return licenses
+}
+
+func genApiLicense(rawLicense definition.RawLicense) definition.License {
+	issueDate, err := time.Parse("2006-01-02 15:04:05 MST", rawLicense.Date)
+	if err != nil {
+		rawLicense.Date = "unknown issue date"
+	}
+
+	expiry, err := time.Parse("2006-01-02 15:04:05 MST", rawLicense.Expiry)
+	if err != nil {
+		rawLicense.Expiry = "unknown expiry date"
+	}
+
+	return definition.License{
+		Type:     rawLicense.Type,
+		Hostname: rawLicense.Hostname,
+		Serial:   rawLicense.Serial,
+		Issue: definition.Issue{
+			By:       rawLicense.IssueBy,
+			To:       rawLicense.IssueTo,
+			Hardware: rawLicense.Hardware,
+			Date:     issueDate.In(definition.LocalTimeFixedZone).Format(time.RFC3339),
+		},
+		Expiry: definition.Expiry{
+			Date: expiry.In(definition.LocalTimeFixedZone).Format(time.RFC3339),
+			Days: rawLicense.Days,
+		},
+	}
 }
