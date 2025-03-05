@@ -3,6 +3,7 @@ package runtime
 import (
 	"fmt"
 	"os"
+	"time"
 
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
@@ -75,9 +76,35 @@ func initNodeIdentities() error {
 	definition.AdvertiseAddr = genServiceDiscoveryAddr()
 	definition.IsGpuEnabled = cubecos.IsGpuEnabled()
 	definition.LogoutRedirectUrl = genLogoutRedirectUrl()
+	definition.LocalTimeZone = getLocalTimeZone()
+	definition.LocalTimeZoneSeconds = getLocalTimeZoneSeconds()
+	definition.LocalTimeFixedZone = time.FixedZone("", definition.LocalTimeZoneSeconds)
 	cubecos.SyncTunings()
 
 	return nil
+}
+
+func getLocalTimeZone() string {
+	_, offsetSeconds := time.Now().Zone()
+	sign := "+"
+	if offsetSeconds < 0 {
+		sign = "-"
+		offsetSeconds = -offsetSeconds
+	}
+
+	hours := offsetSeconds / 3600
+	mins := (offsetSeconds % 3600) / 60
+	return fmt.Sprintf(
+		"%s%02d:%02d",
+		sign,
+		hours,
+		mins,
+	)
+}
+
+func getLocalTimeZoneSeconds() int {
+	_, offsetSeconds := time.Now().Zone()
+	return offsetSeconds
 }
 
 func getHostname() (string, error) {

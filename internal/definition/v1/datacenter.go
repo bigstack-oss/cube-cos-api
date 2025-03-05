@@ -11,6 +11,7 @@ type DataCenter struct {
 	VirtualIp   string `json:"virtualIp" bson:"virtualIp"`
 	IsLocal     bool   `json:"isLocal" bson:"isLocal"`
 	IsHaEnabled bool   `json:"isHaEnabled" bson:"isHaEnabled"`
+	UtcTimeZone string `json:"utcTimeZone,omitempty" bson:"utcTimeZone"`
 	Additional  `json:"additional,omitempty" bson:"additional"`
 }
 
