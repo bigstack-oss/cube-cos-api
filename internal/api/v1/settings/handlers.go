@@ -62,6 +62,12 @@ var Handlers = []api.Handler{
 	},
 	{
 		Version: api.V1,
+		Method:  "POST",
+		Path:    "/settings/email/recipients/:recipientEmail",
+		Func:    tryEmailRecipient,
+	},
+	{
+		Version: api.V1,
 		Method:  "GET",
 		Path:    "/settings/email/recipients",
 		Func:    listEmailRecipients,
@@ -185,7 +191,7 @@ func tryEmailSender(c *gin.Context) {
 		return
 	}
 
-	err = recipient.CheckFormat()
+	err = recipient.CheckEmailFormat()
 	if err != nil {
 		log.Errorf("request(%s): invalid email format: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
@@ -199,14 +205,21 @@ func tryEmailSender(c *gin.Context) {
 		return
 	}
 	if len(senders) == 0 {
-		log.Error("no email senders found")
 		api.SetBadRequest(c, errors.New("no email senders found"))
 		return
 	}
 
-	err = sendTrialEmail(senders[0], recipient.Email)
+	sender := senders[0]
+	err = sendTrialEmail(sender, recipient.Email)
 	if err != nil {
 		log.Errorf("request(%s): failed to try email sender: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	err = setSenderAsVerified(sender)
+	if err != nil {
+		log.Errorf("request(%s): failed to enable email trial toggle: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -243,11 +256,12 @@ func patchEmailSender(c *gin.Context) {
 
 	err = checkSenderUpdate(c, sender)
 	if err != nil {
-		log.Errorf("request(%s): failed to update email sender: %s", api.GetReqId(c), err.Error())
+		log.Errorf("request(%s): failed to check email sender: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 	}
 
 	sender.Host = c.Param("senderHost")
+	sender.ResetAccessVerification()
 	err = updateEmailSender(sender)
 	if err != nil {
 		log.Errorf("request(%s): failed to update email sender: %s", api.GetReqId(c), err.Error())
@@ -291,7 +305,7 @@ func createEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	err = recipient.CheckFormat()
+	err = recipient.CheckEmailFormat()
 	if err != nil {
 		log.Errorf("request(%s): invalid email format: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
@@ -313,6 +327,44 @@ func createEmailRecipient(c *gin.Context) {
 	api.SetStatusCreated(
 		c,
 		"email recipient created successfully",
+		nil,
+	)
+}
+
+func tryEmailRecipient(c *gin.Context) {
+	recipientEmail := c.Param("recipientEmail")
+	if !isRecipientExist(recipientEmail) {
+		api.SetBadRequest(c, errors.New("recipient not found"))
+		return
+	}
+
+	senders, err := getEmailSenders()
+	if err != nil {
+		log.Errorf("request(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+	if len(senders) == 0 {
+		api.SetBadRequest(c, errors.New("no email senders found"))
+		return
+	}
+
+	sender := senders[0]
+	if !sender.AccessVerified {
+		api.SetBadRequest(c, errors.New("email sender not verified"))
+		return
+	}
+
+	err = sendTrialEmail(sender, recipientEmail)
+	if err != nil {
+		log.Errorf("request(%s): failed to try email recipient: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"email recipient tried successfully",
 		nil,
 	)
 }

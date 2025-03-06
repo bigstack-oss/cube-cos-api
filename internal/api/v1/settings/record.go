@@ -112,13 +112,15 @@ func updateEmailSender(sender email.Sender) error {
 		v1.SettingsDB(),
 		email.SenderCollection(),
 		bson.M{"host": sender.Host},
-		bson.M{"$set": bson.M{
-			"host":     sender.Host,
-			"port":     sender.Port,
-			"username": sender.Username,
-			"password": sender.Password,
-			"email":    sender.Email,
-		},
+		bson.M{
+			"$set": bson.M{
+				"host":           sender.Host,
+				"port":           sender.Port,
+				"username":       sender.Username,
+				"password":       sender.Password,
+				"email":          sender.Email,
+				"accessVerified": sender.AccessVerified,
+			},
 		},
 	)
 }
@@ -143,7 +145,7 @@ func insertEmailRecipient(recipient email.Recipient) error {
 
 func getEmailRecipients() ([]email.Recipient, error) {
 	h := mongo.GetGlobalHelper()
-	cursor, err := h.GetQueryCursor(
+	c, err := h.GetQueryCursor(
 		v1.SettingsDB(),
 		email.RecipientCollection(),
 		bson.M{},
@@ -155,8 +157,15 @@ func getEmailRecipients() ([]email.Recipient, error) {
 
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
 	defer cancel()
-	defer cursor.Close(ctx)
-	return parseEmailRecipient(cursor)
+	defer c.Close(ctx)
+	recipients, err := parseEmailRecipient(c)
+	if err != nil {
+		log.Errorf("failed to parse email recipient (%s)", err.Error())
+		return nil, err
+	}
+
+	syncTrialToggle(&recipients)
+	return recipients, nil
 }
 
 func updateEmailRecipient(recipient email.Recipient) error {

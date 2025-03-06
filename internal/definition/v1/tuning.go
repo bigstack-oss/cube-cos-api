@@ -52,6 +52,7 @@ type TuningLimitation struct {
 	Default any    `json:"default"`
 	Min     int    `json:"min,omitempty"`
 	Max     int    `json:"max,omitempty"`
+	Regex   string `json:"regex,omitempty"`
 }
 
 type Tuning struct {

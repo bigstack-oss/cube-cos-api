@@ -4,10 +4,13 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/email"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/slack"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	v1email "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	v1slack "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
-	"go-micro.dev/v5/logger"
+	log "go-micro.dev/v5/logger"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func sendTrialEmail(sender v1email.Sender, recipient string) error {
@@ -16,10 +19,10 @@ func sendTrialEmail(sender v1email.Sender, recipient string) error {
 		sender.UserAuth(),
 		sender.Email,
 		[]string{recipient},
-		[]byte("Subject: Trial Email\n\nThis is a trial email from Cube COS."),
+		[]byte("Subject: [Cube COS] A Trial Email From Settings\n\nThis is a trial email from Cube COS."),
 	)
 	if err != nil {
-		logger.Errorf("settings: failed to send trial email (%s)", err.Error())
+		log.Errorf("settings: failed to send trial email (%s)", err.Error())
 		return fmt.Errorf(
 			"failed to send trial email, please make sure the email sender setting is correct",
 		)
@@ -31,7 +34,7 @@ func sendTrialEmail(sender v1email.Sender, recipient string) error {
 func sendTrialSlackMessage(channel v1slack.Channel) error {
 	h, err := slack.NewHelper()
 	if err != nil {
-		logger.Errorf("settings: failed to create slack helper (%s)", err.Error())
+		log.Errorf("settings: failed to create slack helper (%s)", err.Error())
 		return err
 	}
 
@@ -39,4 +42,34 @@ func sendTrialSlackMessage(channel v1slack.Channel) error {
 		channel.URL,
 		"A trial message from Cube COS",
 	)
+}
+
+func setSenderAsVerified(sender v1email.Sender) error {
+	mongo := mongo.GetGlobalHelper()
+	return mongo.UpdateOne(
+		v1.SettingsDB(),
+		v1email.SenderCollection(),
+		bson.M{"host": sender.Host},
+		bson.M{"$set": bson.M{"accessVerified": true}},
+	)
+}
+
+func syncTrialToggle(recipient *[]v1email.Recipient) {
+	senders, err := getEmailSenders()
+	if err != nil {
+		log.Errorf("settings: failed to get email senders (%s)", err.Error())
+		return
+	}
+
+	if len(senders) == 0 {
+		log.Warnf("settings: no email sender found")
+		return
+	}
+	if !senders[0].AccessVerified {
+		return
+	}
+
+	for i := range *recipient {
+		(*recipient)[i].IsTestable = true
+	}
 }

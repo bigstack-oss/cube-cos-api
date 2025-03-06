@@ -4169,11 +4169,13 @@ const docTemplate = `{
                                                     "recipients": [
                                                         {
                                                             "email": "example.user.1@example.com",
-                                                            "note": "example note 1"
+                                                            "note": "example note 1",
+                                                            "isTestable": true
                                                         },
                                                         {
                                                             "email": "example.user.2@example.com",
-                                                            "note": "example note 2"
+                                                            "note": "example note 2",
+                                                            "isTestable": true
                                                         }
                                                     ],
                                                     "senders": [
@@ -4182,7 +4184,8 @@ const docTemplate = `{
                                                             "port": 587,
                                                             "username": "ABBBBBBMJM56DCCCCJR",
                                                             "password": "VBHWEEGEEEEEX0f5NLHDXLESxdZR",
-                                                            "email": "noreply@example.com"
+                                                            "email": "noreply@example.com",
+                                                            "accessVerified": true
                                                         }
                                                     ]
                                                 },
@@ -4405,7 +4408,8 @@ const docTemplate = `{
                                                     "port": 587,
                                                     "username": "example-user",
                                                     "password": "example-password",
-                                                    "email": "noreply@bigstack.co"
+                                                    "email": "noreply@bigstack.co",
+                                                    "accessVerified": true
                                                 }
                                             ],
                                             "msg": "email senders retrieved successfully",
@@ -4754,11 +4758,13 @@ const docTemplate = `{
                                             "data": [
                                                 {
                                                     "email": "example.user.1@example.com",
-                                                    "note": "example email recipient 1"
+                                                    "note": "example email recipient 1",
+                                                    "isTestable": true
                                                 },
                                                 {
                                                     "email": "example.user.2@example.com",
-                                                    "note": "example email recipient 2"
+                                                    "note": "example email recipient 2",
+                                                    "isTestable": true
                                                 }
                                             ],
                                             "msg": "email recipients retrieved successfully",
@@ -4797,6 +4803,87 @@ const docTemplate = `{
             }
         },
         "/api/v1/datacenters/{dataCenter}/settings/email/recipients/{recipientEmail}": {
+            "post": {
+                "operationId": "tryEmailRecipient",
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Try an email recipient",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "in": "path",
+                        "name": "recipientEmail",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "recipient email to operate"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Email recipient tried successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TryEmailRecipientResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "recipient not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to try email recipient: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "put": {
                 "operationId": "updateEmailRecipient",
                 "tags": [
@@ -9867,7 +9954,8 @@ const docTemplate = `{
                     "port",
                     "username",
                     "password",
-                    "email"
+                    "email",
+                    "accessVerified"
                 ],
                 "properties": {
                     "host": {
@@ -9884,6 +9972,9 @@ const docTemplate = `{
                     },
                     "email": {
                         "type": "string"
+                    },
+                    "accessVerified": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -9902,7 +9993,8 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "email",
-                    "note"
+                    "note",
+                    "isTestable"
                 ],
                 "properties": {
                     "email": {
@@ -9910,6 +10002,9 @@ const docTemplate = `{
                     },
                     "note": {
                         "type": "string"
+                    },
+                    "isTestable": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -10183,6 +10278,28 @@ const docTemplate = `{
                     },
                     "status": {
                         "type": "string"
+                    }
+                }
+            },
+            "TryEmailRecipientResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "email recipient tried successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
                     }
                 }
             },

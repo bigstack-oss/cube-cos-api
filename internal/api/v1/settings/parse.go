@@ -53,10 +53,10 @@ func parseEmailSender(cursor *mongo.Cursor) ([]email.Sender, error) {
 }
 
 func parseEmailRecipient(cursor *mongo.Cursor) ([]email.Recipient, error) {
+	recipients := []email.Recipient{}
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
 	defer cancel()
 
-	recipients := []email.Recipient{}
 	for cursor.Next(ctx) {
 		recipient := email.Recipient{}
 		err := cursor.Decode(&recipient)

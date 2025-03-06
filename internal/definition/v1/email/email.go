@@ -17,11 +17,12 @@ type Options struct {
 }
 
 type Sender struct {
-	Host     string `json:"host" bson:"host"`
-	Port     int    `json:"port" bson:"port"`
-	Username string `json:"username" bson:"username"`
-	Password string `json:"password" bson:"password"`
-	Email    string `json:"email" bson:"email"`
+	Host           string `json:"host" bson:"host"`
+	Port           int    `json:"port" bson:"port"`
+	Username       string `json:"username" bson:"username"`
+	Password       string `json:"password" bson:"password"`
+	Email          string `json:"email" bson:"email"`
+	AccessVerified bool   `json:"accessVerified" bson:"accessVerified"`
 }
 
 func (s *Sender) Address() string {
@@ -32,12 +33,17 @@ func (s *Sender) UserAuth() smtp.Auth {
 	return smtp.PlainAuth("", s.Username, s.Password, s.Host)
 }
 
-type Recipient struct {
-	Email string `json:"email" bson:"email"`
-	Note  string `json:"note" bson:"note"`
+func (s *Sender) ResetAccessVerification() {
+	s.AccessVerified = false
 }
 
-func (r *Recipient) CheckFormat() error {
+type Recipient struct {
+	Email      string `json:"email" bson:"email"`
+	Note       string `json:"note" bson:"note"`
+	IsTestable bool   `json:"isTestable" bson:"-"`
+}
+
+func (r *Recipient) CheckEmailFormat() error {
 	_, err := mail.ParseAddress(r.Email)
 	return err
 }

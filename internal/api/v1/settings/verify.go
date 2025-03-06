@@ -31,7 +31,7 @@ func checkRecipientUpdate(c *gin.Context, recipient email.Recipient) error {
 		return errors.New("recipient email does not match")
 	}
 
-	err := recipient.CheckFormat()
+	err := recipient.CheckEmailFormat()
 	if err != nil {
 		return errors.New("recipient email format is invalid")
 	}
