@@ -65,13 +65,17 @@ func GetRoleStatus() (*Role, error) {
 	for _, node := range nodes {
 		switch node.Role {
 		case definition.RoleControl:
-			role.Control++
+			role.Control.Count++
 		case definition.RoleCompute:
-			role.Compute++
+			role.Compute.Count++
 		case definition.RoleStorage:
-			role.Storage++
+			role.Storage.Count++
 		case definition.RoleControlConverged:
-			role.ControlConverged++
+			role.ControlConverged.Count++
+		case definition.RoleEdgeCore:
+			role.EdgeCore.Count++
+		case definition.RoleModerator:
+			role.Moderator.Count++
 		}
 	}
 

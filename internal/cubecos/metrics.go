@@ -257,9 +257,9 @@ func GetCpuAverageOfHosts(cpuStats []definition.ComputeStatistic) definition.Com
 
 	return definition.ComputeStatistic{
 		TotalCores:  totalCores,
-		UsedCores:   math.RoundDown(usedCores/float64(len(cpuStats)), 4),
+		UsedCores:   math.RoundDown(usedCores, 4),
 		UsedPercent: math.RoundDown(usedPercent/float64(len(cpuStats)), 4),
-		FreeCores:   math.RoundDown(freeCores/float64(len(cpuStats)), 4),
+		FreeCores:   math.RoundDown(freeCores, 4),
 		FreePercent: math.RoundDown(freePercent/float64(len(cpuStats)), 4),
 	}
 }
@@ -280,46 +280,25 @@ func GetMemoryAverageOfHosts(spaceStats []definition.SpaceStatistic) definition.
 	}
 
 	return definition.SpaceStatistic{
-		TotalMiB:    totalMiB / float64(len(spaceStats)),
-		UsedMiB:     usedMiB / float64(len(spaceStats)),
-		UsedPercent: usedPercent / float64(len(spaceStats)),
-		FreeMiB:     freeMiB / float64(len(spaceStats)),
-		FreePercent: freePercent / float64(len(spaceStats)),
+		TotalMiB:    math.RoundDown(totalMiB, 4),
+		UsedMiB:     math.RoundDown(usedMiB, 4),
+		UsedPercent: math.RoundDown(usedPercent/float64(len(spaceStats)), 4),
+		FreeMiB:     math.RoundDown(freeMiB, 4),
+		FreePercent: math.RoundDown(freePercent/float64(len(spaceStats)), 4),
 	}
 }
 
 func GetHostSummary() (*HostSummary, error) {
-	roleStatus, err := GetRoleStatus()
-	if err != nil {
-		log.Errorf("failed to get role status: %v", err)
-		return nil, err
-	}
-
 	nodes, err := definition.ListNodes()
 	if err != nil {
 		log.Errorf("failed to list nodes: %v", err)
 		return nil, err
 	}
 
-	host := &HostSummary{Role: *roleStatus}
-	for _, node := range nodes {
-		usage, err := GetHostUsage(node)
-		if err != nil {
-			continue
-		}
-
-		host.Usages = append(
-			host.Usages,
-			HostUsage{
-				Role:      node.Role,
-				Name:      node.Hostname,
-				Address:   node.Address,
-				HostUsage: *usage,
-			},
-		)
-	}
-
-	return host, nil
+	s := &HostSummary{}
+	s.SetHostUsageByNodes(nodes)
+	s.SetRoleUsageByHosts()
+	return s, nil
 }
 
 func GetHostUsage(node *definition.Node) (*definition.HostUsage, error) {
