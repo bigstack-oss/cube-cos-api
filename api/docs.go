@@ -184,16 +184,16 @@ const docTemplate = `{
                                         "value": {
                                             "code": 200,
                                             "data": {
-                                                    "name": "example-data-center",
-                                                    "version": "Cube Appliance 3.0.0",
-                                                    "virtualIp": "10.10.10.10",
-                                                    "isLocal": true,
-                                                    "isHaEnabled": false,
-                                                    "utcTimeZone": "+00:00",
-                                                    "additional": {
-                                                        "helpUrl": "https://www.bigstack.co/contact-us"
-                                                    }
-                                                },
+                                                "name": "example-data-center",
+                                                "version": "Cube Appliance 3.0.0",
+                                                "virtualIp": "10.10.10.10",
+                                                "isLocal": true,
+                                                "isHaEnabled": false,
+                                                "utcTimeZone": "+00:00",
+                                                "additional": {
+                                                    "helpUrl": "https://www.bigstack.co/contact-us"
+                                                }
+                                            },
                                             "msg": "fetch data center info successfully",
                                             "status": "ok"
                                         }
@@ -2797,79 +2797,171 @@ const docTemplate = `{
                                                     "usage": {
                                                         "cpu": {
                                                             "totalCores": 96,
-                                                            "usedCores": 8.7942,
-                                                            "value": 9.17,
-                                                            "freeCores": 87.2057,
-                                                            "freePercent": 90.83
+                                                            "usedCores": 5.3846,
+                                                            "usedPercent": 6.6012,
+                                                            "freeCores": 90.6152,
+                                                            "freePercent": 93.3986
                                                         },
                                                         "memory": {
                                                             "totalMiB": 515645.789,
-                                                            "usedMiB": 291691.289,
-                                                            "value": 56.5681,
-                                                            "freeMiB": 223954.5,
-                                                            "freePercent": 43.4318
+                                                            "usedMiB": 269875.7773,
+                                                            "usedPercent": 52.3374,
+                                                            "freeMiB": 245770.0117,
+                                                            "freePercent": 47.6625
                                                         }
                                                     }
                                                 },
                                                 "host": {
                                                     "role": {
-                                                        "controlConverged": 2,
-                                                        "control": 0,
-                                                        "compute": 0,
-                                                        "storage": 0,
-                                                        "edgeCore": 0,
-                                                        "moderator": 0
+                                                        "controlConverged": {
+                                                            "count": 2,
+                                                            "cpu": {
+                                                                "totalCores": 96,
+                                                                "usedCores": 5.3846,
+                                                                "usedPercent": 6.6012,
+                                                                "freeCores": 90.6152,
+                                                                "freePercent": 93.3986
+                                                            },
+                                                            "memory": {
+                                                                "totalMiB": 515645.789,
+                                                                "usedMiB": 269875.7773,
+                                                                "usedPercent": 52.3374,
+                                                                "freeMiB": 245770.0117,
+                                                                "freePercent": 47.6625
+                                                            }
+                                                        },
+                                                        "control": {
+                                                            "count": 0,
+                                                            "cpu": {
+                                                                "totalCores": 0,
+                                                                "usedCores": 0,
+                                                                "usedPercent": 0,
+                                                                "freeCores": 0,
+                                                                "freePercent": 0
+                                                            },
+                                                            "memory": {
+                                                                "totalMiB": 0,
+                                                                "usedMiB": 0,
+                                                                "usedPercent": 0,
+                                                                "freeMiB": 0,
+                                                                "freePercent": 0
+                                                            }
+                                                        },
+                                                        "compute": {
+                                                            "count": 0,
+                                                            "cpu": {
+                                                                "totalCores": 0,
+                                                                "usedCores": 0,
+                                                                "usedPercent": 0,
+                                                                "freeCores": 0,
+                                                                "freePercent": 0
+                                                            },
+                                                            "memory": {
+                                                                "totalMiB": 0,
+                                                                "usedMiB": 0,
+                                                                "usedPercent": 0,
+                                                                "freeMiB": 0,
+                                                                "freePercent": 0
+                                                            }
+                                                        },
+                                                        "storage": {
+                                                            "count": 0,
+                                                            "cpu": {
+                                                                "totalCores": 0,
+                                                                "usedCores": 0,
+                                                                "usedPercent": 0,
+                                                                "freeCores": 0,
+                                                                "freePercent": 0
+                                                            },
+                                                            "memory": {
+                                                                "totalMiB": 0,
+                                                                "usedMiB": 0,
+                                                                "usedPercent": 0,
+                                                                "freeMiB": 0,
+                                                                "freePercent": 0
+                                                            }
+                                                        },
+                                                        "edgeCore": {
+                                                            "count": 0,
+                                                            "cpu": {
+                                                                "totalCores": 0,
+                                                                "usedCores": 0,
+                                                                "usedPercent": 0,
+                                                                "freeCores": 0,
+                                                                "freePercent": 0
+                                                            },
+                                                            "memory": {
+                                                                "totalMiB": 0,
+                                                                "usedMiB": 0,
+                                                                "usedPercent": 0,
+                                                                "freeMiB": 0,
+                                                                "freePercent": 0
+                                                            }
+                                                        },
+                                                        "moderator": {
+                                                            "count": 0,
+                                                            "cpu": {
+                                                                "totalCores": 0,
+                                                                "usedCores": 0,
+                                                                "usedPercent": 0,
+                                                                "freeCores": 0,
+                                                                "freePercent": 0
+                                                            },
+                                                            "memory": {
+                                                                "totalMiB": 0,
+                                                                "usedMiB": 0,
+                                                                "usedPercent": 0,
+                                                                "freeMiB": 0,
+                                                                "freePercent": 0
+                                                            }
+                                                        }
                                                     },
                                                     "usages": [
                                                         {
                                                             "role": "control-converged",
                                                             "name": "example-node-0",
                                                             "address": "10.10.10.10",
-                                                            "usage": {
-                                                                "cpu": {
-                                                                    "totalCores": 48,
-                                                                    "usedCores": 4.3971,
-                                                                    "value": 4.335,
-                                                                    "freeCores": 43.6028,
-                                                                    "freePercent": 95.6649
-                                                                },
-                                                                "memory": {
-                                                                    "totalMiB": 257822.8945,
-                                                                    "usedMiB": 145845.6445,
-                                                                    "value": 56.5681,
-                                                                    "freeMiB": 111977.25,
-                                                                    "freePercent": 43.4318
-                                                                }
+                                                            "cpu": {
+                                                                "totalCores": 48,
+                                                                "usedCores": 2.7194,
+                                                                "usedPercent": 5.3006,
+                                                                "freeCores": 45.2805,
+                                                                "freePercent": 94.6993
+                                                            },
+                                                            "memory": {
+                                                                "totalMiB": 257822.8945,
+                                                                "usedMiB": 134933.4531,
+                                                                "usedPercent": 52.3357,
+                                                                "freeMiB": 122889.4414,
+                                                                "freePercent": 47.6642
                                                             }
                                                         },
                                                         {
                                                             "role": "control-converged",
                                                             "name": "example-node-1",
                                                             "address": "10.10.10.11",
-                                                            "usage": {
-                                                                "cpu": {
-                                                                    "totalCores": 48,
-                                                                    "usedCores": 4.3971,
-                                                                    "value": 4.335,
-                                                                    "freeCores": 43.6028,
-                                                                    "freePercent": 95.6649
-                                                                },
-                                                                "memory": {
-                                                                    "totalMiB": 257822.8945,
-                                                                    "usedMiB": 145845.6445,
-                                                                    "value": 56.5681,
-                                                                    "freeMiB": 111977.25,
-                                                                    "freePercent": 43.4318
-                                                                }
+                                                            "cpu": {
+                                                                "totalCores": 48,
+                                                                "usedCores": 2.6652,
+                                                                "usedPercent": 7.9019,
+                                                                "freeCores": 45.3347,
+                                                                "freePercent": 92.098
+                                                            },
+                                                            "memory": {
+                                                                "totalMiB": 257822.8945,
+                                                                "usedMiB": 134942.3242,
+                                                                "usedPercent": 52.3391,
+                                                                "freeMiB": 122880.5703,
+                                                                "freePercent": 47.6608
                                                             }
                                                         }
                                                     ]
                                                 },
                                                 "vm": {
                                                     "status": {
-                                                        "total": 16,
-                                                        "running": 14,
-                                                        "stopped": 2,
+                                                        "total": 15,
+                                                        "running": 15,
+                                                        "stopped": 0,
                                                         "suspend": 0,
                                                         "paused": 0,
                                                         "error": 0
@@ -2877,29 +2969,29 @@ const docTemplate = `{
                                                     "usage": {
                                                         "vcpu": {
                                                             "totalCores": 48,
-                                                            "usedCores": 38,
-                                                            "value": 0.7916,
-                                                            "freeCores": 10,
-                                                            "freePercent": 0.2083
+                                                            "usedCores": 40,
+                                                            "usedPercent": 0.8333,
+                                                            "freeCores": 8,
+                                                            "freePercent": 0.1666
                                                         },
                                                         "memory": {
                                                             "totalMiB": 257822,
-                                                            "usedMiB": 96424,
-                                                            "value": 0.3739,
-                                                            "freeMiB": 161398,
-                                                            "freePercent": 0.626
+                                                            "usedMiB": 100520,
+                                                            "usedPercent": 0.3898,
+                                                            "freeMiB": 157302,
+                                                            "freePercent": 0.6101
                                                         },
                                                         "storage": {
                                                             "totalMiB": 12571648,
-                                                            "usedMiB": 716800,
-                                                            "value": 0.057,
-                                                            "freeMiB": 11854848,
-                                                            "freePercent": 0.9429
+                                                            "usedMiB": 1126400,
+                                                            "usedPercent": 0.0895,
+                                                            "freeMiB": 11445248,
+                                                            "freePercent": 0.9104
                                                         }
                                                     }
                                                 }
                                             },
-                                            "msg": "fetch metrics successfully",
+                                            "msg": "fetch summary successfully",
                                             "status": "ok"
                                         }
                                     }
@@ -3085,7 +3177,7 @@ const docTemplate = `{
                                             "data": {
                                                 "totalCores": 48,
                                                 "usedCores": 4.7778,
-                                                "value": 6.6988,
+                                                "usedPercent": 6.6988,
                                                 "freeCores": 43.2221,
                                                 "freePercent": 93.3011
                                             },
@@ -4073,21 +4165,21 @@ const docTemplate = `{
                                                         "vcpu": {
                                                             "totalCores": 48,
                                                             "usedCores": 38,
-                                                            "value": 79.1666,
+                                                            "usedPercent": 79.1666,
                                                             "freeCores": 10,
                                                             "freePercent": 20.8333
                                                         },
                                                         "memory": {
                                                             "totalMiB": 257822,
                                                             "usedMiB": 95400,
-                                                            "value": 37.0022,
+                                                            "usedPercent": 37.0022,
                                                             "freeMiB": 162422,
                                                             "freePercent": 62.9977
                                                         },
                                                         "storage": {
                                                             "totalMiB": 12571648,
                                                             "usedMiB": 716800,
-                                                            "value": 5.7017,
+                                                            "usedPercent": 5.7017,
                                                             "freeMiB": 11854848,
                                                             "freePercent": 94.2982
                                                         },
@@ -8751,7 +8843,7 @@ const docTemplate = `{
                                                 "required": [
                                                     "totalCores",
                                                     "usedCores",
-                                                    "value",
+                                                    "usedPercent",
                                                     "freeCores",
                                                     "freePercent"
                                                 ],
@@ -8764,7 +8856,7 @@ const docTemplate = `{
                                                         "type": "integer",
                                                         "example": 31
                                                     },
-                                                    "value": {
+                                                    "usedPercent": {
                                                         "type": "number",
                                                         "example": 38.75
                                                     },
@@ -8833,20 +8925,22 @@ const docTemplate = `{
                                         ],
                                         "properties": {
                                             "controlConverged": {
-                                                "type": "integer",
-                                                "example": 10
+                                                "$ref": "#/components/schemas/roleUsage"
                                             },
                                             "control": {
-                                                "type": "integer",
-                                                "example": 3
+                                                "$ref": "#/components/schemas/roleUsage"
                                             },
                                             "compute": {
-                                                "type": "integer",
-                                                "example": 5
+                                                "$ref": "#/components/schemas/roleUsage"
                                             },
                                             "storage": {
-                                                "type": "integer",
-                                                "example": 2
+                                                "$ref": "#/components/schemas/roleUsage"
+                                            },
+                                            "edgeCore": {
+                                                "$ref": "#/components/schemas/roleUsage"
+                                            },
+                                            "moderator": {
+                                                "$ref": "#/components/schemas/roleUsage"
                                             }
                                         }
                                     },
@@ -8882,7 +8976,7 @@ const docTemplate = `{
                                                             "required": [
                                                                 "totalCores",
                                                                 "usedCores",
-                                                                "value",
+                                                                "usedPercent",
                                                                 "freeCores",
                                                                 "freePercent"
                                                             ],
@@ -8893,7 +8987,7 @@ const docTemplate = `{
                                                                 "usedCores": {
                                                                     "type": "integer"
                                                                 },
-                                                                "value": {
+                                                                "usedPercent": {
                                                                     "type": "number"
                                                                 },
                                                                 "freeCores": {
@@ -8996,7 +9090,7 @@ const docTemplate = `{
                                                     "totalCores",
                                                     "usedCores",
                                                     "freeCores",
-                                                    "value",
+                                                    "usedPercent",
                                                     "freePercent"
                                                 ],
                                                 "properties": {
@@ -9012,7 +9106,7 @@ const docTemplate = `{
                                                         "type": "integer",
                                                         "example": 49
                                                     },
-                                                    "value": {
+                                                    "usedPercent": {
                                                         "type": "number",
                                                         "example": 38.75
                                                     },
@@ -9119,7 +9213,7 @@ const docTemplate = `{
                         "required": [
                             "totalCores",
                             "usedCores",
-                            "value",
+                            "usedPercent",
                             "freeCores",
                             "freePercent"
                         ],
@@ -9130,7 +9224,7 @@ const docTemplate = `{
                             "usedCores": {
                                 "type": "integer"
                             },
-                            "value": {
+                            "usedPercent": {
                                 "type": "number"
                             },
                             "freeCores": {
@@ -10906,6 +11000,73 @@ const docTemplate = `{
                                 "value": {
                                     "type": "number"
                                 }
+                            }
+                        }
+                    }
+                }
+            },
+            "roleUsage": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "cpu",
+                    "memory"
+                ],
+                "properties": {
+                    "count": {
+                        "type": "integer"
+                    },
+                    "cpu": {
+                        "type": "object",
+                        "required": [
+                            "totalCores",
+                            "usedCores",
+                            "freeCores",
+                            "usedPercent",
+                            "freePercent"
+                        ],
+                        "properties": {
+                            "totalCores": {
+                                "type": "number"
+                            },
+                            "usedCores": {
+                                "type": "number"
+                            },
+                            "freeCores": {
+                                "type": "number"
+                            },
+                            "usedPercent": {
+                                "type": "number"
+                            },
+                            "freePercent": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "memory": {
+                        "type": "object",
+                        "required": [
+                            "totalMiB",
+                            "usedMiB",
+                            "freeMiB",
+                            "usedPercent",
+                            "freePercent"
+                        ],
+                        "properties": {
+                            "totalMiB": {
+                                "type": "number"
+                            },
+                            "usedMiB": {
+                                "type": "number"
+                            },
+                            "freeMiB": {
+                                "type": "number"
+                            },
+                            "usedPercent": {
+                                "type": "number"
+                            },
+                            "freePercent": {
+                                "type": "number"
                             }
                         }
                     }
