@@ -3251,7 +3251,7 @@ const docTemplate = `{
                                             "data": {
                                                 "totalMiB": 257371,
                                                 "usedMiB": 98255,
-                                                "value": 38.1752,
+                                                "usedPercent": 38.1752,
                                                 "freeMiB": 159116,
                                                 "freePercent": 61.8248
                                             },
@@ -3726,7 +3726,7 @@ const docTemplate = `{
                                             "data": {
                                                 "totalMiB": 257371,
                                                 "usedMiB": 98255,
-                                                "value": 38.1752,
+                                                "usedPercent": 38.1752,
                                                 "freeMiB": 159116,
                                                 "freePercent": 61.8248
                                             },
@@ -8875,7 +8875,7 @@ const docTemplate = `{
                                                 "required": [
                                                     "totalMiB",
                                                     "usedMiB",
-                                                    "value",
+                                                    "usedPercent",
                                                     "freeMiB",
                                                     "freePercent"
                                                 ],
@@ -8888,7 +8888,7 @@ const docTemplate = `{
                                                         "type": "integer",
                                                         "example": 98255
                                                     },
-                                                    "value": {
+                                                    "usedPercent": {
                                                         "type": "number",
                                                         "example": 38.2
                                                     },
@@ -9003,7 +9003,7 @@ const docTemplate = `{
                                                             "required": [
                                                                 "totalMiB",
                                                                 "usedMiB",
-                                                                "value",
+                                                                "usedPercent",
                                                                 "freeMiB",
                                                                 "freePercent"
                                                             ],
@@ -9014,7 +9014,7 @@ const docTemplate = `{
                                                                 "usedMiB": {
                                                                     "type": "integer"
                                                                 },
-                                                                "value": {
+                                                                "usedPercent": {
                                                                     "type": "number"
                                                                 },
                                                                 "freeMiB": {
@@ -9122,7 +9122,7 @@ const docTemplate = `{
                                                     "totalMiB",
                                                     "usedMiB",
                                                     "freeMiB",
-                                                    "value",
+                                                    "usedPercent",
                                                     "freePercent"
                                                 ],
                                                 "properties": {
@@ -9138,7 +9138,7 @@ const docTemplate = `{
                                                         "type": "integer",
                                                         "example": 159116
                                                     },
-                                                    "value": {
+                                                    "usedPercent": {
                                                         "type": "number",
                                                         "example": 38.2
                                                     },
@@ -9154,7 +9154,7 @@ const docTemplate = `{
                                                     "totalMiB",
                                                     "usedMiB",
                                                     "freeMiB",
-                                                    "value",
+                                                    "usedPercent",
                                                     "freePercent"
                                                 ],
                                                 "properties": {
@@ -9170,7 +9170,7 @@ const docTemplate = `{
                                                         "type": "integer",
                                                         "example": 51200
                                                     },
-                                                    "value": {
+                                                    "usedPercent": {
                                                         "type": "number",
                                                         "example": 50.1
                                                     },
@@ -9287,7 +9287,7 @@ const docTemplate = `{
                         "required": [
                             "totalMiB",
                             "usedMiB",
-                            "value",
+                            "usedPercent",
                             "freeMiB",
                             "freePercent"
                         ],
@@ -9298,7 +9298,7 @@ const docTemplate = `{
                             "usedMiB": {
                                 "type": "integer"
                             },
-                            "value": {
+                            "usedPercent": {
                                 "type": "number"
                             },
                             "freeMiB": {
@@ -9530,7 +9530,7 @@ const docTemplate = `{
                         "required": [
                             "totalMiB",
                             "usedMiB",
-                            "value",
+                            "usedPercent",
                             "freeMiB",
                             "freePercent"
                         ],
@@ -9541,7 +9541,7 @@ const docTemplate = `{
                             "usedMiB": {
                                 "type": "integer"
                             },
-                            "value": {
+                            "usedPercent": {
                                 "type": "number"
                             },
                             "freeMiB": {

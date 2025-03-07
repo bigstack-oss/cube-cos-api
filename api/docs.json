@@ -3247,7 +3247,7 @@
                                             "data": {
                                                 "totalMiB": 257371,
                                                 "usedMiB": 98255,
-                                                "value": 38.1752,
+                                                "usedPercent": 38.1752,
                                                 "freeMiB": 159116,
                                                 "freePercent": 61.8248
                                             },
@@ -3722,7 +3722,7 @@
                                             "data": {
                                                 "totalMiB": 257371,
                                                 "usedMiB": 98255,
-                                                "value": 38.1752,
+                                                "usedPercent": 38.1752,
                                                 "freeMiB": 159116,
                                                 "freePercent": 61.8248
                                             },
@@ -8871,7 +8871,7 @@
                                                 "required": [
                                                     "totalMiB",
                                                     "usedMiB",
-                                                    "value",
+                                                    "usedPercent",
                                                     "freeMiB",
                                                     "freePercent"
                                                 ],
@@ -8884,7 +8884,7 @@
                                                         "type": "integer",
                                                         "example": 98255
                                                     },
-                                                    "value": {
+                                                    "usedPercent": {
                                                         "type": "number",
                                                         "example": 38.2
                                                     },
@@ -8999,7 +8999,7 @@
                                                             "required": [
                                                                 "totalMiB",
                                                                 "usedMiB",
-                                                                "value",
+                                                                "usedPercent",
                                                                 "freeMiB",
                                                                 "freePercent"
                                                             ],
@@ -9010,7 +9010,7 @@
                                                                 "usedMiB": {
                                                                     "type": "integer"
                                                                 },
-                                                                "value": {
+                                                                "usedPercent": {
                                                                     "type": "number"
                                                                 },
                                                                 "freeMiB": {
@@ -9118,7 +9118,7 @@
                                                     "totalMiB",
                                                     "usedMiB",
                                                     "freeMiB",
-                                                    "value",
+                                                    "usedPercent",
                                                     "freePercent"
                                                 ],
                                                 "properties": {
@@ -9134,7 +9134,7 @@
                                                         "type": "integer",
                                                         "example": 159116
                                                     },
-                                                    "value": {
+                                                    "usedPercent": {
                                                         "type": "number",
                                                         "example": 38.2
                                                     },
@@ -9150,7 +9150,7 @@
                                                     "totalMiB",
                                                     "usedMiB",
                                                     "freeMiB",
-                                                    "value",
+                                                    "usedPercent",
                                                     "freePercent"
                                                 ],
                                                 "properties": {
@@ -9166,7 +9166,7 @@
                                                         "type": "integer",
                                                         "example": 51200
                                                     },
-                                                    "value": {
+                                                    "usedPercent": {
                                                         "type": "number",
                                                         "example": 50.1
                                                     },
@@ -9283,7 +9283,7 @@
                         "required": [
                             "totalMiB",
                             "usedMiB",
-                            "value",
+                            "usedPercent",
                             "freeMiB",
                             "freePercent"
                         ],
@@ -9294,7 +9294,7 @@
                             "usedMiB": {
                                 "type": "integer"
                             },
-                            "value": {
+                            "usedPercent": {
                                 "type": "number"
                             },
                             "freeMiB": {
@@ -9526,7 +9526,7 @@
                         "required": [
                             "totalMiB",
                             "usedMiB",
-                            "value",
+                            "usedPercent",
                             "freeMiB",
                             "freePercent"
                         ],
@@ -9537,7 +9537,7 @@
                             "usedMiB": {
                                 "type": "integer"
                             },
-                            "value": {
+                            "usedPercent": {
                                 "type": "number"
                             },
                             "freeMiB": {
