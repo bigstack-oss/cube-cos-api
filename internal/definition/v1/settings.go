@@ -132,7 +132,6 @@ func GetEmailRecipients() ([]email.Recipient, error) {
 		return nil, err
 	}
 
-	syncTrialToggle(&recipients)
 	return recipients, nil
 }
 
@@ -155,24 +154,4 @@ func parseRecipient(cursor *mongo.Cursor) ([]email.Recipient, error) {
 	}
 
 	return recipients, nil
-}
-
-func syncTrialToggle(recipient *[]email.Recipient) {
-	senders, err := GetEmailSenders()
-	if err != nil {
-		log.Errorf("settings: failed to get email senders (%s)", err.Error())
-		return
-	}
-
-	if len(senders) == 0 {
-		log.Warnf("settings: no email sender found")
-		return
-	}
-	if !senders[0].AccessVerified {
-		return
-	}
-
-	for i := range *recipient {
-		(*recipient)[i].IsTestable = true
-	}
 }

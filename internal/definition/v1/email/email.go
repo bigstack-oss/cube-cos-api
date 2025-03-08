@@ -38,9 +38,8 @@ func (s *Sender) ResetAccessVerification() {
 }
 
 type Recipient struct {
-	Email      string `json:"email" bson:"email"`
-	Note       string `json:"note" bson:"note"`
-	IsTestable bool   `json:"isTestable" bson:"-"`
+	Email string `json:"email" bson:"email"`
+	Note  string `json:"note" bson:"note"`
 }
 
 func (r *Recipient) CheckEmailFormat() error {

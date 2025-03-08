@@ -14,6 +14,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/tokens"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/triggers"
 	apitunings "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
@@ -89,6 +90,12 @@ func initNodeApiHandler() {
 	api.RegisterHandlersToRoles(
 		definition.Licenses,
 		licenses.Handlers,
+		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Triggers,
+		triggers.Handlers,
 		definition.RoleControl,
 	)
 

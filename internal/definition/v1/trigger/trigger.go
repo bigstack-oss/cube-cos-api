@@ -151,14 +151,28 @@ var DefaultOptions = []Options{
 type Options struct {
 	Name        string      `json:"name" yaml:"name"`
 	Description string      `json:"description" yaml:"description"`
-	Match       string      `json:"match" yaml:"match"`
+	Match       string      `json:"-" yaml:"match"`
 	Attributes  []Attribute `json:"attributes" yaml:"attributes"`
 	Response    `json:"response" yaml:"response"`
 	Enabled     bool `json:"enabled" yaml:"enabled"`
 }
 
+func (o *Options) InitResponse() {
+	o.Response.Types = []string{}
+	o.Response.Slacks = []slack.Channel{}
+	o.Response.Emails = []email.Recipient{}
+}
+
+func (o *Options) HasEmailRecipients() bool {
+	return len(o.Response.Emails) > 0
+}
+
+func (o *Options) HasSlackChannels() bool {
+	return len(o.Response.Slacks) > 0
+}
+
 type Response struct {
-	Types  []string          `json:"includes" yaml:"includes"`
+	Types  []string          `json:"types" yaml:"types"`
 	Slacks []slack.Channel   `json:"slacks" yaml:"slacks"`
 	Emails []email.Recipient `json:"emails" yaml:"emails"`
 }

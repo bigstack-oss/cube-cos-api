@@ -17,18 +17,21 @@ func initReqHelper(c *gin.Context) (*helper, error) {
 }
 
 func (h *helper) listTriggers() ([]trigger.Options, error) {
-	return trigger.DefaultOptions, nil
+	triggers := []trigger.Options{}
+	for _, trigger := range trigger.DefaultOptions {
+		setResponseItemsToTrigger(&trigger)
+		triggers = append(triggers, trigger)
+	}
+
+	return triggers, nil
 }
 
 func (h *helper) getTrigger(name string) (*trigger.Options, error) {
 	for _, trigger := range trigger.DefaultOptions {
-		if trigger.Name != name {
-			continue
+		if trigger.Name == name {
+			setResponseItemsToTrigger(&trigger)
+			return &trigger, nil
 		}
-
-		setEmailRecipientsToTrigger(&trigger)
-		setSlackRecipientsToTrigger(&trigger)
-		return &trigger, nil
 	}
 
 	return nil, fmt.Errorf(
@@ -37,18 +40,40 @@ func (h *helper) getTrigger(name string) (*trigger.Options, error) {
 	)
 }
 
-func setEmailRecipientsToTrigger(trigger *trigger.Options) {
-	var err error
-	trigger.Emails, err = definition.GetEmailRecipients()
-	if err != nil {
-		return
+func setResponseItemsToTrigger(trigger *trigger.Options) {
+	trigger.InitResponse()
+
+	setEmailRecipientsToTrigger(trigger)
+	if trigger.HasEmailRecipients() {
+		trigger.Response.Types = append(
+			trigger.Response.Types,
+			"email",
+		)
+	}
+
+	setSlackChannelsToTrigger(trigger)
+	if trigger.HasSlackChannels() {
+		trigger.Response.Types = append(
+			trigger.Response.Types,
+			"slack",
+		)
 	}
 }
 
-func setSlackRecipientsToTrigger(trigger *trigger.Options) {
-	var err error
-	trigger.Slacks, err = definition.GetSlackChannels()
+func setEmailRecipientsToTrigger(trigger *trigger.Options) {
+	recipients, err := definition.GetEmailRecipients()
 	if err != nil {
 		return
 	}
+
+	trigger.Emails = recipients
+}
+
+func setSlackChannelsToTrigger(trigger *trigger.Options) {
+	channels, err := definition.GetSlackChannels()
+	if err != nil {
+		return
+	}
+
+	trigger.Slacks = channels
 }
