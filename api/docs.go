@@ -7465,7 +7465,7 @@ const docTemplate = `{
                     }
                 },
                 "responses": {
-                    "202": {
+                    "200": {
                         "description": "Reset the tuning successfully",
                         "content": {
                             "application/json": {
@@ -7547,6 +7547,459 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to request tuning update: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/dell180/triggers": {
+            "get": {
+                "operationId": "getTriggers",
+                "tags": [
+                    "Triggers"
+                ],
+                "summary": "Retrieve all triggers",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve triggers successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetTriggersResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Triggers list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "name": "Administrative Level Notification",
+                                                    "description": "Configure how you are going to be notified for system events and host alerts, including levels 'warning', 'error', and 'critical'.",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "severity",
+                                                            "type": "string",
+                                                            "value": "W",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "severity",
+                                                            "type": "string",
+                                                            "value": "E",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "severity",
+                                                            "type": "string",
+                                                            "value": "C",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "DEV",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "CPU",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "DSK",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "MEM",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "NET",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "SRV",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "VRT",
+                                                            "enabled": false
+                                                        }
+                                                    ],
+                                                    "response": {
+                                                        "types": [
+                                                            "email",
+                                                            "slack"
+                                                        ],
+                                                        "slacks": [
+                                                            {
+                                                                "name": "amqp-alert-p1",
+                                                                "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
+                                                                "description": "example slack channel 1"
+                                                            },
+                                                            {
+                                                                "name": "#test-cos-300-notification",
+                                                                "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
+                                                                "description": "example slack channel 2"
+                                                            }
+                                                        ],
+                                                        "emails": [
+                                                            {
+                                                                "email": "example.user@example.com",
+                                                                "note": "example email recipient"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "enabled": false
+                                                },
+                                                {
+                                                    "name": "Instance Level Notification",
+                                                    "description": "Configure how you are going to be notified for instance alerts, including levels \"warning\", and \"critical\".",
+                                                    "attributes": [
+                                                        {
+                                                            "name": "severity",
+                                                            "type": "string",
+                                                            "value": "W",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "severity",
+                                                            "type": "string",
+                                                            "value": "E",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "severity",
+                                                            "type": "string",
+                                                            "value": "C",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "DEV",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "CPU",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "DSK",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "MEM",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "NET",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "SRV",
+                                                            "enabled": false
+                                                        },
+                                                        {
+                                                            "name": "category",
+                                                            "type": "string",
+                                                            "value": "VRT",
+                                                            "enabled": false
+                                                        }
+                                                    ],
+                                                    "response": {
+                                                        "types": [
+                                                            "email",
+                                                            "slack"
+                                                        ],
+                                                        "slacks": [
+                                                            {
+                                                                "name": "amqp-alert-p1",
+                                                                "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
+                                                                "description": "example slack channel 1"
+                                                            },
+                                                            {
+                                                                "name": "#test-cos-300-notification",
+                                                                "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
+                                                                "description": "example slack channel 2"
+                                                            }
+                                                        ],
+                                                        "emails": [
+                                                            {
+                                                                "email": "example.user@example.com",
+                                                                "note": "example email recipient"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "enabled": false
+                                                }
+                                            ],
+                                            "msg": "fetch triggers successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list triggers: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/dell180/triggers/{triggerName}": {
+            "get": {
+                "operationId": "getTrigger",
+                "tags": [
+                    "Triggers"
+                ],
+                "summary": "Retrieve a specific trigger",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "in": "path",
+                        "name": "triggerName",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the trigger to operate",
+                        "example": "Administrative Level Notification"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve trigger successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetTriggerResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Get a specific trigger",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "name": "Administrative Level Notification",
+                                                "description": "Configure how you are going to be notified for system events and host alerts, including levels 'warning', 'error', and 'critical'.",
+                                                "attributes": [
+                                                    {
+                                                        "name": "severity",
+                                                        "type": "string",
+                                                        "value": "W",
+                                                        "enabled": false
+                                                    },
+                                                    {
+                                                        "name": "severity",
+                                                        "type": "string",
+                                                        "value": "E",
+                                                        "enabled": false
+                                                    },
+                                                    {
+                                                        "name": "severity",
+                                                        "type": "string",
+                                                        "value": "C",
+                                                        "enabled": false
+                                                    },
+                                                    {
+                                                        "name": "category",
+                                                        "type": "string",
+                                                        "value": "DEV",
+                                                        "enabled": false
+                                                    },
+                                                    {
+                                                        "name": "category",
+                                                        "type": "string",
+                                                        "value": "CPU",
+                                                        "enabled": false
+                                                    },
+                                                    {
+                                                        "name": "category",
+                                                        "type": "string",
+                                                        "value": "DSK",
+                                                        "enabled": false
+                                                    },
+                                                    {
+                                                        "name": "category",
+                                                        "type": "string",
+                                                        "value": "MEM",
+                                                        "enabled": false
+                                                    },
+                                                    {
+                                                        "name": "category",
+                                                        "type": "string",
+                                                        "value": "NET",
+                                                        "enabled": false
+                                                    },
+                                                    {
+                                                        "name": "category",
+                                                        "type": "string",
+                                                        "value": "SRV",
+                                                        "enabled": false
+                                                    },
+                                                    {
+                                                        "name": "category",
+                                                        "type": "string",
+                                                        "value": "VRT",
+                                                        "enabled": false
+                                                    }
+                                                ],
+                                                "response": {
+                                                    "types": [
+                                                        "email",
+                                                        "slack"
+                                                    ],
+                                                    "slacks": [
+                                                        {
+                                                            "name": "amqp-alert-p1",
+                                                            "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
+                                                            "description": "example slack channel 1"
+                                                        },
+                                                        {
+                                                            "name": "#test-cos-300-notification",
+                                                            "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
+                                                            "description": "example slack channel 2"
+                                                        }
+                                                    ],
+                                                    "emails": [
+                                                        {
+                                                            "email": "example.user@example.com",
+                                                            "note": "example email recipient"
+                                                        }
+                                                    ]
+                                                },
+                                                "enabled": false
+                                            },
+                                            "msg": "fetch trigger successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list triggers: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -10894,6 +11347,255 @@ const docTemplate = `{
                     },
                     "status": {
                         "type": "string"
+                    }
+                }
+            },
+            "GetTriggersResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "description",
+                                "attributes",
+                                "response",
+                                "enabled"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                },
+                                "attributes": {
+                                    "type": "object",
+                                    "required": [
+                                        "name",
+                                        "type",
+                                        "value",
+                                        "enabled"
+                                    ],
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                },
+                                "response": {
+                                    "type": "object",
+                                    "required": [
+                                        "types",
+                                        "slacks",
+                                        "emails"
+                                    ],
+                                    "properties": {
+                                        "types": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "slacks": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": [
+                                                    "name",
+                                                    "url",
+                                                    "description"
+                                                ],
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "url": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "emails": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": [
+                                                    "email",
+                                                    "note"
+                                                ],
+                                                "properties": {
+                                                    "email": {
+                                                        "type": "string"
+                                                    },
+                                                    "note": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "triggers retrieved successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "GetTriggerResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "description",
+                            "attributes",
+                            "response",
+                            "enabled"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
+                            },
+                            "attributes": {
+                                "type": "object",
+                                "required": [
+                                    "name",
+                                    "type",
+                                    "value",
+                                    "enabled"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "value": {
+                                        "type": "string"
+                                    },
+                                    "enabled": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            },
+                            "response": {
+                                "type": "object",
+                                "required": [
+                                    "types",
+                                    "slacks",
+                                    "emails"
+                                ],
+                                "properties": {
+                                    "types": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "slacks": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "name",
+                                                "url",
+                                                "description"
+                                            ],
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "url": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "emails": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "email",
+                                                "note"
+                                            ],
+                                            "properties": {
+                                                "email": {
+                                                    "type": "string"
+                                                },
+                                                "note": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "enabled": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "triggers retrieved successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
                     }
                 }
             },

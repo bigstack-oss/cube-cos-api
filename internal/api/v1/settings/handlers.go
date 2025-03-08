@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/gin-gonic/gin"
@@ -132,7 +132,7 @@ func listSettings(c *gin.Context) {
 }
 
 func patchTitlePrefix(c *gin.Context) {
-	titlePrefix := v1.TitlePrefix{}
+	titlePrefix := definition.TitlePrefix{}
 	err := c.ShouldBindJSON(&titlePrefix)
 	if err != nil {
 		log.Errorf("request(%s): failed to decode title prefix: %s", api.GetReqId(c), err.Error())
@@ -198,7 +198,7 @@ func tryEmailSender(c *gin.Context) {
 		return
 	}
 
-	senders, err := v1.GetEmailSenders()
+	senders, err := definition.GetEmailSenders()
 	if err != nil {
 		log.Errorf("request(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -232,7 +232,7 @@ func tryEmailSender(c *gin.Context) {
 }
 
 func listEmailSenders(c *gin.Context) {
-	senders, err := v1.GetEmailSenders()
+	senders, err := definition.GetEmailSenders()
 	if err != nil {
 		log.Errorf("request(%s): failed to list email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -338,7 +338,7 @@ func tryEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	senders, err := v1.GetEmailSenders()
+	senders, err := definition.GetEmailSenders()
 	if err != nil {
 		log.Errorf("request(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -370,7 +370,7 @@ func tryEmailRecipient(c *gin.Context) {
 }
 
 func listEmailRecipients(c *gin.Context) {
-	recipients, err := v1.GetEmailRecipients()
+	recipients, err := definition.GetEmailRecipients()
 	if err != nil {
 		log.Errorf("request(%s): failed to list email recipients: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -486,7 +486,7 @@ func trySlackChannel(c *gin.Context) {
 }
 
 func listSlackChannels(c *gin.Context) {
-	channels, err := v1.GetSlackChannels()
+	channels, err := definition.GetSlackChannels()
 	if err != nil {
 		log.Errorf("request(%s): failed to list slack channels: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
