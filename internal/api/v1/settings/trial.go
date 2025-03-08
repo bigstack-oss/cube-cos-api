@@ -48,28 +48,8 @@ func setSenderAsVerified(sender v1email.Sender) error {
 	mongo := mongo.GetGlobalHelper()
 	return mongo.UpdateOne(
 		v1.SettingsDB(),
-		v1email.SenderCollection(),
+		v1email.SenderCollection,
 		bson.M{"host": sender.Host},
 		bson.M{"$set": bson.M{"accessVerified": true}},
 	)
-}
-
-func syncTrialToggle(recipient *[]v1email.Recipient) {
-	senders, err := getEmailSenders()
-	if err != nil {
-		log.Errorf("settings: failed to get email senders (%s)", err.Error())
-		return
-	}
-
-	if len(senders) == 0 {
-		log.Warnf("settings: no email sender found")
-		return
-	}
-	if !senders[0].AccessVerified {
-		return
-	}
-
-	for i := range *recipient {
-		(*recipient)[i].IsTestable = true
-	}
 }

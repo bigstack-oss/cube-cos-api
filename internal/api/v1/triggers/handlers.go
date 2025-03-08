@@ -5,7 +5,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/gin-gonic/gin"
-	"go-micro.dev/v5/logger"
+	log "go-micro.dev/v5/logger"
 )
 
 var (
@@ -14,22 +14,28 @@ var (
 			Version: api.V1,
 			Method:  http.MethodGet,
 			Path:    "/triggers",
-			Func:    getTriggers,
+			Func:    listTriggers,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodGet,
+			Path:    "/triggers/:triggerName",
+			Func:    getTrigger,
 		},
 	}
 )
 
-func getTriggers(c *gin.Context) {
+func listTriggers(c *gin.Context) {
 	h, err := initReqHelper(c)
 	if err != nil {
-		logger.Errorf("trigger(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
+		log.Errorf("trigger(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	triggers, err := h.getTriggers()
+	triggers, err := h.listTriggers()
 	if err != nil {
-		logger.Errorf("trigger(%s): failed to getTriggers: %v", api.GetReqId(c), err)
+		log.Errorf("trigger(%s): failed to listTriggers: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -38,5 +44,27 @@ func getTriggers(c *gin.Context) {
 		c,
 		"fetched triggers successfully",
 		triggers,
+	)
+}
+
+func getTrigger(c *gin.Context) {
+	h, err := initReqHelper(c)
+	if err != nil {
+		log.Errorf("trigger(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	trigger, err := h.getTrigger(h.getTriggerName())
+	if err != nil {
+		log.Errorf("trigger(%s): failed to getTrigger: %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"fetched trigger successfully",
+		trigger,
 	)
 }

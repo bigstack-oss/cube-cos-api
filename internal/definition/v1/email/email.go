@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	emailSenders    = "emailSenders"
-	emailRecipients = "emailRecipients"
+	SenderCollection    = "emailSenders"
+	RecipientCollection = "emailRecipients"
 )
 
 type Options struct {
@@ -46,12 +46,4 @@ type Recipient struct {
 func (r *Recipient) CheckEmailFormat() error {
 	_, err := mail.ParseAddress(r.Email)
 	return err
-}
-
-func SenderCollection() string {
-	return emailSenders
-}
-
-func RecipientCollection() string {
-	return emailRecipients
 }

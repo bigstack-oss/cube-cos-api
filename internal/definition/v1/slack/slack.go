@@ -1,7 +1,7 @@
 package slack
 
 const (
-	slackChannels = "slackChannels"
+	ChannelCollection = "slackChannels"
 )
 
 type Options struct {
@@ -12,8 +12,4 @@ type Channel struct {
 	Name        string `json:"name" bson:"name"`
 	URL         string `json:"url" bson:"url"`
 	Description string `json:"description" bson:"description"`
-}
-
-func ChannelCollection() string {
-	return slackChannels
 }

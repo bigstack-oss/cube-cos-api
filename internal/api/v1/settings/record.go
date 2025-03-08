@@ -20,19 +20,19 @@ func getAllSettings() (*v1.Setting, error) {
 		return nil, err
 	}
 
-	senders, err := getEmailSenders()
+	senders, err := v1.GetEmailSenders()
 	if err != nil {
 		log.Errorf("failed to get email sender (%s)", err.Error())
 		return nil, err
 	}
 
-	recipients, err := getEmailRecipients()
+	recipients, err := v1.GetEmailRecipients()
 	if err != nil {
 		log.Errorf("failed to get email recipient (%s)", err.Error())
 		return nil, err
 	}
 
-	channels, err := getSlackChannels()
+	channels, err := v1.GetSlackChannels()
 	if err != nil {
 		log.Errorf("failed to get slack channel (%s)", err.Error())
 		return nil, err
@@ -83,34 +83,16 @@ func insertEmailSender(sender email.Sender) error {
 	h := mongo.GetGlobalHelper()
 	return h.Insert(
 		v1.SettingsDB(),
-		email.SenderCollection(),
+		email.SenderCollection,
 		sender,
 	)
-}
-
-func getEmailSenders() ([]email.Sender, error) {
-	h := mongo.GetGlobalHelper()
-	cursor, err := h.GetQueryCursor(
-		v1.SettingsDB(),
-		v1.EmailSenderCollection(),
-		bson.M{},
-	)
-	if err != nil {
-		log.Errorf("failed to get cursor for email sender (%s)", err.Error())
-		return nil, err
-	}
-
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	defer cursor.Close(ctx)
-	return parseEmailSender(cursor)
 }
 
 func updateEmailSender(sender email.Sender) error {
 	h := mongo.GetGlobalHelper()
 	return h.UpdateOne(
 		v1.SettingsDB(),
-		email.SenderCollection(),
+		email.SenderCollection,
 		bson.M{"host": sender.Host},
 		bson.M{
 			"$set": bson.M{
@@ -129,7 +111,7 @@ func removeEmailSender(host string) error {
 	h := mongo.GetGlobalHelper()
 	return h.DeleteOne(
 		v1.SettingsDB(),
-		email.SenderCollection(),
+		email.SenderCollection,
 		bson.M{"host": host},
 	)
 }
@@ -138,41 +120,16 @@ func insertEmailRecipient(recipient email.Recipient) error {
 	h := mongo.GetGlobalHelper()
 	return h.Insert(
 		v1.SettingsDB(),
-		email.RecipientCollection(),
+		email.RecipientCollection,
 		recipient,
 	)
-}
-
-func getEmailRecipients() ([]email.Recipient, error) {
-	h := mongo.GetGlobalHelper()
-	c, err := h.GetQueryCursor(
-		v1.SettingsDB(),
-		email.RecipientCollection(),
-		bson.M{},
-	)
-	if err != nil {
-		log.Errorf("failed to get cursor for email recipient (%s)", err.Error())
-		return nil, err
-	}
-
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	defer c.Close(ctx)
-	recipients, err := parseEmailRecipient(c)
-	if err != nil {
-		log.Errorf("failed to parse email recipient (%s)", err.Error())
-		return nil, err
-	}
-
-	syncTrialToggle(&recipients)
-	return recipients, nil
 }
 
 func updateEmailRecipient(recipient email.Recipient) error {
 	h := mongo.GetGlobalHelper()
 	return h.UpdateOne(
 		v1.SettingsDB(),
-		email.RecipientCollection(),
+		email.RecipientCollection,
 		bson.M{"email": recipient.Email},
 		bson.M{
 			"$set": bson.M{
@@ -186,7 +143,7 @@ func removeEmailRecipient(recipient string) error {
 	h := mongo.GetGlobalHelper()
 	return h.DeleteOne(
 		v1.SettingsDB(),
-		email.RecipientCollection(),
+		email.RecipientCollection,
 		bson.M{"email": recipient},
 	)
 }
@@ -195,7 +152,7 @@ func insertSlackChannel(channel slack.Channel) error {
 	h := mongo.GetGlobalHelper()
 	return h.Insert(
 		v1.SettingsDB(),
-		slack.ChannelCollection(),
+		slack.ChannelCollection,
 		channel,
 	)
 }
@@ -204,7 +161,7 @@ func getSlackChannel(name string) (*slack.Channel, error) {
 	h := mongo.GetGlobalHelper()
 	resp, err := h.Get(
 		v1.SettingsDB(),
-		slack.ChannelCollection(),
+		slack.ChannelCollection,
 		bson.M{"name": name},
 	)
 	if err != nil {
@@ -222,29 +179,11 @@ func getSlackChannel(name string) (*slack.Channel, error) {
 	return &channel, nil
 }
 
-func getSlackChannels() ([]slack.Channel, error) {
-	h := mongo.GetGlobalHelper()
-	cursor, err := h.GetQueryCursor(
-		v1.SettingsDB(),
-		slack.ChannelCollection(),
-		bson.M{},
-	)
-	if err != nil {
-		log.Errorf("failed to get cursor for slack channel (%s)", err.Error())
-		return nil, err
-	}
-
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	defer cursor.Close(ctx)
-	return parseSlackChannel(cursor)
-}
-
 func updateSlackChannel(channel slack.Channel) error {
 	h := mongo.GetGlobalHelper()
 	return h.UpdateOne(
 		v1.SettingsDB(),
-		slack.ChannelCollection(),
+		slack.ChannelCollection,
 		bson.M{"name": channel.Name},
 		bson.M{
 			"$set": bson.M{
@@ -260,7 +199,7 @@ func removeSlackChannel(name string) error {
 	h := mongo.GetGlobalHelper()
 	return h.DeleteOne(
 		v1.SettingsDB(),
-		slack.ChannelCollection(),
+		slack.ChannelCollection,
 		bson.M{"name": name},
 	)
 }
@@ -269,7 +208,7 @@ func isSenderExist(sender string) bool {
 	h := mongo.GetGlobalHelper()
 	count, err := h.GetCount(
 		v1.SettingsDB(),
-		email.SenderCollection(),
+		email.SenderCollection,
 		bson.M{"host": sender},
 	)
 	if err != nil {
@@ -284,7 +223,7 @@ func isRecipientExist(recipient string) bool {
 	h := mongo.GetGlobalHelper()
 	count, err := h.GetCount(
 		v1.SettingsDB(),
-		email.RecipientCollection(),
+		email.RecipientCollection,
 		bson.M{"email": recipient},
 	)
 	if err != nil {
@@ -299,7 +238,7 @@ func isChannelExist(channel string) bool {
 	h := mongo.GetGlobalHelper()
 	count, err := h.GetCount(
 		v1.SettingsDB(),
-		slack.ChannelCollection(),
+		slack.ChannelCollection,
 		bson.M{"name": channel},
 	)
 	if err != nil {

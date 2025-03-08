@@ -198,7 +198,7 @@ func tryEmailSender(c *gin.Context) {
 		return
 	}
 
-	senders, err := getEmailSenders()
+	senders, err := v1.GetEmailSenders()
 	if err != nil {
 		log.Errorf("request(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -232,7 +232,7 @@ func tryEmailSender(c *gin.Context) {
 }
 
 func listEmailSenders(c *gin.Context) {
-	senders, err := getEmailSenders()
+	senders, err := v1.GetEmailSenders()
 	if err != nil {
 		log.Errorf("request(%s): failed to list email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -338,7 +338,7 @@ func tryEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	senders, err := getEmailSenders()
+	senders, err := v1.GetEmailSenders()
 	if err != nil {
 		log.Errorf("request(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -370,7 +370,7 @@ func tryEmailRecipient(c *gin.Context) {
 }
 
 func listEmailRecipients(c *gin.Context) {
-	recipients, err := getEmailRecipients()
+	recipients, err := v1.GetEmailRecipients()
 	if err != nil {
 		log.Errorf("request(%s): failed to list email recipients: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -486,7 +486,7 @@ func trySlackChannel(c *gin.Context) {
 }
 
 func listSlackChannels(c *gin.Context) {
-	channels, err := getSlackChannels()
+	channels, err := v1.GetSlackChannels()
 	if err != nil {
 		log.Errorf("request(%s): failed to list slack channels: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
