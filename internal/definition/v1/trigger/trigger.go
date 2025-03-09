@@ -3,10 +3,12 @@ package trigger
 import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 )
 
 const (
-	Triggers = "triggers"
+	Triggers       = "triggers"
+	ResponsePolicy = "/etc/policies/alert_trigger/alert_resp2_0.yml"
 )
 
 var DefaultOptions = []Options{
@@ -148,13 +150,47 @@ var DefaultOptions = []Options{
 	},
 }
 
+type Policy struct {
+	Name     string    `json:"name" yaml:"name"`
+	Version  string    `json:"version" yaml:"version"`
+	Enabled  bool      `json:"enabled" yaml:"enabled"`
+	Triggers []Options `json:"triggers" yaml:"triggers"`
+}
+
+func (p *Policy) UpdateOrAppendTrigger(trigger Options) {
+	if !p.existingTuningUpdated(trigger) {
+		p.AppendTrigger(trigger)
+	}
+}
+
+func (p *Policy) existingTuningUpdated(trigger Options) bool {
+	for i, existing := range p.Triggers {
+		if existing.Name == trigger.Name {
+			p.Triggers[i].Name = trigger.Name
+			p.Triggers[i].Description = trigger.Description
+			p.Triggers[i].Match = trigger.Match
+			p.Triggers[i].Response = trigger.Response
+			p.Triggers[i].Enabled = trigger.Enabled
+			return true
+		}
+	}
+
+	return false
+}
+
+func (p *Policy) AppendTrigger(trigger Options) {
+	p.Triggers = append(p.Triggers, trigger)
+}
+
 type Options struct {
-	Name        string      `json:"name" yaml:"name"`
+	Id          string      `json:"-" yaml:"-" bson:"id"`
+	Name        string      `json:"name" yaml:"name" bson:"name"`
 	Description string      `json:"description" yaml:"description"`
 	Match       string      `json:"-" yaml:"match"`
-	Attributes  []Attribute `json:"attributes" yaml:"attributes"`
+	Attributes  []Attribute `json:"attributes" yaml:"-"`
 	Response    `json:"response" yaml:"response"`
-	Enabled     bool `json:"enabled" yaml:"enabled"`
+	Enabled     bool           `json:"enabled" yaml:"enabled"`
+	Status      status.Details `json:"-" yaml:"-" bson:"status"`
 }
 
 func (o *Options) InitResponse() {
@@ -171,8 +207,24 @@ func (o *Options) HasSlackChannels() bool {
 	return len(o.Response.Slacks) > 0
 }
 
+func (o *Options) GenTaskUpdate() Options {
+	return Options{
+		Id:     o.Id,
+		Name:   o.Name,
+		Status: o.Status,
+	}
+}
+
+func (o *Options) SetError() {
+	o.Status.Current = status.Error
+}
+
+func (o *Options) SetCompleted() {
+	o.Status.Current = status.Completed
+}
+
 type Response struct {
-	Types  []string          `json:"types" yaml:"types"`
+	Types  []string          `json:"types" yaml:"-"`
 	Slacks []slack.Channel   `json:"slacks" yaml:"slacks"`
 	Emails []email.Recipient `json:"emails" yaml:"emails"`
 }

@@ -22,11 +22,17 @@ var (
 			Path:    "/triggers/:triggerName",
 			Func:    getTrigger,
 		},
+		{
+			Version: api.V1,
+			Method:  http.MethodPatch,
+			Path:    "/triggers/:triggerName",
+			Func:    updateTrigger,
+		},
 	}
 )
 
 func listTriggers(c *gin.Context) {
-	h, err := initReqHelper(c)
+	h, err := initReqHelper(c, "listTriggers")
 	if err != nil {
 		log.Errorf("trigger(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
@@ -48,7 +54,7 @@ func listTriggers(c *gin.Context) {
 }
 
 func getTrigger(c *gin.Context) {
-	h, err := initReqHelper(c)
+	h, err := initReqHelper(c, "getTrigger")
 	if err != nil {
 		log.Errorf("trigger(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
@@ -66,5 +72,27 @@ func getTrigger(c *gin.Context) {
 		c,
 		"fetched trigger successfully",
 		trigger,
+	)
+}
+
+func updateTrigger(c *gin.Context) {
+	h, err := initReqHelper(c, "updateTrigger")
+	if err != nil {
+		log.Errorf("trigger(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.delegateTriggerReq()
+	if err != nil {
+		log.Errorf("trigger(%s): failed to updateTrigger: %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"updated trigger successfully",
+		nil,
 	)
 }

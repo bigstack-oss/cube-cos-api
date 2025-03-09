@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )
@@ -100,6 +101,14 @@ func (n *Node) PatchTuningTaskUrl(tuning Tuning) string {
 	u.Scheme = n.Protocol
 	u.Host = n.Address
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/tunings/tasks/%s", DataCenterName, tuning.Id)
+	return u.String()
+}
+
+func (n *Node) PatchTriggerTaskUrl(trigger trigger.Options) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/triggers/tasks/%s", DataCenterName, trigger.Id)
 	return u.String()
 }
 

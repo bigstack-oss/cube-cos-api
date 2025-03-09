@@ -1,19 +1,50 @@
 package triggers
 
 import (
+	"errors"
 	"fmt"
 
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	"github.com/gin-gonic/gin"
 )
 
 type helper struct {
-	c *gin.Context
+	c       *gin.Context
+	handler string
+
+	trigger trigger.Options
 }
 
-func initReqHelper(c *gin.Context) (*helper, error) {
-	return &helper{c: c}, nil
+func initReqHelper(c *gin.Context, handler string) (*helper, error) {
+	h := &helper{c: c, handler: handler}
+
+	switch handler {
+	case "listTriggers", "getTrigger":
+		return h, nil
+	case "updateTrigger":
+		return h.initUpdateHelper()
+	}
+
+	return nil, errors.New("no internal function supported")
+}
+
+func (h *helper) initUpdateHelper() (*helper, error) {
+	err := h.parseTrigger()
+	if err != nil {
+		return nil, err
+	}
+
+	// err = h.parseAttributes()
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// err = h.parseResponses()
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	return h, nil
 }
 
 func (h *helper) listTriggers() ([]trigger.Options, error) {
@@ -40,40 +71,6 @@ func (h *helper) getTrigger(name string) (*trigger.Options, error) {
 	)
 }
 
-func setResponseItemsToTrigger(trigger *trigger.Options) {
-	trigger.InitResponse()
-
-	setEmailRecipientsToTrigger(trigger)
-	if trigger.HasEmailRecipients() {
-		trigger.Response.Types = append(
-			trigger.Response.Types,
-			"email",
-		)
-	}
-
-	setSlackChannelsToTrigger(trigger)
-	if trigger.HasSlackChannels() {
-		trigger.Response.Types = append(
-			trigger.Response.Types,
-			"slack",
-		)
-	}
-}
-
-func setEmailRecipientsToTrigger(trigger *trigger.Options) {
-	recipients, err := definition.GetEmailRecipients()
-	if err != nil {
-		return
-	}
-
-	trigger.Emails = recipients
-}
-
-func setSlackChannelsToTrigger(trigger *trigger.Options) {
-	channels, err := definition.GetSlackChannels()
-	if err != nil {
-		return
-	}
-
-	trigger.Slacks = channels
+func (h *helper) delegateTriggerReq() error {
+	return nil
 }
