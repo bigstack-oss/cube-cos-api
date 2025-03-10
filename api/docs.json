@@ -1705,6 +1705,43 @@
                     },
                     {
                         "$ref": "#/components/parameters/watch"
+                    },
+                    {
+                        "in": "query",
+                        "name": "start",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The start time of the health history to query, the value should be in RFC3339 format (default is 24 hours ago).",
+                        "example": "2025-01-01T01:00:00+00:00"
+                    },
+                    {
+                        "in": "query",
+                        "name": "stop",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The end time of the health history to query, the value should be in RFC3339 format (default is now).",
+                        "example": "2025-01-01T01:00:00+00:00"
+                    },
+                    {
+                        "in": "query",
+                        "name": "past",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1h",
+                                "24h",
+                                "7d",
+                                "14d",
+                                "30d"
+                            ]
+                        },
+                        "description": "The past time of the health history to query, click 'try it out' to see a few options, but can specify with the 's'(second), 'm'(minute), 'h'(hour), and 'd'(day) suffix for other time ranges.",
+                        "example": "1d"
                     }
                 ],
                 "responses": {
@@ -8039,7 +8076,7 @@
                             "examples": {
                                 "example": {
                                     "summary": "Trigger update request",
-                                    "value":  {
+                                    "value": {
                                         "attributes": [
                                             {
                                                 "name": "severity",
@@ -9609,7 +9646,8 @@
                                                 "role",
                                                 "name",
                                                 "address",
-                                                "usage"
+                                                "cpu",
+                                                "memory"
                                             ],
                                             "properties": {
                                                 "role": {
@@ -9621,66 +9659,57 @@
                                                 "address": {
                                                     "type": "string"
                                                 },
-                                                "usage": {
+                                                "cpu": {
                                                     "type": "object",
                                                     "required": [
-                                                        "cpu",
-                                                        "memory"
+                                                        "totalCores",
+                                                        "usedCores",
+                                                        "usedPercent",
+                                                        "freeCores",
+                                                        "freePercent"
                                                     ],
                                                     "properties": {
-                                                        "cpu": {
-                                                            "type": "object",
-                                                            "required": [
-                                                                "totalCores",
-                                                                "usedCores",
-                                                                "usedPercent",
-                                                                "freeCores",
-                                                                "freePercent"
-                                                            ],
-                                                            "properties": {
-                                                                "totalCores": {
-                                                                    "type": "integer"
-                                                                },
-                                                                "usedCores": {
-                                                                    "type": "integer"
-                                                                },
-                                                                "usedPercent": {
-                                                                    "type": "number"
-                                                                },
-                                                                "freeCores": {
-                                                                    "type": "integer"
-                                                                },
-                                                                "freePercent": {
-                                                                    "type": "number"
-                                                                }
-                                                            }
+                                                        "totalCores": {
+                                                            "type": "integer"
                                                         },
-                                                        "memory": {
-                                                            "type": "object",
-                                                            "required": [
-                                                                "totalMiB",
-                                                                "usedMiB",
-                                                                "usedPercent",
-                                                                "freeMiB",
-                                                                "freePercent"
-                                                            ],
-                                                            "properties": {
-                                                                "totalMiB": {
-                                                                    "type": "integer"
-                                                                },
-                                                                "usedMiB": {
-                                                                    "type": "integer"
-                                                                },
-                                                                "usedPercent": {
-                                                                    "type": "number"
-                                                                },
-                                                                "freeMiB": {
-                                                                    "type": "integer"
-                                                                },
-                                                                "freePercent": {
-                                                                    "type": "number"
-                                                                }
-                                                            }
+                                                        "usedCores": {
+                                                            "type": "integer"
+                                                        },
+                                                        "usedPercent": {
+                                                            "type": "number"
+                                                        },
+                                                        "freeCores": {
+                                                            "type": "integer"
+                                                        },
+                                                        "freePercent": {
+                                                            "type": "number"
+                                                        }
+                                                    }
+                                                },
+                                                "memory": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "totalMiB",
+                                                        "usedMiB",
+                                                        "usedPercent",
+                                                        "freeMiB",
+                                                        "freePercent"
+                                                    ],
+                                                    "properties": {
+                                                        "totalMiB": {
+                                                            "type": "integer"
+                                                        },
+                                                        "usedMiB": {
+                                                            "type": "integer"
+                                                        },
+                                                        "usedPercent": {
+                                                            "type": "number"
+                                                        },
+                                                        "freeMiB": {
+                                                            "type": "integer"
+                                                        },
+                                                        "freePercent": {
+                                                            "type": "number"
                                                         }
                                                     }
                                                 }
