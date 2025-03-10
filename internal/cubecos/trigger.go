@@ -28,6 +28,21 @@ func GetTriggerPolicy() (*trigger.Policy, error) {
 	return policy, nil
 }
 
+func GetTriggerPolicyByName(name string) (*trigger.Options, error) {
+	policy, err := GetTriggerPolicy()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, trigger := range policy.Triggers {
+		if trigger.Name == name {
+			return &trigger, nil
+		}
+	}
+
+	return nil, fmt.Errorf("trigger %s not found", name)
+}
+
 func ApplyTriggers(triggers []trigger.Options) error {
 	newTriggers, err := genTriggersAsYaml(triggers)
 	if err != nil {
@@ -69,6 +84,11 @@ func IsTriggerApplied(trigger trigger.Options) error {
 	}
 
 	return nil
+}
+
+func IsTriggerExist(name string) bool {
+	_, err := GetTriggerPolicyByName(name)
+	return err == nil
 }
 
 func genTriggersAsYaml(triggers []trigger.Options) ([]byte, error) {

@@ -34,16 +34,6 @@ func (h *helper) initUpdateHelper() (*helper, error) {
 		return nil, err
 	}
 
-	// err = h.parseAttributes()
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// err = h.parseResponses()
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	return h, nil
 }
 
@@ -71,6 +61,19 @@ func (h *helper) getTrigger(name string) (*trigger.Options, error) {
 	)
 }
 
-func (h *helper) delegateTriggerReq() error {
+func (h *helper) delegateTriggerReq() {
+	h.addReqRecord()
+	reqQueue.Add(&h.trigger)
+}
+
+func (h *helper) checkTaskUpdateReq() error {
+	if h.trigger.Id == "" {
+		return fmt.Errorf("trigger id is required")
+	}
+
+	if h.trigger.Status == nil {
+		return fmt.Errorf("trigger status is required")
+	}
+
 	return nil
 }

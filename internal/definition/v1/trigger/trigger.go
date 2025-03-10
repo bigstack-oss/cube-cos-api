@@ -8,6 +8,8 @@ import (
 
 const (
 	Triggers       = "triggers"
+	DB             = "triggers"
+	Collection     = "triggers"
 	ResponsePolicy = "/etc/policies/alert_trigger/alert_resp2_0.yml"
 )
 
@@ -189,8 +191,8 @@ type Options struct {
 	Match       string      `json:"-" yaml:"match"`
 	Attributes  []Attribute `json:"attributes" yaml:"-"`
 	Response    `json:"response" yaml:"response"`
-	Enabled     bool           `json:"enabled" yaml:"enabled"`
-	Status      status.Details `json:"-" yaml:"-" bson:"status"`
+	Enabled     bool            `json:"enabled" yaml:"enabled"`
+	Status      *status.Details `json:"-" yaml:"-" bson:"status"`
 }
 
 func (o *Options) InitResponse() {

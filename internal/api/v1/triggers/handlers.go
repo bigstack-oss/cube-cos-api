@@ -4,11 +4,13 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/triggers"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
 
 var (
+	reqQueue = triggers.ReqQueue
 	Handlers = []api.Handler{
 		{
 			Version: api.V1,
@@ -27,6 +29,12 @@ var (
 			Method:  http.MethodPatch,
 			Path:    "/triggers/:triggerName",
 			Func:    updateTrigger,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodPatch,
+			Path:    "/tunings/tasks/:taskId",
+			Func:    updateTriggerTask,
 		},
 	}
 )
@@ -83,16 +91,39 @@ func updateTrigger(c *gin.Context) {
 		return
 	}
 
-	err = h.delegateTriggerReq()
+	h.delegateTriggerReq()
+	api.SetStatusOk(
+		c,
+		"updated trigger successfully",
+		nil,
+	)
+}
+
+func updateTriggerTask(c *gin.Context) {
+	h, err := initReqHelper(c, "updateTriggerTask")
 	if err != nil {
-		log.Errorf("trigger(%s): failed to updateTrigger: %v", api.GetReqId(c), err)
+		log.Errorf("request(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.checkTaskUpdateReq()
+	if err != nil {
+		log.Errorf("request(%s): failed to check trigger: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.updateTaskStatus()
+	if err != nil {
+		log.Errorf("request(%s): failed to update trigger status: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
 		return
 	}
 
 	api.SetStatusOk(
 		c,
-		"updated trigger successfully",
-		nil,
+		"trigger status updated",
+		h.trigger,
 	)
 }
