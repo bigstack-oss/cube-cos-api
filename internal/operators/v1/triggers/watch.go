@@ -38,50 +38,59 @@ func (o *Operator) watchChanges() {
 		select {
 		case event, ok := <-o.policy.Events:
 			if ok {
-				checkAndSyncTunings(event)
+				checkAndSyncTriggers(event)
 			}
 		case err, ok := <-o.policy.Errors:
 			if !ok {
 				continue
 			}
 			if err != nil {
-				log.Errorf("tunings: failed to fetch policy change event: %s", err.Error())
+				log.Errorf("triggers: failed to fetch policy change event: %s", err.Error())
 				continue
 			}
 		}
 	}
 }
 
-func checkAndSyncTunings(event fsnotify.Event) {
+func checkAndSyncTriggers(event fsnotify.Event) {
 	if event.Name != conf.Opts.Spec.Identity.Policy {
 		return
 	}
 
 	if event.Has(fsnotify.Write) {
-		logThrottling(event)
-		cubecos.SyncTunings()
+		printOrThrottleLog(event)
+		cubecos.SyncTriggers()
 	}
 }
 
-func logThrottling(event fsnotify.Event) {
+func printOrThrottleLog(event fsnotify.Event) {
 	key, err := structhash.Hash(event, 1)
 	if err != nil {
 		return
 	}
 
-	getCtx, getCancel := context.WithTimeout(wait.CtxSeconds(10))
-	defer getCancel()
-	_, _, err = logCache.Get(getCtx, key)
-	if err == nil {
+	if isLogThrottled(key) {
 		return
 	}
 
-	putCtx, putCancel := context.WithTimeout(wait.CtxSeconds(10))
-	defer putCancel()
-	err = logCache.Put(putCtx, key, []byte{}, time.Second*3)
-	if err != nil {
-		return
-	}
+	log.Infof("triggers: %s changed, syncing triggers", event.Name)
+	throttleLog(key)
+}
 
-	log.Infof("tunings: %s changed, syncing tunings", event.Name)
+func isLogThrottled(key string) bool {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
+	defer cancel()
+	_, _, err := logCache.Get(ctx, key)
+	return err == nil
+}
+
+func throttleLog(key string) error {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
+	defer cancel()
+	return logCache.Put(
+		ctx,
+		key,
+		[]byte{},
+		time.Second*3,
+	)
 }

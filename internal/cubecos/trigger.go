@@ -13,8 +13,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+func SyncTriggers() {}
+
 func GetTriggerPolicy() (*trigger.Policy, error) {
-	b, err := os.ReadFile(trigger.ResponsePolicy)
+	b, err := os.ReadFile(trigger.ResponsePolicyV2)
 	if err != nil {
 		return nil, err
 	}

@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	Triggers       = "triggers"
-	DB             = "triggers"
-	Collection     = "triggers"
-	ResponsePolicy = "/etc/policies/alert_trigger/alert_resp2_0.yml"
+	Triggers         = "triggers"
+	DB               = "triggers"
+	Collection       = "triggers"
+	ResponsePolicyV2 = "/etc/policies/alert_trigger/alert_resp2_0.yml"
 )
 
 var DefaultOptions = []Options{
