@@ -3,6 +3,7 @@ package trigger
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
@@ -86,7 +87,7 @@ var DefaultOptions = []Options{
 	},
 	{
 		Name:        "Instance Level Notification",
-		Description: `Configure how you are going to be notified for instance alerts, including levels "warning", and "critical".`,
+		Description: `Configure how you are going to be notified for instance alerts, including levels 'warning', and 'critical'.`,
 		Attributes: []Attribute{
 			{
 				Name:    "severity",
@@ -193,7 +194,7 @@ type Options struct {
 	Attributes  []Attribute `json:"attributes" yaml:"-"`
 	Response    `json:"response" yaml:"response"`
 	Enabled     bool            `json:"enabled" yaml:"enabled"`
-	Status      *status.Details `json:"-" yaml:"-" bson:"status"`
+	Status      *status.Details `json:"status" yaml:"-" bson:"status"`
 }
 
 func (o *Options) InitResponse() {
@@ -231,6 +232,14 @@ func (o *Options) GenTaskUpdate() Options {
 		Id:     o.Id,
 		Name:   o.Name,
 		Status: o.Status,
+	}
+}
+
+func (o *Options) InitStatus(current, desired string) {
+	o.Status = &status.Details{
+		Current:   current,
+		Desired:   desired,
+		CreatedAt: time.Now().Local(),
 	}
 }
 

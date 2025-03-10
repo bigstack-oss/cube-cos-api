@@ -7679,7 +7679,7 @@ const docTemplate = `{
                                                 },
                                                 {
                                                     "name": "Instance Level Notification",
-                                                    "description": "Configure how you are going to be notified for instance alerts, including levels \"warning\", and \"critical\".",
+                                                    "description": "Configure how you are going to be notified for instance alerts, including levels 'warning', and 'critical'.",
                                                     "attributes": [
                                                         {
                                                             "name": "severity",
@@ -8000,6 +8000,214 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to list triggers: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "updateTrigger",
+                "tags": [
+                    "Triggers"
+                ],
+                "summary": "Update a specific trigger",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "in": "path",
+                        "name": "triggerName",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the trigger to operate",
+                        "example": "Administrative Level Notification"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateTriggerRequest"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Trigger update request",
+                                    "value":  {
+                                        "attributes": [
+                                            {
+                                                "name": "severity",
+                                                "type": "string",
+                                                "value": "W",
+                                                "enabled": true
+                                            },
+                                            {
+                                                "name": "severity",
+                                                "type": "string",
+                                                "value": "E",
+                                                "enabled": true
+                                            },
+                                            {
+                                                "name": "severity",
+                                                "type": "string",
+                                                "value": "C",
+                                                "enabled": true
+                                            },
+                                            {
+                                                "name": "category",
+                                                "type": "string",
+                                                "value": "DEV",
+                                                "enabled": false
+                                            },
+                                            {
+                                                "name": "category",
+                                                "type": "string",
+                                                "value": "CPU",
+                                                "enabled": false
+                                            },
+                                            {
+                                                "name": "category",
+                                                "type": "string",
+                                                "value": "DSK",
+                                                "enabled": false
+                                            },
+                                            {
+                                                "name": "category",
+                                                "type": "string",
+                                                "value": "MEM",
+                                                "enabled": false
+                                            },
+                                            {
+                                                "name": "category",
+                                                "type": "string",
+                                                "value": "NET",
+                                                "enabled": false
+                                            },
+                                            {
+                                                "name": "category",
+                                                "type": "string",
+                                                "value": "SRV",
+                                                "enabled": false
+                                            },
+                                            {
+                                                "name": "category",
+                                                "type": "string",
+                                                "value": "VRT",
+                                                "enabled": false
+                                            }
+                                        ],
+                                        "response": {
+                                            "slacks": [
+                                                {
+                                                    "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>"
+                                                }
+                                            ],
+                                            "emails": [
+                                                {
+                                                    "address": "example.user@example.com"
+                                                }
+                                            ]
+                                        },
+                                        "enabled": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Update trigger request received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpdateTriggerResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Trigger update request received",
+                                        "value": {
+                                            "code": 202,
+                                            "msg": "trigger update request received",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid trigger name"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to request trigger update: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -11596,6 +11804,101 @@ const docTemplate = `{
                     "status": {
                         "type": "string",
                         "example": "ok"
+                    }
+                }
+            },
+            "UpdateTriggerRequest": {
+                "type": "object",
+                "required": [
+                    "attributes",
+                    "response",
+                    "enabled"
+                ],
+                "properties": {
+                    "attributes": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "type",
+                                "value",
+                                "enabled"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": "string"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    },
+                    "response": {
+                        "type": "object",
+                        "required": [
+                            "slacks",
+                            "emails"
+                        ],
+                        "properties": {
+                            "slacks": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "url"
+                                    ],
+                                    "properties": {
+                                        "url": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "emails": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "address"
+                                    ],
+                                    "properties": {
+                                        "address": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "UpdateTriggerResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
                     }
                 }
             },

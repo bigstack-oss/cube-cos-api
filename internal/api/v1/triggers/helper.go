@@ -23,6 +23,8 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 		return h, nil
 	case "updateTrigger":
 		return h.initUpdateHelper()
+	case "updateTriggerTask":
+		return h.initTaskHelper()
 	}
 
 	return nil, errors.New("no internal function supported")
@@ -30,6 +32,20 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 
 func (h *helper) initUpdateHelper() (*helper, error) {
 	err := h.parseTrigger()
+	if err != nil {
+		return nil, err
+	}
+
+	return h, nil
+}
+
+func (h *helper) initTaskHelper() (*helper, error) {
+	err := h.parseTrigger()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parseTaskId()
 	if err != nil {
 		return nil, err
 	}

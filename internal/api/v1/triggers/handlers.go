@@ -42,14 +42,14 @@ var (
 func listTriggers(c *gin.Context) {
 	h, err := initReqHelper(c, "listTriggers")
 	if err != nil {
-		log.Errorf("trigger(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
+		log.Errorf("triggers(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	triggers, err := h.listTriggers()
 	if err != nil {
-		log.Errorf("trigger(%s): failed to listTriggers: %v", api.GetReqId(c), err)
+		log.Errorf("triggers(%s): failed to listTriggers: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -64,14 +64,14 @@ func listTriggers(c *gin.Context) {
 func getTrigger(c *gin.Context) {
 	h, err := initReqHelper(c, "getTrigger")
 	if err != nil {
-		log.Errorf("trigger(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
+		log.Errorf("triggers(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	trigger, err := h.getTrigger(h.getTriggerName())
 	if err != nil {
-		log.Errorf("trigger(%s): failed to getTrigger: %v", api.GetReqId(c), err)
+		log.Errorf("triggers(%s): failed to getTrigger: %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
@@ -86,37 +86,37 @@ func getTrigger(c *gin.Context) {
 func updateTrigger(c *gin.Context) {
 	h, err := initReqHelper(c, "updateTrigger")
 	if err != nil {
-		log.Errorf("trigger(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
+		log.Errorf("triggers(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
+	h.setUpdateInfo()
 	h.delegateTriggerReq()
-	api.SetStatusOk(
+	api.SetStatusAccepted(
 		c,
-		"updated trigger successfully",
-		nil,
+		"trigger update request received",
 	)
 }
 
 func updateTriggerTask(c *gin.Context) {
 	h, err := initReqHelper(c, "updateTriggerTask")
 	if err != nil {
-		log.Errorf("request(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		log.Errorf("triggers(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.checkTaskUpdateReq()
 	if err != nil {
-		log.Errorf("request(%s): failed to check trigger: %s", api.GetReqId(c), err.Error())
+		log.Errorf("triggers(%s): failed to check trigger: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.updateTaskStatus()
 	if err != nil {
-		log.Errorf("request(%s): failed to update trigger status: %s", api.GetReqId(c), err.Error())
+		log.Errorf("triggers(%s): failed to update trigger status: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}

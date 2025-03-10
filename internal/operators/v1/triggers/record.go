@@ -11,10 +11,10 @@ import (
 
 func (o *Operator) handleExit(trigger trigger.Options, err error) {
 	if err != nil {
-		log.Errorf("trigger: failed to %s %s: %s", trigger.Status.Desired, trigger.Name, err.Error())
+		log.Errorf("triggers: failed to %s %s: %s", trigger.Status.Desired, trigger.Name, err.Error())
 		trigger.SetError()
 	} else {
-		log.Infof("trigger: %s %s successfully", trigger.Status.Desired, trigger.Name)
+		log.Infof("triggers: %s %s successfully", trigger.Status.Desired, trigger.Name)
 		trigger.SetCompleted()
 	}
 
@@ -27,7 +27,7 @@ func (o *Operator) handleExit(trigger trigger.Options, err error) {
 func (o *Operator) reportToController(trigger trigger.Options) error {
 	node, err := definition.GetOneOfControllerNode()
 	if err != nil {
-		log.Errorf("trigger: failed to get controller nodes: %s", err.Error())
+		log.Errorf("triggers: failed to get controller nodes: %s", err.Error())
 		return err
 	}
 
@@ -37,12 +37,12 @@ func (o *Operator) reportToController(trigger trigger.Options) error {
 		SetBody(trigger.GenTaskUpdate()).
 		Patch(node.PatchTriggerTaskUrl(trigger))
 	if err != nil {
-		log.Errorf("failed to send trigger %s to %s: %s", trigger.Name, node.Hostname, err.Error())
+		log.Errorf("triggers: failed to send trigger %s to %s: %s", trigger.Name, node.Hostname, err.Error())
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("failed to send trigger %s to %s: %d %s", trigger.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("triggers: failed to send trigger %s to %s: %v", trigger.Name, node.Hostname, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 
