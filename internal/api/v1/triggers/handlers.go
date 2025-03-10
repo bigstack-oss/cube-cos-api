@@ -33,7 +33,7 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodPatch,
-			Path:    "/tunings/tasks/:taskId",
+			Path:    "/triggers/tasks/:taskId",
 			Func:    updateTriggerTask,
 		},
 	}

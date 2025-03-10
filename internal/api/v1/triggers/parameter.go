@@ -21,6 +21,7 @@ func (h *helper) parseTrigger() error {
 		return err
 	}
 
-	h.trigger.Name = name
+	h.trigger.Name = h.c.Param("triggerName")
+	h.trigger.GenMatchRule()
 	return nil
 }

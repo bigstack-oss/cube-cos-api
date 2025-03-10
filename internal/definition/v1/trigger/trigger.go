@@ -1,6 +1,9 @@
 package trigger
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -16,26 +19,25 @@ const (
 var DefaultOptions = []Options{
 	{
 		Name:        "Administrative Level Notification",
-		Description: `Configure how you are going to be notified for system events and host alerts, including levels "warning", "error", and "critical".`,
-		Match:       `"severity" == 'W' OR "severity" == 'E' OR "severity" == 'C'`,
+		Description: `Configure how you are going to be notified for system events and host alerts, including levels 'warning', 'error', and 'critical'.`,
 		Attributes: []Attribute{
 			{
 				Name:    "severity",
 				Type:    "string",
 				Value:   "W",
-				Enabled: false,
+				Enabled: true,
 			},
 			{
 				Name:    "severity",
 				Type:    "string",
 				Value:   "E",
-				Enabled: false,
+				Enabled: true,
 			},
 			{
 				Name:    "severity",
 				Type:    "string",
 				Value:   "C",
-				Enabled: false,
+				Enabled: true,
 			},
 			{
 				Name:    "category",
@@ -85,13 +87,12 @@ var DefaultOptions = []Options{
 	{
 		Name:        "Instance Level Notification",
 		Description: `Configure how you are going to be notified for instance alerts, including levels "warning", and "critical".`,
-		Match:       `"severity" == 'W' OR "severity" == 'C'`,
 		Attributes: []Attribute{
 			{
 				Name:    "severity",
 				Type:    "string",
 				Value:   "W",
-				Enabled: false,
+				Enabled: true,
 			},
 			{
 				Name:    "severity",
@@ -103,7 +104,7 @@ var DefaultOptions = []Options{
 				Name:    "severity",
 				Type:    "string",
 				Value:   "C",
-				Enabled: false,
+				Enabled: true,
 			},
 			{
 				Name:    "category",
@@ -199,6 +200,22 @@ func (o *Options) InitResponse() {
 	o.Response.Types = []string{}
 	o.Response.Slacks = []slack.Channel{}
 	o.Response.Emails = []email.Recipient{}
+}
+
+func (o *Options) GenMatchRule() {
+	rule := []string{}
+	for _, attr := range o.Attributes {
+		if !attr.Enabled {
+			continue
+		}
+
+		rule = append(
+			rule,
+			fmt.Sprintf("%q == '%s'", attr.Name, attr.Value),
+		)
+	}
+
+	o.Match = strings.Join(rule, " OR ")
 }
 
 func (o *Options) HasEmailRecipients() bool {
