@@ -4297,14 +4297,12 @@ const docTemplate = `{
                                                 "email": {
                                                     "recipients": [
                                                         {
-                                                            "email": "example.user.1@example.com",
-                                                            "note": "example note 1",
-                                                            "isTestable": true
+                                                            "address": "example.user.1@example.com",
+                                                            "note": "example note 1"
                                                         },
                                                         {
-                                                            "email": "example.user.2@example.com",
-                                                            "note": "example note 2",
-                                                            "isTestable": true
+                                                            "address": "example.user.2@example.com",
+                                                            "note": "example note 2"
                                                         }
                                                     ],
                                                     "senders": [
@@ -4312,7 +4310,6 @@ const docTemplate = `{
                                                             "host": "email-smtp.example.mailserver.com",
                                                             "port": 587,
                                                             "username": "ABBBBBBMJM56DCCCCJR",
-                                                            "password": "VBHWEEGEEEEEX0f5NLHDXLESxdZR",
                                                             "email": "noreply@example.com",
                                                             "accessVerified": true
                                                         }
@@ -4453,7 +4450,7 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/EmailSender"
+                                "$ref": "#/components/schemas/EmailSenderPostRequest"
                             },
                             "examples": {
                                 "example": {
@@ -4536,7 +4533,6 @@ const docTemplate = `{
                                                     "host": "email-smtp.example.mailserver.com",
                                                     "port": 587,
                                                     "username": "example-user",
-                                                    "password": "example-password",
                                                     "email": "noreply@bigstack.co",
                                                     "accessVerified": true
                                                 }
@@ -4653,7 +4649,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
+            "patch": {
                 "operationId": "updateEmailSender",
                 "tags": [
                     "Settings"
@@ -4679,7 +4675,7 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/EmailSender"
+                                "$ref": "#/components/schemas/EmailSenderPutRequest"
                             },
                             "examples": {
                                 "example": {
@@ -4809,13 +4805,13 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/EmailRecipient"
+                                "$ref": "#/components/schemas/EmailRecipientPostRequest"
                             },
                             "examples": {
                                 "example": {
                                     "summary": "Email Recipient",
                                     "value": {
-                                        "email": "example.user.1@example.com",
+                                        "address": "example.user.1@example.com",
                                         "note": "example email recipient"
                                     }
                                 }
@@ -4886,14 +4882,12 @@ const docTemplate = `{
                                             "code": 200,
                                             "data": [
                                                 {
-                                                    "email": "example.user.1@example.com",
-                                                    "note": "example email recipient 1",
-                                                    "isTestable": true
+                                                    "address": "example.user.1@example.com",
+                                                    "note": "example email recipient 1"
                                                 },
                                                 {
-                                                    "email": "example.user.2@example.com",
-                                                    "note": "example email recipient 2",
-                                                    "isTestable": true
+                                                    "address": "example.user.2@example.com",
+                                                    "note": "example email recipient 2"
                                                 }
                                             ],
                                             "msg": "email recipients retrieved successfully",
@@ -5038,13 +5032,13 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/EmailRecipient"
+                                "$ref": "#/components/schemas/EmailRecipientPutRequest"
                             },
                             "examples": {
                                 "example": {
                                     "summary": "Email Recipient",
                                     "value": {
-                                        "email": "example.user.1@example.com",
+                                        "address": "example.user.1@example.com",
                                         "note": "Updated recipients"
                                     }
                                 }
@@ -5164,7 +5158,7 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/SlackChannel"
+                                "$ref": "#/components/schemas/SlackChannelPostRequest"
                             },
                             "examples": {
                                 "example": {
@@ -5372,7 +5366,7 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/SlackChannel"
+                                "$ref": "#/components/schemas/SlackChannelPutRequest"
                             },
                             "examples": {
                                 "example": {
@@ -7707,7 +7701,7 @@ const docTemplate = `{
                                                         ],
                                                         "emails": [
                                                             {
-                                                                "email": "example.user@example.com",
+                                                                "address": "example.user@example.com",
                                                                 "note": "example email recipient"
                                                             }
                                                         ]
@@ -7798,7 +7792,7 @@ const docTemplate = `{
                                                         ],
                                                         "emails": [
                                                             {
-                                                                "email": "example.user@example.com",
+                                                                "address": "example.user@example.com",
                                                                 "note": "example email recipient"
                                                             }
                                                         ]
@@ -7984,7 +7978,7 @@ const docTemplate = `{
                                                     ],
                                                     "emails": [
                                                         {
-                                                            "email": "example.user@example.com",
+                                                            "address": "example.user@example.com",
                                                             "note": "example email recipient"
                                                         }
                                                     ]
@@ -10731,15 +10725,41 @@ const docTemplate = `{
                     }
                 }
             },
-            "EmailSender": {
+            "EmailSenderResponse": {
+                "type": "object",
+                "required": [
+                    "host",
+                    "port",
+                    "username",
+                    "email",
+                    "accessVerified"
+                ],
+                "properties": {
+                    "host": {
+                        "type": "string"
+                    },
+                    "port": {
+                        "type": "integer"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "accessVerified": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "EmailSenderPostRequest": {
                 "type": "object",
                 "required": [
                     "host",
                     "port",
                     "username",
                     "password",
-                    "email",
-                    "accessVerified"
+                    "email"
                 ],
                 "properties": {
                     "host": {
@@ -10756,9 +10776,26 @@ const docTemplate = `{
                     },
                     "email": {
                         "type": "string"
+                    }
+                }
+            },
+            "EmailSenderPutRequest": {
+                "type": "object",
+                "properties": {
+                    "host": {
+                        "type": "string"
                     },
-                    "accessVerified": {
-                        "type": "boolean"
+                    "port": {
+                        "type": "integer"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
                     }
                 }
             },
@@ -10773,32 +10810,87 @@ const docTemplate = `{
                     }
                 }
             },
-            "EmailRecipient": {
+            "EmailRecipientResponse": {
                 "type": "object",
                 "required": [
-                    "email",
-                    "note",
-                    "isTestable"
+                    "address",
+                    "note"
                 ],
                 "properties": {
-                    "email": {
+                    "address": {
                         "type": "string"
                     },
                     "note": {
                         "type": "string"
-                    },
-                    "isTestable": {
-                        "type": "boolean"
                     }
                 }
             },
-            "SlackChannel": {
+            "EmailRecipientPostRequest": {
+                "type": "object",
+                "required": [
+                    "address",
+                    "note"
+                ],
+                "properties": {
+                    "address": {
+                        "type": "string"
+                    },
+                    "note": {
+                        "type": "string"
+                    }
+                }
+            },
+            "EmailRecipientPutRequest": {
+                "type": "object",
+                "properties": {
+                    "address": {
+                        "type": "string"
+                    },
+                    "note": {
+                        "type": "string"
+                    }
+                }
+            },
+            "SlackChannelGetResponse": {
                 "type": "object",
                 "required": [
                     "name",
                     "url",
                     "description"
                 ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                }
+            },
+            "SlackChannelPostRequest": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "url",
+                    "description"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                }
+            },
+            "SlackChannelPutRequest": {
+                "type": "object",
                 "properties": {
                     "name": {
                         "type": "string"
@@ -10844,13 +10936,13 @@ const docTemplate = `{
                                     "senders": {
                                         "type": "array",
                                         "items": {
-                                            "$ref": "#/components/schemas/EmailSender"
+                                            "$ref": "#/components/schemas/EmailSenderResponse"
                                         }
                                     },
                                     "recipients": {
                                         "type": "array",
                                         "items": {
-                                            "$ref": "#/components/schemas/EmailRecipient"
+                                            "$ref": "#/components/schemas/EmailRecipientResponse"
                                         }
                                     }
                                 }
@@ -10859,7 +10951,7 @@ const docTemplate = `{
                                 "type": "object",
                                 "properties": {
                                     "channel": {
-                                        "$ref": "#/components/schemas/SlackChannel"
+                                        "$ref": "#/components/schemas/SlackChannelPostRequest"
                                     }
                                 }
                             }
@@ -10958,7 +11050,7 @@ const docTemplate = `{
                             "emailSenders": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/components/schemas/EmailSender"
+                                    "$ref": "#/components/schemas/EmailSenderResponse"
                                 }
                             }
                         }
@@ -11054,7 +11146,7 @@ const docTemplate = `{
                     "data": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/EmailRecipient"
+                            "$ref": "#/components/schemas/EmailRecipientResponse"
                         }
                     },
                     "msg": {
@@ -11169,7 +11261,7 @@ const docTemplate = `{
                     "data": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/SlackChannel"
+                            "$ref": "#/components/schemas/SlackChannelGetResponse"
                         }
                     },
                     "msg": {
@@ -11250,6 +11342,12 @@ const docTemplate = `{
             },
             "ListTuningResponse": {
                 "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
                 "properties": {
                     "code": {
                         "type": "integer",
@@ -11682,11 +11780,11 @@ const docTemplate = `{
                                             "items": {
                                                 "type": "object",
                                                 "required": [
-                                                    "email",
+                                                    "address",
                                                     "note"
                                                 ],
                                                 "properties": {
-                                                    "email": {
+                                                    "address": {
                                                         "type": "string"
                                                     },
                                                     "note": {
