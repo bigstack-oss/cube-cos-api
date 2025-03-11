@@ -10,7 +10,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	adapter "github.com/gwatts/gin-adapter"
 	"github.com/micro/plugins/v5/server/http"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/server"
@@ -44,7 +43,7 @@ func newHttpServer() (*server.Server, error) {
 func newRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.Any("/saml/*any", gin.WrapH(saml.SpAuth))
+	router.Any("/saml/*any", saml.ServeAcs())
 	router.Use(gin.Recovery())
 	router.Use(initReqInfo)
 	router.Use(verifyAuthToken())
@@ -96,7 +95,6 @@ func parseToken(c *gin.Context) string {
 }
 
 func conditionalSaml() gin.HandlerFunc {
-	doSamlAuth := adapter.Wrap(saml.SpAuth.RequireAccount)
 	return func(c *gin.Context) {
 		_, found := c.Get("isTokenValid")
 		if found {
@@ -110,8 +108,9 @@ func conditionalSaml() gin.HandlerFunc {
 			return
 		}
 
+		// start SAML auth
 		c.Set("authType", "saml")
-		doSamlAuth(c)
+		saml.DoSamlAuth(c)
 	}
 }
 
