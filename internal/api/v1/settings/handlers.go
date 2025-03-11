@@ -44,7 +44,7 @@ var Handlers = []api.Handler{
 	},
 	{
 		Version: api.V1,
-		Method:  "PUT",
+		Method:  "PATCH",
 		Path:    "/settings/email/senders/:senderHost",
 		Func:    patchEmailSender,
 	},

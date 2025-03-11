@@ -25,6 +25,10 @@ type Sender struct {
 	AccessVerified bool   `json:"accessVerified" bson:"accessVerified"`
 }
 
+func (s *Sender) RequirePasswordChange() bool {
+	return s.Password != ""
+}
+
 func (s *Sender) Address() string {
 	return fmt.Sprintf("%s:%d", s.Host, s.Port)
 }

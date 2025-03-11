@@ -95,16 +95,28 @@ func updateEmailSender(sender email.Sender) error {
 		email.SenderCollection,
 		bson.M{"host": sender.Host},
 		bson.M{
-			"$set": bson.M{
-				"host":           sender.Host,
-				"port":           sender.Port,
-				"username":       sender.Username,
-				"password":       sender.Password,
-				"email":          sender.Email,
-				"accessVerified": sender.AccessVerified,
-			},
+			"$set": genSenderPatch(sender),
 		},
 	)
+}
+
+func genSenderPatch(sender email.Sender) bson.M {
+	if !sender.RequirePasswordChange() {
+		return bson.M{
+			"host":     sender.Host,
+			"port":     sender.Port,
+			"username": sender.Username,
+			"email":    sender.Email,
+		}
+	}
+
+	return bson.M{
+		"host":     sender.Host,
+		"port":     sender.Port,
+		"username": sender.Username,
+		"password": sender.Password,
+		"email":    sender.Email,
+	}
 }
 
 func removeEmailSender(host string) error {
