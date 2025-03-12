@@ -35,8 +35,8 @@ func TimeNowRFC3339Z() string {
 	return time.Now().UTC().Format(RFC3339Z)
 }
 
-func TimeLocal() time.Time {
-	return time.Now().Local()
+func TimeLocal() string {
+	return time.Now().Local().Format(time.RFC3339)
 }
 
 func TimeRFC3339(duration time.Duration) string {

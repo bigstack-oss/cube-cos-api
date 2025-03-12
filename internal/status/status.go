@@ -26,16 +26,27 @@ func NewOk() *Details {
 }
 
 // Might need to separate the Details for Tuning and Health.
+
 type Details struct {
 	Current string `json:"current,omitempty" bson:"current"`
 	Desired string `json:"desired,omitempty" bson:"desired"`
 
-	CreatedAt          time.Time `json:"createdAt,omitempty,omitzero" bson:"createdAt"`
-	UpdatedAt          time.Time `json:"updatedAt,omitempty,omitzero" bson:"updatedAt"`
-	MaxPendingDuration int       `json:"maxPendingDuration,omitempty" bson:"maxPendingDuration"`
-	IsFixing           bool      `json:"isFixing" bson:"isFixing"`
+	CreatedAt time.Time `json:"createdAt,omitzero" bson:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt,omitzero" bson:"updatedAt"`
+	IsFixing  bool      `json:"isFixing" bson:"isFixing"`
 
 	Description string `json:"description" bson:"description"`
+}
+
+type Tuning struct {
+	Current string `json:"current,omitempty" bson:"current"`
+	Desired string `json:"desired,omitempty" bson:"desired"`
+
+	CreatedAt string `json:"createdAt,omitzero" bson:"createdAt"`
+	UpdatedAt string `json:"updatedAt,omitzero" bson:"updatedAt"`
+
+	MaxPendingDuration int  `json:"maxPendingDuration,omitempty" bson:"maxPendingDuration"`
+	IsUpdating         bool `json:"isUpdating" bson:"isUpdating"`
 }
 
 func (s *Details) ClearDesired() {

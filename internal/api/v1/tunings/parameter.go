@@ -73,3 +73,7 @@ func (h *helper) isKeywordRequired() bool {
 func (h *helper) isHostsRequired() bool {
 	return len(h.hosts) > 0
 }
+
+func (h *helper) isModifiedRequired() bool {
+	return h.c.DefaultQuery("modified", "false") == "true"
+}

@@ -7,7 +7,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/mohae/deepcopy"
 	log "go-micro.dev/v5/logger"
 )
@@ -48,9 +47,9 @@ func (h *helper) parseTuningUpdate() error {
 	}
 
 	h.tuning = *tuning
-	h.tuning.Id = uuid.New().String()
 	h.tuning.Name = h.c.Param("parameterName")
-	h.tuning.InitStatus("updating", "update")
+	h.tuning.Id = h.tuning.GenerateId()
+	h.tuning.InitUpdateStatus()
 	return nil
 }
 
@@ -68,12 +67,12 @@ func (h *helper) parseTuningReset() error {
 	}
 
 	h.tuning = *tuning
-	h.tuning.Id = uuid.New().String()
+	h.tuning.Id = h.tuning.GenerateId()
 	h.tuning.Name = name
 	h.tuning.Value = spec.Limitation.Default
 	h.tuning.Enabled = true
 	h.tuning.IsModified = false
-	h.tuning.InitStatus("updating", "reset")
+	h.tuning.InitResetStatus()
 	return nil
 }
 
@@ -85,7 +84,7 @@ func (h *helper) ListTunings() (*data, error) {
 	}
 
 	tunings = h.filterTunings(tunings)
-	h.sortTunings(&tunings)
+	h.enrichTuningPayload(&tunings)
 
 	pagedTunings, err := h.paginateTunings(tunings)
 	if err != nil {

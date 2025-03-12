@@ -1,7 +1,9 @@
 package tunings
 
 import (
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
 )
@@ -56,6 +58,10 @@ func (h *helper) filterTunings(tunings []definition.Tuning) []definition.Tuning 
 		tunings = h.filteredByHosts(tunings)
 	}
 
+	if h.isModifiedRequired() {
+		tunings = h.filteredByModified(tunings)
+	}
+
 	return tunings
 }
 
@@ -105,6 +111,17 @@ func (h *helper) filteredByHosts(tunings []definition.Tuning) []definition.Tunin
 	return filtered
 }
 
+func (h *helper) filteredByModified(tunings []definition.Tuning) []definition.Tuning {
+	filtered := []definition.Tuning{}
+	for _, tuning := range tunings {
+		if tuning.IsModified {
+			filtered = append(filtered, tuning)
+		}
+	}
+
+	return filtered
+}
+
 func (h *helper) containsHosts(hosts []definition.Host) bool {
 	hostSet := make(map[string]struct{}, len(hosts))
 	for _, h := range hosts {
@@ -128,4 +145,36 @@ func genTuningMap(tunings []definition.Tuning) map[string]definition.Tuning {
 	}
 
 	return tuningMap
+}
+
+func (h *helper) enrichTuningPayload(tunings *[]definition.Tuning) {
+	h.syncUpdates(tunings)
+	h.sortTunings(tunings)
+}
+
+func (h *helper) syncUpdates(tunings *[]definition.Tuning) {
+	updatingTunings, err := getUpdatingTunings()
+	if err != nil {
+		log.Errorf("tunings(%s): failed to get updating tunings: %s", api.GetReqId(h.c), err.Error())
+		return
+	}
+
+	updatingTuningMap := genUpdatingTuningMap(updatingTunings)
+	for i, tuning := range *tunings {
+		(*tunings)[i].Status = &status.Tuning{}
+		updatingTuning, found := updatingTuningMap[tuning.GenerateId()]
+		if found {
+			(*tunings)[i].Status.IsUpdating = updatingTuning.Status.IsUpdating
+			(*tunings)[i].Status.UpdatedAt = updatingTuning.Status.UpdatedAt
+		}
+	}
+}
+
+func genUpdatingTuningMap(updateTunings []definition.Tuning) map[string]definition.Tuning {
+	updateTuningMap := map[string]definition.Tuning{}
+	for _, tuning := range updateTunings {
+		updateTuningMap[tuning.GenerateId()] = tuning
+	}
+
+	return updateTuningMap
 }

@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -65,9 +66,9 @@ type Tuning struct {
 	Limitation  TuningLimitation `json:"limitation" yaml:"-" bson:"-"`
 
 	*Node  `json:"node,omitempty" yaml:"-" bson:"-"`
-	Hosts  []Host          `json:"hosts" yaml:"-" bson:"-"`
-	Roles  []Role          `json:"roles,omitempty" yaml:"-" bson:"-"`
-	Status *status.Details `json:"status,omitempty" yaml:"-" bson:"status,omitempty"`
+	Hosts  []Host         `json:"hosts" yaml:"-" bson:"-"`
+	Roles  []Role         `json:"roles,omitempty" yaml:"-" bson:"-"`
+	Status *status.Tuning `json:"status,omitempty" yaml:"-" bson:"status,omitempty"`
 }
 
 type ListTuningOptions struct {
@@ -78,11 +79,40 @@ func (t *TuningSpec) IsInLimitedRange(value int) bool {
 	return value <= t.Limitation.Max && value >= t.Limitation.Min
 }
 
+func (t *Tuning) GenerateId() string {
+	return fmt.Sprintf(
+		"%s-%v-%v",
+		t.Name,
+		t.Value,
+		t.Enabled,
+	)
+}
+
 func (t *Tuning) InitStatus(current, desired string) {
-	t.Status = &status.Details{
+	t.Status = &status.Tuning{
 		Current:   current,
 		Desired:   desired,
-		CreatedAt: TimeLocal(),
+		CreatedAt: TimeLocalRFC3339(time.Now()),
+	}
+}
+
+func (t *Tuning) InitUpdateStatus() {
+	t.Status = &status.Tuning{
+		Current:    status.Updating,
+		Desired:    status.Updated,
+		CreatedAt:  TimeLocal(),
+		UpdatedAt:  TimeLocal(),
+		IsUpdating: true,
+	}
+}
+
+func (t *Tuning) InitResetStatus() {
+	t.Status = &status.Tuning{
+		Current:    status.Updating,
+		Desired:    status.Reset,
+		CreatedAt:  TimeLocal(),
+		UpdatedAt:  TimeLocal(),
+		IsUpdating: true,
 	}
 }
 
@@ -100,14 +130,17 @@ func (t *Tuning) SetUpdating() {
 
 func (t *Tuning) SetUpdated() {
 	t.Status.Current = status.Updated
+	t.Status.IsUpdating = false
 }
 
 func (t *Tuning) SetError() {
 	t.Status.Current = status.Error
+	t.Status.IsUpdating = false
 }
 
 func (t *Tuning) SetCompleted() {
 	t.Status.Current = status.Completed
+	t.Status.IsUpdating = false
 }
 
 func (t *Tuning) CopyAndOverrideHost(node Node) Tuning {
