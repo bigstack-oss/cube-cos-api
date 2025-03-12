@@ -5632,6 +5632,16 @@ const docTemplate = `{
                     },
                     {
                         "$ref": "#/components/parameters/watch"
+                    },
+                    {
+                        "in": "query",
+                        "name": "modified",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "The flag to filter the modified tunings",
+                        "example": true
                     }
                 ],
                 "responses": {
@@ -5661,6 +5671,10 @@ const docTemplate = `{
                                                         "limitation": {
                                                             "type": "bool",
                                                             "default": false
+                                                        },
+                                                        "status": {
+                                                            "updatedAt": "2025-03-12T19:22:00+08:00",
+                                                            "isUpdating": true
                                                         }
                                                     },
                                                     {
@@ -5674,7 +5688,11 @@ const docTemplate = `{
                                                         "isModified": false,
                                                         "limitation": {
                                                             "type": "string",
-                                                            "default": ""
+                                                            "default": "",
+                                                            "regex": ""
+                                                        },
+                                                        "status": {
+                                                            "isUpdating": false
                                                         }
                                                     },
                                                     {
@@ -5689,6 +5707,9 @@ const docTemplate = `{
                                                         "limitation": {
                                                             "type": "bool",
                                                             "default": false
+                                                        },
+                                                        "status": {
+                                                            "isUpdating": false
                                                         }
                                                     },
                                                     {
@@ -5702,7 +5723,11 @@ const docTemplate = `{
                                                         "isModified": false,
                                                         "limitation": {
                                                             "type": "string",
-                                                            "default": ""
+                                                            "default": "",
+                                                            "regex": ""
+                                                        },
+                                                        "status": {
+                                                            "isUpdating": false
                                                         }
                                                     },
                                                     {
@@ -5720,6 +5745,9 @@ const docTemplate = `{
                                                             "default": 7,
                                                             "min": 0,
                                                             "max": 365
+                                                        },
+                                                        "status": {
+                                                            "isUpdating": false
                                                         }
                                                     },
                                                     {
@@ -5736,6 +5764,9 @@ const docTemplate = `{
                                                             "default": 7,
                                                             "min": 0,
                                                             "max": 365
+                                                        },
+                                                        "status": {
+                                                            "isUpdating": false
                                                         }
                                                     }
                                                 ],
@@ -11364,7 +11395,8 @@ const docTemplate = `{
                                 "description",
                                 "enabled",
                                 "isModified",
-                                "limitation"
+                                "limitation",
+                                "status"
                             ],
                             "properties": {
                                 "name": {
@@ -11435,6 +11467,23 @@ const docTemplate = `{
                                                     "type": "number"
                                                 }
                                             ]
+                                        },
+                                        "regex": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "status": {
+                                    "type": "object",
+                                    "required": [
+                                        "isUpdating"
+                                    ],
+                                    "properties": {
+                                        "updateAt": {
+                                            "type": "string"
+                                        },
+                                        "isUpdating": {
+                                            "type": "boolean"
                                         }
                                     }
                                 }
@@ -11453,6 +11502,12 @@ const docTemplate = `{
             },
             "ListTuningSpecResponse": {
                 "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
                 "properties": {
                     "code": {
                         "type": "integer",
@@ -11521,6 +11576,9 @@ const docTemplate = `{
                                                     "type": "number"
                                                 }
                                             ]
+                                        },
+                                        "regex": {
+                                            "type": "string"
                                         }
                                     }
                                 },
@@ -11528,6 +11586,10 @@ const docTemplate = `{
                                     "type": "array",
                                     "items": {
                                         "type": "object",
+                                        "required": [
+                                            "name",
+                                            "hosts"
+                                        ],
                                         "properties": {
                                             "name": {
                                                 "type": "string"

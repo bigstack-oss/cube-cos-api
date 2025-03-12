@@ -48,7 +48,12 @@ func updateTaskStatus(tuning *definition.Tuning) error {
 		definition.TuningDB(),
 		definition.TuningReqCollection(),
 		bson.M{"id": tuning.Id},
-		bson.M{"$set": bson.M{"status.current": tuning.Status.Current}},
+		bson.M{
+			"$set": bson.M{
+				"status.current":    tuning.Status.Current,
+				"status.isUpdating": false,
+			},
+		},
 		options.Update().SetUpsert(true),
 	)
 }

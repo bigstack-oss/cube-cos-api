@@ -145,6 +145,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
+			Regex:   "",
 		},
 		Roles: definition.AllGeneralRoles,
 	}
@@ -154,6 +155,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -172,6 +174,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -181,6 +184,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -190,6 +194,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -208,6 +213,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -217,6 +223,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -226,6 +233,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -235,6 +243,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -244,6 +253,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -253,6 +263,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -306,6 +317,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -440,6 +452,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "SYS00002W",
+			Regex:   "",
 		},
 		Roles: definition.ControlRoles,
 	}
@@ -449,6 +462,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "60m",
+			Regex:   "",
 		},
 		Roles: definition.ControlRoles,
 	}
@@ -458,6 +472,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "Cube",
+			Regex:   "",
 		},
 		Roles: definition.ControlRoles,
 	}
@@ -467,6 +482,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "7d",
+			Regex:   "",
 		},
 		Roles: definition.ControlRoles,
 	}
@@ -487,6 +503,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "5m",
+			Regex:   "",
 		},
 		Roles: definition.ControlRoles,
 	}
@@ -514,6 +531,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "CubeStorage",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -583,6 +601,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "fast",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -592,6 +611,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "layer3+4",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -641,6 +661,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "",
+			Regex:   "",
 		},
 		Roles: definition.ComputeRoles,
 		Selector: definition.Selector{
@@ -748,6 +769,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "apply",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}
@@ -786,6 +808,7 @@ var (
 		Limitation: definition.TuningLimitation{
 			Type:    "string",
 			Default: "UTC",
+			Regex:   "",
 		},
 		Roles: definition.AllRoles,
 	}

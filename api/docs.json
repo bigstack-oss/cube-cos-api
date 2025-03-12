@@ -5628,6 +5628,16 @@
                     },
                     {
                         "$ref": "#/components/parameters/watch"
+                    },
+                    {
+                        "in": "query",
+                        "name": "modified",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "The flag to filter the modified tunings",
+                        "example": true
                     }
                 ],
                 "responses": {
@@ -5657,6 +5667,10 @@
                                                         "limitation": {
                                                             "type": "bool",
                                                             "default": false
+                                                        },
+                                                        "status": {
+                                                            "updatedAt": "2025-03-12T19:22:00+08:00",
+                                                            "isUpdating": true
                                                         }
                                                     },
                                                     {
@@ -5670,7 +5684,11 @@
                                                         "isModified": false,
                                                         "limitation": {
                                                             "type": "string",
-                                                            "default": ""
+                                                            "default": "",
+                                                            "regex": ""
+                                                        },
+                                                        "status": {
+                                                            "isUpdating": false
                                                         }
                                                     },
                                                     {
@@ -5685,6 +5703,9 @@
                                                         "limitation": {
                                                             "type": "bool",
                                                             "default": false
+                                                        },
+                                                        "status": {
+                                                            "isUpdating": false
                                                         }
                                                     },
                                                     {
@@ -5698,7 +5719,11 @@
                                                         "isModified": false,
                                                         "limitation": {
                                                             "type": "string",
-                                                            "default": ""
+                                                            "default": "",
+                                                            "regex": ""
+                                                        },
+                                                        "status": {
+                                                            "isUpdating": false
                                                         }
                                                     },
                                                     {
@@ -5716,6 +5741,9 @@
                                                             "default": 7,
                                                             "min": 0,
                                                             "max": 365
+                                                        },
+                                                        "status": {
+                                                            "isUpdating": false
                                                         }
                                                     },
                                                     {
@@ -5732,6 +5760,9 @@
                                                             "default": 7,
                                                             "min": 0,
                                                             "max": 365
+                                                        },
+                                                        "status": {
+                                                            "isUpdating": false
                                                         }
                                                     }
                                                 ],
@@ -11360,7 +11391,8 @@
                                 "description",
                                 "enabled",
                                 "isModified",
-                                "limitation"
+                                "limitation",
+                                "status"
                             ],
                             "properties": {
                                 "name": {
@@ -11431,6 +11463,23 @@
                                                     "type": "number"
                                                 }
                                             ]
+                                        },
+                                        "regex": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "status": {
+                                    "type": "object",
+                                    "required": [
+                                        "isUpdating"
+                                    ],
+                                    "properties": {
+                                        "updateAt": {
+                                            "type": "string"
+                                        },
+                                        "isUpdating": {
+                                            "type": "boolean"
                                         }
                                     }
                                 }
@@ -11449,6 +11498,12 @@
             },
             "ListTuningSpecResponse": {
                 "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
                 "properties": {
                     "code": {
                         "type": "integer",
@@ -11517,6 +11572,9 @@
                                                     "type": "number"
                                                 }
                                             ]
+                                        },
+                                        "regex": {
+                                            "type": "string"
                                         }
                                     }
                                 },
@@ -11524,6 +11582,10 @@
                                     "type": "array",
                                     "items": {
                                         "type": "object",
+                                        "required": [
+                                            "name",
+                                            "hosts"
+                                        ],
                                         "properties": {
                                             "name": {
                                                 "type": "string"
