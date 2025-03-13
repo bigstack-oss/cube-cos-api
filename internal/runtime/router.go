@@ -108,9 +108,8 @@ func conditionalSaml() gin.HandlerFunc {
 			return
 		}
 
-		// start SAML auth
 		c.Set("authType", "saml")
-		saml.DoSamlAuth(c)
+		saml.AuthRequest(c)
 	}
 }
 

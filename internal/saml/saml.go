@@ -127,6 +127,85 @@ func GenServiceProviderMetadataUrl(opts Options) url.URL {
 	}
 }
 
+func ServeAcs() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		err := c.Request.ParseForm()
+		if err != nil {
+			SpAuth.OnError(c.Writer, c.Request, err)
+			return
+		}
+
+		err = checkTrackedRequest(c)
+		if err != nil {
+			SpAuth.OnError(c.Writer, c.Request, err)
+			return
+		}
+
+		assertion, err := getAssertion(c)
+		if err != nil {
+			SpAuth.OnError(c.Writer, c.Request, err)
+			return
+		}
+
+		err = createSession(c, assertion)
+		if err != nil {
+			SpAuth.OnError(c.Writer, c.Request, err)
+			return
+		}
+
+		api.SetRedirect(
+			c,
+			SpAuth.ServiceProvider.DefaultRedirectURI,
+		)
+	}
+}
+
+func AuthRequest(c *gin.Context) {
+	session, err := SpAuth.Session.GetSession(c.Request)
+	if session != nil {
+		c.Next()
+		return
+	}
+	if err != samlsp.ErrNoSession {
+		SpAuth.OnError(c.Writer, c.Request, err)
+		c.Abort()
+		return
+	}
+
+	// for the request which isn't verified
+	// if we try to redirect when the original request is the ACS URL
+	// we'll end up in a loop.
+	if isAcsPath(c.Request.URL.Path) {
+		api.SetInternalServerError(c, errors.New("this path should not come here (SAML ACS)"))
+		c.Abort()
+		return
+	}
+
+	authReq, err := genAuthRequest()
+	if err != nil {
+		api.SetInternalServerError(c, err)
+		c.Abort()
+		return
+	}
+
+	relayState, err := genRelayState(c, authReq)
+	if err != nil {
+		api.SetInternalServerError(c, err)
+		c.Abort()
+		return
+	}
+
+	redirectURL, err := genRedirectUrl(authReq, relayState)
+	if err != nil {
+		api.SetInternalServerError(c, err)
+		c.Abort()
+		return
+	}
+
+	api.SetUnauthorized(c, errors.New(redirectURL.String()))
+	c.Abort()
+}
+
 func genRootUrl(opts Options) url.URL {
 	return url.URL{
 		Scheme: opts.ServiceProvider.Host.Scheme,
@@ -134,106 +213,74 @@ func genRootUrl(opts Options) url.URL {
 	}
 }
 
-func ServeAcs() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		m := SpAuth
-		err := c.Request.ParseForm()
-		if err != nil {
-			m.OnError(c.Writer, c.Request, err)
-			return
-		}
-
-		possibleRequestIDs := []string{}
-		if m.ServiceProvider.AllowIDPInitiated {
-			possibleRequestIDs = append(possibleRequestIDs, "")
-		}
-
-		trackedRequests := m.RequestTracker.GetTrackedRequests(c.Request)
-		for _, tr := range trackedRequests {
-			possibleRequestIDs = append(possibleRequestIDs, tr.SAMLRequestID)
-		}
-
-		assertion, err := m.ServiceProvider.ParseResponse(c.Request, possibleRequestIDs)
-		if err != nil {
-			m.OnError(c.Writer, c.Request, err)
-			return
-		}
-
-		if trackedRequestIndex := c.Request.Form.Get("RelayState"); trackedRequestIndex != "" {
-			_, err := m.RequestTracker.GetTrackedRequest(c.Request, trackedRequestIndex)
-			if err != nil {
-				if err != http.ErrNoCookie || !m.ServiceProvider.AllowIDPInitiated {
-					m.OnError(c.Writer, c.Request, err)
-					return
-				}
-			} else {
-				if err := m.RequestTracker.StopTrackingRequest(c.Writer, c.Request, trackedRequestIndex); err != nil {
-					m.OnError(c.Writer, c.Request, err)
-					return
-				}
-			}
-		}
-
-		if err := m.Session.CreateSession(c.Writer, c.Request, assertion); err != nil {
-			m.OnError(c.Writer, c.Request, err)
-			return
-		}
-
-		api.SetRedirect(c, m.ServiceProvider.DefaultRedirectURI)
+func checkTrackedRequest(c *gin.Context) error {
+	trackedReqIndex := c.Request.Form.Get("RelayState")
+	if trackedReqIndex == "" {
+		return nil
 	}
+
+	_, err := SpAuth.RequestTracker.GetTrackedRequest(c.Request, trackedReqIndex)
+	if err == nil {
+		return SpAuth.RequestTracker.StopTrackingRequest(
+			c.Writer,
+			c.Request,
+			trackedReqIndex,
+		)
+	}
+
+	if err != http.ErrNoCookie || !SpAuth.ServiceProvider.AllowIDPInitiated {
+		return err
+	}
+
+	return nil
 }
 
-func DoSamlAuth(c *gin.Context) {
-	m := SpAuth
-	session, err := m.Session.GetSession(c.Request)
-
-	if session != nil {
-		// verified
-		c.Next()
-		return
+func getAssertion(c *gin.Context) (*saml.Assertion, error) {
+	reqIds := []string{}
+	if SpAuth.ServiceProvider.AllowIDPInitiated {
+		reqIds = append(reqIds, "")
 	}
 
-	if err == samlsp.ErrNoSession {
-		// not verified
-
-		// If we try to redirect when the original request is the ACS URL we'll
-		// end up in a loop.
-		if c.Request.URL.Path == m.ServiceProvider.AcsURL.Path {
-			api.SetInternalServerError(
-				c,
-				errors.New("this path should not come here (SAML ACS)"),
-			)
-			c.Abort()
-			return
-		}
-
-		binding := saml.HTTPRedirectBinding
-		bindingLocation := m.ServiceProvider.GetSSOBindingLocation(binding)
-		authReq, err := m.ServiceProvider.MakeAuthenticationRequest(bindingLocation, binding, m.ResponseBinding)
-		if err != nil {
-			api.SetInternalServerError(c, err)
-			c.Abort()
-			return
-		}
-
-		relayState, err := m.RequestTracker.TrackRequest(c.Writer, c.Request, authReq.ID)
-		if err != nil {
-			api.SetInternalServerError(c, err)
-			c.Abort()
-			return
-		}
-
-		redirectURL, err := authReq.Redirect(relayState, &m.ServiceProvider)
-		if err != nil {
-			api.SetInternalServerError(c, err)
-			c.Abort()
-			return
-		}
-		api.SetUnauthorized(c, errors.New(redirectURL.String()))
-		c.Abort()
-		return
+	for _, req := range SpAuth.RequestTracker.GetTrackedRequests(c.Request) {
+		reqIds = append(reqIds, req.SAMLRequestID)
 	}
 
-	m.OnError(c.Writer, c.Request, err)
-	c.Abort()
+	return SpAuth.ServiceProvider.ParseResponse(c.Request, reqIds)
+}
+
+func createSession(c *gin.Context, assertion *saml.Assertion) error {
+	return SpAuth.Session.CreateSession(
+		c.Writer,
+		c.Request,
+		assertion,
+	)
+}
+
+func isAcsPath(path string) bool {
+	return path == SpAuth.ServiceProvider.AcsURL.Path
+}
+
+func genAuthRequest() (*saml.AuthnRequest, error) {
+	binding := saml.HTTPRedirectBinding
+	bindingLocation := SpAuth.ServiceProvider.GetSSOBindingLocation(binding)
+	return SpAuth.ServiceProvider.MakeAuthenticationRequest(
+		bindingLocation,
+		binding,
+		SpAuth.ResponseBinding,
+	)
+}
+
+func genRelayState(c *gin.Context, authReq *saml.AuthnRequest) (string, error) {
+	return SpAuth.RequestTracker.TrackRequest(
+		c.Writer,
+		c.Request,
+		authReq.ID,
+	)
+}
+
+func genRedirectUrl(authReq *saml.AuthnRequest, relayState string) (*url.URL, error) {
+	return authReq.Redirect(
+		relayState,
+		&SpAuth.ServiceProvider,
+	)
 }
