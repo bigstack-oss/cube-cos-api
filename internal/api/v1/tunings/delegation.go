@@ -4,30 +4,72 @@ import (
 	"errors"
 
 	cubeHttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	log "go-micro.dev/v5/logger"
 )
 
 func (h *helper) delegateTuningReq() {
-	for _, role := range h.tuning.Roles {
-		for _, host := range role.Hosts {
-			node := host.GetNode()
-			if node == nil {
-				log.Errorf("failed to get node by hostname(%s)", host.Name)
-				continue
-			}
 
-			if node.IsLocal() {
-				delegateToLocal(h.tuning)
-				continue
-			}
+	log.Infof("delegating 1")
 
-			err := h.delegateToOtherNode(node)
-			if err != nil {
-				log.Errorf("failed to delegate %s to %s: %s", h.tuning.Name, node.Name, err.Error())
-			}
+	for _, host := range h.tuning.Hosts {
+
+		log.Infof("delegating 2")
+
+		tuning, err := h.getTuningByNameAndHost(h.tuning.Name, host.Name)
+		if err != nil {
+			log.Errorf("failed to get tuning %s for host %s: %s", h.tuning.Name, host.Name, err.Error())
+			continue
+		}
+
+		node := host.GetNode()
+		if node == nil {
+			log.Errorf("failed to get node by hostname(%s)", host.Name)
+			continue
+		}
+
+		switch h.handler {
+		case "updateTuning":
+			h.tuning.Enabled = tuning.Enabled
+		case "enableOrDisableTuning":
+			h.tuning.Value = tuning.Value
+		}
+
+		h.tuning.Id = h.tuning.GenerateId()
+		if node.IsLocal() {
+			delegateToLocal(h.tuning)
+			continue
+		}
+
+		err = h.delegateToOtherNode(node)
+		if err != nil {
+			log.Errorf("failed to delegate %s to %s: %s", h.tuning.Name, node.Name, err.Error())
 		}
 	}
+}
+
+func (h *helper) getTuningByNameAndHost(name, host string) (*definition.Tuning, error) {
+	tunings, err := cubecos.ListTunings(definition.ListTuningOptions{AllNodes: h.allNodes})
+	if err != nil {
+		log.Errorf("tunings(%s): failed to get tunings: %s", api.GetReqId(h.c), err.Error())
+		return nil, err
+	}
+
+	for _, tuning := range tunings {
+		if tuning.Name != name {
+			continue
+		}
+
+		if !tuning.IncludeHost(host) {
+			continue
+		}
+
+		return &tuning, nil
+	}
+
+	return nil, errors.New("tuning not found")
 }
 
 func delegateToLocal(tuning definition.Tuning) {

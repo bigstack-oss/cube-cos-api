@@ -29,10 +29,6 @@ var (
 	CreateRecordIfNotExist = options.Update().SetUpsert(true)
 )
 
-func init() {
-
-}
-
 type TuningPolicy struct {
 	Name    string   `json:"name" yaml:"name"`
 	Version string   `json:"version" yaml:"version"`
@@ -71,6 +67,20 @@ type Tuning struct {
 	Status *status.Tuning `json:"status,omitempty" yaml:"-" bson:"status,omitempty"`
 }
 
+type TuningReset struct {
+	Hosts []string `json:"hosts"`
+}
+
+type TuningUpdate struct {
+	Value any      `json:"value"`
+	Hosts []string `json:"hosts"`
+}
+
+type TuningToggle struct {
+	Enabled bool     `json:"enabled"`
+	Hosts   []string `json:"hosts"`
+}
+
 type ListTuningOptions struct {
 	AllNodes bool
 }
@@ -86,6 +96,16 @@ func (t *Tuning) GenerateId() string {
 		t.Value,
 		t.Enabled,
 	)
+}
+
+func (t *Tuning) IncludeHost(hostname string) bool {
+	for _, host := range t.Hosts {
+		if host.Name == hostname {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (t *Tuning) InitStatus(current, desired string) {

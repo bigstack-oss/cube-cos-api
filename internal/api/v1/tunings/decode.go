@@ -27,28 +27,6 @@ func (h *helper) decodeTuningReq(reqBody io.ReadCloser) (*definition.Tuning, err
 	return tuning, nil
 }
 
-func decodeTuningsReq(reqBody io.ReadCloser) ([]definition.Tuning, error) {
-	b, err := io.ReadAll(reqBody)
-	if err != nil {
-		return nil, err
-	}
-
-	tunings := []definition.Tuning{}
-	err = json.Unmarshal(b, &tunings)
-	if err != nil {
-		return nil, err
-	}
-
-	for i := range tunings {
-		tunings[i].SetNodeInfo(
-			definition.CurrentRole,
-			definition.AdvertiseAddr,
-		)
-	}
-
-	return tunings, nil
-}
-
 func (h *helper) checkTuningPatchReq() error {
 	err := definition.CheckTuningSpec(h.tuning)
 	if err != nil {
@@ -63,12 +41,10 @@ func (h *helper) checkTuningResetReq() error {
 }
 
 func (h *helper) checkHostsAreValid() error {
-	for _, r := range h.tuning.Roles {
-		for _, h := range r.Hosts {
-			_, err := definition.GetNodeByHostname(h.Name)
-			if err != nil {
-				return fmt.Errorf("host(%s) not found", h.Name)
-			}
+	for _, host := range h.tuning.Hosts {
+		_, err := definition.GetNodeByHostname(host.Name)
+		if err != nil {
+			return fmt.Errorf("host(%s) not found", host.Name)
 		}
 	}
 

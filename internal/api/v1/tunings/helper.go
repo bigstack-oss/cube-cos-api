@@ -15,6 +15,9 @@ type helper struct {
 	c       *gin.Context
 	handler string
 	tuning  definition.Tuning
+	toggle  definition.TuningToggle
+	update  definition.TuningUpdate
+	reset   definition.TuningReset
 
 	allNodes bool
 	hosts    []string
@@ -40,23 +43,19 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 }
 
 func (h *helper) parseTuningUpdate() error {
-	tuning, err := h.decodeTuningReq(h.c.Request.Body)
+	err := h.c.ShouldBindJSON(&h.update)
 	if err != nil {
-		log.Errorf("request(%s): failed to decode tuning request: %s", api.GetReqId(h.c), err.Error())
 		return err
 	}
 
-	h.tuning = *tuning
-	h.tuning.Name = h.c.Param("parameterName")
-	h.tuning.Id = h.tuning.GenerateId()
-	h.tuning.InitUpdateStatus()
+	h.convertUpdateToTuning()
 	return nil
 }
 
 func (h *helper) parseTuningReset() error {
-	tuning, err := h.decodeTuningReq(h.c.Request.Body)
+	err := h.c.ShouldBindJSON(&h.reset)
 	if err != nil {
-		log.Errorf("request(%s): failed to decode tuning request: %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("tunings(%s): failed to parse reset tuning: %s", api.GetReqId(h.c), err.Error())
 		return err
 	}
 
@@ -66,20 +65,48 @@ func (h *helper) parseTuningReset() error {
 		return err
 	}
 
-	h.tuning = *tuning
-	h.tuning.Id = h.tuning.GenerateId()
 	h.tuning.Name = name
 	h.tuning.Value = spec.Limitation.Default
 	h.tuning.Enabled = true
 	h.tuning.IsModified = false
+	h.tuning.Id = h.tuning.GenerateId()
 	h.tuning.InitResetStatus()
+	for _, host := range h.reset.Hosts {
+		h.tuning.Hosts = append(h.tuning.Hosts, definition.Host{Name: host})
+	}
+
 	return nil
+}
+
+func (h *helper) parseTuningEnablement() error {
+	err := h.c.ShouldBindJSON(&h.toggle)
+	if err != nil {
+		return err
+	}
+
+	h.tuning.Name = h.c.Param("parameterName")
+	h.tuning.Enabled = h.toggle.Enabled
+	h.tuning.InitUpdateStatus()
+	for _, host := range h.toggle.Hosts {
+		h.tuning.Hosts = append(h.tuning.Hosts, definition.Host{Name: host})
+	}
+
+	return nil
+}
+
+func (h *helper) convertUpdateToTuning() {
+	h.tuning.Name = h.c.Param("parameterName")
+	h.tuning.Value = h.update.Value
+	h.tuning.InitUpdateStatus()
+	for _, host := range h.update.Hosts {
+		h.tuning.Hosts = append(h.tuning.Hosts, definition.Host{Name: host})
+	}
 }
 
 func (h *helper) ListTunings() (*data, error) {
 	tunings, err := cubecos.ListTunings(definition.ListTuningOptions{AllNodes: h.allNodes})
 	if err != nil {
-		log.Errorf("request(%s): failed to get tunings: %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("tunings(%s): failed to get tunings: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
@@ -88,13 +115,13 @@ func (h *helper) ListTunings() (*data, error) {
 
 	pagedTunings, err := h.paginateTunings(tunings)
 	if err != nil {
-		log.Errorf("request(%s): failed to paginate tunings: %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("tunings(%s): failed to paginate tunings: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
 	page, err := h.genPageInfo(tunings)
 	if err != nil {
-		log.Errorf("request(%s): failed to gen page info: %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("tunings(%s): failed to gen page info: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 

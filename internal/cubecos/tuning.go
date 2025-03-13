@@ -1087,7 +1087,7 @@ func IsTuningDeleted(tuning definition.Tuning) bool {
 		return false
 	}
 
-	return policy.HasMatchedTuning(tuning) &&
+	return !policy.HasMatchedTuning(tuning) &&
 		noValueInSettings(valueErr)
 }
 

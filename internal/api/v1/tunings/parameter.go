@@ -58,6 +58,10 @@ func (h *helper) parseWatch() {
 	h.watch = h.c.DefaultQuery("watch", "false") == "true"
 }
 
+func (h *helper) parseToggle() error {
+	return h.c.ShouldBindBodyWithJSON(&h.toggle)
+}
+
 func (h *helper) isPageReceived() bool {
 	return h.c.DefaultQuery("pageNum", "") != "" || h.c.DefaultQuery("pageSize", "") != ""
 }

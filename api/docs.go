@@ -7367,15 +7367,8 @@ const docTemplate = `{
                                     "value": {
                                         "value": true,
                                         "enabled": true,
-                                        "roles": [
-                                            {
-                                                "name": "control-converged",
-                                                "hosts": [
-                                                    {
-                                                        "name": "example-node-0"
-                                                    }
-                                                ]
-                                            }
+                                        "hosts": [
+                                            "example-node-0"
                                         ]
                                     }
                                 }
@@ -7477,8 +7470,149 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "put": {
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/tunings/parameters/{parameterName}/enable": {
+            "patch": {
+                "operationId": "enableOrDisableTuning",
+                "tags": [
+                    "Tunings"
+                ],
+                "summary": "Enable or disable a specific tuning parameter",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "in": "path",
+                        "name": "parameterName",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the parameter to update. use GET /api/v1/datacenters/{dataCenter}/tunings/specs to get the list of parameters",
+                        "example": "barbican.debug.enabled"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EnableOrDisableTuningRequest"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Tuning update request",
+                                    "value": {
+                                        "enable": true,
+                                        "hosts": [
+                                            "example-node-0"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Enable or disable the tuning successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpdateTuningResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Tuning update request received",
+                                        "value": {
+                                            "code": 202,
+                                            "msg": "tuning update request received",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid parameter name"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to request tuning update: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/tunings/parameters/{parameterName}/reset": {
+            "post": {
                 "operationId": "resetTuning",
                 "tags": [
                     "Tunings"
@@ -7510,15 +7644,8 @@ const docTemplate = `{
                                 "example": {
                                     "summary": "Tuning reset request",
                                     "value": {
-                                        "roles": [
-                                            {
-                                                "name": "control-converged",
-                                                "hosts": [
-                                                    {
-                                                        "name": "example-node-0"
-                                                    }
-                                                ]
-                                            }
+                                        "hosts": [
+                                            "example-node-0"
                                         ]
                                     }
                                 }
@@ -7527,7 +7654,7 @@ const docTemplate = `{
                     }
                 },
                 "responses": {
-                    "200": {
+                    "202": {
                         "description": "Reset the tuning successfully",
                         "content": {
                             "application/json": {
@@ -11631,43 +11758,47 @@ const docTemplate = `{
                 "required": [
                     "value",
                     "enabled",
-                    "roles"
+                    "hosts"
                 ],
                 "properties": {
                     "value": {
-                        "type": "boolean"
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "boolean"
+                            }
+                        ]
                     },
                     "enabled": {
                         "type": "boolean"
                     },
-                    "roles": {
+                    "hosts": {
                         "type": "array",
                         "items": {
-                            "type": "object",
-                            "required": [
-                                "name",
-                                "hosts"
-                            ],
-                            "properties": {
-                                "name": {
-                                    "type": "string"
-                                },
-                                "hosts": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "required": [
-                                            "name",
-                                            "ip"
-                                        ],
-                                        "properties": {
-                                            "name": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "EnableOrDisableTuningRequest": {
+                "type": "object",
+                "required": [
+                    "enabled",
+                    "hosts"
+                ],
+                "properties": {
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "hosts": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
                         }
                     }
                 }
@@ -11675,36 +11806,13 @@ const docTemplate = `{
             "ResetTuningRequest": {
                 "type": "object",
                 "required": [
-                    "roles"
+                    "hosts"
                 ],
                 "properties": {
-                    "roles": {
+                    "hosts": {
                         "type": "array",
                         "items": {
-                            "type": "object",
-                            "required": [
-                                "name",
-                                "hosts"
-                            ],
-                            "properties": {
-                                "name": {
-                                    "type": "string"
-                                },
-                                "hosts": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "required": [
-                                            "name"
-                                        ],
-                                        "properties": {
-                                            "name": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            "type": "string"
                         }
                     }
                 }
