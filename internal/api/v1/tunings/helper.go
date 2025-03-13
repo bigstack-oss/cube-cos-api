@@ -71,10 +71,7 @@ func (h *helper) parseTuningReset() error {
 	h.tuning.IsModified = false
 	h.tuning.Id = h.tuning.GenerateId()
 	h.tuning.InitResetStatus()
-	for _, host := range h.reset.Hosts {
-		h.tuning.Hosts = append(h.tuning.Hosts, definition.Host{Name: host})
-	}
-
+	h.tuning.InitHosts(h.reset.Hosts)
 	return nil
 }
 
@@ -85,12 +82,9 @@ func (h *helper) parseTuningEnablement() error {
 	}
 
 	h.tuning.Name = h.c.Param("parameterName")
-	h.tuning.Enabled = h.toggle.Enabled
+	h.tuning.Enabled = h.toggle.Enable
 	h.tuning.InitUpdateStatus()
-	for _, host := range h.toggle.Hosts {
-		h.tuning.Hosts = append(h.tuning.Hosts, definition.Host{Name: host})
-	}
-
+	h.tuning.InitHosts(h.toggle.Hosts)
 	return nil
 }
 
@@ -98,9 +92,7 @@ func (h *helper) convertUpdateToTuning() {
 	h.tuning.Name = h.c.Param("parameterName")
 	h.tuning.Value = h.update.Value
 	h.tuning.InitUpdateStatus()
-	for _, host := range h.update.Hosts {
-		h.tuning.Hosts = append(h.tuning.Hosts, definition.Host{Name: host})
-	}
+	h.tuning.InitHosts(h.update.Hosts)
 }
 
 func (h *helper) ListTunings() (*data, error) {

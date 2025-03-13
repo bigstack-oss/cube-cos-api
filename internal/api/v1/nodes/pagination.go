@@ -27,15 +27,17 @@ func paginateNodes(nodes []*definition.Node, page definition.Page) ([]*definitio
 func genPageInfo(nodes []*definition.Node, page definition.Page) (definition.Page, error) {
 	if !page.IsRequired() {
 		return definition.Page{
-			Total:  1,
-			Number: 1,
-			Size:   len(nodes),
+			Total:          1,
+			Number:         1,
+			Size:           len(nodes),
+			TotalItemCount: int64(len(nodes)),
 		}, nil
 	}
 
 	return definition.Page{
-		Total:  int64(math.Ceil(float64(len(nodes)) / float64(page.Size))),
-		Number: page.Number,
-		Size:   page.Size,
+		Total:          int64(math.Ceil(float64(len(nodes)) / float64(page.Size))),
+		Number:         page.Number,
+		Size:           page.Size,
+		TotalItemCount: int64(len(nodes)),
 	}, nil
 }

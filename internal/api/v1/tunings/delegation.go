@@ -11,13 +11,7 @@ import (
 )
 
 func (h *helper) delegateTuningReq() {
-
-	log.Infof("delegating 1")
-
 	for _, host := range h.tuning.Hosts {
-
-		log.Infof("delegating 2")
-
 		tuning, err := h.getTuningByNameAndHost(h.tuning.Name, host.Name)
 		if err != nil {
 			log.Errorf("failed to get tuning %s for host %s: %s", h.tuning.Name, host.Name, err.Error())
@@ -30,14 +24,7 @@ func (h *helper) delegateTuningReq() {
 			continue
 		}
 
-		switch h.handler {
-		case "updateTuning":
-			h.tuning.Enabled = tuning.Enabled
-		case "enableOrDisableTuning":
-			h.tuning.Value = tuning.Value
-		}
-
-		h.tuning.Id = h.tuning.GenerateId()
+		h.backfillTuningInfoByHandler(*tuning)
 		if node.IsLocal() {
 			delegateToLocal(h.tuning)
 			continue
@@ -75,6 +62,17 @@ func (h *helper) getTuningByNameAndHost(name, host string) (*definition.Tuning, 
 func delegateToLocal(tuning definition.Tuning) {
 	addReqRecord(tuning)
 	reqQueue.Add(&tuning)
+}
+
+func (h *helper) backfillTuningInfoByHandler(tuning definition.Tuning) {
+	switch h.handler {
+	case "updateTuning":
+		h.tuning.Enabled = tuning.Enabled
+	case "enableOrDisableTuning":
+		h.tuning.Value = tuning.Value
+	}
+
+	h.tuning.Id = h.tuning.GenerateId()
 }
 
 func (h *helper) delegateToOtherNode(node *definition.Node) error {

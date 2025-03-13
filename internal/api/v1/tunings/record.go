@@ -87,7 +87,6 @@ func parseUpdatingTunings(cursor *mongo.Cursor) ([]definition.Tuning, error) {
 			return nil, err
 		}
 
-		log.Infof("tuning: %v", tuning)
 		tunings = append(tunings, tuning)
 	}
 

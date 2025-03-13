@@ -26,15 +26,17 @@ func (h *helper) sortTunings(tunings *[]definition.Tuning) {
 func (h *helper) genPageInfo(tunings []definition.Tuning) (definition.Page, error) {
 	if !h.Page.IsRequired() {
 		return definition.Page{
-			Total:  1,
-			Number: 1,
-			Size:   len(tunings),
+			Total:          1,
+			Number:         1,
+			Size:           len(tunings),
+			TotalItemCount: int64(len(tunings)),
 		}, nil
 	}
 
 	return definition.Page{
-		Total:  int64(math.Ceil(float64(len(tunings)) / float64(h.Page.Size))),
-		Number: h.Page.Number,
-		Size:   h.Page.Size,
+		Total:          int64(math.Ceil(float64(len(tunings)) / float64(h.Page.Size))),
+		Number:         h.Page.Number,
+		Size:           h.Page.Size,
+		TotalItemCount: int64(len(tunings)),
 	}, nil
 }

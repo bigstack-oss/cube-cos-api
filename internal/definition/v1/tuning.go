@@ -77,8 +77,8 @@ type TuningUpdate struct {
 }
 
 type TuningToggle struct {
-	Enabled bool     `json:"enabled"`
-	Hosts   []string `json:"hosts"`
+	Enable bool     `json:"enable"`
+	Hosts  []string `json:"hosts"`
 }
 
 type ListTuningOptions struct {
@@ -106,6 +106,12 @@ func (t *Tuning) IncludeHost(hostname string) bool {
 	}
 
 	return false
+}
+
+func (t *Tuning) InitHosts(hosts []string) {
+	for _, host := range hosts {
+		t.Hosts = append(t.Hosts, Host{Name: host})
+	}
 }
 
 func (t *Tuning) InitStatus(current, desired string) {

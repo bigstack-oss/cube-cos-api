@@ -69,15 +69,17 @@ func paginateLicenses(licenses []definition.License, page definition.Page) ([]de
 func genPageInfo(licenses []definition.License, page definition.Page) (definition.Page, error) {
 	if !page.IsRequired() {
 		return definition.Page{
-			Total:  1,
-			Number: 1,
-			Size:   len(licenses),
+			Total:          1,
+			Number:         1,
+			Size:           len(licenses),
+			TotalItemCount: int64(len(licenses)),
 		}, nil
 	}
 
 	return definition.Page{
-		Total:  int64(math.Ceil(float64(len(licenses)) / float64(page.Size))),
-		Number: page.Number,
-		Size:   page.Size,
+		Total:          int64(math.Ceil(float64(len(licenses)) / float64(page.Size))),
+		Number:         page.Number,
+		Size:           page.Size,
+		TotalItemCount: int64(len(licenses)),
 	}, nil
 }

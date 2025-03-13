@@ -2625,7 +2625,8 @@ const docTemplate = `{
                                                 "page": {
                                                     "total": 1,
                                                     "number": 1,
-                                                    "size": 1
+                                                    "size": 1,
+                                                    "totalItemCount": 1
                                                 }
                                             },
                                             "msg": "fetch licenses successfully",
@@ -3144,11 +3145,14 @@ const docTemplate = `{
                         },
                         "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
                         "example": "2025-01-01T01:00:00+00:00"
+                    },
+                    {
+                        "$ref": "#/components/parameters/watch"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Retrieve the summary of data center successfully",
+                        "description": "Retrieve the various metrics with different view from hosts or vms",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4229,7 +4233,8 @@ const docTemplate = `{
                                                 "page": {
                                                     "total": 1,
                                                     "number": 1,
-                                                    "size": 1
+                                                    "size": 1,
+                                                    "totalItemCount": 1
                                                 }
                                             },
                                             "msg": "fetch nodes list successfully",
@@ -5773,7 +5778,8 @@ const docTemplate = `{
                                                 "page": {
                                                     "total": 15,
                                                     "number": 1,
-                                                    "size": 5
+                                                    "size": 5,
+                                                    "totalItemCount:": 75
                                                 }
                                             },
                                             "msg": "fetch tuning list successfully",
@@ -7366,7 +7372,6 @@ const docTemplate = `{
                                     "summary": "Tuning update request",
                                     "value": {
                                         "value": true,
-                                        "enabled": true,
                                         "hosts": [
                                             "example-node-0"
                                         ]
@@ -8744,26 +8749,7 @@ const docTemplate = `{
                                 }
                             },
                             "page": {
-                                "type": "object",
-                                "required": [
-                                    "total",
-                                    "number",
-                                    "size"
-                                ],
-                                "properties": {
-                                    "total": {
-                                        "type": "integer",
-                                        "example": 10
-                                    },
-                                    "number": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "size": {
-                                        "type": "integer",
-                                        "example": 1
-                                    }
-                                }
+                                "$ref": "#/components/schemas/Page"
                             }
                         }
                     },
@@ -9587,23 +9573,7 @@ const docTemplate = `{
                                 }
                             },
                             "page": {
-                                "type": "object",
-                                "required": [
-                                    "total",
-                                    "number",
-                                    "size"
-                                ],
-                                "properties": {
-                                    "total": {
-                                        "type": "integer"
-                                    },
-                                    "number": {
-                                        "type": "integer"
-                                    },
-                                    "size": {
-                                        "type": "integer"
-                                    }
-                                }
+                                "$ref": "#/components/schemas/Page"
                             }
                         }
                     },
@@ -9775,22 +9745,22 @@ const docTemplate = `{
                                         ],
                                         "properties": {
                                             "controlConverged": {
-                                                "$ref": "#/components/schemas/roleUsage"
+                                                "$ref": "#/components/schemas/RoleUsage"
                                             },
                                             "control": {
-                                                "$ref": "#/components/schemas/roleUsage"
+                                                "$ref": "#/components/schemas/RoleUsage"
                                             },
                                             "compute": {
-                                                "$ref": "#/components/schemas/roleUsage"
+                                                "$ref": "#/components/schemas/RoleUsage"
                                             },
                                             "storage": {
-                                                "$ref": "#/components/schemas/roleUsage"
+                                                "$ref": "#/components/schemas/RoleUsage"
                                             },
                                             "edgeCore": {
-                                                "$ref": "#/components/schemas/roleUsage"
+                                                "$ref": "#/components/schemas/RoleUsage"
                                             },
                                             "moderator": {
-                                                "$ref": "#/components/schemas/roleUsage"
+                                                "$ref": "#/components/schemas/RoleUsage"
                                             }
                                         }
                                     },
@@ -10100,7 +10070,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/metricRank"
+                        "$ref": "#/components/schemas/MetricRank"
                     },
                     "msg": {
                         "type": "string",
@@ -10174,7 +10144,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/metricRank"
+                        "$ref": "#/components/schemas/MetricRank"
                     },
                     "msg": {
                         "type": "string",
@@ -10199,7 +10169,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/metricRank"
+                        "$ref": "#/components/schemas/MetricRank"
                     },
                     "msg": {
                         "type": "string",
@@ -10224,7 +10194,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/diskReadWriteHistory"
+                        "$ref": "#/components/schemas/DiskReadWriteHistory"
                     },
                     "msg": {
                         "type": "string"
@@ -10247,7 +10217,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/diskReadWriteHistory"
+                        "$ref": "#/components/schemas/DiskReadWriteHistory"
                     },
                     "msg": {
                         "type": "string"
@@ -10270,7 +10240,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/diskReadWriteHistory"
+                        "$ref": "#/components/schemas/DiskReadWriteHistory"
                     },
                     "msg": {
                         "type": "string"
@@ -10293,7 +10263,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/metricRank"
+                        "$ref": "#/components/schemas/MetricRank"
                     },
                     "msg": {
                         "type": "string",
@@ -10318,7 +10288,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/metricRank"
+                        "$ref": "#/components/schemas/MetricRank"
                     },
                     "msg": {
                         "type": "string",
@@ -10343,7 +10313,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/metricRank"
+                        "$ref": "#/components/schemas/MetricRank"
                     },
                     "msg": {
                         "type": "string",
@@ -10417,7 +10387,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/metricRank"
+                        "$ref": "#/components/schemas/MetricRank"
                     },
                     "msg": {
                         "type": "string",
@@ -10442,7 +10412,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/metricRank"
+                        "$ref": "#/components/schemas/MetricRank"
                     },
                     "msg": {
                         "type": "string",
@@ -10467,7 +10437,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/metricRank"
+                        "$ref": "#/components/schemas/MetricRank"
                     },
                     "msg": {
                         "type": "string",
@@ -10492,7 +10462,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/metricRank"
+                        "$ref": "#/components/schemas/MetricRank"
                     },
                     "msg": {
                         "type": "string",
@@ -10517,7 +10487,7 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/metricRank"
+                        "$ref": "#/components/schemas/MetricRank"
                     },
                     "msg": {
                         "type": "string",
@@ -10769,26 +10739,7 @@ const docTemplate = `{
                                 }
                             },
                             "page": {
-                                "type": "object",
-                                "required": [
-                                    "total",
-                                    "number",
-                                    "size"
-                                ],
-                                "properties": {
-                                    "total": {
-                                        "type": "integer",
-                                        "example": 10
-                                    },
-                                    "number": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "size": {
-                                        "type": "integer",
-                                        "example": 1
-                                    }
-                                }
+                                "$ref": "#/components/schemas/Page"
                             }
                         }
                     },
@@ -11512,108 +11463,120 @@ const docTemplate = `{
                         "example": 200
                     },
                     "data": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "required": [
-                                "name",
-                                "value",
-                                "hosts",
-                                "description",
-                                "enabled",
-                                "isModified",
-                                "limitation",
-                                "status"
-                            ],
-                            "properties": {
-                                "name": {
-                                    "type": "string"
-                                },
-                                "value": {
-                                    "type": "string"
-                                },
-                                "hosts": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                },
-                                "description": {
-                                    "type": "string"
-                                },
-                                "enabled": {
-                                    "type": "boolean"
-                                },
-                                "isModified": {
-                                    "type": "boolean"
-                                },
-                                "limitation": {
+                        "type": "object",
+                        "required": [
+                            "tunings",
+                            "page"
+                        ],
+                        "properties": {
+                            "tunings": {
+                                "type": "array",
+                                "items": {
                                     "type": "object",
                                     "required": [
-                                        "type",
-                                        "default",
-                                        "min",
-                                        "max"
+                                        "name",
+                                        "value",
+                                        "hosts",
+                                        "description",
+                                        "enabled",
+                                        "isModified",
+                                        "limitation",
+                                        "status"
                                     ],
                                     "properties": {
-                                        "type": {
+                                        "name": {
                                             "type": "string"
                                         },
-                                        "default": {
-                                            "oneOf": [
-                                                {
+                                        "value": {
+                                            "type": "string"
+                                        },
+                                        "hosts": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "isModified": {
+                                            "type": "boolean"
+                                        },
+                                        "limitation": {
+                                            "type": "object",
+                                            "required": [
+                                                "type",
+                                                "default",
+                                                "min",
+                                                "max"
+                                            ],
+                                            "properties": {
+                                                "type": {
                                                     "type": "string"
                                                 },
-                                                {
-                                                    "type": "integer"
+                                                "default": {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "integer"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        }
+                                                    ]
                                                 },
-                                                {
-                                                    "type": "number"
+                                                "min": {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "integer"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        }
+                                                    ]
                                                 },
-                                                {
+                                                "max": {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "integer"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        }
+                                                    ]
+                                                },
+                                                "regex": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "object",
+                                            "required": [
+                                                "isUpdating"
+                                            ],
+                                            "properties": {
+                                                "updatedAt": {
+                                                    "type": "string"
+                                                },
+                                                "isUpdating": {
                                                     "type": "boolean"
                                                 }
-                                            ]
-                                        },
-                                        "min": {
-                                            "oneOf": [
-                                                {
-                                                    "type": "integer"
-                                                },
-                                                {
-                                                    "type": "number"
-                                                }
-                                            ]
-                                        },
-                                        "max": {
-                                            "oneOf": [
-                                                {
-                                                    "type": "integer"
-                                                },
-                                                {
-                                                    "type": "number"
-                                                }
-                                            ]
-                                        },
-                                        "regex": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "status": {
-                                    "type": "object",
-                                    "required": [
-                                        "isUpdating"
-                                    ],
-                                    "properties": {
-                                        "updateAt": {
-                                            "type": "string"
-                                        },
-                                        "isUpdating": {
-                                            "type": "boolean"
+                                            }
                                         }
                                     }
                                 }
+                            },
+                            "page": {
+                                "$ref": "#/components/schemas/Page"
                             }
                         }
                     },
@@ -11757,7 +11720,6 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "value",
-                    "enabled",
                     "hosts"
                 ],
                 "properties": {
@@ -11774,9 +11736,6 @@ const docTemplate = `{
                             }
                         ]
                     },
-                    "enabled": {
-                        "type": "boolean"
-                    },
                     "hosts": {
                         "type": "array",
                         "items": {
@@ -11788,11 +11747,11 @@ const docTemplate = `{
             "EnableOrDisableTuningRequest": {
                 "type": "object",
                 "required": [
-                    "enabled",
+                    "enable",
                     "hosts"
                 ],
                 "properties": {
-                    "enabled": {
+                    "enable": {
                         "type": "boolean"
                     },
                     "hosts": {
@@ -12199,7 +12158,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "metricRank": {
+            "MetricRank": {
                 "type": "object",
                 "required": [
                     "unit",
@@ -12256,7 +12215,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "diskReadWriteHistory": {
+            "DiskReadWriteHistory": {
                 "type": "object",
                 "required": [
                     "unit",
@@ -12307,7 +12266,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "roleUsage": {
+            "RoleUsage": {
                 "type": "object",
                 "required": [
                     "count",
@@ -12371,6 +12330,33 @@ const docTemplate = `{
                                 "type": "number"
                             }
                         }
+                    }
+                }
+            },
+            "Page": {
+                "type": "object",
+                "required": [
+                    "total",
+                    "number",
+                    "size",
+                    "totalItemCount"
+                ],
+                "properties": {
+                    "total": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "number": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "size": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "totalItemCount": {
+                        "type": "integer",
+                        "example": 1
                     }
                 }
             }

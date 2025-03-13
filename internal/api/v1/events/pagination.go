@@ -44,31 +44,34 @@ func (h *helper) isInstanceRequired() bool {
 func (h *helper) genPageInfo(events []definition.Event) (definition.Page, error) {
 	if !h.isPageRequired() {
 		return definition.Page{
-			Total:  1,
-			Number: 1,
-			Size:   len(events),
+			Total:          1,
+			Number:         1,
+			Size:           len(events),
+			TotalItemCount: int64(len(events)),
 		}, nil
 	}
 
-	totalPages, err := h.countTotalPages()
+	totalCounts, totalPages, err := h.getAmountDetails()
 	if err != nil {
 		return definition.Page{}, err
 	}
 
 	return definition.Page{
-		Total:  totalPages,
-		Number: h.Page.Number,
-		Size:   h.Page.Size,
+		Total:          totalPages,
+		Number:         h.Page.Number,
+		Size:           h.Page.Size,
+		TotalItemCount: totalCounts,
 	}, nil
 }
 
-func (h *helper) countTotalPages() (int64, error) {
+func (h *helper) getAmountDetails() (int64, int64, error) {
 	count, err := cubecos.CountEvents(h.genCountQueryStmt())
 	if err != nil {
 		log.Errorf("request(%s): failed to count events: %v", api.GetReqId(h.c), err)
-		api.SetInternalServerError(h.c, err)
-		return 0, err
+		return 0, 0, err
 	}
 
-	return int64(math.Ceil(float64(count) / float64(h.Page.Size))), nil
+	return int64(count),
+		int64(math.Ceil(float64(count) / float64(h.Page.Size))),
+		nil
 }

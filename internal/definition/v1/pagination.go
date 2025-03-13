@@ -1,9 +1,10 @@
 package v1
 
 type Page struct {
-	Total  int64 `json:"total"`
-	Number int   `json:"number"`
-	Size   int   `json:"size"`
+	Total          int64 `json:"total"`
+	Number         int   `json:"number"`
+	Size           int   `json:"size"`
+	TotalItemCount int64 `json:"totalItemCount"`
 }
 
 func (p Page) IsRequired() bool {
