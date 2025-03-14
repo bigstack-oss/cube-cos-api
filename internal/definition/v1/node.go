@@ -105,6 +105,19 @@ func (n *Node) GetMetricUrl(metric, view string) string {
 	return u.String()
 }
 
+func (n *Node) GetNodeDetailsUrl() string {
+	u := url.URL{
+		Scheme: n.Protocol,
+		Host:   n.Address,
+		Path: fmt.Sprintf(
+			"/api/v1/datacenters/%s/nodes/%s",
+			n.DataCenter,
+			n.Hostname,
+		),
+	}
+
+	return u.String()
+}
 func (n *Node) GetTuningUrl() string {
 	u := url.URL{
 		Scheme:   n.Protocol,

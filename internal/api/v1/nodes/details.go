@@ -125,11 +125,16 @@ func convertBlockDeviceSize(sizeStr string) float64 {
 		return 0
 	}
 
-	return float64(bytes) / (1024.0 * 1024.0)
+	sizeMiB := float64(bytes) / (1024.0 * 1024.0)
+	return math.RoundDown(sizeMiB, 4)
 }
 
 func identifyBlockDeviceStatus(mountPoints []string) string {
 	if len(mountPoints) == 0 {
+		return "available"
+	}
+
+	if mountPoints[0] == "" {
 		return "available"
 	}
 

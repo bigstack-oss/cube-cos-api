@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
@@ -143,7 +144,29 @@ func (h *helper) getNodeDetails() (*definition.Node, error) {
 	if node.IsLocal() {
 		addLicenseToNode(h.c, node)
 		addMetricsToNode(h.c, node)
+		return node, nil
 	}
 
-	return node, nil
+	return h.delegateToOtherNode(node)
+}
+
+func (h *helper) delegateToOtherNode(node *definition.Node) (*definition.Node, error) {
+	helper := http.GetGlobalHelper()
+	resp, err := helper.R().
+		SetResult(&definition.Node{}).
+		SetHeader("Authorization", node.GetBearerToken()).
+		Get(node.GetNodeDetailsUrl())
+	if err != nil {
+		return nil, err
+	}
+	if resp.IsError() {
+		return nil, fmt.Errorf(
+			"failed to get node details %s: %d %s",
+			node.Hostname,
+			resp.StatusCode(),
+			string(resp.Body()),
+		)
+	}
+
+	return resp.Result().(*definition.Node), nil
 }
