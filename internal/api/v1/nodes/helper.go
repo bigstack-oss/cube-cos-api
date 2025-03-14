@@ -11,25 +11,48 @@ import (
 )
 
 type helper struct {
-	c *gin.Context
+	c        *gin.Context
+	handler  string
+	nodeName string
+
 	definition.Page
 	watch bool
 }
 
-func initReqHelper(c *gin.Context) (*helper, error) {
-	h := &helper{c: c}
+func initReqHelper(c *gin.Context, handler string) (*helper, error) {
+	h := &helper{c: c, handler: handler}
 
+	switch handler {
+	case "listNodes":
+		return h, h.parseListOptions()
+	case "getNode":
+		return h, h.parseGetOptions()
+	}
+
+	return h, nil
+}
+
+func (h *helper) parseListOptions() error {
 	err := h.parsePage()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	err = h.parseWatch()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return h, nil
+	return nil
+}
+
+func (h *helper) parseGetOptions() error {
+	h.nodeName = h.c.Param("nodeName")
+	if h.nodeName == "" {
+		return fmt.Errorf("nodeName should be provided")
+	}
+
+	return nil
 }
 
 func (h *helper) parsePage() error {
@@ -99,7 +122,7 @@ func (h *helper) getNodesResp() (*data, error) {
 	}
 
 	addLicenseInfoToNodes(h.c, &pagedNodes)
-	addNodeDetailsToNodes(h.c, &pagedNodes)
+	addDetailsToNodes(h.c, &pagedNodes)
 	return &data{
 		Nodes: pagedNodes,
 		Page:  page,
@@ -108,4 +131,19 @@ func (h *helper) getNodesResp() (*data, error) {
 
 func isPageReceived(num, size string) bool {
 	return num != "" || size != ""
+}
+
+func (h *helper) getNodeDetails() (*definition.Node, error) {
+	node, err := definition.GetNodeByHostname(h.nodeName)
+	if err != nil {
+		log.Errorf("request(%s): failed to get node: %s", api.GetReqId(h.c), err.Error())
+		return nil, err
+	}
+
+	if node.IsLocal() {
+		addLicenseToNode(h.c, node)
+		addMetricsToNode(h.c, node)
+	}
+
+	return node, nil
 }

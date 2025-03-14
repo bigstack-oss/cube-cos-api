@@ -14,7 +14,13 @@ var (
 			Version: api.V1,
 			Method:  http.MethodGet,
 			Path:    "/nodes",
-			Func:    getNodes,
+			Func:    listNodes,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodGet,
+			Path:    "/nodes/:nodeName",
+			Func:    getNode,
 		},
 	}
 )
@@ -25,8 +31,8 @@ func init() {
 
 // M1 TODO: have to check why sometime take a long time to get the nodes list
 // suspect the cluster-wise license fetching might be slow by hex cli
-func getNodes(c *gin.Context) {
-	h, err := initReqHelper(c)
+func listNodes(c *gin.Context) {
+	h, err := initReqHelper(c, "listNodes")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
@@ -49,5 +55,27 @@ func getNodes(c *gin.Context) {
 		c,
 		"fetch nodes list successfully",
 		resp,
+	)
+}
+
+func getNode(c *gin.Context) {
+	h, err := initReqHelper(c, "getNode")
+	if err != nil {
+		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	node, err := h.getNodeDetails()
+	if err != nil {
+		log.Errorf("request(%s): failed to get node details: %v", api.GetReqId(c), err)
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"fetch node successfully",
+		node,
 	)
 }

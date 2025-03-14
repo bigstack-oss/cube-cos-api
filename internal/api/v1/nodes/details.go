@@ -1,7 +1,9 @@
 package nodes
 
 import (
+	"encoding/json"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -9,12 +11,136 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/hypervisors"
+	"github.com/shirou/gopsutil/v4/cpu"
 	log "go-micro.dev/v5/logger"
 )
 
-func addNodeDetailsToNodes(c *gin.Context, nodes *[]*definition.Node) {
+func addMetricsToNode(c *gin.Context, node *definition.Node) {
+	h := openstack.GetGlobalHelper()
+	hypervisor, err := h.GetHypervisorByHostname(node.Hostname)
+	if err != nil {
+		log.Debugf("request(%s): failed to add hypervisor info to the node: %s", api.GetReqId(c), err.Error())
+		return
+	}
+
+	node.ManagementIP = hypervisor.HostIP
+	node.Status = hypervisor.State
+	addHardwareInfoToNode(node)
+	addMetricToNode(node, hypervisor)
+	addUptimeToNode(c, node)
+}
+
+func addHardwareInfoToNode(node *definition.Node) {
+	addCpuSpecToNode(node)
+	addNetworkSpecToNode(node)
+	addBlockDeviceSpecToNode(node)
+}
+
+func addCpuSpecToNode(node *definition.Node) {
+	info, err := cpu.Info()
+	if err != nil {
+		log.Errorf("nodes: failed to get cpu info: %s", err.Error())
+		return
+	}
+
+	node.CpuSpec = info[0].ModelName
+}
+
+func addNetworkSpecToNode(node *definition.Node) {
+	out, err := exec.Command("hex_sdk", "DumpInterface").CombinedOutput()
+	if err != nil {
+		log.Errorf("nodes: failed to get network info: %s", err.Error())
+		return
+	}
+
+	lines := strings.Split(string(out), "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if isSkippableLine(line) {
+			continue
+		}
+
+		fields := strings.Fields(line)
+		if len(fields) < 5 {
+			continue
+		}
+
+		node.NetworkInterfaces = append(
+			node.NetworkInterfaces,
+			definition.NetworkInterface{
+				Label:       fields[0],
+				BusIdSlaves: fields[1],
+				Driver:      fields[2],
+				State:       fields[3],
+				Speed:       fields[4],
+			},
+		)
+	}
+}
+
+func addBlockDeviceSpecToNode(node *definition.Node) {
+	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json").Output()
+	if err != nil {
+		log.Errorf("nodes: failed to get block device info: %s", err.Error())
+		return
+	}
+
+	blockDevMap := map[string][]definition.RawBlockDevice{}
+	err = json.Unmarshal(b, &blockDevMap)
+	if err != nil {
+		log.Errorf("nodes: failed to unmarshal block device info: %s", err.Error())
+		return
+	}
+
+	rawBlockDevs, found := blockDevMap["blockdevices"]
+	if !found {
+		log.Errorf("nodes: failed to find block devices in the output")
+		return
+	}
+	if len(rawBlockDevs) <= 0 {
+		log.Errorf("nodes: no block device found")
+		return
+	}
+
+	for _, rawBlockDev := range rawBlockDevs {
+		node.BlockDevices = append(
+			node.BlockDevices,
+			definition.BlockDevice{
+				Name:    rawBlockDev.Name,
+				Type:    rawBlockDev.Type,
+				SizeMiB: convertBlockDeviceSize(rawBlockDev.Size),
+				Status:  identifyBlockDeviceStatus(rawBlockDev.MountPoints),
+			},
+		)
+	}
+}
+
+func convertBlockDeviceSize(sizeStr string) float64 {
+	bytes, err := humanize.ParseBytes(sizeStr)
+	if err != nil {
+		log.Errorf("nodes: failed to convert block device size: %s", err.Error())
+		return 0
+	}
+
+	return float64(bytes) / (1024.0 * 1024.0)
+}
+
+func identifyBlockDeviceStatus(mountPoints []string) string {
+	if len(mountPoints) == 0 {
+		return "available"
+	}
+
+	return "storage"
+}
+
+func isSkippableLine(line string) bool {
+	return line == "" || strings.HasPrefix(line, "-") || strings.HasPrefix(line, "Label")
+}
+
+func addDetailsToNodes(c *gin.Context, nodes *[]*definition.Node) {
 	h := openstack.GetGlobalHelper()
 	for _, node := range *nodes {
 		hypervisor, err := h.GetHypervisorByHostname(node.Hostname)

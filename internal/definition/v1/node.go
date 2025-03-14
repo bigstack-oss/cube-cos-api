@@ -35,22 +35,50 @@ var (
 )
 
 type Node struct {
-	Id            string `json:"id" yaml:"id"`
-	DataCenter    string `json:"dataCenter" yaml:"dataCenter"`
-	Hostname      string `json:"hostname" yaml:"hostname"`
-	Role          string `json:"role" yaml:"role"`
-	Protocol      string `json:"protocol,omitempty" yaml:"protocol,omitempty" bson:"protocol,omitempty"`
-	Address       string `json:"address" yaml:"address"`
-	Ip            string `json:"ip" yaml:"ip"`
-	ManagementIP  string `json:"managementIP" yaml:"managementIP"`
-	License       `json:"license,omitempty" yaml:"license,omitempty" bson:"license,omitempty"`
-	Status        string            `json:"status" yaml:"status"`
-	Vcpu          ComputeStatistic  `json:"vcpu" yaml:"vcpu" bson:"vcpu"`
-	Memory        SpaceStatistic    `json:"memory" yaml:"memory" bson:"memory"`
-	Storage       SpaceStatistic    `json:"storage" yaml:"storage" bson:"storage"`
-	UptimeSeconds float64           `json:"uptimeSeconds" yaml:"uptimeSeconds" bson:"uptimeSeconds"`
-	Token         string            `json:"-" yaml:"-" bson:"-"`
-	Labels        map[string]string `json:"labels,omitempty" yaml:"labels,omitempty" bson:"labels,omitempty"`
+	Id                string `json:"id" yaml:"id"`
+	DataCenter        string `json:"dataCenter" yaml:"dataCenter"`
+	Hostname          string `json:"hostname" yaml:"hostname"`
+	Role              string `json:"role" yaml:"role"`
+	Protocol          string `json:"protocol,omitempty" yaml:"protocol,omitempty" bson:"protocol,omitempty"`
+	Address           string `json:"address" yaml:"address"`
+	Ip                string `json:"ip" yaml:"ip"`
+	ManagementIP      string `json:"managementIP" yaml:"managementIP"`
+	License           `json:"license" yaml:"license,omitempty" bson:"license,omitempty"`
+	Status            string             `json:"status" yaml:"status"`
+	CpuSpec           string             `json:"cpuSpec" yaml:"cpuSpec" bson:"cpuSpec"`
+	NetworkInterfaces []NetworkInterface `json:"networkInterfaces" yaml:"networkInterfaces" bson:"networkInterfaces"`
+	BlockDevices      []BlockDevice      `json:"blockDevices" yaml:"blockDevices" bson:"blockDevices"`
+	Vcpu              ComputeStatistic   `json:"vcpu" yaml:"vcpu" bson:"vcpu"`
+	Memory            SpaceStatistic     `json:"memory" yaml:"memory" bson:"memory"`
+	Storage           SpaceStatistic     `json:"storage" yaml:"storage" bson:"storage"`
+	UptimeSeconds     float64            `json:"uptimeSeconds" yaml:"uptimeSeconds" bson:"uptimeSeconds"`
+	Token             string             `json:"-" yaml:"-" bson:"-"`
+	Labels            map[string]string  `json:"labels,omitempty" yaml:"labels,omitempty" bson:"labels,omitempty"`
+}
+
+type NetworkInterface struct {
+	Label       string `json:"label" yaml:"label" bson:"label"`
+	BusIdSlaves string `json:"busIdSlaves" yaml:"busIdSlaves" bson:"busIdSlaves"`
+	Driver      string `json:"driver" yaml:"driver" bson:"driver"`
+	State       string `json:"state" yaml:"state" bson:"state"`
+	Speed       string `json:"speed" yaml:"speed" bson:"speed"`
+}
+
+type BlockDevice struct {
+	Name    string  `json:"device" yaml:"device" bson:"device"`
+	Type    string  `json:"type" yaml:"type" bson:"type"`
+	SizeMiB float64 `json:"sizeMiB" yaml:"sizeMiB" bson:"sizeMiB"`
+	Status  string  `json:"status" yaml:"status" bson:"status"`
+}
+
+type RawBlockDevice struct {
+	Name        string   `json:"name"`
+	MajMin      string   `json:"maj:min"`
+	Rm          bool     `json:"rm"`
+	Size        string   `json:"size"`
+	Ro          bool     `json:"ro"`
+	Type        string   `json:"type"`
+	MountPoints []string `json:"mountpoints"`
 }
 
 func (n *Node) GetBearerToken() string {
