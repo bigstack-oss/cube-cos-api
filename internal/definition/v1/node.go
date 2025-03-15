@@ -153,6 +153,14 @@ func (n *Node) PatchTriggerTaskUrl(trigger trigger.Options) string {
 	return u.String()
 }
 
+func (n *Node) PatchSupportFileTaskUrl(supportFile SupportFile) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportfiles/tasks/%s", DataCenterName, supportFile.Id)
+	return u.String()
+}
+
 func (n *Node) IsLocal() bool {
 	return n.Address == AdvertiseAddr && n.Role == CurrentRole
 }

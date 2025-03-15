@@ -21,6 +21,7 @@ var (
 type Period struct {
 	Start string
 	Stop  string
+	Past  string
 }
 
 func TimeUTC(t time.Time) string {
