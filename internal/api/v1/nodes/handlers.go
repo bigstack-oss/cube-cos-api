@@ -39,7 +39,7 @@ func listNodes(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.getNodesResp()
+	resp, err := h.listNodes()
 	if err != nil {
 		log.Errorf("request(%s): failed to gen node: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
@@ -47,7 +47,7 @@ func listNodes(c *gin.Context) {
 	}
 
 	if h.watch {
-		watchNodes(h, *resp)
+		watchNode(h, *resp)
 		return
 	}
 
@@ -66,10 +66,15 @@ func getNode(c *gin.Context) {
 		return
 	}
 
-	node, err := h.getNodeDetails()
+	node, err := h.getNode()
 	if err != nil {
 		log.Errorf("request(%s): failed to get node details: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
+		return
+	}
+
+	if h.watch {
+		watchNode(h, *node)
 		return
 	}
 

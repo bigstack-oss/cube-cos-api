@@ -4169,13 +4169,15 @@ const docTemplate = `{
                                                 "nodes": [
                                                     {
                                                         "id": "abc0005e",
-                                                        "hostname": "example-node",
+                                                        "dataCenter": "example-data-center",
+                                                        "hostname": "example-node-0",
                                                         "role": "control-converged",
                                                         "address": "10.10.10.10:8001",
+                                                        "ip": "10.10.10.10",
                                                         "managementIP": "10.10.10.10",
                                                         "license": {
                                                             "type": "trial",
-                                                            "hostname": "example-node",
+                                                            "hostname": "example-node-0",
                                                             "serial": "1H2ZLG2",
                                                             "product": {
                                                                 "name": "",
@@ -4185,7 +4187,7 @@ const docTemplate = `{
                                                                 "by": "Bigstack co., ltd.",
                                                                 "to": "bigstack",
                                                                 "hardware": "*",
-                                                                "date": "2025-02-04T17:54:45+08:00"
+                                                                "date": "2025-01-23T14:51:50+08:00"
                                                             },
                                                             "quantity": {
                                                                 "type": "",
@@ -4198,33 +4200,852 @@ const docTemplate = `{
                                                                 "meanTimeToRecovery": ""
                                                             },
                                                             "expiry": {
-                                                                "date": "2025-04-05T17:54:45+08:00",
-                                                                "days": 44
+                                                                "date": "2025-03-24T14:51:50+08:00",
+                                                                "days": 9
                                                             }
                                                         },
                                                         "status": "up",
+                                                        "cpuSpec": "Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz",
+                                                        "networkInterfaces": [
+                                                            {
+                                                                "label": "IF.1",
+                                                                "busIdSlaves": "0000:01:00.0",
+                                                                "driver": "tg3",
+                                                                "state": "UP",
+                                                                "speed": "1000F/1000F"
+                                                            },
+                                                            {
+                                                                "label": "IF.2",
+                                                                "busIdSlaves": "0000:01:00.1",
+                                                                "driver": "tg3",
+                                                                "state": "DOWN",
+                                                                "speed": "NA/1000F"
+                                                            },
+                                                            {
+                                                                "label": "IF.3",
+                                                                "busIdSlaves": "0000:02:00.0",
+                                                                "driver": "tg3",
+                                                                "state": "DOWN",
+                                                                "speed": "NA/1000F"
+                                                            },
+                                                            {
+                                                                "label": "IF.4",
+                                                                "busIdSlaves": "0000:02:00.1",
+                                                                "driver": "tg3",
+                                                                "state": "DOWN",
+                                                                "speed": "NA/1000F"
+                                                            }
+                                                        ],
+                                                        "blockDevices": [
+                                                            {
+                                                                "device": "nbd0",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd1",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd10",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd11",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd12",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd13",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd14",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd15",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd2",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd3",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd4",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd5",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd6",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd7",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd8",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "nbd9",
+                                                                "type": "disk",
+                                                                "sizeMiB": 0,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sda",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sda1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sda2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sda3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sda4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdb",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdb1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdb2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdb3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdb4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdc",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdc1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdc2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdc3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdc4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdd",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdd1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdd2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdd3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdd4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sde",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sde1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sde2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sde3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sde4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdf",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdf1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdf2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdf3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdf4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdg",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdg1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdg2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdg3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdg4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdh",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdh1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdh2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdh3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdh4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdi",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdi1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdi2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdi3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdi4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdj",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdj1",
+                                                                "type": "part",
+                                                                "sizeMiB": 953.6743,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdj5",
+                                                                "type": "part",
+                                                                "sizeMiB": 239467.6208,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdj6",
+                                                                "type": "part",
+                                                                "sizeMiB": 239467.6208,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdj7",
+                                                                "type": "part",
+                                                                "sizeMiB": 53215.0268,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdk",
+                                                                "type": "disk",
+                                                                "sizeMiB": 532531.7382,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdk1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdk2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdk3",
+                                                                "type": "part",
+                                                                "sizeMiB": 265884.3994,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdk4",
+                                                                "type": "part",
+                                                                "sizeMiB": 265884.3994,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdl",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdl1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdl2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdl3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdl4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdm",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdm1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdm2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdm3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdm4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdn",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdn1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdn2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdn3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdn4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdo",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdo1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdo2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdo3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdo4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdp",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdp1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdp2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdp3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdp4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdq",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdq1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdq2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdq3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdq4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdr",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdr1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdr2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdr3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdr4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sds",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sds1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sds2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sds3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sds4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdt",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdt1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdt2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdt3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdt4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdu",
+                                                                "type": "disk",
+                                                                "sizeMiB": 533008.5754,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdu1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdu2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdu3",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdu4",
+                                                                "type": "part",
+                                                                "sizeMiB": 266170.5017,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdv",
+                                                                "type": "disk",
+                                                                "sizeMiB": 532531.7382,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdv1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdv2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdv3",
+                                                                "type": "part",
+                                                                "sizeMiB": 265884.3994,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdv4",
+                                                                "type": "part",
+                                                                "sizeMiB": 265884.3994,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdw",
+                                                                "type": "disk",
+                                                                "sizeMiB": 532531.7382,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdw1",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdw2",
+                                                                "type": "part",
+                                                                "sizeMiB": 381.4697,
+                                                                "status": "storage"
+                                                            },
+                                                            {
+                                                                "device": "sdw3",
+                                                                "type": "part",
+                                                                "sizeMiB": 265884.3994,
+                                                                "status": "available"
+                                                            },
+                                                            {
+                                                                "device": "sdw4",
+                                                                "type": "part",
+                                                                "sizeMiB": 265884.3994,
+                                                                "status": "available"
+                                                            }
+                                                        ],
                                                         "vcpu": {
                                                             "totalCores": 48,
-                                                            "usedCores": 38,
-                                                            "usedPercent": 79.1666,
-                                                            "freeCores": 10,
-                                                            "freePercent": 20.8333
+                                                            "usedCores": 40,
+                                                            "usedPercent": 83.3333,
+                                                            "freeCores": 8,
+                                                            "freePercent": 16.6666
                                                         },
                                                         "memory": {
                                                             "totalMiB": 257822,
-                                                            "usedMiB": 95400,
-                                                            "usedPercent": 37.0022,
-                                                            "freeMiB": 162422,
-                                                            "freePercent": 62.9977
+                                                            "usedMiB": 100520,
+                                                            "usedPercent": 38.9881,
+                                                            "freeMiB": 157302,
+                                                            "freePercent": 61.0118
                                                         },
                                                         "storage": {
                                                             "totalMiB": 12571648,
-                                                            "usedMiB": 716800,
-                                                            "usedPercent": 5.7017,
-                                                            "freeMiB": 11854848,
-                                                            "freePercent": 94.2982
+                                                            "usedMiB": 1126400,
+                                                            "usedPercent": 8.9598,
+                                                            "freeMiB": 11445248,
+                                                            "freePercent": 91.0401
                                                         },
-                                                        "uptimeSeconds": 5734686.37,
+                                                        "uptimeSeconds": 2461586.74,
                                                         "labels": {
                                                             "isGpuEnabled": "false"
                                                         }
@@ -4259,6 +5080,952 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to fetch nodes: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}": {
+            "get": {
+                "operationId": "getNode",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Retrieve the node details",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/watch"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the node details successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetNodeResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Node",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "id": "abc0005e",
+                                                "dataCenter": "example-data-center",
+                                                "hostname": "example-node-0",
+                                                "role": "control-converged",
+                                                "address": "10.10.10.10:8001",
+                                                "ip": "10.10.10.10",
+                                                "managementIP": "10.10.10.10",
+                                                "license": {
+                                                    "type": "trial",
+                                                    "hostname": "example-node-0",
+                                                    "serial": "1H2ZLG2",
+                                                    "product": {
+                                                        "name": "",
+                                                        "features": null
+                                                    },
+                                                    "issue": {
+                                                        "by": "Bigstack co., ltd.",
+                                                        "to": "bigstack",
+                                                        "hardware": "*",
+                                                        "date": "2025-01-23T14:51:50+08:00"
+                                                    },
+                                                    "quantity": {
+                                                        "type": "",
+                                                        "vcpu": 0
+                                                    },
+                                                    "serviceLevelAgreement": {
+                                                        "uptime": 0,
+                                                        "period": "",
+                                                        "meanTimeBetweenFailure": "",
+                                                        "meanTimeToRecovery": ""
+                                                    },
+                                                    "expiry": {
+                                                        "date": "2025-03-24T14:51:50+08:00",
+                                                        "days": 9
+                                                    }
+                                                },
+                                                "status": "up",
+                                                "cpuSpec": "Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz",
+                                                "networkInterfaces": [
+                                                    {
+                                                        "label": "IF.1",
+                                                        "busIdSlaves": "0000:01:00.0",
+                                                        "driver": "tg3",
+                                                        "state": "UP",
+                                                        "speed": "1000F/1000F"
+                                                    },
+                                                    {
+                                                        "label": "IF.2",
+                                                        "busIdSlaves": "0000:01:00.1",
+                                                        "driver": "tg3",
+                                                        "state": "DOWN",
+                                                        "speed": "NA/1000F"
+                                                    },
+                                                    {
+                                                        "label": "IF.3",
+                                                        "busIdSlaves": "0000:02:00.0",
+                                                        "driver": "tg3",
+                                                        "state": "DOWN",
+                                                        "speed": "NA/1000F"
+                                                    },
+                                                    {
+                                                        "label": "IF.4",
+                                                        "busIdSlaves": "0000:02:00.1",
+                                                        "driver": "tg3",
+                                                        "state": "DOWN",
+                                                        "speed": "NA/1000F"
+                                                    }
+                                                ],
+                                                "blockDevices": [
+                                                    {
+                                                        "device": "nbd0",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd1",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd10",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd11",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd12",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd13",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd14",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd15",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd2",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd3",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd4",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd5",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd6",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd7",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd8",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "nbd9",
+                                                        "type": "disk",
+                                                        "sizeMiB": 0,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sda",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sda1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sda2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sda3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sda4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdb",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdb1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdb2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdb3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdb4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdc",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdc1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdc2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdc3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdc4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdd",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdd1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdd2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdd3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdd4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sde",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sde1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sde2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sde3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sde4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdf",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdf1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdf2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdf3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdf4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdg",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdg1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdg2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdg3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdg4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdh",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdh1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdh2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdh3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdh4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdi",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdi1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdi2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdi3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdi4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdj",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdj1",
+                                                        "type": "part",
+                                                        "sizeMiB": 953.6743,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdj5",
+                                                        "type": "part",
+                                                        "sizeMiB": 239467.6208,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdj6",
+                                                        "type": "part",
+                                                        "sizeMiB": 239467.6208,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdj7",
+                                                        "type": "part",
+                                                        "sizeMiB": 53215.0268,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdk",
+                                                        "type": "disk",
+                                                        "sizeMiB": 532531.7382,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdk1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdk2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdk3",
+                                                        "type": "part",
+                                                        "sizeMiB": 265884.3994,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdk4",
+                                                        "type": "part",
+                                                        "sizeMiB": 265884.3994,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdl",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdl1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdl2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdl3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdl4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdm",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdm1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdm2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdm3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdm4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdn",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdn1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdn2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdn3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdn4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdo",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdo1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdo2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdo3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdo4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdp",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdp1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdp2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdp3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdp4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdq",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdq1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdq2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdq3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdq4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdr",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdr1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdr2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdr3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdr4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sds",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sds1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sds2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sds3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sds4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdt",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdt1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdt2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdt3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdt4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdu",
+                                                        "type": "disk",
+                                                        "sizeMiB": 533008.5754,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdu1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdu2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdu3",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdu4",
+                                                        "type": "part",
+                                                        "sizeMiB": 266170.5017,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdv",
+                                                        "type": "disk",
+                                                        "sizeMiB": 532531.7382,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdv1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdv2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdv3",
+                                                        "type": "part",
+                                                        "sizeMiB": 265884.3994,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdv4",
+                                                        "type": "part",
+                                                        "sizeMiB": 265884.3994,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdw",
+                                                        "type": "disk",
+                                                        "sizeMiB": 532531.7382,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdw1",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdw2",
+                                                        "type": "part",
+                                                        "sizeMiB": 381.4697,
+                                                        "status": "storage"
+                                                    },
+                                                    {
+                                                        "device": "sdw3",
+                                                        "type": "part",
+                                                        "sizeMiB": 265884.3994,
+                                                        "status": "available"
+                                                    },
+                                                    {
+                                                        "device": "sdw4",
+                                                        "type": "part",
+                                                        "sizeMiB": 265884.3994,
+                                                        "status": "available"
+                                                    }
+                                                ],
+                                                "vcpu": {
+                                                    "totalCores": 48,
+                                                    "usedCores": 40,
+                                                    "usedPercent": 83.3333,
+                                                    "freeCores": 8,
+                                                    "freePercent": 16.6666
+                                                },
+                                                "memory": {
+                                                    "totalMiB": 257822,
+                                                    "usedMiB": 100520,
+                                                    "usedPercent": 38.9881,
+                                                    "freeMiB": 157302,
+                                                    "freePercent": 61.0118
+                                                },
+                                                "storage": {
+                                                    "totalMiB": 12571648,
+                                                    "usedMiB": 1126400,
+                                                    "usedPercent": 8.9598,
+                                                    "freeMiB": 11445248,
+                                                    "freePercent": 91.0401
+                                                },
+                                                "uptimeSeconds": 2461586.74,
+                                                "labels": {
+                                                    "isGpuEnabled": "false"
+                                                }
+                                            },
+                                            "msg": "fetch nodes list successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch node: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -7754,7 +9521,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/dell180/triggers": {
+        "/api/v1/datacenters/example-node-0/triggers": {
             "get": {
                 "operationId": "getTriggers",
                 "tags": [
@@ -8022,7 +9789,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/dell180/triggers/{triggerName}": {
+        "/api/v1/datacenters/example-node-0/triggers/{triggerName}": {
             "get": {
                 "operationId": "getTrigger",
                 "tags": [
@@ -10522,226 +12289,39 @@ const docTemplate = `{
                             "nodes": {
                                 "type": "array",
                                 "items": {
-                                    "type": "object",
-                                    "required": [
-                                        "id",
-                                        "hostname",
-                                        "role",
-                                        "address",
-                                        "managementIP",
-                                        "license",
-                                        "status",
-                                        "vcpu",
-                                        "memory",
-                                        "storage",
-                                        "uptimeSeconds",
-                                        "labels"
-                                    ],
-                                    "properties": {
-                                        "id": {
-                                            "type": "string"
-                                        },
-                                        "hostname": {
-                                            "type": "string"
-                                        },
-                                        "role": {
-                                            "type": "string"
-                                        },
-                                        "address": {
-                                            "type": "string"
-                                        },
-                                        "managementIP": {
-                                            "type": "string"
-                                        },
-                                        "license": {
-                                            "type": "object",
-                                            "required": [
-                                                "status",
-                                                "hostname",
-                                                "serial",
-                                                "product",
-                                                "issue",
-                                                "serviceLevelAgreement",
-                                                "expiry"
-                                            ],
-                                            "properties": {
-                                                "status": {
-                                                    "type": "string"
-                                                },
-                                                "hostname": {
-                                                    "type": "string"
-                                                },
-                                                "serial": {
-                                                    "type": "string"
-                                                },
-                                                "product": {
-                                                    "type": "object",
-                                                    "required": [
-                                                        "name",
-                                                        "features"
-                                                    ],
-                                                    "properties": {
-                                                        "name": {
-                                                            "type": "string"
-                                                        },
-                                                        "features": {
-                                                            "type": "object",
-                                                            "required": [
-                                                                "name"
-                                                            ],
-                                                            "properties": {
-                                                                "name": {
-                                                                    "type": "string"
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                "issue": {
-                                                    "type": "object",
-                                                    "required": [
-                                                        "by",
-                                                        "to",
-                                                        "hardware",
-                                                        "date"
-                                                    ],
-                                                    "properties": {
-                                                        "by": {
-                                                            "type": "string"
-                                                        },
-                                                        "to": {
-                                                            "type": "string"
-                                                        },
-                                                        "hardware": {
-                                                            "type": "string"
-                                                        },
-                                                        "date": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                },
-                                                "serviceLevelAgreement": {
-                                                    "type": "object",
-                                                    "required": [
-                                                        "uptime",
-                                                        "period",
-                                                        "meanTimeBetweenFailure",
-                                                        "meanTimeToRepair",
-                                                        "expire"
-                                                    ],
-                                                    "properties": {
-                                                        "uptime": {
-                                                            "type": "number"
-                                                        },
-                                                        "period": {
-                                                            "type": "string"
-                                                        },
-                                                        "meanTimeBetweenFailure": {
-                                                            "type": "string"
-                                                        },
-                                                        "meanTimeToRepair": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                },
-                                                "expiry": {
-                                                    "type": "object",
-                                                    "required": [
-                                                        "date",
-                                                        "days"
-                                                    ],
-                                                    "properties": {
-                                                        "date": {
-                                                            "type": "string"
-                                                        },
-                                                        "days": {
-                                                            "type": "integer"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        },
-                                        "vcpu": {
-                                            "type": "object",
-                                            "required": [
-                                                "totalCores",
-                                                "usedCores",
-                                                "freeCores"
-                                            ],
-                                            "properties": {
-                                                "totalCores": {
-                                                    "type": "integer"
-                                                },
-                                                "usedCores": {
-                                                    "type": "integer"
-                                                },
-                                                "freeCores": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        },
-                                        "memory": {
-                                            "type": "object",
-                                            "required": [
-                                                "totalMiB",
-                                                "usedMiB",
-                                                "freeMiB"
-                                            ],
-                                            "properties": {
-                                                "totalMiB": {
-                                                    "type": "integer"
-                                                },
-                                                "usedMiB": {
-                                                    "type": "integer"
-                                                },
-                                                "freeMiB": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        },
-                                        "storage": {
-                                            "type": "object",
-                                            "required": [
-                                                "totalMiB",
-                                                "usedMiB",
-                                                "freeMiB"
-                                            ],
-                                            "properties": {
-                                                "totalMiB": {
-                                                    "type": "integer"
-                                                },
-                                                "usedMiB": {
-                                                    "type": "integer"
-                                                },
-                                                "freeMiB": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        },
-                                        "uptimeSeconds": {
-                                            "type": "number"
-                                        },
-                                        "labels": {
-                                            "type": "object",
-                                            "required": [
-                                                "isGpuEnabled"
-                                            ],
-                                            "properties": {
-                                                "isGpuEnabled": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/Node"
                                 }
                             },
                             "page": {
                                 "$ref": "#/components/schemas/Page"
                             }
                         }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "fetch nodes successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "GetNodeResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Node"
                     },
                     "msg": {
                         "type": "string",
@@ -12357,6 +13937,321 @@ const docTemplate = `{
                     "totalItemCount": {
                         "type": "integer",
                         "example": 1
+                    }
+                }
+            },
+            "Node": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "dataCenter",
+                    "hostname",
+                    "role",
+                    "protocol",
+                    "address",
+                    "ip",
+                    "managementIP",
+                    "license",
+                    "status",
+                    "cpuSpec",
+                    "networkInterfaces",
+                    "blockDevices",
+                    "vcpu",
+                    "memory",
+                    "storage",
+                    "uptimeSeconds",
+                    "labels"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "dataCenter": {
+                        "type": "string"
+                    },
+                    "hostname": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "protocol": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "ip": {
+                        "type": "string"
+                    },
+                    "managementIP": {
+                        "type": "string"
+                    },
+                    "license": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "hostname",
+                            "serial",
+                            "product",
+                            "issue",
+                            "quantity",
+                            "serviceLevelAgreement",
+                            "expiry"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string"
+                            },
+                            "hostname": {
+                                "type": "string"
+                            },
+                            "serial": {
+                                "type": "string"
+                            },
+                            "product": {
+                                "type": "object",
+                                "required": [
+                                    "name",
+                                    "features"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "features": {
+                                        "type": "object"
+                                    }
+                                }
+                            },
+                            "issue": {
+                                "type": "object",
+                                "required": [
+                                    "by",
+                                    "to",
+                                    "hardware",
+                                    "date"
+                                ],
+                                "properties": {
+                                    "by": {
+                                        "type": "string"
+                                    },
+                                    "to": {
+                                        "type": "string"
+                                    },
+                                    "hardware": {
+                                        "type": "string"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    }
+                                }
+                            },
+                            "quantity": {
+                                "type": "object",
+                                "required": [
+                                    "type",
+                                    "vcpu"
+                                ],
+                                "properties": {
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "vcpu": {
+                                        "type": "integer"
+                                    }
+                                }
+                            },
+                            "serviceLevelAgreement": {
+                                "type": "object",
+                                "required": [
+                                    "uptime",
+                                    "period",
+                                    "meanTimeBetweenFailure",
+                                    "meanTimeToRe"
+                                ],
+                                "properties": {
+                                    "uptime": {
+                                        "type": "integer"
+                                    },
+                                    "period": {
+                                        "type": "string"
+                                    },
+                                    "meanTimeBetweenFailure": {
+                                        "type": "string"
+                                    },
+                                    "meanTimeToRecovery": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "expiry": {
+                                "type": "object",
+                                "required": [
+                                    "date",
+                                    "days"
+                                ],
+                                "properties": {
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "days": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "cpuSpec": {
+                        "type": "string"
+                    },
+                    "networkInterfaces": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "label",
+                                "busIdSlaves",
+                                "driver",
+                                "state",
+                                "speed"
+                            ],
+                            "properties": {
+                                "label": {
+                                    "type": "string"
+                                },
+                                "busIdSlaves": {
+                                    "type": "string"
+                                },
+                                "driver": {
+                                    "type": "string"
+                                },
+                                "state": {
+                                    "type": "string"
+                                },
+                                "speed": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "blockDevices": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "device",
+                                "type",
+                                "sizeMiB",
+                                "status"
+                            ],
+                            "properties": {
+                                "device": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "sizeMiB": {
+                                    "type": "number"
+                                },
+                                "status": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "vcpu": {
+                        "type": "object",
+                        "required": [
+                            "totalCores",
+                            "usedCores",
+                            "usedPercent",
+                            "freeCores",
+                            "freePercent"
+                        ],
+                        "properties": {
+                            "totalCores": {
+                                "type": "integer"
+                            },
+                            "usedCores": {
+                                "type": "integer"
+                            },
+                            "usedPercent": {
+                                "type": "number"
+                            },
+                            "freeCores": {
+                                "type": "integer"
+                            },
+                            "freePercent": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "memory": {
+                        "type": "object",
+                        "required": [
+                            "totalMiB",
+                            "usedMiB",
+                            "usedPercent",
+                            "freeMiB",
+                            "freePercent"
+                        ],
+                        "properties": {
+                            "totalMiB": {
+                                "type": "number"
+                            },
+                            "usedMiB": {
+                                "type": "number"
+                            },
+                            "usedPercent": {
+                                "type": "number"
+                            },
+                            "freeMiB": {
+                                "type": "number"
+                            },
+                            "freePercent": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "storage": {
+                        "type": "object",
+                        "required": [
+                            "totalMiB",
+                            "usedMiB",
+                            "usedPercent",
+                            "freeMiB",
+                            "freePercent"
+                        ],
+                        "properties": {
+                            "totalMiB": {
+                                "type": "number"
+                            },
+                            "usedMiB": {
+                                "type": "number"
+                            },
+                            "usedPercent": {
+                                "type": "number"
+                            },
+                            "freeMiB": {
+                                "type": "number"
+                            },
+                            "freePercent": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "uptimeSeconds": {
+                        "type": "number"
+                    },
+                    "labels": {
+                        "type": "object"
                     }
                 }
             }

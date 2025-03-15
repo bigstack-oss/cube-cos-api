@@ -3,7 +3,10 @@ package events
 import (
 	"errors"
 	"net/http"
+	"reflect"
 	"sync"
+
+	"slices"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
@@ -94,14 +97,11 @@ func removeWatcher(watcherToRemove watcher) {
 	defer stream.Unlock()
 
 	for i, watcher := range stream.Watchers {
-		if watcher != watcherToRemove {
+		if !reflect.DeepEqual(watcher, watcherToRemove) {
 			continue
 		}
 
-		stream.Watchers = append(
-			stream.Watchers[:i],
-			stream.Watchers[i+1:]...,
-		)
+		stream.Watchers = slices.Delete(stream.Watchers, i, i+1)
 		return
 	}
 }

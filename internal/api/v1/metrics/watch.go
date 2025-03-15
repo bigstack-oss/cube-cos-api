@@ -3,8 +3,10 @@ package metrics
 import (
 	"errors"
 	"net/http"
-	"strconv"
+	"reflect"
 	"sync"
+
+	"slices"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
@@ -12,7 +14,7 @@ import (
 	json "github.com/json-iterator/go"
 )
 
-type dataChan chan interface{}
+type dataChan chan any
 
 type watcher struct {
 	helper
@@ -50,7 +52,7 @@ func streamMetrics() {
 	}
 }
 
-func streamMetricsByHandlerType(h *helper) (interface{}, error) {
+func streamMetricsByHandlerType(h *helper) (any, error) {
 	switch h.handler {
 	case "getDataCenterSummary":
 		return h.getDataCenterSummary()
@@ -61,17 +63,7 @@ func streamMetricsByHandlerType(h *helper) (interface{}, error) {
 	return nil, errors.New("no internal function supported")
 }
 
-func parseWatch(c *gin.Context) (bool, error) {
-	rawParam := c.DefaultQuery("watch", "false")
-	watch, err := strconv.ParseBool(rawParam)
-	if err != nil {
-		return false, errors.New("watch parameter is invalid, it should be true or false if provided")
-	}
-
-	return watch, nil
-}
-
-func watchHealth(h *helper, health interface{}) {
+func watchHealth(h *helper, health any) {
 	setChunkedTransfer(h.c)
 	flusher, ok := h.c.Writer.(http.Flusher)
 	if !ok {
@@ -103,19 +95,16 @@ func removeWatcher(watcherToRemove watcher) {
 	defer stream.Unlock()
 
 	for i, watcher := range stream.Watchers {
-		if watcher != watcherToRemove {
+		if !reflect.DeepEqual(watcher, watcherToRemove) {
 			continue
 		}
 
-		stream.Watchers = append(
-			stream.Watchers[:i],
-			stream.Watchers[i+1:]...,
-		)
+		stream.Watchers = slices.Delete(stream.Watchers, i, i+1)
 		return
 	}
 }
 
-func sendFirstHealth(c *gin.Context, flusher http.Flusher, health interface{}) {
+func sendFirstHealth(c *gin.Context, flusher http.Flusher, health any) {
 	c.Writer.Write(streamingResp(health))
 	c.Writer.Write([]byte("\n"))
 	flusher.Flush()
@@ -136,7 +125,7 @@ func streamingHealth(c *gin.Context, flusher http.Flusher, watcher watcher) {
 	}
 }
 
-func streamingResp(health interface{}) []byte {
+func streamingResp(health any) []byte {
 	b, err := json.Marshal(gin.H{
 		"code":   http.StatusOK,
 		"status": "ok",

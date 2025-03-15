@@ -41,7 +41,7 @@ func sendLicenseToOtherNodes(nodeName string, licenseFile *multipart.FileHeader)
 
 	resp, err := h.R().
 		SetFileReader("license", licenseFile.Filename, reader).
-		SetHeader("secret", "Dev@Cube").
+		SetHeader(node.GenAuthHeader()).
 		Post(genUrl(node))
 	if resp.IsError() || err != nil {
 		log.Errorf(

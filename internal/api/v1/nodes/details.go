@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"os/exec"
 	"strconv"
@@ -22,7 +23,7 @@ func addMetricsToNode(c *gin.Context, node *definition.Node) {
 	h := openstack.GetGlobalHelper()
 	hypervisor, err := h.GetHypervisorByHostname(node.Hostname)
 	if err != nil {
-		log.Debugf("request(%s): failed to add hypervisor info to the node: %s", api.GetReqId(c), err.Error())
+		log.Debugf("nodes(%s): failed to add hypervisor info to the node: %s", api.GetReqId(c), err.Error())
 		return
 	}
 
@@ -49,6 +50,8 @@ func addCpuSpecToNode(node *definition.Node) {
 	node.CpuSpec = info[0].ModelName
 }
 
+// M1 TODO: COS dev is working on the refactoring to support JSON output from 'hex_sdk DumpInterface'
+// the implementation below will be replaced with the new one once it's ready
 func addNetworkSpecToNode(node *definition.Node) {
 	out, err := exec.Command("hex_sdk", "DumpInterface").CombinedOutput()
 	if err != nil {
@@ -56,15 +59,15 @@ func addNetworkSpecToNode(node *definition.Node) {
 		return
 	}
 
-	lines := strings.Split(string(out), "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(string(out), "\n")
+	for line := range lines {
 		line = strings.TrimSpace(line)
 		if isSkippableLine(line) {
 			continue
 		}
 
 		fields := strings.Fields(line)
-		if len(fields) < 5 {
+		if noEnoughNetFields(fields) {
 			continue
 		}
 
@@ -81,27 +84,13 @@ func addNetworkSpecToNode(node *definition.Node) {
 	}
 }
 
+func noEnoughNetFields(fields []string) bool {
+	return len(fields) < 5
+}
+
 func addBlockDeviceSpecToNode(node *definition.Node) {
-	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json").Output()
+	rawBlockDevs, err := getOsBlockDevices()
 	if err != nil {
-		log.Errorf("nodes: failed to get block device info: %s", err.Error())
-		return
-	}
-
-	blockDevMap := map[string][]definition.RawBlockDevice{}
-	err = json.Unmarshal(b, &blockDevMap)
-	if err != nil {
-		log.Errorf("nodes: failed to unmarshal block device info: %s", err.Error())
-		return
-	}
-
-	rawBlockDevs, found := blockDevMap["blockdevices"]
-	if !found {
-		log.Errorf("nodes: failed to find block devices in the output")
-		return
-	}
-	if len(rawBlockDevs) <= 0 {
-		log.Errorf("nodes: no block device found")
 		return
 	}
 
@@ -118,6 +107,33 @@ func addBlockDeviceSpecToNode(node *definition.Node) {
 	}
 }
 
+func getOsBlockDevices() ([]definition.RawBlockDevice, error) {
+	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json").Output()
+	if err != nil {
+		log.Errorf("nodes: failed to get block device info: %s", err.Error())
+		return nil, err
+	}
+
+	blockDevMap := map[string][]definition.RawBlockDevice{}
+	err = json.Unmarshal(b, &blockDevMap)
+	if err != nil {
+		log.Errorf("nodes: failed to unmarshal block device info: %s", err.Error())
+		return nil, err
+	}
+
+	rawBlockDevs, found := blockDevMap["blockdevices"]
+	if !found {
+		log.Errorf("nodes: failed to find block devices in the output")
+		return nil, err
+	}
+	if len(rawBlockDevs) <= 0 {
+		log.Errorf("nodes: no block device found")
+		return nil, errors.New("no block device found")
+	}
+
+	return rawBlockDevs, nil
+}
+
 func convertBlockDeviceSize(sizeStr string) float64 {
 	bytes, err := humanize.ParseBytes(sizeStr)
 	if err != nil {
@@ -130,15 +146,15 @@ func convertBlockDeviceSize(sizeStr string) float64 {
 }
 
 func identifyBlockDeviceStatus(mountPoints []string) string {
-	if len(mountPoints) == 0 {
-		return "available"
-	}
-
-	if mountPoints[0] == "" {
+	if isNotMounted(mountPoints) {
 		return "available"
 	}
 
 	return "storage"
+}
+
+func isNotMounted(mountPoints []string) bool {
+	return len(mountPoints) == 0 || mountPoints[0] == ""
 }
 
 func isSkippableLine(line string) bool {
@@ -156,6 +172,7 @@ func addDetailsToNodes(c *gin.Context, nodes *[]*definition.Node) {
 
 		node.ManagementIP = hypervisor.HostIP
 		node.Status = hypervisor.State
+		addHardwareInfoToNode(node)
 		addMetricToNode(node, hypervisor)
 		addUptimeToNode(c, node)
 	}

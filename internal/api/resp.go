@@ -7,11 +7,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type NodeData struct {
+	Code   int     `json:"code"`
+	Status string  `json:"status"`
+	Msg    string  `json:"msg"`
+	Data   v1.Node `json:"data"`
+}
+
 type TuningListData struct {
 	Code   int         `json:"code"`
 	Status string      `json:"status"`
 	Msg    string      `json:"msg"`
 	Data   []v1.Tuning `json:"data"`
+}
+
+type ComputeStatisticData struct {
+	Code   int                 `json:"code"`
+	Status string              `json:"status"`
+	Msg    string              `json:"msg"`
+	Data   v1.ComputeStatistic `json:"data"`
 }
 
 func SetStatusOk(c *gin.Context, msg string, data interface{}) {

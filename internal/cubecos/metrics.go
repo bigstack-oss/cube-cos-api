@@ -8,6 +8,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
+	cubeapi "github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
@@ -418,8 +419,8 @@ func askTheHostForCpuSummary(hostname string) (*definition.ComputeStatistic, err
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetResult(&definition.ComputeStatistic{}).
-		SetHeader("Authorization", node.GetBearerToken()).
+		SetResult(&cubeapi.ComputeStatisticData{}).
+		SetHeader(node.GenAuthHeader()).
 		Get(node.GetMetricUrl("cpuUsage", "summary"))
 	if err != nil {
 		return nil, err
@@ -433,25 +434,9 @@ func askTheHostForCpuSummary(hostname string) (*definition.ComputeStatistic, err
 		)
 	}
 
-	return resp.Result().(*definition.ComputeStatistic), nil
+	computeStatistic := resp.Result().(*cubeapi.ComputeStatisticData).Data
+	return &computeStatistic, nil
 }
-
-// func GetCpuUsageRankOfHosts(stmt string) ([]definition.HostPercentageUsage, error) {
-// 	c, cancel, err := influx.GetQueryCursor(stmt)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	defer cancel()
-// 	defer c.Close()
-// 	rank, err := parseCpuUsageRankOfHost(c)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	appendHistoryToCpuUsageRank(rank)
-// 	return rank, nil
-// }
 
 func GetCpuUsageRankOfHosts(stmt string) (*definition.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
@@ -536,7 +521,7 @@ func askTheHostForMemorySummary(hostname string) (*definition.SpaceStatistic, er
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&definition.SpaceStatistic{}).
-		SetHeader("Authorization", node.GetBearerToken()).
+		SetHeader(node.GenAuthHeader()).
 		Get(node.GetMetricUrl("memoryUsage", "summary"))
 	if err != nil {
 		return nil, err

@@ -3,7 +3,10 @@ package nodes
 import (
 	"errors"
 	"net/http"
+	"reflect"
 	"sync"
+
+	"slices"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
@@ -11,11 +14,11 @@ import (
 	json "github.com/json-iterator/go"
 )
 
-type respChan chan data
+type dataChan chan any
 
 type watcher struct {
 	helper
-	respChan
+	dataChan
 }
 
 var (
@@ -34,13 +37,13 @@ func streamNodes() {
 
 		stream.Lock()
 		for _, w := range stream.Watchers {
-			nodes, err := w.getNodesResp()
+			resp, err := streamNodeByHandlerType(&w.helper)
 			if err != nil {
 				continue
 			}
 
 			select {
-			case w.respChan <- *nodes:
+			case w.dataChan <- resp:
 			default:
 			}
 		}
@@ -49,7 +52,18 @@ func streamNodes() {
 	}
 }
 
-func watchNodes(h *helper, nodes data) {
+func streamNodeByHandlerType(h *helper) (any, error) {
+	switch h.handler {
+	case "listNodes":
+		return h.listNodes()
+	case "getNode":
+		return h.getNode()
+	}
+
+	return nil, errors.New("no internal function supported")
+}
+
+func watchNode(h *helper, data any) {
 	setChunkedTransfer(h.c)
 	flusher, ok := h.c.Writer.(http.Flusher)
 	if !ok {
@@ -57,12 +71,12 @@ func watchNodes(h *helper, nodes data) {
 		return
 	}
 
-	watcher := watcher{helper: *h, respChan: make(respChan)}
+	watcher := watcher{helper: *h, dataChan: make(dataChan)}
 	addWatcher(watcher)
 	defer removeWatcher(watcher)
 
-	sendFirstSummary(h.c, flusher, nodes)
-	streamingSummary(h.c, flusher, watcher)
+	sendFirstData(h.c, flusher, data)
+	streamingData(h.c, flusher, watcher)
 }
 
 func setChunkedTransfer(c *gin.Context) {
@@ -81,29 +95,26 @@ func removeWatcher(watcherToRemove watcher) {
 	defer stream.Unlock()
 
 	for i, watcher := range stream.Watchers {
-		if watcher != watcherToRemove {
+		if !reflect.DeepEqual(watcher, watcherToRemove) {
 			continue
 		}
 
-		stream.Watchers = append(
-			stream.Watchers[:i],
-			stream.Watchers[i+1:]...,
-		)
+		stream.Watchers = slices.Delete(stream.Watchers, i, i+1)
 		return
 	}
 }
 
-func sendFirstSummary(c *gin.Context, flusher http.Flusher, nodes data) {
+func sendFirstData(c *gin.Context, flusher http.Flusher, nodes any) {
 	c.Writer.Write(streamingResp(nodes))
 	c.Writer.Write([]byte("\n"))
 	flusher.Flush()
 }
 
-func streamingSummary(c *gin.Context, flusher http.Flusher, watcher watcher) {
+func streamingData(c *gin.Context, flusher http.Flusher, watcher watcher) {
 	ctx := c.Request.Context()
 	for {
 		select {
-		case nodes := <-watcher.respChan:
+		case nodes := <-watcher.dataChan:
 			c.Writer.Write(streamingResp(nodes))
 			c.Writer.Write([]byte("\n"))
 			flusher.Flush()
@@ -114,12 +125,12 @@ func streamingSummary(c *gin.Context, flusher http.Flusher, watcher watcher) {
 	}
 }
 
-func streamingResp(nodes data) []byte {
+func streamingResp(data any) []byte {
 	b, err := json.Marshal(gin.H{
 		"code":   http.StatusOK,
 		"status": "ok",
-		"msg":    "fetch nodes successfully",
-		"data":   nodes,
+		"msg":    "fetch node successfully",
+		"data":   data,
 	})
 	if err != nil {
 		return []byte{}

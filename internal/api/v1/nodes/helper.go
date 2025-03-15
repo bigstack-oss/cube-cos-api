@@ -39,12 +39,7 @@ func (h *helper) parseListOptions() error {
 		return err
 	}
 
-	err = h.parseWatch()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return h.parseWatch()
 }
 
 func (h *helper) parseGetOptions() error {
@@ -53,7 +48,7 @@ func (h *helper) parseGetOptions() error {
 		return fmt.Errorf("nodeName should be provided")
 	}
 
-	return nil
+	return h.parseWatch()
 }
 
 func (h *helper) parsePage() error {
@@ -103,7 +98,7 @@ func (h *helper) parseWatch() error {
 	return nil
 }
 
-func (h *helper) getNodesResp() (*data, error) {
+func (h *helper) listNodes() (*data, error) {
 	nodes, err := definition.ListNodes()
 	if err != nil {
 		log.Errorf("request(%s): failed to get nodes: %s", api.GetReqId(h.c), err.Error())
@@ -134,7 +129,7 @@ func isPageReceived(num, size string) bool {
 	return num != "" || size != ""
 }
 
-func (h *helper) getNodeDetails() (*definition.Node, error) {
+func (h *helper) getNode() (*definition.Node, error) {
 	node, err := definition.GetNodeByHostname(h.nodeName)
 	if err != nil {
 		log.Errorf("request(%s): failed to get node: %s", api.GetReqId(h.c), err.Error())
@@ -153,8 +148,8 @@ func (h *helper) getNodeDetails() (*definition.Node, error) {
 func (h *helper) delegateToOtherNode(node *definition.Node) (*definition.Node, error) {
 	helper := http.GetGlobalHelper()
 	resp, err := helper.R().
-		SetResult(&definition.Node{}).
-		SetHeader("Authorization", node.GetBearerToken()).
+		SetResult(&api.NodeData{}).
+		SetHeader(node.GenAuthHeader()).
 		Get(node.GetNodeDetailsUrl())
 	if err != nil {
 		return nil, err
@@ -168,5 +163,6 @@ func (h *helper) delegateToOtherNode(node *definition.Node) (*definition.Node, e
 		)
 	}
 
-	return resp.Result().(*definition.Node), nil
+	nodeDetails := &resp.Result().(*api.NodeData).Data
+	return nodeDetails, nil
 }
