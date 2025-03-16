@@ -142,10 +142,10 @@ func (h *helper) getNode() (*definition.Node, error) {
 		return node, nil
 	}
 
-	return h.delegateToOtherNode(node)
+	return h.askFromOtherNode(node)
 }
 
-func (h *helper) delegateToOtherNode(node *definition.Node) (*definition.Node, error) {
+func (h *helper) askFromOtherNode(node *definition.Node) (*definition.Node, error) {
 	helper := http.GetGlobalHelper()
 	resp, err := helper.R().
 		SetResult(&api.NodeData{}).

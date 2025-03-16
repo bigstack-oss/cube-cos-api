@@ -60,10 +60,11 @@ func createSupportFile(c *gin.Context) {
 		return
 	}
 
+	h.delegateSupportFileReq()
 	api.SetStatusOk(
 		c,
 		"created support file successfully",
-		"",
+		nil,
 	)
 }
 

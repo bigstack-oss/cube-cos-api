@@ -51,8 +51,6 @@ func RegisterHandlersToRoles(module string, handlers []Handler, rolesToRegister 
 			ComputeHandlers[module] = handlers
 		case definition.RoleStorage:
 			StorageHandlers[module] = handlers
-		case definition.RoleNetwork:
-			NetworkHandlers[module] = handlers
 		case definition.RoleModerator:
 			ModeratorHandlers[module] = handlers
 		case definition.RoleEdgeCore:
@@ -86,8 +84,6 @@ func GetGroupHandlersByRole(role string) map[string][]Handler {
 		return ComputeHandlers
 	case definition.RoleStorage:
 		return StorageHandlers
-	case definition.RoleNetwork:
-		return NetworkHandlers
 	case definition.RoleControlConverged:
 		return GenControlConvergedHandlers()
 	case definition.RoleModerator:

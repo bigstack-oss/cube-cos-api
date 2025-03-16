@@ -12,7 +12,8 @@ type helper struct {
 	handler string
 
 	keyword string
-	hosts   []string
+	v1.SupportFile
+	v1.SupportFileRequest
 	v1.Page
 	v1.Period
 
@@ -42,7 +43,7 @@ func initListHelper(h *helper) (*helper, error) {
 }
 
 func initCreateHelper(h *helper) (*helper, error) {
-	return h, nil
+	return h, h.parseHosts()
 }
 
 func initGetHelper(h *helper) (*helper, error) {

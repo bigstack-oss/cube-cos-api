@@ -10,7 +10,6 @@ const (
 	RoleControl          = "control"
 	RoleCompute          = "compute"
 	RoleStorage          = "storage"
-	RoleNetwork          = "network"
 	RoleControlConverged = "control-converged"
 	RoleModerator        = "moderator"
 	RoleEdgeCore         = "edge-core"
@@ -18,13 +17,12 @@ const (
 
 var (
 	CurrentRole string
-	Roles       = []string{RoleControl, RoleCompute, RoleStorage, RoleNetwork, RoleControlConverged, RoleModerator, RoleEdgeCore}
+	Roles       = []string{RoleControl, RoleCompute, RoleStorage, RoleControlConverged, RoleModerator, RoleEdgeCore}
 	update      = sync.Mutex{}
 
 	ControlRole          = newControlRole()
 	ComputeRole          = newComputeRole()
 	StorageRole          = newStorageRole()
-	NetworkRole          = newNetworkRole()
 	ControlConvergedRole = newControlConvergeRole()
 	ModeratorRole        = newModeratorRole()
 	EdgeCoreRole         = newEdgeCoreRole()
@@ -33,7 +31,6 @@ var (
 		ControlRole,
 		ComputeRole,
 		StorageRole,
-		NetworkRole,
 		ControlConvergedRole,
 		ModeratorRole,
 		EdgeCoreRole,
@@ -43,7 +40,6 @@ var (
 		ControlRole,
 		ComputeRole,
 		StorageRole,
-		NetworkRole,
 		ControlConvergedRole,
 	}
 
@@ -91,10 +87,6 @@ func newStorageRole() *Role {
 	return &Role{Name: RoleStorage}
 }
 
-func newNetworkRole() *Role {
-	return &Role{Name: RoleNetwork}
-}
-
 func newControlConvergeRole() *Role {
 	return &Role{Name: RoleControlConverged}
 }
@@ -121,10 +113,6 @@ func GetComputeRole() *Role {
 
 func GetStorageRole() *Role {
 	return StorageRole
-}
-
-func GetNetworkRole() *Role {
-	return NetworkRole
 }
 
 func GetControlConvergeRole() *Role {
@@ -215,8 +203,6 @@ func getRole(name string) *Role {
 		return ComputeRole
 	case RoleStorage:
 		return StorageRole
-	case RoleNetwork:
-		return NetworkRole
 	case RoleControlConverged:
 		return ControlConvergedRole
 	case RoleModerator:

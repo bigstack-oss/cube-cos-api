@@ -13,6 +13,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/settings"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/supportfiles"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/tokens"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/triggers"
 	apitunings "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
@@ -97,6 +98,17 @@ func initNodeApiHandler() {
 		definition.Triggers,
 		triggers.Handlers,
 		definition.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.SupportFiles,
+		supportfiles.Handlers,
+		definition.RoleControlConverged,
+		definition.RoleControl,
+		definition.RoleCompute,
+		definition.RoleStorage,
+		definition.RoleEdgeCore,
+		definition.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
