@@ -23,13 +23,13 @@ func (o *Operator) operateReq(supportFile v1.SupportFile) error {
 }
 
 func (o *Operator) createSupportFile(supportFile *v1.SupportFile) error {
-	err := cubecos.CreateSupportFile()
+	err := cubecos.CreateSupportFile(*supportFile)
 	if err != nil {
 		log.Errorf("supportfiles: failed to create support file: %s", err.Error())
 		return err
 	}
 
-	supportFile.Name, err = cubecos.GetNewSupportFile()
+	supportFile.Name, err = cubecos.GetSupportFileByComment(supportFile.Comment)
 	if err != nil {
 		log.Errorf("supportfiles: failed to get new support file: %s", err.Error())
 		return err

@@ -29,10 +29,10 @@ func initReqHandler(c *gin.Context, handler string) (*helper, error) {
 		return initCreateHelper(&h)
 	case "getSupportFile":
 		return initGetHelper(&h)
-	case "updateSupportFile":
-		return initUpdateHelper(&h)
 	case "deleteSupportFile":
 		return initDeleteHelper(&h)
+	case "updateSupportFileTask":
+		return initUpdateHelper(&h)
 	}
 
 	return nil, errors.New("handler not found")

@@ -6,6 +6,7 @@ import (
 )
 
 const (
+	DefaultSupportFileDir    = "/var/support"
 	SupportFiles             = "supportfiles"
 	SupportFileDB            = "supportfiles"
 	SupportFileReqCollection = "requests"
@@ -18,7 +19,7 @@ type SupportFileRequest struct {
 type SupportFile struct {
 	Id          string `json:"id" bson:"id"`
 	Name        string `json:"name" bson:"name"`
-	Group       string `json:"group" bson:"group"`
+	Comment     string `json:"comment" bson:"comment"`
 	Roles       []Role `json:"roles" bson:"roles"`
 	Node        `json:"node" bson:"node"`
 	SizeMiB     float64            `json:"sizeMiB" bson:"sizeMiB"`
@@ -54,10 +55,11 @@ func (s *SupportFile) GenTaskUpdate() SupportFile {
 
 func (s *SupportFile) GenTask(node Node) SupportFile {
 	return SupportFile{
-		Id:     s.Id,
-		Name:   s.Name,
-		Node:   node,
-		Status: s.Status,
+		Id:      s.Id,
+		Name:    s.Name,
+		Comment: s.Comment,
+		Node:    node,
+		Status:  s.Status,
 	}
 }
 

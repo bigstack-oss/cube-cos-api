@@ -29,10 +29,10 @@ func addReqRecord(supportFile v1.SupportFile) {
 func genUpsertPayload(supportFile v1.SupportFile) bson.M {
 	return bson.M{
 		"$set": bson.M{
-			"id":     supportFile.Id,
-			"name":   supportFile.Name,
-			"group":  supportFile.Group,
-			"status": supportFile.Status,
+			"id":      supportFile.Id,
+			"name":    supportFile.Name,
+			"comment": supportFile.Comment,
+			"status":  supportFile.Status,
 		},
 	}
 }

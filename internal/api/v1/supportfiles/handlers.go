@@ -22,8 +22,8 @@ var Handlers = []api.Handler{
 	{
 		Version: api.V1,
 		Method:  "PATCH",
-		Path:    "/supportFiles/:id",
-		Func:    updateSupportFile,
+		Path:    "/supportFiles/task/:id",
+		Func:    updateSupportFileTask,
 	},
 	{
 		Version: api.V1,
@@ -68,7 +68,7 @@ func createSupportFile(c *gin.Context) {
 	)
 }
 
-func updateSupportFile(c *gin.Context) {
+func updateSupportFileTask(c *gin.Context) {
 	h, err := initReqHandler(c, "updateSupportFileTask")
 	if err != nil {
 		log.Infof("supportFiles(%s): failed to init req helper: %v", h.handler, err)

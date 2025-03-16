@@ -14,7 +14,7 @@ var (
 )
 
 func (h *helper) delegateSupportFileReq() {
-	h.SupportFile.Group = v1.TimeLocal()
+	h.SupportFile.Comment = v1.TimeLocal()
 	for _, role := range h.SupportFile.Roles {
 		for _, node := range role.Nodes {
 			h.SupportFile.InitCreateStatus()
@@ -25,7 +25,7 @@ func (h *helper) delegateSupportFileReq() {
 
 			err := h.delegateToOtherNode(node)
 			if err != nil {
-				log.Errorf("failed to delegate %s to %s: %s", h.SupportFile.Name, node.Name, err.Error())
+				log.Errorf("supportFiles: failed to delegate %s to %s: %s", h.SupportFile.Name, node.Name, err.Error())
 			}
 		}
 	}
