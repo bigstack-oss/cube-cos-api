@@ -37,8 +37,13 @@ func CreateSupportCommentFile(comment string) (string, error) {
 		return "", err
 	}
 
+	err = os.MkdirAll(v1.DefaultSupportFileTmpDir, 0755)
+	if err != nil {
+		return "", err
+	}
+
 	randomStr := hex.EncodeToString(randomSize)
-	filePath := filepath.Join("/tmp/support-comment-file", randomStr)
+	filePath := filepath.Join(v1.DefaultSupportFileTmpDir, randomStr)
 	err = os.WriteFile(filePath, []byte(comment), 0644)
 	if err != nil {
 		return "", err
@@ -79,7 +84,7 @@ func findSupportFile(files []os.DirEntry, comment string) (os.DirEntry, error) {
 			continue
 		}
 
-		content, err := os.ReadFile(filepath.Join(v1.DefaultSupportFileDir, file.Name()))
+		content, err := GetSupportFileComment(file.Name())
 		if err != nil {
 			continue
 		}
@@ -92,7 +97,17 @@ func findSupportFile(files []os.DirEntry, comment string) (os.DirEntry, error) {
 	return nil, errors.New("no support file found")
 }
 
+func GetSupportFileComment(file string) (string, error) {
+	filePath := filepath.Join(v1.DefaultSupportFileDir, file)
+	out, err := exec.Command("hex_config", "get_support_file_comment", filePath).CombinedOutput()
+	if err != nil {
+		return "", err
+	}
+
+	return string(out), nil
+}
+
 func isSupportFile(file string) bool {
-	return strings.HasPrefix(file, fmt.Sprintf("CUBE_%s", v1.DataCenterVersion)) &&
+	return strings.HasPrefix(file, fmt.Sprintf("CUBE_%s", v1.DataCenterNumericVersion)) &&
 		strings.HasSuffix(file, fmt.Sprintf("%s.support", v1.Hostname))
 }

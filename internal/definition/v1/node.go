@@ -17,21 +17,22 @@ const (
 )
 
 var (
-	HostID            string
-	Hostname          string
-	DataCenterName    string
-	DataCenterVersion string
-	DataCenterVip     string
-	ListenIp          string
-	ListenAddr        string
-	ListenPort        int
-	AdvertiseIp       string
-	AdvertiseAddr     string
-	AdvertisePort     int
-	MgmtNet           string
-	MgmtIP            string
-	IsHaEnabled       bool
-	IsGpuEnabled      bool
+	HostID                   string
+	Hostname                 string
+	DataCenterName           string
+	DataCenterVersion        string
+	DataCenterNumericVersion string
+	DataCenterVip            string
+	ListenIp                 string
+	ListenAddr               string
+	ListenPort               int
+	AdvertiseIp              string
+	AdvertiseAddr            string
+	AdvertisePort            int
+	MgmtNet                  string
+	MgmtIP                   string
+	IsHaEnabled              bool
+	IsGpuEnabled             bool
 )
 
 type Node struct {
@@ -157,7 +158,7 @@ func (n *Node) CreateSupportFileUrl(supportFile SupportFile) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportfiles", DataCenterName)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportFiles", DataCenterName)
 	return u.String()
 }
 
@@ -165,7 +166,7 @@ func (n *Node) PatchSupportFileTaskUrl(supportFile SupportFile) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportfiles/tasks/%s", DataCenterName, supportFile.Id)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/tasks/%s", DataCenterName, supportFile.Id)
 	return u.String()
 }
 

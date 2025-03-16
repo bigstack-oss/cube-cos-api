@@ -7,6 +7,7 @@ import (
 
 const (
 	DefaultSupportFileDir    = "/var/support"
+	DefaultSupportFileTmpDir = "/tmp/support-comment-file"
 	SupportFiles             = "supportfiles"
 	SupportFileDB            = "supportfiles"
 	SupportFileReqCollection = "requests"

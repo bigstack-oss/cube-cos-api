@@ -58,3 +58,7 @@ func GetDataCenterVersion() (string, error) {
 
 	return fmt.Sprintf("%s %s", desc, version), nil
 }
+
+func GetDataCenterNumericVersion() (string, error) {
+	return ReadSettingSys(SysProductVersion)
+}

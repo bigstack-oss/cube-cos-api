@@ -9517,7 +9517,7 @@
                 }
             }
         },
-        "/api/v1/datacenters/example-node-0/triggers": {
+        "/api/v1/datacenters/{dataCenter}/triggers": {
             "get": {
                 "operationId": "getTriggers",
                 "tags": [
@@ -9785,7 +9785,7 @@
                 }
             }
         },
-        "/api/v1/datacenters/example-node-0/triggers/{triggerName}": {
+        "/api/v1/datacenters/{dataCenter}/triggers/{triggerName}": {
             "get": {
                 "operationId": "getTrigger",
                 "tags": [
@@ -10165,6 +10165,134 @@
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to request trigger update: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/supportFiles": {
+            "post": {
+                "operationId": "createSupportFiles",
+                "tags": [
+                    "Support Files"
+                ],
+                "summary": "Create one or more support files",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateSupportFilesRequest"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Support file creation request",
+                                    "value": {
+                                        "hosts": [
+                                            "example-node-0"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Support file creation request received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateSupportFilesResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Support file creation response",
+                                        "value": {
+                                            "code": 202,
+                                            "msg": "support file creation request received",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid host found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to request support file creation: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -13716,6 +13844,39 @@
                 }
             },
             "UpdateTriggerResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "CreateSupportFilesRequest": {
+                "type": "object",
+                "required": [
+                    "hosts"
+                ],
+                "properties": {
+                    "hosts": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "CreateSupportFilesResponse": {
                 "type": "object",
                 "required": [
                     "code",

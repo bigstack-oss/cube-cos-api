@@ -22,7 +22,7 @@ var Handlers = []api.Handler{
 	{
 		Version: api.V1,
 		Method:  "PATCH",
-		Path:    "/supportFiles/task/:id",
+		Path:    "/supportFiles/tasks/:id",
 		Func:    updateSupportFileTask,
 	},
 	{
@@ -61,10 +61,9 @@ func createSupportFile(c *gin.Context) {
 	}
 
 	h.delegateSupportFileReq()
-	api.SetStatusOk(
+	api.SetStatusAccepted(
 		c,
-		"created support file successfully",
-		nil,
+		"support file creation request received",
 	)
 }
 
