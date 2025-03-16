@@ -14,18 +14,18 @@ var (
 )
 
 func (h *helper) delegateSupportFileReq() {
-	h.SupportFile.Comment = v1.TimeLocal()
-	for _, role := range h.SupportFile.Roles {
+	h.supportFile.Comment = v1.TimeLocal()
+	for _, role := range h.supportFile.Roles {
 		for _, node := range role.Nodes {
-			h.SupportFile.InitCreateStatus()
+			h.supportFile.InitCreateStatus()
 			if node.IsLocal() {
-				delegateToLocal(h.SupportFile.GenTask(*node))
+				delegateToLocal(h.supportFile.GenTask(*node))
 				continue
 			}
 
 			err := h.delegateToOtherNode(node)
 			if err != nil {
-				log.Errorf("supportFiles: failed to delegate %s to %s: %s", h.SupportFile.Name, node.Name, err.Error())
+				log.Errorf("supportFiles: failed to delegate %s to %s: %s", h.supportFile.Name, node.Name, err.Error())
 			}
 		}
 	}
@@ -37,17 +37,17 @@ func delegateToLocal(supportFile v1.SupportFile) {
 }
 
 func (h *helper) delegateToOtherNode(node *v1.Node) error {
-	url := node.CreateSupportFileUrl(h.SupportFile)
-	body := h.SupportFile.GenTask(*node)
+	url := node.CreateSupportFileUrl(h.supportFile)
+	body := h.supportFile.GenTask(*node)
 	http := http.GetGlobalHelper()
 	resp, err := http.R().SetHeader(node.GenAuthHeader()).SetBody(body).Post(url)
 	if err != nil {
-		log.Errorf("failed to create support file %s to %s: %s", h.SupportFile.Name, node.Id, err.Error())
+		log.Errorf("failed to create support file %s to %s: %s", h.supportFile.Name, node.Id, err.Error())
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("failed to create support file %s to %s: %d %s", h.SupportFile.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("failed to create support file %s to %s: %d %s", h.supportFile.Name, node.Hostname, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 

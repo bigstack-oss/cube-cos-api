@@ -204,3 +204,51 @@ func setSupportFiles(mergedMap map[string]definition.SupportFile, supportFiles [
 		}
 	}
 }
+
+func SyncSupportFiles() {
+	files, err := os.ReadDir(v1.DefaultSupportFileDir)
+	if err != nil {
+		log.Errorf("supportFile: failed to read support file directory: %s", err.Error())
+		return
+	}
+
+	if len(files) == 0 {
+		err := errors.New("no support file found")
+		log.Errorf("supportFile: %v", err)
+		return
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+
+		if !isSupportFile(file.Name()) {
+			continue
+		}
+
+		comment, err := GetSupportFileComment(file.Name())
+		if err != nil {
+			log.Errorf("supportFile: %v", err)
+			continue
+		}
+
+		if strings.Contains(comment, "Automatically") {
+			continue
+		}
+
+		info, err := file.Info()
+		if err != nil {
+			log.Errorf("supportFile: %v", err)
+			continue
+		}
+
+		definition.SetLocalSupportFile(definition.SupportFile{
+			Name:        file.Name(),
+			Comment:     comment,
+			Hosts:       []v1.Host{{Name: v1.Hostname}},
+			SizeMiB:     float64(info.Size()) / 1024 / 1024,
+			Description: "",
+		})
+	}
+}

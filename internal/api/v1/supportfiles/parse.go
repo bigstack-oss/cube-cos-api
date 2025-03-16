@@ -29,12 +29,12 @@ func (h *helper) parseHost() {
 }
 
 func (h *helper) parseHosts() error {
-	err := h.c.ShouldBindJSON(&h.SupportFileRequest)
+	err := h.c.ShouldBindJSON(&h.request)
 	if err != nil {
 		return err
 	}
 
-	h.SupportFile.SetRoleByHosts(h.SupportFileRequest.Hosts)
+	h.supportFile.SetRoleByHosts(h.request.Hosts)
 	return nil
 }
 

@@ -14,10 +14,10 @@ type helper struct {
 	c       *gin.Context
 	handler string
 
-	keyword string
-	host    string
-	v1.SupportFile
-	v1.SupportFileRequest
+	keyword     string
+	host        string
+	supportFile v1.SupportFile
+	request     v1.SupportFileRequest
 	v1.Page
 	role string
 	past string
