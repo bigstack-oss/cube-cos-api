@@ -2,11 +2,14 @@ package cubecos
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -45,6 +48,10 @@ func findLastFile(files []os.DirEntry) (string, error) {
 			continue
 		}
 
+		if !isSupportFile(file.Name()) {
+			continue
+		}
+
 		info, err := file.Info()
 		if err != nil {
 			continue
@@ -61,4 +68,9 @@ func findLastFile(files []os.DirEntry) (string, error) {
 	}
 
 	return filepath.Join("/var/support", fileName), nil
+}
+
+func isSupportFile(file string) bool {
+	return strings.HasPrefix(file, fmt.Sprintf("CUBE_%s", v1.DataCenterVersion)) &&
+		strings.HasSuffix(file, fmt.Sprintf("%s.support", v1.Hostname))
 }
