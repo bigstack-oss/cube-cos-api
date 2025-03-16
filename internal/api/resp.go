@@ -28,6 +28,13 @@ type ComputeStatisticData struct {
 	Data   v1.ComputeStatistic `json:"data"`
 }
 
+type SupportFileListData struct {
+	Code   int              `json:"code"`
+	Status string           `json:"status"`
+	Msg    string           `json:"msg"`
+	Data   []v1.SupportFile `json:"data"`
+}
+
 func SetStatusOk(c *gin.Context, msg string, data interface{}) {
 	resp := gin.H{Code: http.StatusOK, Status: "ok", Msg: msg}
 	if data != nil {

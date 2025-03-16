@@ -8,11 +8,55 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	log "go-micro.dev/v5/logger"
 )
+
+func ListSupportFiles(opts v1.ListSupportFileOptions) ([]v1.SupportFile, error) {
+	localSupportFiles := definition.ListLocalSupportFiles()
+	if !opts.AllNodes {
+		return localSupportFiles, nil
+	}
+
+	allSupportFiles, err := ListSupportFilesFromOtherNodes()
+	if err != nil {
+		return nil, err
+	}
+
+	allSupportFiles[definition.Hostname] = localSupportFiles
+	return aggregateSupportFiles(allSupportFiles), nil
+}
+
+func ListSupportFilesFromOtherNodes() (map[string][]v1.SupportFile, error) {
+	nodes, err := definition.ListNodes()
+	if err != nil {
+		log.Errorf("failed to list nodes for supportFiles: %s", err.Error())
+		return nil, err
+	}
+
+	supportFiles := map[string][]definition.SupportFile{}
+	for _, node := range nodes {
+		if node.IsLocal() {
+			continue
+		}
+
+		supportFile, err := getNodeSupportFiles(*node)
+		if err != nil {
+			log.Errorf("failed to get supportFiles from node %s: %s", node.Name, err.Error())
+			continue
+		}
+
+		supportFiles[node.Name] = supportFile
+	}
+
+	return supportFiles, nil
+}
 
 func CreateSupportFile(supportFile v1.SupportFile) error {
 	path, err := CreateSupportCommentFile(supportFile.Comment)
@@ -110,4 +154,53 @@ func GetSupportFileComment(file string) (string, error) {
 func isSupportFile(file string) bool {
 	return strings.HasPrefix(file, fmt.Sprintf("CUBE_%s", v1.DataCenterNumericVersion)) &&
 		strings.HasSuffix(file, fmt.Sprintf("%s.support", v1.Hostname))
+}
+
+func getNodeSupportFiles(node definition.Node) ([]v1.SupportFile, error) {
+	h := http.GetGlobalHelper()
+	resp, err := h.R().
+		SetResult(&api.SupportFileListData{}).
+		SetHeader(node.GenAuthHeader()).
+		Get(node.GetSupportFileUrl())
+	if err != nil {
+		return nil, err
+	}
+	if resp.IsError() {
+		return nil, fmt.Errorf(
+			"failed to get support file from %s: %d %s",
+			node.Hostname,
+			resp.StatusCode(),
+			string(resp.Body()),
+		)
+	}
+
+	supportFileList := resp.Result().(*api.SupportFileListData)
+	return supportFileList.Data, nil
+}
+
+func aggregateSupportFiles(nodeToSupportFile map[string][]definition.SupportFile) []definition.SupportFile {
+	mergedMap := make(map[string]definition.SupportFile)
+	for _, supportFiles := range nodeToSupportFile {
+		setSupportFiles(mergedMap, supportFiles)
+	}
+
+	supportFiles := []definition.SupportFile{}
+	for _, item := range mergedMap {
+		supportFiles = append(supportFiles, item)
+	}
+
+	return supportFiles
+}
+
+func setSupportFiles(mergedMap map[string]definition.SupportFile, supportFiles []definition.SupportFile) {
+	for _, supportFile := range supportFiles {
+		key := supportFile.Comment
+		existing, found := mergedMap[key]
+		if found {
+			existing.Hosts = slices.Concat(existing.Hosts, supportFile.Hosts)
+			mergedMap[key] = existing
+		} else {
+			mergedMap[key] = supportFile
+		}
+	}
 }

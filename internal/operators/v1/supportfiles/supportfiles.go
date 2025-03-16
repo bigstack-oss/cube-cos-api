@@ -1,12 +1,10 @@
 package supportfiles
 
 import (
-	"errors"
-
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
+	"github.com/fsnotify/fsnotify"
 	"k8s.io/client-go/util/workqueue"
 )
 
@@ -21,7 +19,7 @@ func init() {
 }
 
 type Operator struct {
-	mongo *mongo.Helper
+	watcher *fsnotify.Watcher
 }
 
 func NewOperator() *Operator {
@@ -33,12 +31,7 @@ func (o *Operator) Name() string {
 }
 
 func (o *Operator) Init() error {
-	o.mongo = mongo.GetGlobalHelper()
-	if o.mongo == nil {
-		return errors.New("mongo helper is not initialized")
-	}
-
-	return nil
+	return o.initWatcher()
 }
 
 func (o *Operator) Sync() {
@@ -57,7 +50,6 @@ func (o *Operator) Sync() {
 func (o *Operator) Stop() {
 	ReqQueue.ShutDown()
 	o.waitForLastTask()
-	o.mongo.Close()
 }
 
 func (o *Operator) waitForLastTask() {

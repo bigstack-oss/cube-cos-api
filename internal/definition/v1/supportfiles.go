@@ -1,7 +1,10 @@
 package v1
 
 import (
+	"sync"
+
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	"github.com/blevesearch/bleve/v2"
 	"github.com/google/uuid"
 )
 
@@ -13,6 +16,15 @@ const (
 	SupportFileReqCollection = "requests"
 )
 
+var (
+	localSupportFiles   = sync.Map{}
+	supportFileSearcher bleve.Index
+)
+
+type ListSupportFileOptions struct {
+	AllNodes bool
+}
+
 type SupportFileRequest struct {
 	Hosts []string `json:"hosts"`
 }
@@ -22,6 +34,7 @@ type SupportFile struct {
 	Name        string `json:"name" bson:"name"`
 	Comment     string `json:"comment" bson:"comment"`
 	Roles       []Role `json:"roles" bson:"roles"`
+	Hosts       []Host `json:"hosts" yaml:"-" bson:"-"`
 	Node        `json:"node" bson:"node"`
 	SizeMiB     float64            `json:"sizeMiB" bson:"sizeMiB"`
 	Url         string             `json:"url" bson:"url"`
@@ -87,4 +100,35 @@ func (s *SupportFile) SetRoleByHosts(hosts []string) {
 			},
 		)
 	}
+}
+
+func GetLocalSupportFiles() *sync.Map {
+	return &localSupportFiles
+}
+
+func GetLocalSupportFile(name string) SupportFile {
+	val, loaded := localSupportFiles.Load(name)
+	if !loaded {
+		return SupportFile{}
+	}
+
+	return val.(SupportFile)
+}
+
+func SetLocalSupportFile(SupportFile SupportFile) {
+	localSupportFiles.Store(SupportFile.Name, SupportFile)
+}
+
+func ListLocalSupportFiles() []SupportFile {
+	supportFiles := []SupportFile{}
+	localSupportFiles.Range(func(key, value any) bool {
+		supportFiles = append(supportFiles, value.(SupportFile))
+		return true
+	})
+
+	return supportFiles
+}
+
+func GetSupportFileSearcher() bleve.Index {
+	return supportFileSearcher
 }

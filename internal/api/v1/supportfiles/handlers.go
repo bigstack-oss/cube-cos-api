@@ -42,14 +42,20 @@ var Handlers = []api.Handler{
 func listSupportFiles(c *gin.Context) {
 	h, err := initReqHandler(c, "listSupportFiles")
 	if err != nil {
-		log.Infof("supportFiles(%s): failed to init req helper: %v", h.handler, err)
+		log.Errorf("supportFiles(%s): failed to init req helper: %v", h.handler, err)
+		return
+	}
+
+	supportFiles, err := h.listSupportFiles()
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to list support files: %v", h.handler, err)
 		return
 	}
 
 	api.SetStatusOk(
 		c,
 		"retrieved support files successfully",
-		"",
+		supportFiles,
 	)
 }
 

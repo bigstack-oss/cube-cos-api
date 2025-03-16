@@ -119,12 +119,24 @@ func (n *Node) GetNodeDetailsUrl() string {
 
 	return u.String()
 }
+
 func (n *Node) GetTuningUrl() string {
 	u := url.URL{
 		Scheme:   n.Protocol,
 		Host:     n.Address,
 		Path:     fmt.Sprintf("/api/v1/datacenters/%s/tunings", n.DataCenter),
 		RawQuery: "allNodes=false",
+	}
+
+	return u.String()
+}
+
+func (n *Node) GetSupportFileUrl() string {
+	u := url.URL{
+		Scheme:   n.Protocol,
+		Host:     n.Address,
+		Path:     fmt.Sprintf("/api/v1/datacenters/%s/tunings", n.DataCenter),
+		RawQuery: fmt.Sprintf("host=%s", n.Hostname),
 	}
 
 	return u.String()
