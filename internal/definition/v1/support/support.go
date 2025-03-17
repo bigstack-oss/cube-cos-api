@@ -5,6 +5,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/blevesearch/bleve/v2"
+	json "github.com/json-iterator/go"
 )
 
 const (
@@ -52,6 +53,15 @@ type File struct {
 type Source struct {
 	Role string `json:"role" bson:"role"`
 	Host string `json:"host" bson:"host"`
+}
+
+func (f *File) Bytes() []byte {
+	b, err := json.Marshal(f)
+	if err != nil {
+		return []byte{}
+	}
+
+	return b
 }
 
 func (f *File) SetError() {

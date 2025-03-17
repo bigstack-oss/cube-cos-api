@@ -29,7 +29,7 @@ func (o *Operator) createSupportFile(file *support.File) error {
 		return err
 	}
 
-	file.Name, err = cubecos.GetSupportFileByComment(file.Group)
+	file.Name, err = cubecos.GetSupportFile(*file)
 	if err != nil {
 		log.Errorf("supportfiles: failed to get new support file: %s", err.Error())
 		return err

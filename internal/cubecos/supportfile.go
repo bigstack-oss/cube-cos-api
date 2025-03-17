@@ -3,6 +3,7 @@ package cubecos
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -59,8 +60,8 @@ func ListSupportFilesFromOtherNodes() ([]support.File, error) {
 	return files, nil
 }
 
-func CreateSupportFile(supportFile support.File) error {
-	path, err := CreateSupportCommentFile(supportFile.Group)
+func CreateSupportFile(file support.File) error {
+	path, err := CreateSupportCommentFile(file)
 	if err != nil {
 		log.Errorf("supportFile: failed to create support comment file: %s", err.Error())
 		return err
@@ -75,21 +76,18 @@ func CreateSupportFile(supportFile support.File) error {
 	return nil
 }
 
-func CreateSupportCommentFile(comment string) (string, error) {
-	randomSize := make([]byte, 8)
-	_, err := rand.Read(randomSize)
+func CreateSupportCommentFile(file support.File) (string, error) {
+	err := os.MkdirAll(support.DefaultFileTmpDir, 0755)
 	if err != nil {
 		return "", err
 	}
 
-	err = os.MkdirAll(support.DefaultFileTmpDir, 0755)
+	filePath, err := genRandomFilePath()
 	if err != nil {
 		return "", err
 	}
 
-	randomStr := hex.EncodeToString(randomSize)
-	filePath := filepath.Join(support.DefaultFileTmpDir, randomStr)
-	err = os.WriteFile(filePath, []byte(comment), 0644)
+	err = os.WriteFile(filePath, []byte(file.Bytes()), 0644)
 	if err != nil {
 		return "", err
 	}
@@ -97,7 +95,21 @@ func CreateSupportCommentFile(comment string) (string, error) {
 	return filePath, nil
 }
 
-func GetSupportFileByComment(comment string) (string, error) {
+func genRandomFilePath() (string, error) {
+	size := make([]byte, 8)
+	_, err := rand.Read(size)
+	if err != nil {
+		return "", err
+	}
+
+	random := hex.EncodeToString(size)
+	return filepath.Join(
+		support.DefaultFileTmpDir,
+		random,
+	), nil
+}
+
+func GetSupportFile(file support.File) (string, error) {
 	files, err := os.ReadDir(support.DefaultFileDir)
 	if err != nil {
 		log.Errorf("supportFile: failed to read support file directory: %s", err.Error())
@@ -110,16 +122,16 @@ func GetSupportFileByComment(comment string) (string, error) {
 		return "", err
 	}
 
-	file, err := findSupportFile(files, comment)
+	info, err := findSupportFile(files, file)
 	if err != nil {
 		log.Errorf("supportFile: %v", err)
 		return "", err
 	}
 
-	return filepath.Join("/var/support", file.Name()), nil
+	return filepath.Join("/var/support", info.Name()), nil
 }
 
-func findSupportFile(files []os.DirEntry, comment string) (os.DirEntry, error) {
+func findSupportFile(files []os.DirEntry, supportFile support.File) (os.DirEntry, error) {
 	for _, file := range files {
 		if file.IsDir() {
 			continue
@@ -129,12 +141,12 @@ func findSupportFile(files []os.DirEntry, comment string) (os.DirEntry, error) {
 			continue
 		}
 
-		content, err := GetSupportFileComment(file.Name())
+		comment, err := GetSupportFileComment(file.Name())
 		if err != nil {
 			continue
 		}
 
-		if string(content) == comment {
+		if isCommentMatchWithFile(comment, supportFile) {
 			return file, nil
 		}
 	}
@@ -142,14 +154,36 @@ func findSupportFile(files []os.DirEntry, comment string) (os.DirEntry, error) {
 	return nil, errors.New("no support file found")
 }
 
-func GetSupportFileComment(file string) (string, error) {
+func GetSupportFileComment(file string) (*support.File, error) {
 	filePath := filepath.Join(support.DefaultFileDir, file)
 	out, err := exec.Command("hex_config", "get_support_file_comment", filePath).CombinedOutput()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return string(out), nil
+	s := &support.File{}
+	err = json.Unmarshal([]byte(out), s)
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+
+func isCommentMatchWithFile(comment *support.File, file support.File) bool {
+	if comment.Group != file.Group {
+		return false
+	}
+
+	if comment.Source.Host != file.Source.Host {
+		return false
+	}
+
+	if comment.Status.CreatedAt != file.Status.CreatedAt {
+		return false
+	}
+
+	return true
 }
 
 func isSupportFile(file string) bool {
@@ -201,14 +235,14 @@ func findAndParseSupportFiles(files []os.DirEntry) {
 			continue
 		}
 
-		comment, err := GetSupportFileComment(supportFile.Name())
+		info, err := GetSupportFileComment(supportFile.Name())
 		if err != nil {
 			continue
 		}
 
 		support.SetLocalFile(genSupportFile(
 			supportFile,
-			comment,
+			*info,
 		))
 	}
 }
@@ -225,20 +259,20 @@ func parseSupportFile(file os.DirEntry) (fs.FileInfo, error) {
 	return file.Info()
 }
 
-func genSupportFile(file fs.FileInfo, comment string) support.File {
+func genSupportFile(file fs.FileInfo, info support.File) support.File {
 	return support.File{
 		Name:  file.Name(),
-		Group: comment,
+		Group: info.Group,
 		Source: support.Source{
 			Role: v1.CurrentRole,
 			Host: v1.Hostname,
 		},
 		SizeMiB:     math.RoundDown(float64(file.Size())/1024/1024, 4),
-		Description: "",
+		Description: info.Description,
 		Status: status.SupportFile{
 			Current:    status.Completed,
 			IsCreating: false,
-			CreatedAt:  v1.TimeISO8601Z(file.ModTime()),
+			CreatedAt:  info.Status.CreatedAt,
 		},
 	}
 }
