@@ -20,7 +20,7 @@ type Sender struct {
 	Host           string `json:"host" bson:"host"`
 	Port           int    `json:"port" bson:"port"`
 	Username       string `json:"username" bson:"username"`
-	Password       string `json:"password" bson:"password"`
+	Password       string `json:"password,omitzero" bson:"password"`
 	Email          string `json:"email" bson:"email"`
 	AccessVerified bool   `json:"accessVerified" bson:"accessVerified"`
 }
@@ -41,12 +41,16 @@ func (s *Sender) ResetAccessVerification() {
 	s.AccessVerified = false
 }
 
+func (s *Sender) ErasePassword() {
+	s.Password = ""
+}
+
 type Recipient struct {
-	Email string `json:"email" bson:"email"`
-	Note  string `json:"note" bson:"note"`
+	Address string `json:"address" bson:"address"`
+	Note    string `json:"note" bson:"note"`
 }
 
 func (r *Recipient) CheckEmailFormat() error {
-	_, err := mail.ParseAddress(r.Email)
+	_, err := mail.ParseAddress(r.Address)
 	return err
 }

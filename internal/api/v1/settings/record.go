@@ -8,6 +8,7 @@ import (
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
+	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -41,13 +42,21 @@ func getAllSettings() (*definition.Setting, error) {
 	return &definition.Setting{
 		TitlePrefix: titlePrefix,
 		Email: email.Options{
-			Senders:    senders,
+			Senders:    eraseSenderPassword(senders),
 			Recipients: recipients,
 		},
 		Slack: slack.Options{
 			Channels: channels,
 		},
 	}, nil
+}
+
+func eraseSenderPassword(senders []email.Sender) []email.Sender {
+	for i := range senders {
+		senders[i].ErasePassword()
+	}
+
+	return senders
 }
 
 func upsertTitlePrefix(titlePrefix string) error {
@@ -88,12 +97,12 @@ func insertEmailSender(sender email.Sender) error {
 	)
 }
 
-func updateEmailSender(sender email.Sender) error {
+func updateEmailSender(c *gin.Context, sender email.Sender) error {
 	h := mongo.GetGlobalHelper()
 	return h.UpdateOne(
 		definition.SettingsDB(),
 		email.SenderCollection,
-		bson.M{"host": sender.Host},
+		bson.M{"host": c.Param("senderHost")},
 		bson.M{
 			"$set": genSenderPatch(sender),
 		},
@@ -137,15 +146,16 @@ func insertEmailRecipient(recipient email.Recipient) error {
 	)
 }
 
-func updateEmailRecipient(recipient email.Recipient) error {
+func updateEmailRecipient(c *gin.Context, recipient email.Recipient) error {
 	h := mongo.GetGlobalHelper()
 	return h.UpdateOne(
 		definition.SettingsDB(),
 		email.RecipientCollection,
-		bson.M{"email": recipient.Email},
+		bson.M{"address": c.Param("recipientEmail")},
 		bson.M{
 			"$set": bson.M{
-				"note": recipient.Note,
+				"address": recipient.Address,
+				"note":    recipient.Note,
 			},
 		},
 	)
@@ -156,7 +166,7 @@ func removeEmailRecipient(recipient string) error {
 	return h.DeleteOne(
 		definition.SettingsDB(),
 		email.RecipientCollection,
-		bson.M{"email": recipient},
+		bson.M{"address": recipient},
 	)
 }
 
@@ -191,15 +201,15 @@ func getSlackChannel(name string) (*slack.Channel, error) {
 	return &channel, nil
 }
 
-func updateSlackChannel(channel slack.Channel) error {
+func updateSlackChannel(c *gin.Context, channel slack.Channel) error {
 	h := mongo.GetGlobalHelper()
 	return h.UpdateOne(
 		definition.SettingsDB(),
 		slack.ChannelCollection,
-		bson.M{"name": channel.Name},
+		bson.M{"name": c.Param("channelName")},
 		bson.M{
 			"$set": bson.M{
-				"channel":     channel.Name,
+				"name":        channel.Name,
 				"url":         channel.URL,
 				"description": channel.Description,
 			},
@@ -236,7 +246,7 @@ func isRecipientExist(recipient string) bool {
 	count, err := h.GetCount(
 		definition.SettingsDB(),
 		email.RecipientCollection,
-		bson.M{"email": recipient},
+		bson.M{"address": recipient},
 	)
 	if err != nil {
 		log.Errorf("failed to get count of email recipient (%s)", err.Error())
