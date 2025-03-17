@@ -30,12 +30,12 @@ type SupportFileRequest struct {
 }
 
 type SupportFile struct {
-	Id          string `json:"id" bson:"id"`
+	Id          string `json:"id,omitzero" bson:"id"`
 	Name        string `json:"name" bson:"name"`
 	Comment     string `json:"comment" bson:"comment"`
-	Roles       []Role `json:"roles" bson:"roles"`
-	Hosts       []Host `json:"hosts" yaml:"-" bson:"-"`
-	Node        `json:"node" bson:"node"`
+	Roles       []Role `json:"roles,omitzero" bson:"roles,omitzero"`
+	Hosts       []Host `json:"hosts,omitzero" yaml:"-" bson:"-"`
+	Node        `json:"node,omitzero" bson:"node,omitzero"`
 	SizeMiB     float64            `json:"sizeMiB" bson:"sizeMiB"`
 	Url         string             `json:"url" bson:"url"`
 	Status      status.SupportFile `json:"status" bson:"status"`
@@ -127,6 +127,17 @@ func ListLocalSupportFiles() []SupportFile {
 	})
 
 	return supportFiles
+}
+
+func InitSupportFileSearchIndex() error {
+	if supportFileSearcher != nil {
+		return nil
+	}
+
+	var err error
+	mapping := bleve.NewIndexMapping()
+	supportFileSearcher, err = bleve.NewMemOnly(mapping)
+	return err
 }
 
 func GetSupportFileSearcher() bleve.Index {

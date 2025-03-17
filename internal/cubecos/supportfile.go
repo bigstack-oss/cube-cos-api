@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,14 +13,15 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
 )
 
 func ListSupportFiles(opts v1.ListSupportFileOptions) ([]v1.SupportFile, error) {
-	localSupportFiles := definition.ListLocalSupportFiles()
+	localSupportFiles := v1.ListLocalSupportFiles()
 	if !opts.AllNodes {
 		return localSupportFiles, nil
 	}
@@ -29,18 +31,18 @@ func ListSupportFiles(opts v1.ListSupportFileOptions) ([]v1.SupportFile, error) 
 		return nil, err
 	}
 
-	allSupportFiles[definition.Hostname] = localSupportFiles
+	allSupportFiles[v1.Hostname] = localSupportFiles
 	return aggregateSupportFiles(allSupportFiles), nil
 }
 
 func ListSupportFilesFromOtherNodes() (map[string][]v1.SupportFile, error) {
-	nodes, err := definition.ListNodes()
+	nodes, err := v1.ListNodes()
 	if err != nil {
 		log.Errorf("failed to list nodes for supportFiles: %s", err.Error())
 		return nil, err
 	}
 
-	supportFiles := map[string][]definition.SupportFile{}
+	supportFiles := map[string][]v1.SupportFile{}
 	for _, node := range nodes {
 		if node.IsLocal() {
 			continue
@@ -156,7 +158,7 @@ func isSupportFile(file string) bool {
 		strings.HasSuffix(file, fmt.Sprintf("%s.support", v1.Hostname))
 }
 
-func getNodeSupportFiles(node definition.Node) ([]v1.SupportFile, error) {
+func getNodeSupportFiles(node v1.Node) ([]v1.SupportFile, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&api.SupportFileListData{}).
@@ -178,13 +180,13 @@ func getNodeSupportFiles(node definition.Node) ([]v1.SupportFile, error) {
 	return supportFileList.Data, nil
 }
 
-func aggregateSupportFiles(nodeToSupportFile map[string][]definition.SupportFile) []definition.SupportFile {
-	mergedMap := make(map[string]definition.SupportFile)
+func aggregateSupportFiles(nodeToSupportFile map[string][]v1.SupportFile) []v1.SupportFile {
+	mergedMap := make(map[string]v1.SupportFile)
 	for _, supportFiles := range nodeToSupportFile {
 		setSupportFiles(mergedMap, supportFiles)
 	}
 
-	supportFiles := []definition.SupportFile{}
+	supportFiles := []v1.SupportFile{}
 	for _, item := range mergedMap {
 		supportFiles = append(supportFiles, item)
 	}
@@ -192,7 +194,7 @@ func aggregateSupportFiles(nodeToSupportFile map[string][]definition.SupportFile
 	return supportFiles
 }
 
-func setSupportFiles(mergedMap map[string]definition.SupportFile, supportFiles []definition.SupportFile) {
+func setSupportFiles(mergedMap map[string]v1.SupportFile, supportFiles []v1.SupportFile) {
 	for _, supportFile := range supportFiles {
 		key := supportFile.Comment
 		existing, found := mergedMap[key]
@@ -213,42 +215,60 @@ func SyncSupportFiles() {
 	}
 
 	if len(files) == 0 {
-		err := errors.New("no support file found")
-		log.Errorf("supportFile: %v", err)
+		log.Warnf("supportFile: no support file found")
 		return
 	}
 
+	findAndParseSupportFiles(files)
+}
+
+func findAndParseSupportFiles(files []os.DirEntry) {
 	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
-
-		if !isSupportFile(file.Name()) {
-			continue
-		}
-
-		comment, err := GetSupportFileComment(file.Name())
+		supportFile, err := parseSupportFile(file)
 		if err != nil {
-			log.Errorf("supportFile: %v", err)
 			continue
 		}
 
-		if strings.Contains(comment, "Automatically") {
-			continue
-		}
-
-		info, err := file.Info()
+		comment, err := GetSupportFileComment(supportFile.Name())
 		if err != nil {
-			log.Errorf("supportFile: %v", err)
 			continue
 		}
 
-		definition.SetLocalSupportFile(definition.SupportFile{
-			Name:        file.Name(),
-			Comment:     comment,
-			Hosts:       []v1.Host{{Name: v1.Hostname}},
-			SizeMiB:     float64(info.Size()) / 1024 / 1024,
-			Description: "",
-		})
+		v1.SetLocalSupportFile(genSupportFile(
+			supportFile,
+			comment,
+		))
+	}
+}
+
+func parseSupportFile(file os.DirEntry) (fs.FileInfo, error) {
+	if file.IsDir() {
+		return nil, errors.New("not a file")
+	}
+
+	if !isSupportFile(file.Name()) {
+		return nil, errors.New("not a support file")
+	}
+
+	return file.Info()
+}
+
+func genSupportFile(supportFile fs.FileInfo, comment string) v1.SupportFile {
+	return v1.SupportFile{
+		Name:    supportFile.Name(),
+		Comment: comment,
+		Roles: []v1.Role{
+			{
+				Name:  v1.CurrentRole,
+				Hosts: []v1.Host{{Name: v1.Hostname}},
+			},
+		},
+		SizeMiB:     math.RoundDown(float64(supportFile.Size())/1024/1024, 4),
+		Description: "",
+		Status: status.SupportFile{
+			Current:    status.Completed,
+			IsCreating: false,
+			CreatedAt:  v1.TimeISO8601Z(supportFile.ModTime()),
+		},
 	}
 }

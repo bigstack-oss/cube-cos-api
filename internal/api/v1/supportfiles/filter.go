@@ -57,11 +57,11 @@ func (h *helper) searchSupportFiles(supportFiles []v1.SupportFile) (*bleve.Searc
 	)
 }
 
-func genSupportFileMap(tunings []v1.SupportFile) map[string]v1.SupportFile {
-	tuningMap := map[string]v1.SupportFile{}
-	for _, tuning := range tunings {
-		tuningMap[tuning.Name] = tuning
+func genSupportFileMap(supportFiles []v1.SupportFile) map[string]v1.SupportFile {
+	supportFileMap := map[string]v1.SupportFile{}
+	for _, supportFile := range supportFiles {
+		supportFileMap[supportFile.Name] = supportFile
 	}
 
-	return tuningMap
+	return supportFileMap
 }

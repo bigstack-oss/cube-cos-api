@@ -2,53 +2,51 @@ package supportfiles
 
 import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/supportfiles"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
 
-var Handlers = []api.Handler{
-	{
-		Version: api.V1,
-		Method:  "GET",
-		Path:    "/supportFiles",
-		Func:    listSupportFiles,
-	},
-	{
-		Version: api.V1,
-		Method:  "POST",
-		Path:    "/supportFiles",
-		Func:    createSupportFile,
-	},
-	{
-		Version: api.V1,
-		Method:  "PATCH",
-		Path:    "/supportFiles/tasks/:id",
-		Func:    updateSupportFileTask,
-	},
-	{
-		Version: api.V1,
-		Method:  "GET",
-		Path:    "/supportFiles/:id",
-		Func:    getSupportFile,
-	},
-	{
-		Version: api.V1,
-		Method:  "DELETE",
-		Path:    "/supportFiles/:id",
-		Func:    deleteSupportFile,
-	},
-}
+var (
+	reqQueue = supportfiles.ReqQueue
+	Handlers = []api.Handler{
+		{
+			Version: api.V1,
+			Method:  "GET",
+			Path:    "/supportFiles",
+			Func:    listSupportFiles,
+		},
+		{
+			Version: api.V1,
+			Method:  "POST",
+			Path:    "/supportFiles",
+			Func:    createSupportFile,
+		},
+		{
+			Version: api.V1,
+			Method:  "PATCH",
+			Path:    "/supportFiles/tasks/:id",
+			Func:    updateSupportFileTask,
+		},
+		{
+			Version: api.V1,
+			Method:  "GET",
+			Path:    "/supportFiles/:id",
+			Func:    getSupportFile,
+		},
+	}
+)
 
 func listSupportFiles(c *gin.Context) {
 	h, err := initReqHandler(c, "listSupportFiles")
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to init req helper: %v", h.handler, err)
+		log.Errorf("supportFiles(%s): failed to init req helper: %v", api.GetReqId(c), err)
 		return
 	}
 
 	supportFiles, err := h.listSupportFiles()
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to list support files: %v", h.handler, err)
+		log.Errorf("supportFiles(%s): failed to list support files: %v", api.GetReqId(c), err)
 		return
 	}
 
@@ -62,7 +60,7 @@ func listSupportFiles(c *gin.Context) {
 func createSupportFile(c *gin.Context) {
 	h, err := initReqHandler(c, "createSupportFile")
 	if err != nil {
-		log.Infof("supportFiles(%s): failed to init req helper: %v", h.handler, err)
+		log.Infof("supportFiles(%s): failed to init req helper: %v", api.GetReqId(c), err)
 		return
 	}
 
@@ -73,44 +71,6 @@ func createSupportFile(c *gin.Context) {
 	)
 }
 
-func updateSupportFileTask(c *gin.Context) {
-	h, err := initReqHandler(c, "updateSupportFileTask")
-	if err != nil {
-		log.Infof("supportFiles(%s): failed to init req helper: %v", h.handler, err)
-		return
-	}
+func updateSupportFileTask(c *gin.Context) {}
 
-	api.SetStatusOk(
-		c,
-		"updated support file task successfully",
-		"",
-	)
-}
-
-func getSupportFile(c *gin.Context) {
-	h, err := initReqHandler(c, "getSupportFile")
-	if err != nil {
-		log.Infof("supportFiles(%s): failed to init req helper: %v", h.handler, err)
-		return
-	}
-
-	api.SetStatusOk(
-		c,
-		"retrieved support file successfully",
-		"",
-	)
-}
-
-func deleteSupportFile(c *gin.Context) {
-	h, err := initReqHandler(c, "deleteSupportFile")
-	if err != nil {
-		log.Infof("supportFiles(%s): failed to init req helper: %v", h.handler, err)
-		return
-	}
-
-	api.SetStatusOk(
-		c,
-		"deleted support file successfully",
-		"",
-	)
-}
+func getSupportFile(c *gin.Context) {}

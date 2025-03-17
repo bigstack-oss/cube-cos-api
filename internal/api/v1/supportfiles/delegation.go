@@ -5,13 +5,10 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/supportfiles"
 	log "go-micro.dev/v5/logger"
 )
 
-var (
-	reqQueue = supportfiles.ReqQueue
-)
+var ()
 
 func (h *helper) delegateSupportFileReq() {
 	h.supportFile.Comment = v1.TimeLocal()

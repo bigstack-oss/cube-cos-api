@@ -95,6 +95,11 @@ func initDependencies() error {
 		log.Errorf("failed to init tuning record ttl: %s", err.Error())
 	}
 
+	err = newSupportFileSearchIndex()
+	if err != nil {
+		log.Errorf("failed to init support file search index: %s", err.Error())
+	}
+
 	return nil
 }
 
@@ -298,4 +303,8 @@ func newTuningRecordTTL() error {
 		bson.D{{Key: "status.createdAt", Value: 1}},
 		definition.TuningRecordTTL,
 	)
+}
+
+func newSupportFileSearchIndex() error {
+	return definition.InitSupportFileSearchIndex()
 }
