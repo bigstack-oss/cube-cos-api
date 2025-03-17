@@ -7,7 +7,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/cnf/structhash"
 	"github.com/fsnotify/fsnotify"
 	"go-micro.dev/v5/cache"
@@ -25,7 +25,7 @@ func (o *Operator) initWatcher() error {
 		return err
 	}
 
-	err = o.watcher.Add(v1.DefaultSupportFileDir)
+	err = o.watcher.Add(support.DefaultFileDir)
 	if err != nil {
 		return err
 	}

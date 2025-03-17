@@ -2,7 +2,7 @@ package supportfiles
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"github.com/fsnotify/fsnotify"
 	"k8s.io/client-go/util/workqueue"
@@ -40,7 +40,7 @@ func (o *Operator) Sync() {
 		return
 	}
 
-	supportFile := req.(*v1.SupportFile)
+	supportFile := req.(*support.File)
 	err := o.operateReq(*supportFile)
 	o.handleExit(*supportFile, err)
 

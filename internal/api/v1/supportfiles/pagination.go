@@ -5,38 +5,39 @@ import (
 	"sort"
 
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 )
 
-func (h *helper) paginateSupportFiles(supportFiles []v1.SupportFile) ([]v1.SupportFile, error) {
+func (h *helper) paginateSupportFiles(fileSets []support.FileSet) ([]support.FileSet, error) {
 	if !h.Page.IsRequired() {
-		return supportFiles, nil
+		return fileSets, nil
 	}
 
-	left := min((h.Page.Number-1)*h.Page.Size, len(supportFiles))
-	right := min(left+h.Page.Size, len(supportFiles))
-	return supportFiles[left:right], nil
+	left := min((h.Page.Number-1)*h.Page.Size, len(fileSets))
+	right := min(left+h.Page.Size, len(fileSets))
+	return fileSets[left:right], nil
 }
 
-func (h *helper) sortTunings(supportFiles *[]v1.SupportFile) {
-	sort.Slice(*supportFiles, func(i, j int) bool {
-		return (*supportFiles)[i].Name < (*supportFiles)[j].Name
+func (h *helper) sortSupportFileSets(fileSets *[]support.FileSet) {
+	sort.Slice(*fileSets, func(i, j int) bool {
+		return (*fileSets)[i].Status.CreatedAt < (*fileSets)[j].Status.CreatedAt
 	})
 }
 
-func (h *helper) genPageInfo(supportFiles []v1.SupportFile) (v1.Page, error) {
+func (h *helper) genPageInfo(fileSets []support.FileSet) (v1.Page, error) {
 	if !h.Page.IsRequired() {
 		return v1.Page{
 			Total:          1,
 			Number:         1,
-			Size:           len(supportFiles),
-			TotalItemCount: int64(len(supportFiles)),
+			Size:           len(fileSets),
+			TotalItemCount: int64(len(fileSets)),
 		}, nil
 	}
 
 	return v1.Page{
-		Total:          int64(math.Ceil(float64(len(supportFiles)) / float64(h.Page.Size))),
+		Total:          int64(math.Ceil(float64(len(fileSets)) / float64(h.Page.Size))),
 		Number:         h.Page.Number,
 		Size:           h.Page.Size,
-		TotalItemCount: int64(len(supportFiles)),
+		TotalItemCount: int64(len(fileSets)),
 	}, nil
 }

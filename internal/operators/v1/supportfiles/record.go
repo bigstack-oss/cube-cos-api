@@ -5,26 +5,26 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	log "go-micro.dev/v5/logger"
 )
 
-func (o *Operator) handleExit(supportFile v1.SupportFile, err error) {
+func (o *Operator) handleExit(file support.File, err error) {
 	if err != nil {
-		log.Errorf("supportfiles: failed to %s %s: %s", supportFile.Status.Desired, supportFile.Name, err.Error())
-		supportFile.SetError()
+		log.Errorf("supportfiles: failed to %s %s: %s", file.Status.Desired, file.Group, err.Error())
+		file.SetError()
 	} else {
-		log.Infof("supportfiles: %s %s successfully", supportFile.Status.Desired, supportFile.Name)
-		supportFile.SetCompleted()
+		log.Infof("supportfiles: %s %s successfully", file.Status.Desired, file.Group)
+		file.SetCompleted()
 	}
 
-	err = o.reportToController(supportFile)
+	err = o.reportToController(file)
 	if err != nil {
 		return
 	}
 }
 
-func (o *Operator) reportToController(supportFile v1.SupportFile) error {
+func (o *Operator) reportToController(file support.File) error {
 	node, err := definition.GetOneOfControllerNode()
 	if err != nil {
 		log.Errorf("supportfiles: failed to get controller nodes: %s", err.Error())
@@ -34,15 +34,15 @@ func (o *Operator) reportToController(supportFile v1.SupportFile) error {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetHeader(node.GenAuthHeader()).
-		SetBody(supportFile.GenTaskUpdate()).
-		Patch(node.PatchSupportFileTaskUrl(supportFile))
+		SetBody(file.GenTaskUpdate()).
+		Patch(node.PatchSupportFileTaskUrl(file))
 	if err != nil {
-		log.Errorf("supportfiles: failed to send support file %s to %s: %s", supportFile.Name, node.Hostname, err.Error())
+		log.Errorf("supportfiles: failed to send support file %s to %s: %s", file.Group, node.Hostname, err.Error())
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("supportfiles: failed to send support file %s to %s: %v", supportFile.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("supportfiles: failed to send support file %s to %s: %v", file.Group, node.Hostname, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 

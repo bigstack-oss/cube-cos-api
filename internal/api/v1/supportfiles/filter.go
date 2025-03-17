@@ -1,7 +1,7 @@
 package supportfiles
 
 import (
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
 )
@@ -10,38 +10,38 @@ const (
 	maxSearchResults = 10000
 )
 
-func (h *helper) filterSupportFiles(supportFiles []v1.SupportFile) []v1.SupportFile {
+func (h *helper) filterSupportFiles(fileSets []support.FileSet) []support.FileSet {
 	if !h.isFilterRequired() {
-		return supportFiles
+		return fileSets
 	}
 
 	if h.isKeywordRequired() {
-		supportFiles = h.filteredByKeyword(supportFiles)
+		fileSets = h.filteredByKeyword(fileSets)
 	}
 
-	return supportFiles
+	return fileSets
 }
 
-func (h *helper) filteredByKeyword(supportFiles []v1.SupportFile) []v1.SupportFile {
-	result, err := h.searchSupportFiles(supportFiles)
+func (h *helper) filteredByKeyword(fileSets []support.FileSet) []support.FileSet {
+	result, err := h.searchSupportFileSets(fileSets)
 	if err != nil {
 		log.Errorf("failed to search supportFiles: %s", err.Error())
-		return supportFiles
+		return fileSets
 	}
 
-	supportFileMap := genSupportFileMap(supportFiles)
-	filtered := []v1.SupportFile{}
+	fileSetMap := genFileSetMap(fileSets)
+	filtered := []support.FileSet{}
 	for _, hit := range result.Hits {
-		filtered = append(filtered, supportFileMap[hit.ID])
+		filtered = append(filtered, fileSetMap[hit.ID])
 	}
 
 	return filtered
 }
 
-func (h *helper) searchSupportFiles(supportFiles []v1.SupportFile) (*bleve.SearchResult, error) {
-	searcher := v1.GetSupportFileSearcher()
-	for _, supportFile := range supportFiles {
-		err := searcher.Index(supportFile.Name, supportFile)
+func (h *helper) searchSupportFileSets(files []support.FileSet) (*bleve.SearchResult, error) {
+	searcher := support.GetFileSetSearcher()
+	for _, file := range files {
+		err := searcher.Index(file.Name, file)
 		if err != nil {
 			continue
 		}
@@ -57,11 +57,11 @@ func (h *helper) searchSupportFiles(supportFiles []v1.SupportFile) (*bleve.Searc
 	)
 }
 
-func genSupportFileMap(supportFiles []v1.SupportFile) map[string]v1.SupportFile {
-	supportFileMap := map[string]v1.SupportFile{}
-	for _, supportFile := range supportFiles {
-		supportFileMap[supportFile.Name] = supportFile
+func genFileSetMap(files []support.FileSet) map[string]support.FileSet {
+	fileMap := map[string]support.FileSet{}
+	for _, file := range files {
+		fileMap[file.Name] = file
 	}
 
-	return supportFileMap
+	return fileMap
 }

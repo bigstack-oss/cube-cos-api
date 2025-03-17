@@ -2,37 +2,44 @@ package supportfiles
 
 import (
 	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func addReqRecord(supportFile v1.SupportFile) {
+func addReqRecord(file support.File) {
 	h := cubeMongo.GetGlobalHelper()
 	err := h.UpdateOne(
-		v1.SupportFileDB,
-		v1.SupportFileReqCollection,
-		bson.M{"id": supportFile.Id},
-		genUpsertPayload(supportFile),
+		support.FileDB,
+		support.FileReqCollection,
+		genFilter(file),
+		genUpsertPayload(file),
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
 		log.Errorf(
 			"failed to sync tuning record for %s (%s)",
-			supportFile.Name,
+			file.Name,
 			err.Error(),
 		)
 	}
 }
 
-func genUpsertPayload(supportFile v1.SupportFile) bson.M {
+func genFilter(file support.File) bson.M {
+	return bson.M{
+		"group":            file.Group,
+		"source.host":      file.Source.Host,
+		"status.createdAt": file.Status.CreatedAt,
+	}
+}
+
+func genUpsertPayload(file support.File) bson.M {
 	return bson.M{
 		"$set": bson.M{
-			"id":      supportFile.Id,
-			"name":    supportFile.Name,
-			"comment": supportFile.Comment,
-			"status":  supportFile.Status,
+			"group":  file.Group,
+			"source": file.Source,
+			"status": file.Status,
 		},
 	}
 }

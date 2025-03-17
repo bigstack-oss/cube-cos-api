@@ -13,6 +13,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -306,5 +307,5 @@ func newTuningRecordTTL() error {
 }
 
 func newSupportFileSearchIndex() error {
-	return definition.InitSupportFileSearchIndex()
+	return support.InitFileSearchIndex()
 }

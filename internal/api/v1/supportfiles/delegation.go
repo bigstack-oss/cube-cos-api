@@ -2,51 +2,92 @@ package supportfiles
 
 import (
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
 )
 
-var ()
-
 func (h *helper) delegateSupportFileReq() {
-	h.supportFile.Comment = v1.TimeLocal()
-	for _, role := range h.supportFile.Roles {
-		for _, node := range role.Nodes {
-			h.supportFile.InitCreateStatus()
-			if node.IsLocal() {
-				delegateToLocal(h.supportFile.GenTask(*node))
-				continue
-			}
+	for _, host := range h.fileReq.Hosts {
+		node, err := v1.GetNodeByHostname(host)
+		if err != nil {
+			continue
+		}
 
-			err := h.delegateToOtherNode(node)
-			if err != nil {
-				log.Errorf("supportFiles: failed to delegate %s to %s: %s", h.supportFile.Name, node.Name, err.Error())
-			}
+		h.setSupportFile()
+		if node.IsLocal() {
+			h.delegateToLocal()
+			continue
+		}
+
+		err = h.delegateToNode(node)
+		if err != nil {
+			log.Errorf("supportFiles: failed to delegate %s to %s: %s", h.file.Name, node.Name, err.Error())
 		}
 	}
 }
 
-func delegateToLocal(supportFile v1.SupportFile) {
-	addReqRecord(supportFile)
-	reqQueue.Add(&supportFile)
+func (h *helper) setSupportFile() {
+	if h.fileReq.CreatedAt == "" {
+		h.fileReq.CreatedAt = v1.TimeISO8601Z(time.Now())
+	}
+
+	h.file = support.File{
+		Group:       h.genFilSetGroup(),
+		Description: h.fileReq.Description,
+		Source: support.Source{
+			Role: v1.CurrentRole,
+			Host: v1.Hostname,
+		},
+		Status: status.SupportFile{
+			Current:   status.Creating,
+			Desired:   status.Create,
+			CreatedAt: h.fileReq.CreatedAt,
+		},
+	}
 }
 
-func (h *helper) delegateToOtherNode(node *v1.Node) error {
-	url := node.CreateSupportFileUrl(h.supportFile)
-	body := h.supportFile.GenTask(*node)
+func (h *helper) genFilSetGroup() string {
+	return fmt.Sprintf(
+		"%s Support File Set %s",
+		v1.DataCenterVersion,
+		h.file.Status.CreatedAt,
+	)
+}
+
+func (h *helper) delegateToLocal() {
+	addReqRecord(h.file)
+	reqQueue.Add(&h.file)
+}
+
+func (h *helper) delegateToNode(node *v1.Node) error {
+	url := node.CreateSupportFileUrl(h.file)
+	body := h.genFileReqBody(*node)
 	http := http.GetGlobalHelper()
 	resp, err := http.R().SetHeader(node.GenAuthHeader()).SetBody(body).Post(url)
 	if err != nil {
-		log.Errorf("failed to create support file %s to %s: %s", h.supportFile.Name, node.Id, err.Error())
+		log.Errorf("failed to create support file %s to %s: %s", h.file.Name, node.Id, err.Error())
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("failed to create support file %s to %s: %d %s", h.supportFile.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("failed to create support file %s to %s: %d %s", h.file.Name, node.Hostname, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 
 	return nil
+}
+
+func (h *helper) genFileReqBody(node v1.Node) support.FileRequest {
+	return support.FileRequest{
+		Name:        h.fileReq.Name,
+		Description: h.fileReq.Description,
+		Hosts:       []string{node.Hostname},
+		CreatedAt:   h.fileReq.CreatedAt,
+	}
 }

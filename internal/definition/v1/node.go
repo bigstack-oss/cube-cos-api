@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
@@ -166,7 +167,7 @@ func (n *Node) PatchTriggerTaskUrl(trigger trigger.Options) string {
 	return u.String()
 }
 
-func (n *Node) CreateSupportFileUrl(supportFile SupportFile) string {
+func (n *Node) CreateSupportFileUrl(file support.File) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address
@@ -174,11 +175,11 @@ func (n *Node) CreateSupportFileUrl(supportFile SupportFile) string {
 	return u.String()
 }
 
-func (n *Node) PatchSupportFileTaskUrl(supportFile SupportFile) string {
+func (n *Node) PatchSupportFileTaskUrl(file support.File) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/tasks/%s", DataCenterName, supportFile.Id)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/tasks/%s", DataCenterName, file.Name)
 	return u.String()
 }
 

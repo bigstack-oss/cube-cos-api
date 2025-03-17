@@ -7,6 +7,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	duration "github.com/xhit/go-str2duration"
 )
 
@@ -29,12 +30,12 @@ func (h *helper) parseHost() {
 }
 
 func (h *helper) parseHosts() error {
-	err := h.c.ShouldBindJSON(&h.request)
+	err := h.c.ShouldBindJSON(&h.fileReq)
 	if err != nil {
 		return err
 	}
 
-	h.supportFile.SetRoleByHosts(h.request.Hosts)
+	h.fileReq.CreatedAt = v1.TimeISO8601Z(time.Now())
 	return nil
 }
 

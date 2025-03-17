@@ -9,59 +9,58 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"slices"
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
 )
 
-func ListSupportFiles(opts v1.ListSupportFileOptions) ([]v1.SupportFile, error) {
-	localSupportFiles := v1.ListLocalSupportFiles()
+func ListSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
+	localFiles := support.ListLocalFiles()
 	if !opts.AllNodes {
-		return localSupportFiles, nil
+		return localFiles, nil
 	}
 
-	allSupportFiles, err := ListSupportFilesFromOtherNodes()
+	otherNodeFiles, err := ListSupportFilesFromOtherNodes()
 	if err != nil {
 		return nil, err
 	}
 
-	allSupportFiles[v1.Hostname] = localSupportFiles
-	return aggregateSupportFiles(allSupportFiles), nil
+	return append(localFiles, otherNodeFiles...), nil
 }
 
-func ListSupportFilesFromOtherNodes() (map[string][]v1.SupportFile, error) {
+func ListSupportFilesFromOtherNodes() ([]support.File, error) {
 	nodes, err := v1.ListNodes()
 	if err != nil {
 		log.Errorf("failed to list nodes for supportFiles: %s", err.Error())
 		return nil, err
 	}
 
-	supportFiles := map[string][]v1.SupportFile{}
+	files := []support.File{}
 	for _, node := range nodes {
 		if node.IsLocal() {
 			continue
 		}
 
-		supportFile, err := getNodeSupportFiles(*node)
+		file, err := getNodeSupportFiles(*node)
 		if err != nil {
 			log.Errorf("failed to get supportFiles from node %s: %s", node.Name, err.Error())
 			continue
 		}
 
-		supportFiles[node.Name] = supportFile
+		files = append(files, file...)
 	}
 
-	return supportFiles, nil
+	return files, nil
 }
 
-func CreateSupportFile(supportFile v1.SupportFile) error {
-	path, err := CreateSupportCommentFile(supportFile.Comment)
+func CreateSupportFile(supportFile support.File) error {
+	path, err := CreateSupportCommentFile(supportFile.Group)
 	if err != nil {
 		log.Errorf("supportFile: failed to create support comment file: %s", err.Error())
 		return err
@@ -83,13 +82,13 @@ func CreateSupportCommentFile(comment string) (string, error) {
 		return "", err
 	}
 
-	err = os.MkdirAll(v1.DefaultSupportFileTmpDir, 0755)
+	err = os.MkdirAll(support.DefaultFileTmpDir, 0755)
 	if err != nil {
 		return "", err
 	}
 
 	randomStr := hex.EncodeToString(randomSize)
-	filePath := filepath.Join(v1.DefaultSupportFileTmpDir, randomStr)
+	filePath := filepath.Join(support.DefaultFileTmpDir, randomStr)
 	err = os.WriteFile(filePath, []byte(comment), 0644)
 	if err != nil {
 		return "", err
@@ -99,7 +98,7 @@ func CreateSupportCommentFile(comment string) (string, error) {
 }
 
 func GetSupportFileByComment(comment string) (string, error) {
-	files, err := os.ReadDir(v1.DefaultSupportFileDir)
+	files, err := os.ReadDir(support.DefaultFileDir)
 	if err != nil {
 		log.Errorf("supportFile: failed to read support file directory: %s", err.Error())
 		return "", err
@@ -144,7 +143,7 @@ func findSupportFile(files []os.DirEntry, comment string) (os.DirEntry, error) {
 }
 
 func GetSupportFileComment(file string) (string, error) {
-	filePath := filepath.Join(v1.DefaultSupportFileDir, file)
+	filePath := filepath.Join(support.DefaultFileDir, file)
 	out, err := exec.Command("hex_config", "get_support_file_comment", filePath).CombinedOutput()
 	if err != nil {
 		return "", err
@@ -158,7 +157,7 @@ func isSupportFile(file string) bool {
 		strings.HasSuffix(file, fmt.Sprintf("%s.support", v1.Hostname))
 }
 
-func getNodeSupportFiles(node v1.Node) ([]v1.SupportFile, error) {
+func getNodeSupportFiles(node v1.Node) ([]support.File, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&api.SupportFileListData{}).
@@ -180,35 +179,8 @@ func getNodeSupportFiles(node v1.Node) ([]v1.SupportFile, error) {
 	return supportFileList.Data, nil
 }
 
-func aggregateSupportFiles(nodeToSupportFile map[string][]v1.SupportFile) []v1.SupportFile {
-	mergedMap := make(map[string]v1.SupportFile)
-	for _, supportFiles := range nodeToSupportFile {
-		setSupportFiles(mergedMap, supportFiles)
-	}
-
-	supportFiles := []v1.SupportFile{}
-	for _, item := range mergedMap {
-		supportFiles = append(supportFiles, item)
-	}
-
-	return supportFiles
-}
-
-func setSupportFiles(mergedMap map[string]v1.SupportFile, supportFiles []v1.SupportFile) {
-	for _, supportFile := range supportFiles {
-		key := supportFile.Comment
-		existing, found := mergedMap[key]
-		if found {
-			existing.Hosts = slices.Concat(existing.Hosts, supportFile.Hosts)
-			mergedMap[key] = existing
-		} else {
-			mergedMap[key] = supportFile
-		}
-	}
-}
-
 func SyncSupportFiles() {
-	files, err := os.ReadDir(v1.DefaultSupportFileDir)
+	files, err := os.ReadDir(support.DefaultFileDir)
 	if err != nil {
 		log.Errorf("supportFile: failed to read support file directory: %s", err.Error())
 		return
@@ -234,7 +206,7 @@ func findAndParseSupportFiles(files []os.DirEntry) {
 			continue
 		}
 
-		v1.SetLocalSupportFile(genSupportFile(
+		support.SetLocalFile(genSupportFile(
 			supportFile,
 			comment,
 		))
@@ -253,22 +225,20 @@ func parseSupportFile(file os.DirEntry) (fs.FileInfo, error) {
 	return file.Info()
 }
 
-func genSupportFile(supportFile fs.FileInfo, comment string) v1.SupportFile {
-	return v1.SupportFile{
-		Name:    supportFile.Name(),
-		Comment: comment,
-		Roles: []v1.Role{
-			{
-				Name:  v1.CurrentRole,
-				Hosts: []v1.Host{{Name: v1.Hostname}},
-			},
+func genSupportFile(file fs.FileInfo, comment string) support.File {
+	return support.File{
+		Name:  file.Name(),
+		Group: comment,
+		Source: support.Source{
+			Role: v1.CurrentRole,
+			Host: v1.Hostname,
 		},
-		SizeMiB:     math.RoundDown(float64(supportFile.Size())/1024/1024, 4),
+		SizeMiB:     math.RoundDown(float64(file.Size())/1024/1024, 4),
 		Description: "",
 		Status: status.SupportFile{
 			Current:    status.Completed,
 			IsCreating: false,
-			CreatedAt:  v1.TimeISO8601Z(supportFile.ModTime()),
+			CreatedAt:  v1.TimeISO8601Z(file.ModTime()),
 		},
 	}
 }

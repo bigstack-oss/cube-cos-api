@@ -6,6 +6,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -14,10 +15,10 @@ type helper struct {
 	c       *gin.Context
 	handler string
 
-	keyword     string
-	host        string
-	supportFile v1.SupportFile
-	request     v1.SupportFileRequest
+	keyword string
+	host    string
+	file    support.File
+	fileReq support.FileRequest
 	v1.Page
 	role string
 	past string
@@ -83,28 +84,30 @@ func initUpdateHelper(h *helper) (*helper, error) {
 	return h, nil
 }
 
-func (h *helper) listSupportFiles() (*data, error) {
-	supportFiles, err := cubecos.ListSupportFiles(v1.ListSupportFileOptions{AllNodes: true})
+func (h *helper) listSupportFiles() (*fileSetList, error) {
+	files, err := cubecos.ListSupportFiles(support.ListFileOptions{AllNodes: true})
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to get supportFiles: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
-	supportFiles = h.filterSupportFiles(supportFiles)
-	pagedSupportFiles, err := h.paginateSupportFiles(supportFiles)
+	fileSets := aggregateToFileSets(files)
+	fileSets = h.filterSupportFiles(fileSets)
+	h.sortSupportFileSets(&fileSets)
+	pagedFileSets, err := h.paginateSupportFiles(fileSets)
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to paginate supportFiles: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
-	page, err := h.genPageInfo(supportFiles)
+	page, err := h.genPageInfo(fileSets)
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to gen page info: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
-	return &data{
-		SupportFiles: pagedSupportFiles,
-		Page:         page,
+	return &fileSetList{
+		SupportFileSet: pagedFileSets,
+		Page:           page,
 	}, nil
 }

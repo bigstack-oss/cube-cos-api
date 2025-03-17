@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,10 +30,10 @@ type ComputeStatisticData struct {
 }
 
 type SupportFileListData struct {
-	Code   int              `json:"code"`
-	Status string           `json:"status"`
-	Msg    string           `json:"msg"`
-	Data   []v1.SupportFile `json:"data"`
+	Code   int            `json:"code"`
+	Status string         `json:"status"`
+	Msg    string         `json:"msg"`
+	Data   []support.File `json:"data"`
 }
 
 func SetStatusOk(c *gin.Context, msg string, data interface{}) {

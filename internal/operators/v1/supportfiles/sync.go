@@ -4,32 +4,32 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
 )
 
-func (o *Operator) operateReq(supportFile v1.SupportFile) error {
-	switch supportFile.Status.Desired {
+func (o *Operator) operateReq(file support.File) error {
+	switch file.Status.Desired {
 	case status.Create:
-		return o.createSupportFile(&supportFile)
+		return o.createSupportFile(&file)
 	}
 
 	return fmt.Errorf(
 		"unknown desired action(%s) for support file(%s)",
-		supportFile.Status.Desired,
-		supportFile.Name,
+		file.Status.Desired,
+		file.Name,
 	)
 }
 
-func (o *Operator) createSupportFile(supportFile *v1.SupportFile) error {
-	err := cubecos.CreateSupportFile(*supportFile)
+func (o *Operator) createSupportFile(file *support.File) error {
+	err := cubecos.CreateSupportFile(*file)
 	if err != nil {
 		log.Errorf("supportfiles: failed to create support file: %s", err.Error())
 		return err
 	}
 
-	supportFile.Name, err = cubecos.GetSupportFileByComment(supportFile.Comment)
+	file.Name, err = cubecos.GetSupportFileByComment(file.Group)
 	if err != nil {
 		log.Errorf("supportfiles: failed to get new support file: %s", err.Error())
 		return err
