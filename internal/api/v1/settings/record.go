@@ -64,7 +64,7 @@ func upsertTitlePrefix(titlePrefix string) error {
 	return h.UpdateOne(
 		definition.SettingsDB(),
 		definition.TitlePrefixCollection(),
-		bson.M{"value": bson.M{"$ne": ""}},
+		bson.M{"value": bson.M{"$exists": true}},
 		bson.M{"$set": bson.M{"value": titlePrefix}},
 		options.Update().SetUpsert(true),
 	)
