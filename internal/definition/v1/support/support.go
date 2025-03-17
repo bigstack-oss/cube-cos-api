@@ -42,7 +42,7 @@ type FileSet struct {
 
 type File struct {
 	Name        string `json:"name" bson:"name"`
-	Group       string `json:"comment" bson:"comment"`
+	Group       string `json:"group" bson:"group"`
 	Description string `json:"description" bson:"description"`
 	Source      `json:"source" bson:"source"`
 	SizeMiB     float64            `json:"sizeMiB" bson:"sizeMiB"`
@@ -82,7 +82,9 @@ func (f *File) InitCreation(timeLocal string) {
 
 func (f *File) GenTaskUpdate() File {
 	return File{
+		Group:  f.Group,
 		Name:   f.Name,
+		Source: f.Source,
 		Status: f.Status,
 	}
 }

@@ -728,24 +728,10 @@
                         "example": "2025-01-01T01:00:00+00:00"
                     },
                     {
-                        "in": "query",
-                        "name": "pageNum",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        },
-                        "description": "The page number of the event chunking to fetch (default is 1).",
-                        "example": 1
+                        "$ref": "#/components/parameters/pageSize"
                     },
                     {
-                        "in": "query",
-                        "name": "pageSize",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        },
-                        "description": "The size per page of the events to return (default is unlimit).",
-                        "example": 10
+                        "$ref": "#/components/parameters/pageNum"
                     },
                     {
                         "$ref": "#/components/parameters/watch"
@@ -2553,24 +2539,10 @@
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "in": "query",
-                        "name": "pageNum",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        },
-                        "description": "The page number of the event chunking to fetch (default is 1).",
-                        "example": 1
+                        "$ref": "#/components/parameters/pageSize"
                     },
                     {
-                        "in": "query",
-                        "name": "pageSize",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        },
-                        "description": "The size per page of the events to return (default is unlimit).",
-                        "example": 10
+                        "$ref": "#/components/parameters/pageNum"
                     }
                 ],
                 "responses": {
@@ -4125,24 +4097,10 @@
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "in": "query",
-                        "name": "pageNum",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        },
-                        "description": "The page number of the event chunking to fetch (default is 1).",
-                        "example": 1
+                        "$ref": "#/components/parameters/pageSize"
                     },
                     {
-                        "in": "query",
-                        "name": "pageSize",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        },
-                        "description": "The size per page of the events to return (default is unlimit).",
-                        "example": 10
+                        "$ref": "#/components/parameters/pageNum"
                     },
                     {
                         "$ref": "#/components/parameters/watch"
@@ -7389,14 +7347,10 @@
                         "example": 1
                     },
                     {
-                        "in": "query",
-                        "name": "pageSize",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        },
-                        "description": "The page size of the tunings list",
-                        "example": 10
+                        "$ref": "#/components/parameters/pageSize"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageNum"
                     },
                     {
                         "$ref": "#/components/parameters/watch"
@@ -10179,6 +10133,150 @@
             }
         },
         "/api/v1/datacenters/{dataCenter}/supportFiles": {
+            "get": {
+                "operationId": "getSupportFiles",
+                "tags": [
+                    "Support Files"
+                ],
+                "summary": "Retrieve all support files",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/watch"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageSize"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageNum"
+                    },
+                    {
+                        "$ref": "#/components/parameters/keyword"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve support files successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetSupportFilesResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Support file set list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "supportFileSet": [
+                                                    {
+                                                        "name": "CUBE COS 3.0.0 Support File Set 2025-03-18T03:37:19+00:00",
+                                                        "description": "example-description",
+                                                        "files": [
+                                                            {
+                                                                "name": "CUBE_3.0.0_20250318-033723_example-node-0.support",
+                                                                "group": "Cube Appliance 3.0.0 Support File Set 2025-03-18T03:37:19+00:00",
+                                                                "description": "example-description",
+                                                                "source": {
+                                                                    "role": "control-converged",
+                                                                    "host": "example-node-0"
+                                                                },
+                                                                "sizeMiB": 98.3954,
+                                                                "url": "",
+                                                                "status": {
+                                                                    "isCreating": false
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "CUBE_3.0.0_20250318-033723_example-node-1.support",
+                                                                "group": "Cube Appliance 3.0.0 Support File Set 2025-03-18T03:37:19+00:00",
+                                                                "description": "example-description",
+                                                                "source": {
+                                                                    "role": "control-converged",
+                                                                    "host": "example-node-1"
+                                                                },
+                                                                "sizeMiB": 98.3954,
+                                                                "url": "",
+                                                                "status": {
+                                                                    "isCreating": false
+                                                                }
+                                                            }
+                                                        ],
+                                                        "sizeMiB": 196.7908,
+                                                        "status": {
+                                                            "current": "completed",
+                                                            "createdAt": "2025-03-18T03:37:19+00:00",
+                                                            "isCreating": false
+                                                        }
+                                                    }
+                                                ],
+                                                "page": {
+                                                    "total": 1,
+                                                    "number": 1,
+                                                    "size": 1,
+                                                    "totalItemCount": 1
+                                                }
+                                            },
+                                            "msg": "retrieved support files successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list support files: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "operationId": "createSupportFiles",
                 "tags": [
@@ -10201,6 +10299,7 @@
                                 "example": {
                                     "summary": "Support file creation request",
                                     "value": {
+                                        "description": "example-description",
                                         "hosts": [
                                             "example-node-0"
                                         ]
@@ -10328,6 +10427,36 @@
                 },
                 "description": "The toggle to enable http chunked transfer for continuous server push.",
                 "example": true
+            },
+            "pageSize": {
+                "in": "query",
+                "name": "pageSize",
+                "required": false,
+                "schema": {
+                    "type": "integer"
+                },
+                "description": "The number of items per page (default is unlimit).",
+                "example": 10
+            },
+            "pageNum": {
+                "in": "query",
+                "name": "pageNum",
+                "required": false,
+                "schema": {
+                    "type": "integer"
+                },
+                "description": "The page number to retrieve",
+                "example": 1
+            },
+            "keyword": {
+                "in": "query",
+                "name": "keyword",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The keyword to search, can be any string",
+                "example": "example-keyword"
             }
         },
         "schemas": {
@@ -12527,6 +12656,45 @@
                     }
                 }
             },
+            "GetSupportFilesResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "supportFileSet",
+                            "page"
+                        ],
+                        "properties": {
+                            "supportFileSet": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/SupportFileSet"
+                                }
+                            },
+                            "page": {
+                                "$ref": "#/components/schemas/Page"
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
             "TitlePrefix": {
                 "type": "object",
                 "required": [
@@ -13865,9 +14033,13 @@
             "CreateSupportFilesRequest": {
                 "type": "object",
                 "required": [
+                    "description",
                     "hosts"
                 ],
                 "properties": {
+                    "description": {
+                        "type": "string"
+                    },
                     "hosts": {
                         "type": "array",
                         "items": {
@@ -14409,6 +14581,116 @@
                     },
                     "labels": {
                         "type": "object"
+                    }
+                }
+            },
+            "SupportFileSet": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "description",
+                    "files",
+                    "sizeMiB",
+                    "status"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "files": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "$ref": "#/components/schemas/SupportFile"
+                        }
+                    },
+                    "sizeMiB": {
+                        "type": "number"
+                    },
+                    "status": {
+                        "type": "object",
+                        "required": [
+                            "current",
+                            "createdAt",
+                            "isCreating"
+                        ],
+                        "properties": {
+                            "current": {
+                                "type": "string"
+                            },
+                            "createdAt": {
+                                "type": "string"
+                            },
+                            "isCreating": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            },
+            "SupportFile": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "group",
+                    "description",
+                    "source",
+                    "url",
+                    "sizeMiB",
+                    "status"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "sizeMiB": {
+                        "type": "number"
+                    },
+                    "group": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "object",
+                        "required": [
+                            "role",
+                            "host"
+                        ],
+                        "properties": {
+                            "role": {
+                                "type": "string"
+                            },
+                            "host": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "object",
+                        "required": [
+                            "current",
+                            "createdAt",
+                            "isCreating"
+                        ],
+                        "properties": {
+                            "current": {
+                                "type": "string"
+                            },
+                            "createdAt": {
+                                "type": "string"
+                            },
+                            "isCreating": {
+                                "type": "boolean"
+                            }
+                        }
                     }
                 }
             }

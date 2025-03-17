@@ -81,7 +81,7 @@ func initGetHelper(h *helper) (*helper, error) {
 }
 
 func initUpdateHelper(h *helper) (*helper, error) {
-	return h, nil
+	return h, h.c.ShouldBindJSON(&h.file)
 }
 
 func (h *helper) listSupportFiles() (*fileSetList, error) {
@@ -91,23 +91,21 @@ func (h *helper) listSupportFiles() (*fileSetList, error) {
 		return nil, err
 	}
 
-	fileSets := aggregateToFileSets(files)
-	fileSets = h.filterSupportFiles(fileSets)
-	h.sortSupportFileSets(&fileSets)
-	pagedFileSets, err := h.paginateSupportFiles(fileSets)
+	sets := h.convertToFileSets(files)
+	pagedSets, err := h.paginateSupportFileSets(sets)
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to paginate supportFiles: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
-	page, err := h.genPageInfo(fileSets)
+	page, err := h.genPageInfo(sets)
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to gen page info: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
 	return &fileSetList{
-		SupportFileSet: pagedFileSets,
+		SupportFileSet: pagedSets,
 		Page:           page,
 	}, nil
 }

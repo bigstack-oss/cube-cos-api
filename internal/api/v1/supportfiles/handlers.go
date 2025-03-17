@@ -71,6 +71,18 @@ func createSupportFile(c *gin.Context) {
 	)
 }
 
-func updateSupportFileTask(c *gin.Context) {}
+func updateSupportFileTask(c *gin.Context) {
+	h, err := initReqHandler(c, "updateSupportFileTask")
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to init req helper: %v", api.GetReqId(c), err)
+		return
+	}
+
+	h.updateSupportFileTask()
+	api.SetStatusAccepted(
+		c,
+		"support file task updated successfully",
+	)
+}
 
 func getSupportFile(c *gin.Context) {}

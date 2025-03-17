@@ -56,7 +56,7 @@ func (h *helper) genFilSetGroup() string {
 	return fmt.Sprintf(
 		"%s Support File Set %s",
 		v1.DataCenterVersion,
-		h.file.Status.CreatedAt,
+		h.fileReq.CreatedAt,
 	)
 }
 

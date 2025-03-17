@@ -179,7 +179,7 @@ func (n *Node) PatchSupportFileTaskUrl(file support.File) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/tasks/%s", DataCenterName, file.Name)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/tasks/%s", DataCenterName, file.Group)
 	return u.String()
 }
 

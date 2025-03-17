@@ -6,6 +6,13 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 )
 
+func (h *helper) convertToFileSets(files []support.File) []support.FileSet {
+	fileSets := aggregateToFileSets(files)
+	fileSets = h.filterSupportFiles(fileSets)
+	h.sortSupportFileSets(&fileSets)
+	return fileSets
+}
+
 func aggregateToFileSets(files []support.File) []support.FileSet {
 	fileSetMap := map[string]*support.FileSet{}
 
