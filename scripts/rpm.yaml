@@ -15,7 +15,6 @@ tasks:
       - task: prepareTarball
       - task: copySpecFile
       - task: buildRpm
-      - task: checkRpm
   cleanRpmBuild:
     desc: "Clean up any existing rpmbuild directory"
     cmds:
@@ -40,7 +39,3 @@ tasks:
     desc: "Build the RPM"
     cmds:
       - rpmbuild -bb --nodeps --define "version {{.VERSION}}" --define "build_number {{.BUILD_NUMBER}}" ~/rpmbuild/SPECS/cube-cos-api.spec
-  checkRpm:
-    desc: "Check the built RPM"
-    cmds:
-      - ls -ahl ~/rpmbuild/RPMS/x86_64/cube-cos-api-{{.VERSION}}-1.el9.{{.BUILD_NUMBER}}.x86_64.rpm
