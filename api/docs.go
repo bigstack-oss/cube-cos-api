@@ -2,8 +2,7 @@ package api
 
 import "github.com/swaggo/swag"
 
-const docTemplate = `
-{
+const docTemplate = `{
     "openapi": "3.0.0",
     "info": {
         "description": "",
@@ -10397,6 +10396,476 @@ const docTemplate = `
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to request support file creation: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/grafana/hosts/{hostname}": {
+            "get": {
+                "operationId": "fowardToGrafanaHosts",
+                "tags": [
+                    "Grafana"
+                ],
+                "summary": "Forward to Grafana hosts dashboard",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "in": "path",
+                        "name": "hostname",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The hostname of the host to operate",
+                        "example": "example-node-0"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Forward to Grafana hosts dashboard",
+                        "headers": {
+                            "Location": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "http://example-data-center/grafana/d/i-R2q81iz/host?refresh=5m&kiosk=tv&orgId=1&var-HOST=example-node-0"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to forward Grafana hosts dashboard: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/grafana/instances/{instanceId}": {
+            "get": {
+                "operationId": "fowardToGrafanaInstances",
+                "tags": [
+                    "Grafana"
+                ],
+                "summary": "Forward to Grafana instances dashboard",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "in": "path",
+                        "name": "instanceId",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The instance ID of the instance to operate",
+                        "example": "example-instance-id"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Forward to Grafana instances dashboard",
+                        "headers": {
+                            "Location": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "http://example-data-center/grafana/d/PVW6vU7Wz/instance?refresh=5m&kiosk=tv&orgId=1&var-UUID=example-instance-id"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to forward Grafana instances dashboard: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/grafana/topHosts": {
+            "get": {
+                "operationId": "fowardToGrafanaTopHosts",
+                "tags": [
+                    "Grafana"
+                ],
+                "summary": "Forward to Grafana top hosts dashboard",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Forward to Grafana top hosts dashboard",
+                        "headers": {
+                            "Location": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "http://example-data-center/grafana/d/M3ncw6lmk/top-hosts?refresh=5m&kiosk=tv&orgId=1"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to forward Grafana top hosts dashboard: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/grafana/topInstances": {
+            "get": {
+                "operationId": "fowardToGrafanaTopInstances",
+                "tags": [
+                    "Grafana"
+                ],
+                "summary": "Forward to Grafana top instances dashboard",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Forward to Grafana top instances dashboard",
+                        "headers": {
+                            "Location": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "http://example-data-center/grafana/d/qzfq087Wk/top-instances?refresh=5m&orgId=1&var-TID=&var-TOP=50&var-TENANT=admin"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to forward Grafana top instances dashboard: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/grafana/networks": {
+            "get": {
+                "operationId": "fowardToGrafanaNetworks",
+                "tags": [
+                    "Grafana"
+                ],
+                "summary": "Forward to Grafana networks dashboard",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Forward to Grafana networks dashboard",
+                        "headers": {
+                            "Location": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "http://example-data-center/grafana/d/Xx2kkftWk/network?orgId=1&refresh=5m"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to forward Grafana networks dashboard: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/grafana/storages": {
+            "get": {
+                "operationId": "fowardToGrafanaStorages",
+                "tags": [
+                    "Grafana"
+                ],
+                "summary": "Forward to Grafana storages dashboard",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Forward to Grafana storages dashboard",
+                        "headers": {
+                            "Location": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "http://example-data-center/grafana/d/QTc_sAxiw/storage?refresh=5m&kiosk=tv&orgId=1"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to forward Grafana storages dashboard: internal server error"
                                         },
                                         "status": {
                                             "type": "string",

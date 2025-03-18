@@ -46,6 +46,13 @@ spec:
         source: "file"
         file: /etc/admin-openrc.sh
         enableAutoRenew: true
+    aws:
+      region: auto
+      accessKey: ""
+      secretKey: ""
+      enableStaticCreds: true
+      enableCustomURL: true
+      insecureSkipVerify: true
   store:
     mongodb:
       uri: mongodb://0.0.0.0:27017
