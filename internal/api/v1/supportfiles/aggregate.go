@@ -30,10 +30,12 @@ func aggregateToFileSets(files []support.File) []support.FileSet {
 
 		fileSetMap[key].SizeMiB += file.SizeMiB
 		file := support.File{
-			Name:    file.Name,
-			SizeMiB: file.SizeMiB,
-			Url:     "",
-			Source:  file.Source,
+			Name:        file.Name,
+			Group:       file.Group,
+			Description: file.Description,
+			SizeMiB:     file.SizeMiB,
+			Url:         file.Url,
+			Source:      file.Source,
 		}
 
 		fileSetMap[key].Files = append(

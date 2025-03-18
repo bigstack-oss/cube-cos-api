@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	log "go-micro.dev/v5/logger"
@@ -18,6 +19,7 @@ func (o *Operator) handleExit(file support.File, err error) {
 		file.SetCompleted()
 	}
 
+	cubecos.SetSupportFileComment(file)
 	err = o.reportToController(file)
 	if err != nil {
 		return

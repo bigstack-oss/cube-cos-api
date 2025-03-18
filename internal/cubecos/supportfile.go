@@ -6,15 +6,21 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/aws"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -76,6 +82,22 @@ func CreateSupportFile(file support.File) error {
 	return nil
 }
 
+func SetSupportFileComment(file support.File) error {
+	path, err := CreateSupportCommentFile(file)
+	if err != nil {
+		log.Errorf("supportFile: failed to create support comment file: %s", err.Error())
+		return err
+	}
+
+	out, err := exec.Command("hex_config", "set_support_file_comment", file.Name, path).CombinedOutput()
+	if err != nil {
+		log.Errorf("supportFile: failed to set support file comment: %s", string(out))
+		return err
+	}
+
+	return nil
+}
+
 func CreateSupportCommentFile(file support.File) (string, error) {
 	err := os.MkdirAll(support.DefaultFileTmpDir, 0755)
 	if err != nil {
@@ -95,40 +117,106 @@ func CreateSupportCommentFile(file support.File) (string, error) {
 	return filePath, nil
 }
 
-func genRandomFilePath() (string, error) {
-	size := make([]byte, 8)
-	_, err := rand.Read(size)
-	if err != nil {
-		return "", err
-	}
-
-	random := hex.EncodeToString(size)
-	return filepath.Join(
-		support.DefaultFileTmpDir,
-		random,
-	), nil
-}
-
 func GetSupportFile(file support.File) (string, error) {
 	files, err := os.ReadDir(support.DefaultFileDir)
 	if err != nil {
-		log.Errorf("supportFile: failed to read support file directory: %s", err.Error())
 		return "", err
 	}
 
 	if len(files) == 0 {
 		err := errors.New("no support file found")
-		log.Errorf("supportFile: %v", err)
 		return "", err
 	}
 
 	info, err := findSupportFile(files, file)
 	if err != nil {
-		log.Errorf("supportFile: %v", err)
 		return "", err
 	}
 
 	return filepath.Join("/var/support", info.Name()), nil
+}
+
+func UploadSupportFileToObjectStore(supportFile support.File) error {
+	file, err := os.Open(supportFile.Name)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+	err = SyncBucketSecrete()
+	if err != nil {
+		return err
+	}
+
+	err = SyncBucketStore()
+	if err != nil {
+		return err
+	}
+
+	return PutSupportFileToBucket(
+		supportFile.ObjectKey(),
+		file,
+	)
+}
+
+func GetSupportFileUrl(file support.File) (string, error) {
+	h := aws.GetGlobalHelper()
+	return h.GenPresignedUrl(
+		support.DefaultBucket,
+		file.ObjectKey(),
+		v1.Day*7,
+	)
+}
+
+func SyncBucketStore() error {
+	h := aws.GetGlobalHelper()
+	bucket := support.DefaultBucket
+	_, err := h.CreateBucket(s3.CreateBucketInput{Bucket: &bucket})
+	if err == nil {
+		return nil
+	}
+
+	var isBucketAlreadyExists *types.BucketAlreadyExists
+	if !errors.As(err, &isBucketAlreadyExists) {
+		return err
+	}
+
+	return nil
+}
+
+func SyncBucketSecrete() error {
+	h := openstack.GetGlobalHelper()
+	accessKey := config.Opts.Spec.Aws.AccessKey
+	secretKey := config.Opts.Spec.Aws.SecretKey
+	userId, err := h.GetUserIdByName(accessKey)
+	if err != nil {
+		return err
+	}
+
+	projectId, err := h.GetProjectIdByName(secretKey)
+	if err != nil {
+		return err
+	}
+
+	_, err = h.CreateEc2Credential(userId, projectId, accessKey, secretKey)
+	if err == nil {
+		return nil
+	}
+	if !strings.Contains(err.Error(), "Conflict") {
+		return err
+	}
+
+	return nil
+}
+
+func PutSupportFileToBucket(key string, file io.Reader) error {
+	h := aws.GetGlobalHelper()
+	_, err := h.PutObject(support.DefaultBucket, key, file)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func findSupportFile(files []os.DirEntry, supportFile support.File) (os.DirEntry, error) {
@@ -137,7 +225,7 @@ func findSupportFile(files []os.DirEntry, supportFile support.File) (os.DirEntry
 			continue
 		}
 
-		if !isSupportFile(file.Name()) {
+		if !IsSupportFile(file.Name()) {
 			continue
 		}
 
@@ -170,25 +258,10 @@ func GetSupportFileComment(file string) (*support.File, error) {
 	return s, nil
 }
 
-func isCommentMatchWithFile(comment *support.File, file support.File) bool {
-	if comment.Group != file.Group {
-		return false
-	}
-
-	if comment.Source.Host != file.Source.Host {
-		return false
-	}
-
-	if comment.Status.CreatedAt != file.Status.CreatedAt {
-		return false
-	}
-
-	return true
-}
-
-func isSupportFile(file string) bool {
-	return strings.HasPrefix(file, fmt.Sprintf("CUBE_%s", v1.DataCenterNumericVersion)) &&
-		strings.HasSuffix(file, fmt.Sprintf("%s.support", v1.Hostname))
+func IsSupportFile(file string) bool {
+	prefix := fmt.Sprintf("CUBE_%s", v1.DataCenterNumericVersion)
+	suffix := fmt.Sprintf("%s.support", v1.Hostname)
+	return strings.HasPrefix(file, prefix) && strings.HasSuffix(file, suffix)
 }
 
 func getNodeSupportFiles(node v1.Node) ([]support.File, error) {
@@ -240,11 +313,41 @@ func findAndParseSupportFiles(files []os.DirEntry) {
 			continue
 		}
 
-		support.SetLocalFile(genSupportFile(
+		support.SetLocalFile(enrichSupportFile(
 			supportFile,
 			*info,
 		))
 	}
+}
+
+func isCommentMatchWithFile(comment *support.File, file support.File) bool {
+	if comment.Group != file.Group {
+		return false
+	}
+
+	if comment.Source.Host != file.Source.Host {
+		return false
+	}
+
+	if comment.Status.CreatedAt != file.Status.CreatedAt {
+		return false
+	}
+
+	return true
+}
+
+func genRandomFilePath() (string, error) {
+	size := make([]byte, 8)
+	_, err := rand.Read(size)
+	if err != nil {
+		return "", err
+	}
+
+	random := hex.EncodeToString(size)
+	return filepath.Join(
+		support.DefaultFileTmpDir,
+		random,
+	), nil
 }
 
 func parseSupportFile(file os.DirEntry) (fs.FileInfo, error) {
@@ -252,14 +355,14 @@ func parseSupportFile(file os.DirEntry) (fs.FileInfo, error) {
 		return nil, errors.New("not a file")
 	}
 
-	if !isSupportFile(file.Name()) {
+	if !IsSupportFile(file.Name()) {
 		return nil, errors.New("not a support file")
 	}
 
 	return file.Info()
 }
 
-func genSupportFile(file fs.FileInfo, info support.File) support.File {
+func enrichSupportFile(file fs.FileInfo, info support.File) support.File {
 	return support.File{
 		Name:  file.Name(),
 		Group: info.Group,
@@ -269,6 +372,7 @@ func genSupportFile(file fs.FileInfo, info support.File) support.File {
 		},
 		SizeMiB:     math.RoundDown(float64(file.Size())/1024/1024, 4),
 		Description: info.Description,
+		Url:         info.Url,
 		Status: status.SupportFile{
 			Current:    status.Completed,
 			IsCreating: false,

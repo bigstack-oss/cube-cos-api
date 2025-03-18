@@ -3,6 +3,7 @@ package config
 import (
 	"flag"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/aws"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
@@ -121,6 +122,7 @@ type Os struct {
 type ResourceControl struct {
 	Openstack openstack.Options `json:"openstack" yaml:"openstack"`
 	K3s       `json:"k3s" yaml:"k3s"`
+	Aws       aws.Options `json:"aws" yaml:"aws"`
 }
 
 type K3s struct {

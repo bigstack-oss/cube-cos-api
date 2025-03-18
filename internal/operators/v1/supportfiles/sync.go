@@ -35,5 +35,17 @@ func (o *Operator) createSupportFile(file *support.File) error {
 		return err
 	}
 
+	err = cubecos.UploadSupportFileToObjectStore(*file)
+	if err != nil {
+		log.Errorf("supportfiles: failed to upload support file: %s", err.Error())
+		return err
+	}
+
+	file.Url, err = cubecos.GetSupportFileUrl(*file)
+	if err != nil {
+		log.Errorf("supportfiles: failed to get object store url: %s", err.Error())
+		return err
+	}
+
 	return nil
 }

@@ -1,6 +1,7 @@
 package support
 
 import (
+	"path/filepath"
 	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -9,6 +10,7 @@ import (
 )
 
 const (
+	DefaultBucket     = "supportfiles"
 	DefaultFileDir    = "/var/support"
 	DefaultFileTmpDir = "/tmp/support-comment-file"
 	Files             = "supportfiles"
@@ -66,17 +68,20 @@ func (f *File) Bytes() []byte {
 
 func (f *File) SetError() {
 	f.Status.Current = status.Error
+	f.Status.IsCreating = false
 }
 
 func (f *File) SetCompleted() {
 	f.Status.Current = status.Completed
+	f.Status.IsCreating = false
 }
 
 func (f *File) InitCreation(timeLocal string) {
 	f.Status = status.SupportFile{
-		Current:   status.Creating,
-		Desired:   status.Create,
-		CreatedAt: timeLocal,
+		Current:    status.Creating,
+		Desired:    status.Create,
+		IsCreating: true,
+		CreatedAt:  timeLocal,
 	}
 }
 
@@ -84,9 +89,14 @@ func (f *File) GenTaskUpdate() File {
 	return File{
 		Group:  f.Group,
 		Name:   f.Name,
+		Url:    f.Url,
 		Source: f.Source,
 		Status: f.Status,
 	}
+}
+
+func (f *File) ObjectKey() string {
+	return filepath.Base(f.Name)
 }
 
 func GetLocalFiles() *sync.Map {

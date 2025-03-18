@@ -13,6 +13,7 @@ const (
 )
 
 var (
+	Day                  = 24 * time.Hour
 	LocalTimeZone        = "+00:00"
 	LocalTimeZoneSeconds = 0
 	LocalTimeFixedZone   = time.FixedZone("", LocalTimeZoneSeconds)

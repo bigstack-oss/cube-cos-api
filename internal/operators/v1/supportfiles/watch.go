@@ -2,10 +2,10 @@ package supportfiles
 
 import (
 	"context"
+	"path/filepath"
 	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/cnf/structhash"
@@ -54,13 +54,14 @@ func (o *Operator) watchChanges() {
 }
 
 func checkAndSyncSupportFiles(event fsnotify.Event) {
-	if event.Name != conf.Opts.Spec.Identity.Policy {
+	filename := filepath.Base(event.Name)
+	if !cubecos.IsSupportFile(filename) {
 		return
 	}
 
 	if event.Has(fsnotify.Write) {
 		printOrThrottleLog(event)
-		cubecos.SyncTriggers()
+		cubecos.SyncSupportFiles()
 	}
 }
 

@@ -46,19 +46,17 @@ func genUpsertPayload(file support.File) bson.M {
 
 func (h *helper) updateSupportFileTask() error {
 	mongo := cubeMongo.GetGlobalHelper()
-	return mongo.UpdateOne(
+	return mongo.DeleteOne(
 		support.FileDB,
 		support.FileReqCollection,
-		h.genTaskFilter(),
-		bson.M{"$set": bson.M{"status.current": h.file.Status.Current}},
-		options.Update().SetUpsert(true),
+		genTaskFilter(h.file),
 	)
 }
 
-func (h *helper) genTaskFilter() bson.M {
+func genTaskFilter(file support.File) bson.M {
 	return bson.M{
-		"group":            h.file.Group,
-		"source.host":      h.file.Source.Host,
-		"status.createdAt": h.file.Status.CreatedAt,
+		"group":            file.Group,
+		"source.host":      file.Source.Host,
+		"status.createdAt": file.Status.CreatedAt,
 	}
 }

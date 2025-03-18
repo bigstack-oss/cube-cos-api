@@ -3,10 +3,12 @@ package supportfiles
 import (
 	"errors"
 
+	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -91,6 +93,7 @@ func (h *helper) listSupportFiles() (*fileSetList, error) {
 		return nil, err
 	}
 
+	h.syncFileIsCreatedOrPending(files)
 	sets := h.convertToFileSets(files)
 	pagedSets, err := h.paginateSupportFileSets(sets)
 	if err != nil {
@@ -108,4 +111,23 @@ func (h *helper) listSupportFiles() (*fileSetList, error) {
 		SupportFileSet: pagedSets,
 		Page:           page,
 	}, nil
+}
+
+func (h *helper) syncFileIsCreatedOrPending(files []support.File) {
+	mongo := cubeMongo.GetGlobalHelper()
+	for i, file := range files {
+		count, err := mongo.GetCount(
+			support.FileDB,
+			support.FileReqCollection,
+			genTaskFilter(file),
+		)
+		if err != nil {
+			continue
+		}
+
+		if count > 0 {
+			files[i].Status.Current = status.Creating
+			files[i].Status.IsCreating = true
+		}
+	}
 }

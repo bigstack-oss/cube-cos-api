@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Nerzal/gocloak/v13"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/aws"
 	bshttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
@@ -13,6 +14,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	log "go-micro.dev/v5/logger"
@@ -53,6 +55,12 @@ func initDependencies() error {
 	err = newGlobalOpenstackHelper(conf.Opts.Spec.Openstack)
 	if err != nil {
 		log.Errorf("failed to init openstack helper: %s", err.Error())
+		return err
+	}
+
+	err = newGlobalAwsHelper(conf.Opts.Spec.Aws)
+	if err != nil {
+		log.Errorf("failed to init aws helper: %s", err.Error())
 		return err
 	}
 
@@ -148,6 +156,18 @@ func newGlobalOpenstackHelper(opts openstack.Options) error {
 		openstack.ProjectDomainName(opts.Auth.Project.Domain.Name),
 		openstack.Username(opts.Auth.Username),
 		openstack.Password(opts.Auth.Password),
+	)
+}
+
+func newGlobalAwsHelper(opts aws.Options) error {
+	return aws.NewGlobalHelper(
+		aws.Region(opts.Region),
+		aws.EnableStaticCreds(opts.EnableStaticCreds),
+		aws.AccessKey(opts.AccessKey),
+		aws.SecretKey(opts.SecretKey),
+		aws.EnableCustomURL(opts.EnableCustomURL),
+		aws.S3Url(v1.GetRadosGatewayUrl()),
+		aws.InsecureSkipVerify(opts.InsecureSkipVerify),
 	)
 }
 
