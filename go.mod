@@ -109,6 +109,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gophercloud/gophercloud v1.14.1 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
+	github.com/gwatts/gin-adapter v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
 	github.com/jonboulle/clockwork v0.2.2 // indirect

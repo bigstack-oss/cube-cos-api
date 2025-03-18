@@ -163,6 +163,7 @@ func ServeAcs() gin.HandlerFunc {
 func AuthRequest(c *gin.Context) {
 	session, err := SpAuth.Session.GetSession(c.Request)
 	if session != nil {
+		c.Request = c.Request.WithContext(samlsp.ContextWithSession(c.Request.Context(), session))
 		c.Next()
 		return
 	}

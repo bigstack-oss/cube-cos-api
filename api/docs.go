@@ -7341,16 +7341,6 @@ const docTemplate = `{
                         "example": "can be any string"
                     },
                     {
-                        "in": "query",
-                        "name": "pageNum",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        },
-                        "description": "The page number of the tunings list",
-                        "example": 1
-                    },
-                    {
                         "$ref": "#/components/parameters/pageSize"
                     },
                     {
