@@ -4,6 +4,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/datacenters"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/healths"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/integrations"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/licenses"
@@ -110,6 +111,13 @@ func initNodeApiHandler() {
 		definition.RoleStorage,
 		definition.RoleEdgeCore,
 		definition.RoleModerator,
+	)
+
+	api.RegisterHandlersToRoles(
+		definition.Grafana,
+		grafana.Handlers,
+		definition.RoleControl,
+		definition.RoleControlConverged,
 	)
 
 	api.RegisterHandlersToRoles(
