@@ -23,7 +23,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
-	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -83,6 +82,9 @@ func CreateSupportFile(file support.File) error {
 }
 
 func SetSupportFileComment(file support.File) error {
+
+	log.Infof("create comment: %s", string(file.Bytes()))
+
 	path, err := CreateSupportCommentFile(file)
 	if err != nil {
 		log.Errorf("supportFile: failed to create support comment file: %s", err.Error())
@@ -363,20 +365,7 @@ func parseSupportFile(file os.DirEntry) (fs.FileInfo, error) {
 }
 
 func enrichSupportFile(file fs.FileInfo, info support.File) support.File {
-	return support.File{
-		Name:  file.Name(),
-		Group: info.Group,
-		Source: support.Source{
-			Role: v1.CurrentRole,
-			Host: v1.Hostname,
-		},
-		SizeMiB:     math.RoundDown(float64(file.Size())/1024/1024, 4),
-		Description: info.Description,
-		Url:         info.Url,
-		Status: status.SupportFile{
-			Current:    status.Completed,
-			IsCreating: false,
-			CreatedAt:  info.Status.CreatedAt,
-		},
-	}
+	info.Name = file.Name()
+	info.SizeMiB = math.RoundDown(float64(file.Size())/1024/1024, 4)
+	return info
 }

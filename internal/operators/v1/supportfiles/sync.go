@@ -9,10 +9,10 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (o *Operator) operateReq(file support.File) error {
+func (o *Operator) operateReq(file *support.File) error {
 	switch file.Status.Desired {
 	case status.Create:
-		return o.createSupportFile(&file)
+		return o.createSupportFile(file)
 	}
 
 	return fmt.Errorf(

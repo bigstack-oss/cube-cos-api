@@ -41,8 +41,8 @@ func (o *Operator) Sync() {
 	}
 
 	supportFile := req.(*support.File)
-	err := o.operateReq(*supportFile)
-	o.handleExit(*supportFile, err)
+	err := o.operateReq(supportFile)
+	o.handleExit(supportFile, err)
 
 	ReqQueue.Done(req)
 }

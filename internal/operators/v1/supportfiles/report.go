@@ -10,7 +10,7 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (o *Operator) handleExit(file support.File, err error) {
+func (o *Operator) handleExit(file *support.File, err error) {
 	if err != nil {
 		log.Errorf("supportfiles: failed to %s %s: %s", file.Status.Desired, file.Group, err.Error())
 		file.SetError()
@@ -19,8 +19,8 @@ func (o *Operator) handleExit(file support.File, err error) {
 		file.SetCompleted()
 	}
 
-	cubecos.SetSupportFileComment(file)
-	err = o.reportToController(file)
+	cubecos.SetSupportFileComment(*file)
+	err = o.reportToController(*file)
 	if err != nil {
 		return
 	}

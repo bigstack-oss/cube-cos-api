@@ -2,7 +2,8 @@ package api
 
 import "github.com/swaggo/swag"
 
-const docTemplate = `{
+const docTemplate = `
+{
     "openapi": "3.0.0",
     "info": {
         "description": "",
@@ -10188,7 +10189,7 @@ const docTemplate = `{
                                                                     "host": "example-node-0"
                                                                 },
                                                                 "sizeMiB": 98.3954,
-                                                                "url": "",
+                                                                "url": "http://example-data-center/supportfiles/CUBE_3.0.0_20250318-215742_example-node-0.support?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Checksum-Mode=ENABLED&X-Amz-Credential=admin%2F20250318%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20250318T140312Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=ae8c2a39d348709b51d6c0d4b731716f1dc33c172ba43c2919357106cbb15389",
                                                                 "status": {
                                                                     "isCreating": false
                                                                 }
@@ -10202,7 +10203,7 @@ const docTemplate = `{
                                                                     "host": "example-node-1"
                                                                 },
                                                                 "sizeMiB": 98.3954,
-                                                                "url": "",
+                                                                "url": "http://example-data-center/supportfiles/CUBE_3.0.0_20250318-215742_example-node-1.support?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Checksum-Mode=ENABLED&X-Amz-Credential=admin%2F20250318%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20250318T140312Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=ae8c2a39d348709b51d6c0d4b731716f1dc33c172ba43c2919357106cbb15389",
                                                                 "status": {
                                                                     "isCreating": false
                                                                 }
