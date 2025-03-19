@@ -61,7 +61,6 @@ func initDependencies() error {
 	err = newGlobalAwsHelper(conf.Opts.Spec.Aws)
 	if err != nil {
 		log.Errorf("failed to init aws helper: %s", err.Error())
-		return err
 	}
 
 	err = newGlobalKeycloakHelper(conf.Opts.Spec.Identity.Keycloak)

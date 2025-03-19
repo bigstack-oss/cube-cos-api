@@ -2644,16 +2644,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
-                    },
-                    {
-                        "in": "path",
-                        "name": "node",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the node to operate",
-                        "example": "example-node"
                     }
                 ],
                 "requestBody": {
@@ -5064,6 +5054,16 @@ const docTemplate = `{
                     },
                     {
                         "$ref": "#/components/parameters/watch"
+                    },
+                    {
+                        "name": "nodeName",
+                        "in": "path",
+                        "description": "The name of the node",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "example-node-0"
                     }
                 ],
                 "responses": {
@@ -9580,6 +9580,9 @@ const docTemplate = `{
                                                             }
                                                         ]
                                                     },
+                                                    "status": {
+                                                        "isUpdating": false
+                                                    },
                                                     "enabled": false
                                                 },
                                                 {
@@ -9670,6 +9673,9 @@ const docTemplate = `{
                                                                 "note": "example email recipient"
                                                             }
                                                         ]
+                                                    },
+                                                    "status": {
+                                                        "isUpdating": false
                                                     },
                                                     "enabled": false
                                                 }
@@ -10401,11 +10407,11 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/grafana/hosts/{hostname}": {
             "get": {
-                "operationId": "fowardToGrafanaHosts",
+                "operationId": "getGrafanaHosts",
                 "tags": [
                     "Grafana"
                 ],
-                "summary": "Forward to Grafana hosts dashboard",
+                "summary": "Get Grafana hosts dashboard",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -10422,13 +10428,25 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "302": {
-                        "description": "Forward to Grafana hosts dashboard",
-                        "headers": {
-                            "Location": {
+                    "200": {
+                        "description": "Get Grafana hosts dashboard",
+                        "content": {
+                            "application/json": {
                                 "schema": {
-                                    "type": "string",
-                                    "example": "http://example-data-center/grafana/d/i-R2q81iz/host?refresh=5m&kiosk=tv&orgId=1&var-HOST=example-node-0"
+                                    "$ref": "#/components/schemas/GetGrafanaDashboardLinkResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Grafana hosts dashboard link",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "link": "http://example-data-center/grafana/d/i-R2q81iz/host?refresh=5m&kiosk=tv&orgId=1&var-HOST=example-node-0"
+                                            },
+                                            "msg": "fetch top host link successfully",
+                                            "status": "ok"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -10470,7 +10488,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to forward Grafana hosts dashboard: internal server error"
+                                            "example": "failed to get Grafana hosts dashboard: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -10486,11 +10504,11 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/grafana/instances/{instanceId}": {
             "get": {
-                "operationId": "fowardToGrafanaInstances",
+                "operationId": "getGrafanaInstances",
                 "tags": [
                     "Grafana"
                 ],
-                "summary": "Forward to Grafana instances dashboard",
+                "summary": "Get Grafana instances dashboard",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -10507,13 +10525,25 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "302": {
-                        "description": "Forward to Grafana instances dashboard",
-                        "headers": {
-                            "Location": {
+                    "200": {
+                        "description": "Get Grafana instances dashboard",
+                        "content": {
+                            "application/json": {
                                 "schema": {
-                                    "type": "string",
-                                    "example": "http://example-data-center/grafana/d/PVW6vU7Wz/instance?refresh=5m&kiosk=tv&orgId=1&var-UUID=example-instance-id"
+                                    "$ref": "#/components/schemas/GetGrafanaDashboardLinkResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Grafana instances dashboard link",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "link": "http://example-data-center/grafana/d/qzfq087Wk/instance?refresh=5m&orgId=1&var-TID=example-instance-id&var-TOP=50&var-TENANT=admin"
+                                            },
+                                            "msg": "fetch top instance link successfully",
+                                            "status": "ok"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -10555,7 +10585,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to forward Grafana instances dashboard: internal server error"
+                                            "example": "failed to get Grafana instances dashboard: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -10571,24 +10601,36 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/grafana/topHosts": {
             "get": {
-                "operationId": "fowardToGrafanaTopHosts",
+                "operationId": "getGrafanaTopHosts",
                 "tags": [
                     "Grafana"
                 ],
-                "summary": "Forward to Grafana top hosts dashboard",
+                "summary": "Get Grafana top hosts dashboard",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "responses": {
-                    "302": {
-                        "description": "Forward to Grafana top hosts dashboard",
-                        "headers": {
-                            "Location": {
+                    "200": {
+                        "description": "Get Grafana top hosts dashboard",
+                        "content": {
+                            "application/json": {
                                 "schema": {
-                                    "type": "string",
-                                    "example": "http://example-data-center/grafana/d/M3ncw6lmk/top-hosts?refresh=5m&kiosk=tv&orgId=1"
+                                    "$ref": "#/components/schemas/GetGrafanaDashboardLinkResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Grafana top hosts dashboard link",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "link": "http://example-data-center/grafana/d/M3ncw6lmk/top-hosts?refresh=5m&kiosk=tv&orgId=1"
+                                            },
+                                            "msg": "fetch top host link successfully",
+                                            "status": "ok"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -10630,7 +10672,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to forward Grafana top hosts dashboard: internal server error"
+                                            "example": "failed to get Grafana top hosts dashboard: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -10646,27 +10688,39 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/grafana/topInstances": {
             "get": {
-                "operationId": "fowardToGrafanaTopInstances",
+                "operationId": "getGrafanaTopInstances",
                 "tags": [
                     "Grafana"
                 ],
-                "summary": "Forward to Grafana top instances dashboard",
+                "summary": "Get Grafana top instances dashboard",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "responses": {
-                    "302": {
-                        "description": "Forward to Grafana top instances dashboard",
-                        "headers": {
-                            "Location": {
+                    "200": {
+                        "description": "Get Grafana top instances dashboard",
+                         "content": {
+                            "application/json": {
                                 "schema": {
-                                    "type": "string",
-                                    "example": "http://example-data-center/grafana/d/qzfq087Wk/top-instances?refresh=5m&orgId=1&var-TID=&var-TOP=50&var-TENANT=admin"
+                                    "$ref": "#/components/schemas/GetGrafanaDashboardLinkResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Grafana top instances dashboard link",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "link": "http://example-data-center/grafana/d/qzfq087Wk/top-instances?refresh=5m&orgId=1&var-TID=&var-TOP=50&var-TENANT=admin"
+                                            },
+                                            "msg": "fetch top instance link successfully",
+                                            "status": "ok"
+                                        }
+                                    }
                                 }
                             }
-                        }
+                         }
                     },
                     "401": {
                         "description": "Unauthorized",
@@ -10705,7 +10759,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to forward Grafana top instances dashboard: internal server error"
+                                            "example": "failed to get Grafana top instances dashboard: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -10721,24 +10775,36 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/grafana/networks": {
             "get": {
-                "operationId": "fowardToGrafanaNetworks",
+                "operationId": "getGrafanaNetworks",
                 "tags": [
                     "Grafana"
                 ],
-                "summary": "Forward to Grafana networks dashboard",
+                "summary": "Get Grafana networks dashboard",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "responses": {
-                    "302": {
-                        "description": "Forward to Grafana networks dashboard",
-                        "headers": {
-                            "Location": {
+                    "200": {
+                        "description": "Get Grafana networks dashboard",
+                        "content": {
+                            "application/json": {
                                 "schema": {
-                                    "type": "string",
-                                    "example": "http://example-data-center/grafana/d/Xx2kkftWk/network?orgId=1&refresh=5m"
+                                    "$ref": "#/components/schemas/GetGrafanaDashboardLinkResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Grafana networks dashboard link",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "link": "http://example-data-center/grafana/d/Xx2kkftWk/network?orgId=1&refresh=5m"
+                                            },
+                                            "msg": "fetch top network link successfully",
+                                            "status": "ok"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -10780,7 +10846,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to forward Grafana networks dashboard: internal server error"
+                                            "example": "failed to get Grafana networks dashboard: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -10796,24 +10862,36 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/grafana/storages": {
             "get": {
-                "operationId": "fowardToGrafanaStorages",
+                "operationId": "getGrafanaStorages",
                 "tags": [
                     "Grafana"
                 ],
-                "summary": "Forward to Grafana storages dashboard",
+                "summary": "Get Grafana storages dashboard",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
                     }
                 ],
                 "responses": {
-                    "302": {
-                        "description": "Forward to Grafana storages dashboard",
-                        "headers": {
-                            "Location": {
+                    "200": {
+                        "description": "Get Grafana storages dashboard",
+                        "content": {
+                            "application/json": {
                                 "schema": {
-                                    "type": "string",
-                                    "example": "http://example-data-center/grafana/d/QTc_sAxiw/storage?refresh=5m&kiosk=tv&orgId=1"
+                                    "$ref": "#/components/schemas/GetGrafanaDashboardLinkResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Grafana storages dashboard link",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "link": "http://example-data-center/grafana/d/QTc_sAxiw/storage?refresh=5m&kiosk=tv&orgId=1"
+                                            },
+                                            "msg": "fetch top storage link successfully",
+                                            "status": "ok"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -10855,7 +10933,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to forward Grafana storages dashboard: internal server error"
+                                            "example": "failed to get Grafana storages dashboard: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -13395,7 +13473,7 @@ const docTemplate = `{
                             "slack": {
                                 "type": "object",
                                 "properties": {
-                                    "channel": {
+                                    "channels": {
                                         "$ref": "#/components/schemas/SlackChannelPostRequest"
                                     }
                                 }
@@ -14172,6 +14250,7 @@ const docTemplate = `{
                                 "description",
                                 "attributes",
                                 "response",
+                                "status",
                                 "enabled"
                             ],
                             "properties": {
@@ -14257,6 +14336,20 @@ const docTemplate = `{
                                                     }
                                                 }
                                             }
+                                        }
+                                    }
+                                },
+                                "status": {
+                                    "type": "object",
+                                    "required": [
+                                        "isUpdating"
+                                    ],
+                                    "properties": {
+                                        "current": {
+                                            "type": "string"
+                                        },
+                                        "isUpdating": {
+                                            "type": "boolean"
                                         }
                                     }
                                 },
@@ -14522,6 +14615,37 @@ const docTemplate = `{
                 "properties": {
                     "code": {
                         "type": "integer"
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "GetGrafanaDashboardLinkResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "link"
+                        ],
+                        "properties": {
+                            "link": {
+                                "type": "string"
+                            }
+                        }
                     },
                     "msg": {
                         "type": "string"

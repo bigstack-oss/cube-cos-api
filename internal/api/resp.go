@@ -36,7 +36,7 @@ type SupportFileListData struct {
 	Data   []support.File `json:"data"`
 }
 
-func SetStatusOk(c *gin.Context, msg string, data interface{}) {
+func SetStatusOk(c *gin.Context, msg string, data any) {
 	resp := gin.H{Code: http.StatusOK, Status: "ok", Msg: msg}
 	if data != nil {
 		resp[Data] = data
@@ -48,7 +48,7 @@ func SetStatusOk(c *gin.Context, msg string, data interface{}) {
 	)
 }
 
-func SetStatusCreated(c *gin.Context, msg string, data interface{}) {
+func SetStatusCreated(c *gin.Context, msg string, data any) {
 	resp := gin.H{Code: http.StatusOK, Status: "ok", Msg: msg}
 	if data != nil {
 		resp[Data] = data

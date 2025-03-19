@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 )
 
@@ -49,25 +50,25 @@ var (
 )
 
 func forwardHostLink(c *gin.Context) {
-	c.Redirect(http.StatusFound, genHostLink(c))
+	api.SetStatusOk(c, "fetch host link successfully", v1.Dashboard{Link: genHostLink(c)})
 }
 
 func forwardInstanceLink(c *gin.Context) {
-	c.Redirect(http.StatusFound, genInstanceLink(c))
+	api.SetStatusOk(c, "fetch instance link successfully", v1.Dashboard{Link: genInstanceLink(c)})
 }
 
 func forwardTopHostLink(c *gin.Context) {
-	c.Redirect(http.StatusFound, genTopHostLink())
+	api.SetStatusOk(c, "fetch top host link successfully", v1.Dashboard{Link: genTopHostLink()})
 }
 
 func forwardTopInstanceLink(c *gin.Context) {
-	c.Redirect(http.StatusFound, genTopInstanceLink())
+	api.SetStatusOk(c, "fetch top instance link successfully", v1.Dashboard{Link: genTopInstanceLink()})
 }
 
 func forwardNetworksLink(c *gin.Context) {
-	c.Redirect(http.StatusFound, genNetworksLink())
+	api.SetStatusOk(c, "fetch networks link successfully", v1.Dashboard{Link: genNetworksLink()})
 }
 
 func forwardStoragesLink(c *gin.Context) {
-	c.Redirect(http.StatusFound, genStoragesLink())
+	api.SetStatusOk(c, "fetch storages link successfully", v1.Dashboard{Link: genStoragesLink()})
 }
