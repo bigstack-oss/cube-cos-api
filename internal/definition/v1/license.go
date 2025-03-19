@@ -1,5 +1,7 @@
 package v1
 
+import "github.com/bigstack-oss/cube-cos-api/internal/status"
+
 const (
 	Licenses = "licenses"
 )
@@ -13,15 +15,12 @@ type License struct {
 	Quantity              `json:"quantity" yaml:"quantity" bson:"quantity"`
 	ServiceLevelAgreement `json:"serviceLevelAgreement" yaml:"sla" bson:"serviceLevelAgreement"`
 	Expiry                `json:"expiry" yaml:"expiry" bson:"expiry"`
+	Status                status.License `json:"status" yaml:"status" bson:"status"`
 }
 
 type Product struct {
-	Name     string    `json:"name" yaml:"name" bson:"name"`
-	Features []Feature `json:"features" yaml:"features" bson:"features"`
-}
-
-type Feature struct {
-	Name string `json:"name" yaml:"name" bson:"name"`
+	Name     string   `json:"name" yaml:"name" bson:"name"`
+	Features []string `json:"features" yaml:"features" bson:"features"`
 }
 
 type Issue struct {
@@ -49,14 +48,17 @@ type Expiry struct {
 }
 
 type RawLicense struct {
-	Type     string `json:"type" yaml:"type" bson:"type"`
-	Hostname string `json:"hostname" yaml:"hostname" bson:"hostname"`
-	Serial   string `json:"serial" yaml:"serial" bson:"serial"`
-	Check    int    `json:"check" yaml:"check" bson:"check"`
-	IssueBy  string `json:"issueby" yaml:"issueby" bson:"issueby"`
-	IssueTo  string `json:"issueto" yaml:"issueto" bson:"issueto"`
-	Hardware string `json:"hardware" yaml:"hardware" bson:"hardware"`
-	Expiry   string `json:"expiry" yaml:"expiry" bson:"expiry"`
-	Date     string `json:"date" yaml:"date" bson:"date"`
-	Days     int    `json:"days" yaml:"days" bson:"days"`
+	Type                  string `json:"type" yaml:"type" bson:"type"`
+	Hostname              string `json:"hostname" yaml:"hostname" bson:"hostname"`
+	Product               `json:"product" yaml:"product" bson:"product"`
+	Quantity              `json:"quantity" yaml:"quantity" bson:"quantity"`
+	ServiceLevelAgreement `json:"serviceLevelAgreement" yaml:"sla" bson:"serviceLevelAgreement"`
+	Serial                string `json:"serial" yaml:"serial" bson:"serial"`
+	Check                 int    `json:"check" yaml:"check" bson:"check"`
+	IssueBy               string `json:"issueby" yaml:"issueby" bson:"issueby"`
+	IssueTo               string `json:"issueto" yaml:"issueto" bson:"issueto"`
+	Hardware              string `json:"hardware" yaml:"hardware" bson:"hardware"`
+	Expiry                string `json:"expiry" yaml:"expiry" bson:"expiry"`
+	Date                  string `json:"date" yaml:"date" bson:"date"`
+	Days                  int    `json:"days" yaml:"days" bson:"days"`
 }

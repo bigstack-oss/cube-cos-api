@@ -58,6 +58,11 @@ type SupportFile struct {
 	IsCreating bool   `json:"isCreating" bson:"isCreating"`
 }
 
+type License struct {
+	Current    string `json:"current,omitempty" bson:"current"`
+	IsExpiring bool   `json:"isExpiring" bson:"isExpiring"`
+}
+
 func (s *Details) ClearDesired() {
 	s.Desired = None
 }

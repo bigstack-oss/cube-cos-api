@@ -8,6 +8,7 @@ import (
 	"time"
 
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -69,29 +70,94 @@ func parseLicenses(raws []definition.RawLicense) []definition.License {
 }
 
 func parseLicense(raw definition.RawLicense) definition.License {
+	return definition.License{
+		Type:     raw.Type,
+		Hostname: raw.Hostname,
+		Product:  parseProduct(raw.Product),
+		Serial:   raw.Serial,
+		Issue:    parseIssue(raw),
+		Expiry:   parseExpiry(raw),
+		Status:   parseStatus(raw),
+	}
+}
+
+func parseProduct(raw definition.Product) definition.Product {
+	if raw.Name == "" {
+		raw.Name = "CubeCOS"
+	}
+
+	return definition.Product{
+		Name:     raw.Name,
+		Features: parseFeatures(raw),
+	}
+}
+
+func parseFeatures(raw definition.Product) []string {
+	if len(raw.Features) > 0 {
+		return raw.Features
+	}
+
+	switch raw.Name {
+	case "CubeCOS":
+		raw.Features = []string{"virtualization", "kubernetes"}
+	case "CubeCMP":
+		raw.Features = []string{"all"}
+	}
+
+	return raw.Features
+}
+
+func parseIssue(raw definition.RawLicense) definition.Issue {
 	issue, err := time.Parse("2006-01-02 15:04:05 MST", raw.Date)
 	if err != nil {
 		raw.Date = "unknown issue date"
 	}
 
+	return definition.Issue{
+		By:       raw.IssueBy,
+		To:       raw.IssueTo,
+		Hardware: raw.Hardware,
+		Date:     issue.In(definition.LocalTimeFixedZone).Format(time.RFC3339),
+	}
+}
+
+func parseExpiry(raw definition.RawLicense) definition.Expiry {
 	expiry, err := time.Parse("2006-01-02 15:04:05 MST", raw.Expiry)
 	if err != nil {
 		raw.Expiry = "unknown expiry date"
 	}
 
-	return definition.License{
-		Type:     raw.Type,
-		Hostname: raw.Hostname,
-		Serial:   raw.Serial,
-		Issue: definition.Issue{
-			By:       raw.IssueBy,
-			To:       raw.IssueTo,
-			Hardware: raw.Hardware,
-			Date:     issue.In(definition.LocalTimeFixedZone).Format(time.RFC3339),
-		},
-		Expiry: definition.Expiry{
-			Date: expiry.In(definition.LocalTimeFixedZone).Format(time.RFC3339),
-			Days: raw.Days,
-		},
+	return definition.Expiry{
+		Date: expiry.In(definition.LocalTimeFixedZone).Format(time.RFC3339),
+		Days: raw.Days,
+	}
+}
+
+// note:
+// the reason to assign time.Now().Local() to expiry if expiry is invalid is that
+// the expiry field shouldn't be invalid in whatever case, if it's invalid, then there must be something wrong
+// during signing process, we should raise the unexpected symptom and block the further process.
+func parseStatus(raw definition.RawLicense) status.License {
+	expiry, err := time.Parse("2006-01-02 15:04:05 MST", raw.Expiry)
+	if err != nil {
+		expiry = time.Now().Local()
+	}
+
+	if time.Now().After(expiry) {
+		return status.License{
+			Current: "expired",
+		}
+	}
+
+	if time.Now().AddDate(0, 0, 30).After(expiry) {
+		return status.License{
+			Current:    "expiring",
+			IsExpiring: true,
+		}
+	}
+
+	return status.License{
+		Current:    "ok",
+		IsExpiring: false,
 	}
 }
