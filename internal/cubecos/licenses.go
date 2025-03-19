@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -58,6 +59,11 @@ func ListLicenses() ([]definition.License, error) {
 }
 
 func parseLicenses(raws []definition.RawLicense) []definition.License {
+	licenses := convertToLicenses(raws)
+	return aggregateLicenses(licenses)
+}
+
+func convertToLicenses(raws []definition.RawLicense) []definition.License {
 	licenses := []definition.License{}
 	for _, raw := range raws {
 		licenses = append(
@@ -69,15 +75,41 @@ func parseLicenses(raws []definition.RawLicense) []definition.License {
 	return licenses
 }
 
+func aggregateLicenses(licenses []definition.License) []definition.License {
+	mergedLicenses := []definition.License{}
+	for _, license := range genLicenseMap(licenses) {
+		mergedLicenses = append(mergedLicenses, license)
+	}
+
+	return mergedLicenses
+}
+
+func genLicenseMap(licenses []definition.License) map[string]definition.License {
+	licenseMap := map[string]definition.License{}
+	for _, license := range licenses {
+		key := license.Key()
+		mappedLicense, found := licenseMap[key]
+		if !found {
+			licenseMap[key] = license
+			continue
+		}
+
+		mappedLicense.Hosts = slices.Concat(mappedLicense.Hosts, license.Hosts)
+		licenseMap[key] = mappedLicense
+	}
+
+	return licenseMap
+}
+
 func parseLicense(raw definition.RawLicense) definition.License {
 	return definition.License{
-		Type:     raw.Type,
-		Hostname: raw.Hostname,
-		Product:  parseProduct(raw.Product),
-		Serial:   raw.Serial,
-		Issue:    parseIssue(raw),
-		Expiry:   parseExpiry(raw),
-		Status:   parseStatus(raw),
+		Type:    raw.Type,
+		Hosts:   []string{raw.Hostname},
+		Product: parseProduct(raw.Product),
+		Serial:  raw.Serial,
+		Issue:   parseIssue(raw),
+		Expiry:  parseExpiry(raw),
+		Status:  parseStatus(raw),
 	}
 }
 
