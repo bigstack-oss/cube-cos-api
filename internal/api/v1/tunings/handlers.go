@@ -56,7 +56,7 @@ func init() {
 }
 
 func getTunings(c *gin.Context) {
-	h, err := initReqHelper(c, "getTunings")
+	h, err := initHelper(c, "getTunings")
 	if err != nil {
 		log.Errorf("tunings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
@@ -83,7 +83,7 @@ func getTunings(c *gin.Context) {
 }
 
 func getTuningSpecs(c *gin.Context) {
-	h, err := initReqHelper(c, "getTuningSpecs")
+	h, err := initHelper(c, "getTuningSpecs")
 	if err != nil {
 		log.Errorf("tunings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
@@ -105,7 +105,7 @@ func getTuningSpecs(c *gin.Context) {
 }
 
 func updateTuning(c *gin.Context) {
-	h, err := initReqHelper(c, "updateTuning")
+	h, err := initHelper(c, "updateTuning")
 	if err != nil {
 		log.Errorf("tunings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
@@ -134,7 +134,7 @@ func updateTuning(c *gin.Context) {
 }
 
 func resetTuning(c *gin.Context) {
-	h, err := initReqHelper(c, "resetTuning")
+	h, err := initHelper(c, "resetTuning")
 	if err != nil {
 		log.Errorf("tunings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
@@ -163,7 +163,7 @@ func resetTuning(c *gin.Context) {
 }
 
 func updateTuningTask(c *gin.Context) {
-	h, err := initReqHelper(c, "updateTuningTask")
+	h, err := initHelper(c, "updateTuningTask")
 	if err != nil {
 		log.Errorf("tunings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
@@ -199,7 +199,7 @@ func updateTuningTask(c *gin.Context) {
 }
 
 func enableOrDisableTuning(c *gin.Context) {
-	h, err := initReqHelper(c, "enableOrDisableTuning")
+	h, err := initHelper(c, "enableOrDisableTuning")
 	if err != nil {
 		log.Errorf("tunings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)

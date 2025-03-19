@@ -15,7 +15,7 @@ var (
 			Version: api.V1,
 			Method:  http.MethodGet,
 			Path:    "/licenses",
-			Func:    getLicenses,
+			Func:    listLicenses,
 		},
 		{
 			Version: api.V1,
@@ -26,48 +26,27 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodPost,
-			Path:    "/nodes/:node/licenses",
-			Func:    importNodeLicense,
+			Path:    "/licenses/hosts/:hostname",
+			Func:    importHostLicense,
 		},
 	}
 )
 
-func getLicenses(c *gin.Context) {
-	pageOpts, err := genPageOptsByQueryParams(c)
+func listLicenses(c *gin.Context) {
+	h, err := initHelper(c, "listLicenses")
 	if err != nil {
-		log.Errorf("request(%s): %s", api.GetReqId(c), err.Error())
-		api.SetBadRequest(c, err)
 		return
 	}
 
-	allLicenses, err := cubecos.ListLicenses()
+	licenses, err := h.listLicenses()
 	if err != nil {
-		log.Warnf("request(%s): failed to list the cluster license: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
-		return
-	}
-
-	pagedLicenses, err := paginateLicenses(allLicenses, pageOpts)
-	if err != nil {
-		log.Errorf("request(%s): failed to paginate licenses: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
-		return
-	}
-
-	page, err := genPageInfo(pagedLicenses, pageOpts)
-	if err != nil {
-		log.Errorf("request(%s): failed to gen page info: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
 		return
 	}
 
 	api.SetStatusOk(
 		c,
 		"fetch licenses successfully",
-		data{
-			Licenses: pagedLicenses,
-			Page:     page,
-		},
+		licenses,
 	)
 }
 
@@ -101,7 +80,7 @@ func importClusterLicense(c *gin.Context) {
 	api.SetStatusOk(c, "update licenses successfully", nil)
 }
 
-func importNodeLicense(c *gin.Context) {
+func importHostLicense(c *gin.Context) {
 	if err := importOrDelegateLicense(c, c.Param("node")); err != nil {
 		log.Errorf("request(%s): failed to import license: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)

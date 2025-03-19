@@ -19,6 +19,7 @@ func ImportClusterLicense(licensePath string) error {
 		log.Errorf("failed to import licenses: %v", err)
 		return err
 	}
+
 	return nil
 }
 
@@ -31,62 +32,66 @@ func ImportNodeLicense(licensePath string) error {
 		log.Errorf("failed to import licenses: %v", err)
 		return err
 	}
+
 	return nil
 }
 
 func ListLicenses() ([]definition.License, error) {
 	b, err := exec.Command("hex_config", "sdk_run", "-f", "json", "license_cluster_show").Output()
 	if err != nil {
-		log.Errorf("failed to list licenses: %v", err)
+		log.Errorf("licenses: failed to list licenses: %v", err)
 		return nil, err
 	}
 
-	rawLicenses := []definition.RawLicense{}
-	err = json.Unmarshal(b, &rawLicenses)
+	raws := []definition.RawLicense{}
+	err = json.Unmarshal(b, &raws)
 	if err != nil {
-		log.Errorf("failed to unmarshal licenses: %v", err)
+		log.Errorf("licenses: failed to unmarshal licenses: %v", err)
 		return nil, err
 	}
-	if len(rawLicenses) <= 0 {
+	if len(raws) <= 0 {
 		return nil, nil
 	}
 
-	return convertRawLicensesToApiLicenses(rawLicenses), nil
+	return parseLicenses(raws), nil
 }
 
-func convertRawLicensesToApiLicenses(rawLicenses []definition.RawLicense) []definition.License {
+func parseLicenses(raws []definition.RawLicense) []definition.License {
 	licenses := []definition.License{}
-	for _, rawLicense := range rawLicenses {
-		licenses = append(licenses, genApiLicense(rawLicense))
+	for _, raw := range raws {
+		licenses = append(
+			licenses,
+			parseLicense(raw),
+		)
 	}
 
 	return licenses
 }
 
-func genApiLicense(rawLicense definition.RawLicense) definition.License {
-	issueDate, err := time.Parse("2006-01-02 15:04:05 MST", rawLicense.Date)
+func parseLicense(raw definition.RawLicense) definition.License {
+	issue, err := time.Parse("2006-01-02 15:04:05 MST", raw.Date)
 	if err != nil {
-		rawLicense.Date = "unknown issue date"
+		raw.Date = "unknown issue date"
 	}
 
-	expiry, err := time.Parse("2006-01-02 15:04:05 MST", rawLicense.Expiry)
+	expiry, err := time.Parse("2006-01-02 15:04:05 MST", raw.Expiry)
 	if err != nil {
-		rawLicense.Expiry = "unknown expiry date"
+		raw.Expiry = "unknown expiry date"
 	}
 
 	return definition.License{
-		Type:     rawLicense.Type,
-		Hostname: rawLicense.Hostname,
-		Serial:   rawLicense.Serial,
+		Type:     raw.Type,
+		Hostname: raw.Hostname,
+		Serial:   raw.Serial,
 		Issue: definition.Issue{
-			By:       rawLicense.IssueBy,
-			To:       rawLicense.IssueTo,
-			Hardware: rawLicense.Hardware,
-			Date:     issueDate.In(definition.LocalTimeFixedZone).Format(time.RFC3339),
+			By:       raw.IssueBy,
+			To:       raw.IssueTo,
+			Hardware: raw.Hardware,
+			Date:     issue.In(definition.LocalTimeFixedZone).Format(time.RFC3339),
 		},
 		Expiry: definition.Expiry{
 			Date: expiry.In(definition.LocalTimeFixedZone).Format(time.RFC3339),
-			Days: rawLicense.Days,
+			Days: raw.Days,
 		},
 	}
 }

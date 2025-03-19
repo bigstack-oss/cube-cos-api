@@ -15,7 +15,7 @@ type helper struct {
 	trigger trigger.Options
 }
 
-func initReqHelper(c *gin.Context, handler string) (*helper, error) {
+func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{c: c, handler: handler}
 
 	switch handler {

@@ -32,7 +32,7 @@ func init() {
 // M1 TODO: have to check why sometime take a long time to get the nodes list
 // suspect the cluster-wise license fetching might be slow by hex cli
 func listNodes(c *gin.Context) {
-	h, err := initReqHelper(c, "listNodes")
+	h, err := initHelper(c, "listNodes")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
@@ -59,7 +59,7 @@ func listNodes(c *gin.Context) {
 }
 
 func getNode(c *gin.Context) {
-	h, err := initReqHelper(c, "getNode")
+	h, err := initHelper(c, "getNode")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)

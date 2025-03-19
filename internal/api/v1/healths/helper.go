@@ -47,7 +47,7 @@ func (p period) StopTime() time.Time {
 	return t
 }
 
-func initReqHelper(c *gin.Context, handler string) (*helper, error) {
+func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{c: c, handler: handler}
 	switch h.handler {
 	case "getHealthSummary":

@@ -42,7 +42,7 @@ func init() {
 }
 
 func getEvents(c *gin.Context) {
-	h, err := initReqHelper(c, "getEvents")
+	h, err := initHelper(c, "getEvents")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
@@ -69,7 +69,7 @@ func getEvents(c *gin.Context) {
 }
 
 func getEventAbstract(c *gin.Context) {
-	h, err := initReqHelper(c, "getEventAbstract")
+	h, err := initHelper(c, "getEventAbstract")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
@@ -96,7 +96,7 @@ func getEventAbstract(c *gin.Context) {
 }
 
 func genEventRank(c *gin.Context) {
-	h, err := initReqHelper(c, "genEventRank")
+	h, err := initHelper(c, "genEventRank")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
@@ -123,7 +123,7 @@ func genEventRank(c *gin.Context) {
 }
 
 func getEventFilterConditions(c *gin.Context) {
-	h, err := initReqHelper(c, "getEventFilterConditions")
+	h, err := initHelper(c, "getEventFilterConditions")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)

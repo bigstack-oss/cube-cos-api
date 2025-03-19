@@ -11,16 +11,8 @@ func paginateNodes(nodes []*definition.Node, page definition.Page) ([]*definitio
 		return nodes, nil
 	}
 
-	left := (page.Number - 1) * page.Size
-	if left > len(nodes) {
-		left = len(nodes)
-	}
-
-	right := left + page.Size
-	if right > len(nodes) {
-		right = len(nodes)
-	}
-
+	left := min((page.Number-1)*page.Size, len(nodes))
+	right := min(left+page.Size, len(nodes))
 	return nodes[left:right], nil
 }
 

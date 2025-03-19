@@ -40,9 +40,9 @@ var (
 )
 
 func listTriggers(c *gin.Context) {
-	h, err := initReqHelper(c, "listTriggers")
+	h, err := initHelper(c, "listTriggers")
 	if err != nil {
-		log.Errorf("triggers(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
+		log.Errorf("triggers(%s): failed to initHelper: %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
@@ -62,9 +62,9 @@ func listTriggers(c *gin.Context) {
 }
 
 func getTrigger(c *gin.Context) {
-	h, err := initReqHelper(c, "getTrigger")
+	h, err := initHelper(c, "getTrigger")
 	if err != nil {
-		log.Errorf("triggers(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
+		log.Errorf("triggers(%s): failed to initHelper: %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
@@ -84,9 +84,9 @@ func getTrigger(c *gin.Context) {
 }
 
 func updateTrigger(c *gin.Context) {
-	h, err := initReqHelper(c, "updateTrigger")
+	h, err := initHelper(c, "updateTrigger")
 	if err != nil {
-		log.Errorf("triggers(%s): failed to initReqHelper: %v", api.GetReqId(c), err)
+		log.Errorf("triggers(%s): failed to initHelper: %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
@@ -100,7 +100,7 @@ func updateTrigger(c *gin.Context) {
 }
 
 func updateTriggerTask(c *gin.Context) {
-	h, err := initReqHelper(c, "updateTriggerTask")
+	h, err := initHelper(c, "updateTriggerTask")
 	if err != nil {
 		log.Errorf("triggers(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)

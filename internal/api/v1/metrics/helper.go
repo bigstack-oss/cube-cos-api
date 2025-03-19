@@ -30,7 +30,7 @@ type rank struct {
 	tail int
 }
 
-func initReqHelper(c *gin.Context, handler string) (*helper, error) {
+func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{c: c, handler: handler}
 	switch handler {
 	case "getDataCenterSummary":

@@ -52,7 +52,7 @@ func init() {
 // M1 TODO: the health info will be replaced by the real data around 2025-02-10
 // there're a few implementations to need to be checked with the team.
 func getHealthSummary(c *gin.Context) {
-	h, err := initReqHelper(c, "getHealthSummary")
+	h, err := initHelper(c, "getHealthSummary")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
@@ -112,7 +112,7 @@ func forceRepairModule(c *gin.Context) {
 }
 
 func getHealthHistoryOfService(c *gin.Context) {
-	h, err := initReqHelper(c, "getHealthHistoryOfService")
+	h, err := initHelper(c, "getHealthHistoryOfService")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
@@ -133,7 +133,7 @@ func getHealthHistoryOfService(c *gin.Context) {
 }
 
 func getHealthHistoryOfModule(c *gin.Context) {
-	h, err := initReqHelper(c, "getHealthHistoryOfModule")
+	h, err := initHelper(c, "getHealthHistoryOfModule")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
