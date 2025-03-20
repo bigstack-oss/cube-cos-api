@@ -18,7 +18,9 @@ func (h *helper) genCountQueryStmt() string {
 		Measurement(h.eventType)
 
 	query = h.addFilters(query)
-	return query.Count("").String()
+	return query.Pivot(convertValueToField).
+		Group("").
+		String()
 }
 
 func (h *helper) genFilterConditionStmt(eventType, column string) string {

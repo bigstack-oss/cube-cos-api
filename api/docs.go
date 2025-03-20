@@ -13555,7 +13555,10 @@ const docTemplate = `{
                                 "type": "object",
                                 "properties": {
                                     "channels": {
-                                        "$ref": "#/components/schemas/SlackChannelPostRequest"
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/SlackChannelPostRequest"
+                                        }
                                     }
                                 }
                             }

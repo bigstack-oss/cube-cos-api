@@ -31,7 +31,7 @@ func IsEventTypeValid(t string) bool {
 }
 
 func CountEvents(stmt string) (int64, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
 
 	h := influx.GetGlobalHelper()
@@ -49,9 +49,7 @@ func countEvents(c *api.QueryTableResult) (int64, error) {
 	count := int64(0)
 
 	for c.Next() {
-		record := c.Record()
-		rawCount := record.Value().(int64)
-		count = count + rawCount
+		count++
 	}
 	if c.Err() != nil {
 		return 0, c.Err()
