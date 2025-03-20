@@ -18,9 +18,9 @@ func ListBuiltInIntegrations() []definition.Integration {
 		{
 			Name:                    "openstack",
 			IsHeaderShortcutEnabled: true,
-			Description:             "OpenStack Dashboard",
+			Description:             "OpenStack Skyline Dashboard",
 			IsBuiltIn:               true,
-			Url:                     fmt.Sprintf("https://%s/horizon", definition.DataCenterVip),
+			Url:                     fmt.Sprintf("https://%s:9999/base/overview", definition.DataCenterVip),
 		},
 		{
 			Name:                    "rancher",
