@@ -2543,10 +2543,32 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
+                        "$ref": "#/components/parameters/keyword"
+                    },
+                    {
+                        "in": "query",
+                        "name": "type",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "trial",
+                                "perpetual",
+                                "community",
+                                "enterprise"
+                            ]
+                        },
+                        "description": "The type of the license to query, click 'try it out' to see a few options.",
+                        "example": "trial"
+                    },
+                    {
                         "$ref": "#/components/parameters/pageSize"
                     },
                     {
                         "$ref": "#/components/parameters/pageNum"
+                    },
+                    {
+                        "$ref": "#/components/parameters/watch"
                     }
                 ],
                 "responses": {
@@ -2559,28 +2581,33 @@ const docTemplate = `{
                                 },
                                 "examples": {
                                     "example1": {
-                                        "summary": "Licenses",
+                                        "summary": "License list",
                                         "value": {
                                             "code": 200,
                                             "data": {
                                                 "licenses": [
                                                     {
                                                         "type": "trial",
-                                                        "hostname": "dell200",
-                                                        "serial": "  ",
+                                                        "hosts": [
+                                                            "example-node-0"
+                                                        ],
+                                                        "serial": "1H2ZLG2",
                                                         "product": {
-                                                            "name": "",
-                                                            "features": null
+                                                            "name": "CubeCOS",
+                                                            "features": [
+                                                                "virtualization",
+                                                                "kubernetes"
+                                                            ]
                                                         },
                                                         "issue": {
                                                             "by": "Bigstack co., ltd.",
-                                                            "to": "*",
+                                                            "to": "bigstack",
                                                             "hardware": "*",
-                                                            "date": "2025-02-04T17:54:45+08:00"
+                                                            "date": "2025-03-16T17:31:21+08:00"
                                                         },
                                                         "quantity": {
                                                             "type": "",
-                                                            "vcpu": 0
+                                                            "value": 0
                                                         },
                                                         "serviceLevelAgreement": {
                                                             "uptime": 0,
@@ -2589,8 +2616,12 @@ const docTemplate = `{
                                                             "meanTimeToRecovery": ""
                                                         },
                                                         "expiry": {
-                                                            "date": "2025-04-05T17:54:45+08:00",
-                                                            "days": 58
+                                                            "date": "2025-05-15T17:31:21+08:00",
+                                                            "days": 56
+                                                        },
+                                                        "status": {
+                                                            "current": "ok",
+                                                            "isExpiring": false
                                                         }
                                                     }
                                                 ],
@@ -2603,6 +2634,30 @@ const docTemplate = `{
                                             },
                                             "msg": "fetch licenses successfully",
                                             "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
                                         }
                                     }
                                 }
@@ -10701,7 +10756,7 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Get Grafana top instances dashboard",
-                         "content": {
+                        "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/GetGrafanaDashboardLinkResponse"
@@ -10720,7 +10775,7 @@ const docTemplate = `{
                                     }
                                 }
                             }
-                         }
+                        }
                     },
                     "401": {
                         "description": "Unauthorized",
@@ -12022,20 +12077,24 @@ const docTemplate = `{
                                     "type": "object",
                                     "required": [
                                         "type",
-                                        "hostname",
+                                        "hosts",
                                         "serial",
                                         "product",
                                         "issue",
                                         "quantity",
                                         "serviceLevelAgreement",
-                                        "expiry"
+                                        "expiry",
+                                        "status"
                                     ],
                                     "properties": {
                                         "type": {
                                             "type": "string"
                                         },
-                                        "hostname": {
-                                            "type": "string"
+                                        "hosts": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
                                         },
                                         "serial": {
                                             "type": "string"
@@ -12051,7 +12110,10 @@ const docTemplate = `{
                                                     "type": "string"
                                                 },
                                                 "features": {
-                                                    "type": "object"
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
                                                 }
                                             }
                                         },
@@ -12082,13 +12144,13 @@ const docTemplate = `{
                                             "type": "object",
                                             "required": [
                                                 "type",
-                                                "vcpu"
+                                                "value"
                                             ],
                                             "properties": {
                                                 "type": {
                                                     "type": "string"
                                                 },
-                                                "vcpu": {
+                                                "value": {
                                                     "type": "integer"
                                                 }
                                             }
@@ -12128,6 +12190,25 @@ const docTemplate = `{
                                                 },
                                                 "days": {
                                                     "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "object",
+                                            "required": [
+                                                "current",
+                                                "isExpiring"
+                                            ],
+                                            "properties": {
+                                                "current": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "ok",
+                                                        "expired"
+                                                    ]
+                                                },
+                                                "isExpiring": {
+                                                    "type": "boolean"
                                                 }
                                             }
                                         }
