@@ -4,15 +4,20 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	"github.com/blevesearch/bleve/v2"
 )
 
 const (
 	Licenses = "licenses"
 )
 
+var (
+	licenseSearcher bleve.Index
+)
+
 type License struct {
 	Type                  string   `json:"type" yaml:"type" bson:"type"`
-	Hostname              string   `json:"hostname" yaml:"hostname" bson:"hostname"`
+	Hostname              string   `json:"hostname,omitzero" yaml:"hostname" bson:"hostname"`
 	Hosts                 []string `json:"hosts" yaml:"hosts" bson:"hosts"`
 	Serial                string   `json:"serial" yaml:"serial" bson:"serial"`
 	Product               `json:"product" yaml:"product" bson:"product"`
@@ -37,7 +42,7 @@ type Issue struct {
 
 type Quantity struct {
 	Type  string `json:"type" yaml:"type" bson:"type"`
-	Value int    `json:"vcpu" yaml:"vcpu" bson:"vcpu"`
+	Value int    `json:"value" yaml:"vcpu" bson:"value"`
 }
 
 type ServiceLevelAgreement struct {
@@ -80,4 +85,19 @@ func (l *License) Key() string {
 		l.Expiry.Date,
 		l.Expiry.Days,
 	)
+}
+
+func InitLicenseSearchIndex() error {
+	if licenseSearcher != nil {
+		return nil
+	}
+
+	var err error
+	mapping := bleve.NewIndexMapping()
+	licenseSearcher, err = bleve.NewMemOnly(mapping)
+	return err
+}
+
+func GetLicenseSearcher() bleve.Index {
+	return licenseSearcher
 }

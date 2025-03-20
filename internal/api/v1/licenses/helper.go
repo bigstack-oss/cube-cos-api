@@ -39,6 +39,7 @@ func (h *helper) listLicenses() (*data, error) {
 		return nil, err
 	}
 
+	licenses = h.filterLicenses(licenses)
 	return &data{
 		Licenses: h.paginateLicenses(licenses),
 		Page:     h.genPageInfo(licenses),

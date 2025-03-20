@@ -45,17 +45,26 @@ func ListLicenses() ([]definition.License, error) {
 		return nil, err
 	}
 
-	raws := []definition.RawLicense{}
-	err = json.Unmarshal(b, &raws)
+	raws, err := parseRawLicenses(b)
 	if err != nil {
-		log.Errorf("licenses: failed to unmarshal licenses: %v", err)
+		log.Errorf("licenses: failed to parse raw licenses: %v", err)
+		return nil, err
+	}
+
+	return parseLicenses(raws), nil
+}
+
+func parseRawLicenses(b []byte) ([]definition.RawLicense, error) {
+	raws := []definition.RawLicense{}
+	err := json.Unmarshal(b, &raws)
+	if err != nil {
 		return nil, err
 	}
 	if len(raws) <= 0 {
 		return nil, nil
 	}
 
-	return parseLicenses(raws), nil
+	return raws, nil
 }
 
 func parseLicenses(raws []definition.RawLicense) []definition.License {

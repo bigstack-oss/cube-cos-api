@@ -108,6 +108,11 @@ func initDependencies() error {
 		log.Errorf("failed to init support file search index: %s", err.Error())
 	}
 
+	err = newLicenseSearchIndex()
+	if err != nil {
+		log.Errorf("failed to init license search index: %s", err.Error())
+	}
+
 	return nil
 }
 
@@ -327,4 +332,8 @@ func newTuningRecordTTL() error {
 
 func newSupportFileSearchIndex() error {
 	return support.InitFileSearchIndex()
+}
+
+func newLicenseSearchIndex() error {
+	return definition.InitLicenseSearchIndex()
 }
