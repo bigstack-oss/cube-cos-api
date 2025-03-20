@@ -5,5 +5,6 @@ const (
 )
 
 type Dashboard struct {
-	Link string `json:"link"`
+	Link    string `json:"link"`
+	Enabled bool   `json:"enabled"`
 }

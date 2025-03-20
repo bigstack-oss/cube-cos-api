@@ -10496,7 +10496,8 @@ const docTemplate = `{
                                         "value": {
                                             "code": 200,
                                             "data": {
-                                                "link": "http://example-data-center/grafana/d/i-R2q81iz/host?refresh=5m&kiosk=tv&orgId=1&var-HOST=example-node-0"
+                                                "link": "http://example-data-center/grafana/d/i-R2q81iz/host?refresh=5m&kiosk=tv&orgId=1&var-HOST=example-node-0",
+                                                "enabled": true
                                             },
                                             "msg": "fetch top host link successfully",
                                             "status": "ok"
@@ -10593,7 +10594,8 @@ const docTemplate = `{
                                         "value": {
                                             "code": 200,
                                             "data": {
-                                                "link": "http://example-data-center/grafana/d/qzfq087Wk/instance?refresh=5m&orgId=1&var-TID=example-instance-id&var-TOP=50&var-TENANT=admin"
+                                                "link": "http://example-data-center/grafana/d/qzfq087Wk/instance?refresh=5m&orgId=1&var-TID=example-instance-id&var-TOP=50&var-TENANT=admin",
+                                                "enabled": true
                                             },
                                             "msg": "fetch top instance link successfully",
                                             "status": "ok"
@@ -10680,7 +10682,8 @@ const docTemplate = `{
                                         "value": {
                                             "code": 200,
                                             "data": {
-                                                "link": "http://example-data-center/grafana/d/M3ncw6lmk/top-hosts?refresh=5m&kiosk=tv&orgId=1"
+                                                "link": "http://example-data-center/grafana/d/M3ncw6lmk/top-hosts?refresh=5m&kiosk=tv&orgId=1",
+                                                "enabled": true
                                             },
                                             "msg": "fetch top host link successfully",
                                             "status": "ok"
@@ -10767,7 +10770,8 @@ const docTemplate = `{
                                         "value": {
                                             "code": 200,
                                             "data": {
-                                                "link": "http://example-data-center/grafana/d/qzfq087Wk/top-instances?refresh=5m&orgId=1&var-TID=&var-TOP=50&var-TENANT=admin"
+                                                "link": "http://example-data-center/grafana/d/qzfq087Wk/top-instances?refresh=5m&orgId=1&var-TID=&var-TOP=50&var-TENANT=admin",
+                                                "enabled": true
                                             },
                                             "msg": "fetch top instance link successfully",
                                             "status": "ok"
@@ -10854,7 +10858,8 @@ const docTemplate = `{
                                         "value": {
                                             "code": 200,
                                             "data": {
-                                                "link": "http://example-data-center/grafana/d/Xx2kkftWk/network?orgId=1&refresh=5m"
+                                                "link": "http://example-data-center/grafana/d/Xx2kkftWk/network?orgId=1&refresh=5m",
+                                                "enabled": true
                                             },
                                             "msg": "fetch top network link successfully",
                                             "status": "ok"
@@ -10941,7 +10946,8 @@ const docTemplate = `{
                                         "value": {
                                             "code": 200,
                                             "data": {
-                                                "link": "http://example-data-center/grafana/d/QTc_sAxiw/storage?refresh=5m&kiosk=tv&orgId=1"
+                                                "link": "http://example-data-center/grafana/d/QTc_sAxiw/storage?refresh=5m&kiosk=tv&orgId=1",
+                                                "enabled": true
                                             },
                                             "msg": "fetch top storage link successfully",
                                             "status": "ok"
@@ -14723,11 +14729,15 @@ const docTemplate = `{
                     "data": {
                         "type": "object",
                         "required": [
-                            "link"
+                            "link",
+                            "enabled"
                         ],
                         "properties": {
                             "link": {
                                 "type": "string"
+                            },
+                            "enabled": {
+                                "type": "boolean"
                             }
                         }
                     },

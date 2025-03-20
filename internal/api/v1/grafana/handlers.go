@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 )
@@ -50,25 +51,67 @@ var (
 )
 
 func forwardHostLink(c *gin.Context) {
-	api.SetStatusOk(c, "fetch host link successfully", v1.Dashboard{Link: genHostLink(c)})
+	api.SetStatusOk(
+		c,
+		"fetch host link successfully",
+		v1.Dashboard{
+			Link:    genHostLink(c),
+			Enabled: true,
+		},
+	)
 }
 
 func forwardInstanceLink(c *gin.Context) {
-	api.SetStatusOk(c, "fetch instance link successfully", v1.Dashboard{Link: genInstanceLink(c)})
+	api.SetStatusOk(
+		c,
+		"fetch instance link successfully",
+		v1.Dashboard{
+			Link:    genInstanceLink(c),
+			Enabled: true,
+		},
+	)
 }
 
 func forwardTopHostLink(c *gin.Context) {
-	api.SetStatusOk(c, "fetch top host link successfully", v1.Dashboard{Link: genTopHostLink()})
+	api.SetStatusOk(
+		c,
+		"fetch top host link successfully",
+		v1.Dashboard{
+			Link:    genTopHostLink(),
+			Enabled: true,
+		},
+	)
 }
 
 func forwardTopInstanceLink(c *gin.Context) {
-	api.SetStatusOk(c, "fetch top instance link successfully", v1.Dashboard{Link: genTopInstanceLink()})
+	api.SetStatusOk(
+		c,
+		"fetch top instance link successfully",
+		v1.Dashboard{
+			Link:    genTopInstanceLink(),
+			Enabled: true,
+		},
+	)
 }
 
 func forwardNetworksLink(c *gin.Context) {
-	api.SetStatusOk(c, "fetch networks link successfully", v1.Dashboard{Link: genNetworksLink()})
+	api.SetStatusOk(
+		c,
+		"fetch networks link successfully",
+		v1.Dashboard{
+			Link:    genNetworksLink(),
+			Enabled: cubecos.IsOvnSFlowEnabled(),
+		},
+	)
 }
 
 func forwardStoragesLink(c *gin.Context) {
-	api.SetStatusOk(c, "fetch storages link successfully", v1.Dashboard{Link: genStoragesLink()})
+	api.SetStatusOk(
+		c,
+		"fetch storages link successfully",
+		v1.Dashboard{
+			Link:    genStoragesLink(),
+			Enabled: true,
+		},
+	)
 }
