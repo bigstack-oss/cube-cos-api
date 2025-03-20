@@ -17,10 +17,11 @@ type Health struct {
 }
 
 type HealthStatus struct {
-	Category string        `json:"category"`
-	Name     string        `json:"name"`
-	Module   string        `json:"module"`
-	History  []HealthCheck `json:"history"`
+	Category     string        `json:"category"`
+	Name         string        `json:"name"`
+	Module       string        `json:"module"`
+	IsRepairable bool          `json:"isRepairable"`
+	History      []HealthCheck `json:"history"`
 }
 
 type HealthCheck struct {
@@ -89,7 +90,7 @@ func GetUnhealthyServices() ([]definition.Service, error) {
 	for _, service := range OrderSensitiveServices {
 		for _, module := range service.Modules {
 			log.Infof(healthCheck, module.Name)
-			if !module.IsAutoRepairable {
+			if !module.IsRepairable {
 				continue
 			}
 

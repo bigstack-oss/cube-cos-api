@@ -8,223 +8,224 @@ var (
 			Name:     "clusterLink",
 			Category: "core",
 			Modules: []definition.Module{
-				{Name: "link", IsAutoRepairable: false},
-				{Name: "clock", IsAutoRepairable: true},
-				{Name: "dns", IsAutoRepairable: false},
+				{Name: "link", IsRepairable: false},
+				{Name: "clock", IsRepairable: true},
+				{Name: "dns", IsRepairable: false},
 			},
 		},
 		{
 			Name:     "clusterSys",
 			Category: "core",
 			Modules: []definition.Module{
-				{Name: "bootstrap", IsAutoRepairable: false},
-				{Name: "license", IsAutoRepairable: false},
+				{Name: "bootstrap", IsRepairable: false},
+				{Name: "license", IsRepairable: false},
 			},
 		},
 		{
 			Name:     "clusterSettings",
 			Category: "core",
 			Modules: []definition.Module{
-				{Name: "etcd", IsAutoRepairable: true},
-				{Name: "nodelist", IsAutoRepairable: false},
+				{Name: "etcd", IsRepairable: true},
+				{Name: "nodelist", IsRepairable: false},
 			},
 		},
 		{
 			Name:     "haCluster",
 			Category: "core",
 			Modules: []definition.Module{
-				{Name: "hacluster", IsAutoRepairable: true},
+				{Name: "hacluster", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "msgQueue",
 			Category: "core",
 			Modules: []definition.Module{
-				{Name: "rabbitmq", IsAutoRepairable: true},
+				{Name: "rabbitmq", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "iaasDb",
 			Category: "core",
 			Modules: []definition.Module{
-				{Name: "mysql", IsAutoRepairable: true},
-				{Name: "mongodb", IsAutoRepairable: true},
+				{Name: "mysql", IsRepairable: true},
+				{Name: "mongodb", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "virtualIp",
 			Category: "core",
 			Modules: []definition.Module{
-				{Name: "vip", IsAutoRepairable: true},
-				{Name: "haproxy_ha", IsAutoRepairable: true},
+				{Name: "vip", IsRepairable: true},
+				{Name: "haproxy_ha", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "storage",
 			Category: "storage",
 			Modules: []definition.Module{
-				{Name: "ceph", IsAutoRepairable: false},
-				{Name: "ceph_mon", IsAutoRepairable: true},
-				{Name: "ceph_mgr", IsAutoRepairable: true},
-				{Name: "ceph_mds", IsAutoRepairable: true},
-				{Name: "ceph_osd", IsAutoRepairable: true},
-				{Name: "ceph_rgw", IsAutoRepairable: true},
-				{Name: "rbd_target", IsAutoRepairable: false},
+				{Name: "ceph", IsRepairable: false},
+				{Name: "ceph_mon", IsRepairable: true},
+				{Name: "ceph_mgr", IsRepairable: true},
+				{Name: "ceph_mds", IsRepairable: true},
+				{Name: "ceph_osd", IsRepairable: true},
+				{Name: "ceph_rgw", IsRepairable: true},
+				{Name: "rbd_target", IsRepairable: false},
 			},
 		},
 		{
 			Name:     "apiService",
 			Category: "core",
 			Modules: []definition.Module{
-				{Name: "haproxy", IsAutoRepairable: true},
-				{Name: "httpd", IsAutoRepairable: true},
-				{Name: "skyline", IsAutoRepairable: true},
-				{Name: "lmi", IsAutoRepairable: true},
-				{Name: "memcache", IsAutoRepairable: true},
+				{Name: "haproxy", IsRepairable: true},
+				{Name: "httpd", IsRepairable: true},
+				{Name: "skyline", IsRepairable: true},
+				{Name: "lmi", IsRepairable: true},
+				{Name: "memcache", IsRepairable: true},
+				{Name: "api", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "singleSignOn",
 			Category: "core",
 			Modules: []definition.Module{
-				{Name: "k3s", IsAutoRepairable: true},
-				{Name: "keycloak", IsAutoRepairable: true},
+				{Name: "k3s", IsRepairable: true},
+				{Name: "keycloak", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "network",
 			Category: "cloud computing",
 			Modules: []definition.Module{
-				{Name: "neutron", IsAutoRepairable: true},
+				{Name: "neutron", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "compute",
 			Category: "cloud computing",
 			Modules: []definition.Module{
-				{Name: "nova", IsAutoRepairable: true},
-				{Name: "cyborg", IsAutoRepairable: true},
+				{Name: "nova", IsRepairable: true},
+				{Name: "cyborg", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "bareMetal",
 			Category: "cloud computing",
 			Modules: []definition.Module{
-				{Name: "ironic", IsAutoRepairable: true},
+				{Name: "ironic", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "image",
 			Category: "cloud computing",
 			Modules: []definition.Module{
-				{Name: "glance", IsAutoRepairable: true},
+				{Name: "glance", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "blockStor",
 			Category: "cloud computing",
 			Modules: []definition.Module{
-				{Name: "cinder", IsAutoRepairable: true},
+				{Name: "cinder", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "fileStor",
 			Category: "cloud computing",
 			Modules: []definition.Module{
-				{Name: "manila", IsAutoRepairable: true},
+				{Name: "manila", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "objectStor",
 			Category: "cloud computing",
 			Modules: []definition.Module{
-				{Name: "swift", IsAutoRepairable: false},
+				{Name: "swift", IsRepairable: false},
 			},
 		},
 		{
 			Name:     "orchestration",
 			Category: "cloud computing",
 			Modules: []definition.Module{
-				{Name: "heat", IsAutoRepairable: true},
+				{Name: "heat", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "lbaas",
 			Category: "cloud computing",
 			Modules: []definition.Module{
-				{Name: "octavia", IsAutoRepairable: true},
+				{Name: "octavia", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "dnsaas",
 			Category: "cloud computing",
 			Modules: []definition.Module{
-				{Name: "designate", IsAutoRepairable: true},
+				{Name: "designate", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "k8saas",
 			Category: "cloud computing",
 			Modules: []definition.Module{
-				{Name: "rancher", IsAutoRepairable: false},
+				{Name: "rancher", IsRepairable: false},
 			},
 		},
 		{
 			Name:     "instanceHa",
 			Category: "cloud computing",
 			Modules: []definition.Module{
-				{Name: "masakari", IsAutoRepairable: true},
+				{Name: "masakari", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "businessLogic",
 			Category: "cloud computing",
 			Modules: []definition.Module{
-				{Name: "senlin", IsAutoRepairable: true},
-				{Name: "watcher", IsAutoRepairable: true},
+				{Name: "senlin", IsRepairable: true},
+				{Name: "watcher", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "dataPipe",
 			Category: "infrascope",
 			Modules: []definition.Module{
-				{Name: "zookeeper", IsAutoRepairable: true},
-				{Name: "kafka", IsAutoRepairable: true},
+				{Name: "zookeeper", IsRepairable: true},
+				{Name: "kafka", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "metrics",
 			Category: "infrascope",
 			Modules: []definition.Module{
-				{Name: "monasca", IsAutoRepairable: true},
-				{Name: "telegraf", IsAutoRepairable: true},
-				{Name: "grafana", IsAutoRepairable: true},
+				{Name: "monasca", IsRepairable: true},
+				{Name: "telegraf", IsRepairable: true},
+				{Name: "grafana", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "logAnalytics",
 			Category: "infrascope",
 			Modules: []definition.Module{
-				{Name: "filebeat", IsAutoRepairable: true},
-				{Name: "auditbeat", IsAutoRepairable: true},
-				{Name: "logstash", IsAutoRepairable: true},
-				{Name: "opensearch", IsAutoRepairable: true},
-				{Name: "opensearch-dashboards", IsAutoRepairable: true},
+				{Name: "filebeat", IsRepairable: true},
+				{Name: "auditbeat", IsRepairable: true},
+				{Name: "logstash", IsRepairable: true},
+				{Name: "opensearch", IsRepairable: true},
+				{Name: "opensearch-dashboards", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "notifications",
 			Category: "infrascope",
 			Modules: []definition.Module{
-				{Name: "influxdb", IsAutoRepairable: true},
-				{Name: "kapacitor", IsAutoRepairable: true},
+				{Name: "influxdb", IsRepairable: true},
+				{Name: "kapacitor", IsRepairable: true},
 			},
 		},
 		{
 			Name:               "node",
 			IsInternalViewOnly: true,
 			Modules: []definition.Module{
-				{Name: "node", IsAutoRepairable: false},
+				{Name: "node", IsRepairable: false},
 			},
 		},
 	}
@@ -288,4 +289,13 @@ func IsValidServiceAndModule(service, module string) bool {
 	}
 
 	return false
+}
+
+func IsRepairableModule(module string) bool {
+	m, ok := Modules[module]
+	if !ok {
+		return false
+	}
+
+	return m.IsRepairable
 }

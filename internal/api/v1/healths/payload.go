@@ -11,7 +11,7 @@ import (
 )
 
 // M1 TODO: this will be removed once the real data is available in the COS side
-func (h *helper) genFakeHealthSummary() interface{} {
+func (h *helper) genFakeHealthSummary() any {
 	return cubecos.Health{
 		Overall: &cubecos.Overall{
 			Status: status.Details{
@@ -26,16 +26,19 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "link",
-						Status: status.NewOk(),
+						Name:         "link",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("link"),
 					},
 					{
-						Name:   "clock",
-						Status: status.NewOk(),
+						Name:         "clock",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("clock"),
 					},
 					{
-						Name:   "dns",
-						Status: status.NewOk(),
+						Name:         "dns",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("dns"),
 					},
 				},
 			},
@@ -45,12 +48,14 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "bootstrap",
-						Status: status.NewOk(),
+						Name:         "bootstrap",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("bootstrap"),
 					},
 					{
-						Name:   "license",
-						Status: status.NewOk(),
+						Name:         "license",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("license"),
 					},
 				},
 			},
@@ -60,12 +65,14 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "etcd",
-						Status: status.NewOk(),
+						Name:         "etcd",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("etcd"),
 					},
 					{
-						Name:   "nodelist",
-						Status: status.NewOk(),
+						Name:         "nodelist",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("nodelist"),
 					},
 				},
 			},
@@ -75,8 +82,9 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "hacluster",
-						Status: status.NewOk(),
+						Name:         "hacluster",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("hacluster"),
 					},
 				},
 			},
@@ -86,8 +94,9 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "rabbitmq",
-						Status: status.NewOk(),
+						Name:         "rabbitmq",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("rabbitmq"),
 					},
 				},
 			},
@@ -97,12 +106,14 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "mysql",
-						Status: status.NewOk(),
+						Name:         "mysql",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("mysql"),
 					},
 					{
-						Name:   "mongodb",
-						Status: status.NewOk(),
+						Name:         "mongodb",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("mongodb"),
 					},
 				},
 			},
@@ -112,12 +123,14 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "vip",
-						Status: status.NewOk(),
+						Name:         "vip",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("vip"),
 					},
 					{
-						Name:   "haproxy_ha",
-						Status: status.NewOk(),
+						Name:         "haproxy_ha",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("haproxy_ha"),
 					},
 				},
 			},
@@ -127,12 +140,14 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "k3s",
-						Status: status.NewOk(),
+						Name:         "k3s",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("k3s"),
 					},
 					{
-						Name:   "keycloak",
-						Status: status.NewOk(),
+						Name:         "keycloak",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("keycloak"),
 					},
 				},
 			},
@@ -142,24 +157,34 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "haproxy",
-						Status: status.NewOk(),
+						Name:         "haproxy",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("haproxy"),
 					},
 					{
-						Name:   "httpd",
-						Status: status.NewOk(),
+						Name:         "httpd",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("httpd"),
 					},
 					{
-						Name:   "skyline",
-						Status: status.NewOk(),
+						Name:         "skyline",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("skyline"),
 					},
 					{
-						Name:   "lmi",
-						Status: status.NewOk(),
+						Name:         "lmi",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("lmi"),
 					},
 					{
-						Name:   "memcache",
-						Status: status.NewOk(),
+						Name:         "memcache",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("memcache"),
+					},
+					{
+						Name:         "api",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("api"),
 					},
 				},
 			},
@@ -172,20 +197,24 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				},
 				Modules: []definition.Module{
 					{
-						Name:   "ceph",
-						Status: status.NewOk(),
+						Name:         "ceph",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("ceph"),
 					},
 					{
-						Name:   "ceph_mon",
-						Status: status.NewOk(),
+						Name:         "ceph_mon",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("ceph_mon"),
 					},
 					{
-						Name:   "ceph_mgr",
-						Status: status.NewOk(),
+						Name:         "ceph_mgr",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("ceph_mgr"),
 					},
 					{
-						Name:   "ceph_mds",
-						Status: status.NewOk(),
+						Name:         "ceph_mds",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("ceph_mds"),
 					},
 					{
 						Name: "ceph_osd",
@@ -193,14 +222,17 @@ func (h *helper) genFakeHealthSummary() interface{} {
 							Current:     "ng",
 							Description: "2 osd down",
 						},
+						IsRepairable: cubecos.IsRepairableModule("ceph_osd"),
 					},
 					{
-						Name:   "ceph_rgw",
-						Status: status.NewOk(),
+						Name:         "ceph_rgw",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("ceph_rgw"),
 					},
 					{
-						Name:   "rbd_target",
-						Status: status.NewOk(),
+						Name:         "rbd_target",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("rbd_target"),
 					},
 				},
 			},
@@ -210,12 +242,14 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "nova",
-						Status: status.NewOk(),
+						Name:         "nova",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("nova"),
 					},
 					{
-						Name:   "cyborg",
-						Status: status.NewOk(),
+						Name:         "cyborg",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("cyborg"),
 					},
 				},
 			},
@@ -225,8 +259,9 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "neutron",
-						Status: status.NewOk(),
+						Name:         "neutron",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("neutron"),
 					},
 				},
 			},
@@ -236,8 +271,9 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "octavia",
-						Status: status.NewOk(),
+						Name:         "octavia",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("octavia"),
 					},
 				},
 			},
@@ -247,8 +283,9 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "cinder",
-						Status: status.NewOk(),
+						Name:         "cinder",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("cinder"),
 					},
 				},
 			},
@@ -258,8 +295,9 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "manila",
-						Status: status.NewOk(),
+						Name:         "manila",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("manila"),
 					},
 				},
 			},
@@ -269,8 +307,9 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "swift",
-						Status: status.NewOk(),
+						Name:         "swift",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("swift"),
 					},
 				},
 			},
@@ -280,8 +319,9 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "ironic",
-						Status: status.NewOk(),
+						Name:         "ironic",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("ironic"),
 					},
 				},
 			},
@@ -291,8 +331,9 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "designate",
-						Status: status.NewOk(),
+						Name:         "designate",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("designate"),
 					},
 				},
 			},
@@ -302,8 +343,9 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "rancher",
-						Status: status.NewOk(),
+						Name:         "rancher",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("rancher"),
 					},
 				},
 			},
@@ -313,8 +355,9 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "heat",
-						Status: status.NewOk(),
+						Name:         "heat",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("heat"),
 					},
 				},
 			},
@@ -324,8 +367,9 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "masakari",
-						Status: status.NewOk(),
+						Name:         "masakari",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("masakari"),
 					},
 				},
 			},
@@ -335,8 +379,9 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "glance",
-						Status: status.NewOk(),
+						Name:         "glance",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("glance"),
 					},
 				},
 			},
@@ -346,12 +391,14 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "senlin",
-						Status: status.NewOk(),
+						Name:         "senlin",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("senlin"),
 					},
 					{
-						Name:   "watcher",
-						Status: status.NewOk(),
+						Name:         "watcher",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("watcher"),
 					},
 				},
 			},
@@ -361,12 +408,14 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "kafka",
-						Status: status.NewOk(),
+						Name:         "kafka",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("kafka"),
 					},
 					{
-						Name:   "zookeeper",
-						Status: status.NewOk(),
+						Name:         "zookeeper",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("zookeeper"),
 					},
 				},
 			},
@@ -376,12 +425,14 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "influxdb",
-						Status: status.NewOk(),
+						Name:         "influxdb",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("influxdb"),
 					},
 					{
-						Name:   "kapacitor",
-						Status: status.NewOk(),
+						Name:         "kapacitor",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("kapacitor"),
 					},
 				},
 			},
@@ -391,16 +442,19 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "monasca",
-						Status: status.NewOk(),
+						Name:         "monasca",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("monasca"),
 					},
 					{
-						Name:   "telegraf",
-						Status: status.NewOk(),
+						Name:         "telegraf",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("telegraf"),
 					},
 					{
-						Name:   "grafana",
-						Status: status.NewOk(),
+						Name:         "grafana",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("grafana"),
 					},
 				},
 			},
@@ -410,24 +464,29 @@ func (h *helper) genFakeHealthSummary() interface{} {
 				Status:   status.NewOk(),
 				Modules: []definition.Module{
 					{
-						Name:   "filebeat",
-						Status: status.NewOk(),
+						Name:         "filebeat",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("filebeat"),
 					},
 					{
-						Name:   "logstash",
-						Status: status.NewOk(),
+						Name:         "logstash",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("logstash"),
 					},
 					{
-						Name:   "opensearch-dashboards",
-						Status: status.NewOk(),
+						Name:         "opensearch-dashboards",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("opensearch-dashboards"),
 					},
 					{
-						Name:   "opensearch",
-						Status: status.NewOk(),
+						Name:         "opensearch",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("opensearch"),
 					},
 					{
-						Name:   "auditbeat",
-						Status: status.NewOk(),
+						Name:         "auditbeat",
+						Status:       status.NewOk(),
+						IsRepairable: cubecos.IsRepairableModule("auditbeat"),
 					},
 				},
 			},
@@ -466,10 +525,11 @@ func (h *helper) genFakeHealthHistoryOfService() []cubecos.HealthStatus {
 		statuses = append(
 			statuses,
 			cubecos.HealthStatus{
-				Category: cubecos.ServiceToCategory[h.service],
-				Name:     h.service,
-				Module:   module.Name,
-				History:  history,
+				Category:     cubecos.ServiceToCategory[h.service],
+				Name:         h.service,
+				Module:       module.Name,
+				IsRepairable: cubecos.IsRepairableModule(module.Name),
+				History:      history,
 			},
 		)
 	}
@@ -503,10 +563,11 @@ func (h *helper) genFakeHealthHistoryOfModule() cubecos.HealthStatus {
 	}
 
 	return cubecos.HealthStatus{
-		Category: cubecos.ServiceToCategory[h.service],
-		Name:     h.service,
-		Module:   h.module,
-		History:  history,
+		Category:     cubecos.ServiceToCategory[h.service],
+		Name:         h.service,
+		Module:       h.module,
+		IsRepairable: cubecos.IsRepairableModule(h.module),
+		History:      history,
 	}
 }
 
@@ -545,12 +606,4 @@ func genForceRepairReq(module definition.Module) *cubecos.Health {
 		},
 	}
 	return h
-}
-
-func convertToLocalTimeZone(t time.Time) string {
-	return fmt.Sprintf(
-		"%s%s",
-		t.String(),
-		definition.LocalTimeZone,
-	)
 }

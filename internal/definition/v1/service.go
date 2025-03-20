@@ -11,10 +11,10 @@ type Service struct {
 }
 
 type Module struct {
-	Name             string          `json:"name" bson:"name"`
-	Status           *status.Details `json:"status,omitempty" bson:"status,omitempty"`
-	IsAutoRepairable bool            `json:"-" bson:"isAutoRepairable"`
-	Description      string          `json:"description,omitempty" bson:"description"`
+	Name         string          `json:"name" bson:"name"`
+	Status       *status.Details `json:"status,omitempty" bson:"status,omitempty"`
+	IsRepairable bool            `json:"-" bson:"isRepairable"`
+	Description  string          `json:"description,omitempty" bson:"description"`
 }
 
 func (s Service) CopyModuleEmptyStruct() Service {

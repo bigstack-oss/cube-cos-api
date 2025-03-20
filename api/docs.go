@@ -1752,6 +1752,7 @@ const docTemplate = `{
                                                     "category": "cloud computing",
                                                     "service": "compute",
                                                     "module": "nova",
+                                                    "isRepaired": true,
                                                     "history": [
                                                         {
                                                             "time": "2025-02-15T08:44:36+00:00",
@@ -1841,6 +1842,7 @@ const docTemplate = `{
                                                     "category": "cloud computing",
                                                     "service": "compute",
                                                     "module": "cyborg",
+                                                    "isRepaired": true,
                                                     "history": [
                                                         {
                                                             "time": "2025-02-15T08:44:36+00:00",
@@ -2065,7 +2067,7 @@ const docTemplate = `{
                                 "haproxy",
                                 "httpd",
                                 "skyline",
-                                "lim",
+                                "api",
                                 "memcache",
                                 "k3s",
                                 "keycloak",
@@ -2156,6 +2158,7 @@ const docTemplate = `{
                                                 "category": "cloud computing",
                                                 "name": "compute",
                                                 "module": "nova",
+                                                "isRepaired": true,
                                                 "history": [
                                                     {
                                                         "time": "2025-02-01T03:00:00+00:00",
@@ -2321,7 +2324,7 @@ const docTemplate = `{
                                 "haproxy",
                                 "httpd",
                                 "skyline",
-                                "lim",
+                                "api",
                                 "memcache",
                                 "k3s",
                                 "keycloak",
@@ -2479,7 +2482,7 @@ const docTemplate = `{
                                                     "isHeaderShortcutEnabled": true,
                                                     "description": "OpenStack Dashboard",
                                                     "isBuiltIn": true,
-                                                    "url": "https://example-datat-center.host/horizon"
+                                                    "url": "https://example-datat-center.host:9999/base/overview"
                                                 },
                                                 {
                                                     "name": "rancher",
@@ -11799,6 +11802,7 @@ const docTemplate = `{
                             "required": [
                                 "category",
                                 "service",
+                                "isRepaired",
                                 "history",
                                 "module"
                             ],
@@ -11808,6 +11812,9 @@ const docTemplate = `{
                                 },
                                 "service": {
                                     "type": "string"
+                                },
+                                "isRepaired": {
+                                    "type": "boolean"
                                 },
                                 "history": {
                                     "type": "array",
@@ -11934,6 +11941,7 @@ const docTemplate = `{
                             "category",
                             "name",
                             "module",
+                            "isRepaired",
                             "history"
                         ],
                         "properties": {
@@ -11945,6 +11953,9 @@ const docTemplate = `{
                             },
                             "module": {
                                 "type": "string"
+                            },
+                            "isRepaired": {
+                                "type": "boolean"
                             },
                             "history": {
                                 "type": "array",
