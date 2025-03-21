@@ -77,7 +77,7 @@ func initListHelper(h *helper) (*helper, error) {
 }
 
 func initHostListHelper(h *helper) (*helper, error) {
-	h.host = h.c.Param("host")
+	h.host = h.c.Param("hostname")
 	return h, nil
 }
 

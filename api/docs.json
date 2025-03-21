@@ -10462,6 +10462,111 @@
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/supportFiles/hosts/{hostname}": {
+            "get": {
+                "operationId": "getHostSupportFile",
+                "tags": [
+                    "Support Files"
+                ],
+                "summary": "Retrieve host support files",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/hostname"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve host support files successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetHostSupportFilesResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Host support file list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "name": "CUBE_3.0.0_20250318-215742_example-node-0.support",
+                                                    "group": "Cube Appliance 3.0.0 Support File Set 2025-03-18T21:57:39+00:00",
+                                                    "description": "",
+                                                    "source": {
+                                                        "role": "control-converged",
+                                                        "host": "example-node-0"
+                                                    },
+                                                    "sizeMiB": 116.0698,
+                                                    "url": "http://example-datacenter/supportfiles/CUBE_3.0.0_20250318-215742_example-node-0.support?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Checksum-Mode=ENABLED&X-Amz-Credential=admin%2F20250318%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20250318T140312Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=ae8c2a39d348709b51d6c0d4b731716f1dc33c172ba43c2919357106cbb15389",
+                                                    "status": {
+                                                        "current": "completed",
+                                                        "createdAt": "2025-03-18T21:57:39+00:00",
+                                                        "isCreating": false
+                                                    }
+                                                }
+                                            ],
+                                            "msg": "retrieved support files successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list host support files: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/grafana/hosts/{hostname}": {
             "get": {
                 "operationId": "getGrafanaHosts",
@@ -10474,14 +10579,7 @@
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "in": "path",
-                        "name": "hostname",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The hostname of the host to operate",
-                        "example": "example-node-0"
+                        "$ref": "#/components/parameters/hostname"
                     }
                 ],
                 "responses": {
@@ -11022,6 +11120,16 @@
                 },
                 "description": "The name of the data center to operate",
                 "example": "example-data-center"
+            },
+            "hostname": {
+                "in": "path",
+                "name": "hostname",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The hostname of the host to operate",
+                "example": "example-node-0"
             },
             "watch": {
                 "in": "query",
@@ -13341,6 +13449,97 @@
                 ],
                 "properties": {
                     "value": {
+                        "type": "string"
+                    }
+                }
+            },
+            "GetHostSupportFilesResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "group",
+                                "description",
+                                "source",
+                                "sizeMiB",
+                                "url",
+                                "status"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "group": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                },
+                                "source": {
+                                    "type": "object",
+                                    "required": [
+                                        "role",
+                                        "host"
+                                    ],
+                                    "properties": {
+                                        "role": {
+                                            "type": "string"
+                                        },
+                                        "host": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "sizeMiB": {
+                                    "type": "integer"
+                                },
+                                "url": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "object",
+                                    "required": [
+                                        "current",
+                                        "isCreating",
+                                        "createdAt"
+                                    ],
+                                    "properties": {
+                                        "current": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ok",
+                                                "error"
+                                            ]
+                                        },
+                                        "isCreating": {
+                                            "type": "boolean"
+                                        },
+                                        "createdAt": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
                         "type": "string"
                     }
                 }

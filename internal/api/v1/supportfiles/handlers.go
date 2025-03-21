@@ -31,7 +31,7 @@ var (
 		{
 			Version: api.V1,
 			Method:  "GET",
-			Path:    "/supportFiles/hosts/:host",
+			Path:    "/supportFiles/hosts/:hostname",
 			Func:    listHostSupportFiles,
 		},
 	}
