@@ -25,20 +25,20 @@ var (
 		{
 			Version: api.V1,
 			Method:  "PATCH",
-			Path:    "/supportFiles/tasks/:id",
+			Path:    "/supportFiles/:supportFileGroup",
 			Func:    updateSupportFileTask,
 		},
 		{
 			Version: api.V1,
 			Method:  "GET",
-			Path:    "/supportFiles/:hostname",
-			Func:    getSupportFile,
+			Path:    "/supportFiles/hosts/:host",
+			Func:    listHostSupportFiles,
 		},
 	}
 )
 
 func listSupportFiles(c *gin.Context) {
-	h, err := initReqHandler(c, "listSupportFiles")
+	h, err := initHandler(c, "listSupportFiles")
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to init req helper: %v", api.GetReqId(c), err)
 		return
@@ -58,7 +58,7 @@ func listSupportFiles(c *gin.Context) {
 }
 
 func createSupportFile(c *gin.Context) {
-	h, err := initReqHandler(c, "createSupportFile")
+	h, err := initHandler(c, "createSupportFile")
 	if err != nil {
 		log.Infof("supportFiles(%s): failed to init req helper: %v", api.GetReqId(c), err)
 		return
@@ -72,7 +72,7 @@ func createSupportFile(c *gin.Context) {
 }
 
 func updateSupportFileTask(c *gin.Context) {
-	h, err := initReqHandler(c, "updateSupportFileTask")
+	h, err := initHandler(c, "updateSupportFileTask")
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to init req helper: %v", api.GetReqId(c), err)
 		return
@@ -85,4 +85,23 @@ func updateSupportFileTask(c *gin.Context) {
 	)
 }
 
-func getSupportFile(c *gin.Context) {}
+func listHostSupportFiles(c *gin.Context) {
+	h, err := initHandler(c, "listHostSupportFiles")
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to init req helper: %v", api.GetReqId(c), err)
+		return
+	}
+
+	hostSupportFiles, err := h.listHostSupportFiles()
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to list host support file: %v", api.GetReqId(c), err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"retrieved host support files successfully",
+		hostSupportFiles,
+	)
+
+}

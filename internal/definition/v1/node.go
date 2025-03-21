@@ -134,10 +134,9 @@ func (n *Node) GetTuningUrl() string {
 
 func (n *Node) GetSupportFileUrl() string {
 	u := url.URL{
-		Scheme:   n.Protocol,
-		Host:     n.Address,
-		Path:     fmt.Sprintf("/api/v1/datacenters/%s/tunings", n.DataCenter),
-		RawQuery: fmt.Sprintf("host=%s", n.Hostname),
+		Scheme: n.Protocol,
+		Host:   n.Address,
+		Path:   fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/hosts/%s", n.DataCenter, n.Hostname),
 	}
 
 	return u.String()
@@ -179,7 +178,7 @@ func (n *Node) PatchSupportFileTaskUrl(file support.File) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/tasks/%s", DataCenterName, file.Group)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/%s", DataCenterName, file.Group)
 	return u.String()
 }
 

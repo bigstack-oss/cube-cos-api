@@ -25,6 +25,7 @@ var (
 
 type ListFileOptions struct {
 	AllNodes bool
+	Host     string
 }
 
 type FileRequest struct {

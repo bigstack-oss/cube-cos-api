@@ -130,12 +130,12 @@ func (h *helper) containsHosts(hosts []definition.Host) bool {
 
 	for _, h := range h.hosts {
 		_, found := hostSet[h]
-		if !found {
-			return false
+		if found {
+			return true
 		}
 	}
 
-	return true
+	return false
 }
 
 func genTuningMap(tunings []definition.Tuning) map[string]definition.Tuning {

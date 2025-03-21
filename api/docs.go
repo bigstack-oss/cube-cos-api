@@ -7383,7 +7383,10 @@ const docTemplate = `{
                         "name": "host",
                         "required": false,
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
                         },
                         "description": "The name of the host to retrieve the tunings, can specify multiple hosts to retrieve the tunings, for example: host=example-node-0&host=example-node-1",
                         "example": "example-node-0"

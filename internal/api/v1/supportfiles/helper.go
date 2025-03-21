@@ -31,11 +31,13 @@ type helper struct {
 
 // note:
 // deletion is not support in the 3.0.0 release
-func initReqHandler(c *gin.Context, handler string) (*helper, error) {
+func initHandler(c *gin.Context, handler string) (*helper, error) {
 	h := helper{c: c, handler: handler}
 	switch h.handler {
 	case "listSupportFiles":
 		return initListHelper(&h)
+	case "listHostSupportFiles":
+		return initHostListHelper(&h)
 	case "createSupportFile":
 		return initCreateHelper(&h)
 	case "getSupportFile":
@@ -71,6 +73,11 @@ func initListHelper(h *helper) (*helper, error) {
 		return nil, err
 	}
 
+	return h, nil
+}
+
+func initHostListHelper(h *helper) (*helper, error) {
+	h.host = h.c.Param("host")
 	return h, nil
 }
 
@@ -111,6 +118,10 @@ func (h *helper) listSupportFiles() (*fileSetList, error) {
 		SupportFileSet: pagedSets,
 		Page:           page,
 	}, nil
+}
+
+func (h *helper) listHostSupportFiles() ([]support.File, error) {
+	return cubecos.ListHostSupportFiles(support.ListFileOptions{Host: h.host})
 }
 
 func (h *helper) syncFileIsCreatedOrPending(files []support.File) {

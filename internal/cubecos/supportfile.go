@@ -37,7 +37,24 @@ func ListSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
 		return nil, err
 	}
 
-	return append(localFiles, otherNodeFiles...), nil
+	return append(
+		localFiles,
+		otherNodeFiles...,
+	), nil
+}
+
+func ListHostSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
+	node, err := v1.GetNodeByHostname(opts.Host)
+	if err != nil {
+		log.Errorf("failed to get node by hostname: %s", err.Error())
+		return nil, err
+	}
+
+	if node.IsLocal() {
+		return support.ListLocalFiles(), nil
+	}
+
+	return getNodeSupportFiles(*node)
 }
 
 func ListSupportFilesFromOtherNodes() ([]support.File, error) {
