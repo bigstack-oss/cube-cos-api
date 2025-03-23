@@ -14,7 +14,7 @@ The API service for CubeCOS.
 
 %prep
 rm -rf ./*
-cp ../SOURCES/"cube-cos-api-%{version}.tar.gz" .
+cp %{_topdir}/SOURCES/"cube-cos-api-%{version}.tar.gz" .
 tar -xzf "cube-cos-api-%{version}.tar.gz"
 rm "cube-cos-api-%{version}.tar.gz"
 mv ./source/* .
