@@ -1752,7 +1752,7 @@ const docTemplate = `{
                                                     "category": "cloud computing",
                                                     "service": "compute",
                                                     "module": "nova",
-                                                    "isRepaired": true,
+                                                    "isRepairable": true,
                                                     "history": [
                                                         {
                                                             "time": "2025-02-15T08:44:36+00:00",
@@ -1842,7 +1842,7 @@ const docTemplate = `{
                                                     "category": "cloud computing",
                                                     "service": "compute",
                                                     "module": "cyborg",
-                                                    "isRepaired": true,
+                                                    "isRepairable": true,
                                                     "history": [
                                                         {
                                                             "time": "2025-02-15T08:44:36+00:00",
@@ -2158,7 +2158,7 @@ const docTemplate = `{
                                                 "category": "cloud computing",
                                                 "name": "compute",
                                                 "module": "nova",
-                                                "isRepaired": true,
+                                                "isRepairable": true,
                                                 "history": [
                                                     {
                                                         "time": "2025-02-01T03:00:00+00:00",
@@ -11913,7 +11913,7 @@ const docTemplate = `{
                             "required": [
                                 "category",
                                 "service",
-                                "isRepaired",
+                                "isRepairable",
                                 "history",
                                 "module"
                             ],
@@ -11924,7 +11924,7 @@ const docTemplate = `{
                                 "service": {
                                     "type": "string"
                                 },
-                                "isRepaired": {
+                                "isRepairable": {
                                     "type": "boolean"
                                 },
                                 "history": {
@@ -12052,7 +12052,7 @@ const docTemplate = `{
                             "category",
                             "name",
                             "module",
-                            "isRepaired",
+                            "isRepairable",
                             "history"
                         ],
                         "properties": {
@@ -12065,7 +12065,7 @@ const docTemplate = `{
                             "module": {
                                 "type": "string"
                             },
-                            "isRepaired": {
+                            "isRepairable": {
                                 "type": "boolean"
                             },
                             "history": {
