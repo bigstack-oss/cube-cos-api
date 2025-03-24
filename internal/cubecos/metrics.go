@@ -560,7 +560,8 @@ func GetMemoryUsageRankOfHosts(stmt string) (*definition.MetricRank, error) {
 
 func appendHistoryToMemoryUsageRank(rank []definition.RankPoint) {
 	for i, host := range rank {
-		history, err := GetMemoryHistoryOfHost(host.Id, definition.Period{})
+		stmt := fmt.Sprintf(hostMemoryUsageHistoryStmt, host.Id)
+		history, err := GetMemoryHistoryOfHost(stmt)
 		if err != nil {
 			log.Errorf("failed to get memory history of host %s: %v", host.Id, err)
 			continue
@@ -570,8 +571,7 @@ func appendHistoryToMemoryUsageRank(rank []definition.RankPoint) {
 	}
 }
 
-func GetMemoryHistoryOfHost(entityId string, period definition.Period) ([]definition.TimeValue, error) {
-	stmt := fmt.Sprintf(hostMemoryUsageHistoryStmt, entityId)
+func GetMemoryHistoryOfHost(stmt string) ([]definition.TimeValue, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err

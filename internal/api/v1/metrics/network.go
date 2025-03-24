@@ -6,7 +6,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 )
 
-func (h *helper) getNetworkTrafficInMetrics() (interface{}, error) {
+func (h *helper) getNetworkTrafficInMetrics() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for network traffic in metrics")
@@ -22,7 +22,7 @@ func (h *helper) getNetworkTrafficInMetrics() (interface{}, error) {
 	)
 }
 
-func (h *helper) getNetworkTrafficInRank() (interface{}, error) {
+func (h *helper) getNetworkTrafficInRank() (any, error) {
 	switch h.entityType {
 	case "hosts":
 		return cubecos.GetNetworkTrafficInRankOfHosts()
@@ -36,7 +36,7 @@ func (h *helper) getNetworkTrafficInRank() (interface{}, error) {
 	)
 }
 
-func (h *helper) getNetworkTrafficOutMetrics() (interface{}, error) {
+func (h *helper) getNetworkTrafficOutMetrics() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for network traffic out metrics")
@@ -52,7 +52,7 @@ func (h *helper) getNetworkTrafficOutMetrics() (interface{}, error) {
 	)
 }
 
-func (h *helper) getNetworkTrafficOutRank() (interface{}, error) {
+func (h *helper) getNetworkTrafficOutRank() (any, error) {
 	switch h.entityType {
 	case "hosts":
 		return cubecos.GetNetworkTrafficOutRankOfHosts()

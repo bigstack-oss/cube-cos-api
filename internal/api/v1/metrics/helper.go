@@ -40,11 +40,11 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 	return h, h.parseParams()
 }
 
-func (h *helper) getDataCenterSummary() (interface{}, error) {
+func (h *helper) getDataCenterSummary() (any, error) {
 	return cubecos.GetDataCenterSummary()
 }
 
-func (h *helper) getMetrics() (interface{}, error) {
+func (h *helper) getMetrics() (any, error) {
 	switch h.metricType {
 	case "cpuUsage":
 		return h.getCpuUsageMetrics()

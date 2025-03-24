@@ -6,12 +6,12 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 )
 
-func (h *helper) getMemoryUsageMetrics() (interface{}, error) {
+func (h *helper) getMemoryUsageMetrics() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return h.getMemoryUsageSummary()
 	case "history":
-		return nil, fmt.Errorf("history is not supported yet for cpu metrics")
+		return h.getMemoryHistory()
 	case "rank":
 		return h.getMemoryUsageRank()
 	}
@@ -22,7 +22,7 @@ func (h *helper) getMemoryUsageMetrics() (interface{}, error) {
 	)
 }
 
-func (h *helper) getMemoryUsageSummary() (interface{}, error) {
+func (h *helper) getMemoryUsageSummary() (any, error) {
 	switch h.entityType {
 	case "host":
 		return cubecos.GetMemoryUsageSummaryOfHost(h.entityId)
@@ -40,7 +40,22 @@ func (h *helper) getMemoryUsageSummary() (interface{}, error) {
 	)
 }
 
-func (h *helper) getMemoryUsageRank() (interface{}, error) {
+func (h *helper) getMemoryHistory() (any, error) {
+	switch h.entityType {
+	case "host":
+		stmt := h.genHostMemoryUsageHistoryStmt()
+		return cubecos.GetMemoryHistoryOfHost(stmt)
+	case "vm":
+		return nil, fmt.Errorf("vm is not supported yet for memory history")
+	}
+
+	return nil, fmt.Errorf(
+		"invalid entity type(%s) to get memory history",
+		h.entityType,
+	)
+}
+
+func (h *helper) getMemoryUsageRank() (any, error) {
 	switch h.entityType {
 	case "hosts":
 		return cubecos.GetMemoryUsageRankOfHosts(h.genHostMemoryUsageRankStmt())

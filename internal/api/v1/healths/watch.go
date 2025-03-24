@@ -14,7 +14,7 @@ import (
 	json "github.com/json-iterator/go"
 )
 
-type dataChan chan interface{}
+type dataChan chan any
 
 type watcher struct {
 	helper
@@ -54,7 +54,7 @@ func streamHealth() {
 	}
 }
 
-func streamHealthByHandlerType(h *helper) (interface{}, error) {
+func streamHealthByHandlerType(h *helper) (any, error) {
 	switch h.handler {
 	case "getHealthSummary":
 		return h.genFakeHealthSummary(), nil
@@ -67,7 +67,7 @@ func streamHealthByHandlerType(h *helper) (interface{}, error) {
 	return nil, errors.New("no internal function supported")
 }
 
-func watchHealth(h *helper, health interface{}) {
+func watchHealth(h *helper, health any) {
 	setChunkedTransfer(h.c)
 	flusher, ok := h.c.Writer.(http.Flusher)
 	if !ok {
@@ -108,7 +108,7 @@ func removeWatcher(watcherToRemove watcher) {
 	}
 }
 
-func sendFirstHealth(c *gin.Context, flusher http.Flusher, health interface{}) {
+func sendFirstHealth(c *gin.Context, flusher http.Flusher, health any) {
 	c.Writer.Write(streamingResp(health))
 	c.Writer.Write([]byte("\n"))
 	flusher.Flush()
@@ -129,7 +129,7 @@ func streamingHealth(c *gin.Context, flusher http.Flusher, watcher watcher) {
 	}
 }
 
-func streamingResp(health interface{}) []byte {
+func streamingResp(health any) []byte {
 	b, err := json.Marshal(gin.H{
 		"code":   http.StatusOK,
 		"status": "ok",

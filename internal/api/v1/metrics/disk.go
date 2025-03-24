@@ -6,7 +6,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 )
 
-func (h *helper) getDiskBandwidthMetrics() (interface{}, error) {
+func (h *helper) getDiskBandwidthMetrics() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for disk bandwidth metrics")
@@ -22,7 +22,7 @@ func (h *helper) getDiskBandwidthMetrics() (interface{}, error) {
 	)
 }
 
-func (h *helper) getDiskBandwidthHistory() (interface{}, error) {
+func (h *helper) getDiskBandwidthHistory() (any, error) {
 	switch h.entityType {
 	case "hosts":
 		return cubecos.GetDiskStorageBandwidthHistory(
@@ -39,7 +39,7 @@ func (h *helper) getDiskBandwidthHistory() (interface{}, error) {
 	)
 }
 
-func (h *helper) getDiskUsageMetrics() (interface{}, error) {
+func (h *helper) getDiskUsageMetrics() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for disk usage metrics")
@@ -55,7 +55,7 @@ func (h *helper) getDiskUsageMetrics() (interface{}, error) {
 	)
 }
 
-func (h *helper) getDiskUsageRank() (interface{}, error) {
+func (h *helper) getDiskUsageRank() (any, error) {
 	switch h.entityType {
 	case "hosts":
 		return cubecos.GetDiskUsageRankOfHosts(h.genHostStorageUsageRankStmt())
@@ -69,7 +69,7 @@ func (h *helper) getDiskUsageRank() (interface{}, error) {
 	)
 }
 
-func (h *helper) getDiskIopsMetrics() (interface{}, error) {
+func (h *helper) getDiskIopsMetrics() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for disk iops metrics")
@@ -85,7 +85,7 @@ func (h *helper) getDiskIopsMetrics() (interface{}, error) {
 	)
 }
 
-func (h *helper) getDiskIopsHistory() (interface{}, error) {
+func (h *helper) getDiskIopsHistory() (any, error) {
 	switch h.entityType {
 	case "hosts":
 		return cubecos.GetDiskIopsHistoryOfHosts(
@@ -102,7 +102,7 @@ func (h *helper) getDiskIopsHistory() (interface{}, error) {
 	)
 }
 
-func (h *helper) getDiskReadIopsMetrics() (interface{}, error) {
+func (h *helper) getDiskReadIopsMetrics() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for disk read iops metrics")
@@ -118,7 +118,7 @@ func (h *helper) getDiskReadIopsMetrics() (interface{}, error) {
 	)
 }
 
-func (h *helper) getDiskReadIopsRank() (interface{}, error) {
+func (h *helper) getDiskReadIopsRank() (any, error) {
 	switch h.entityType {
 	case "hosts":
 		return nil, fmt.Errorf("hosts is not supported yet for disk read iops rank")
@@ -132,7 +132,7 @@ func (h *helper) getDiskReadIopsRank() (interface{}, error) {
 	)
 }
 
-func (h *helper) getDiskWriteIopsMetrics() (interface{}, error) {
+func (h *helper) getDiskWriteIopsMetrics() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for disk write iops metrics")
@@ -148,7 +148,7 @@ func (h *helper) getDiskWriteIopsMetrics() (interface{}, error) {
 	)
 }
 
-func (h *helper) getDiskWriteIopsRank() (interface{}, error) {
+func (h *helper) getDiskWriteIopsRank() (any, error) {
 	switch h.entityType {
 	case "hosts":
 		return nil, fmt.Errorf("hosts is not supported yet for disk write iops rank")
@@ -162,7 +162,7 @@ func (h *helper) getDiskWriteIopsRank() (interface{}, error) {
 	)
 }
 
-func (h *helper) getDiskLatencyMetrics() (interface{}, error) {
+func (h *helper) getDiskLatencyMetrics() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for disk latency metrics")
@@ -178,7 +178,7 @@ func (h *helper) getDiskLatencyMetrics() (interface{}, error) {
 	)
 }
 
-func (h *helper) getDiskLatencyHistory() (interface{}, error) {
+func (h *helper) getDiskLatencyHistory() (any, error) {
 	switch h.entityType {
 	case "hosts":
 		return cubecos.GeDiskLatencyHistoryOfHosts(

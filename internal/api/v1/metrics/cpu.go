@@ -6,7 +6,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 )
 
-func (h *helper) getCpuUsageMetrics() (interface{}, error) {
+func (h *helper) getCpuUsageMetrics() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return h.getCpuUsageSummary()
@@ -22,7 +22,7 @@ func (h *helper) getCpuUsageMetrics() (interface{}, error) {
 	)
 }
 
-func (h *helper) getCpuUsageSummary() (interface{}, error) {
+func (h *helper) getCpuUsageSummary() (any, error) {
 	switch h.entityType {
 	case "host":
 		return cubecos.GetCpuSummaryOfHost(h.entityId)
@@ -40,7 +40,7 @@ func (h *helper) getCpuUsageSummary() (interface{}, error) {
 	)
 }
 
-func (h *helper) getCpuHistory() (interface{}, error) {
+func (h *helper) getCpuHistory() (any, error) {
 	switch h.entityType {
 	case "host":
 		stmt := h.genHostCpuUsageHistoryStmt()
@@ -55,7 +55,7 @@ func (h *helper) getCpuHistory() (interface{}, error) {
 	)
 }
 
-func (h *helper) getCpuUsageRank() (interface{}, error) {
+func (h *helper) getCpuUsageRank() (any, error) {
 	switch h.entityType {
 	case "hosts":
 		stmt := h.genHostCpuUsageRankStmt()

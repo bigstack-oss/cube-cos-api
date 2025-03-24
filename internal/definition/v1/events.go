@@ -7,15 +7,15 @@ const (
 )
 
 type Event struct {
-	Type        string                 `json:"type"`
-	Severity    string                 `json:"severity"`
-	Id          string                 `json:"id"`
-	Description string                 `json:"description"`
-	Host        string                 `json:"host"`
-	Category    string                 `json:"category"`
-	Service     string                 `json:"service"`
-	Metadata    map[string]interface{} `json:"metadata"`
-	Time        string                 `json:"time"`
+	Type        string         `json:"type"`
+	Severity    string         `json:"severity"`
+	Id          string         `json:"id"`
+	Description string         `json:"description"`
+	Host        string         `json:"host"`
+	Category    string         `json:"category"`
+	Service     string         `json:"service"`
+	Metadata    map[string]any `json:"metadata"`
+	Time        string         `json:"time"`
 }
 
 type EventStat struct {
