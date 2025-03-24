@@ -708,24 +708,10 @@
                         "example": "1d"
                     },
                     {
-                        "in": "query",
-                        "name": "start",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
-                        "example": "2025-01-01T01:00:00+00:00"
+                        "$ref": "#/components/parameters/start"
                     },
                     {
-                        "in": "query",
-                        "name": "stop",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
-                        "example": "2025-01-01T01:00:00+00:00"
+                        "$ref": "#/components/parameters/stop"
                     },
                     {
                         "$ref": "#/components/parameters/pageSize"
@@ -827,24 +813,10 @@
                         "example": "1d"
                     },
                     {
-                        "in": "query",
-                        "name": "start",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
-                        "example": "2025-01-01T01:00:00+00:00"
+                        "$ref": "#/components/parameters/start"
                     },
                     {
-                        "in": "query",
-                        "name": "stop",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
-                        "example": "2025-01-01T01:00:00+00:00"
+                        "$ref": "#/components/parameters/stop"
                     }
                 ],
                 "responses": {
@@ -1310,24 +1282,10 @@
                         "example": "1d"
                     },
                     {
-                        "in": "query",
-                        "name": "start",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
-                        "example": "2025-01-01T01:00:00+00:00"
+                        "$ref": "#/components/parameters/start"
                     },
                     {
-                        "in": "query",
-                        "name": "stop",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
-                        "example": "2025-01-01T01:00:00+00:00"
+                        "$ref": "#/components/parameters/stop"
                     },
                     {
                         "in": "query",
@@ -1693,24 +1651,10 @@
                         "$ref": "#/components/parameters/watch"
                     },
                     {
-                        "in": "query",
-                        "name": "start",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The start time of the health history to query, the value should be in RFC3339 format (default is 24 hours ago).",
-                        "example": "2025-01-01T01:00:00+00:00"
+                        "$ref": "#/components/parameters/start"
                     },
                     {
-                        "in": "query",
-                        "name": "stop",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The end time of the health history to query, the value should be in RFC3339 format (default is now).",
-                        "example": "2025-01-01T01:00:00+00:00"
+                        "$ref": "#/components/parameters/stop"
                     },
                     {
                         "in": "query",
@@ -2114,24 +2058,10 @@
                         "example": "1d"
                     },
                     {
-                        "in": "query",
-                        "name": "start",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The start time of the health history to query, the value should be in RFC3339 format (default is 24 hours ago).",
-                        "example": "2025-01-01T01:00:00+00:00"
+                        "$ref": "#/components/parameters/start"
                     },
                     {
-                        "in": "query",
-                        "name": "stop",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The end time of the health history to query, the value should be in RFC3339 format (default is now).",
-                        "example": "2025-01-01T01:00:00+00:00"
+                        "$ref": "#/components/parameters/stop"
                     },
                     {
                         "$ref": "#/components/parameters/watch"
@@ -3066,7 +2996,7 @@
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to fetch nodes: internal server error"
+                                            "example": "failed to fetch metrics: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -3092,75 +3022,19 @@
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "in": "path",
-                        "name": "metricType",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "cpuUsage",
-                                "memoryUsage",
-                                "diskUsage",
-                                "diskBandwidth",
-                                "diskIops",
-                                "diskLatency",
-                                "diskReadIops",
-                                "diskWriteIops",
-                                "networkTrafficIn",
-                                "networkTrafficOut"
-                            ]
-                        },
-                        "description": "The type of metric to query, the value can be 'cpuUsage', 'memoryUsage', 'diskUsage', 'diskBandwidth', 'diskIops', 'diskLatency', 'diskReadIops', 'diskWriteIops', 'networkTrafficIn', or 'networkTrafficOut'.",
-                        "example": 1
+                        "$ref": "#/components/parameters/metricType"
                     },
                     {
-                        "in": "path",
-                        "name": "viewType",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "summary",
-                                "history",
-                                "rank"
-                            ]
-                        },
-                        "description": "The type of view to query, the value can be only 'summary', 'history', or 'rank'.",
-                        "example": 1
+                        "$ref": "#/components/parameters/viewType"
                     },
                     {
-                        "in": "path",
-                        "name": "entityType",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "hosts",
-                                "vms"
-                            ]
-                        },
-                        "description": "The type of entity to query, the value can be 'hosts' or 'vms'",
-                        "example": "hosts"
+                        "$ref": "#/components/parameters/entityType"
                     },
                     {
-                        "in": "query",
-                        "name": "start",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
-                        "example": "2025-01-01T01:00:00+00:00"
+                        "$ref": "#/components/parameters/start"
                     },
                     {
-                        "in": "query",
-                        "name": "stop",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
-                        "example": "2025-01-01T01:00:00+00:00"
+                        "$ref": "#/components/parameters/stop"
                     },
                     {
                         "$ref": "#/components/parameters/watch"
@@ -4074,6 +3948,185 @@
                                                     }
                                                 ]
                                             },
+                                            "msg": "fetch metrics successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "metricType should be cpuUsage, memoryUsage, diskUsage, diskBandwidth, diskIops, diskLatency, diskReadIops, diskWriteIops, networkTrafficIn, or networkTrafficOut"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch metrics: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/metrics/{metricType}/{viewType}/{entityType}/{entityId or Name}": {
+            "get": {
+                "operationId": "getMetricByHostOrVm",
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Retrieve the various metrics with different view from single host or single vm",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/metricType"
+                    },
+                    {
+                        "$ref": "#/components/parameters/viewType"
+                    },
+                    {
+                        "$ref": "#/components/parameters/entityType"
+                    },
+                    {
+                        "in": "path",
+                        "name": "entityId or Name",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The id or name of the entity to query",
+                        "example": "example-node-0"
+                    },
+                    {
+                        "in": "query",
+                        "name": "past",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1h",
+                                "24h",
+                                "7d",
+                                "14d"
+                            ]
+                        },
+                        "description": "The past time of the health history to query, click 'try it out' to see a few options, but can specify with the 's'(second), 'm'(minute), 'h'(hour), and 'd'(day) suffix for other time ranges.",
+                        "example": "1d"
+                    },
+                    {
+                        "$ref": "#/components/parameters/start"
+                    },
+                    {
+                        "$ref": "#/components/parameters/stop"
+                    },
+                    {
+                        "$ref": "#/components/parameters/watch"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the various metrics with different view from single host or single vm",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/GetCpuUsageHistoryOfHostResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/GetMemoryUsageHistoryOfHostResponse"
+                                        }
+                                    ]
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Cpu usage history of host",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "time": "2025-03-24T09:39:00+08:00",
+                                                    "value": 10.9059
+                                                },
+                                                {
+                                                    "time": "2025-03-24T09:40:00+08:00",
+                                                    "value": 10.5089
+                                                },
+                                                {
+                                                    "time": "2025-03-24T09:41:00+08:00",
+                                                    "value": 15.3512
+                                                },
+                                                {
+                                                    "time": "2025-03-24T09:42:00+08:00",
+                                                    "value": 12.3685
+                                                }
+                                            ],
+                                            "msg": "fetch metrics successfully",
+                                            "status": "ok"
+                                        }
+                                    },
+                                    "example2": {
+                                        "summary": "Memory usage history of host",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "time": "2025-03-24T07:06:00+08:00",
+                                                    "value": 55.9796
+                                                },
+                                                {
+                                                    "time": "2025-03-24T07:07:00+08:00",
+                                                    "value": 55.9997
+                                                },
+                                                {
+                                                    "time": "2025-03-24T07:08:00+08:00",
+                                                    "value": 55.9884
+                                                },
+                                                {
+                                                    "time": "2025-03-24T07:09:00+08:00",
+                                                    "value": 55.9449
+                                                }
+                                            ],
                                             "msg": "fetch metrics successfully",
                                             "status": "ok"
                                         }
@@ -11170,6 +11223,77 @@
                 },
                 "description": "The keyword to search, can be any string",
                 "example": "example-keyword"
+            },
+            "metricType": {
+                "in": "path",
+                "name": "metricType",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "enum": [
+                        "cpuUsage",
+                        "memoryUsage",
+                        "diskUsage",
+                        "diskBandwidth",
+                        "diskIops",
+                        "diskLatency",
+                        "diskReadIops",
+                        "diskWriteIops",
+                        "networkTrafficIn",
+                        "networkTrafficOut"
+                    ]
+                },
+                "description": "The type of metric to query, the value can be 'cpuUsage', 'memoryUsage', 'diskUsage', 'diskBandwidth', 'diskIops', 'diskLatency', 'diskReadIops', 'diskWriteIops', 'networkTrafficIn', or 'networkTrafficOut'.",
+                "example": 1
+            },
+            "viewType": {
+                "in": "path",
+                "name": "viewType",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "enum": [
+                        "summary",
+                        "history",
+                        "rank"
+                    ]
+                },
+                "description": "The type of view to query, the value can be only 'summary', 'history', or 'rank'.",
+                "example": 1
+            },
+            "entityType": {
+                "in": "path",
+                "name": "entityType",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "enum": [
+                        "hosts",
+                        "vms"
+                    ]
+                },
+                "description": "The type of entity to query, the value can be 'hosts' or 'vms'",
+                "example": "hosts"
+            },
+            "start": {
+                "in": "query",
+                "name": "start",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The start time of the event to query, the value should be in RFC3339 format (default is 24 hours ago).",
+                "example": "2025-01-01T01:00:00+00:00"
+            },
+            "stop": {
+                "in": "query",
+                "name": "stop",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
+                "example": "2025-01-01T01:00:00+00:00"
             }
         },
         "schemas": {
@@ -12821,6 +12945,52 @@
                     "status": {
                         "type": "string",
                         "example": "ok"
+                    }
+                }
+            },
+            "GetCpuUsageHistoryOfHostResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/TimeValuePair"
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "GetMemoryUsageHistoryOfHostResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/TimeValuePair"
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
                     }
                 }
             },
@@ -15582,6 +15752,22 @@
                                 "type": "boolean"
                             }
                         }
+                    }
+                }
+            },
+            "TimeValuePair": {
+                "type": "object",
+                "required": [
+                    "time",
+                    "value"
+                ],
+                "properties": {
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "value": {
+                        "type": "number"
                     }
                 }
             }
