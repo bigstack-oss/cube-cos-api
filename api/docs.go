@@ -7445,14 +7445,7 @@ const docTemplate = `{
                         "example": "example-node-0"
                     },
                     {
-                        "in": "query",
-                        "name": "keyword",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The keyword to search the tunings",
-                        "example": "can be any string"
+                        "$ref": "#/components/parameters/keyword"
                     },
                     {
                         "$ref": "#/components/parameters/pageSize"
@@ -7493,7 +7486,11 @@ const docTemplate = `{
                                                         "name": "neutron.debug.enabled",
                                                         "value": false,
                                                         "hosts": [
-                                                            "example-node-0"
+                                                            {
+                                                                "name": "example-node-0",
+                                                                "role": "control-converged",
+                                                                "ip": "10.10.10.10"
+                                                            }
                                                         ],
                                                         "description": "Set to true to enable neutron verbose log.",
                                                         "enabled": true,
@@ -7503,6 +7500,7 @@ const docTemplate = `{
                                                             "default": false
                                                         },
                                                         "status": {
+                                                            "current": "updating",
                                                             "updatedAt": "2025-03-12T19:22:00+08:00",
                                                             "isUpdating": true
                                                         }
@@ -7511,7 +7509,11 @@ const docTemplate = `{
                                                         "name": "cubesys.provider.extra",
                                                         "value": "",
                                                         "hosts": [
-                                                            "example-node-0"
+                                                            {
+                                                                "name": "example-node-0",
+                                                                "role": "control-converged",
+                                                                "ip": "10.10.10.10"
+                                                            }
                                                         ],
                                                         "description": "Set extra provider interfaces ('pvd-' prefix and <= 15 chars) [IF.2:pvd-xxx,eth2:pvd-yyy,...].",
                                                         "enabled": true,
@@ -7522,6 +7524,8 @@ const docTemplate = `{
                                                             "regex": ""
                                                         },
                                                         "status": {
+                                                            "current": "ok",
+                                                            "updatedAt": "2025-03-12T19:22:00+08:00",
                                                             "isUpdating": false
                                                         }
                                                     },
@@ -7529,7 +7533,11 @@ const docTemplate = `{
                                                         "name": "barbican.debug.enabled",
                                                         "value": false,
                                                         "hosts": [
-                                                            "example-node-0"
+                                                            {
+                                                                "name": "example-node-0",
+                                                                "role": "control-converged",
+                                                                "ip": "10.10.10.10"
+                                                            }
                                                         ],
                                                         "description": "Set to true to enable barbican verbose log.",
                                                         "enabled": true,
@@ -7539,6 +7547,8 @@ const docTemplate = `{
                                                             "default": false
                                                         },
                                                         "status": {
+                                                            "current": "ok",
+                                                            "updatedAt": "2025-03-12T19:22:00+08:00",
                                                             "isUpdating": false
                                                         }
                                                     },
@@ -7546,7 +7556,11 @@ const docTemplate = `{
                                                         "name": "cinder.backup.endpoint",
                                                         "value": "",
                                                         "hosts": [
-                                                            "example-node-0"
+                                                            {
+                                                                "name": "example-node-0",
+                                                                "role": "control-converged",
+                                                                "ip": "10.10.10.10"
+                                                            }
                                                         ],
                                                         "description": "Set cinder backup storage endpoint.",
                                                         "enabled": true,
@@ -7557,6 +7571,8 @@ const docTemplate = `{
                                                             "regex": ""
                                                         },
                                                         "status": {
+                                                            "current": "ok",
+                                                            "updatedAt": "2025-03-12T19:22:00+08:00",
                                                             "isUpdating": false
                                                         }
                                                     },
@@ -7564,8 +7580,16 @@ const docTemplate = `{
                                                         "name": "influxdb.curator.rp",
                                                         "value": 7,
                                                         "hosts": [
-                                                            "example-node-0",
-                                                            "example-node-1"
+                                                            {
+                                                                "name": "example-node-0",
+                                                                "role": "control-converged",
+                                                                "ip": "10.10.10.10"
+                                                            },
+                                                            {
+                                                                "name": "example-node-1",
+                                                                "role": "control-converged",
+                                                                "ip": "10.10.10.11"
+                                                            }
                                                         ],
                                                         "description": "influxdb curator retention policy in days.",
                                                         "enabled": true,
@@ -7577,6 +7601,8 @@ const docTemplate = `{
                                                             "max": 365
                                                         },
                                                         "status": {
+                                                            "current": "ok",
+                                                            "updatedAt": "2025-03-12T19:22:00+08:00",
                                                             "isUpdating": false
                                                         }
                                                     },
@@ -7584,7 +7610,16 @@ const docTemplate = `{
                                                         "name": "influxdb.curator.rp",
                                                         "value": 23,
                                                         "hosts": [
-                                                            "example-node-3"
+                                                            {
+                                                                "name": "example-node-0",
+                                                                "role": "control-converged",
+                                                                "ip": "10.10.10.10"
+                                                            },
+                                                            {
+                                                                "name": "example-node-1",
+                                                                "role": "control-converged",
+                                                                "ip": "10.10.10.11"
+                                                            }
                                                         ],
                                                         "description": "influxdb curator retention policy in days.",
                                                         "enabled": false,
@@ -7596,6 +7631,8 @@ const docTemplate = `{
                                                             "max": 365
                                                         },
                                                         "status": {
+                                                            "current": "ok",
+                                                            "updatedAt": "2025-03-12T19:22:00+08:00",
                                                             "isUpdating": false
                                                         }
                                                     }
@@ -14380,7 +14417,23 @@ const docTemplate = `{
                                         "hosts": {
                                             "type": "array",
                                             "items": {
-                                                "type": "string"
+                                                "type": "object",
+                                                "required": [
+                                                    "name",
+                                                    "role",
+                                                    "ip"
+                                                ],
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "role": {
+                                                        "type": "string"
+                                                    },
+                                                    "ip": {
+                                                        "type": "string"
+                                                    }
+                                                }
                                             }
                                         },
                                         "description": {
@@ -14448,9 +14501,14 @@ const docTemplate = `{
                                         "status": {
                                             "type": "object",
                                             "required": [
+                                                "current",
+                                                "updatedAt",
                                                 "isUpdating"
                                             ],
                                             "properties": {
+                                                "current": {
+                                                    "type": "string"
+                                                },
                                                 "updatedAt": {
                                                     "type": "string"
                                                 },
