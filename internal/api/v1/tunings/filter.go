@@ -1,11 +1,11 @@
 package tunings
 
 import (
-	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 const (
@@ -153,28 +153,40 @@ func (h *helper) enrichTuningPayload(tunings *[]definition.Tuning) {
 }
 
 func (h *helper) syncUpdates(tunings *[]definition.Tuning) {
-	updatingTunings, err := getUpdatingTunings()
-	if err != nil {
-		log.Errorf("tunings(%s): failed to get updating tunings: %s", api.GetReqId(h.c), err.Error())
-		return
-	}
-
-	updatingTuningMap := genUpdatingTuningMap(updatingTunings)
 	for i, tuning := range *tunings {
-		(*tunings)[i].Status = &status.Tuning{}
-		updatingTuning, found := updatingTuningMap[tuning.GenerateId()]
-		if found {
-			(*tunings)[i].Status.IsUpdating = updatingTuning.Status.IsUpdating
-			(*tunings)[i].Status.UpdatedAt = updatingTuning.Status.UpdatedAt
-		}
+		(*tunings)[i] = h.syncUpdateStatus(tuning)
 	}
 }
 
-func genUpdatingTuningMap(updateTunings []definition.Tuning) map[string]definition.Tuning {
-	updateTuningMap := map[string]definition.Tuning{}
-	for _, tuning := range updateTunings {
-		updateTuningMap[tuning.GenerateId()] = tuning
+func (h *helper) syncUpdateStatus(tuning definition.Tuning) definition.Tuning {
+	tuning.InitOkStatus()
+	mongo := cubeMongo.GetGlobalHelper()
+	count, err := mongo.GetCount(
+		definition.TuningDB(),
+		definition.TuningReqCollection(),
+		bson.M{"id": tuning.GenerateId()},
+	)
+	if err != nil || count <= 0 {
+		return tuning
 	}
 
-	return updateTuningMap
+	pending, err := mongo.Get(
+		definition.TuningDB(),
+		definition.TuningReqCollection(),
+		bson.M{"id": tuning.GenerateId()},
+	)
+	if err != nil {
+		return tuning
+	}
+
+	record := definition.Tuning{}
+	err = pending.Decode(&record)
+	if err != nil {
+		return tuning
+	}
+
+	tuning.Status.IsUpdating = record.Status.IsUpdating
+	tuning.Status.Current = record.Status.Current
+	tuning.Status.UpdatedAt = record.Status.UpdatedAt
+	return tuning
 }

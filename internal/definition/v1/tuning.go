@@ -12,6 +12,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/blevesearch/bleve/v2"
 	json "github.com/json-iterator/go"
+	"github.com/shirou/gopsutil/v4/host"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -90,12 +91,17 @@ func (t *TuningSpec) IsInLimitedRange(value int) bool {
 }
 
 func (t *Tuning) GenerateId() string {
-	return fmt.Sprintf(
-		"%s-%v-%v",
-		t.Name,
-		t.Value,
-		t.Enabled,
-	)
+	return fmt.Sprintf("%s-%s", t.Name, t.JoinHosts())
+}
+
+func (t *Tuning) JoinHosts() string {
+	hosts := []string{}
+	for _, host := range t.Hosts {
+		hosts = append(hosts, host.Name)
+	}
+
+	slices.Sort(hosts)
+	return strings.Join(hosts, "-")
 }
 
 func (t *Tuning) IncludeHost(hostname string) bool {
@@ -142,6 +148,22 @@ func (t *Tuning) InitResetStatus() {
 	}
 }
 
+func (t *Tuning) InitOkStatus() {
+	t.Status = &status.Tuning{
+		Current:    status.Ok,
+		IsUpdating: false,
+	}
+
+	bootDuration, err := host.BootTime()
+	if err != nil {
+		t.Status.UpdatedAt = TimeISO8601Z(time.Now())
+		return
+	}
+
+	bootTime := time.Unix(int64(bootDuration), 0)
+	t.Status.UpdatedAt = TimeISO8601Z(bootTime)
+}
+
 func (t *Tuning) StrValue() string {
 	return fmt.Sprintf("%v", t.Value)
 }
@@ -165,7 +187,7 @@ func (t *Tuning) SetError() {
 }
 
 func (t *Tuning) SetCompleted() {
-	t.Status.Current = status.Completed
+	t.Status.Current = status.Ok
 	t.Status.IsUpdating = false
 }
 
