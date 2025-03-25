@@ -288,6 +288,27 @@ func ListLocalTunings() []Tuning {
 		return true
 	})
 
+	return setRoleAndIpToTunings(tunings)
+}
+
+func setRoleAndIpToTunings(tunings []Tuning) []Tuning {
+	nodeMap, err := HostnameNodeMap()
+	if err != nil {
+		return tunings
+	}
+
+	for i, tuning := range tunings {
+		for j, host := range tuning.Hosts {
+			node, found := nodeMap[host.Name]
+			if !found {
+				continue
+			}
+
+			tunings[i].Hosts[j].Ip = node.Ip
+			tunings[i].Hosts[j].Role = node.Role
+		}
+	}
+
 	return tunings
 }
 

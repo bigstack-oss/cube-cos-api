@@ -62,6 +62,7 @@ type Role struct {
 }
 
 type Host struct {
+	Role string `json:"role"`
 	Name string `json:"name"`
 	Ip   string `json:"ip,omitzero"`
 }

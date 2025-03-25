@@ -241,6 +241,27 @@ func ListNodes() ([]*Node, error) {
 	return nodes, nil
 }
 
+func HostnameNodeMap() (map[string]Node, error) {
+	svcs, err := registry.GetService(DataCenterName)
+	if err != nil {
+		log.Errorf("failed to get nodes from %s (%s)", DataCenterName, err.Error())
+		return nil, err
+	}
+	if len(svcs) == 0 {
+		return nil, nil
+	}
+
+	nodeMap := map[string]Node{}
+	for _, svc := range svcs {
+		nodes := parseNodes(svc)
+		for _, node := range nodes {
+			nodeMap[node.Hostname] = *node
+		}
+	}
+
+	return nodeMap, nil
+}
+
 func GetControllerNodes() ([]*Node, error) {
 	nodes, err := GetNodesByRole("control")
 	if err == nil && len(nodes) > 0 {
