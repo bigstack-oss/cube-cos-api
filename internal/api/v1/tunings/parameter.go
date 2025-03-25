@@ -54,12 +54,12 @@ func (h *helper) parseHosts() {
 	h.hosts = h.c.QueryArray("host")
 }
 
-func (h *helper) parseWatch() {
-	h.watch = h.c.DefaultQuery("watch", "false") == "true"
+func (h *helper) parseModified() {
+	h.modified = h.c.DefaultQuery("modified", "false") == "true"
 }
 
-func (h *helper) parseToggle() error {
-	return h.c.ShouldBindBodyWithJSON(&h.toggle)
+func (h *helper) parseWatch() {
+	h.watch = h.c.DefaultQuery("watch", "false") == "true"
 }
 
 func (h *helper) isPageReceived() bool {
@@ -67,7 +67,7 @@ func (h *helper) isPageReceived() bool {
 }
 
 func (h *helper) isFilterRequired() bool {
-	return h.isKeywordRequired() || h.isHostsRequired()
+	return h.isKeywordRequired() || h.isHostsRequired() || h.isModifiedRequired()
 }
 
 func (h *helper) isKeywordRequired() bool {
@@ -79,5 +79,6 @@ func (h *helper) isHostsRequired() bool {
 }
 
 func (h *helper) isModifiedRequired() bool {
-	return h.c.DefaultQuery("modified", "false") == "true"
+	_, required := h.c.GetQuery("modified")
+	return required
 }

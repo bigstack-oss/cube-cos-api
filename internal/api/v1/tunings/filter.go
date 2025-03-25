@@ -114,7 +114,7 @@ func (h *helper) filteredByHosts(tunings []definition.Tuning) []definition.Tunin
 func (h *helper) filteredByModified(tunings []definition.Tuning) []definition.Tuning {
 	filtered := []definition.Tuning{}
 	for _, tuning := range tunings {
-		if tuning.IsModified {
+		if tuning.IsModified == h.modified {
 			filtered = append(filtered, tuning)
 		}
 	}
@@ -160,27 +160,11 @@ func (h *helper) syncUpdates(tunings *[]definition.Tuning) {
 
 func (h *helper) syncUpdateStatus(tuning definition.Tuning) definition.Tuning {
 	tuning.InitOkStatus()
-	mongo := cubeMongo.GetGlobalHelper()
-	count, err := mongo.GetCount(
-		definition.TuningDB(),
-		definition.TuningReqCollection(),
-		bson.M{"id": tuning.GenerateId()},
-	)
-	if err != nil || count <= 0 {
+	if !h.hasUpdateHistory(tuning) {
 		return tuning
 	}
 
-	pending, err := mongo.Get(
-		definition.TuningDB(),
-		definition.TuningReqCollection(),
-		bson.M{"id": tuning.GenerateId()},
-	)
-	if err != nil {
-		return tuning
-	}
-
-	record := definition.Tuning{}
-	err = pending.Decode(&record)
+	record, err := h.getUpdateRecord(tuning)
 	if err != nil {
 		return tuning
 	}
@@ -189,4 +173,38 @@ func (h *helper) syncUpdateStatus(tuning definition.Tuning) definition.Tuning {
 	tuning.Status.Current = record.Status.Current
 	tuning.Status.UpdatedAt = record.Status.UpdatedAt
 	return tuning
+}
+
+func (h *helper) hasUpdateHistory(tuning definition.Tuning) bool {
+	mongo := cubeMongo.GetGlobalHelper()
+	count, err := mongo.GetCount(
+		definition.TuningDB(),
+		definition.TuningReqCollection(),
+		bson.M{"id": tuning.GenerateId()},
+	)
+	if err != nil {
+		return false
+	}
+
+	return count > 0
+}
+
+func (h *helper) getUpdateRecord(tuning definition.Tuning) (definition.Tuning, error) {
+	mongo := cubeMongo.GetGlobalHelper()
+	pending, err := mongo.Get(
+		definition.TuningDB(),
+		definition.TuningReqCollection(),
+		bson.M{"id": tuning.GenerateId()},
+	)
+	if err != nil {
+		return tuning, err
+	}
+
+	record := definition.Tuning{}
+	err = pending.Decode(&record)
+	if err != nil {
+		return tuning, err
+	}
+
+	return record, nil
 }

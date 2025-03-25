@@ -22,6 +22,7 @@ type helper struct {
 	allNodes bool
 	hosts    []string
 	keyword  string
+	modified bool
 
 	definition.Page
 	watch bool
@@ -38,6 +39,7 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h.parseKeyword()
 	h.parseWatch()
 	h.parseHosts()
+	h.parseModified()
 
 	return h, nil
 }
