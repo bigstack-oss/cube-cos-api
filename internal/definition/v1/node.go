@@ -38,6 +38,7 @@ var (
 
 type Node struct {
 	Id                string `json:"id" yaml:"id"`
+	SerialNumber      string `json:"serialNumber" yaml:"serialNumber"`
 	DataCenter        string `json:"dataCenter" yaml:"dataCenter"`
 	Hostname          string `json:"hostname" yaml:"hostname"`
 	Role              string `json:"role" yaml:"role"`

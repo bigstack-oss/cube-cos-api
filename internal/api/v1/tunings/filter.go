@@ -92,7 +92,8 @@ func (h *helper) searchTunings(tunings []definition.Tuning) (*bleve.SearchResult
 
 	return searcher.Search(
 		bleve.NewSearchRequestOptions(
-			bleve.NewMatchQuery(h.keyword),
+			// bleve.NewMatchQuery(h.keyword),
+			bleve.NewMatchPhraseQuery(h.keyword),
 			maxSearchResults,
 			0,
 			false,

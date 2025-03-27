@@ -62,7 +62,7 @@ type Role struct {
 }
 
 type Host struct {
-	Role string `json:"role"`
+	Role string `json:"role,omitzero"`
 	Name string `json:"name"`
 	Ip   string `json:"ip,omitzero"`
 }
@@ -182,14 +182,15 @@ func parseNodesByRole(svc *registry.Service, roleName string) []*Node {
 
 func newNode(node *registry.Node) *Node {
 	return &Node{
-		Role:       node.Metadata["role"],
-		Id:         node.Metadata["nodeID"],
-		DataCenter: node.Metadata["dataCenter"],
-		Protocol:   node.Metadata["protocol"],
-		Hostname:   node.Metadata["hostname"],
-		Token:      node.Metadata["token"],
-		Ip:         node.Metadata["ip"],
-		Address:    node.Address,
+		Role:         node.Metadata["role"],
+		Id:           node.Metadata["nodeID"],
+		SerialNumber: node.Metadata["serialNumber"],
+		DataCenter:   node.Metadata["dataCenter"],
+		Protocol:     node.Metadata["protocol"],
+		Hostname:     node.Metadata["hostname"],
+		Token:        node.Metadata["token"],
+		Ip:           node.Metadata["ip"],
+		Address:      node.Address,
 		Labels: map[string]string{
 			"isGpuEnabled": node.Metadata["isGpuEnabled"],
 		},

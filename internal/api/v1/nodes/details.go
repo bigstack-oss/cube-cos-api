@@ -19,11 +19,11 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func addMetricsToNode(c *gin.Context, node *definition.Node) {
-	h := openstack.GetGlobalHelper()
-	hypervisor, err := h.GetHypervisorByHostname(node.Hostname)
+func (h *helper) addMetricsToNode(node *definition.Node) {
+	openstack := openstack.GetGlobalHelper()
+	hypervisor, err := openstack.GetHypervisorByHostname(node.Hostname)
 	if err != nil {
-		log.Debugf("nodes(%s): failed to add hypervisor info to the node: %s", api.GetReqId(c), err.Error())
+		log.Debugf("nodes(%s): failed to add hypervisor info to the node: %s", api.GetReqId(h.c), err.Error())
 		return
 	}
 
@@ -31,7 +31,7 @@ func addMetricsToNode(c *gin.Context, node *definition.Node) {
 	node.Status = hypervisor.State
 	addHardwareInfoToNode(node)
 	addMetricToNode(node, hypervisor)
-	addUptimeToNode(c, node)
+	addUptimeToNode(h.c, node)
 }
 
 func addHardwareInfoToNode(node *definition.Node) {

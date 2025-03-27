@@ -18,7 +18,7 @@ var (
 type License struct {
 	Type                  string   `json:"type" yaml:"type" bson:"type"`
 	Hostname              string   `json:"hostname,omitzero" yaml:"hostname" bson:"hostname"`
-	Hosts                 []string `json:"hosts" yaml:"hosts" bson:"hosts"`
+	Hosts                 []string `json:"hosts,omitempty" yaml:"hosts" bson:"hosts"`
 	Serial                string   `json:"serial" yaml:"serial" bson:"serial"`
 	Product               `json:"product" yaml:"product" bson:"product"`
 	Issue                 `json:"issue" yaml:"issue" bson:"issue"`

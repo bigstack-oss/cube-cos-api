@@ -117,7 +117,7 @@ func (h *helper) listNodes() (*data, error) {
 		return nil, err
 	}
 
-	addLicenseInfoToNodes(h.c, &pagedNodes)
+	h.addLicenseInfoToNodes(&pagedNodes)
 	addDetailsToNodes(h.c, &pagedNodes)
 	return &data{
 		Nodes: pagedNodes,
@@ -137,8 +137,8 @@ func (h *helper) getNode() (*definition.Node, error) {
 	}
 
 	if node.IsLocal() {
-		addLicenseToNode(h.c, node)
-		addMetricsToNode(h.c, node)
+		h.addLicenseToNode(node)
+		h.addMetricsToNode(node)
 		return node, nil
 	}
 

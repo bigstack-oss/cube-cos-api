@@ -75,6 +75,11 @@ func initNodeIdentities() error {
 		return err
 	}
 
+	definition.SerialNumber, err = definition.GetSystemSerial()
+	if err != nil {
+		log.Errorf("failed to get system serial: %s", err.Error())
+	}
+
 	definition.ListenIp = conf.Opts.Spec.Listen.Local
 	definition.ListenPort = conf.Opts.Spec.Listen.Port
 	definition.ListenAddr = genLocalAddr()
@@ -132,6 +137,7 @@ func genNodeMetadata() map[string]string {
 		"hostname":     definition.Hostname,
 		"dataCenter":   definition.DataCenterName,
 		"nodeID":       definition.HostID,
+		"serialNumber": definition.SerialNumber,
 		"protocol":     conf.Opts.Kind,
 		"ip":           definition.MgmtIP,
 		"isGpuEnabled": fmt.Sprintf("%t", definition.IsGpuEnabled),
