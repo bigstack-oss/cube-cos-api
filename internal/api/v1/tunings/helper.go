@@ -1,6 +1,7 @@
 package tunings
 
 import (
+	"errors"
 	"sort"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
@@ -68,6 +69,10 @@ func (h *helper) parseTuningReset() error {
 	}
 
 	h.tuning.Name = name
+	if !h.hasTuningModified() {
+		return errors.New("can't reset unmodified tuning")
+	}
+
 	h.tuning.Value = spec.Limitation.Default
 	h.tuning.Enabled = true
 	h.tuning.IsModified = false
@@ -84,10 +89,23 @@ func (h *helper) parseTuningEnablement() error {
 	}
 
 	h.tuning.Name = h.c.Param("parameterName")
+	if !h.hasTuningModified() {
+		return errors.New("can't enable/disable unmodified tuning")
+	}
+
 	h.tuning.Enabled = h.toggle.Enable
 	h.tuning.InitUpdateStatus()
 	h.tuning.InitHosts(h.toggle.Hosts)
 	return nil
+}
+
+func (h *helper) hasTuningModified() bool {
+	tuning, err := h.getTuningByNameAndHosts(h.tuning.Name, h.hosts)
+	if err != nil {
+		return false
+	}
+
+	return tuning.IsModified
 }
 
 func (h *helper) convertUpdateToTuning() {

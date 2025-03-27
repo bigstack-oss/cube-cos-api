@@ -114,6 +114,16 @@ func (t *Tuning) IncludeHost(hostname string) bool {
 	return false
 }
 
+func (t *Tuning) IncludeHosts(hosts []string) bool {
+	for _, host := range hosts {
+		if !t.IncludeHost(host) {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (t *Tuning) InitHosts(hosts []string) {
 	for _, host := range hosts {
 		t.Hosts = append(t.Hosts, Host{Name: host})

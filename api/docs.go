@@ -4228,6 +4228,7 @@ const docTemplate = `{
                                                 "nodes": [
                                                     {
                                                         "id": "abc0005e",
+                                                        "serialNumber": "1H2ZLG2",
                                                         "dataCenter": "example-data-center",
                                                         "hostname": "example-node-0",
                                                         "role": "control-converged",
@@ -4250,7 +4251,7 @@ const docTemplate = `{
                                                             },
                                                             "quantity": {
                                                                 "type": "",
-                                                                "vcpu": 0
+                                                                "value": 0
                                                             },
                                                             "serviceLevelAgreement": {
                                                                 "uptime": 0,
@@ -5192,6 +5193,7 @@ const docTemplate = `{
                                             "code": 200,
                                             "data": {
                                                 "id": "abc0005e",
+                                                "serialNumber": "1H2ZLG2",
                                                 "dataCenter": "example-data-center",
                                                 "hostname": "example-node-0",
                                                 "role": "control-converged",
@@ -5214,7 +5216,7 @@ const docTemplate = `{
                                                     },
                                                     "quantity": {
                                                         "type": "",
-                                                        "vcpu": 0
+                                                        "value": 0
                                                     },
                                                     "serviceLevelAgreement": {
                                                         "uptime": 0,
@@ -15396,6 +15398,7 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "id",
+                    "serialNumber",
                     "dataCenter",
                     "hostname",
                     "role",
@@ -15416,6 +15419,9 @@ const docTemplate = `{
                 ],
                 "properties": {
                     "id": {
+                        "type": "string"
+                    },
+                    "serialNumber": {
                         "type": "string"
                     },
                     "dataCenter": {
@@ -15504,13 +15510,13 @@ const docTemplate = `{
                                 "type": "object",
                                 "required": [
                                     "type",
-                                    "vcpu"
+                                    "value"
                                 ],
                                 "properties": {
                                     "type": {
                                         "type": "string"
                                     },
-                                    "vcpu": {
+                                    "value": {
                                         "type": "integer"
                                     }
                                 }

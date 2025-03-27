@@ -4224,6 +4224,7 @@
                                                 "nodes": [
                                                     {
                                                         "id": "abc0005e",
+                                                        "serialNumber": "1H2ZLG2",
                                                         "dataCenter": "example-data-center",
                                                         "hostname": "example-node-0",
                                                         "role": "control-converged",
@@ -4246,7 +4247,7 @@
                                                             },
                                                             "quantity": {
                                                                 "type": "",
-                                                                "vcpu": 0
+                                                                "value": 0
                                                             },
                                                             "serviceLevelAgreement": {
                                                                 "uptime": 0,
@@ -5188,6 +5189,7 @@
                                             "code": 200,
                                             "data": {
                                                 "id": "abc0005e",
+                                                "serialNumber": "1H2ZLG2",
                                                 "dataCenter": "example-data-center",
                                                 "hostname": "example-node-0",
                                                 "role": "control-converged",
@@ -5210,7 +5212,7 @@
                                                     },
                                                     "quantity": {
                                                         "type": "",
-                                                        "vcpu": 0
+                                                        "value": 0
                                                     },
                                                     "serviceLevelAgreement": {
                                                         "uptime": 0,
@@ -15392,6 +15394,7 @@
                 "type": "object",
                 "required": [
                     "id",
+                    "serialNumber",
                     "dataCenter",
                     "hostname",
                     "role",
@@ -15412,6 +15415,9 @@
                 ],
                 "properties": {
                     "id": {
+                        "type": "string"
+                    },
+                    "serialNumber": {
                         "type": "string"
                     },
                     "dataCenter": {
@@ -15500,13 +15506,13 @@
                                 "type": "object",
                                 "required": [
                                     "type",
-                                    "vcpu"
+                                    "value"
                                 ],
                                 "properties": {
                                     "type": {
                                         "type": "string"
                                     },
-                                    "vcpu": {
+                                    "value": {
                                         "type": "integer"
                                     }
                                 }

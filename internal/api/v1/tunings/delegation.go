@@ -59,6 +59,28 @@ func (h *helper) getTuningByNameAndHost(name, host string) (*definition.Tuning, 
 	return nil, errors.New("tuning not found")
 }
 
+func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*definition.Tuning, error) {
+	tunings, err := cubecos.ListTunings(definition.ListTuningOptions{AllNodes: h.allNodes})
+	if err != nil {
+		log.Errorf("tunings(%s): failed to get tuning: %s", api.GetReqId(h.c), err.Error())
+		return nil, err
+	}
+
+	for _, tuning := range tunings {
+		if tuning.Name != name {
+			continue
+		}
+
+		if !tuning.IncludeHosts(hosts) {
+			continue
+		}
+
+		return &tuning, nil
+	}
+
+	return nil, errors.New("tuning not found")
+}
+
 func delegateToLocal(tuning definition.Tuning) {
 	addReqRecord(tuning)
 	reqQueue.Add(&tuning)
