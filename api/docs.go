@@ -14455,7 +14455,7 @@ const docTemplate = `{
                                             ],
                                             "properties": {
                                                 "type": {
-                                                    "type": "string"
+                                                    "$ref": "#/components/schemas/TuningLimitationType"
                                                 },
                                                 "default": {
                                                     "oneOf": [
@@ -14574,7 +14574,7 @@ const docTemplate = `{
                                     ],
                                     "properties": {
                                         "type": {
-                                            "type": "string"
+                                            "$ref": "#/components/schemas/TuningLimitationType"
                                         },
                                         "default": {
                                             "oneOf": [
@@ -15832,6 +15832,15 @@ const docTemplate = `{
                         "type": "number"
                     }
                 }
+            },
+            "TuningLimitationType": {
+                "type": "string",
+                "enum": [
+                    "string",
+                    "int",
+                    "float",
+                    "bool"
+                ]
             }
         }
     }
