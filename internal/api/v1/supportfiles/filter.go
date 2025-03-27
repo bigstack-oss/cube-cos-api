@@ -49,12 +49,16 @@ func (h *helper) searchSupportFileSets(files []support.FileSet) (*bleve.SearchRe
 
 	return searcher.Search(
 		bleve.NewSearchRequestOptions(
-			bleve.NewMatchQuery(h.keyword),
+			bleve.NewWildcardQuery(h.wrapWilcardKeyword()),
 			maxSearchResults,
 			0,
 			false,
 		),
 	)
+}
+
+func (h *helper) wrapWilcardKeyword() string {
+	return "*" + h.keyword + "*"
 }
 
 func genFileSetMap(files []support.FileSet) map[string]support.FileSet {

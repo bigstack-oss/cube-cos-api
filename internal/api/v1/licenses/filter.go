@@ -94,12 +94,16 @@ func (h *helper) searchLicenses(licenses []v1.License) (*bleve.SearchResult, err
 
 	return searcher.Search(
 		bleve.NewSearchRequestOptions(
-			bleve.NewMatchQuery(h.Keyword),
+			bleve.NewWildcardQuery(h.wrapWilcardKeyword()),
 			maxSearchResults,
 			0,
 			false,
 		),
 	)
+}
+
+func (h *helper) wrapWilcardKeyword() string {
+	return "*" + h.Keyword + "*"
 }
 
 func genLicenseMap(licenses []v1.License) map[string]v1.License {

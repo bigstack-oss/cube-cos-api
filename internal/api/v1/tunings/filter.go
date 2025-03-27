@@ -92,12 +92,16 @@ func (h *helper) searchTunings(tunings []definition.Tuning) (*bleve.SearchResult
 
 	return searcher.Search(
 		bleve.NewSearchRequestOptions(
-			bleve.NewMatchQuery(h.keyword),
+			bleve.NewWildcardQuery(h.wrapWilcardKeyword()),
 			maxSearchResults,
 			0,
 			false,
 		),
 	)
+}
+
+func (h *helper) wrapWilcardKeyword() string {
+	return "*" + h.keyword + "*"
 }
 
 func (h *helper) filteredByHosts(tunings []definition.Tuning) []definition.Tuning {
