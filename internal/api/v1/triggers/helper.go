@@ -112,7 +112,13 @@ func (h *helper) parseTriggerEnablement() error {
 		return err
 	}
 
-	h.trigger.Name = h.c.Param("triggerName")
+	name := h.c.Param("triggerName")
+	trigger, found := trigger.Get(name)
+	if !found {
+		return fmt.Errorf("trigger(%s): trigger not found", h.trigger.Name)
+	}
+
+	h.trigger = *trigger
 	h.trigger.Enable = h.toggle.Enable
 	h.trigger.InitUpdateStatus()
 	return nil

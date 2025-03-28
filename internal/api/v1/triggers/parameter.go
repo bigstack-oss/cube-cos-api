@@ -23,7 +23,7 @@ func (h *helper) parseTrigger() error {
 func (h *helper) setUpdateInfo() {
 	h.trigger.Id = uuid.New().String()
 	h.trigger.Name = h.c.Param("triggerName")
-	h.trigger.GenMatchRule()
+	h.trigger.Match = h.trigger.GenMatchRule()
 	h.trigger.InitStatus("updating", "update")
 }
 

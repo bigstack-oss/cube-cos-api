@@ -46,23 +46,33 @@ func GetTriggerPolicyByName(name string) (*trigger.Options, error) {
 }
 
 func ApplyTriggers(triggers []trigger.Options) error {
-	newTriggers, err := genTriggersAsYaml(triggers)
-	if err != nil {
-		return err
-	}
-
-	tmpTriggerDir := genTmpTriggerDir()
-	err = writeTriggerToFile(tmpTriggerDir, newTriggers)
-	if err != nil {
-		return err
-	}
-
-	err = ApplyTrigger(tmpTriggerDir)
-	if err != nil {
-		return err
-	}
-
+	// M1 TODO: to remove the code below once CubeCOS side finish the hex_config refactor
+	trigger.WriteFakePolicyFile(&trigger.Policy{
+		Name:     "alert_resp",
+		Version:  2.0,
+		Enable:   true,
+		Triggers: triggers,
+	})
 	return nil
+
+	// M1 TODO: to recover the code below once CubeCOS side finish the hex_config refactor
+	// newTriggers, err := genTriggersAsYaml(triggers)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// tmpTriggerDir := genTmpTriggerDir()
+	// err = writeTriggerToFile(tmpTriggerDir, newTriggers)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// err = ApplyTrigger(tmpTriggerDir)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// return nil
 }
 
 func ApplyTrigger(isolatedDir string) error {
@@ -81,7 +91,8 @@ func IsTriggerApplied(trigger trigger.Options) error {
 		return err
 	}
 
-	if !reflect.DeepEqual(policy.Triggers, trigger) {
+	fileTrigger := policy.GetTrigger(trigger.Name)
+	if !reflect.DeepEqual(fileTrigger, trigger) {
 		return fmt.Errorf("trigger %s is not applied", trigger.Name)
 	}
 
@@ -96,7 +107,7 @@ func IsTriggerExist(name string) bool {
 func genTriggersAsYaml(triggers []trigger.Options) ([]byte, error) {
 	triggerTemplate := trigger.Policy{
 		Name:     "alert_resp",
-		Version:  "1.0",
+		Version:  2.0,
 		Enable:   true,
 		Triggers: triggers,
 	}

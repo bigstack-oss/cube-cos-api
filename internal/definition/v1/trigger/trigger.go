@@ -14,7 +14,7 @@ const (
 	Triggers         = "triggers"
 	DB               = "triggers"
 	Collection       = "triggers"
-	ResponsePolicyV2 = "/etc/policies/alert_trigger/alert_resp2_0.yml"
+	ResponsePolicyV2 = "/etc/policies/alert_resp/alert_resp2_0.yml"
 )
 
 var DefaultOptions = []Options{
@@ -156,7 +156,7 @@ var DefaultOptions = []Options{
 
 type Policy struct {
 	Name     string    `json:"name" yaml:"name"`
-	Version  string    `json:"version" yaml:"version"`
+	Version  float64   `json:"version" yaml:"version"`
 	Enable   bool      `json:"enable" yaml:"enable"`
 	Triggers []Options `json:"triggers" yaml:"triggers"`
 }
@@ -165,18 +165,28 @@ type Toggle struct {
 	Enable bool `json:"enable" yaml:"enable"`
 }
 
+func (p *Policy) GetTrigger(name string) Options {
+	for _, trigger := range p.Triggers {
+		if trigger.Name == name {
+			return trigger
+		}
+	}
+
+	return Options{}
+}
+
 func (p *Policy) UpdateOrAppendTrigger(trigger Options) {
-	if !p.existingTuningUpdated(trigger) {
+	if !p.existingTriggerUpdated(trigger) {
 		p.AppendTrigger(trigger)
 	}
 }
 
-func (p *Policy) existingTuningUpdated(trigger Options) bool {
+func (p *Policy) existingTriggerUpdated(trigger Options) bool {
 	for i, existing := range p.Triggers {
 		if existing.Name == trigger.Name {
 			p.Triggers[i].Name = trigger.Name
 			p.Triggers[i].Description = trigger.Description
-			p.Triggers[i].Match = trigger.Match
+			p.Triggers[i].Match = trigger.GenMatchRule()
 			p.Triggers[i].Response = trigger.Response
 			p.Triggers[i].Enable = trigger.Enable
 			return true
@@ -216,7 +226,7 @@ func (o *Options) InitUpdateStatus() {
 	}
 }
 
-func (o *Options) GenMatchRule() {
+func (o *Options) GenMatchRule() string {
 	rule := []string{}
 	for _, attr := range o.Attributes {
 		if !attr.Enable {
@@ -225,11 +235,11 @@ func (o *Options) GenMatchRule() {
 
 		rule = append(
 			rule,
-			fmt.Sprintf("%q == '%s'", attr.Name, attr.Value),
+			fmt.Sprintf(`%q == %q`, attr.Name, attr.Value),
 		)
 	}
 
-	o.Match = strings.Join(rule, " OR ")
+	return strings.Join(rule, " OR ")
 }
 
 func (o *Options) HasEmailRecipients() bool {
@@ -275,4 +285,14 @@ type Attribute struct {
 	Type   string `json:"type"`
 	Value  any    `json:"value"`
 	Enable bool   `json:"enable"`
+}
+
+func Get(name string) (*Options, bool) {
+	for _, trigger := range DefaultOptions {
+		if trigger.Name == name {
+			return &trigger, true
+		}
+	}
+
+	return nil, false
 }
