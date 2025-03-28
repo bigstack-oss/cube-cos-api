@@ -27,7 +27,7 @@ tasks:
     desc: "Prepare the tarball"
     cmds:
       - mkdir -p ~/source
-      - cp -r ./api ./cmd ./internal ./configs ./init go.mod go.sum LICENSE ~/source
+      - cp -r ./* ~/source/
       - cd ~ && tar -cvzf "cube-cos-api-{{.VERSION}}.tar.gz" source
       - mv ~/cube-cos-api-{{.VERSION}}.tar.gz ~/rpmbuild/SOURCES
       - rm -rf ~/source
