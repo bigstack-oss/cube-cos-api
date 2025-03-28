@@ -48,7 +48,6 @@ tasks:
   deployRemoteDevApi:
     cmds:
       - task: buildLocalBinary
-      - task: stopRemoteDevApi
       - task: initRemoteCosDevEnv
       - task: moveLocalBinaryToRemoteCos
       - task: moveLocalConfigToRemoteCos
@@ -57,10 +56,6 @@ tasks:
     cmds:
       - task: initRemoteCosDevEnv
       - task: simulateRemoteProductionMongo
-  stopRemoteDevApi:
-    cmds:
-      - ssh {{.devCosUser}}@{{.devCosIp}} "pkill -f {{.apiService}}"
-    ignore_error: true
   simulateRemoteProductionMongo:
     cmds:
       - ssh {{.devCosUser}}@{{.devCosIp}} "docker run -itd -p 27017:27017 -v /opt/dev/{{.apiService}}/mongo/{{.dbService}}-0:/data/db --name {{.dbService}}-0 --network={{.dbService}} --hostname {{.dbService}}-0 mongo:{{.mongoVersion}} mongod --replSet {{.dbReplicaSet}} --bind_ip_all"
@@ -89,6 +84,7 @@ tasks:
     ignore_error: true
   moveLocalBinaryToRemoteCos:
     cmds:
+      - ssh {{.devCosUser}}@{{.devCosIp}} "rm /usr/local/bin/{{.apiService}}"
       - scp bin/{{.apiService}} {{.devCosUser}}@{{.devCosIp}}:/usr/local/bin/{{.apiService}}
       - ssh {{.devCosUser}}@{{.devCosIp}} "chown -R {{.apiService}}:{{.apiService}} /usr/local/bin/{{.apiService}}"
   moveLocalConfigToRemoteCos:
