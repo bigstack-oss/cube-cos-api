@@ -50,6 +50,16 @@ type Tuning struct {
 	IsUpdating         bool `json:"isUpdating" bson:"isUpdating"`
 }
 
+type Trigger struct {
+	Current string `json:"current,omitempty" bson:"current"`
+	Desired string `json:"desired,omitempty" bson:"desired"`
+
+	CreatedAt string `json:"createdAt,omitzero" bson:"createdAt"`
+	UpdatedAt string `json:"updatedAt,omitzero" bson:"updatedAt"`
+
+	IsUpdating bool `json:"isUpdating" bson:"isUpdating"`
+}
+
 type SupportFile struct {
 	Current string `json:"current,omitempty" bson:"current"`
 	Desired string `json:"-,omitempty" bson:"desired"`

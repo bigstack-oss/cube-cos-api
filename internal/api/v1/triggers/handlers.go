@@ -33,6 +33,12 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodPatch,
+			Path:    "/triggers/:triggerName/enable",
+			Func:    enableOrDisableTrigger,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodPatch,
 			Path:    "/triggers/tasks/:taskId",
 			Func:    updateTriggerTask,
 		},
@@ -96,6 +102,28 @@ func updateTrigger(c *gin.Context) {
 	api.SetStatusAccepted(
 		c,
 		"trigger update request received",
+	)
+}
+
+func enableOrDisableTrigger(c *gin.Context) {
+	h, err := initHelper(c, "enableOrDisableTrigger")
+	if err != nil {
+		log.Errorf("tunings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.parseTriggerEnablement()
+	if err != nil {
+		log.Errorf("tunings(%s): failed to parse tuning req: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	h.delegateTriggerReq()
+	api.SetStatusAccepted(
+		c,
+		"tuning enable or disable request received",
 	)
 }
 

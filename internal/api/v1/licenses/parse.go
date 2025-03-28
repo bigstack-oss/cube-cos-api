@@ -3,7 +3,6 @@ package licenses
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 func (h *helper) parseByHandler() error {
@@ -74,8 +73,7 @@ func (h *helper) parsePage() error {
 }
 
 func (h *helper) parseKeyword() {
-	keyword := h.c.DefaultQuery("keyword", "")
-	h.Keyword = strings.ToLower(keyword)
+	h.Keyword = h.c.DefaultQuery("keyword", "")
 }
 
 func (h *helper) parseWatch() {

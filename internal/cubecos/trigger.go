@@ -97,7 +97,7 @@ func genTriggersAsYaml(triggers []trigger.Options) ([]byte, error) {
 	triggerTemplate := trigger.Policy{
 		Name:     "alert_resp",
 		Version:  "1.0",
-		Enabled:  true,
+		Enable:   true,
 		Triggers: triggers,
 	}
 
