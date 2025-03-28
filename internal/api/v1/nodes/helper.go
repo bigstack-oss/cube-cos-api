@@ -14,10 +14,10 @@ type helper struct {
 	c       *gin.Context
 	handler string
 
-	nodeName string
-	keyword  string
-	status   string
-	roles    []string
+	nodeName      string
+	keyword       string
+	licenseStatus string
+	roles         []string
 
 	definition.Page
 	watch bool
@@ -42,9 +42,9 @@ func (h *helper) parseListOptions() error {
 		return err
 	}
 
-	h.parseStatus()
 	h.parseKeyword()
 	h.parseRoles()
+	h.parseLicenseStatus()
 
 	return h.parseWatch()
 }

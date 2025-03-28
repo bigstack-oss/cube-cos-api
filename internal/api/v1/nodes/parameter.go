@@ -3,20 +3,22 @@ package nodes
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 )
 
 func (h *helper) parseKeyword() {
-	h.keyword = h.c.DefaultQuery("keyword", "")
+	keyword := h.c.DefaultQuery("keyword", "")
+	h.keyword = strings.ToLower(keyword)
 }
 
 func (h *helper) parseRoles() {
 	h.roles = h.c.QueryArray("role")
 }
 
-func (h *helper) parseStatus() {
-	h.status = h.c.DefaultQuery("status", "")
+func (h *helper) parseLicenseStatus() {
+	h.licenseStatus = h.c.DefaultQuery("licenseStatus", "")
 }
 
 func (h *helper) parsePage() error {

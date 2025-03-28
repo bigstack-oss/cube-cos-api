@@ -4,7 +4,6 @@ import (
 	"slices"
 
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
 )
@@ -13,13 +12,9 @@ const (
 	maxSearchResults = 10000
 )
 
-func (h *helper) filterNodes(nodes []*v1.Node) []*definition.Node {
+func (h *helper) filterNodes(nodes []*definition.Node) []*definition.Node {
 	if !h.isFilterRequired() {
 		return nodes
-	}
-
-	if h.isStatusRequired() {
-		nodes = h.filteredByStatus(nodes)
 	}
 
 	if h.isKeywordRequired() {
@@ -30,11 +25,15 @@ func (h *helper) filterNodes(nodes []*v1.Node) []*definition.Node {
 		nodes = h.filteredByRoles(nodes)
 	}
 
+	if h.isLicenseStatusRequired() {
+		nodes = h.filteredByLicenseStatus(nodes)
+	}
+
 	return nodes
 }
 
 func (h *helper) isFilterRequired() bool {
-	return h.isKeywordRequired() || h.isRolesRequired() || h.isStatusRequired()
+	return h.isKeywordRequired() || h.isRolesRequired() || h.isLicenseStatusRequired()
 }
 
 func (h *helper) isRolesRequired() bool {
@@ -45,15 +44,15 @@ func (h *helper) isKeywordRequired() bool {
 	return h.keyword != ""
 }
 
-func (h *helper) isStatusRequired() bool {
-	_, required := h.c.GetQuery("status")
+func (h *helper) isLicenseStatusRequired() bool {
+	_, required := h.c.GetQuery("licenseStatus")
 	return required
 }
 
-func (h *helper) filteredByStatus(nodes []*definition.Node) []*definition.Node {
+func (h *helper) filteredByLicenseStatus(nodes []*definition.Node) []*definition.Node {
 	filtered := []*definition.Node{}
 	for _, node := range nodes {
-		if node.License.Status.Current == h.status {
+		if node.License.Status.Current == h.licenseStatus {
 			filtered = append(filtered, node)
 		}
 	}

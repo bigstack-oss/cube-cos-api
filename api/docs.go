@@ -4202,6 +4202,15 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
+                        "$ref": "#/components/parameters/keyword"
+                    },
+                    {
+                        "$ref": "#/components/parameters/role"
+                    },
+                    {
+                        "$ref": "#/components/parameters/licenseStatus"
+                    },
+                    {
                         "$ref": "#/components/parameters/pageSize"
                     },
                     {
@@ -11266,6 +11275,40 @@ const docTemplate = `{
                 },
                 "description": "The keyword to search, can be any string",
                 "example": "example-keyword"
+            },
+            "role": {
+                "in": "query",
+                "name": "role",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "enum": [
+                        "control-converged",
+                        "control",
+                        "compute",
+                        "storage",
+                        "edge-core",
+                        "moderator"
+                    ]
+                },
+                "description": "The role of the host",
+                "example": "control-converged"
+            },
+            "licenseStatus": {
+                "in": "query",
+                "name": "licenseStatus",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "enum": [
+                        "ok",
+                        "expiring",
+                        "expired",
+                        "error"
+                    ]
+                },
+                "description": "The status of the host",
+                "example": "active"
             },
             "metricType": {
                 "in": "path",

@@ -3,6 +3,7 @@ package supportfiles
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
@@ -12,7 +13,8 @@ import (
 )
 
 func (h *helper) parseKeyword() {
-	h.keyword = h.c.DefaultQuery("keyword", "")
+	keyword := h.c.DefaultQuery("keyword", "")
+	h.keyword = strings.ToLower(keyword)
 }
 
 func (h *helper) parseWatch() error {

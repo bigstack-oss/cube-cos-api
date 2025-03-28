@@ -3,6 +3,7 @@ package tunings
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 func (h *helper) parsePage() error {
@@ -47,7 +48,8 @@ func (h *helper) parseScope() {
 }
 
 func (h *helper) parseKeyword() {
-	h.keyword = h.c.DefaultQuery("keyword", "")
+	keyword := h.c.DefaultQuery("keyword", "")
+	h.keyword = strings.ToLower(keyword)
 }
 
 func (h *helper) parseHosts() {
