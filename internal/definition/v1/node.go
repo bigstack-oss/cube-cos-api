@@ -8,6 +8,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
+	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )
@@ -34,6 +35,8 @@ var (
 	MgmtIP                   string
 	IsHaEnabled              bool
 	IsGpuEnabled             bool
+
+	nodeSearcher bleve.Index
 )
 
 type Node struct {
@@ -305,4 +308,19 @@ func GetNodeByHostname(hostname string) (*Node, error) {
 		"failed to get node by hostname %s",
 		hostname,
 	)
+}
+
+func InitNodeSearchIndex() error {
+	if nodeSearcher != nil {
+		return nil
+	}
+
+	var err error
+	mapping := bleve.NewIndexMapping()
+	nodeSearcher, err = bleve.NewMemOnly(mapping)
+	return err
+}
+
+func GetNodeSearcher() bleve.Index {
+	return nodeSearcher
 }

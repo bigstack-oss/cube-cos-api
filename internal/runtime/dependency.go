@@ -113,6 +113,11 @@ func initDependencies() error {
 		log.Errorf("failed to init license search index: %s", err.Error())
 	}
 
+	err = newNodeSearchIndex()
+	if err != nil {
+		log.Errorf("failed to init node search index: %s", err.Error())
+	}
+
 	return nil
 }
 
@@ -336,4 +341,8 @@ func newSupportFileSearchIndex() error {
 
 func newLicenseSearchIndex() error {
 	return definition.InitLicenseSearchIndex()
+}
+
+func newNodeSearchIndex() error {
+	return definition.InitNodeSearchIndex()
 }

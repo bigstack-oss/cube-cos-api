@@ -13,7 +13,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/dustin/go-humanize"
-	"github.com/gin-gonic/gin"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/hypervisors"
 	"github.com/shirou/gopsutil/v4/cpu"
 	log "go-micro.dev/v5/logger"
@@ -29,12 +28,12 @@ func (h *helper) addMetricsToNode(node *definition.Node) {
 
 	node.ManagementIP = hypervisor.HostIP
 	node.Status = hypervisor.State
-	addHardwareInfoToNode(node)
-	addMetricToNode(node, hypervisor)
-	addUptimeToNode(h.c, node)
+	h.addHardwareInfoToNode(node)
+	h.addMetricToNode(node, hypervisor)
+	h.addUptimeToNode(node)
 }
 
-func addHardwareInfoToNode(node *definition.Node) {
+func (h *helper) addHardwareInfoToNode(node *definition.Node) {
 	addCpuSpecToNode(node)
 	addNetworkSpecToNode(node)
 	addBlockDeviceSpecToNode(node)
@@ -161,24 +160,24 @@ func isSkippableLine(line string) bool {
 	return line == "" || strings.HasPrefix(line, "-") || strings.HasPrefix(line, "Label")
 }
 
-func addDetailsToNodes(c *gin.Context, nodes *[]*definition.Node) {
-	h := openstack.GetGlobalHelper()
+func (h *helper) addDetailsToNodes(nodes *[]*definition.Node) {
+	openstack := openstack.GetGlobalHelper()
 	for _, node := range *nodes {
-		hypervisor, err := h.GetHypervisorByHostname(node.Hostname)
+		hypervisor, err := openstack.GetHypervisorByHostname(node.Hostname)
 		if err != nil {
-			log.Debugf("request(%s): failed to add hypervisor info to the node: %s", api.GetReqId(c), err.Error())
+			log.Debugf("request(%s): failed to add hypervisor info to the node: %s", api.GetReqId(h.c), err.Error())
 			continue
 		}
 
 		node.ManagementIP = hypervisor.HostIP
 		node.Status = hypervisor.State
-		addHardwareInfoToNode(node)
-		addMetricToNode(node, hypervisor)
-		addUptimeToNode(c, node)
+		h.addHardwareInfoToNode(node)
+		h.addMetricToNode(node, hypervisor)
+		h.addUptimeToNode(node)
 	}
 }
 
-func addMetricToNode(node *definition.Node, hypervisor *hypervisors.Hypervisor) {
+func (h *helper) addMetricToNode(node *definition.Node, hypervisor *hypervisors.Hypervisor) {
 	node.Vcpu = definition.ComputeStatistic{
 		TotalCores:  float64(hypervisor.VCPUs),
 		UsedCores:   float64(hypervisor.VCPUsUsed),
@@ -204,22 +203,22 @@ func addMetricToNode(node *definition.Node, hypervisor *hypervisors.Hypervisor) 
 	}
 }
 
-func addUptimeToNode(c *gin.Context, node *definition.Node) {
+func (h *helper) addUptimeToNode(node *definition.Node) {
 	data, err := os.ReadFile("/proc/uptime")
 	if err != nil {
-		log.Errorf("request(%s): failed to read uptime file: %s", api.GetReqId(c), err.Error())
+		log.Errorf("request(%s): failed to read uptime file: %s", api.GetReqId(h.c), err.Error())
 		return
 	}
 
 	fields := strings.Fields(string(data))
 	if len(fields) < 1 {
-		log.Errorf("request(%s): invalid uptime format", api.GetReqId(c))
+		log.Errorf("request(%s): invalid uptime format", api.GetReqId(h.c))
 		return
 	}
 
 	uptimeSeconds, err := strconv.ParseFloat(fields[0], 64)
 	if err != nil {
-		log.Errorf("request(%s): failed to parse uptime: %s", api.GetReqId(c), err.Error())
+		log.Errorf("request(%s): failed to parse uptime: %s", api.GetReqId(h.c), err.Error())
 		return
 	}
 
