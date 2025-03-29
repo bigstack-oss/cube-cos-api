@@ -45,3 +45,25 @@ func (h *helper) listLicenses() (*data, error) {
 		Page:     h.genPageInfo(licenses),
 	}, nil
 }
+
+func (h *helper) saveLicense() (string, error) {
+	licenseFile, err := h.c.FormFile("license")
+	if err != nil {
+		log.Errorf("license(%s): %s", api.GetReqId(h.c), err.Error())
+		return "", err
+	}
+
+	filePath, err := genLicenseVerifyPath(licenseFile.Filename)
+	if err != nil {
+		log.Errorf("license(%s): failed to generate license store path: %s", api.GetReqId(h.c), err.Error())
+		return "", err
+	}
+
+	err = h.c.SaveUploadedFile(licenseFile, filePath)
+	if err != nil {
+		log.Errorf("license(%s): failed to save license file: %s", api.GetReqId(h.c), err.Error())
+		return "", err
+	}
+
+	return filePath, nil
+}

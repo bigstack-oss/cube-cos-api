@@ -2,6 +2,7 @@ package cubecos
 
 import (
 	"encoding/json"
+	"errors"
 	"os/exec"
 	"path/filepath"
 	"slices"
@@ -13,12 +14,33 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
+const (
+	LicenseValid              = 1
+	LicenseExpired            = 251
+	LicenseNotInstalled       = 252
+	LicenseInvalidHardware    = 253
+	LicenseInvalidSignature   = 254
+	LicenseSysytemCompromised = 255
+)
+
+func VerifyLicense(license string) error {
+	dir := filepath.Dir(license)
+	file := filepath.Base(license)
+	_, err := exec.Command("hex_sdk", "license_import_check", dir, file).Output()
+	if err != nil {
+		log.Errorf("license: failed to import licenses: %v", err)
+		return err
+	}
+
+	return isValidLicenseStatus(err)
+}
+
 func ImportClusterLicense(licensePath string) error {
 	dir := filepath.Dir(licensePath)
 	base := filepath.Base(licensePath)
 	_, err := exec.Command("hex_config", "sdk_run", "license_cluster_import", dir, base).Output()
 	if err != nil {
-		log.Errorf("failed to import licenses: %v", err)
+		log.Errorf("license: failed to import licenses: %v", err)
 		return err
 	}
 
@@ -31,7 +53,7 @@ func ImportNodeLicense(licensePath string) error {
 
 	_, err := exec.Command("hex_config", "sdk_run", "license_node_import", dir, filename).Output()
 	if err != nil {
-		log.Errorf("failed to import licenses: %v", err)
+		log.Errorf("license: failed to import licenses: %v", err)
 		return err
 	}
 
@@ -41,13 +63,13 @@ func ImportNodeLicense(licensePath string) error {
 func ListLicenses() ([]definition.License, error) {
 	b, err := exec.Command("hex_config", "sdk_run", "-f", "json", "license_cluster_show").Output()
 	if err != nil {
-		log.Errorf("licenses: failed to list licenses: %v", err)
+		log.Errorf("license: licenses: failed to list licenses: %v", err)
 		return nil, err
 	}
 
 	raws, err := parseRawLicenses(b)
 	if err != nil {
-		log.Errorf("licenses: failed to parse raw licenses: %v", err)
+		log.Errorf("license: licenses: failed to parse raw licenses: %v", err)
 		return nil, err
 	}
 
@@ -201,4 +223,32 @@ func parseStatus(raw definition.RawLicense) status.License {
 		Current:    "ok",
 		IsExpiring: false,
 	}
+}
+
+func isValidLicenseStatus(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	result, ok := err.(*exec.ExitError)
+	if !ok {
+		return errors.New("internal license system error")
+	}
+
+	switch result.ExitCode() {
+	case LicenseValid:
+		return nil
+	case LicenseExpired:
+		return errors.New("license is already expired")
+	case LicenseNotInstalled:
+		return errors.New("license is not installed")
+	case LicenseInvalidHardware:
+		return errors.New("license's hardware serial is not matched with the current system")
+	case LicenseInvalidSignature:
+		return errors.New("license's signature is invalid")
+	case LicenseSysytemCompromised:
+		return errors.New("license system is compromised")
+	}
+
+	return errors.New("unknown license status")
 }

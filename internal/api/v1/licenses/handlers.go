@@ -20,6 +20,12 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodPost,
+			Path:    "/licenses/verify",
+			Func:    verifyLicense,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodPost,
 			Path:    "/licenses",
 			Func:    importClusterLicense,
 		},
@@ -50,29 +56,56 @@ func listLicenses(c *gin.Context) {
 	)
 }
 
+func verifyLicense(c *gin.Context) {
+	h, err := initHelper(c, "verifyLicense")
+	if err != nil {
+		return
+	}
+
+	license, err := h.saveLicense()
+	if err != nil {
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = cubecos.VerifyLicense(license)
+	if err != nil {
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"license verified successfully",
+		nil,
+	)
+}
+
 func importClusterLicense(c *gin.Context) {
 	licenseFile, err := c.FormFile("license")
 	if err != nil {
-		log.Errorf("request(%s): %s", api.GetReqId(c), err.Error())
+		log.Errorf("license(%s): %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	filePath, err := getLicenseStorePath(licenseFile.Filename)
+	filePath, err := genLicenseStorePath(licenseFile.Filename)
 	if err != nil {
-		log.Errorf("request(%s): failed to generate license store path: %s", api.GetReqId(c), err.Error())
+		log.Errorf("license(%s): failed to generate license store path: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	if err := c.SaveUploadedFile(licenseFile, filePath); err != nil {
-		log.Errorf("request(%s): failed to save license file: %s", api.GetReqId(c), err.Error())
+	err = c.SaveUploadedFile(licenseFile, filePath)
+	if err != nil {
+		log.Errorf("license(%s): failed to save license file: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	if err := cubecos.ImportClusterLicense(filePath); err != nil {
-		log.Errorf("request(%s): failed to import cluster license: %s", api.GetReqId(c), err.Error())
+	err = cubecos.ImportClusterLicense(filePath)
+	if err != nil {
+		log.Errorf("license(%s): failed to import cluster license: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -82,7 +115,7 @@ func importClusterLicense(c *gin.Context) {
 
 func importHostLicense(c *gin.Context) {
 	if err := importOrDelegateLicense(c, c.Param("node")); err != nil {
-		log.Errorf("request(%s): failed to import license: %s", api.GetReqId(c), err.Error())
+		log.Errorf("license(%s): failed to import license: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}

@@ -14,17 +14,31 @@ import (
 )
 
 const (
-	licenseExtension = ".license"
-	licenseStorePath = "/var/support"
+	licenseExtension  = ".license"
+	licenseStorePath  = "/var/support"
+	licenseVerifyPath = "/tmp/license_verify"
 )
 
-func getLicenseStorePath(filename string) (string, error) {
+func genLicenseStorePath(filename string) (string, error) {
 	filePath, err := filepath.Abs(filepath.Join(licenseStorePath, filename))
 	if err != nil {
 		return "", err
 	}
 
 	if !strings.HasPrefix(filePath, licenseStorePath) {
+		return "", errors.New("invalid filename")
+	}
+
+	return filePath, nil
+}
+
+func genLicenseVerifyPath(filename string) (string, error) {
+	filePath, err := filepath.Abs(filepath.Join(licenseVerifyPath, filename))
+	if err != nil {
+		return "", err
+	}
+
+	if !strings.HasPrefix(filePath, licenseVerifyPath) {
 		return "", errors.New("invalid filename")
 	}
 
@@ -46,7 +60,7 @@ func importOrDelegateLicense(c *gin.Context, nodeName string) error {
 }
 
 func importLicenseToNode(c *gin.Context, licenseFile *multipart.FileHeader) error {
-	filePath, err := getLicenseStorePath(licenseFile.Filename)
+	filePath, err := genLicenseStorePath(licenseFile.Filename)
 	if err != nil {
 		log.Errorf("failed to generate license store path: %s", err.Error())
 		return err
