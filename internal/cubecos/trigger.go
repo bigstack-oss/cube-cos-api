@@ -5,8 +5,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"reflect"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	"github.com/google/uuid"
 	log "go-micro.dev/v5/logger"
@@ -53,6 +53,8 @@ func ApplyTriggers(triggers []trigger.Options) error {
 		Enable:   true,
 		Triggers: triggers,
 	})
+
+	wait.Seconds(3)
 	return nil
 
 	// M1 TODO: to recover the code below once CubeCOS side finish the hex_config refactor
@@ -91,9 +93,14 @@ func IsTriggerApplied(trigger trigger.Options) error {
 		return err
 	}
 
-	fileTrigger := policy.GetTrigger(trigger.Name)
-	if !reflect.DeepEqual(fileTrigger, trigger) {
-		return fmt.Errorf("trigger %s is not applied", trigger.Name)
+	appliedTrigger := policy.GetTrigger(trigger.Name)
+	if !trigger.IsSame(appliedTrigger) {
+		return fmt.Errorf(
+			"trigger %s not applied, expected: %v, got: %v",
+			trigger.Name,
+			trigger,
+			appliedTrigger,
+		)
 	}
 
 	return nil

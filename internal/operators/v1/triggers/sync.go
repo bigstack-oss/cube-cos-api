@@ -11,7 +11,7 @@ import (
 
 func (o *Operator) operateReq(trigger trigger.Options) error {
 	switch trigger.Status.Desired {
-	case status.Update:
+	case status.Updated:
 		return o.updateTrigger(trigger)
 	}
 
@@ -25,19 +25,19 @@ func (o *Operator) operateReq(trigger trigger.Options) error {
 func (o *Operator) updateTrigger(trigger trigger.Options) error {
 	policy, err := cubecos.GetTriggerPolicy()
 	if err != nil {
+		log.Infof("triggers: %v", err)
 		return err
 	}
 
 	policy.UpdateOrAppendTrigger(trigger)
 	err = cubecos.ApplyTriggers(policy.Triggers)
 	if err != nil {
-		log.Errorf("failed to apply trigger %s: %s", trigger.Name, err.Error())
 		return err
 	}
 
 	err = cubecos.IsTriggerApplied(trigger)
 	if err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("triggers: %v", err)
 		return err
 	}
 

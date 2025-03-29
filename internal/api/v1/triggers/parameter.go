@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/google/uuid"
 )
 
 func (h *helper) getTriggerName() string {
@@ -21,17 +20,7 @@ func (h *helper) parseTrigger() error {
 }
 
 func (h *helper) setUpdateInfo() {
-	h.trigger.Id = uuid.New().String()
 	h.trigger.Name = h.c.Param("triggerName")
 	h.trigger.Match = h.trigger.GenMatchRule()
-	h.trigger.InitStatus("updating", "update")
-}
-
-func (h *helper) parseTaskId() error {
-	h.trigger.Id = h.c.Param("taskId")
-	if h.trigger.Id == "" {
-		return errors.New("task id is required")
-	}
-
-	return nil
+	h.trigger.InitStatus("updating", "updated")
 }

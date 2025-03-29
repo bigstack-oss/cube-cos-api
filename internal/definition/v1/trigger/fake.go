@@ -9,28 +9,16 @@ import (
 
 func init() {
 	policy := genFakePolicy()
-	WriteFakePolicyFile(policy)
+	initFakePolicyFile(policy)
 }
 
-func WriteFakePolicyFile(policy *Policy) {
+func initFakePolicyFile(policy *Policy) {
 	_, err := os.Stat(ResponsePolicyV2)
 	if err == nil {
 		return
 	}
 
-	policyFile, err := os.Create(ResponsePolicyV2)
-	if err != nil {
-		log.Errorf("failed to create fake policy file: %s", err.Error())
-		return
-	}
-
-	defer policyFile.Close()
-	yamlEncoder := yaml.NewEncoder(policyFile)
-	yamlEncoder.SetIndent(2)
-	err = yamlEncoder.Encode(policy)
-	if err != nil {
-		log.Errorf("failed to encode fake policy to yaml: %s", err.Error())
-	}
+	WriteFakePolicyFile(policy)
 }
 
 func genFakePolicy() *Policy {
@@ -46,4 +34,20 @@ func genFakePolicy() *Policy {
 	}
 
 	return policy
+}
+
+func WriteFakePolicyFile(policy *Policy) {
+	policyFile, err := os.Create(ResponsePolicyV2)
+	if err != nil {
+		log.Errorf("failed to create fake policy file: %s", err.Error())
+		return
+	}
+
+	defer policyFile.Close()
+	yamlEncoder := yaml.NewEncoder(policyFile)
+	yamlEncoder.SetIndent(2)
+	err = yamlEncoder.Encode(policy)
+	if err != nil {
+		log.Errorf("failed to encode fake policy to yaml: %s", err.Error())
+	}
 }

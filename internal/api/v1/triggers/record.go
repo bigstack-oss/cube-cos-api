@@ -10,10 +10,12 @@ import (
 
 func (h *helper) addReqRecord() {
 	mongo := cubeMongo.GetGlobalHelper()
-	err := mongo.Insert(
+	err := mongo.UpdateOne(
 		trigger.DB,
-		trigger.Collection,
-		h.trigger,
+		trigger.ReqCollection,
+		bson.M{"name": h.trigger.Name},
+		h.genUpsertPayload(),
+		options.Update().SetUpsert(true),
 	)
 	if err != nil {
 		log.Errorf(
@@ -28,9 +30,55 @@ func (h *helper) updateTaskStatus() error {
 	mongo := cubeMongo.GetGlobalHelper()
 	return mongo.UpdateOne(
 		trigger.DB,
-		trigger.Collection,
-		bson.M{"id": h.trigger.Id},
-		bson.M{"$set": bson.M{"status.current": h.trigger.Status.Current}},
+		trigger.ReqCollection,
+		bson.M{"name": h.trigger.Name},
+		bson.M{"$set": bson.M{"status": h.trigger.Status}},
 		options.Update().SetUpsert(true),
 	)
+}
+
+func (h *helper) genUpsertPayload() bson.M {
+	return bson.M{
+		"$set": bson.M{
+			"name":     h.trigger.Name,
+			"match":    h.trigger.Match,
+			"response": h.trigger.Response,
+			"enabled":  h.trigger.Enable,
+			"status":   h.trigger.Status,
+		},
+	}
+}
+
+func (h *helper) hasUpdateHistory(t trigger.Options) bool {
+	mongo := cubeMongo.GetGlobalHelper()
+	count, err := mongo.GetCount(
+		trigger.DB,
+		trigger.ReqCollection,
+		bson.M{"name": t.Name},
+	)
+	if err != nil {
+		return false
+	}
+
+	return count > 0
+}
+
+func (h *helper) getUpdateRecord(t trigger.Options) (*trigger.Options, error) {
+	mongo := cubeMongo.GetGlobalHelper()
+	pending, err := mongo.Get(
+		trigger.DB,
+		trigger.ReqCollection,
+		bson.M{"name": t.Name},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	record := &trigger.Options{}
+	err = pending.Decode(record)
+	if err != nil {
+		return nil, err
+	}
+
+	return record, nil
 }

@@ -166,7 +166,7 @@ func (n *Node) PatchTriggerTaskUrl(trigger trigger.Options) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/triggers/tasks/%s", DataCenterName, trigger.Id)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/triggers/tasks/%s", DataCenterName, trigger.Name)
 	return u.String()
 }
 

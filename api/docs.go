@@ -10294,6 +10294,142 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/triggers/{triggerName}/enable": {
+            "patch": {
+                "operationId": "enableOrDisableTrigger",
+                "tags": [
+                    "Triggers"
+                ],
+                "summary": "Enable or disable a specific trigger",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "in": "path",
+                        "name": "triggerName",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the trigger to update.",
+                        "example": "Administrative Level Notification"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EnableOrDisableTriggerRequest"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Trigger enablement request",
+                                    "value": {
+                                        "enable": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Enable or disable the trigger successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpdateTriggerResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Trigger update request received",
+                                        "value": {
+                                            "code": 202,
+                                            "msg": "trigger update request received",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid parameter name"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to request trigger update: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/supportFiles": {
             "get": {
                 "operationId": "getSupportFiles",
@@ -15140,6 +15276,17 @@ const docTemplate = `{
                         }
                     },
                     "enabled": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "EnableOrDisableTriggerRequest": {
+                "type": "object",
+                "required": [
+                    "enable"
+                ],
+                "properties": {
+                    "enable": {
                         "type": "boolean"
                     }
                 }

@@ -8,13 +8,17 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	"github.com/shirou/gopsutil/v4/host"
+	log "go-micro.dev/v5/logger"
 )
 
 const (
 	Triggers         = "triggers"
 	DB               = "triggers"
 	Collection       = "triggers"
+	ReqCollection    = "requests"
 	ResponsePolicyV2 = "/etc/policies/alert_resp/alert_resp2_0.yml"
+	ISO8601Z         = "2006-01-02T15:04:05+00:00"
 )
 
 var DefaultOptions = []Options{
@@ -201,11 +205,10 @@ func (p *Policy) AppendTrigger(trigger Options) {
 }
 
 type Options struct {
-	Id          string      `json:"-" yaml:"-" bson:"id"`
 	Name        string      `json:"name" yaml:"name" bson:"name"`
 	Description string      `json:"description" yaml:"description"`
 	Match       string      `json:"-" yaml:"match"`
-	Attributes  []Attribute `json:"attributes" yaml:"-"`
+	Attributes  []Attribute `json:"attributes" bson:"-" yaml:"-"`
 	Response    `json:"response" yaml:"response"`
 	Enable      bool            `json:"enable" yaml:"enable"`
 	Status      *status.Trigger `json:"status" yaml:"-" bson:"status"`
@@ -217,8 +220,25 @@ func (o *Options) InitResponse() {
 	o.Response.Emails = []email.Recipient{}
 }
 
+func (o *Options) InitOkStatus() {
+	o.Status = &status.Trigger{
+		Current:    status.Ok,
+		IsUpdating: false,
+	}
+
+	bootDuration, err := host.BootTime()
+	if err != nil {
+		o.Status.UpdatedAt = TimeISO8601Z(time.Now())
+		return
+	}
+
+	bootTime := time.Unix(int64(bootDuration), 0)
+	o.Status.UpdatedAt = TimeISO8601Z(bootTime)
+}
+
 func (o *Options) InitUpdateStatus() {
 	o.Status = &status.Trigger{
+		Current:    status.Updating,
 		Desired:    status.Updated,
 		CreatedAt:  time.Now().Local().Format(time.RFC3339),
 		UpdatedAt:  time.Now().Local().Format(time.RFC3339),
@@ -252,7 +272,6 @@ func (o *Options) HasSlackChannels() bool {
 
 func (o *Options) GenTaskUpdate() Options {
 	return Options{
-		Id:     o.Id,
 		Name:   o.Name,
 		Status: o.Status,
 	}
@@ -266,12 +285,34 @@ func (o *Options) InitStatus(current, desired string) {
 	}
 }
 
+func (o *Options) IsSame(trigger Options) bool {
+	if o.Name != trigger.Name {
+		log.Errorf("trigger name not same: %s != %s", o.Name, trigger.Name)
+		return false
+	}
+
+	if o.Match != trigger.Match {
+		log.Errorf("trigger match not same: %s != %s", o.Match, trigger.Match)
+		return false
+	}
+
+	if o.Enable != trigger.Enable {
+		log.Errorf("trigger enable not same: %v != %v", o.Enable, trigger.Enable)
+		return false
+	}
+
+	// have to add a comparsion for response data
+
+	return true
+}
+
 func (o *Options) SetError() {
 	o.Status.Current = status.Error
 }
 
 func (o *Options) SetCompleted() {
-	o.Status.Current = status.Completed
+	o.Status.Current = status.Ok
+	o.Status.IsUpdating = false
 }
 
 type Response struct {
@@ -295,4 +336,8 @@ func Get(name string) (*Options, bool) {
 	}
 
 	return nil, false
+}
+
+func TimeISO8601Z(t time.Time) string {
+	return t.Format(ISO8601Z)
 }

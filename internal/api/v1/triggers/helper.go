@@ -57,11 +57,6 @@ func (h *helper) initTaskHelper() (*helper, error) {
 		return nil, err
 	}
 
-	err = h.parseTaskId()
-	if err != nil {
-		return nil, err
-	}
-
 	return h, nil
 }
 
@@ -69,10 +64,27 @@ func (h *helper) listTriggers() ([]trigger.Options, error) {
 	triggers := []trigger.Options{}
 	for _, trigger := range trigger.DefaultOptions {
 		setResponseItemsToTrigger(&trigger)
+		h.syncUpdateStatus(&trigger)
 		triggers = append(triggers, trigger)
 	}
 
 	return triggers, nil
+}
+
+func (h *helper) syncUpdateStatus(trigger *trigger.Options) {
+	trigger.InitOkStatus()
+	if !h.hasUpdateHistory(*trigger) {
+		return
+	}
+
+	record, err := h.getUpdateRecord(*trigger)
+	if err != nil {
+		return
+	}
+
+	trigger.Status.IsUpdating = record.Status.IsUpdating
+	trigger.Status.Current = record.Status.Current
+	trigger.Status.UpdatedAt = record.Status.UpdatedAt
 }
 
 func (h *helper) getTrigger(name string) (*trigger.Options, error) {
@@ -95,7 +107,7 @@ func (h *helper) delegateTriggerReq() {
 }
 
 func (h *helper) checkTaskUpdateReq() error {
-	if h.trigger.Id == "" {
+	if h.trigger.Name == "" {
 		return fmt.Errorf("trigger id is required")
 	}
 
