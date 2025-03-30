@@ -2628,7 +2628,7 @@ const docTemplate = `{
                 "tags": [
                     "Licenses"
                 ],
-                "summary": "Update licenses for the cluster",
+                "summary": "Import licenses for the cluster",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -2646,11 +2646,45 @@ const docTemplate = `{
                 },
                 "responses": {
                     "200": {
-                        "description": "Update licenses successfully",
+                        "description": "Import licenses successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/PostLicenseResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "License import result",
+                                        "value": {
+                                            "code": 200,
+                                            "msg": "import license successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -2682,7 +2716,101 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/nodes/{node}/licenses": {
+        "/api/v1/datacenters/{dataCenter}/licenses/verify": {
+            "post": {
+                "operationId": "verifyLicense",
+                "tags": [
+                    "Licenses"
+                ],
+                "summary": "Verify the license",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostLicenseRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Verify license successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostLicenseResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "License verification result",
+                                        "value": {
+                                            "code": 200,
+                                            "msg": "verify license successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to verify license: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/licenses/hosts/{:hostname}": {
             "post": {
                 "operationId": "importNodeLicense",
                 "tags": [
@@ -2694,14 +2822,7 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "in": "path",
-                        "name": "node",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the node to operate",
-                        "example": "example-node"
+                        "$ref": "#/components/parameters/hostname"
                     }
                 ],
                 "requestBody": {
@@ -2721,6 +2842,16 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/PostLicenseResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "License import result",
+                                        "value": {
+                                            "code": 200,
+                                            "msg": "import license successfully",
+                                            "status": "ok"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -12720,20 +12851,13 @@ const docTemplate = `{
                 ],
                 "properties": {
                     "code": {
-                        "type": "integer",
-                        "example": 200
-                    },
-                    "data": {
-                        "type": "object",
-                        "example": null
+                        "type": "integer"
                     },
                     "msg": {
-                        "type": "string",
-                        "example": "update licenses successfully"
+                        "type": "string"
                     },
                     "status": {
-                        "type": "string",
-                        "example": "ok"
+                        "type": "string"
                     }
                 }
             },
