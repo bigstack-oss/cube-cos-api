@@ -3,6 +3,7 @@ package cubecos
 import (
 	"encoding/json"
 	"errors"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"slices"
@@ -24,14 +25,10 @@ const (
 )
 
 func VerifyLicense(license string) error {
+	defer os.Remove(license)
 	dir := filepath.Dir(license)
-	file := filepath.Base(license)
+	file := strings.TrimSuffix(filepath.Base(license), filepath.Ext(license))
 	_, err := exec.Command("hex_sdk", "license_import_check", dir, file).Output()
-	if err != nil {
-		log.Errorf("license: failed to import licenses: %v", err)
-		return err
-	}
-
 	return isValidLicenseStatus(err)
 }
 

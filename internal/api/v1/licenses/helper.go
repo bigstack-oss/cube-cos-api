@@ -25,7 +25,6 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 	err := h.parseByHandler()
 	if err != nil {
 		log.Errorf("licenses(%s): failed to init request helper: %s", api.GetReqId(h.c), err.Error())
-		api.SetBadRequest(c, err)
 		return nil, err
 	}
 
