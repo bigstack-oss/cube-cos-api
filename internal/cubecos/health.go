@@ -1,13 +1,23 @@
 package cubecos
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	"github.com/influxdata/influxdb-client-go/v2/api"
 	log "go-micro.dev/v5/logger"
+)
+
+const (
+	healthMeasurement   = `fn: (r) => r._measurement == "health"`
+	convertValueToField = `rowKey: ["_time","component","node","code"], columnKey: ["_field"], valueColumn: "_value"`
+	descByTime          = `columns: ["_time"], desc: true`
 )
 
 type Health struct {
@@ -30,6 +40,16 @@ type HealthCheck struct {
 	*Error `json:"error,omitempty"`
 }
 
+type HealthPoint struct {
+	Time        string `json:"time"`
+	Code        int    `json:"code"`
+	Component   string `json:"component"`
+	Description string `json:"description"`
+	Details     string `json:"details"`
+	Log         string `json:"log"`
+	Node        string `json:"node"`
+}
+
 type Error struct {
 	Type        string   `json:"type"`
 	Reason      string   `json:"reason"`
@@ -40,7 +60,7 @@ type Error struct {
 }
 
 type Overall struct {
-	Status status.Details `json:"status,omitempty" bson:"status"`
+	Status status.Health `json:"status" bson:"status"`
 }
 
 var (
@@ -180,4 +200,86 @@ func RepairModule(moduleName string) error {
 		moduleName,
 		string(out),
 	)
+}
+
+func ListModuleHealth(duration string) ([]HealthStatus, error) {
+	health := []HealthStatus{}
+
+	// for _, service := range OrderSensitiveServices {
+	// 	for _, module := range service.Modules {
+	// 		history, err := GetModuleHealthHistory(module.Name, duration)
+	// 		if err != nil {
+	// 			continue
+	// 		}
+	// 	}
+	// }
+
+	return health, nil
+}
+
+func GetModuleHealthHistory(moduleName, duration string) ([]HealthPoint, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
+	defer cancel()
+	stmt := GenModuleHealthHistoryQuery(moduleName, duration)
+
+	h := influx.GetGlobalHelper()
+	c, err := h.QueryApiClient.Query(ctx, stmt)
+	if err != nil {
+		log.Errorf("healths: failed to get query cursor: %v", err)
+		return nil, err
+	}
+
+	defer c.Close()
+	points := []HealthPoint{}
+	err = parseHealthPoints(c, &points)
+	if err != nil {
+		log.Errorf("healths: failed to parse events from cursor: %v", err)
+		return nil, err
+	}
+
+	return points, nil
+
+}
+
+func GenModuleHealthHistoryQuery(moduleName, past string) string {
+	query := influx.Query{}
+	return query.Bucket("event").
+		Range(genTimeDuration(past)).
+		Filter(healthMeasurement).
+		Filter(genModuleFilter(moduleName)).
+		Pivot(convertValueToField).
+		Group("").
+		Sort(descByTime).
+		String()
+}
+
+func genModuleFilter(modulName string) string {
+	return fmt.Sprintf(`fn: (r) => r.component == %q`, modulName)
+}
+
+func genTimeDuration(past string) string {
+	return fmt.Sprintf("start: -%s", past)
+}
+
+func parseHealthPoints(c *api.QueryTableResult, points *[]HealthPoint) error {
+	for c.Next() {
+		record := c.Record()
+		*points = append(
+			*points,
+			HealthPoint{
+				Time:        record.Time().String(),
+				Code:        int(record.ValueByKey("code").(int64)),
+				Component:   record.ValueByKey("component").(string),
+				Description: record.ValueByKey("description").(string),
+				Details:     record.ValueByKey("detail").(string),
+				Log:         record.ValueByKey("log").(string),
+				Node:        record.ValueByKey("node").(string),
+			},
+		)
+	}
+	if c.Err() != nil {
+		return c.Err()
+	}
+
+	return nil
 }

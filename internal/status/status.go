@@ -26,9 +26,18 @@ func NewOk() *Details {
 	return &Details{Current: Ok}
 }
 
-// Might need to separate the Details for Tuning and Health.
-
 type Details struct {
+	Current string `json:"current,omitempty" bson:"current"`
+	Desired string `json:"desired,omitempty" bson:"desired"`
+
+	CreatedAt time.Time `json:"createdAt,omitzero" bson:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt,omitzero" bson:"updatedAt"`
+	IsFixing  bool      `json:"isFixing" bson:"isFixing"`
+
+	Description string `json:"description" bson:"description"`
+}
+
+type Health struct {
 	Current string `json:"current,omitempty" bson:"current"`
 	Desired string `json:"desired,omitempty" bson:"desired"`
 
@@ -89,7 +98,7 @@ func (s *Details) SetCurrentToPending() {
 	s.Current = Pending
 }
 
-func (s *Details) SetCurrentToRepairing() {
+func (s *Health) SetCurrentToRepairing() {
 	s.Current = Repairing
 }
 
@@ -113,15 +122,15 @@ func (s *Details) SetDesiredToDelete() {
 	s.Desired = Delete
 }
 
-func (s *Details) SetDesiredToCheckingAndRepairing() {
+func (s *Health) SetDesiredToCheckingAndRepairing() {
 	s.Desired = CheckingAndRepairing
 }
 
-func (s *Details) SetDesiredToRepairing() {
+func (s *Health) SetDesiredToRepairing() {
 	s.Desired = Repairing
 }
 
-func (s *Details) SetCurrentToError(err error) {
+func (s *Health) SetCurrentToError(err error) {
 	s.Current = Error
 	if err != nil {
 		s.Description = err.Error()

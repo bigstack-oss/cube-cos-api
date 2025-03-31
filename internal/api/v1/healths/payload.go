@@ -14,7 +14,7 @@ import (
 func (h *helper) genFakeHealthSummary() any {
 	return cubecos.Health{
 		Overall: &cubecos.Overall{
-			Status: status.Details{
+			Status: status.Health{
 				Current:     "ng",
 				Description: "ceph has 2 ceph_osd down",
 			},
@@ -492,6 +492,17 @@ func (h *helper) genFakeHealthSummary() any {
 			},
 		},
 	}
+}
+
+func (h *helper) getHealthSummary() (any, error) {
+	healths, err := cubecos.ListModuleHealth(h.past)
+	if err != nil {
+		return nil, err
+	}
+
+	// have to check if there's any ng status, and set at the overall status
+	// overall := &cubecos.Overall{}
+	return healths, nil
 }
 
 func (h *helper) genFakeHealthHistoryOfService() []cubecos.HealthStatus {

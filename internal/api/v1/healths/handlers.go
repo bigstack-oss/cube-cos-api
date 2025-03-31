@@ -60,6 +60,11 @@ func getHealthSummary(c *gin.Context) {
 	}
 
 	summary := h.genFakeHealthSummary()
+	// summary, err := h.getHealthSummary()
+	// if err != nil {
+	// 	log.Errorf("request(%s): %v", api.GetReqId(c), err)
+	// 	api.SetInternalServerError(c, err)
+	// }
 	if h.watch {
 		watchHealth(h, &summary)
 		return

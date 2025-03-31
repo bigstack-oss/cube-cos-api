@@ -2810,7 +2810,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/licenses/hosts/{:hostname}": {
+        "/api/v1/datacenters/{dataCenter}/licenses/hosts/{hostname}": {
             "post": {
                 "operationId": "importNodeLicense",
                 "tags": [
