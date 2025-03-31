@@ -148,7 +148,7 @@ func (h *helper) parseWatch() {
 func (h *helper) parsePast() error {
 	h.past = h.c.DefaultQuery("past", "")
 	if h.past == "" {
-		h.past = "-1h"
+		h.past = "1h"
 		return nil
 	}
 

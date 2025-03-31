@@ -318,7 +318,7 @@ func genModuleFilter(modulName string) string {
 }
 
 func genTimeDuration(past string) string {
-	return fmt.Sprintf("start: %s", past)
+	return fmt.Sprintf("start: -%s", past)
 }
 
 func parseHealthCheck(c *api.QueryTableResult, checks *[]v1.HealthCheck) error {

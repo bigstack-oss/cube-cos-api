@@ -1410,6 +1410,23 @@ const docTemplate = `{
                     },
                     {
                         "$ref": "#/components/parameters/watch"
+                    },
+                    {
+                        "in": "query",
+                        "name": "past",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1h",
+                                "24h",
+                                "7d",
+                                "14d",
+                                "30d"
+                            ]
+                        },
+                        "description": "The past time of the health to query, click 'try it out' to see a few options, but can specify with the 's'(second), 'm'(minute), 'h'(hour), and 'd'(day) suffix for other time ranges.",
+                        "example": "1h"
                     }
                 ],
                 "responses": {
@@ -12305,7 +12322,8 @@ const docTemplate = `{
                                         "status": {
                                             "type": "object",
                                             "required": [
-                                                "current"
+                                                "current",
+                                                "isFixing"
                                             ],
                                             "properties": {
                                                 "current": {
@@ -12314,6 +12332,12 @@ const docTemplate = `{
                                                         "ok",
                                                         "ng"
                                                     ]
+                                                },
+                                                "isFixing": {
+                                                    "type": "boolean"
+                                                },
+                                                "description": {
+                                                    "type": "string"
                                                 }
                                             }
                                         },
@@ -12337,7 +12361,8 @@ const docTemplate = `{
                                                     "status": {
                                                         "type": "object",
                                                         "required": [
-                                                            "current"
+                                                            "current",
+                                                            "isFixing"
                                                         ],
                                                         "properties": {
                                                             "current": {
@@ -12346,6 +12371,12 @@ const docTemplate = `{
                                                                     "ok",
                                                                     "ng"
                                                                 ]
+                                                            },
+                                                            "isFixing": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "description": {
+                                                                "type": "string"
                                                             }
                                                         }
                                                     }
