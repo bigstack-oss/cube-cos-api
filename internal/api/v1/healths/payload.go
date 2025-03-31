@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	duration "github.com/xhit/go-str2duration"
 )
@@ -19,12 +19,12 @@ func (h *helper) genFakeHealthSummary() any {
 				Description: "ceph has 2 ceph_osd down",
 			},
 		},
-		Services: []definition.Service{
+		Services: []v1.Service{
 			{
 				Name:     "clusterLink",
 				Category: "core",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "link",
 						Status:       status.NewOk(),
@@ -46,7 +46,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "clusterSys",
 				Category: "core",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "bootstrap",
 						Status:       status.NewOk(),
@@ -63,7 +63,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "clusterSettings",
 				Category: "core",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "etcd",
 						Status:       status.NewOk(),
@@ -80,7 +80,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "haCluster",
 				Category: "core",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "hacluster",
 						Status:       status.NewOk(),
@@ -92,7 +92,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "msgQueue",
 				Category: "core",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "rabbitmq",
 						Status:       status.NewOk(),
@@ -104,7 +104,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "iaasDb",
 				Category: "core",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "mysql",
 						Status:       status.NewOk(),
@@ -121,7 +121,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "virtualIp",
 				Category: "core",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "vip",
 						Status:       status.NewOk(),
@@ -138,7 +138,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "singleSignOn",
 				Category: "core",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "k3s",
 						Status:       status.NewOk(),
@@ -155,7 +155,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "apiService",
 				Category: "core",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "haproxy",
 						Status:       status.NewOk(),
@@ -195,7 +195,7 @@ func (h *helper) genFakeHealthSummary() any {
 					Current:     "ng",
 					Description: "ceph has 2 ceph_osd down",
 				},
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "ceph",
 						Status:       status.NewOk(),
@@ -240,7 +240,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "compute",
 				Category: "cloud computing",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "nova",
 						Status:       status.NewOk(),
@@ -257,7 +257,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "network",
 				Category: "cloud computing",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "neutron",
 						Status:       status.NewOk(),
@@ -269,7 +269,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "lbaas",
 				Category: "cloud computing",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "octavia",
 						Status:       status.NewOk(),
@@ -281,7 +281,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "blockStorage",
 				Category: "cloud computing",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "cinder",
 						Status:       status.NewOk(),
@@ -293,7 +293,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "fileStorage",
 				Category: "cloud computing",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "manila",
 						Status:       status.NewOk(),
@@ -305,7 +305,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "objectStorage",
 				Category: "cloud computing",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "swift",
 						Status:       status.NewOk(),
@@ -317,7 +317,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "bareMetal",
 				Category: "cloud computing",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "ironic",
 						Status:       status.NewOk(),
@@ -329,7 +329,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "dnsaas",
 				Category: "cloud computing",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "designate",
 						Status:       status.NewOk(),
@@ -341,7 +341,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "k8saas",
 				Category: "cloud computing",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "rancher",
 						Status:       status.NewOk(),
@@ -353,7 +353,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "orchestration",
 				Category: "cloud computing",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "heat",
 						Status:       status.NewOk(),
@@ -365,7 +365,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "instanceHa",
 				Category: "cloud computing",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "masakari",
 						Status:       status.NewOk(),
@@ -377,7 +377,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "image",
 				Category: "cloud computing",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "glance",
 						Status:       status.NewOk(),
@@ -389,7 +389,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "businessLogic",
 				Category: "cloud computing",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "senlin",
 						Status:       status.NewOk(),
@@ -406,7 +406,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "dataPipe",
 				Category: "infrascope",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "kafka",
 						Status:       status.NewOk(),
@@ -423,7 +423,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "notification",
 				Category: "infrascope",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "influxdb",
 						Status:       status.NewOk(),
@@ -440,7 +440,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "metrics",
 				Category: "infrascope",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "monasca",
 						Status:       status.NewOk(),
@@ -462,7 +462,7 @@ func (h *helper) genFakeHealthSummary() any {
 				Name:     "logAnalytics",
 				Category: "infrascope",
 				Status:   status.NewOk(),
-				Modules: []definition.Module{
+				Modules: []v1.Module{
 					{
 						Name:         "filebeat",
 						Status:       status.NewOk(),
@@ -494,15 +494,8 @@ func (h *helper) genFakeHealthSummary() any {
 	}
 }
 
-func (h *helper) getHealthSummary() (any, error) {
-	healths, err := cubecos.ListModuleHealth(h.past)
-	if err != nil {
-		return nil, err
-	}
-
-	// have to check if there's any ng status, and set at the overall status
-	// overall := &cubecos.Overall{}
-	return healths, nil
+func (h *helper) getHealthSummary() any {
+	return cubecos.ListModuleHealth(h.past)
 }
 
 func (h *helper) genFakeHealthHistoryOfService() []cubecos.HealthStatus {
@@ -513,18 +506,18 @@ func (h *helper) genFakeHealthHistoryOfService() []cubecos.HealthStatus {
 	if h.isPastRequired() {
 		pastTime, _ = duration.Str2Duration(h.past)
 	}
-	h.period.stop = definition.TimeRFC3339Z(time.Now())
-	h.period.start = definition.TimeRFC3339Z(time.Now().Add(-pastTime))
+	h.period.stop = v1.TimeRFC3339Z(time.Now())
+	h.period.start = v1.TimeRFC3339Z(time.Now().Add(-pastTime))
 
 	for _, module := range modules {
 		interval := 5 * time.Minute
-		history := []cubecos.HealthCheck{}
+		history := []v1.HealthCheck{}
 		count := 0
 
 		for start := h.StartTime(); !start.After(h.StopTime()); start = start.Add(interval) {
-			timestamp := h.StartTime().Add(time.Duration(count) * interval).Format(definition.RFC3339)
+			timestamp := h.StartTime().Add(time.Duration(count) * interval).Format(v1.RFC3339)
 			status := "ok"
-			checkResult := cubecos.HealthCheck{Time: timestamp, Status: status}
+			checkResult := v1.HealthCheck{Time: timestamp, Status: status}
 			if count%5 == 0 {
 				h.setFakeError(&checkResult)
 			}
@@ -551,20 +544,20 @@ func (h *helper) genFakeHealthHistoryOfService() []cubecos.HealthStatus {
 // M1 TODO: this will be removed once the real data is available in the COS side
 func (h *helper) genFakeHealthHistoryOfModule() cubecos.HealthStatus {
 	interval := 5 * time.Minute
-	history := []cubecos.HealthCheck{}
+	history := []v1.HealthCheck{}
 	count := 0
 
 	pastTime := 1 * time.Hour
 	if h.isPastRequired() {
 		pastTime, _ = duration.Str2Duration(h.past)
 	}
-	h.period.stop = definition.TimeRFC3339Z(time.Now())
-	h.period.start = definition.TimeRFC3339Z(time.Now().Add(-pastTime))
+	h.period.stop = v1.TimeRFC3339Z(time.Now())
+	h.period.start = v1.TimeRFC3339Z(time.Now().Add(-pastTime))
 
 	for start := h.StartTime(); !start.After(h.StopTime()); start = start.Add(interval) {
-		timestamp := h.StartTime().Add(time.Duration(count) * interval).Format(definition.RFC3339)
+		timestamp := h.StartTime().Add(time.Duration(count) * interval).Format(v1.RFC3339)
 		status := "ok"
-		checkResult := cubecos.HealthCheck{Time: timestamp, Status: status}
+		checkResult := v1.HealthCheck{Time: timestamp, Status: status}
 		if count%5 == 0 {
 			h.setFakeError(&checkResult)
 		}
@@ -582,17 +575,17 @@ func (h *helper) genFakeHealthHistoryOfModule() cubecos.HealthStatus {
 	}
 }
 
-func (h *helper) setFakeError(checkResult *cubecos.HealthCheck) {
+func (h *helper) setFakeError(checkResult *v1.HealthCheck) {
 	checkResult.Status = "ng"
-	checkResult.Error = &cubecos.Error{
+	checkResult.Error = &v1.Error{
 		Type:        "service down",
-		Nodes:       []string{definition.DataCenterName},
+		Nodes:       []string{v1.DataCenterName},
 		Reason:      "1 node down",
 		Description: "nova has 1 node down due to the memory exhausted, and the abnormal memory competition from PID(24887) is detected",
 		Details:     "{ ... the best efforts of error summary / direction ...} ",
 		Log: fmt.Sprintf(
 			"http://{dataCenter}:8888/log/nova/%s-20250205113459-b3gc.log",
-			definition.DataCenterName,
+			v1.DataCenterName,
 		),
 	}
 }
@@ -604,16 +597,16 @@ func genCheckRepairReq() *cubecos.Health {
 	return h
 }
 
-func genForceRepairReq(module definition.Module) *cubecos.Health {
+func genForceRepairReq(module v1.Module) *cubecos.Health {
 	h := &cubecos.Health{}
 	h.Overall = &cubecos.Overall{}
 	h.Overall.Status.SetDesiredToRepairing()
 	svc := cubecos.ModuleToService[module.Name]
-	h.Services = []definition.Service{
+	h.Services = []v1.Service{
 		{
 			Name:     svc,
 			Category: cubecos.ServiceToCategory[svc],
-			Modules:  []definition.Module{module},
+			Modules:  []v1.Module{module},
 		},
 	}
 	return h

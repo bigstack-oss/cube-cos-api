@@ -8,9 +8,12 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/influxdata/influxdb-client-go/v2/api"
+	"github.com/influxdata/influxdb-client-go/v2/api/query"
+	"github.com/mohae/deepcopy"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -27,36 +30,11 @@ type Health struct {
 }
 
 type HealthStatus struct {
-	Category     string        `json:"category"`
-	Name         string        `json:"name"`
-	Module       string        `json:"module"`
-	IsRepairable bool          `json:"isRepairable"`
-	History      []HealthCheck `json:"history"`
-}
-
-type HealthCheck struct {
-	Time   string `json:"time"`
-	Status string `json:"status"`
-	*Error `json:"error,omitempty"`
-}
-
-type HealthPoint struct {
-	Time        string `json:"time"`
-	Code        int    `json:"code"`
-	Component   string `json:"component"`
-	Description string `json:"description"`
-	Details     string `json:"details"`
-	Log         string `json:"log"`
-	Node        string `json:"node"`
-}
-
-type Error struct {
-	Type        string   `json:"type"`
-	Reason      string   `json:"reason"`
-	Nodes       []string `json:"nodes"`
-	Description string   `json:"description"`
-	Details     string   `json:"details"`
-	Log         string   `json:"log"`
+	Category     string           `json:"category"`
+	Name         string           `json:"name"`
+	Module       string           `json:"module"`
+	IsRepairable bool             `json:"isRepairable"`
+	History      []v1.HealthCheck `json:"history"`
 }
 
 type Overall struct {
@@ -202,22 +180,87 @@ func RepairModule(moduleName string) error {
 	)
 }
 
-func ListModuleHealth(duration string) ([]HealthStatus, error) {
-	health := []HealthStatus{}
+func ListModuleHealth(duration string) Health {
+	services := deepcopy.Copy(OrderSensitiveServices).([]definition.Service)
 
-	// for _, service := range OrderSensitiveServices {
-	// 	for _, module := range service.Modules {
-	// 		history, err := GetModuleHealthHistory(module.Name, duration)
-	// 		if err != nil {
-	// 			continue
-	// 		}
-	// 	}
-	// }
+	for i, service := range services {
+		for j, module := range service.Modules {
+			history, err := GetModuleHealthHistory(module.Name, duration)
+			if err != nil {
+				continue
+			}
 
-	return health, nil
+			module.Status = status.NewOk()
+			errHealth := checkErrorInHistory(history)
+			if errHealth != nil {
+				module.SetErr(errHealth)
+				service.SetErr(errHealth)
+			}
+
+			service.Modules[j] = module
+		}
+
+		services[i] = service
+	}
+
+	overallHealth := Health{}
+	overallStatus := status.Ok
+	overallErrMsg := "failure services detected: "
+	errCount := 0
+	for _, service := range services {
+		if service.Status.Current != status.Ok {
+			overallErrMsg += fmt.Sprintf("%s(%s) ", service.Name, service.Status.Description)
+		}
+
+		errCount++
+	}
+
+	if errCount > 0 {
+		overallHealth.Status.Current = overallStatus
+		overallHealth.Status.Description = overallErrMsg
+	}
+
+	return overallHealth
 }
 
-func GetModuleHealthHistory(moduleName, duration string) ([]HealthPoint, error) {
+func checkErrorInHistory(history []v1.HealthCheck) *v1.HealthCheck {
+	if len(history) == 0 {
+		return nil
+	}
+
+	for _, check := range history {
+		if check.Status != status.Ok {
+			return &check
+		}
+	}
+
+	return nil
+}
+
+// func checkErrorInHistory(history []v1.HealthCheck) error {
+// 	if len(history) == 0 {
+// 		return nil
+// 	}
+
+// 	errCount := 0
+// 	errMsg := `failure detected for modules: `
+// 	for _, check := range history {
+// 		if check.Status == status.Ok {
+// 			continue
+// 		}
+
+// 		errMsg += fmt.Sprintf("%s(%s) ", check.Component, check.Description)
+// 		errCount++
+// 	}
+
+// 	if errCount > 0 {
+// 		return errors.New(errMsg)
+// 	}
+
+// 	return nil
+// }
+
+func GetModuleHealthHistory(moduleName, duration string) ([]v1.HealthCheck, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
 	stmt := GenModuleHealthHistoryQuery(moduleName, duration)
@@ -230,15 +273,14 @@ func GetModuleHealthHistory(moduleName, duration string) ([]HealthPoint, error) 
 	}
 
 	defer c.Close()
-	points := []HealthPoint{}
-	err = parseHealthPoints(c, &points)
+	checks := []v1.HealthCheck{}
+	err = parseHealthCheck(c, &checks)
 	if err != nil {
 		log.Errorf("healths: failed to parse events from cursor: %v", err)
 		return nil, err
 	}
 
-	return points, nil
-
+	return checks, nil
 }
 
 func GenModuleHealthHistoryQuery(moduleName, past string) string {
@@ -250,6 +292,7 @@ func GenModuleHealthHistoryQuery(moduleName, past string) string {
 		Pivot(convertValueToField).
 		Group("").
 		Sort(descByTime).
+		Limit(`n: 1`).
 		String()
 }
 
@@ -261,25 +304,37 @@ func genTimeDuration(past string) string {
 	return fmt.Sprintf("start: -%s", past)
 }
 
-func parseHealthPoints(c *api.QueryTableResult, points *[]HealthPoint) error {
+func parseHealthCheck(c *api.QueryTableResult, checks *[]v1.HealthCheck) error {
 	for c.Next() {
-		record := c.Record()
-		*points = append(
-			*points,
-			HealthPoint{
-				Time:        record.Time().String(),
-				Code:        int(record.ValueByKey("code").(int64)),
-				Component:   record.ValueByKey("component").(string),
-				Description: record.ValueByKey("description").(string),
-				Details:     record.ValueByKey("detail").(string),
-				Log:         record.ValueByKey("log").(string),
-				Node:        record.ValueByKey("node").(string),
-			},
-		)
+		*checks = append(*checks, genHealthCheckByRecord(c.Record()))
+		break
 	}
 	if c.Err() != nil {
 		return c.Err()
 	}
 
 	return nil
+}
+
+func genHealthCheckByRecord(record *query.FluxRecord) v1.HealthCheck {
+	healthCheck := v1.HealthCheck{Time: record.Time().String()}
+	syncStatusDetails(record, &healthCheck)
+	return healthCheck
+}
+
+func syncStatusDetails(record *query.FluxRecord, check *v1.HealthCheck) {
+	if check.Description == status.Ok {
+		check.Status = status.Ok
+		return
+	}
+
+	check.Status = status.Ng
+	check.Error = &v1.Error{
+		Type:        fmt.Sprintf("%s failure", record.ValueByKey("component").(string)),
+		Reason:      record.ValueByKey("description").(string),
+		Description: fmt.Sprintf("there's a failure was detected from node %s, please see the detail or log to know more", record.ValueByKey("node").(string)),
+		Details:     record.ValueByKey("detail").(string),
+		Nodes:       []string{record.ValueByKey("node").(string)},
+		Log:         record.ValueByKey("log").(string),
+	}
 }

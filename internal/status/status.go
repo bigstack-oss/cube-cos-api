@@ -19,6 +19,7 @@ const (
 	Completed = "completed"
 	Updated   = "updated"
 	Ok        = "ok"
+	Ng        = "ng"
 	Error     = "error"
 )
 

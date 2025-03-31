@@ -1,6 +1,10 @@
 package v1
 
-import "github.com/bigstack-oss/cube-cos-api/internal/status"
+import (
+	"fmt"
+
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
+)
 
 type Service struct {
 	Name               string          `json:"name" bson:"name"`
@@ -17,9 +21,31 @@ type Module struct {
 	Description  string          `json:"description,omitempty" bson:"description"`
 }
 
-func (s Service) CopyModuleEmptyStruct() Service {
+func (s *Service) CopyModuleEmptyStruct() Service {
 	return Service{
 		Name:     s.Name,
 		Category: s.Category,
+	}
+}
+
+func (s *Service) SetErr(health *HealthCheck) {
+	if s.Status == nil {
+		s.Status = &status.Details{
+			Current:     status.Ng,
+			Description: "failure modules detected: ",
+		}
+	}
+
+	s.Status.Description += fmt.Sprintf(
+		"%s(%s)",
+		health.Component,
+		health.Description,
+	)
+}
+
+func (m *Module) SetErr(health *HealthCheck) {
+	m.Status = &status.Details{
+		Current:     health.Status,
+		Description: health.Description,
 	}
 }
