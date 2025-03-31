@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os/exec"
 
+	"slices"
+
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
@@ -183,7 +185,20 @@ func RepairModule(moduleName string) error {
 func ListModuleHealth(duration string) Health {
 	services := deepcopy.Copy(OrderSensitiveServices).([]definition.Service)
 
+	for i := range services {
+		if services[i].IsInternalViewOnly {
+			services = slices.Delete(services, i, i+1)
+			continue
+		}
+
+		services[i].Status = status.NewOk()
+	}
+
 	for i, service := range services {
+		if service.IsInternalViewOnly {
+			continue
+		}
+
 		for j, module := range service.Modules {
 			history, err := GetModuleHealthHistory(module.Name, duration)
 			if err != nil {
@@ -203,16 +218,19 @@ func ListModuleHealth(duration string) Health {
 		services[i] = service
 	}
 
-	overallHealth := Health{}
+	overallHealth := Health{Services: services}
+	overallHealth.Overall = &Overall{
+		Status: status.Health{Current: status.Ok},
+	}
 	overallStatus := status.Ok
 	overallErrMsg := "failure services detected: "
 	errCount := 0
 	for _, service := range services {
 		if service.Status.Current != status.Ok {
+			overallStatus = status.Ng
 			overallErrMsg += fmt.Sprintf("%s(%s) ", service.Name, service.Status.Description)
+			errCount++
 		}
-
-		errCount++
 	}
 
 	if errCount > 0 {
@@ -285,23 +303,22 @@ func GetModuleHealthHistory(moduleName, duration string) ([]v1.HealthCheck, erro
 
 func GenModuleHealthHistoryQuery(moduleName, past string) string {
 	query := influx.Query{}
-	return query.Bucket("event").
+	return query.Bucket("events").
 		Range(genTimeDuration(past)).
 		Filter(healthMeasurement).
 		Filter(genModuleFilter(moduleName)).
 		Pivot(convertValueToField).
 		Group("").
 		Sort(descByTime).
-		Limit(`n: 1`).
 		String()
 }
 
 func genModuleFilter(modulName string) string {
-	return fmt.Sprintf(`fn: (r) => r.component == %q`, modulName)
+	return fmt.Sprintf(`fn: (r) => r.component == "%s"`, modulName)
 }
 
 func genTimeDuration(past string) string {
-	return fmt.Sprintf("start: -%s", past)
+	return fmt.Sprintf("start: %s", past)
 }
 
 func parseHealthCheck(c *api.QueryTableResult, checks *[]v1.HealthCheck) error {

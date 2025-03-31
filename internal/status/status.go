@@ -35,7 +35,7 @@ type Details struct {
 	UpdatedAt time.Time `json:"updatedAt,omitzero" bson:"updatedAt"`
 	IsFixing  bool      `json:"isFixing" bson:"isFixing"`
 
-	Description string `json:"description" bson:"description"`
+	Description string `json:"description,omitzero" bson:"description"`
 }
 
 type Health struct {
@@ -46,7 +46,7 @@ type Health struct {
 	UpdatedAt time.Time `json:"updatedAt,omitzero" bson:"updatedAt"`
 	IsFixing  bool      `json:"isFixing" bson:"isFixing"`
 
-	Description string `json:"description" bson:"description"`
+	Description string `json:"description,omitzero" bson:"description"`
 }
 
 type Tuning struct {
