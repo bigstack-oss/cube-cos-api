@@ -63,7 +63,13 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 
 func (h *helper) parseSummaryParams() (*helper, error) {
 	h.parseWatch()
-	return h, h.parsePast()
+
+	err := h.parsePast()
+	if err != nil {
+		return nil, err
+	}
+
+	return h, nil
 }
 
 func (h *helper) parseServiceHealthParams() (*helper, error) {
@@ -148,7 +154,7 @@ func (h *helper) parseWatch() {
 func (h *helper) parsePast() error {
 	h.past = h.c.DefaultQuery("past", "")
 	if h.past == "" {
-		h.past = "1h"
+		h.past = defaultPastOneHour
 		return nil
 	}
 

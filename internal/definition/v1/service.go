@@ -21,6 +21,10 @@ type Module struct {
 	Description  string          `json:"description,omitzero" bson:"description"`
 }
 
+func (s *Service) IsStatusOk() bool {
+	return s.Status.Current != status.Ok
+}
+
 func (s *Service) CopyModuleEmptyStruct() Service {
 	return Service{
 		Name:     s.Name,
@@ -28,7 +32,7 @@ func (s *Service) CopyModuleEmptyStruct() Service {
 	}
 }
 
-func (s *Service) SetErr(health *HealthCheck) {
+func (s *Service) ConvergeUnhealthyStatus(unhealthy *HealthCheck) {
 	if s.Status == nil {
 		s.Status = &status.Details{
 			Current:     status.Ng,
@@ -38,14 +42,18 @@ func (s *Service) SetErr(health *HealthCheck) {
 
 	s.Status.Description += fmt.Sprintf(
 		"%s(%s)",
-		health.Component,
-		health.Description,
+		unhealthy.Component,
+		unhealthy.Description,
 	)
 }
 
-func (m *Module) SetErr(health *HealthCheck) {
+func (m *Module) InitOkStatus() {
+	m.Status = status.NewOk()
+}
+
+func (m *Module) SetUnhealthyStatus(unhealthy *HealthCheck) {
 	m.Status = &status.Details{
-		Current:     health.Status,
-		Description: health.Description,
+		Current:     unhealthy.Status,
+		Description: unhealthy.Description,
 	}
 }

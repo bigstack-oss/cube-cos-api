@@ -83,57 +83,57 @@ type License struct {
 	IsExpiring bool   `json:"isExpiring" bson:"isExpiring"`
 }
 
-func (s *Details) ClearDesired() {
-	s.Desired = None
+func (d *Details) ClearDesired() {
+	d.Desired = None
 }
 
-func (s *Details) SetCurrentToCompleted() {
-	s.Current = Completed
+func (d *Details) SetCurrentToCompleted() {
+	d.Current = Completed
 }
 
-func (s *Details) SetCurrentToOk() {
-	s.Current = Ok
+func (d *Details) SetCurrentToOk() {
+	d.Current = Ok
 }
 
-func (s *Details) SetCurrentToPending() {
-	s.Current = Pending
+func (d *Details) SetCurrentToPending() {
+	d.Current = Pending
 }
 
-func (s *Health) SetCurrentToRepairing() {
-	s.Current = Repairing
+func (h *Health) SetCurrentToRepairing() {
+	h.Current = Repairing
 }
 
-func (s *Details) SetCurrentToCheckingAndRepairing() {
-	s.Current = CheckingAndRepairing
+func (d *Details) SetCurrentToCheckingAndRepairing() {
+	d.Current = CheckingAndRepairing
 }
 
-func (s *Details) SetDesiredToUpdate() {
-	s.Desired = Update
+func (d *Details) SetDesiredToUpdate() {
+	d.Desired = Update
 }
 
-func (s *Details) SetDesiredToCompleted() {
-	s.Desired = Completed
+func (d *Details) SetDesiredToCompleted() {
+	d.Desired = Completed
 }
 
-func (s *Details) SetDesiredToOk() {
-	s.Desired = Ok
+func (d *Details) SetDesiredToOk() {
+	d.Desired = Ok
 }
 
-func (s *Details) SetDesiredToDelete() {
-	s.Desired = Delete
+func (d *Details) SetDesiredToDelete() {
+	d.Desired = Delete
 }
 
-func (s *Health) SetDesiredToCheckingAndRepairing() {
-	s.Desired = CheckingAndRepairing
+func (h *Health) SetDesiredToCheckingAndRepairing() {
+	h.Desired = CheckingAndRepairing
 }
 
-func (s *Health) SetDesiredToRepairing() {
-	s.Desired = Repairing
+func (h *Health) SetDesiredToRepairing() {
+	h.Desired = Repairing
 }
 
-func (s *Health) SetCurrentToError(err error) {
-	s.Current = Error
+func (h *Health) SetCurrentToError(err error) {
+	h.Current = Error
 	if err != nil {
-		s.Description = err.Error()
+		h.Description = err.Error()
 	}
 }

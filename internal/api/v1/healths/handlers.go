@@ -49,8 +49,6 @@ func init() {
 	go streamHealth()
 }
 
-// M1 TODO: the health info will be replaced by the real data around 2025-02-10
-// there're a few implementations to need to be checked with the team.
 func getHealthSummary(c *gin.Context) {
 	h, err := initHelper(c, "getHealthSummary")
 	if err != nil {
@@ -59,12 +57,7 @@ func getHealthSummary(c *gin.Context) {
 		return
 	}
 
-	// summary := h.genFakeHealthSummary()
 	summary := h.getHealthSummary()
-	// if err != nil {
-	// 	log.Errorf("request(%s): %v", api.GetReqId(c), err)
-	// 	api.SetInternalServerError(c, err)
-	// }
 	if h.watch {
 		watchHealth(h, &summary)
 		return

@@ -8,6 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	defaultPastOneHour = "1h"
+)
+
 func parseModule(c *gin.Context) (*definition.Module, error) {
 	m := c.Param("moduleType")
 	module, found := cubecos.Modules[m]

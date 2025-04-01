@@ -182,66 +182,13 @@ func RepairModule(moduleName string) error {
 	)
 }
 
-func ListModuleHealth(duration string) Health {
-	services := deepcopy.Copy(OrderSensitiveServices).([]definition.Service)
-
-	for i := range services {
-		if services[i].IsInternalViewOnly {
-			services = slices.Delete(services, i, i+1)
-			continue
-		}
-
-		services[i].Status = status.NewOk()
-	}
-
-	for i, service := range services {
-		if service.IsInternalViewOnly {
-			continue
-		}
-
-		for j, module := range service.Modules {
-			history, err := GetModuleHealthHistory(module.Name, duration)
-			if err != nil {
-				continue
-			}
-
-			module.Status = status.NewOk()
-			errHealth := checkErrorInHistory(history)
-			if errHealth != nil {
-				module.SetErr(errHealth)
-				service.SetErr(errHealth)
-			}
-
-			service.Modules[j] = module
-		}
-
-		services[i] = service
-	}
-
-	overallHealth := Health{Services: services}
-	overallHealth.Overall = &Overall{
-		Status: status.Health{Current: status.Ok},
-	}
-	overallStatus := status.Ok
-	overallErrMsg := "failure services detected: "
-	errCount := 0
-	for _, service := range services {
-		if service.Status.Current != status.Ok {
-			overallStatus = status.Ng
-			overallErrMsg += fmt.Sprintf("%s(%s) ", service.Name, service.Status.Description)
-			errCount++
-		}
-	}
-
-	if errCount > 0 {
-		overallHealth.Status.Current = overallStatus
-		overallHealth.Status.Description = overallErrMsg
-	}
-
-	return overallHealth
+func GetHealthSummary(duration string) Health {
+	services := GetServicesToCheckHealth()
+	syncServiceHealth(&services, duration)
+	return genHealthSummary(services)
 }
 
-func checkErrorInHistory(history []v1.HealthCheck) *v1.HealthCheck {
+func captureUnhealthyRecord(history []v1.HealthCheck) *v1.HealthCheck {
 	if len(history) == 0 {
 		return nil
 	}
@@ -254,29 +201,6 @@ func checkErrorInHistory(history []v1.HealthCheck) *v1.HealthCheck {
 
 	return nil
 }
-
-// func checkErrorInHistory(history []v1.HealthCheck) error {
-// 	if len(history) == 0 {
-// 		return nil
-// 	}
-
-// 	errCount := 0
-// 	errMsg := `failure detected for modules: `
-// 	for _, check := range history {
-// 		if check.Status == status.Ok {
-// 			continue
-// 		}
-
-// 		errMsg += fmt.Sprintf("%s(%s) ", check.Component, check.Description)
-// 		errCount++
-// 	}
-
-// 	if errCount > 0 {
-// 		return errors.New(errMsg)
-// 	}
-
-// 	return nil
-// }
 
 func GetModuleHealthHistory(moduleName, duration string) ([]v1.HealthCheck, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
@@ -354,4 +278,61 @@ func syncStatusDetails(record *query.FluxRecord, check *v1.HealthCheck) {
 		Nodes:       []string{record.ValueByKey("node").(string)},
 		Log:         record.ValueByKey("log").(string),
 	}
+}
+
+func GetServicesToCheckHealth() []definition.Service {
+	services := deepcopy.Copy(OrderSensitiveServices).([]definition.Service)
+	for i := range services {
+		if services[i].IsInternalViewOnly {
+			services = slices.Delete(services, i, i+1)
+			continue
+		}
+
+		services[i].Status = status.NewOk()
+	}
+
+	return services
+}
+
+func syncServiceHealth(services *[]definition.Service, duration string) {
+	for s, service := range *services {
+		for m, module := range service.Modules {
+			history, err := GetModuleHealthHistory(module.Name, duration)
+			if err != nil {
+				continue
+			}
+
+			module.InitOkStatus()
+			record := captureUnhealthyRecord(history)
+			if record != nil {
+				module.SetUnhealthyStatus(record)
+				service.ConvergeUnhealthyStatus(record)
+			}
+
+			service.Modules[m] = module
+		}
+
+		(*services)[s] = service
+	}
+}
+
+func genHealthSummary(services []definition.Service) Health {
+	health := Health{Services: services}
+	health.Overall = &Overall{Status: status.Health{Current: status.Ok}}
+
+	unhealthDesc := "failure services detected: "
+	unhealthFound := false
+	for _, service := range services {
+		if !service.IsStatusOk() {
+			unhealthFound = true
+			unhealthDesc += fmt.Sprintf("%s(%s) ", service.Name, service.Status.Description)
+		}
+	}
+
+	if unhealthFound {
+		health.Status.Current = status.Ng
+		health.Status.Description = unhealthDesc
+	}
+
+	return health
 }

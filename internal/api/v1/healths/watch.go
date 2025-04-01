@@ -57,7 +57,6 @@ func streamHealth() {
 func streamHealthByHandlerType(h *helper) (any, error) {
 	switch h.handler {
 	case "getHealthSummary":
-		// return h.genFakeHealthSummary(), nil
 		return h.getHealthSummary(), nil
 	case "getHealthHistoryOfService":
 		return h.genFakeHealthHistoryOfService(), nil
