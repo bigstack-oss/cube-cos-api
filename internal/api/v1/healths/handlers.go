@@ -117,7 +117,7 @@ func getHealthHistoryOfService(c *gin.Context) {
 		return
 	}
 
-	history := h.genFakeHealthHistoryOfService()
+	history := h.genServiceHealthHistory()
 	if h.watch {
 		watchHealth(h, history)
 		return

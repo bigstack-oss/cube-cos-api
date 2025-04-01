@@ -25,15 +25,9 @@ func RepairCollection() string {
 }
 
 type HealthCheck struct {
-	Time        string `json:"time"`
-	Code        int    `json:"code"`
-	Component   string `json:"component"`
-	Description string `json:"description"`
-	Details     string `json:"details"`
-	Log         string `json:"log"`
-	Node        string `json:"node"`
-	Status      string `json:"status"`
-	*Error      `json:"error,omitempty"`
+	Time   string `json:"time"`
+	Status string `json:"status"`
+	*Error `json:"error,omitempty"`
 }
 
 type Error struct {

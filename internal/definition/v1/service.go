@@ -32,7 +32,7 @@ func (s *Service) CopyModuleEmptyStruct() Service {
 	}
 }
 
-func (s *Service) ConvergeUnhealthyStatus(unhealthy *HealthCheck) {
+func (s *Service) ConvergeUnhealthyStatus(moduleName string, unhealthy *HealthCheck) {
 	if s.Status == nil {
 		s.Status = &status.Details{
 			Current:     status.Ng,
@@ -42,7 +42,7 @@ func (s *Service) ConvergeUnhealthyStatus(unhealthy *HealthCheck) {
 
 	s.Status.Description += fmt.Sprintf(
 		"%s(%s)",
-		unhealthy.Component,
+		moduleName,
 		unhealthy.Description,
 	)
 }

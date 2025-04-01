@@ -56,6 +56,10 @@ func (h *helper) genFakeHealthHistoryOfService() []cubecos.HealthStatus {
 	return statuses
 }
 
+func (h *helper) genServiceHealthHistory() []cubecos.HealthStatus {
+	return cubecos.GetServiceHealthHistory(h.service, h.past)
+}
+
 // M1 TODO: this will be removed once the real data is available in the COS side
 func (h *helper) genFakeHealthHistoryOfModule() cubecos.HealthStatus {
 	interval := 5 * time.Minute

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"time"
 
 	"slices"
 
@@ -188,6 +189,28 @@ func GetHealthSummary(duration string) Health {
 	return genHealthSummary(services)
 }
 
+func GetServiceHealthHistory(serviceName, duration string) []HealthStatus {
+	modules := ServiceToModules[serviceName]
+	statuses := []HealthStatus{}
+
+	for _, module := range modules {
+		history, err := GetModuleHealthHistory(module.Name, duration)
+		if err != nil {
+			continue
+		}
+
+		statuses = append(statuses, HealthStatus{
+			Category:     ServiceToCategory[serviceName],
+			Name:         serviceName,
+			Module:       module.Name,
+			IsRepairable: IsRepairableModule(module.Name),
+			History:      history,
+		})
+	}
+
+	return statuses
+}
+
 func captureUnhealthyRecord(history []v1.HealthCheck) *v1.HealthCheck {
 	if len(history) == 0 {
 		return nil
@@ -258,13 +281,23 @@ func parseHealthCheck(c *api.QueryTableResult, checks *[]v1.HealthCheck) error {
 }
 
 func genHealthCheckByRecord(record *query.FluxRecord) v1.HealthCheck {
-	healthCheck := v1.HealthCheck{Time: record.Time().String()}
+	healthCheck := v1.HealthCheck{Time: parseTime(record)}
 	syncStatusDetails(record, &healthCheck)
 	return healthCheck
 }
 
+func parseTime(record *query.FluxRecord) string {
+	date, err := time.Parse(eventTimeLayout, record.Time().Local().String())
+	if err != nil {
+		log.Debugf("failed to parse date from record: %v", record)
+	}
+
+	return definition.TimeRFC3339Z(date)
+}
+
 func syncStatusDetails(record *query.FluxRecord, check *v1.HealthCheck) {
-	if check.Description == status.Ok {
+	desc := parseDescription(record)
+	if desc == status.Ok {
 		check.Status = status.Ok
 		return
 	}
@@ -274,10 +307,50 @@ func syncStatusDetails(record *query.FluxRecord, check *v1.HealthCheck) {
 		Type:        fmt.Sprintf("%s failure", record.ValueByKey("component").(string)),
 		Reason:      record.ValueByKey("description").(string),
 		Description: fmt.Sprintf("there's a failure was detected from node %s, please see the detail or log to know more", record.ValueByKey("node").(string)),
-		Details:     record.ValueByKey("detail").(string),
-		Nodes:       []string{record.ValueByKey("node").(string)},
-		Log:         record.ValueByKey("log").(string),
+		Details:     parseDetails(record),
+		Nodes:       parseNodes(record),
+		Log:         parseLog(record),
 	}
+}
+
+func parseDescription(record *query.FluxRecord) string {
+	desc := record.ValueByKey("description")
+	val, ok := desc.(string)
+	if !ok {
+		val = ""
+	}
+
+	return val
+}
+
+func parseDetails(record *query.FluxRecord) string {
+	details := record.ValueByKey("detail")
+	val, ok := details.(string)
+	if !ok {
+		val = ""
+	}
+
+	return val
+}
+
+func parseNodes(record *query.FluxRecord) []string {
+	node := record.ValueByKey("node")
+	val, ok := node.(string)
+	if !ok {
+		return []string{}
+	}
+
+	return []string{val}
+}
+
+func parseLog(record *query.FluxRecord) string {
+	log := record.ValueByKey("log")
+	val, ok := log.(string)
+	if !ok {
+		val = ""
+	}
+
+	return val
 }
 
 func GetServicesToCheckHealth() []definition.Service {
@@ -306,7 +379,7 @@ func syncServiceHealth(services *[]definition.Service, duration string) {
 			record := captureUnhealthyRecord(history)
 			if record != nil {
 				module.SetUnhealthyStatus(record)
-				service.ConvergeUnhealthyStatus(record)
+				service.ConvergeUnhealthyStatus(module.Name, record)
 			}
 
 			service.Modules[m] = module
