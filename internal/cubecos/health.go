@@ -211,20 +211,6 @@ func GetServiceHealthHistory(serviceName, duration string) []HealthStatus {
 	return statuses
 }
 
-func captureUnhealthyRecord(history []v1.HealthCheck) *v1.HealthCheck {
-	if len(history) == 0 {
-		return nil
-	}
-
-	for _, check := range history {
-		if check.Status != status.Ok {
-			return &check
-		}
-	}
-
-	return nil
-}
-
 func GetModuleHealthHistory(moduleName, duration string) ([]v1.HealthCheck, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
@@ -286,15 +272,6 @@ func genHealthCheckByRecord(record *query.FluxRecord) v1.HealthCheck {
 	return healthCheck
 }
 
-func parseTime(record *query.FluxRecord) string {
-	date, err := time.Parse(eventTimeLayout, record.Time().Local().String())
-	if err != nil {
-		log.Debugf("failed to parse date from record: %v", record)
-	}
-
-	return definition.TimeRFC3339Z(date)
-}
-
 func syncStatusDetails(record *query.FluxRecord, check *v1.HealthCheck) {
 	desc := parseDescription(record)
 	if desc == status.Ok {
@@ -311,46 +288,6 @@ func syncStatusDetails(record *query.FluxRecord, check *v1.HealthCheck) {
 		Nodes:       parseNodes(record),
 		Log:         parseLog(record),
 	}
-}
-
-func parseDescription(record *query.FluxRecord) string {
-	desc := record.ValueByKey("description")
-	val, ok := desc.(string)
-	if !ok {
-		val = ""
-	}
-
-	return val
-}
-
-func parseDetails(record *query.FluxRecord) string {
-	details := record.ValueByKey("detail")
-	val, ok := details.(string)
-	if !ok {
-		val = ""
-	}
-
-	return val
-}
-
-func parseNodes(record *query.FluxRecord) []string {
-	node := record.ValueByKey("node")
-	val, ok := node.(string)
-	if !ok {
-		return []string{}
-	}
-
-	return []string{val}
-}
-
-func parseLog(record *query.FluxRecord) string {
-	log := record.ValueByKey("log")
-	val, ok := log.(string)
-	if !ok {
-		val = ""
-	}
-
-	return val
 }
 
 func GetServicesToCheckHealth() []definition.Service {
@@ -408,4 +345,67 @@ func genHealthSummary(services []definition.Service) Health {
 	}
 
 	return health
+}
+
+func captureUnhealthyRecord(history []v1.HealthCheck) *v1.HealthCheck {
+	if len(history) == 0 {
+		return nil
+	}
+
+	for _, check := range history {
+		if check.Status != status.Ok {
+			return &check
+		}
+	}
+
+	return nil
+}
+
+func parseDetails(record *query.FluxRecord) string {
+	details := record.ValueByKey("detail")
+	val, ok := details.(string)
+	if !ok {
+		val = ""
+	}
+
+	return val
+}
+
+func parseTime(record *query.FluxRecord) string {
+	date, err := time.Parse(eventTimeLayout, record.Time().Local().String())
+	if err != nil {
+		log.Debugf("failed to parse date from record: %v", record)
+	}
+
+	return definition.TimeRFC3339Z(date)
+}
+
+func parseDescription(record *query.FluxRecord) string {
+	desc := record.ValueByKey("description")
+	val, ok := desc.(string)
+	if !ok {
+		val = ""
+	}
+
+	return val
+}
+
+func parseNodes(record *query.FluxRecord) []string {
+	node := record.ValueByKey("node")
+	val, ok := node.(string)
+	if !ok {
+		return []string{}
+	}
+
+	return []string{val}
+}
+
+func parseLog(record *query.FluxRecord) string {
+	log := record.ValueByKey("log")
+	val, ok := log.(string)
+	if !ok {
+		val = ""
+	}
+
+	return val
 }

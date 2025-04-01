@@ -22,13 +22,13 @@ var (
 			Version: api.V1,
 			Method:  http.MethodGet,
 			Path:    "/healths/services/:serviceType",
-			Func:    getHealthHistoryOfService,
+			Func:    genServiceHealthHistory,
 		},
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
 			Path:    "/healths/services/:serviceType/modules/:moduleType",
-			Func:    getHealthHistoryOfModule,
+			Func:    getModuleHealthHistory,
 		},
 		{
 			Version: api.V1,
@@ -109,8 +109,8 @@ func forceRepairModule(c *gin.Context) {
 	)
 }
 
-func getHealthHistoryOfService(c *gin.Context) {
-	h, err := initHelper(c, "getHealthHistoryOfService")
+func genServiceHealthHistory(c *gin.Context) {
+	h, err := initHelper(c, "genServiceHealthHistory")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
@@ -130,15 +130,15 @@ func getHealthHistoryOfService(c *gin.Context) {
 	)
 }
 
-func getHealthHistoryOfModule(c *gin.Context) {
-	h, err := initHelper(c, "getHealthHistoryOfModule")
+func getModuleHealthHistory(c *gin.Context) {
+	h, err := initHelper(c, "getModuleHealthHistory")
 	if err != nil {
 		log.Errorf("request(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	health := h.genFakeHealthHistoryOfModule()
+	health := h.genModuleHealthHistory()
 	if h.watch {
 		watchHealth(h, health)
 		return

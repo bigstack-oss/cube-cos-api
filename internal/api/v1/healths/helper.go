@@ -52,9 +52,9 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 	switch h.handler {
 	case "getHealthSummary":
 		return h.parseSummaryParams()
-	case "getHealthHistoryOfService":
+	case "genServiceHealthHistory":
 		return h.parseServiceHealthParams()
-	case "getHealthHistoryOfModule":
+	case "getModuleHealthHistory":
 		return h.parseModuleHealthParams()
 	}
 

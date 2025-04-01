@@ -58,10 +58,10 @@ func streamHealthByHandlerType(h *helper) (any, error) {
 	switch h.handler {
 	case "getHealthSummary":
 		return h.getHealthSummary(), nil
-	case "getHealthHistoryOfService":
+	case "genServiceHealthHistory":
 		return h.genServiceHealthHistory(), nil
-	case "getHealthHistoryOfModule":
-		return h.genFakeHealthHistoryOfModule(), nil
+	case "getModuleHealthHistory":
+		return h.genModuleHealthHistory(), nil
 	}
 
 	return nil, errors.New("no internal function supported")
