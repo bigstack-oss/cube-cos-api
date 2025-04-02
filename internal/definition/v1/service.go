@@ -30,7 +30,7 @@ type ReairingInfo struct {
 }
 
 func (s *Service) IsStatusOk() bool {
-	return s.Status.Current != status.Ok
+	return s.Status.Current == status.Ok
 }
 
 func (s *Service) SetRepairingStatus(repairingInfo ReairingInfo) {

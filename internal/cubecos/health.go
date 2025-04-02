@@ -11,7 +11,6 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -29,9 +28,9 @@ const (
 )
 
 type Health struct {
-	*definition.DataCenter `json:"dataCenter,omitempty" bson:"dataCenter,omitempty"`
-	*Overall               `json:"overall,omitempty" bson:"overall"`
-	Services               []definition.Service `json:"services" bson:"services"`
+	*v1.DataCenter `json:"dataCenter,omitempty" bson:"dataCenter,omitempty"`
+	*Overall       `json:"overall,omitempty" bson:"overall"`
+	Services       []v1.Service `json:"services" bson:"services"`
 }
 
 type HealthStatus struct {
@@ -67,9 +66,14 @@ func (h *Health) CopyEmptyServiceStruct() Health {
 	}
 }
 
+func (h *Health) SetRepairingStatus(service v1.Service) {
+	h.Status.Current = status.Repairing
+	h.Status.IsFixing = true
+	h.Status.Description = service.Status.Description
+}
+
 func IsRepairing() bool {
 	_, err := exec.Command("hex_sdk", "is_repairing").Output()
-	log.Infof("repairing: %v", isRepairingCode(err))
 	return isRepairingCode(err)
 }
 
@@ -79,7 +83,7 @@ func IsRepairable() bool {
 		return false
 	}
 
-	if definition.CurrentRole == "" {
+	if v1.CurrentRole == "" {
 		log.Errorf("role is not set for repairing")
 		return false
 	}
@@ -87,8 +91,8 @@ func IsRepairable() bool {
 	return true
 }
 
-func GetUnhealthyServices() ([]definition.Service, error) {
-	unhealthy := map[string]definition.Service{}
+func GetUnhealthyServices() ([]v1.Service, error) {
+	unhealthy := map[string]v1.Service{}
 
 	for _, service := range OrderSensitiveServices {
 		for _, module := range service.Modules {
@@ -108,7 +112,7 @@ func GetUnhealthyServices() ([]definition.Service, error) {
 	return convertToList(unhealthy), nil
 }
 
-func setUnhealthyModule(unhealthy map[string]definition.Service, service definition.Service, module definition.Module) {
+func setUnhealthyModule(unhealthy map[string]v1.Service, service v1.Service, module v1.Module) {
 	_, found := unhealthy[service.Name]
 	if !found {
 		unhealthy[service.Name] = service.CopyModuleEmptyStruct()
@@ -119,8 +123,8 @@ func setUnhealthyModule(unhealthy map[string]definition.Service, service definit
 	unhealthy[service.Name] = svc
 }
 
-func convertToList(unhealthyMap map[string]definition.Service) []definition.Service {
-	unhealthySvcs := []definition.Service{}
+func convertToList(unhealthyMap map[string]v1.Service) []v1.Service {
+	unhealthySvcs := []v1.Service{}
 	for _, svc := range unhealthyMap {
 		unhealthySvcs = append(unhealthySvcs, svc)
 	}
@@ -143,7 +147,7 @@ func IsModuleHealthy(moduleName string) bool {
 	return false
 }
 
-func RepairServiceHealth(service definition.Service) error {
+func RepairServiceHealth(service v1.Service) error {
 	errs := []error{}
 
 	for _, module := range service.Modules {
@@ -156,7 +160,7 @@ func RepairServiceHealth(service definition.Service) error {
 	return cuberr.CombineErrors(errs)
 }
 
-func CheckServiceHealth(service definition.Service) error {
+func CheckServiceHealth(service v1.Service) error {
 	errs := []error{}
 	for _, module := range service.Modules {
 		if !IsModuleHealthy(module.Name) {
@@ -292,8 +296,8 @@ func syncStatusDetails(record *query.FluxRecord, check *v1.HealthCheck) {
 	}
 }
 
-func GetServicesToCheckHealth() []definition.Service {
-	services := deepcopy.Copy(OrderSensitiveServices).([]definition.Service)
+func GetServicesToCheckHealth() []v1.Service {
+	services := deepcopy.Copy(OrderSensitiveServices).([]v1.Service)
 	for i := range services {
 		if services[i].IsInternalViewOnly {
 			services = slices.Delete(services, i, i+1)
@@ -306,7 +310,24 @@ func GetServicesToCheckHealth() []definition.Service {
 	return services
 }
 
-func syncServiceHealth(services *[]definition.Service, duration string) {
+func GetRepairingInfo() (*v1.ReairingInfo, error) {
+	b, err := exec.Command("hex_sdk", "-v", "is_repairing").Output()
+	if err != nil {
+		log.Errorf("healths: failed to get repairing info: %s", err.Error())
+		return nil, err
+	}
+
+	info := v1.ReairingInfo{}
+	err = json.Unmarshal(b, &info)
+	if err != nil {
+		log.Errorf("healths: failed to unmarshal repairing info: %s", err.Error())
+		return nil, err
+	}
+
+	return &info, nil
+}
+
+func syncServiceHealth(services *[]v1.Service, duration string) {
 	for s, service := range *services {
 		for m, module := range service.Modules {
 			history, err := GetModuleHealthHistory(module.Name, duration)
@@ -328,7 +349,7 @@ func syncServiceHealth(services *[]definition.Service, duration string) {
 	}
 }
 
-func genHealthSummary(services []definition.Service) Health {
+func genHealthSummary(services []v1.Service) Health {
 	health := Health{Services: services}
 	health.Overall = &Overall{Status: status.Health{Current: status.Ok}}
 	syncUnhealthStatus(&health, services)
@@ -336,50 +357,36 @@ func genHealthSummary(services []definition.Service) Health {
 	return health
 }
 
-func syncUnhealthStatus(health *Health, services []definition.Service) {
-	unhealthDesc := "failure services detected: "
-	unhealthFound := false
+func syncUnhealthStatus(health *Health, services []v1.Service) {
 	for _, service := range services {
 		if !service.IsStatusOk() {
-			unhealthFound = true
-			unhealthDesc += fmt.Sprintf("%s(%s) ", service.Name, service.Status.Description)
+			log.Infof("test: %s %s", service.Name, service.Status.Current)
+			health.Status.Current = status.Ng
+			health.Status.Description += fmt.Sprintf("%s(%s) ", service.Name, service.Status.Description)
 		}
-	}
-
-	if unhealthFound {
-		health.Status.Current = status.Ng
-		health.Status.Description = unhealthDesc
 	}
 }
 
-func syncRepairingStatus(health *Health, services *[]definition.Service) {
+func syncRepairingStatus(health *Health, services *[]v1.Service) {
 	if !IsRepairing() {
 		return
 	}
 
-	b, err := exec.Command("hex_sdk", "-v", "is_repairing").Output()
+	info, err := GetRepairingInfo()
 	if err != nil {
-		log.Errorf("healths: failed to get repairing info: %s", err.Error())
-		return
-	}
-
-	repairingInfo := v1.ReairingInfo{}
-	err = json.Unmarshal(b, &repairingInfo)
-	if err != nil {
-		log.Errorf("healths: failed to unmarshal repairing info: %s", err.Error())
 		return
 	}
 
 	for s, service := range *services {
 		for m, module := range service.Modules {
-			if module.Name == repairingInfo.Service {
-				module.SetRepairingStatus()
-				service.SetRepairingStatus(repairingInfo)
-				service.Modules[m] = module
-				health.Status.Current = status.Repairing
-				health.Status.IsFixing = true
-				health.Status.Description = service.Status.Description
+			if module.Name != info.Service {
+				continue
 			}
+
+			module.SetRepairingStatus()
+			service.Modules[m] = module
+			service.SetRepairingStatus(*info)
+			health.SetRepairingStatus(service)
 		}
 
 		(*services)[s] = service
@@ -416,7 +423,7 @@ func parseTime(record *query.FluxRecord) string {
 		log.Debugf("failed to parse date from record: %v", record)
 	}
 
-	return definition.TimeRFC3339Z(date)
+	return v1.TimeRFC3339Z(date)
 }
 
 func parseDescription(record *query.FluxRecord) string {
@@ -449,10 +456,13 @@ func parseLog(record *query.FluxRecord) string {
 	return val
 }
 
+// note:
+// in COS's current design, the return code of under repairing is 0
+// and in the exec.command, the err will be nil when return code is 0
+// so that's why we use err == nil to identify if cos is repairing
 func isRepairingCode(err error) bool {
 	if err == nil {
-		log.Infof("repairing: no repairing code found")
-		return false
+		return true
 	}
 
 	result, ok := err.(*exec.ExitError)
