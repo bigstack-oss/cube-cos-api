@@ -2,6 +2,7 @@ package cubecos
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os/exec"
 	"time"
@@ -24,6 +25,7 @@ const (
 	healthMeasurement   = `fn: (r) => r._measurement == "health"`
 	convertValueToField = `rowKey: ["_time","component","node","code"], columnKey: ["_field"], valueColumn: "_value"`
 	descByTime          = `columns: ["_time"], desc: true`
+	repairingCode       = 1
 )
 
 type Health struct {
@@ -65,10 +67,10 @@ func (h *Health) CopyEmptyServiceStruct() Health {
 	}
 }
 
-// M1 TODO:
-// Waiting for COS developer to implement the /var/run/{markerfile} to check if the data center is repairing.
 func IsRepairing() bool {
-	return false
+	_, err := exec.Command("hex_sdk", "is_repairing").Output()
+	log.Infof("repairing: %v", isRepairingCode(err))
+	return isRepairingCode(err)
 }
 
 func IsRepairable() bool {
@@ -329,7 +331,12 @@ func syncServiceHealth(services *[]definition.Service, duration string) {
 func genHealthSummary(services []definition.Service) Health {
 	health := Health{Services: services}
 	health.Overall = &Overall{Status: status.Health{Current: status.Ok}}
+	syncUnhealthStatus(&health, services)
+	syncRepairingStatus(&health, &services)
+	return health
+}
 
+func syncUnhealthStatus(health *Health, services []definition.Service) {
 	unhealthDesc := "failure services detected: "
 	unhealthFound := false
 	for _, service := range services {
@@ -343,8 +350,40 @@ func genHealthSummary(services []definition.Service) Health {
 		health.Status.Current = status.Ng
 		health.Status.Description = unhealthDesc
 	}
+}
 
-	return health
+func syncRepairingStatus(health *Health, services *[]definition.Service) {
+	if !IsRepairing() {
+		return
+	}
+
+	b, err := exec.Command("hex_sdk", "-v", "is_repairing").Output()
+	if err != nil {
+		log.Errorf("healths: failed to get repairing info: %s", err.Error())
+		return
+	}
+
+	repairingInfo := v1.ReairingInfo{}
+	err = json.Unmarshal(b, &repairingInfo)
+	if err != nil {
+		log.Errorf("healths: failed to unmarshal repairing info: %s", err.Error())
+		return
+	}
+
+	for s, service := range *services {
+		for m, module := range service.Modules {
+			if module.Name == repairingInfo.Service {
+				module.SetRepairingStatus()
+				service.SetRepairingStatus(repairingInfo)
+				service.Modules[m] = module
+				health.Status.Current = status.Repairing
+				health.Status.IsFixing = true
+				health.Status.Description = service.Status.Description
+			}
+		}
+
+		(*services)[s] = service
+	}
 }
 
 func captureUnhealthyRecord(history []v1.HealthCheck) *v1.HealthCheck {
@@ -408,4 +447,18 @@ func parseLog(record *query.FluxRecord) string {
 	}
 
 	return val
+}
+
+func isRepairingCode(err error) bool {
+	if err == nil {
+		log.Infof("repairing: no repairing code found")
+		return false
+	}
+
+	result, ok := err.(*exec.ExitError)
+	if !ok {
+		return false
+	}
+
+	return result.ExitCode() == repairingCode
 }

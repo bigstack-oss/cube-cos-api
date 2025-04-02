@@ -21,8 +21,28 @@ type Module struct {
 	Description  string          `json:"description,omitzero" bson:"description"`
 }
 
+type ReairingInfo struct {
+	Node    string `json:"node"`
+	Fixing  string `json:"fixing"`
+	Service string `json:"service"`
+	Pid     string `json:"pid"`
+	Elaps   string `json:"elaps"`
+}
+
 func (s *Service) IsStatusOk() bool {
 	return s.Status.Current != status.Ok
+}
+
+func (s *Service) SetRepairingStatus(repairingInfo ReairingInfo) {
+	s.Status = &status.Details{
+		Current:  status.Repairing,
+		IsFixing: true,
+		Description: fmt.Sprintf(
+			"module %s is repairing(elaps %s)",
+			repairingInfo.Service,
+			repairingInfo.Elaps,
+		),
+	}
 }
 
 func (s *Service) CopyModuleEmptyStruct() Service {
@@ -55,5 +75,12 @@ func (m *Module) SetUnhealthyStatus(unhealthy *HealthCheck) {
 	m.Status = &status.Details{
 		Current:     unhealthy.Status,
 		Description: unhealthy.Description,
+	}
+}
+
+func (m *Module) SetRepairingStatus() {
+	m.Status = &status.Details{
+		Current:  status.Repairing,
+		IsFixing: true,
 	}
 }
