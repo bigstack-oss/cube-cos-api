@@ -14,7 +14,7 @@
 
 <br/>
 
-0). Get the environment ready
+0). Get the build environment ready
 
 We would need an `x86_64` / `amd64` based machine to build the rpm package.
 
@@ -46,17 +46,28 @@ scp <path of rpm> <user>@<cubecos>:<path to place rpm>
 
 <br/>
 
-3). Install the rpm and start the service
+3). Prepare the running environment
+
+```bash
+systemctl stop cube-cos-api
+systemctl disable cube-cos-api
+dnf remove cube-cos-api
+```
+
+<br/>
+
+4). Install the rpm and start the service
 
 ```bash
 dnf install "<path to cube-cos-api rpm>"
+cp -f /etc/cube/api/cube-cos-api.yaml.in /etc/cube/api/cube-cos-api.yaml
 systemctl enable cube-cos-api
 systemctl start cube-cos-api
 ```
 
 <br/>
 
-4). Clean up
+5). Clean up
 
 ```bash
 systemctl stop cube-cos-api
