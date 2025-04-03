@@ -50,7 +50,11 @@ type Recipient struct {
 	Note    string `json:"note" bson:"note"`
 }
 
-func (r *Recipient) CheckEmailFormat() error {
-	_, err := mail.ParseAddress(r.Address)
+type Trial struct {
+	Email string `json:"email" bson:"email"`
+}
+
+func CheckFormat(email string) error {
+	_, err := mail.ParseAddress(email)
 	return err
 }

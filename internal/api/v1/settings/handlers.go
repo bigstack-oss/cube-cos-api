@@ -183,15 +183,15 @@ func createEmailSender(c *gin.Context) {
 }
 
 func tryEmailSender(c *gin.Context) {
-	recipient := email.Recipient{}
-	err := c.ShouldBindJSON(&recipient)
+	trial := email.Trial{}
+	err := c.ShouldBindJSON(&trial)
 	if err != nil {
-		log.Errorf("request(%s): failed to decode email recipient: %s", api.GetReqId(c), err.Error())
+		log.Errorf("request(%s): failed to decode email: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	err = recipient.CheckEmailFormat()
+	err = email.CheckFormat(trial.Email)
 	if err != nil {
 		log.Errorf("request(%s): invalid email format: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
@@ -210,7 +210,7 @@ func tryEmailSender(c *gin.Context) {
 	}
 
 	sender := senders[0]
-	err = sendTrialEmail(sender, recipient.Address)
+	err = sendTrialEmail(sender, trial.Email)
 	if err != nil {
 		log.Errorf("request(%s): failed to try email sender: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -303,7 +303,7 @@ func createEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	err = recipient.CheckEmailFormat()
+	err = email.CheckFormat(recipient.Address)
 	if err != nil {
 		log.Errorf("request(%s): invalid email format: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
@@ -390,7 +390,7 @@ func patchEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	err = checkRecipientUpdate(c, recipient)
+	err = checkRecipientUpdate(c)
 	if err != nil {
 		log.Errorf("request(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)

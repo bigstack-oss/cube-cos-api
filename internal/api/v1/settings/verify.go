@@ -16,13 +16,13 @@ func checkSenderUpdate(c *gin.Context) error {
 	return nil
 }
 
-func checkRecipientUpdate(c *gin.Context, recipient email.Recipient) error {
+func checkRecipientUpdate(c *gin.Context) error {
 	recipientEmail := c.Param("recipientEmail")
 	if !isRecipientExist(recipientEmail) {
 		return errors.New("recipient not found")
 	}
 
-	err := recipient.CheckEmailFormat()
+	err := email.CheckFormat(recipientEmail)
 	if err != nil {
 		return errors.New("recipient email format is invalid")
 	}
