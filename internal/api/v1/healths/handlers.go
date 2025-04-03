@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/healths"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -57,7 +58,7 @@ func getHealthSummary(c *gin.Context) {
 		return
 	}
 
-	summary := h.getHealthSummary()
+	summary := cubecos.GetHealthSummary(h.past)
 	if h.watch {
 		watchHealth(h, &summary)
 		return

@@ -7,10 +7,6 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (h *helper) getHealthSummary() any {
-	return cubecos.GetHealthSummary(h.past)
-}
-
 func (h *helper) genServiceHealthHistory() []cubecos.HealthStatus {
 	return cubecos.GetServiceHealthHistory(h.service, h.past)
 }

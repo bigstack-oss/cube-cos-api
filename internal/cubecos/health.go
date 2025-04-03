@@ -313,7 +313,6 @@ func GetServicesToCheckHealth() []v1.Service {
 func GetRepairingInfo() (*v1.ReairingInfo, error) {
 	b, err := exec.Command("hex_sdk", "-v", "is_repairing").Output()
 	if err != nil {
-		log.Errorf("healths: failed to get repairing info: %s", err.Error())
 		return nil, err
 	}
 
@@ -338,8 +337,8 @@ func syncServiceHealth(services *[]v1.Service, duration string) {
 			module.InitOkStatus()
 			record := captureUnhealthyRecord(history)
 			if record != nil {
-				module.SetUnhealthyStatus(record)
-				service.ConvergeUnhealthyStatus(module.Name, record)
+				module.SetUnhealthyStatus()
+				service.ConvergeUnhealthyStatus(module.Name)
 			}
 
 			service.Modules[m] = module
@@ -360,9 +359,12 @@ func genHealthSummary(services []v1.Service) Health {
 func syncUnhealthStatus(health *Health, services []v1.Service) {
 	for _, service := range services {
 		if !service.IsStatusOk() {
-			log.Infof("test: %s %s", service.Name, service.Status.Current)
 			health.Status.Current = status.Ng
-			health.Status.Description += fmt.Sprintf("%s(%s) ", service.Name, service.Status.Description)
+			if health.Status.Description == "" {
+				health.Status.Description = fmt.Sprintf("%s %s", service.Name, service.Status.Description)
+			} else {
+				health.Status.Description += fmt.Sprintf(", %s %s", service.Name, service.Status.Description)
+			}
 		}
 	}
 }

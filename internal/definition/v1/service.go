@@ -52,29 +52,27 @@ func (s *Service) CopyModuleEmptyStruct() Service {
 	}
 }
 
-func (s *Service) ConvergeUnhealthyStatus(moduleName string, unhealthy *HealthCheck) {
+func (s *Service) ConvergeUnhealthyStatus(moduleName string) {
 	if s.Status == nil {
-		s.Status = &status.Details{
-			Current:     status.Ng,
-			Description: "failure modules detected: ",
-		}
+		s.Status = &status.Details{}
 	}
 
-	s.Status.Description += fmt.Sprintf(
-		"%s(%s)",
-		moduleName,
-		unhealthy.Description,
-	)
+	s.Status.Current = status.Ng
+	if s.Status.Description == "" {
+		s.Status.Description = fmt.Sprintf("has failure from: %s", moduleName)
+	} else {
+		s.Status.Description += fmt.Sprintf(" %s", moduleName)
+	}
 }
 
 func (m *Module) InitOkStatus() {
 	m.Status = status.NewOk()
 }
 
-func (m *Module) SetUnhealthyStatus(unhealthy *HealthCheck) {
+func (m *Module) SetUnhealthyStatus() {
 	m.Status = &status.Details{
-		Current:     unhealthy.Status,
-		Description: unhealthy.Description,
+		Current:     status.Ng,
+		Description: fmt.Sprintf(`has failure from %s`, m.Name),
 	}
 }
 

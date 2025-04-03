@@ -10,6 +10,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/gin-gonic/gin"
 	json "github.com/json-iterator/go"
 )
@@ -57,7 +58,7 @@ func streamHealth() {
 func streamHealthByHandlerType(h *helper) (any, error) {
 	switch h.handler {
 	case "getHealthSummary":
-		return h.getHealthSummary(), nil
+		return cubecos.GetHealthSummary(h.past), nil
 	case "genServiceHealthHistory":
 		return h.genServiceHealthHistory(), nil
 	case "getModuleHealthHistory":
