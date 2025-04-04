@@ -161,3 +161,7 @@ func (s *Summary) Bytes() []byte {
 
 	return b
 }
+
+func (s *Summary) String() string {
+	return string(s.Bytes())
+}

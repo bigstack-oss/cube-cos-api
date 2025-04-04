@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	"github.com/blevesearch/bleve/v2"
@@ -228,13 +229,9 @@ func GetNodesByRole(roleName string) ([]*Node, error) {
 }
 
 func ListNodes() ([]*Node, error) {
-	svcs, err := registry.GetService(DataCenterName)
+	svcs, err := GetRegisteredServices()
 	if err != nil {
-		log.Errorf("failed to get nodes from %s (%s)", DataCenterName, err.Error())
 		return nil, err
-	}
-	if len(svcs) == 0 {
-		return nil, nil
 	}
 
 	nodes := []*Node{}
@@ -243,6 +240,40 @@ func ListNodes() ([]*Node, error) {
 	}
 
 	return nodes, nil
+}
+
+// M1 TODO:
+// The issue(https://github.com/bigstack-oss/cube-cos-ui/issues/224) found out that not sure why
+// registry.GetService() might return empty list once it's being called multiple times
+//
+// currently, we temporarily set a retry mechanism to get the nodes
+// but, we've to check if it's go-mirco's bug,
+// or maybe we should make the node list to be a global read only var, and only can be writed/updated by node syncer
+func GetRegisteredServices() ([]*registry.Service, error) {
+	maxTries := 5
+	services := []*registry.Service{}
+
+	for range maxTries {
+		svcs, err := registry.GetService(DataCenterName)
+		if err != nil {
+			log.Errorf("failed to get nodes from %s (%s)", DataCenterName, err.Error())
+			continue
+		}
+
+		if len(svcs) > 0 {
+			services = svcs
+			break
+		}
+
+		log.Warnf("no nodes found from %s network, trying sync again", DataCenterName)
+		wait.Seconds(1)
+	}
+
+	if len(services) == 0 {
+		return nil, fmt.Errorf("no nodes found from %s network", DataCenterName)
+	}
+
+	return services, nil
 }
 
 func HostnameNodeMap() (map[string]Node, error) {
