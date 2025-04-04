@@ -15,7 +15,7 @@ func (h *helper) genModuleHealthHistory() cubecos.HealthStatus {
 	service := cubecos.ModuleToService[h.module]
 	history, err := cubecos.GetModuleHealthHistory(h.module, h.past)
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(h.c), err)
+		log.Errorf("healths(%s): %v", api.GetReqId(h.c), err)
 	}
 
 	return cubecos.HealthStatus{

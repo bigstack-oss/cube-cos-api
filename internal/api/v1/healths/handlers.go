@@ -53,7 +53,7 @@ func init() {
 func getHealthSummary(c *gin.Context) {
 	h, err := initHelper(c, "getHealthSummary")
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
@@ -74,7 +74,7 @@ func getHealthSummary(c *gin.Context) {
 func checkAndRepairAllModules(c *gin.Context) {
 	err := checkEnvCondition()
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", api.GetReqId(c), err)
 		api.SetStatusConflict(c, err)
 		return
 	}
@@ -90,14 +90,14 @@ func checkAndRepairAllModules(c *gin.Context) {
 func forceRepairModule(c *gin.Context) {
 	err := checkEnvCondition()
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", api.GetReqId(c), err)
 		api.SetStatusConflict(c, err)
 		return
 	}
 
 	module, err := parseModule(c)
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
@@ -113,7 +113,7 @@ func forceRepairModule(c *gin.Context) {
 func genServiceHealthHistory(c *gin.Context) {
 	h, err := initHelper(c, "genServiceHealthHistory")
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
@@ -134,7 +134,7 @@ func genServiceHealthHistory(c *gin.Context) {
 func getModuleHealthHistory(c *gin.Context) {
 	h, err := initHelper(c, "getModuleHealthHistory")
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
