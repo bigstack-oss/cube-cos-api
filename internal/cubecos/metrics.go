@@ -297,7 +297,7 @@ func GetHostSummary() (*HostSummary, error) {
 	return s, nil
 }
 
-func GetHostUsage(node *definition.Node) (*definition.HostUsage, error) {
+func GetHostUsage(node definition.Node) (*definition.HostUsage, error) {
 	cpuStat, err := GetCpuSummaryOfHost(node.Hostname)
 	if err != nil {
 		log.Errorf("failed to get cpu summary of host %s: %v", node.Hostname, err)

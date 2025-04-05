@@ -162,18 +162,18 @@ func isSkippableLine(line string) bool {
 
 func (h *helper) addDetailsToNodes(nodes *[]definition.Node) {
 	openstack := openstack.GetGlobalHelper()
-	for _, node := range *nodes {
+	for i, node := range *nodes {
 		hypervisor, err := openstack.GetHypervisorByHostname(node.Hostname)
 		if err != nil {
 			log.Debugf("request(%s): failed to add hypervisor info to the node: %s", api.GetReqId(h.c), err.Error())
 			continue
 		}
 
-		node.ManagementIP = hypervisor.HostIP
-		node.Status = hypervisor.State
-		h.addHardwareInfoToNode(&node)
-		h.addMetricToNode(&node, hypervisor)
-		h.addUptimeToNode(&node)
+		(*nodes)[i].ManagementIP = hypervisor.HostIP
+		(*nodes)[i].Status = hypervisor.State
+		h.addHardwareInfoToNode((&(*nodes)[i]))
+		h.addMetricToNode((&(*nodes)[i]), hypervisor)
+		h.addUptimeToNode((&(*nodes)[i]))
 	}
 }
 
