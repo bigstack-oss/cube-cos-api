@@ -12,7 +12,7 @@ const (
 	maxSearchResults = 10000
 )
 
-func (h *helper) filterNodes(nodes []*definition.Node) []*definition.Node {
+func (h *helper) filterNodes(nodes []definition.Node) []definition.Node {
 	if !h.isFilterRequired() {
 		return nodes
 	}
@@ -49,8 +49,8 @@ func (h *helper) isLicenseStatusRequired() bool {
 	return required
 }
 
-func (h *helper) filteredByLicenseStatus(nodes []*definition.Node) []*definition.Node {
-	filtered := []*definition.Node{}
+func (h *helper) filteredByLicenseStatus(nodes []definition.Node) []definition.Node {
+	filtered := []definition.Node{}
 	for _, node := range nodes {
 		if node.License.Status.Current == h.licenseStatus {
 			filtered = append(filtered, node)
@@ -60,7 +60,7 @@ func (h *helper) filteredByLicenseStatus(nodes []*definition.Node) []*definition
 	return filtered
 }
 
-func (h *helper) filteredByKeyword(nodes []*definition.Node) []*definition.Node {
+func (h *helper) filteredByKeyword(nodes []definition.Node) []definition.Node {
 	result, err := h.searchNodes(nodes)
 	if err != nil {
 		log.Errorf("failed to search nodes: %s", err.Error())
@@ -68,7 +68,7 @@ func (h *helper) filteredByKeyword(nodes []*definition.Node) []*definition.Node 
 	}
 
 	nodeMap := genNodeMap(nodes)
-	filtered := []*definition.Node{}
+	filtered := []definition.Node{}
 	for _, hit := range result.Hits {
 		filtered = append(filtered, nodeMap[hit.ID])
 	}
@@ -76,7 +76,7 @@ func (h *helper) filteredByKeyword(nodes []*definition.Node) []*definition.Node 
 	return filtered
 }
 
-func (h *helper) searchNodes(nodes []*definition.Node) (*bleve.SearchResult, error) {
+func (h *helper) searchNodes(nodes []definition.Node) (*bleve.SearchResult, error) {
 	searcher := definition.GetNodeSearcher()
 	for _, node := range nodes {
 		err := searcher.Index(node.Name, node)
@@ -99,8 +99,8 @@ func (h *helper) wrapWilcardKeyword() string {
 	return "*" + h.keyword + "*"
 }
 
-func genNodeMap(nodes []*definition.Node) map[string]*definition.Node {
-	nodeMap := map[string]*definition.Node{}
+func genNodeMap(nodes []definition.Node) map[string]definition.Node {
+	nodeMap := map[string]definition.Node{}
 	for _, node := range nodes {
 		nodeMap[node.Name] = node
 	}
@@ -108,8 +108,8 @@ func genNodeMap(nodes []*definition.Node) map[string]*definition.Node {
 	return nodeMap
 }
 
-func (h *helper) filteredByRoles(nodes []*definition.Node) []*definition.Node {
-	filtered := []*definition.Node{}
+func (h *helper) filteredByRoles(nodes []definition.Node) []definition.Node {
+	filtered := []definition.Node{}
 	for _, node := range nodes {
 		if h.containsRoles(node) {
 			filtered = append(filtered, node)
@@ -119,6 +119,6 @@ func (h *helper) filteredByRoles(nodes []*definition.Node) []*definition.Node {
 	return filtered
 }
 
-func (h *helper) containsRoles(node *definition.Node) bool {
+func (h *helper) containsRoles(node definition.Node) bool {
 	return slices.Contains(h.roles, node.Role)
 }

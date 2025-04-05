@@ -27,12 +27,12 @@ func selectRolesUsingActivityAndLabels(tuningSpec *definition.TuningSpec) []*def
 	return roles
 }
 
-func getNodesBySelector(nodes []*definition.Node, selector definition.Selector) []*definition.Node {
+func getNodesBySelector(nodes []definition.Node, selector definition.Selector) []definition.Node {
 	if !selector.Enabled {
 		return nodes
 	}
 
-	filtered := []*definition.Node{}
+	filtered := []definition.Node{}
 	for _, node := range nodes {
 		for key, value := range selector.Labels {
 			if node.Labels[key] == value {

@@ -160,7 +160,7 @@ func isSkippableLine(line string) bool {
 	return line == "" || strings.HasPrefix(line, "-") || strings.HasPrefix(line, "Label")
 }
 
-func (h *helper) addDetailsToNodes(nodes *[]*definition.Node) {
+func (h *helper) addDetailsToNodes(nodes *[]definition.Node) {
 	openstack := openstack.GetGlobalHelper()
 	for _, node := range *nodes {
 		hypervisor, err := openstack.GetHypervisorByHostname(node.Hostname)
@@ -171,9 +171,9 @@ func (h *helper) addDetailsToNodes(nodes *[]*definition.Node) {
 
 		node.ManagementIP = hypervisor.HostIP
 		node.Status = hypervisor.State
-		h.addHardwareInfoToNode(node)
-		h.addMetricToNode(node, hypervisor)
-		h.addUptimeToNode(node)
+		h.addHardwareInfoToNode(&node)
+		h.addMetricToNode(&node, hypervisor)
+		h.addUptimeToNode(&node)
 	}
 }
 

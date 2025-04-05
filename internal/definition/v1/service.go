@@ -6,6 +6,10 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 )
 
+const (
+	Services = "services"
+)
+
 type Service struct {
 	Name               string          `json:"name" bson:"name"`
 	Category           string          `json:"category" bson:"category"`

@@ -40,9 +40,9 @@ func (h *HostSummary) ListMemoryUsages() []definition.SpaceStatistic {
 	return list
 }
 
-func (h *HostSummary) SetHostUsageByNodes(nodes []*definition.Node) {
+func (h *HostSummary) SetHostUsageByNodes(nodes []definition.Node) {
 	for _, node := range nodes {
-		usage, err := GetHostUsage(node)
+		usage, err := GetHostUsage(&node)
 		if err != nil {
 			continue
 		}

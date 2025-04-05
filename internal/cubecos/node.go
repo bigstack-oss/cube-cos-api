@@ -7,8 +7,8 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func ListNodes() ([]*definition.Node, error) {
-	nodes := []*definition.Node{}
+func ListNodes() ([]definition.Node, error) {
+	nodes := []definition.Node{}
 	for _, role := range definition.Roles {
 		roleNodes, err := definition.GetNodesByRole(role)
 		if err != nil {

@@ -59,12 +59,7 @@ func (h *helper) parseGetOptions() error {
 }
 
 func (h *helper) listNodes() (*data, error) {
-	nodes, err := definition.ListNodes()
-	if err != nil {
-		log.Errorf("request(%s): failed to get nodes: %s", api.GetReqId(h.c), err.Error())
-		return nil, err
-	}
-
+	nodes := definition.ListNodes()
 	h.addLicenseInfoToNodes(&nodes)
 	h.addDetailsToNodes(&nodes)
 	nodes = h.filterNodes(nodes)

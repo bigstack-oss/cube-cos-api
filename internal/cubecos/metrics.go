@@ -290,13 +290,8 @@ func GetMemoryAverageOfHosts(spaceStats []definition.SpaceStatistic) definition.
 }
 
 func GetHostSummary() (*HostSummary, error) {
-	nodes, err := definition.ListNodes()
-	if err != nil {
-		log.Errorf("failed to list nodes: %v", err)
-		return nil, err
-	}
-
 	s := &HostSummary{}
+	nodes := definition.ListNodes()
 	s.SetHostUsageByNodes(nodes)
 	s.SetRoleUsageByHosts()
 	return s, nil
@@ -471,14 +466,8 @@ func appendHistoryToCpuUsageRank(rank []definition.RankPoint) {
 }
 
 func GetMemoryUsageSummaryOfHosts() (*definition.SpaceStatistic, error) {
-	nodes, err := definition.ListNodes()
-	if err != nil {
-		log.Errorf("failed to list nodes: %v", err)
-		return nil, err
-	}
-
 	usages := []definition.SpaceStatistic{}
-	for _, node := range nodes {
+	for _, node := range definition.ListNodes() {
 		usage, err := GetMemoryUsageSummaryOfHost(node.Hostname)
 		if err != nil {
 			continue

@@ -1107,19 +1107,13 @@ func ListTunings(opts definition.ListTuningOptions) ([]definition.Tuning, error)
 }
 
 func ListTuningsFromOtherNodes() (map[string][]definition.Tuning, error) {
-	nodes, err := definition.ListNodes()
-	if err != nil {
-		log.Errorf("failed to list nodes for tunings: %s", err.Error())
-		return nil, err
-	}
-
 	nodeTunings := map[string][]definition.Tuning{}
-	for _, node := range nodes {
+	for _, node := range definition.ListNodes() {
 		if node.IsLocal() {
 			continue
 		}
 
-		tunings, err := getNodeTunings(*node)
+		tunings, err := getNodeTunings(node)
 		if err != nil {
 			log.Errorf("failed to get tunings from node %s: %s", node.Name, err.Error())
 			continue

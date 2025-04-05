@@ -22,7 +22,7 @@ func (h *helper) addLicenseToNode(node *definition.Node) {
 	)
 }
 
-func (h *helper) addLicenseInfoToNodes(nodes *[]*definition.Node) {
+func (h *helper) addLicenseInfoToNodes(nodes *[]definition.Node) {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
 		log.Warnf("request(%s): failed to add license info to the nodes: %s", api.GetReqId(h.c), err.Error())

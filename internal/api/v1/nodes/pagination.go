@@ -6,7 +6,7 @@ import (
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
 
-func paginateNodes(nodes []*definition.Node, page definition.Page) ([]*definition.Node, error) {
+func paginateNodes(nodes []definition.Node, page definition.Page) ([]definition.Node, error) {
 	if !page.IsRequired() {
 		return nodes, nil
 	}
@@ -16,7 +16,7 @@ func paginateNodes(nodes []*definition.Node, page definition.Page) ([]*definitio
 	return nodes[left:right], nil
 }
 
-func genPageInfo(nodes []*definition.Node, page definition.Page) (definition.Page, error) {
+func genPageInfo(nodes []definition.Node, page definition.Page) (definition.Page, error) {
 	if !page.IsRequired() {
 		return definition.Page{
 			Total:          1,

@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/url"
+	"sync"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
@@ -37,6 +38,8 @@ var (
 	IsHaEnabled              bool
 	IsGpuEnabled             bool
 
+	updateNodes  = sync.Mutex{}
+	nodes        = []Node{}
 	nodeSearcher bleve.Index
 )
 
@@ -205,7 +208,7 @@ func GenerateNodeHashByMacAddr() (string, error) {
 	return hex.EncodeToString(hash[:])[:8], nil
 }
 
-func GetNodesByRole(roleName string) ([]*Node, error) {
+func GetNodesByRole(roleName string) ([]Node, error) {
 	svcs, err := registry.GetService(DataCenterName)
 	if err != nil {
 		log.Errorf("failed to get %s role from service %s (%s)", roleName, DataCenterName, err.Error())
@@ -215,7 +218,7 @@ func GetNodesByRole(roleName string) ([]*Node, error) {
 		return nil, nil
 	}
 
-	nodes := []*Node{}
+	nodes := []Node{}
 	for _, svc := range svcs {
 		roleNodes := parseNodesByRole(svc, roleName)
 		if len(roleNodes) == 0 {
@@ -223,20 +226,6 @@ func GetNodesByRole(roleName string) ([]*Node, error) {
 		}
 
 		nodes = append(nodes, roleNodes...)
-	}
-
-	return nodes, nil
-}
-
-func ListNodes() ([]*Node, error) {
-	svcs, err := GetRegisteredServices()
-	if err != nil {
-		return nil, err
-	}
-
-	nodes := []*Node{}
-	for _, svc := range svcs {
-		nodes = append(nodes, parseNodes(svc)...)
 	}
 
 	return nodes, nil
@@ -290,14 +279,14 @@ func HostnameNodeMap() (map[string]Node, error) {
 	for _, svc := range svcs {
 		nodes := parseNodes(svc)
 		for _, node := range nodes {
-			nodeMap[node.Hostname] = *node
+			nodeMap[node.Hostname] = node
 		}
 	}
 
 	return nodeMap, nil
 }
 
-func GetControllerNodes() ([]*Node, error) {
+func GetControllerNodes() ([]Node, error) {
 	nodes, err := GetNodesByRole("control")
 	if err == nil && len(nodes) > 0 {
 		return nodes, nil
@@ -320,18 +309,13 @@ func GetOneOfControllerNode() (*Node, error) {
 		return nil, err
 	}
 
-	return nodes[0], nil
+	return &nodes[0], nil
 }
 
 func GetNodeByHostname(hostname string) (*Node, error) {
-	nodes, err := ListNodes()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, node := range nodes {
+	for _, node := range ListNodes() {
 		if node.Hostname == hostname {
-			return node, nil
+			return &node, nil
 		}
 	}
 
@@ -339,6 +323,30 @@ func GetNodeByHostname(hostname string) (*Node, error) {
 		"failed to get node by hostname %s",
 		hostname,
 	)
+}
+
+func SyncNodes() {
+	updateNodes.Lock()
+	defer updateNodes.Unlock()
+
+	syncNodes := []Node{}
+	for _, role := range Roles {
+		role := getRole(role)
+		if role == nil {
+			continue
+		}
+
+		syncNodes = append(
+			syncNodes,
+			role.Nodes...,
+		)
+	}
+
+	nodes = syncNodes
+}
+
+func ListNodes() []Node {
+	return nodes
 }
 
 func InitNodeSearchIndex() error {

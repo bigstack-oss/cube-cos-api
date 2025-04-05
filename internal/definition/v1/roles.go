@@ -16,9 +16,9 @@ const (
 )
 
 var (
-	CurrentRole string
-	Roles       = []string{RoleControl, RoleCompute, RoleStorage, RoleControlConverged, RoleModerator, RoleEdgeCore}
-	update      = sync.Mutex{}
+	CurrentRole     string
+	Roles           = []string{RoleControl, RoleCompute, RoleStorage, RoleControlConverged, RoleModerator, RoleEdgeCore}
+	updateRoleNodes = sync.Mutex{}
 
 	ControlRole          = newControlRole()
 	ComputeRole          = newComputeRole()
@@ -56,9 +56,9 @@ var (
 )
 
 type Role struct {
-	Name  string  `json:"name" bson:"name"`
-	Hosts []Host  `json:"hosts" bson:"hosts"`
-	Nodes []*Node `json:"-"`
+	Name  string `json:"name" bson:"name"`
+	Hosts []Host `json:"hosts" bson:"hosts"`
+	Nodes []Node `json:"-"`
 }
 
 type Host struct {
@@ -129,8 +129,8 @@ func GetEdgeCoreRole() *Role {
 }
 
 func SyncRoleNodes() {
-	update.Lock()
-	defer update.Unlock()
+	updateRoleNodes.Lock()
+	defer updateRoleNodes.Unlock()
 
 	for _, role := range Roles {
 		nodes, err := GetNodesByRole(role)
@@ -146,7 +146,7 @@ func SyncRoleNodes() {
 	}
 }
 
-func convertNodesToHosts(nodes []*Node) []Host {
+func convertNodesToHosts(nodes []Node) []Host {
 	hosts := []Host{}
 	for _, node := range nodes {
 		hosts = append(hosts, Host{
@@ -158,8 +158,8 @@ func convertNodesToHosts(nodes []*Node) []Host {
 	return hosts
 }
 
-func parseNodes(svc *registry.Service) []*Node {
-	nodes := []*Node{}
+func parseNodes(svc *registry.Service) []Node {
+	nodes := []Node{}
 	for _, node := range svc.Nodes {
 		nodes = append(nodes, newNode(node))
 	}
@@ -167,8 +167,8 @@ func parseNodes(svc *registry.Service) []*Node {
 	return nodes
 }
 
-func parseNodesByRole(svc *registry.Service, roleName string) []*Node {
-	nodes := []*Node{}
+func parseNodesByRole(svc *registry.Service, roleName string) []Node {
+	nodes := []Node{}
 	for _, node := range svc.Nodes {
 		if node.Metadata["role"] != roleName {
 			continue
@@ -180,8 +180,8 @@ func parseNodesByRole(svc *registry.Service, roleName string) []*Node {
 	return nodes
 }
 
-func newNode(node *registry.Node) *Node {
-	return &Node{
+func newNode(node *registry.Node) Node {
+	return Node{
 		Role:         node.Metadata["role"],
 		Id:           node.Metadata["nodeID"],
 		SerialNumber: node.Metadata["serialNumber"],
