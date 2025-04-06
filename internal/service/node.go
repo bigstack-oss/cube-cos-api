@@ -1,9 +1,9 @@
 package service
 
 import (
+	"fmt"
+
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
-	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )
 
@@ -39,19 +39,19 @@ func isLocalNode(node *registry.Node) bool {
 }
 
 func GetNodesByRole(roleName string) ([]definition.Node, error) {
-	svcs, err := registry.GetService(definition.DataCenterName)
+	svcs, err := definition.GetRegisteredServices()
 	if err != nil {
-		log.Errorf("failed to get service %s (%s)", roleName, err.Error())
 		return nil, err
-	}
-	if len(svcs) == 0 {
-		return nil, cuberr.ServiceNotFound
 	}
 
 	nodes := []definition.Node{}
 	for _, svc := range svcs {
 		roleNodes := parseNodes(svc)
 		setNodesIfRoleMatched(&nodes, roleNodes, roleName)
+	}
+
+	if len(nodes) <= 0 {
+		return nil, fmt.Errorf("no nodes found for role %s", roleName)
 	}
 
 	return nodes, nil

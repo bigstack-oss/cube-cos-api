@@ -21,7 +21,6 @@ func genUrl(node definition.Node) string {
 }
 
 func sendLicenseToOtherNodes(nodeName string, licenseFile *multipart.FileHeader) error {
-	// M1 TODO: might be the incorrect usage
 	nodes, err := service.GetNodesByRole(nodeName)
 	if err != nil {
 		log.Errorf("failed to get nodes by role %s: %s", nodeName, err.Error())
@@ -34,12 +33,9 @@ func sendLicenseToOtherNodes(nodeName string, licenseFile *multipart.FileHeader)
 		return err
 	}
 
-	// M1 TODO: should protect against index out of range
-	// because nodes might be empty from GetNodesByRole
 	node := nodes[0]
-	h := cubeHttp.GetGlobalHelper()
-
-	resp, err := h.R().
+	http := cubeHttp.GetGlobalHelper()
+	resp, err := http.R().
 		SetFileReader("license", licenseFile.Filename, reader).
 		SetHeader(node.GenAuthHeader()).
 		Post(genUrl(node))
