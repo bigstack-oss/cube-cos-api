@@ -1,6 +1,8 @@
 package cubecos
 
 import (
+	"strings"
+
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	openstack "github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
@@ -34,18 +36,16 @@ func genVmStatusOverview(servers []servers.Server) *VmStatus {
 	vm := &VmStatus{Total: len(servers)}
 
 	for _, server := range servers {
-		switch server.PowerState.String() {
-		case "RUNNING":
+		switch strings.ToLower(server.VmState) {
+		case "active":
 			vm.Running++
-		case "SHUTDOWN":
+		case "stopped":
 			vm.Stopped++
-		case "SUSPENDED":
+		case "suspended":
 			vm.Suspend++
-		case "PAUSED":
+		case "paused":
 			vm.Paused++
-		case "CRASHED":
-			vm.Error++
-		default:
+		case "error":
 			vm.Error++
 		}
 	}
