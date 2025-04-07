@@ -17,67 +17,67 @@ func initNodeIdentities() error {
 	var err error
 	definition.Hostname, err = getHostname()
 	if err != nil {
-		log.Errorf("failed to get hostname: %s", err.Error())
+		log.Errorf("runtime: failed to get hostname: %s", err.Error())
 		return err
 	}
 
 	definition.HostID, err = definition.GenerateNodeHashByMacAddr()
 	if err != nil {
-		log.Errorf("failed to generate host id: %s", err.Error())
+		log.Errorf("runtime: failed to generate host id: %s", err.Error())
 		return err
 	}
 
 	definition.CurrentRole, err = cubecos.GetNodeRole()
 	if err != nil {
-		log.Errorf("failed to get node role: %s", err.Error())
+		log.Errorf("runtime: failed to get node role: %s", err.Error())
 		return err
 	}
 
 	definition.IsHaEnabled, err = cubecos.IsHaEnabled()
 	if err != nil {
-		log.Errorf("failed to get ha enabled: %s", err.Error())
+		log.Errorf("runtime: failed to get ha enabled: %s", err.Error())
 		return err
 	}
 
 	definition.MgmtNet, err = cubecos.GetMgmtNet()
 	if err != nil {
-		log.Errorf("failed to get management network: %s", err.Error())
+		log.Errorf("runtime: failed to get management network: %s", err.Error())
 		return err
 	}
 
 	definition.MgmtIP, err = cubecos.GetManagementIp(definition.MgmtNet)
 	if err != nil {
-		log.Errorf("failed to get management ip: %s", err.Error())
+		log.Errorf("runtime: failed to get management ip: %s", err.Error())
 		return err
 	}
 
 	definition.DataCenterVip, err = cubecos.GetControllerVirtualIp(definition.MgmtNet)
 	if err != nil {
-		log.Errorf("failed to get controller virtual ip: %s", err.Error())
+		log.Errorf("runtime: failed to get controller virtual ip: %s", err.Error())
 		return err
 	}
 
 	definition.DataCenterName, err = cubecos.GetDataCenterName()
 	if err != nil {
-		log.Errorf("failed to get data center name: %s", err.Error())
+		log.Errorf("runtime: failed to get data center name: %s", err.Error())
 		return err
 	}
 
 	definition.DataCenterVersion, err = cubecos.GetDataCenterVersion()
 	if err != nil {
-		log.Errorf("failed to get data center version: %s", err.Error())
+		log.Errorf("runtime: failed to get data center version: %s", err.Error())
 		return err
 	}
 
 	definition.DataCenterNumericVersion, err = cubecos.GetDataCenterNumericVersion()
 	if err != nil {
-		log.Errorf("failed to get data center numeric version: %s", err.Error())
+		log.Errorf("runtime: failed to get data center numeric version: %s", err.Error())
 		return err
 	}
 
 	definition.SerialNumber, err = definition.GetSystemSerial()
 	if err != nil {
-		log.Errorf("failed to get system serial: %s", err.Error())
+		log.Errorf("runtime: failed to get system serial: %s", err.Error())
 	}
 
 	definition.ListenIp = conf.Opts.Spec.Listen.Local
