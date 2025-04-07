@@ -1,4 +1,4 @@
-package supportfiles
+package metrics
 
 import (
 	"context"

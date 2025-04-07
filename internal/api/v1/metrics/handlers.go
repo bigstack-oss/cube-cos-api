@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/metrics"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
