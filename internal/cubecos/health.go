@@ -279,7 +279,7 @@ func genHealthCheckByRecord(record *query.FluxRecord) v1.HealthCheck {
 }
 
 func syncStatusDetails(record *query.FluxRecord, check *v1.HealthCheck) {
-	desc := parseDescription(record)
+	desc := parseHealthResult(record)
 	if desc == status.Ok {
 		check.Status = status.Ok
 		return
@@ -294,6 +294,20 @@ func syncStatusDetails(record *query.FluxRecord, check *v1.HealthCheck) {
 		Nodes:       parseNodes(record),
 		Log:         parseLog(record),
 	}
+}
+
+func parseHealthResult(record *query.FluxRecord) string {
+	result := record.ValueByKey("code")
+	val, ok := result.(string)
+	if !ok {
+		return "ng"
+	}
+
+	if val != "0" {
+		return status.Ng
+	}
+
+	return status.Ok
 }
 
 func GetServicesToCheckHealth() []v1.Service {

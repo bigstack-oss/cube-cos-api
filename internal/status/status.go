@@ -38,8 +38,8 @@ type Health struct {
 	Current string `json:"current,omitempty" bson:"current"`
 	Desired string `json:"desired,omitempty" bson:"desired"`
 
-	CreatedAt *time.Time `json:"createdAt,omitzero" bson:"createdAt"`
-	UpdatedAt *time.Time `json:"updatedAt,omitzero" bson:"updatedAt"`
+	CreatedAt *time.Time `json:"createdAt,omitempty" bson:"createdAt"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty" bson:"updatedAt"`
 	IsFixing  bool       `json:"isFixing" bson:"isFixing"`
 
 	Description string `json:"description,omitempty" bson:"description"`
