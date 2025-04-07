@@ -43,13 +43,7 @@ func getDataCenterSummary(c *gin.Context) {
 		return
 	}
 
-	summary, err := h.getDataCenterSummary()
-	if err != nil {
-		log.Errorf("request(%s): failed to fetch data center summary: %v", api.GetReqId(c), err)
-		api.SetInternalServerError(c, err)
-		return
-	}
-
+	summary := h.getDataCenterSummary()
 	if h.watch {
 		watchHealth(h, summary)
 		return

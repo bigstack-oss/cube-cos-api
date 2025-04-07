@@ -3,6 +3,7 @@ package cubecos
 import (
 	"fmt"
 	"runtime"
+	"sync"
 	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
@@ -18,6 +19,9 @@ import (
 )
 
 var (
+	summaryUpdate  = sync.Mutex{}
+	metricsSummary *Summary
+
 	isMetricTypeValid = map[string]bool{
 		"cpuUsage":          true,
 		"memoryUsage":       true,
@@ -206,7 +210,20 @@ func IsMetricReportTypeValid(t string) bool {
 	return isMetricReportTypeValid[t]
 }
 
-func GetDataCenterSummary() (*Summary, error) {
+func SyncDataCenterMetricsSummary() {
+	summaryUpdate.Lock()
+	defer summaryUpdate.Unlock()
+
+	summary, err := syncDataCenterSummary()
+	if err != nil {
+		log.Errorf("metrics: failed to sync data center summary: %v", err)
+		return
+	}
+
+	metricsSummary = summary
+}
+
+func syncDataCenterSummary() (*Summary, error) {
 	host, err := GetHostSummary()
 	if err != nil {
 		log.Errorf("failed to get host summary: %v", err)
@@ -230,6 +247,10 @@ func GetDataCenterSummary() (*Summary, error) {
 		Host:       *host,
 		Vm:         *vm,
 	}, nil
+}
+
+func GetDataCenterSummary() *Summary {
+	return metricsSummary
 }
 
 func GetDataCenterUsage(hostSummary *HostSummary) (*DataCenterSummary, error) {

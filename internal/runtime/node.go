@@ -92,6 +92,7 @@ func initNodeIdentities() error {
 	definition.LocalTimeFixedZone = time.FixedZone("", definition.LocalTimeZoneSeconds)
 	cubecos.SyncTunings()
 	cubecos.SyncSupportFiles()
+	cubecos.SyncDataCenterMetricsSummary()
 
 	return nil
 }

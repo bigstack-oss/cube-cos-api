@@ -55,7 +55,7 @@ func streamMetrics() {
 func streamMetricsByHandlerType(h *helper) (any, error) {
 	switch h.handler {
 	case "getDataCenterSummary":
-		return h.getDataCenterSummary()
+		return h.getDataCenterSummary(), nil
 	case "getMetrics":
 		return h.getMetrics()
 	}

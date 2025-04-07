@@ -40,7 +40,7 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 	return h, h.parseParams()
 }
 
-func (h *helper) getDataCenterSummary() (any, error) {
+func (h *helper) getDataCenterSummary() any {
 	return cubecos.GetDataCenterSummary()
 }
 
