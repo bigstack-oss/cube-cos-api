@@ -1,6 +1,8 @@
 package healths
 
 import (
+	"context"
+
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
@@ -19,13 +21,18 @@ func init() {
 	service.RegisterOperator(module, &Operator{})
 }
 
-type Operator struct{}
+type Operator struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+}
 
 func (o *Operator) Name() string {
 	return module
 }
 
 func (o *Operator) Init() error {
+	o.ctx, o.cancel = context.WithCancel(context.Background())
+	go o.initHealthHistoryResync()
 	return nil
 }
 
@@ -54,5 +61,9 @@ func (o *Operator) Stop() {
 func (o *Operator) waitForLastTask() {
 	for ReqQueue.Len() >= 1 {
 		wait.Seconds(1)
+	}
+
+	if o.cancel != nil {
+		o.cancel()
 	}
 }

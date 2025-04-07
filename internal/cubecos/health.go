@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"sync"
 	"time"
 
 	"slices"
@@ -25,6 +26,11 @@ const (
 	convertValueToField = `rowKey: ["_time","component","node","code"], columnKey: ["_field"], valueColumn: "_value"`
 	descByTime          = `columns: ["_time"], desc: true`
 	repairingCode       = 1
+)
+
+var (
+	updateHealthSummary sync.Mutex
+	healthSummary       Health
 )
 
 type Health struct {
@@ -189,10 +195,17 @@ func RepairModule(moduleName string) error {
 	)
 }
 
-func GetHealthSummary(duration string) Health {
+func SyncHealthHistory() {
+	updateHealthSummary.Lock()
+	defer updateHealthSummary.Unlock()
+
 	services := GetServicesToCheckHealth()
-	syncServiceHealth(&services, duration)
-	return genHealthSummary(services)
+	syncServiceHealth(&services, "24h")
+	healthSummary = genHealthSummary(services)
+}
+
+func GetHealthSummary(duration string) Health {
+	return healthSummary
 }
 
 func GetServiceHealthHistory(serviceName, duration string) []HealthStatus {
