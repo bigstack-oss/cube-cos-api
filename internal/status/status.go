@@ -23,10 +23,6 @@ const (
 	Error     = "error"
 )
 
-func NewOk() *Details {
-	return &Details{Current: Ok}
-}
-
 type Details struct {
 	Current string `json:"current,omitempty" bson:"current"`
 	Desired string `json:"desired,omitempty" bson:"desired"`
@@ -35,18 +31,18 @@ type Details struct {
 	UpdatedAt time.Time `json:"updatedAt,omitzero" bson:"updatedAt"`
 	IsFixing  bool      `json:"isFixing" bson:"isFixing"`
 
-	Description string `json:"description,omitzero" bson:"description"`
+	Description string `json:"description,omitempty" bson:"description"`
 }
 
 type Health struct {
 	Current string `json:"current,omitempty" bson:"current"`
 	Desired string `json:"desired,omitempty" bson:"desired"`
 
-	CreatedAt time.Time `json:"createdAt,omitzero" bson:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt,omitzero" bson:"updatedAt"`
-	IsFixing  bool      `json:"isFixing" bson:"isFixing"`
+	CreatedAt *time.Time `json:"createdAt,omitzero" bson:"createdAt"`
+	UpdatedAt *time.Time `json:"updatedAt,omitzero" bson:"updatedAt"`
+	IsFixing  bool       `json:"isFixing" bson:"isFixing"`
 
-	Description string `json:"description,omitzero" bson:"description"`
+	Description string `json:"description,omitempty" bson:"description"`
 }
 
 type Tuning struct {
@@ -81,6 +77,10 @@ type SupportFile struct {
 type License struct {
 	Current    string `json:"current,omitempty" bson:"current"`
 	IsExpiring bool   `json:"isExpiring" bson:"isExpiring"`
+}
+
+func NewHealthOk() *Health {
+	return &Health{Current: Ok}
 }
 
 func (d *Details) ClearDesired() {

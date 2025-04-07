@@ -155,7 +155,6 @@ func (h *helper) parsePast() error {
 	h.past = h.c.DefaultQuery("past", "")
 	if h.past == "" {
 		h.past = defaultPastOneHour
-		return nil
 	}
 
 	_, err := duration.Str2Duration(h.past)

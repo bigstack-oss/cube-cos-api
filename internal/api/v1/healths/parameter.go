@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	defaultPastOneHour = "1h"
+	defaultPastOneHour = "24h"
 )
 
 func parseModule(c *gin.Context) (*definition.Module, error) {

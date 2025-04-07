@@ -304,7 +304,7 @@ func GetServicesToCheckHealth() []v1.Service {
 			continue
 		}
 
-		services[i].Status = status.NewOk()
+		services[i].Status = status.NewHealthOk()
 	}
 
 	return services

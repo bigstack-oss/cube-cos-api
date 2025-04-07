@@ -11,18 +11,18 @@ const (
 )
 
 type Service struct {
-	Name               string          `json:"name" bson:"name"`
-	Category           string          `json:"category" bson:"category"`
-	Status             *status.Details `json:"status,omitempty" bson:"status,omitempty"`
-	Modules            []Module        `json:"modules" bson:"modules"`
-	IsInternalViewOnly bool            `json:"-" bson:"isInternalViewOnly"`
+	Name               string         `json:"name" bson:"name"`
+	Category           string         `json:"category" bson:"category"`
+	Status             *status.Health `json:"status,omitempty" bson:"status,omitempty"`
+	Modules            []Module       `json:"modules" bson:"modules"`
+	IsInternalViewOnly bool           `json:"-" bson:"isInternalViewOnly"`
 }
 
 type Module struct {
-	Name         string          `json:"name" bson:"name"`
-	Status       *status.Details `json:"status,omitempty" bson:"status,omitempty"`
-	IsRepairable bool            `json:"-" bson:"isRepairable"`
-	Description  string          `json:"description,omitzero" bson:"description"`
+	Name         string         `json:"name" bson:"name"`
+	Status       *status.Health `json:"status,omitempty" bson:"status,omitempty"`
+	IsRepairable bool           `json:"-" bson:"isRepairable"`
+	Description  string         `json:"description,omitempty" bson:"description"`
 }
 
 type ReairingInfo struct {
@@ -38,7 +38,7 @@ func (s *Service) IsStatusOk() bool {
 }
 
 func (s *Service) SetRepairingStatus(repairingInfo ReairingInfo) {
-	s.Status = &status.Details{
+	s.Status = &status.Health{
 		Current:  status.Repairing,
 		IsFixing: true,
 		Description: fmt.Sprintf(
@@ -58,7 +58,7 @@ func (s *Service) CopyModuleEmptyStruct() Service {
 
 func (s *Service) ConvergeUnhealthyStatus(moduleName string) {
 	if s.Status == nil {
-		s.Status = &status.Details{}
+		s.Status = &status.Health{}
 	}
 
 	s.Status.Current = status.Ng
@@ -70,18 +70,18 @@ func (s *Service) ConvergeUnhealthyStatus(moduleName string) {
 }
 
 func (m *Module) InitOkStatus() {
-	m.Status = status.NewOk()
+	m.Status = status.NewHealthOk()
 }
 
 func (m *Module) SetUnhealthyStatus() {
-	m.Status = &status.Details{
+	m.Status = &status.Health{
 		Current:     status.Ng,
 		Description: fmt.Sprintf(`has failure from %s`, m.Name),
 	}
 }
 
 func (m *Module) SetRepairingStatus() {
-	m.Status = &status.Details{
+	m.Status = &status.Health{
 		Current:  status.Repairing,
 		IsFixing: true,
 	}
