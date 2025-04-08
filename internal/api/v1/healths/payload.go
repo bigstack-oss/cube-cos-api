@@ -13,7 +13,7 @@ func (h *helper) genServiceHealthHistory() []cubecos.HealthStatus {
 
 func (h *helper) genModuleHealthHistory() cubecos.HealthStatus {
 	service := cubecos.ModuleToService[h.module]
-	history, err := cubecos.GetModuleHealthHistory(h.module, h.past)
+	history, err := cubecos.GetModuleHealthHistory(h.module, h.past, false)
 	if err != nil {
 		log.Errorf("healths(%s): %v", api.GetReqId(h.c), err)
 	}

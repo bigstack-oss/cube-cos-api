@@ -213,7 +213,7 @@ func GetServiceHealthHistory(serviceName, duration string) []HealthStatus {
 	statuses := []HealthStatus{}
 
 	for _, module := range modules {
-		history, err := GetModuleHealthHistory(module.Name, duration)
+		history, err := GetModuleHealthHistory(module.Name, duration, false)
 		if err != nil {
 			continue
 		}
@@ -230,10 +230,10 @@ func GetServiceHealthHistory(serviceName, duration string) []HealthStatus {
 	return statuses
 }
 
-func GetModuleHealthHistory(moduleName, duration string) ([]v1.HealthCheck, error) {
+func GetModuleHealthHistory(moduleName, duration string, onlyLast bool) ([]v1.HealthCheck, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
-	stmt := GenModuleHealthHistoryQuery(moduleName, duration)
+	stmt := GenModuleHealthHistoryQuery(moduleName, duration, onlyLast)
 
 	h := influx.GetGlobalHelper()
 	c, err := h.QueryApiClient.Query(ctx, stmt)
@@ -253,16 +253,21 @@ func GetModuleHealthHistory(moduleName, duration string) ([]v1.HealthCheck, erro
 	return checks, nil
 }
 
-func GenModuleHealthHistoryQuery(moduleName, past string) string {
+func GenModuleHealthHistoryQuery(moduleName, past string, onlyLast bool) string {
 	query := influx.Query{}
-	return query.Bucket("events").
+	query.Bucket("events").
 		Range(genTimeDuration(past)).
 		Filter(healthMeasurement).
 		Filter(genModuleFilter(moduleName)).
 		Pivot(convertValueToField).
 		Group("").
-		Sort(descByTime).
-		String()
+		Sort(descByTime)
+
+	if onlyLast {
+		query.Limit("n: 1")
+	}
+
+	return query.String()
 }
 
 func genModuleFilter(modulName string) string {
@@ -276,7 +281,6 @@ func genTimeDuration(past string) string {
 func parseHealthCheck(c *api.QueryTableResult, checks *[]v1.HealthCheck) error {
 	for c.Next() {
 		*checks = append(*checks, genHealthCheckByRecord(c.Record()))
-		break
 	}
 	if c.Err() != nil {
 		return c.Err()
@@ -356,7 +360,7 @@ func GetRepairingInfo() (*v1.ReairingInfo, error) {
 func syncServiceHealth(services *[]v1.Service, duration string) {
 	for s, service := range *services {
 		for m, module := range service.Modules {
-			history, err := GetModuleHealthHistory(module.Name, duration)
+			history, err := GetModuleHealthHistory(module.Name, duration, true)
 			if err != nil {
 				continue
 			}
