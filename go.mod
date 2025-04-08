@@ -6,6 +6,7 @@ toolchain go1.24.0
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.78.2
 	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250318121420-1ddab0dc9a0c
 	github.com/blevesearch/bleve/v2 v2.4.4
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
@@ -54,7 +55,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.7.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.12.15 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.18.15 // indirect
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.78.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.25.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.29.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.33.17 // indirect
@@ -109,7 +109,6 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gophercloud/gophercloud v1.14.1 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
-	github.com/gwatts/gin-adapter v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
 	github.com/jonboulle/clockwork v0.2.2 // indirect

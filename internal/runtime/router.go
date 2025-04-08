@@ -43,12 +43,19 @@ func newHttpServer() (*server.Server, error) {
 func newRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.Any("/saml/*any", saml.ServeAcs())
 	router.Use(gin.Recovery())
 	router.Use(initReqInfo)
+	router.Any("/", healthCheck())
+	router.Any("/saml/*any", saml.ServeAcs())
 	router.Use(verifyAuthToken())
 	router.Use(conditionalSaml())
 	return router
+}
+
+func healthCheck() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		api.SetStatusOk(c, "api is up", nil)
+	}
 }
 
 func initReqInfo(c *gin.Context) {
