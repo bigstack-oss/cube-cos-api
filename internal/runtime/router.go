@@ -45,16 +45,16 @@ func newRouter() *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Recovery())
 	router.Use(initReqInfo)
-	router.Any("/", healthCheck())
+	router.Any("/live", livenessCheck())
 	router.Any("/saml/*any", saml.ServeAcs())
 	router.Use(verifyAuthToken())
 	router.Use(conditionalSaml())
 	return router
 }
 
-func healthCheck() gin.HandlerFunc {
+func livenessCheck() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		api.SetStatusOk(c, "api is up", nil)
+		api.SetStatusOk(c, "api is alive", nil)
 	}
 }
 
