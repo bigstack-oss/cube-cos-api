@@ -16,6 +16,7 @@ var (
 )
 
 type License struct {
+	Name                  string   `json:"name" yaml:"name" bson:"name"`
 	Type                  string   `json:"type" yaml:"type" bson:"type"`
 	Hostname              string   `json:"hostname,omitzero" yaml:"hostname" bson:"hostname"`
 	Hosts                 []string `json:"hosts,omitempty" yaml:"hosts" bson:"hosts"`
@@ -51,19 +52,21 @@ type Expiry struct {
 }
 
 type RawLicense struct {
-	Type                  string `json:"type" yaml:"type" bson:"type"`
-	Hostname              string `json:"hostname" yaml:"hostname" bson:"hostname"`
-	Product               `json:"product" yaml:"product" bson:"product"`
-	Quantity              `json:"quantity" yaml:"quantity" bson:"quantity"`
-	ServiceLevelAgreement string `json:"serviceLevelAgreement" yaml:"sla" bson:"serviceLevelAgreement"`
-	Serial                string `json:"serial" yaml:"serial" bson:"serial"`
-	Check                 int    `json:"check" yaml:"check" bson:"check"`
-	IssueBy               string `json:"issueby" yaml:"issueby" bson:"issueby"`
-	IssueTo               string `json:"issueto" yaml:"issueto" bson:"issueto"`
-	Hardware              string `json:"hardware" yaml:"hardware" bson:"hardware"`
-	Expiry                string `json:"expiry" yaml:"expiry" bson:"expiry"`
-	Date                  string `json:"date" yaml:"date" bson:"date"`
-	Days                  int    `json:"days" yaml:"days" bson:"days"`
+	Name     string `json:"name" yaml:"name" bson:"name"`
+	Type     string `json:"type" yaml:"type" bson:"type"`
+	Hostname string `json:"hostname" yaml:"hostname" bson:"hostname"`
+	Product  string `json:"product" yaml:"product" bson:"product"`
+	Feature  string `json:"feature" yaml:"feature" bson:"feature"`
+	Quantity string `json:"quantity" yaml:"quantity" bson:"quantity"`
+	SLA      string `json:"sla" yaml:"sla" bson:"sla"`
+	Serial   string `json:"serial" yaml:"serial" bson:"serial"`
+	Check    int    `json:"check" yaml:"check" bson:"check"`
+	IssueBy  string `json:"issueby" yaml:"issueby" bson:"issueby"`
+	IssueTo  string `json:"issueto" yaml:"issueto" bson:"issueto"`
+	Hardware string `json:"hardware" yaml:"hardware" bson:"hardware"`
+	Expiry   string `json:"expiry" yaml:"expiry" bson:"expiry"`
+	Date     string `json:"date" yaml:"date" bson:"date"`
+	Days     int    `json:"days" yaml:"days" bson:"days"`
 }
 
 func (l *License) Key() string {

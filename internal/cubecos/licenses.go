@@ -131,40 +131,40 @@ func genLicenseMap(licenses []definition.License) map[string]definition.License 
 
 func parseLicense(raw definition.RawLicense) definition.License {
 	return definition.License{
-		Type:    raw.Type,
-		Hosts:   []string{raw.Hostname},
-		Product: parseProduct(raw.Product),
-		Serial:  raw.Serial,
-		Issue:   parseIssue(raw),
-		Expiry:  parseExpiry(raw),
-		Status:  parseStatus(raw),
+		Name:                  raw.Name,
+		Type:                  raw.Type,
+		Hosts:                 []string{raw.Hostname},
+		Product:               parseProduct(raw),
+		Serial:                raw.Serial,
+		ServiceLevelAgreement: raw.SLA,
+		Issue:                 parseIssue(raw),
+		Expiry:                parseExpiry(raw),
+		Status:                parseStatus(raw),
 	}
 }
 
-func parseProduct(raw definition.Product) definition.Product {
-	if raw.Name == "" {
-		raw.Name = "CubeCOS"
+func parseProduct(raw definition.RawLicense) definition.Product {
+	if raw.Product == "" {
+		raw.Product = "CubeCOS"
 	}
 
 	return definition.Product{
-		Name:     raw.Name,
+		Name:     raw.Product,
 		Features: parseFeatures(raw),
 	}
 }
 
-func parseFeatures(raw definition.Product) []string {
-	if len(raw.Features) > 0 {
-		return raw.Features
-	}
+func parseFeatures(raw definition.RawLicense) []string {
+	features := []string{}
 
-	switch raw.Name {
+	switch raw.Product {
 	case "CubeCOS":
-		raw.Features = []string{"virtualization", "kubernetes"}
+		features = []string{"virtualization", "kubernetes"}
 	case "CubeCMP":
-		raw.Features = []string{"all"}
+		features = []string{"all"}
 	}
 
-	return raw.Features
+	return features
 }
 
 func parseIssue(raw definition.RawLicense) definition.Issue {

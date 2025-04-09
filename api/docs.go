@@ -4388,12 +4388,15 @@ const docTemplate = `{
                                                         "ip": "10.10.10.10",
                                                         "managementIP": "10.10.10.10",
                                                         "license": {
+                                                            "name": "example-license",
                                                             "type": "trial",
                                                             "hostname": "example-node-0",
                                                             "serial": "1H2ZLG2",
                                                             "product": {
-                                                                "name": "",
-                                                                "features": null
+                                                                "name": "CubeCOS",
+                                                                "features": [
+                                                                    "virtualization"
+                                                                ]
                                                             },
                                                             "issue": {
                                                                 "by": "Bigstack co., ltd.",
@@ -5348,12 +5351,15 @@ const docTemplate = `{
                                                 "ip": "10.10.10.10",
                                                 "managementIP": "10.10.10.10",
                                                 "license": {
+                                                    "name": "example-license",
                                                     "type": "trial",
                                                     "hostname": "example-node-0",
                                                     "serial": "1H2ZLG2",
                                                     "product": {
-                                                        "name": "",
-                                                        "features": null
+                                                        "name": "CubeCOS",
+                                                        "features": [
+                                                            "virtualization"
+                                                        ]
                                                     },
                                                     "issue": {
                                                         "by": "Bigstack co., ltd.",
@@ -15758,6 +15764,7 @@ const docTemplate = `{
                     "license": {
                         "type": "object",
                         "required": [
+                            "name",
                             "type",
                             "hostname",
                             "serial",
