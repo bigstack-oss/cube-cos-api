@@ -2559,12 +2559,7 @@ const docTemplate = `{
                                                             "type": "",
                                                             "value": 0
                                                         },
-                                                        "serviceLevelAgreement": {
-                                                            "uptime": 0,
-                                                            "period": "",
-                                                            "meanTimeBetweenFailure": "",
-                                                            "meanTimeToRecovery": ""
-                                                        },
+                                                        "serviceLevelAgreement": "5x8",
                                                         "expiry": {
                                                             "date": "2025-05-15T17:31:21+08:00",
                                                             "days": 56
@@ -4410,12 +4405,7 @@ const docTemplate = `{
                                                                 "type": "",
                                                                 "value": 0
                                                             },
-                                                            "serviceLevelAgreement": {
-                                                                "uptime": 0,
-                                                                "period": "",
-                                                                "meanTimeBetweenFailure": "",
-                                                                "meanTimeToRecovery": ""
-                                                            },
+                                                            "serviceLevelAgreement": "5x8",
                                                             "expiry": {
                                                                 "date": "2025-03-24T14:51:50+08:00",
                                                                 "days": 9
@@ -5375,12 +5365,7 @@ const docTemplate = `{
                                                         "type": "",
                                                         "value": 0
                                                     },
-                                                    "serviceLevelAgreement": {
-                                                        "uptime": 0,
-                                                        "period": "",
-                                                        "meanTimeBetweenFailure": "",
-                                                        "meanTimeToRecovery": ""
-                                                    },
+                                                    "serviceLevelAgreement": "5x8",
                                                     "expiry": {
                                                         "date": "2025-03-24T14:51:50+08:00",
                                                         "days": 9
@@ -12788,27 +12773,7 @@ const docTemplate = `{
                                             }
                                         },
                                         "serviceLevelAgreement": {
-                                            "type": "object",
-                                            "required": [
-                                                "uptime",
-                                                "period",
-                                                "meanTimeBetweenFailure",
-                                                "meanTimeToRecovery"
-                                            ],
-                                            "properties": {
-                                                "uptime": {
-                                                    "type": "number"
-                                                },
-                                                "period": {
-                                                    "type": "string"
-                                                },
-                                                "meanTimeBetweenFailure": {
-                                                    "type": "string"
-                                                },
-                                                "meanTimeToRecovery": {
-                                                    "type": "string"
-                                                }
-                                            }
+                                            "type": "string"
                                         },
                                         "expiry": {
                                             "type": "object",
@@ -15867,27 +15832,7 @@ const docTemplate = `{
                                 }
                             },
                             "serviceLevelAgreement": {
-                                "type": "object",
-                                "required": [
-                                    "uptime",
-                                    "period",
-                                    "meanTimeBetweenFailure",
-                                    "meanTimeToRe"
-                                ],
-                                "properties": {
-                                    "uptime": {
-                                        "type": "integer"
-                                    },
-                                    "period": {
-                                        "type": "string"
-                                    },
-                                    "meanTimeBetweenFailure": {
-                                        "type": "string"
-                                    },
-                                    "meanTimeToRecovery": {
-                                        "type": "string"
-                                    }
-                                }
+                                "type": "string"
                             },
                             "expiry": {
                                 "type": "object",

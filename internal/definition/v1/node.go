@@ -326,10 +326,6 @@ func ListNodes() []Node {
 	return nodes
 }
 
-func GetAmountOfNodes() int {
-	return len(nodes)
-}
-
 func InitNodeSearchIndex() error {
 	if nodeSearcher != nil {
 		return nil
