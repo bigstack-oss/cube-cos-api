@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"sort"
 	"sync"
 	"time"
 
@@ -22,10 +23,11 @@ import (
 )
 
 const (
-	healthMeasurement   = `fn: (r) => r._measurement == "health"`
-	convertValueToField = `rowKey: ["_time","component","node","code"], columnKey: ["_field"], valueColumn: "_value"`
-	descByTime          = `columns: ["_time"], desc: true`
-	repairingCode       = 1
+	healthMeasurement     = `fn: (r) => r._measurement == "health"`
+	convertValueToField   = `rowKey: ["_time","component","node","code"], columnKey: ["_field"], valueColumn: "_value"`
+	descByTime            = `columns: ["_time"], desc: true`
+	repairingCode         = 1
+	defaultAggreateWindow = 10 * time.Minute
 )
 
 var (
@@ -250,7 +252,65 @@ func GetModuleHealthHistory(moduleName, duration string, onlyLast bool) ([]v1.He
 		return nil, err
 	}
 
-	return checks, nil
+	return aggregateHealthsByTime(
+		checks,
+		defaultAggreateWindow,
+	), nil
+}
+
+func aggregateHealthsByTime(checks []v1.HealthCheck, duration time.Duration) []v1.HealthCheck {
+	if len(checks) == 0 {
+		return []v1.HealthCheck{}
+	}
+
+	grouped := groupHealthsByTime(checks, duration)
+	keys := getSortedTimeKeys(grouped)
+	aggregated := []v1.HealthCheck{}
+	for _, key := range keys {
+		picked := pickHealthOrUnhealthy(grouped[key])
+		aggregated = append(aggregated, picked)
+	}
+
+	return aggregated
+}
+
+func groupHealthsByTime(checks []v1.HealthCheck, duration time.Duration) map[time.Time][]v1.HealthCheck {
+	grouped := make(map[time.Time][]v1.HealthCheck)
+
+	for _, check := range checks {
+		t, err := time.Parse(time.RFC3339, check.Time)
+		if err != nil {
+			continue
+		}
+
+		key := t.Truncate(duration)
+		grouped[key] = append(grouped[key], check)
+	}
+
+	return grouped
+}
+
+func getSortedTimeKeys(grouped map[time.Time][]v1.HealthCheck) []time.Time {
+	keys := make([]time.Time, 0, len(grouped))
+	for key := range grouped {
+		keys = append(keys, key)
+	}
+
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i].After(keys[j])
+	})
+
+	return keys
+}
+
+func pickHealthOrUnhealthy(group []v1.HealthCheck) v1.HealthCheck {
+	for _, check := range group {
+		if check.IsNg() {
+			return check
+		}
+	}
+
+	return group[0]
 }
 
 func GenModuleHealthHistoryQuery(moduleName, past string, onlyLast bool) string {

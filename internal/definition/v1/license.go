@@ -23,7 +23,7 @@ type License struct {
 	Product               `json:"product" yaml:"product" bson:"product"`
 	Issue                 `json:"issue" yaml:"issue" bson:"issue"`
 	Quantity              `json:"quantity" yaml:"quantity" bson:"quantity"`
-	ServiceLevelAgreement `json:"serviceLevelAgreement" yaml:"sla" bson:"serviceLevelAgreement"`
+	ServiceLevelAgreement string `json:"serviceLevelAgreement" yaml:"sla" bson:"serviceLevelAgreement"`
 	Expiry                `json:"expiry" yaml:"expiry" bson:"expiry"`
 	Status                status.License `json:"status" yaml:"status" bson:"status"`
 }
@@ -45,13 +45,6 @@ type Quantity struct {
 	Value int    `json:"value" yaml:"vcpu" bson:"value"`
 }
 
-type ServiceLevelAgreement struct {
-	Uptime                 float32 `json:"uptime" yaml:"uptime" bson:"uptime"`
-	Period                 string  `json:"period" yaml:"period" bson:"period"`
-	MeanTimeBetweenFailure string  `json:"meanTimeBetweenFailure" yaml:"meanTimeBetweenFailure" bson:"meanTimeBetweenFailure"`
-	MeanTimeToRecovery     string  `json:"meanTimeToRecovery" yaml:"meanTimeToRecovery" bson:"meanTimeToRecovery"`
-}
-
 type Expiry struct {
 	Date string `json:"date" yaml:"date" bson:"date"`
 	Days int    `json:"days" yaml:"days" bson:"days"`
@@ -62,7 +55,7 @@ type RawLicense struct {
 	Hostname              string `json:"hostname" yaml:"hostname" bson:"hostname"`
 	Product               `json:"product" yaml:"product" bson:"product"`
 	Quantity              `json:"quantity" yaml:"quantity" bson:"quantity"`
-	ServiceLevelAgreement `json:"serviceLevelAgreement" yaml:"sla" bson:"serviceLevelAgreement"`
+	ServiceLevelAgreement string `json:"serviceLevelAgreement" yaml:"sla" bson:"serviceLevelAgreement"`
 	Serial                string `json:"serial" yaml:"serial" bson:"serial"`
 	Check                 int    `json:"check" yaml:"check" bson:"check"`
 	IssueBy               string `json:"issueby" yaml:"issueby" bson:"issueby"`

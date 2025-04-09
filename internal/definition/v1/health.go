@@ -38,3 +38,7 @@ type Error struct {
 	Details     string   `json:"details"`
 	Log         string   `json:"log"`
 }
+
+func (h *HealthCheck) IsNg() bool {
+	return h.Status == status.Ng
+}
