@@ -25,7 +25,7 @@ import (
 const (
 	healthMeasurement     = `fn: (r) => r._measurement == "health"`
 	convertValueToField   = `rowKey: ["_time","component","node","code"], columnKey: ["_field"], valueColumn: "_value"`
-	descByTime            = `columns: ["_time"], desc: true`
+	ascByTime             = `columns: ["_time"], desc: false`
 	repairingCode         = 1
 	defaultAggreateWindow = 10 * time.Minute
 )
@@ -266,12 +266,29 @@ func aggregateHealthsByTime(checks []v1.HealthCheck, duration time.Duration) []v
 	grouped := groupHealthsByTime(checks, duration)
 	keys := getSortedTimeKeys(grouped)
 	aggregated := []v1.HealthCheck{}
-	for _, key := range keys {
+	for i, key := range keys {
+		if i == 0 {
+			firstCheck := backfillFirstCheck(key)
+			aggregated = append(aggregated, firstCheck)
+		}
+
 		picked := pickHealthOrUnhealthy(grouped[key])
 		aggregated = append(aggregated, picked)
 	}
 
 	return aggregated
+}
+
+func backfillFirstCheck(t time.Time) v1.HealthCheck {
+	date, err := time.Parse(eventTimeLayout, t.Add(-defaultAggreateWindow).Local().String())
+	if err != nil {
+		return v1.HealthCheck{}
+	}
+
+	return v1.HealthCheck{
+		Time:   v1.TimeRFC3339Z(date),
+		Status: status.Ok,
+	}
 }
 
 func groupHealthsByTime(checks []v1.HealthCheck, duration time.Duration) map[time.Time][]v1.HealthCheck {
@@ -297,7 +314,7 @@ func getSortedTimeKeys(grouped map[time.Time][]v1.HealthCheck) []time.Time {
 	}
 
 	sort.Slice(keys, func(i, j int) bool {
-		return keys[i].After(keys[j])
+		return keys[i].Before(keys[j])
 	})
 
 	return keys
@@ -321,7 +338,7 @@ func GenModuleHealthHistoryQuery(moduleName, past string, onlyLast bool) string 
 		Filter(genModuleFilter(moduleName)).
 		Pivot(convertValueToField).
 		Group("").
-		Sort(descByTime)
+		Sort(ascByTime)
 
 	if onlyLast {
 		query.Limit("n: 1")
@@ -517,16 +534,6 @@ func parseTime(record *query.FluxRecord) string {
 	}
 
 	return v1.TimeRFC3339Z(date)
-}
-
-func parseDescription(record *query.FluxRecord) string {
-	desc := record.ValueByKey("description")
-	val, ok := desc.(string)
-	if !ok {
-		val = ""
-	}
-
-	return val
 }
 
 func parseNodes(record *query.FluxRecord) []string {
