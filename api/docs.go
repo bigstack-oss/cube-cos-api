@@ -4417,7 +4417,7 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/keyword"
                     },
                     {
-                        "$ref": "#/components/parameters/role"
+                        "$ref": "#/components/parameters/roles"
                     },
                     {
                         "$ref": "#/components/parameters/licenseStatus"
@@ -10656,7 +10656,7 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/watch"
                     },
                     {
-                        "$ref": "#/components/parameters/role"
+                        "$ref": "#/components/parameters/roles"
                     },
                     {
                         "$ref": "#/components/parameters/start"
@@ -11632,9 +11632,9 @@ const docTemplate = `{
                 "description": "The keyword to search, can be any string",
                 "example": "example-keyword"
             },
-            "role": {
+            "roles": {
                 "in": "query",
-                "name": "role",
+                "name": "roles",
                 "required": false,
                 "schema": {
                     "type": "array",
