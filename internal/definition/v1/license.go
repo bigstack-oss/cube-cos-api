@@ -15,12 +15,24 @@ var (
 	licenseSearcher bleve.Index
 )
 
+type VerificationDetails struct {
+	License     `json:"license" yaml:"license" bson:"license"`
+	EffectNodes []LicenseNode `json:"effectNodes" yaml:"effectNodes" bson:"effectNodes"`
+}
+
+type LicenseNode struct {
+	Name   string `json:"name" yaml:"name" bson:"name"`
+	Role   string `json:"role" yaml:"role" bson:"role"`
+	Expiry `json:"expiry" yaml:"expiry" bson:"expiry"`
+	Status status.License `json:"status" yaml:"status" bson:"status"`
+}
+
 type License struct {
 	Name                  string   `json:"name" yaml:"name" bson:"name"`
 	Type                  string   `json:"type" yaml:"type" bson:"type"`
 	Hostname              string   `json:"hostname,omitzero" yaml:"hostname" bson:"hostname"`
 	Hosts                 []string `json:"hosts,omitempty" yaml:"hosts" bson:"hosts"`
-	Serial                string   `json:"serial" yaml:"serial" bson:"serial"`
+	Serial                string   `json:"serial,omitzero" yaml:"serial" bson:"serial"`
 	Product               `json:"product" yaml:"product" bson:"product"`
 	Issue                 `json:"issue" yaml:"issue" bson:"issue"`
 	Quantity              `json:"quantity" yaml:"quantity" bson:"quantity"`

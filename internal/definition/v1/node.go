@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/url"
+	"slices"
 	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
@@ -192,6 +193,10 @@ func (n *Node) PatchSupportFileTaskUrl(file support.File) string {
 
 func (n *Node) IsLocal() bool {
 	return n.Address == AdvertiseAddr && n.Role == CurrentRole
+}
+
+func (n *Node) MatchHardwareSerial(hardwareSerials []string) bool {
+	return slices.Contains(hardwareSerials, n.SerialNumber)
 }
 
 func IsLocalNode(hostname string) bool {
