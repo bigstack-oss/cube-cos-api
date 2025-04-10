@@ -68,7 +68,7 @@ func verifyLicense(c *gin.Context) {
 		return
 	}
 
-	err = cubecos.VerifyLicense(license)
+	result, err := cubecos.VerifyLicense(license)
 	if err != nil {
 		api.SetBadRequest(c, err)
 		return
@@ -77,7 +77,7 @@ func verifyLicense(c *gin.Context) {
 	api.SetStatusOk(
 		c,
 		"license verified successfully",
-		nil,
+		result,
 	)
 }
 

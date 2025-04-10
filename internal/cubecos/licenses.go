@@ -24,12 +24,22 @@ const (
 	LicenseSysytemCompromised = 255
 )
 
-func VerifyLicense(license string) error {
+func VerifyLicense(license string) (*definition.License, error) {
 	defer os.Remove(license)
-	dir := filepath.Dir(license)
-	file := strings.TrimSuffix(filepath.Base(license), filepath.Ext(license))
+
+	dir, file := getDirAndLicenseName(license)
 	_, err := exec.Command("hex_sdk", "license_import_check", dir, file).Output()
-	return isValidLicenseStatus(err)
+	err = checkLicenseErr(err)
+	if err != nil {
+		log.Errorf("license: failed to verify license: %v", err)
+		return nil, err
+	}
+
+	return nil, nil
+}
+
+func getDirAndLicenseName(license string) (string, string) {
+	return filepath.Dir(license), strings.TrimSuffix(filepath.Base(license), filepath.Ext(license))
 }
 
 func ImportClusterLicense(licensePath string) error {
@@ -222,7 +232,7 @@ func parseStatus(raw definition.RawLicense) status.License {
 	}
 }
 
-func isValidLicenseStatus(err error) error {
+func checkLicenseErr(err error) error {
 	if err == nil {
 		return nil
 	}
