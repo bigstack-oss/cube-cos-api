@@ -48,189 +48,6 @@ func VerifyLicense(license string) (*definition.VerificationDetails, error) {
 	}, nil
 }
 
-func checkImportLicense(license string) error {
-	dir, file := getDirAndLicenseName(license)
-	_, err := exec.Command("hex_sdk", "license_import_check", dir, file).Output()
-	return checkLicenseErr(err)
-}
-
-func getDirAndLicenseName(license string) (string, string) {
-	return filepath.Dir(license), strings.TrimSuffix(filepath.Base(license), filepath.Ext(license))
-}
-
-func parseLicenseDat(license string) (*definition.License, error) {
-	dir, file := getDirAndLicenseName(license)
-	err := zip.DecompressFromTo(license, dir)
-	if err != nil {
-		log.Errorf("license: failed to decompress license: %v", err)
-		return nil, err
-	}
-
-	datFile, err := os.Open(filepath.Join(dir, fmt.Sprintf("%s.dat", file)))
-	if err != nil {
-		return nil, err
-	}
-
-	defer datFile.Close()
-	licenseDat := &definition.License{}
-	setLicenseDat(datFile, licenseDat)
-	return licenseDat, nil
-}
-
-func setLicenseDat(datFile *os.File, licenseDat *definition.License) {
-	scanner := bufio.NewScanner(datFile)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if isCommentOrBlank(line) {
-			continue
-		}
-
-		parts := strings.SplitN(line, "=", 2)
-		if !isKeyValuePattern(parts) {
-			continue
-		}
-
-		setValueToLicenseDat(licenseDat, parts)
-	}
-
-	err := scanner.Err()
-	if err != nil {
-		log.Errorf("license: failed to read license dat file: %v", err)
-		return
-	}
-}
-
-func getLicenseEffectNodes(hardwareInfo string) []definition.LicenseNode {
-	nodes := definition.ListNodes()
-	if isLicenseForAllNodes(hardwareInfo) {
-		return convertToLicenseNodes(nodes)
-	}
-
-	hardwareSerials := strings.Split(hardwareInfo, ",")
-	effectNodes := []definition.Node{}
-	for _, node := range nodes {
-		if node.MatchHardwareSerial(hardwareSerials) {
-			effectNodes = append(effectNodes, node)
-		}
-	}
-
-	return convertToLicenseNodes(effectNodes)
-}
-
-func isLicenseForAllNodes(hardware string) bool {
-	return strings.Contains(hardware, "*")
-}
-
-func convertToLicenseNodes(nodes []definition.Node) []definition.LicenseNode {
-	licenseNodes := []definition.LicenseNode{}
-	for _, node := range nodes {
-		license := getLicenseByNodeName(node.Hostname)
-		licenseNodes = append(
-			licenseNodes,
-			definition.LicenseNode{
-				Name:   node.Hostname,
-				Role:   node.Role,
-				Expiry: license.Expiry,
-				Status: license.Status,
-			},
-		)
-	}
-
-	return licenseNodes
-}
-
-func getLicenseByNodeName(nodeName string) definition.License {
-	licenses, err := ListLicenses()
-	if err != nil {
-		log.Errorf("license: failed to get license by node name: %v", err)
-		return definition.License{}
-	}
-
-	for _, license := range licenses {
-		if slices.Contains(license.Hosts, nodeName) {
-			return license
-		}
-	}
-
-	return definition.License{}
-}
-
-func setValueToLicenseDat(licenseDat *definition.License, parts []string) {
-	key := parts[0]
-	value := strings.TrimSpace(parts[1])
-
-	switch key {
-	case "license.type":
-		licenseDat.Type = value
-	case "issue.by":
-		licenseDat.Issue.By = value
-	case "issue.to":
-		licenseDat.Issue.To = value
-	case "issue.hardware":
-		licenseDat.Issue.Hardware = value
-	case "product":
-		licenseDat.Product.Name = value
-	case "feature":
-		licenseDat.Product.Features = append(licenseDat.Product.Features, value)
-	case "quantity":
-		licenseDat.Quantity = parseLicenseDatQuantity(licenseDat, value)
-	case "sla":
-		licenseDat.ServiceLevelAgreement = value
-	case "issue.date":
-		licenseDat.Issue.Date = parseLicenseDatIssueDate(value)
-	case "expiry.date":
-		expiry, status := parseLicenseExpiryAndStatus(value)
-		licenseDat.Expiry = expiry
-		licenseDat.Status = status
-	}
-}
-
-func parseLicenseDatQuantity(licenseDat *definition.License, value string) definition.Quantity {
-	quantity := definition.Quantity{Value: 0}
-	val, err := strconv.Atoi(value)
-	if err != nil {
-		return quantity
-	}
-
-	quantity.Value = val
-	return quantity
-}
-
-func parseLicenseDatIssueDate(value string) string {
-	issue, err := time.Parse("2006-01-02 15:04:05 MST", value)
-	if err != nil {
-		return "unknown issue date"
-	}
-
-	return issue.In(definition.LocalTimeFixedZone).Format(time.RFC3339)
-}
-
-func parseLicenseExpiryAndStatus(value string) (definition.Expiry, status.License) {
-	expiry, err := time.Parse("2006-01-02 15:04:05 MST", value)
-	if err != nil {
-		return definition.Expiry{
-				Date: "unknown expiry date",
-				Days: 0,
-			}, status.License{
-				Current: "expired",
-			}
-	}
-
-	licenseExpiry := definition.Expiry{
-		Date: expiry.In(definition.LocalTimeFixedZone).Format(time.RFC3339),
-		Days: int(expiry.Sub(time.Now().Local()).Hours() / 24),
-	}
-	if time.Now().After(expiry) {
-		return licenseExpiry, status.License{Current: "expired"}
-	}
-
-	if time.Now().AddDate(0, 0, 30).After(expiry) {
-		return licenseExpiry, status.License{Current: "expiring", IsExpiring: true}
-	}
-
-	return licenseExpiry, status.License{Current: "ok", IsExpiring: false}
-}
-
 func ImportClusterLicense(licensePath string) error {
 	dir := filepath.Dir(licensePath)
 	base := filepath.Base(licensePath)
@@ -447,4 +264,190 @@ func checkLicenseErr(err error) error {
 	}
 
 	return errors.New("unknown license status")
+}
+
+func checkImportLicense(license string) error {
+	dir, file := getDirAndLicenseName(license)
+	_, err := exec.Command("hex_sdk", "license_import_check", dir, file).Output()
+	return checkLicenseErr(err)
+}
+
+func parseLicenseDat(license string) (*definition.License, error) {
+	dir, file := getDirAndLicenseName(license)
+	err := zip.DecompressFromTo(license, dir)
+	if err != nil {
+		log.Errorf("license: failed to decompress license: %v", err)
+		return nil, err
+	}
+
+	datFile, err := os.Open(filepath.Join(dir, fmt.Sprintf("%s.dat", file)))
+	if err != nil {
+		return nil, err
+	}
+
+	defer datFile.Close()
+	licenseDat := &definition.License{}
+	setLicenseDat(datFile, licenseDat)
+	return licenseDat, nil
+}
+
+func getDirAndLicenseName(license string) (string, string) {
+	return filepath.Dir(license), strings.TrimSuffix(filepath.Base(license), filepath.Ext(license))
+}
+
+func setLicenseDat(datFile *os.File, licenseDat *definition.License) {
+	scanner := bufio.NewScanner(datFile)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if isCommentOrBlank(line) {
+			continue
+		}
+
+		parts := strings.SplitN(line, "=", 2)
+		if !isKeyValuePattern(parts) {
+			continue
+		}
+
+		setValueToLicenseDat(licenseDat, parts)
+	}
+
+	err := scanner.Err()
+	if err != nil {
+		log.Errorf("license: failed to read license dat file: %v", err)
+		return
+	}
+}
+
+func getLicenseEffectNodes(hardwareInfo string) []definition.LicenseNode {
+	nodes := definition.ListNodes()
+	if isLicenseForAllNodes(hardwareInfo) {
+		return convertToLicenseNodes(nodes)
+	}
+
+	hardwareSerials := strings.Split(hardwareInfo, ",")
+	effectNodes := []definition.Node{}
+	for _, node := range nodes {
+		if node.MatchHardwareSerial(hardwareSerials) {
+			effectNodes = append(effectNodes, node)
+		}
+	}
+
+	return convertToLicenseNodes(effectNodes)
+}
+
+func isLicenseForAllNodes(hardwareInfo string) bool {
+	return strings.Contains(hardwareInfo, "*")
+}
+
+func convertToLicenseNodes(nodes []definition.Node) []definition.LicenseNode {
+	licenseNodes := []definition.LicenseNode{}
+	for _, node := range nodes {
+		license := getLicenseByNodeName(node.Hostname)
+		licenseNodes = append(
+			licenseNodes,
+			definition.LicenseNode{
+				Name:   node.Hostname,
+				Role:   node.Role,
+				Expiry: license.Expiry,
+				Status: license.Status,
+			},
+		)
+	}
+
+	return licenseNodes
+}
+
+func getLicenseByNodeName(nodeName string) definition.License {
+	licenses, err := ListLicenses()
+	if err != nil {
+		log.Errorf("license: failed to get license by node name: %v", err)
+		return definition.License{}
+	}
+
+	for _, license := range licenses {
+		if slices.Contains(license.Hosts, nodeName) {
+			return license
+		}
+	}
+
+	return definition.License{}
+}
+
+func setValueToLicenseDat(licenseDat *definition.License, parts []string) {
+	key := parts[0]
+	value := strings.TrimSpace(parts[1])
+
+	switch key {
+	case "license.name":
+		licenseDat.Name = value
+	case "license.type":
+		licenseDat.Type = value
+	case "issue.by":
+		licenseDat.Issue.By = value
+	case "issue.to":
+		licenseDat.Issue.To = value
+	case "issue.hardware":
+		licenseDat.Issue.Hardware = value
+	case "product":
+		licenseDat.Product.Name = value
+	case "feature":
+		licenseDat.Product.Features = append(licenseDat.Product.Features, value)
+	case "quantity":
+		licenseDat.Quantity = parseLicenseDatQuantity(value)
+	case "sla":
+		licenseDat.ServiceLevelAgreement = value
+	case "issue.date":
+		licenseDat.Issue.Date = parseLicenseDatIssueDate(value)
+	case "expiry.date":
+		expiry, status := parseLicenseExpiryAndStatus(value)
+		licenseDat.Expiry = expiry
+		licenseDat.Status = status
+	}
+}
+
+func parseLicenseDatQuantity(value string) definition.Quantity {
+	quantity := definition.Quantity{Value: 0}
+	val, err := strconv.Atoi(value)
+	if err != nil {
+		return quantity
+	}
+
+	quantity.Value = val
+	return quantity
+}
+
+func parseLicenseDatIssueDate(value string) string {
+	issue, err := time.Parse("2006-01-02 15:04:05 MST", value)
+	if err != nil {
+		return "unknown issue date"
+	}
+
+	return issue.In(definition.LocalTimeFixedZone).Format(time.RFC3339)
+}
+
+func parseLicenseExpiryAndStatus(value string) (definition.Expiry, status.License) {
+	expiry, err := time.Parse("2006-01-02 15:04:05 MST", value)
+	if err != nil {
+		return definition.Expiry{
+				Date: "unknown expiry date",
+				Days: 0,
+			}, status.License{
+				Current: "expired",
+			}
+	}
+
+	licenseExpiry := definition.Expiry{
+		Date: expiry.In(definition.LocalTimeFixedZone).Format(time.RFC3339),
+		Days: int(expiry.Sub(time.Now().Local()).Hours() / 24),
+	}
+
+	if time.Now().After(expiry) {
+		return licenseExpiry, status.License{Current: "expired"}
+	}
+
+	if time.Now().AddDate(0, 0, 30).After(expiry) {
+		return licenseExpiry, status.License{Current: "expiring", IsExpiring: true}
+	}
+
+	return licenseExpiry, status.License{Current: "ok", IsExpiring: false}
 }
