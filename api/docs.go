@@ -10656,6 +10656,15 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/watch"
                     },
                     {
+                        "$ref": "#/components/parameters/role"
+                    },
+                    {
+                        "$ref": "#/components/parameters/start"
+                    },
+                    {
+                        "$ref": "#/components/parameters/stop"
+                    },
+                    {
                         "$ref": "#/components/parameters/pageSize"
                     },
                     {

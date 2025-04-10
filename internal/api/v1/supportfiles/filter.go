@@ -1,9 +1,6 @@
 package supportfiles
 
 import (
-	"time"
-
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
@@ -63,31 +60,12 @@ func (h *helper) filteredByRoles(fileSets []support.FileSet) []support.FileSet {
 func (h *helper) filteredByPeriod(fileSets []support.FileSet) []support.FileSet {
 	filtered := []support.FileSet{}
 	for _, fileSet := range fileSets {
-		if isCreatedInPeriod(fileSet.Status.CreatedAt, h.Period) {
+		if h.Period.InBetween(fileSet.Status.CreatedAt) {
 			filtered = append(filtered, fileSet)
 		}
 	}
 
 	return filtered
-}
-
-func isCreatedInPeriod(createdAt string, period v1.Period) bool {
-	t, err := time.Parse(time.RFC3339, createdAt)
-	if err != nil {
-		panic(err)
-	}
-
-	start, err := time.Parse(time.RFC3339, period.Start)
-	if err != nil {
-		panic(err)
-	}
-
-	stop, err := time.Parse(time.RFC3339, period.Stop)
-	if err != nil {
-		panic(err)
-	}
-
-	return t.After(start) && t.Before(stop)
 }
 
 func (h *helper) searchSupportFileSets(files []support.FileSet) (*bleve.SearchResult, error) {

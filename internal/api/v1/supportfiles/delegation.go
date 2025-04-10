@@ -20,7 +20,6 @@ func (h *helper) delegateSupportFileReq() {
 		}
 
 		h.setSupportFile()
-		log.Infof("delegate to local: %v", string(h.file.Bytes()))
 		if node.IsLocal() {
 			h.delegateToLocal()
 			continue

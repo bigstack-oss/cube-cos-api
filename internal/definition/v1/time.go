@@ -25,6 +25,25 @@ type Period struct {
 	Past  string
 }
 
+func (p *Period) InBetween(timeAt string) bool {
+	t, err := time.Parse(RFC3339, timeAt)
+	if err != nil {
+		panic(err)
+	}
+
+	start, err := time.Parse(RFC3339, p.Start)
+	if err != nil {
+		return false
+	}
+
+	stop, err := time.Parse(RFC3339, p.Stop)
+	if err != nil {
+		return false
+	}
+
+	return t.After(start) && t.Before(stop)
+}
+
 func TimeUTC(t time.Time) string {
 	return t.UTC().Format(time.RFC3339)
 }
