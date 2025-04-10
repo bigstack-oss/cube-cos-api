@@ -2756,13 +2756,82 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PostLicenseResponse"
+                                    "$ref": "#/components/schemas/VerifyLicenseResponse"
                                 },
                                 "examples": {
                                     "example1": {
                                         "summary": "License verification result",
                                         "value": {
                                             "code": 200,
+                                            "data": {
+                                                "license": {
+                                                    "name": "example-license",
+                                                    "type": "trial",
+                                                    "product": {
+                                                        "name": "CubeCOS",
+                                                        "features": [
+                                                            "virtualization"
+                                                        ]
+                                                    },
+                                                    "issue": {
+                                                        "by": "Bigstack Ltd.",
+                                                        "to": "*",
+                                                        "hardware": "*",
+                                                        "date": "2025-04-09T19:16:13+08:00"
+                                                    },
+                                                    "quantity": {
+                                                        "type": "",
+                                                        "value": 0
+                                                    },
+                                                    "serviceLevelAgreement": "5x8",
+                                                    "expiry": {
+                                                        "date": "2025-05-09T19:16:13+08:00",
+                                                        "days": 29
+                                                    },
+                                                    "status": {
+                                                        "current": "expiring",
+                                                        "isExpiring": true
+                                                    }
+                                                },
+                                                "effectNodes": [
+                                                    {
+                                                        "name": "example-node-1",
+                                                        "role": "control-converged",
+                                                        "expiry": {
+                                                            "date": "2025-05-09T19:16:13+08:00",
+                                                            "days": 30
+                                                        },
+                                                        "status": {
+                                                            "current": "expiring",
+                                                            "isExpiring": true
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "example-node-2",
+                                                        "role": "control-converged",
+                                                        "expiry": {
+                                                            "date": "2025-05-09T19:16:13+08:00",
+                                                            "days": 30
+                                                        },
+                                                        "status": {
+                                                            "current": "expiring",
+                                                            "isExpiring": true
+                                                        }
+                                                    },
+                                                    {
+                                                        "name": "example-node-3",
+                                                        "role": "control-converged",
+                                                        "expiry": {
+                                                            "date": "2025-05-09T19:16:13+08:00",
+                                                            "days": 30
+                                                        },
+                                                        "status": {
+                                                            "current": "expiring",
+                                                            "isExpiring": true
+                                                        }
+                                                    }
+                                                ]
+                                            },
                                             "msg": "verify license successfully",
                                             "status": "ok"
                                         }
@@ -12841,6 +12910,205 @@ const docTemplate = `{
                         "type": "string",
                         "format": "binary",
                         "description": "License file (must have a .license extension)"
+                    }
+                }
+            },
+            "VerifyLicenseResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "license",
+                            "effectNodes"
+                        ],
+                        "properties": {
+                            "license": {
+                                "type": "object",
+                                "required": [
+                                    "name",
+                                    "type",
+                                    "product",
+                                    "issue",
+                                    "quantity",
+                                    "serviceLevelAgreement",
+                                    "expiry",
+                                    "status"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "product": {
+                                        "type": "object",
+                                        "required": [
+                                            "name",
+                                            "features"
+                                        ],
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "features": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "issue": {
+                                        "type": "object",
+                                        "required": [
+                                            "by",
+                                            "to",
+                                            "hardware",
+                                            "date"
+                                        ],
+                                        "properties": {
+                                            "by": {
+                                                "type": "string"
+                                            },
+                                            "to": {
+                                                "type": "string"
+                                            },
+                                            "hardware": {
+                                                "type": "string"
+                                            },
+                                            "date": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "quantity": {
+                                        "type": "object",
+                                        "required": [
+                                            "type",
+                                            "value"
+                                        ],
+                                        "properties": {
+                                            "type": {
+                                                "type": "string"
+                                            },
+                                            "value": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    },
+                                    "serviceLevelAgreement": {
+                                        "type": "string"
+                                    },
+                                    "expiry": {
+                                        "type": "object",
+                                        "required": [
+                                            "date",
+                                            "days"
+                                        ],
+                                        "properties": {
+                                            "date": {
+                                                "type": "string"
+                                            },
+                                            "days": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    },
+                                    "status": {
+                                        "type": "object",
+                                        "required": [
+                                            "current",
+                                            "isExpiring"
+                                        ],
+                                        "properties": {
+                                            "current": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "ok",
+                                                    "expiring",
+                                                    "expired"
+                                                ]
+                                            },
+                                            "isExpiring": {
+                                                "type": "boolean"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "effectNodes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "name",
+                                        "role",
+                                        "expiry",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "role": {
+                                            "type": "string"
+                                        },
+                                        "expiry": {
+                                            "type": "object",
+                                            "required": [
+                                                "date",
+                                                "days"
+                                            ],
+                                            "properties": {
+                                                "date": {
+                                                    "type": "string"
+                                                },
+                                                "days": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "object",
+                                            "required": [
+                                                "current",
+                                                "isExpiring"
+                                            ],
+                                            "properties": {
+                                                "current": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "ok",
+                                                        "expiring",
+                                                        "expired"
+                                                    ]
+                                                },
+                                                "isExpiring": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
                     }
                 }
             },
