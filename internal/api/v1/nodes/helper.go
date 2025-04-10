@@ -15,6 +15,7 @@ type helper struct {
 	handler string
 
 	nodeName      string
+	product       string
 	keyword       string
 	licenseStatus string
 	roles         []string
@@ -42,6 +43,7 @@ func (h *helper) parseListOptions() error {
 		return err
 	}
 
+	h.parseProduct()
 	h.parseKeyword()
 	h.parseRoles()
 	h.parseLicenseStatus()

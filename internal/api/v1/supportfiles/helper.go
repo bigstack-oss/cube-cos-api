@@ -22,8 +22,8 @@ type helper struct {
 	file    support.File
 	fileReq support.FileRequest
 	v1.Page
-	role string
-	past string
+	roles []string
+	past  string
 	v1.Period
 
 	watch bool
@@ -52,6 +52,7 @@ func initHandler(c *gin.Context, handler string) (*helper, error) {
 func initListHelper(h *helper) (*helper, error) {
 	h.parseKeyword()
 	h.parseHost()
+	h.parseRoles()
 
 	err := h.parsePage()
 	if err != nil {

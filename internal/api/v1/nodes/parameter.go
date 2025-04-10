@@ -8,6 +8,10 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 )
 
+func (h *helper) parseProduct() {
+	h.product = h.c.DefaultQuery("product", "")
+}
+
 func (h *helper) parseKeyword() {
 	keyword := h.c.DefaultQuery("keyword", "")
 	h.keyword = strings.ToLower(keyword)

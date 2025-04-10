@@ -27,6 +27,10 @@ func (h *helper) parseWatch() error {
 	return nil
 }
 
+func (h *helper) parseRoles() {
+	h.roles = h.c.QueryArray("role")
+}
+
 func (h *helper) parseHost() {
 	h.host = h.c.DefaultQuery("host", "")
 }
@@ -134,7 +138,7 @@ func (h *helper) isPastRequired() bool {
 }
 
 func (h *helper) isFilterRequired() bool {
-	return h.isKeywordRequired() || h.isRoleRequired()
+	return h.isKeywordRequired() || h.isRoleRequired() || h.isPeriodRequired()
 }
 
 func (h *helper) isKeywordRequired() bool {
@@ -142,5 +146,5 @@ func (h *helper) isKeywordRequired() bool {
 }
 
 func (h *helper) isRoleRequired() bool {
-	return h.role != ""
+	return len(h.roles) > 0
 }

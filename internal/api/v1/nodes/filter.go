@@ -17,6 +17,10 @@ func (h *helper) filterNodes(nodes []definition.Node) []definition.Node {
 		return nodes
 	}
 
+	if h.isProduct() {
+		nodes = h.filteredByProduct(nodes)
+	}
+
 	if h.isKeywordRequired() {
 		nodes = h.filteredByKeyword(nodes)
 	}
@@ -33,7 +37,11 @@ func (h *helper) filterNodes(nodes []definition.Node) []definition.Node {
 }
 
 func (h *helper) isFilterRequired() bool {
-	return h.isKeywordRequired() || h.isRolesRequired() || h.isLicenseStatusRequired()
+	return h.isProduct() || h.isKeywordRequired() || h.isRolesRequired() || h.isLicenseStatusRequired()
+}
+
+func (h *helper) isProduct() bool {
+	return h.product != ""
 }
 
 func (h *helper) isRolesRequired() bool {
@@ -53,6 +61,17 @@ func (h *helper) filteredByLicenseStatus(nodes []definition.Node) []definition.N
 	filtered := []definition.Node{}
 	for _, node := range nodes {
 		if node.License.Status.Current == h.licenseStatus {
+			filtered = append(filtered, node)
+		}
+	}
+
+	return filtered
+}
+
+func (h *helper) filteredByProduct(nodes []definition.Node) []definition.Node {
+	filtered := []definition.Node{}
+	for _, node := range nodes {
+		if node.License.Product.Name == h.product {
 			filtered = append(filtered, node)
 		}
 	}

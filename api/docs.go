@@ -4423,6 +4423,9 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/licenseStatus"
                     },
                     {
+                        "$ref": "#/components/parameters/product"
+                    },
+                    {
                         "$ref": "#/components/parameters/pageSize"
                     },
                     {
@@ -11625,7 +11628,7 @@ const docTemplate = `{
                 "name": "role",
                 "required": false,
                 "schema": {
-                    "type": "string",
+                    "type": "array",
                     "enum": [
                         "control-converged",
                         "control",
@@ -11653,6 +11656,20 @@ const docTemplate = `{
                 },
                 "description": "The status of the host",
                 "example": "active"
+            },
+            "product": {
+                "in": "query",
+                "name": "product",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "enum": [
+                        "cubeCOS",
+                        "cubeCMP"
+                    ]
+                },
+                "description": "The product of the host",
+                "example": "example-product"
             },
             "metricType": {
                 "in": "path",

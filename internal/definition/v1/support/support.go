@@ -2,6 +2,7 @@ package support
 
 import (
 	"path/filepath"
+	"slices"
 	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -98,6 +99,16 @@ func (f *File) GenTaskUpdate() File {
 
 func (f *File) ObjectKey() string {
 	return filepath.Base(f.Name)
+}
+
+func (f *FileSet) IncludeRoles(roles []string) bool {
+	for _, file := range f.Files {
+		if slices.Contains(roles, file.Source.Role) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func GetLocalFiles() *sync.Map {
