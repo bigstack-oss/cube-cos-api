@@ -48,12 +48,15 @@ func VerifyLicense(license string) (*definition.VerificationDetails, error) {
 	}, nil
 }
 
+// note:
+// currently, the COS license import result is not clear by identifying the return code
+// because it will still return 0 even if the result is not ok.
+// see ticket to know more https://github.com/bigstack-oss/cubecos/issues/29
 func ImportClusterLicense(licensePath string) error {
-	dir := filepath.Dir(licensePath)
-	base := filepath.Base(licensePath)
-	_, err := exec.Command("hex_config", "sdk_run", "license_cluster_import", dir, base).Output()
+	dir, base := getDirAndLicenseName(licensePath)
+	out, err := exec.Command("hex_config", "sdk_run", "license_cluster_import", dir, base).Output()
 	if err != nil {
-		log.Errorf("license: failed to import licenses: %v", err)
+		log.Errorf("license: failed to import licenses: %v (%s)", err, string(out))
 		return err
 	}
 
@@ -63,7 +66,6 @@ func ImportClusterLicense(licensePath string) error {
 func ImportNodeLicense(licensePath string) error {
 	dir := filepath.Dir(licensePath)
 	filename := strings.TrimSuffix(filepath.Base(licensePath), filepath.Ext(licensePath))
-
 	_, err := exec.Command("hex_config", "sdk_run", "license_node_import", dir, filename).Output()
 	if err != nil {
 		log.Errorf("license: failed to import licenses: %v", err)
