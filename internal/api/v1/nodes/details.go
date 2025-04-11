@@ -93,21 +93,36 @@ func addBlockDeviceSpecToNode(node *definition.Node) {
 		return
 	}
 
+	parentBlockDevs := map[string]string{}
 	for _, rawBlockDev := range rawBlockDevs {
+		if rawBlockDev.IsMainBlockDevice() {
+			parentBlockDevs[rawBlockDev.Name] = rawBlockDev.Serial
+			continue
+		}
+
 		node.BlockDevices = append(
 			node.BlockDevices,
 			definition.BlockDevice{
+				Serial:  rawBlockDev.Serial,
 				Name:    rawBlockDev.Name,
-				Type:    rawBlockDev.Type,
+				Type:    convertBlockDeviceType(rawBlockDev.Rota),
 				SizeMiB: convertBlockDeviceSize(rawBlockDev.Size),
 				Status:  identifyBlockDeviceStatus(rawBlockDev.MountPoints),
 			},
 		)
 	}
+
+	for name, serial := range parentBlockDevs {
+		for i := range node.BlockDevices {
+			if strings.Contains(node.BlockDevices[i].Name, name) {
+				node.BlockDevices[i].Serial = serial
+			}
+		}
+	}
 }
 
 func getOsBlockDevices() ([]definition.RawBlockDevice, error) {
-	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json").Output()
+	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS").Output()
 	if err != nil {
 		log.Errorf("nodes: failed to get block device info: %s", err.Error())
 		return nil, err
@@ -133,6 +148,14 @@ func getOsBlockDevices() ([]definition.RawBlockDevice, error) {
 	return rawBlockDevs, nil
 }
 
+func convertBlockDeviceType(rota bool) string {
+	if rota {
+		return "HDD"
+	}
+
+	return "SSD"
+}
+
 func convertBlockDeviceSize(sizeStr string) float64 {
 	bytes, err := humanize.ParseBytes(sizeStr)
 	if err != nil {
@@ -146,10 +169,10 @@ func convertBlockDeviceSize(sizeStr string) float64 {
 
 func identifyBlockDeviceStatus(mountPoints []string) string {
 	if isNotMounted(mountPoints) {
-		return "available"
+		return "can be added"
 	}
 
-	return "storage"
+	return "in-use"
 }
 
 func isNotMounted(mountPoints []string) bool {

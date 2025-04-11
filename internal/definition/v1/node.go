@@ -76,6 +76,7 @@ type NetworkInterface struct {
 }
 
 type BlockDevice struct {
+	Serial  string  `json:"serial"`
 	Name    string  `json:"device" yaml:"device" bson:"device"`
 	Type    string  `json:"type" yaml:"type" bson:"type"`
 	SizeMiB float64 `json:"sizeMiB" yaml:"sizeMiB" bson:"sizeMiB"`
@@ -83,13 +84,15 @@ type BlockDevice struct {
 }
 
 type RawBlockDevice struct {
+	Serial      string   `json:"serial"`
 	Name        string   `json:"name"`
-	MajMin      string   `json:"maj:min"`
-	Rm          bool     `json:"rm"`
 	Size        string   `json:"size"`
-	Ro          bool     `json:"ro"`
-	Type        string   `json:"type"`
+	Rota        bool     `json:"rota"`
 	MountPoints []string `json:"mountpoints"`
+}
+
+func (r *RawBlockDevice) IsMainBlockDevice() bool {
+	return r.Serial != ""
 }
 
 func (n *Node) GetBearerToken() string {
