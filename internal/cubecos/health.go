@@ -6,13 +6,17 @@ import (
 	"fmt"
 	"os/exec"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
 	"slices"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/aws"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
+	openstack "github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
+	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -236,7 +240,6 @@ func GetModuleHealthHistory(moduleName, duration string, onlyLast bool) ([]v1.He
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
 	stmt := GenModuleHealthHistoryQuery(moduleName, duration, onlyLast)
-
 	h := influx.GetGlobalHelper()
 	c, err := h.QueryApiClient.Query(ctx, stmt)
 	if err != nil {
@@ -256,6 +259,66 @@ func GetModuleHealthHistory(moduleName, duration string, onlyLast bool) ([]v1.He
 		checks,
 		defaultAggreateWindow,
 	), nil
+}
+
+func SetUnhealthLogUrl(history *[]v1.HealthCheck) {
+	for i, check := range *history {
+		if !check.IsNg() {
+			continue
+		}
+
+		if check.Error == nil {
+			continue
+		}
+
+		if check.Error.Log == "" {
+			continue
+		}
+
+		setPresignedUrl(&(*history)[i])
+	}
+}
+
+func syncStorageAccess() error {
+	h := openstack.GetGlobalHelper()
+	accessKey := config.Opts.Spec.Aws.AccessKey
+	secretKey := config.Opts.Spec.Aws.SecretKey
+	userId, err := h.GetUserIdByName(accessKey)
+	if err != nil {
+		return err
+	}
+
+	projectId, err := h.GetProjectIdByName(secretKey)
+	if err != nil {
+		return err
+	}
+
+	_, err = h.CreateEc2Credential(userId, projectId, accessKey, secretKey)
+	if err == nil {
+		return nil
+	}
+	if !strings.Contains(err.Error(), "Conflict") {
+		return err
+	}
+
+	return nil
+}
+
+func setPresignedUrl(check *v1.HealthCheck) {
+	syncStorageAccess()
+	prefix := "s3://log/"
+	h := aws.GetGlobalHelper()
+	url, err := h.GenPresignedUrl(
+		"log",
+		strings.TrimPrefix(check.Error.Log, prefix),
+		v1.Day*7,
+	)
+	if err != nil {
+		log.Errorf("healths: failed to generate presigned url: %v", err)
+		return
+	}
+
+	check.Error.Log = url
 }
 
 func aggregateHealthsByTime(checks []v1.HealthCheck, duration time.Duration) []v1.HealthCheck {
