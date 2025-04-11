@@ -7,6 +7,9 @@ import (
 const (
 	Healths = "healths"
 	repair  = "repair"
+
+	AscSort  = `columns: ["_time"], desc: false`
+	DescSort = `columns: ["_time"], desc: true`
 )
 
 type Health struct {

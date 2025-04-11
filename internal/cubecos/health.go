@@ -27,7 +27,6 @@ import (
 const (
 	healthMeasurement     = `fn: (r) => r._measurement == "health"`
 	convertValueToField   = `rowKey: ["_time","component","node","code"], columnKey: ["_field"], valueColumn: "_value"`
-	ascByTime             = `columns: ["_time"], desc: false`
 	repairingCode         = 1
 	defaultAggreateWindow = 10 * time.Minute
 )
@@ -217,7 +216,7 @@ func GetServiceHealthHistory(serviceName, duration string) []HealthStatus {
 	statuses := []HealthStatus{}
 
 	for _, module := range modules {
-		history, err := GetModuleHealthHistory(module.Name, duration, false)
+		history, err := GetModuleHealthHistory(module.Name, duration, v1.AscSort, false)
 		if err != nil {
 			continue
 		}
@@ -234,10 +233,10 @@ func GetServiceHealthHistory(serviceName, duration string) []HealthStatus {
 	return statuses
 }
 
-func GetModuleHealthHistory(moduleName, duration string, onlyLast bool) ([]v1.HealthCheck, error) {
+func GetModuleHealthHistory(moduleName, duration, order string, onlyLast bool) ([]v1.HealthCheck, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
-	stmt := GenModuleHealthHistoryQuery(moduleName, duration, onlyLast)
+	stmt := GenModuleHealthHistoryQuery(moduleName, duration, order, onlyLast)
 	h := influx.GetGlobalHelper()
 	c, err := h.QueryApiClient.Query(ctx, stmt)
 	if err != nil {
@@ -364,7 +363,7 @@ func pickHealthOrUnhealthy(group []v1.HealthCheck) v1.HealthCheck {
 	return group[0]
 }
 
-func GenModuleHealthHistoryQuery(moduleName, past string, onlyLast bool) string {
+func GenModuleHealthHistoryQuery(moduleName, past, order string, onlyLast bool) string {
 	query := influx.Query{}
 	query.Bucket("events").
 		Range(genTimeDuration(past)).
@@ -372,10 +371,10 @@ func GenModuleHealthHistoryQuery(moduleName, past string, onlyLast bool) string 
 		Filter(genModuleFilter(moduleName)).
 		Pivot(convertValueToField).
 		Group("").
-		Sort(ascByTime)
+		Sort(order)
 
 	if onlyLast {
-		query.Last()
+		query.Limit("n: 1")
 	}
 
 	return query.String()
@@ -473,7 +472,7 @@ func syncServiceHealth(services *[]v1.Service, duration string) {
 		service.InitOkStatus()
 
 		for m, module := range service.Modules {
-			history, err := GetModuleHealthHistory(module.Name, duration, true)
+			history, err := GetModuleHealthHistory(module.Name, duration, v1.DescSort, true)
 			if err != nil {
 				continue
 			}
