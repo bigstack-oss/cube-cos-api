@@ -4520,790 +4520,760 @@ const docTemplate = `{
                                                         ],
                                                         "blockDevices": [
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd0",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd1",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd10",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd11",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd12",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd13",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd14",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd15",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd2",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd3",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd4",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd5",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd6",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd7",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd8",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "",
                                                                 "device": "nbd9",
-                                                                "type": "disk",
+                                                                "type": "SSD",
                                                                 "sizeMiB": 0,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sda",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M18BP3",
                                                                 "device": "sda1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18BP3",
                                                                 "device": "sda2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18BP3",
                                                                 "device": "sda3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M18BP3",
                                                                 "device": "sda4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdb",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M18KMS",
                                                                 "device": "sdb1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18KMS",
                                                                 "device": "sdb2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18KMS",
                                                                 "device": "sdb3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M18KMS",
                                                                 "device": "sdb4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdc",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M109S0",
                                                                 "device": "sdc1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M109S0",
                                                                 "device": "sdc2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M109S0",
                                                                 "device": "sdc3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M109S0",
                                                                 "device": "sdc4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdd",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M15TDF",
                                                                 "device": "sdd1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M15TDF",
                                                                 "device": "sdd2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M15TDF",
                                                                 "device": "sdd3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M15TDF",
                                                                 "device": "sdd4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sde",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M18BYG",
                                                                 "device": "sde1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18BYG",
                                                                 "device": "sde2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18BYG",
                                                                 "device": "sde3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M18BYG",
                                                                 "device": "sde4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdf",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M16KGY",
                                                                 "device": "sdf1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M16KGY",
                                                                 "device": "sdf2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M16KGY",
                                                                 "device": "sdf3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M16KGY",
                                                                 "device": "sdf4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdg",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M18J0Q",
                                                                 "device": "sdg1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18J0Q",
                                                                 "device": "sdg2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18J0Q",
                                                                 "device": "sdg3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M18J0Q",
                                                                 "device": "sdg4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdh",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M18LAY",
                                                                 "device": "sdh1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18LAY",
                                                                 "device": "sdh2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18LAY",
                                                                 "device": "sdh3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M18LAY",
                                                                 "device": "sdh4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdi",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M16LZ1",
                                                                 "device": "sdi1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M16LZ1",
                                                                 "device": "sdi2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M16LZ1",
                                                                 "device": "sdi3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M16LZ1",
                                                                 "device": "sdi4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdj",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M16LV3",
                                                                 "device": "sdj1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 953.6743,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M16LV3",
                                                                 "device": "sdj5",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 239467.6208,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M16LV3",
                                                                 "device": "sdj6",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 239467.6208,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M16LV3",
                                                                 "device": "sdj7",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 53215.0268,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
-                                                                "device": "sdk",
-                                                                "type": "disk",
-                                                                "sizeMiB": 532531.7382,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "00df8523095cd5922b00617260a06d86",
                                                                 "device": "sdk1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "00df8523095cd5922b00617260a06d86",
                                                                 "device": "sdk2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "00df8523095cd5922b00617260a06d86",
                                                                 "device": "sdk3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 265884.3994,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "00df8523095cd5922b00617260a06d86",
                                                                 "device": "sdk4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 265884.3994,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdl",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M16LSA",
                                                                 "device": "sdl1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M16LSA",
                                                                 "device": "sdl2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M16LSA",
                                                                 "device": "sdl3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M16LSA",
                                                                 "device": "sdl4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdm",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M0ZYQ0",
                                                                 "device": "sdm1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M0ZYQ0",
                                                                 "device": "sdm2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M0ZYQ0",
                                                                 "device": "sdm3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M0ZYQ0",
                                                                 "device": "sdm4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdn",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M1414M",
                                                                 "device": "sdn1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M1414M",
                                                                 "device": "sdn2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M1414M",
                                                                 "device": "sdn3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M1414M",
                                                                 "device": "sdn4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdo",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M12FRA",
                                                                 "device": "sdo1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M12FRA",
                                                                 "device": "sdo2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M12FRA",
                                                                 "device": "sdo3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M12FRA",
                                                                 "device": "sdo4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdp",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M18JW0",
                                                                 "device": "sdp1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18JW0",
                                                                 "device": "sdp2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18JW0",
                                                                 "device": "sdp3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M18JW0",
                                                                 "device": "sdp4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdq",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M140R9",
                                                                 "device": "sdq1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M140R9",
                                                                 "device": "sdq2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M140R9",
                                                                 "device": "sdq3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M140R9",
                                                                 "device": "sdq4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdr",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M18JVW",
                                                                 "device": "sdr1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18JVW",
                                                                 "device": "sdr2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18JVW",
                                                                 "device": "sdr3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M18JVW",
                                                                 "device": "sdr4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sds",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M16LSF",
                                                                 "device": "sds1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M16LSF",
                                                                 "device": "sds2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M16LSF",
                                                                 "device": "sds3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M16LSF",
                                                                 "device": "sds4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdt",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M18JBV",
                                                                 "device": "sdt1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18JBV",
                                                                 "device": "sdt2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M18JBV",
                                                                 "device": "sdt3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M18JBV",
                                                                 "device": "sdt4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdu",
-                                                                "type": "disk",
-                                                                "sizeMiB": 533008.5754,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "S7M17CKC",
                                                                 "device": "sdu1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M17CKC",
                                                                 "device": "sdu2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "S7M17CKC",
                                                                 "device": "sdu3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "S7M17CKC",
                                                                 "device": "sdu4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 266170.5017,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdv",
-                                                                "type": "disk",
-                                                                "sizeMiB": 532531.7382,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "002c73230a6dd5922b00617260a06d86",
                                                                 "device": "sdv1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "002c73230a6dd5922b00617260a06d86",
                                                                 "device": "sdv2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "002c73230a6dd5922b00617260a06d86",
                                                                 "device": "sdv3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 265884.3994,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "002c73230a6dd5922b00617260a06d86",
                                                                 "device": "sdv4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 265884.3994,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
-                                                                "device": "sdw",
-                                                                "type": "disk",
-                                                                "sizeMiB": 532531.7382,
-                                                                "status": "available"
-                                                            },
-                                                            {
+                                                                "serial": "0070ba2a2f379c7c2b00617260a06d86",
                                                                 "device": "sdw1",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "0070ba2a2f379c7c2b00617260a06d86",
                                                                 "device": "sdw2",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 381.4697,
-                                                                "status": "storage"
+                                                                "status": "in-use"
                                                             },
                                                             {
+                                                                "serial": "0070ba2a2f379c7c2b00617260a06d86",
                                                                 "device": "sdw3",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 265884.3994,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             },
                                                             {
+                                                                "serial": "0070ba2a2f379c7c2b00617260a06d86",
                                                                 "device": "sdw4",
-                                                                "type": "part",
+                                                                "type": "HDD",
                                                                 "sizeMiB": 265884.3994,
-                                                                "status": "available"
+                                                                "status": "can be added"
                                                             }
                                                         ],
                                                         "vcpu": {
@@ -5483,790 +5453,760 @@ const docTemplate = `{
                                                 ],
                                                 "blockDevices": [
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd0",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd1",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd10",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd11",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd12",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd13",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd14",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd15",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd2",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd3",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd4",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd5",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd6",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd7",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd8",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "",
                                                         "device": "nbd9",
-                                                        "type": "disk",
+                                                        "type": "SSD",
                                                         "sizeMiB": 0,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sda",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M18BP3",
                                                         "device": "sda1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18BP3",
                                                         "device": "sda2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18BP3",
                                                         "device": "sda3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M18BP3",
                                                         "device": "sda4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdb",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M18KMS",
                                                         "device": "sdb1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18KMS",
                                                         "device": "sdb2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18KMS",
                                                         "device": "sdb3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M18KMS",
                                                         "device": "sdb4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdc",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M109S0",
                                                         "device": "sdc1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M109S0",
                                                         "device": "sdc2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M109S0",
                                                         "device": "sdc3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M109S0",
                                                         "device": "sdc4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdd",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M15TDF",
                                                         "device": "sdd1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M15TDF",
                                                         "device": "sdd2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M15TDF",
                                                         "device": "sdd3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M15TDF",
                                                         "device": "sdd4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sde",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M18BYG",
                                                         "device": "sde1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18BYG",
                                                         "device": "sde2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18BYG",
                                                         "device": "sde3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M18BYG",
                                                         "device": "sde4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdf",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M16KGY",
                                                         "device": "sdf1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M16KGY",
                                                         "device": "sdf2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M16KGY",
                                                         "device": "sdf3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M16KGY",
                                                         "device": "sdf4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdg",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M18J0Q",
                                                         "device": "sdg1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18J0Q",
                                                         "device": "sdg2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18J0Q",
                                                         "device": "sdg3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M18J0Q",
                                                         "device": "sdg4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdh",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M18LAY",
                                                         "device": "sdh1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18LAY",
                                                         "device": "sdh2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18LAY",
                                                         "device": "sdh3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M18LAY",
                                                         "device": "sdh4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdi",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M16LZ1",
                                                         "device": "sdi1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M16LZ1",
                                                         "device": "sdi2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M16LZ1",
                                                         "device": "sdi3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M16LZ1",
                                                         "device": "sdi4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdj",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M16LV3",
                                                         "device": "sdj1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 953.6743,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M16LV3",
                                                         "device": "sdj5",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 239467.6208,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M16LV3",
                                                         "device": "sdj6",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 239467.6208,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M16LV3",
                                                         "device": "sdj7",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 53215.0268,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
-                                                        "device": "sdk",
-                                                        "type": "disk",
-                                                        "sizeMiB": 532531.7382,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "00df8523095cd5922b00617260a06d86",
                                                         "device": "sdk1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "00df8523095cd5922b00617260a06d86",
                                                         "device": "sdk2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "00df8523095cd5922b00617260a06d86",
                                                         "device": "sdk3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 265884.3994,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "00df8523095cd5922b00617260a06d86",
                                                         "device": "sdk4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 265884.3994,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdl",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M16LSA",
                                                         "device": "sdl1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M16LSA",
                                                         "device": "sdl2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M16LSA",
                                                         "device": "sdl3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M16LSA",
                                                         "device": "sdl4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdm",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M0ZYQ0",
                                                         "device": "sdm1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M0ZYQ0",
                                                         "device": "sdm2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M0ZYQ0",
                                                         "device": "sdm3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M0ZYQ0",
                                                         "device": "sdm4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdn",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M1414M",
                                                         "device": "sdn1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M1414M",
                                                         "device": "sdn2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M1414M",
                                                         "device": "sdn3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M1414M",
                                                         "device": "sdn4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdo",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M12FRA",
                                                         "device": "sdo1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M12FRA",
                                                         "device": "sdo2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M12FRA",
                                                         "device": "sdo3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M12FRA",
                                                         "device": "sdo4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdp",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M18JW0",
                                                         "device": "sdp1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18JW0",
                                                         "device": "sdp2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18JW0",
                                                         "device": "sdp3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M18JW0",
                                                         "device": "sdp4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdq",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M140R9",
                                                         "device": "sdq1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M140R9",
                                                         "device": "sdq2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M140R9",
                                                         "device": "sdq3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M140R9",
                                                         "device": "sdq4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdr",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M18JVW",
                                                         "device": "sdr1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18JVW",
                                                         "device": "sdr2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18JVW",
                                                         "device": "sdr3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M18JVW",
                                                         "device": "sdr4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sds",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M16LSF",
                                                         "device": "sds1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M16LSF",
                                                         "device": "sds2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M16LSF",
                                                         "device": "sds3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M16LSF",
                                                         "device": "sds4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdt",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M18JBV",
                                                         "device": "sdt1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18JBV",
                                                         "device": "sdt2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M18JBV",
                                                         "device": "sdt3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M18JBV",
                                                         "device": "sdt4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdu",
-                                                        "type": "disk",
-                                                        "sizeMiB": 533008.5754,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "S7M17CKC",
                                                         "device": "sdu1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M17CKC",
                                                         "device": "sdu2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "S7M17CKC",
                                                         "device": "sdu3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "S7M17CKC",
                                                         "device": "sdu4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 266170.5017,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdv",
-                                                        "type": "disk",
-                                                        "sizeMiB": 532531.7382,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "002c73230a6dd5922b00617260a06d86",
                                                         "device": "sdv1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "002c73230a6dd5922b00617260a06d86",
                                                         "device": "sdv2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "002c73230a6dd5922b00617260a06d86",
                                                         "device": "sdv3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 265884.3994,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "002c73230a6dd5922b00617260a06d86",
                                                         "device": "sdv4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 265884.3994,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
-                                                        "device": "sdw",
-                                                        "type": "disk",
-                                                        "sizeMiB": 532531.7382,
-                                                        "status": "available"
-                                                    },
-                                                    {
+                                                        "serial": "0070ba2a2f379c7c2b00617260a06d86",
                                                         "device": "sdw1",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "0070ba2a2f379c7c2b00617260a06d86",
                                                         "device": "sdw2",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 381.4697,
-                                                        "status": "storage"
+                                                        "status": "in-use"
                                                     },
                                                     {
+                                                        "serial": "0070ba2a2f379c7c2b00617260a06d86",
                                                         "device": "sdw3",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 265884.3994,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     },
                                                     {
+                                                        "serial": "0070ba2a2f379c7c2b00617260a06d86",
                                                         "device": "sdw4",
-                                                        "type": "part",
+                                                        "type": "HDD",
                                                         "sizeMiB": 265884.3994,
-                                                        "status": "available"
+                                                        "status": "can be added"
                                                     }
                                                 ],
                                                 "vcpu": {
@@ -16194,12 +16134,16 @@ const docTemplate = `{
                         "items": {
                             "type": "object",
                             "required": [
+                                "serial",
                                 "device",
                                 "type",
                                 "sizeMiB",
                                 "status"
                             ],
                             "properties": {
+                                "serial": {
+                                    "type": "string"
+                                },
                                 "device": {
                                     "type": "string"
                                 },
