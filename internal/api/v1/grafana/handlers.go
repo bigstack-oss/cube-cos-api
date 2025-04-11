@@ -44,6 +44,12 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
+			Path:    "/grafana/networkDevices",
+			Func:    forwardNetworkDevicesLink,
+		},
+		{
+			Version: api.V1,
+			Method:  http.MethodGet,
 			Path:    "/grafana/storages",
 			Func:    forwardStoragesLink,
 		},
@@ -100,6 +106,17 @@ func forwardNetworksLink(c *gin.Context) {
 		"fetch networks link successfully",
 		v1.Dashboard{
 			Link:    genNetworksLink(),
+			Enabled: cubecos.IsOvnSFlowEnabled(),
+		},
+	)
+}
+
+func forwardNetworkDevicesLink(c *gin.Context) {
+	api.SetStatusOk(
+		c,
+		"fetch network devices link successfully",
+		v1.Dashboard{
+			Link:    genNetworkDevicesLink(),
 			Enabled: cubecos.IsOvnSFlowEnabled(),
 		},
 	)

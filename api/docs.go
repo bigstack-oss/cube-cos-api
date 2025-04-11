@@ -11421,6 +11421,94 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/grafana/networkDevices": {
+            "get": {
+                "operationId": "getGrafanaNetworkDevices",
+                "tags": [
+                    "Grafana"
+                ],
+                "summary": "Get Grafana network devices dashboard",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get Grafana network devices dashboard",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetGrafanaDashboardLinkResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Grafana network devices dashboard link",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "link": "http://example-data-center/grafana/d/i-device/device?refresh=5m&orgId=1",
+                                                "enabled": true
+                                            },
+                                            "msg": "fetch top network devices link successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to get Grafana network devices dashboard: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/grafana/storages": {
             "get": {
                 "operationId": "getGrafanaStorages",

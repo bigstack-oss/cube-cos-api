@@ -44,6 +44,13 @@ func genNetworksLink() string {
 	)
 }
 
+func genNetworkDevicesLink() string {
+	return fmt.Sprintf(
+		"https://%s/grafana/d/i-device/device?refresh=5m&orgId=1",
+		v1.DataCenterVip,
+	)
+}
+
 func genStoragesLink() string {
 	return fmt.Sprintf(
 		"https://%s/grafana/d/QTc_sAxiw/storage?refresh=5m&kiosk=tv&orgId=1",
