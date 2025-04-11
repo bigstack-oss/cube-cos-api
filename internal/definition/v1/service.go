@@ -33,6 +33,10 @@ type ReairingInfo struct {
 	Elaps   string `json:"elaps"`
 }
 
+func (s *Service) InitOkStatus() {
+	s.Status = status.NewHealthOk()
+}
+
 func (s *Service) IsStatusOk() bool {
 	return s.Status.Current == status.Ok
 }

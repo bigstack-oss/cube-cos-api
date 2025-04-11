@@ -14,9 +14,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/aws"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
-	openstack "github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -255,10 +253,9 @@ func GetModuleHealthHistory(moduleName, duration string, onlyLast bool) ([]v1.He
 		return nil, err
 	}
 
-	return aggregateHealthsByTime(
-		checks,
-		defaultAggreateWindow,
-	), nil
+	checks = aggregateHealthsByTime(checks, defaultAggreateWindow)
+	SetUnhealthLogUrl(&checks)
+	return checks, nil
 }
 
 func SetUnhealthLogUrl(history *[]v1.HealthCheck) {
@@ -279,46 +276,20 @@ func SetUnhealthLogUrl(history *[]v1.HealthCheck) {
 	}
 }
 
-func syncStorageAccess() error {
-	h := openstack.GetGlobalHelper()
-	accessKey := config.Opts.Spec.Aws.AccessKey
-	secretKey := config.Opts.Spec.Aws.SecretKey
-	userId, err := h.GetUserIdByName(accessKey)
-	if err != nil {
-		return err
-	}
-
-	projectId, err := h.GetProjectIdByName(secretKey)
-	if err != nil {
-		return err
-	}
-
-	_, err = h.CreateEc2Credential(userId, projectId, accessKey, secretKey)
-	if err == nil {
-		return nil
-	}
-	if !strings.Contains(err.Error(), "Conflict") {
-		return err
-	}
-
-	return nil
-}
-
 func setPresignedUrl(check *v1.HealthCheck) {
-	syncStorageAccess()
-	prefix := "s3://log/"
+	SyncBucketSecrete()
 	h := aws.GetGlobalHelper()
-	url, err := h.GenPresignedUrl(
-		"log",
-		strings.TrimPrefix(check.Error.Log, prefix),
-		v1.Day*7,
-	)
+	url, err := h.GenPresignedUrl("log", genHealthLogKey(check.Error.Log), v1.Day*7)
 	if err != nil {
 		log.Errorf("healths: failed to generate presigned url: %v", err)
 		return
 	}
 
 	check.Error.Log = url
+}
+
+func genHealthLogKey(log string) string {
+	return strings.TrimPrefix(log, "s3://log/")
 }
 
 func aggregateHealthsByTime(checks []v1.HealthCheck, duration time.Duration) []v1.HealthCheck {
@@ -404,7 +375,7 @@ func GenModuleHealthHistoryQuery(moduleName, past string, onlyLast bool) string 
 		Sort(ascByTime)
 
 	if onlyLast {
-		query.Limit("n: 1")
+		query.Last()
 	}
 
 	return query.String()
@@ -499,6 +470,8 @@ func GetRepairingInfo() (*v1.ReairingInfo, error) {
 
 func syncServiceHealth(services *[]v1.Service, duration string) {
 	for s, service := range *services {
+		service.InitOkStatus()
+
 		for m, module := range service.Modules {
 			history, err := GetModuleHealthHistory(module.Name, duration, true)
 			if err != nil {
@@ -506,8 +479,7 @@ func syncServiceHealth(services *[]v1.Service, duration string) {
 			}
 
 			module.InitOkStatus()
-			record := captureUnhealthyRecord(history)
-			if record != nil {
+			if isLastCheckUnhealthy(history) {
 				module.SetUnhealthyStatus()
 				service.ConvergeUnhealthyStatus(module.Name)
 			}
@@ -566,18 +538,13 @@ func syncRepairingStatus(health *Health, services *[]v1.Service) {
 	}
 }
 
-func captureUnhealthyRecord(history []v1.HealthCheck) *v1.HealthCheck {
+func isLastCheckUnhealthy(history []v1.HealthCheck) bool {
 	if len(history) == 0 {
-		return nil
+		return false
 	}
 
-	for _, check := range history {
-		if check.Status != status.Ok {
-			return &check
-		}
-	}
-
-	return nil
+	lastCheck := history[len(history)-1]
+	return lastCheck.IsNg()
 }
 
 func parseDetails(record *query.FluxRecord) string {

@@ -18,7 +18,6 @@ func (h *helper) genModuleHealthHistory() cubecos.HealthStatus {
 		log.Errorf("healths(%s): %v", api.GetReqId(h.c), err)
 	}
 
-	cubecos.SetUnhealthLogUrl(&history)
 	return cubecos.HealthStatus{
 		Category:     cubecos.ServiceToCategory[service],
 		Name:         service,
