@@ -157,7 +157,7 @@ func UploadSupportFileToObjectStore(supportFile support.File) error {
 	}
 
 	defer file.Close()
-	err = SyncBucketSecrete()
+	err = SyncBucketSecret()
 	if err != nil {
 		return err
 	}
@@ -198,7 +198,7 @@ func SyncBucketStore() error {
 	return nil
 }
 
-func SyncBucketSecrete() error {
+func SyncBucketSecret() error {
 	h := openstack.GetGlobalHelper()
 	accessKey := config.Opts.Spec.Aws.AccessKey
 	secretKey := config.Opts.Spec.Aws.SecretKey

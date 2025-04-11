@@ -277,7 +277,7 @@ func SetUnhealthLogUrl(history *[]v1.HealthCheck) {
 }
 
 func setPresignedUrl(check *v1.HealthCheck) {
-	SyncBucketSecrete()
+	SyncBucketSecret()
 	h := aws.GetGlobalHelper()
 	url, err := h.GenPresignedUrl("log", genHealthLogKey(check.Error.Log), v1.Day*7)
 	if err != nil {
