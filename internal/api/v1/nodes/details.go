@@ -102,23 +102,11 @@ func addBlockDeviceSpecToNode(node *definition.Node) {
 
 		node.BlockDevices = append(
 			node.BlockDevices,
-			definition.BlockDevice{
-				Serial:  rawBlockDev.Serial,
-				Name:    rawBlockDev.Name,
-				Type:    convertBlockDeviceType(rawBlockDev.Rota),
-				SizeMiB: convertBlockDeviceSize(rawBlockDev.Size),
-				Status:  identifyBlockDeviceStatus(rawBlockDev.MountPoints),
-			},
+			convertToBlockDevice(rawBlockDev),
 		)
 	}
 
-	for name, serial := range parentBlockDevs {
-		for i := range node.BlockDevices {
-			if strings.Contains(node.BlockDevices[i].Name, name) {
-				node.BlockDevices[i].Serial = serial
-			}
-		}
-	}
+	addSerialToBlockDevices(node, parentBlockDevs)
 }
 
 func getOsBlockDevices() ([]definition.RawBlockDevice, error) {
@@ -148,6 +136,16 @@ func getOsBlockDevices() ([]definition.RawBlockDevice, error) {
 	return rawBlockDevs, nil
 }
 
+func convertToBlockDevice(rawBlockDev definition.RawBlockDevice) definition.BlockDevice {
+	return definition.BlockDevice{
+		Serial:  rawBlockDev.Serial,
+		Name:    rawBlockDev.Name,
+		Type:    convertBlockDeviceType(rawBlockDev.Rota),
+		SizeMiB: convertBlockDeviceSize(rawBlockDev.Size),
+		Status:  identifyBlockDeviceStatus(rawBlockDev.MountPoints),
+	}
+}
+
 func convertBlockDeviceType(rota bool) string {
 	if rota {
 		return "HDD"
@@ -173,6 +171,16 @@ func identifyBlockDeviceStatus(mountPoints []string) string {
 	}
 
 	return "in-use"
+}
+
+func addSerialToBlockDevices(node *definition.Node, parentBlockDevs map[string]string) {
+	for name, serial := range parentBlockDevs {
+		for i := range node.BlockDevices {
+			if strings.Contains(node.BlockDevices[i].Name, name) {
+				node.BlockDevices[i].Serial = serial
+			}
+		}
+	}
 }
 
 func isNotMounted(mountPoints []string) bool {
