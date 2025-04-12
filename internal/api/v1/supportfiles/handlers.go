@@ -24,6 +24,12 @@ var (
 		},
 		{
 			Version: api.V1,
+			Method:  "GET",
+			Path:    "/supportFiles/:supportFileGroup/:supportFileName",
+			Func:    downloadSupportFile,
+		},
+		{
+			Version: api.V1,
 			Method:  "PATCH",
 			Path:    "/supportFiles/:supportFileGroup",
 			Func:    updateSupportFileTask,
@@ -69,6 +75,20 @@ func createSupportFile(c *gin.Context) {
 		c,
 		"support file creation request received",
 	)
+}
+
+func downloadSupportFile(c *gin.Context) {
+	h, err := initHandler(c, "downloadSupportFile")
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to init req helper: %v", api.GetReqId(c), err)
+		return
+	}
+
+	err = h.downloadSupportFile()
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to download support file: %v", api.GetReqId(c), err)
+		return
+	}
 }
 
 func updateSupportFileTask(c *gin.Context) {

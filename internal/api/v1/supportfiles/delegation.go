@@ -3,6 +3,8 @@ package supportfiles
 import (
 	"errors"
 	"fmt"
+	nethttp "net/http"
+	"os"
 	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
@@ -90,4 +92,53 @@ func (h *helper) genFileReqBody(node v1.Node) support.FileRequest {
 		Hosts:       []string{node.Hostname},
 		CreatedAt:   h.fileReq.CreatedAt,
 	}
+}
+
+func (h *helper) downloadSupportFile() error {
+	setList, err := h.listSupportFiles()
+	if err != nil {
+		return err
+	}
+
+	if len(setList.SupportFileSet) == 0 {
+		return errors.New("no support files found")
+	}
+
+	for _, set := range setList.SupportFileSet {
+		for _, file := range set.Files {
+			if file.Name != h.file.Name {
+				continue
+			}
+
+			if file.Source.Host != v1.Hostname {
+				continue
+			}
+
+			h.streamFileDownload(file.Name)
+		}
+	}
+
+	return nil
+}
+
+func (h *helper) streamFileDownload(filename string) {
+	file, err := os.Open(fmt.Sprintf("%s/%s", support.DefaultFileDir, filename))
+	if err != nil {
+		return
+	}
+
+	defer file.Close()
+	stat, err := file.Stat()
+	if err != nil {
+		return
+	}
+
+	h.c.Writer.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
+	h.c.DataFromReader(
+		nethttp.StatusOK,
+		stat.Size(),
+		"application/octet-stream",
+		file,
+		nil,
+	)
 }

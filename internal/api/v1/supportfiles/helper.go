@@ -19,6 +19,7 @@ type helper struct {
 
 	keyword string
 	host    string
+	group   support.FileSet
 	file    support.File
 	fileReq support.FileRequest
 	v1.Page
@@ -40,6 +41,8 @@ func initHandler(c *gin.Context, handler string) (*helper, error) {
 		return initHostListHelper(&h)
 	case "createSupportFile":
 		return initCreateHelper(&h)
+	case "downloadSupportFile":
+		return initDownloadHelper(&h)
 	case "getSupportFile":
 		return initGetHelper(&h)
 	case "updateSupportFileTask":
@@ -84,6 +87,12 @@ func initHostListHelper(h *helper) (*helper, error) {
 
 func initCreateHelper(h *helper) (*helper, error) {
 	return h, h.parseHosts()
+}
+
+func initDownloadHelper(h *helper) (*helper, error) {
+	h.group.Name = h.c.Param("supportFileSet")
+	h.file.Name = h.c.Param("supportFileName")
+	return h, nil
 }
 
 func initGetHelper(h *helper) (*helper, error) {
