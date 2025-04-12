@@ -41,7 +41,7 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 }
 
 func (h *helper) getDataCenterSummary() any {
-	return cubecos.GetDataCenterSummary()
+	return cubecos.GetMetricsSummary()
 }
 
 func (h *helper) getMetrics() (any, error) {

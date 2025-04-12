@@ -1,6 +1,7 @@
 package cubecos
 
 import (
+	"context"
 	"fmt"
 	"runtime"
 	"sync"
@@ -9,6 +10,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	cubeapi "github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/influxdata/influxdb-client-go/v2/api"
@@ -249,7 +251,7 @@ func syncDataCenterSummary() (*Summary, error) {
 	}, nil
 }
 
-func GetDataCenterSummary() *Summary {
+func GetMetricsSummary() *Summary {
 	return metricsSummary
 }
 
@@ -367,7 +369,7 @@ func GetCpuSummaryOfHosts(stmt string) (*definition.ComputeStatistic, error) {
 
 func GetCpuSummaryOfHost(hostname string) (*definition.ComputeStatistic, error) {
 	if !definition.IsLocalNode(hostname) {
-		return askTheHostForCpuSummary(hostname)
+		return askPeerHostForCpuSummary(hostname)
 	}
 
 	usagePerCore, err := cpu.Percent(time.Second, true)
@@ -427,7 +429,7 @@ func parseCpuUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, erro
 	return points, nil
 }
 
-func askTheHostForCpuSummary(hostname string) (*definition.ComputeStatistic, error) {
+func askPeerHostForCpuSummary(hostname string) (*definition.ComputeStatistic, error) {
 	node, err := definition.GetNodeByHostname(hostname)
 	if err != nil {
 		return nil, err
@@ -530,7 +532,7 @@ func askTheHostForMemorySummary(hostname string) (*definition.SpaceStatistic, er
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetResult(&definition.SpaceStatistic{}).
+		SetResult(&cubeapi.SpaceStatisticData{}).
 		SetHeader(node.GenAuthHeader()).
 		Get(node.GetMetricUrl("memoryUsage", "summary"))
 	if err != nil {
@@ -545,7 +547,8 @@ func askTheHostForMemorySummary(hostname string) (*definition.SpaceStatistic, er
 		)
 	}
 
-	return resp.Result().(*definition.SpaceStatistic), nil
+	spaceStatistic := resp.Result().(*cubeapi.SpaceStatisticData).Data
+	return &spaceStatistic, nil
 }
 
 func GetMemoryUsageRankOfHosts(stmt string) (*definition.MetricRank, error) {
@@ -610,6 +613,30 @@ func parseMemoryUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, e
 	}
 
 	return points, nil
+}
+
+func GetDiskStorageSummaryOfHost() (*definition.SpaceStatistic, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
+	defer cancel()
+	stmt := genDiskStorageSummaryOfHostStmt()
+	influx := influx.GetGlobalHelper()
+	c, err := influx.Query(ctx, stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer c.Close()
+	spaceStatistic := &definition.SpaceStatistic{}
+	for c.Next() {
+		record := c.Record()
+		spaceStatistic.TotalMiB = math.RoundDown(float64(record.ValueByKey("total").(int64)/1024.0/1024.0), 4)
+		spaceStatistic.UsedMiB = math.RoundDown(float64(record.ValueByKey("used").(int64)/1024.0/1024.0), 4)
+		spaceStatistic.FreeMiB = math.RoundDown(float64(record.ValueByKey("free").(int64)/1024.0/1024.0), 4)
+		spaceStatistic.UsedPercent = math.RoundDown(record.ValueByKey("used_percent").(float64), 4)
+		spaceStatistic.FreePercent = math.RoundDown(100.0-record.ValueByKey("used_percent").(float64), 4)
+	}
+
+	return spaceStatistic, nil
 }
 
 func GetDiskStorageBandwidthHistory(readStmt, writeStmt string) (*definition.StorageTimeSeries, error) {
@@ -1142,18 +1169,6 @@ func GetNetworkTrafficOutRankOfVms(stmt string) (*definition.MetricRank, error) 
 	}, nil
 }
 
-func appendHistoryToNetworkTrafficOutRankOfVm(rank []definition.RankPoint) {
-	for i, vm := range rank {
-		history, err := GetNetworkTrafficOutHistoryOfVm(vm.Id, vm.Device)
-		if err != nil {
-			log.Errorf("failed to get network traffic out history of vm %s: %v", vm.Id, err)
-			continue
-		}
-
-		rank[i].History = history
-	}
-}
-
 func GetNetworkTrafficOutHistoryOfVm(entityId, device string) ([]definition.TimeValue, error) {
 	stmt := fmt.Sprintf(vmNetworkEgressHistoryStmt, entityId, device)
 	c, cancel, err := influx.GetQueryCursor(stmt)
@@ -1164,6 +1179,30 @@ func GetNetworkTrafficOutHistoryOfVm(entityId, device string) ([]definition.Time
 	defer cancel()
 	defer c.Close()
 	return parseNetworkTrafficHistory(c)
+}
+
+func genDiskStorageSummaryOfHostStmt() string {
+	query := influx.Query{}
+	return query.Bucket("telegraf").
+		Range(`start: -1h`).
+		Filter(`fn: (r) => r._measurement == "disk"`).
+		Filter(fmt.Sprintf(`fn: (r) => r.host == "%s"`, definition.Hostname)).
+		Sort(`columns: ["_time"], desc: true`).
+		Pivot(`rowKey: ["_time","host"], columnKey: ["_field"], valueColumn: "_value"`).
+		Limit(`n: 1`).
+		String()
+}
+
+func appendHistoryToNetworkTrafficOutRankOfVm(rank []definition.RankPoint) {
+	for i, vm := range rank {
+		history, err := GetNetworkTrafficOutHistoryOfVm(vm.Id, vm.Device)
+		if err != nil {
+			log.Errorf("failed to get network traffic out history of vm %s: %v", vm.Id, err)
+			continue
+		}
+
+		rank[i].History = history
+	}
 }
 
 func parseCpuUsageRankOfHost(c *api.QueryTableResult) ([]definition.RankPoint, error) {

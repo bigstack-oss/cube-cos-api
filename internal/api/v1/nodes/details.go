@@ -11,9 +11,9 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/dustin/go-humanize"
-	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/hypervisors"
 	"github.com/shirou/gopsutil/v4/cpu"
 	log "go-micro.dev/v5/logger"
 )
@@ -29,7 +29,7 @@ func (h *helper) addMetricsToNode(node *definition.Node) {
 	node.ManagementIP = hypervisor.HostIP
 	node.Status = hypervisor.State
 	h.addHardwareInfoToNode(node)
-	h.addMetricToNode(node, hypervisor)
+	h.addMetricToNode(node)
 	h.addUptimeToNode(node)
 }
 
@@ -196,60 +196,55 @@ func (h *helper) addDetailsToNodes(nodes *[]definition.Node) {
 	for i, node := range *nodes {
 		hypervisor, err := openstack.GetHypervisorByHostname(node.Hostname)
 		if err != nil {
-			log.Debugf("request(%s): failed to add hypervisor info to the node: %s", api.GetReqId(h.c), err.Error())
+			log.Debugf("nodes(%s): failed to add hypervisor info to the node: %s", api.GetReqId(h.c), err.Error())
 			continue
 		}
 
 		(*nodes)[i].ManagementIP = hypervisor.HostIP
 		(*nodes)[i].Status = hypervisor.State
 		h.addHardwareInfoToNode((&(*nodes)[i]))
-		h.addMetricToNode((&(*nodes)[i]), hypervisor)
+		h.addMetricToNode((&(*nodes)[i]))
 		h.addUptimeToNode((&(*nodes)[i]))
 	}
 }
 
-func (h *helper) addMetricToNode(node *definition.Node, hypervisor *hypervisors.Hypervisor) {
-	node.Vcpu = definition.ComputeStatistic{
-		TotalCores:  float64(hypervisor.VCPUs),
-		UsedCores:   float64(hypervisor.VCPUsUsed),
-		FreeCores:   float64(hypervisor.VCPUs - hypervisor.VCPUsUsed),
-		UsedPercent: math.RoundDown(float64(hypervisor.VCPUsUsed)/float64(hypervisor.VCPUs)*100, 4),
-		FreePercent: math.RoundDown(float64(hypervisor.VCPUs-hypervisor.VCPUsUsed)/float64(hypervisor.VCPUs)*100, 4),
+func (h *helper) addMetricToNode(node *definition.Node) {
+	cpu, err := cubecos.GetCpuSummaryOfHost(node.Hostname)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get cpu summary of host: %s", api.GetReqId(h.c), err.Error())
 	}
 
-	node.Memory = definition.SpaceStatistic{
-		TotalMiB:    float64(hypervisor.MemoryMB),
-		UsedMiB:     float64(hypervisor.MemoryMBUsed),
-		FreeMiB:     float64(hypervisor.MemoryMB - hypervisor.MemoryMBUsed),
-		UsedPercent: math.RoundDown(float64(hypervisor.MemoryMBUsed)/float64(hypervisor.MemoryMB)*100, 4),
-		FreePercent: math.RoundDown(float64(hypervisor.MemoryMB-hypervisor.MemoryMBUsed)/float64(hypervisor.MemoryMB)*100, 4),
+	memory, err := cubecos.GetMemoryUsageSummaryOfHost(node.Hostname)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get memory summary of host: %s", api.GetReqId(h.c), err.Error())
 	}
 
-	node.Storage = definition.SpaceStatistic{
-		TotalMiB:    float64(hypervisor.LocalGB) * 1024,
-		UsedMiB:     float64(hypervisor.LocalGBUsed) * 1024,
-		FreeMiB:     float64(hypervisor.LocalGB-hypervisor.LocalGBUsed) * 1024,
-		UsedPercent: math.RoundDown(float64(hypervisor.LocalGBUsed)/float64(hypervisor.LocalGB)*100, 4),
-		FreePercent: math.RoundDown(float64(hypervisor.LocalGB-hypervisor.LocalGBUsed)/float64(hypervisor.LocalGB)*100, 4),
+	storage, err := cubecos.GetDiskStorageSummaryOfHost()
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get disk summary of host: %s", api.GetReqId(h.c), err.Error())
 	}
+
+	node.Vcpu = *cpu
+	node.Memory = *memory
+	node.Storage = *storage
 }
 
 func (h *helper) addUptimeToNode(node *definition.Node) {
 	data, err := os.ReadFile("/proc/uptime")
 	if err != nil {
-		log.Errorf("request(%s): failed to read uptime file: %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("nodes(%s): failed to read uptime file: %s", api.GetReqId(h.c), err.Error())
 		return
 	}
 
 	fields := strings.Fields(string(data))
 	if len(fields) < 1 {
-		log.Errorf("request(%s): invalid uptime format", api.GetReqId(h.c))
+		log.Errorf("nodes(%s): invalid uptime format", api.GetReqId(h.c))
 		return
 	}
 
 	uptimeSeconds, err := strconv.ParseFloat(fields[0], 64)
 	if err != nil {
-		log.Errorf("request(%s): failed to parse uptime: %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("nodes(%s): failed to parse uptime: %s", api.GetReqId(h.c), err.Error())
 		return
 	}
 

@@ -29,6 +29,13 @@ type ComputeStatisticData struct {
 	Data   v1.ComputeStatistic `json:"data"`
 }
 
+type SpaceStatisticData struct {
+	Code   int               `json:"code"`
+	Status string            `json:"status"`
+	Msg    string            `json:"msg"`
+	Data   v1.SpaceStatistic `json:"data"`
+}
+
 type SupportFileListData struct {
 	Code   int            `json:"code"`
 	Status string         `json:"status"`

@@ -11450,7 +11450,7 @@ const docTemplate = `{
                                                 "link": "http://example-data-center/grafana/d/i-device/device?refresh=5m&orgId=1",
                                                 "enabled": true
                                             },
-                                            "msg": "fetch top network devices link successfully",
+                                            "msg": "fetch network devices link successfully",
                                             "status": "ok"
                                         }
                                     }
@@ -11666,14 +11666,17 @@ const docTemplate = `{
                 "required": false,
                 "schema": {
                     "type": "array",
-                    "enum": [
-                        "control-converged",
-                        "control",
-                        "compute",
-                        "storage",
-                        "edge-core",
-                        "moderator"
-                    ]
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "control-converged",
+                            "control",
+                            "compute",
+                            "storage",
+                            "edge-core",
+                            "moderator"
+                        ]
+                    }
                 },
                 "description": "The role of the host",
                 "example": "control-converged"
