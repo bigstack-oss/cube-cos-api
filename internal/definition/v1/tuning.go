@@ -62,8 +62,8 @@ type TuningSpec struct {
 type TuningLimitation struct {
 	Type    string `json:"type"`
 	Default any    `json:"default"`
-	Min     int    `json:"min,omitempty"`
-	Max     int    `json:"max,omitempty"`
+	Min     *int   `json:"min,omitempty"`
+	Max     *int   `json:"max,omitempty"`
 	Regex   string `json:"regex,omitempty"`
 }
 
@@ -101,7 +101,7 @@ type ListTuningOptions struct {
 }
 
 func (t *TuningSpec) IsInLimitedRange(value int) bool {
-	return value <= t.Limitation.Max && value >= t.Limitation.Min
+	return value <= *t.Limitation.Max && value >= *t.Limitation.Min
 }
 
 func (t *Tuning) GenerateId() string {

@@ -15,7 +15,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/google/uuid"
 	log "go-micro.dev/v5/logger"
@@ -114,725 +113,6 @@ const (
 )
 
 var (
-	BarbicanDebugEnabledSpec = &definition.TuningSpec{
-		Name:        BarbicanDebugEnabled,
-		Description: "Set to true to enable barbican verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllGeneralRoles,
-	}
-	CephDebugEnabledSpec = &definition.TuningSpec{
-		Name:        CephDebugEnabled,
-		Description: "Set to true to enable ceph debug logs.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllGeneralRoles,
-	}
-	CephMirrorMetaSyncSpec = &definition.TuningSpec{
-		Name:        CephMirrorMetaSync,
-		Description: "Set to true to enable automatically volume metadata sync.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: true,
-		},
-		Roles: definition.ControlRoles,
-	}
-	CinderBackupAccountSpec = &definition.TuningSpec{
-		Name:        CinderBackupAccount,
-		Description: "Set cinder backup storage account.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "",
-			Regex:   "",
-		},
-		Roles: definition.AllGeneralRoles,
-	}
-	CinderBackupEndpointSpec = &definition.TuningSpec{
-		Name:        CinderBackupEndpoint,
-		Description: "Set cinder backup storage endpoint.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	CinderBackupOverrideSpec = &definition.TuningSpec{
-		Name:        CinderBackupOverride,
-		Description: "Enable override cinder backup configurations.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	CinderBackupPoolSpec = &definition.TuningSpec{
-		Name:        CinderBackupPool,
-		Description: "Set cinder backup storage pool.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	CinderBackupSecretSpec = &definition.TuningSpec{
-		Name:        CinderBackupSecret,
-		Description: "Set cinder backup storage account secret.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	CinderBackupTypeSpec = &definition.TuningSpec{
-		Name:        CinderBackupType,
-		Description: "Set cinder backup storage type <cube-storage|cube-swift>.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	CinderDebugEnabledSpec = &definition.TuningSpec{
-		Name:        CinderDebugEnabled,
-		Description: "Set to true to enable cinder verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	CinderExternalAccountSpec = &definition.TuningSpec{
-		Name:        CinderExternalAccount,
-		Description: "Set cinder external storage account.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	CinderExternalDriverSpec = &definition.TuningSpec{
-		Name:        CinderExternalDriver,
-		Description: "Set cinder external storage type name <cube|purestorage>.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	CinderExternalEndpointSpec = &definition.TuningSpec{
-		Name:        CinderExternalEndpoint,
-		Description: "Set cinder external storage endpoint.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	CinderExternalNameSpec = &definition.TuningSpec{
-		Name:        CinderExternalName,
-		Description: "Set cinder external storage rule name.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	CinderExternalPoolSpec = &definition.TuningSpec{
-		Name:        CinderExternalPool,
-		Description: "Set cinder external storage pool.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	CinderExternalSecretSpec = &definition.TuningSpec{
-		Name:        CinderExternalSecret,
-		Description: "Set cinder external storage account secret.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	CubesysAlertLevelSpec = &definition.TuningSpec{
-		Name:        CubesysAlertLevel,
-		Description: "Set health alert sensible level. (0: default, 1: highly sensitive)",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 0,
-			Min:     0,
-			Max:     2147483647,
-		},
-		Roles: definition.AllRoles,
-	}
-	CubesysAlertLevelSSpec = &definition.TuningSpec{
-		Name:        CubesysAlertLevelS,
-		Description: "Set health alert sensible level for service %s. (0: default, 1: highly sensitive)",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 0,
-			Min:     0,
-			Max:     2147483647,
-		},
-		Roles: definition.AllRoles,
-	}
-	CubesysConntableMaxSpec = &definition.TuningSpec{
-		Name:        CubesysConntableMax,
-		Description: "Set max connection table size.",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 262144,
-			Min:     0,
-			Max:     2147483647,
-		},
-		Roles: definition.AllRoles,
-	}
-	CubesysLogDefaultRetentionSpec = &definition.TuningSpec{
-		Name:        CubesysLogDefaultRetention,
-		Description: "Set log file retention policy in days.",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 14,
-			Min:     0,
-			Max:     365,
-		},
-		Roles: definition.AllRoles,
-	}
-	CubesysProviderExtraSpec = &definition.TuningSpec{
-		Name:        CubesysProviderExtra,
-		Description: "Set extra provider interfaces ('pvd-' prefix and <= 15 chars) [IF.2:pvd-xxx,eth2:pvd-yyy,...].",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	CyborgDebugEnabledSpec = &definition.TuningSpec{
-		Name:        CyborgDebugEnabled,
-		Description: "Set to true to enable cyborg verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	DebugEnableCoreDumpSSpec = &definition.TuningSpec{
-		Name:        DebugEnableCoreDumpS,
-		Description: "Enable core dump for process %s",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	DebugEnableKdumpSpec = &definition.TuningSpec{
-		Name:        DebugEnableKdump,
-		Description: "Enable kdump to collect dump from kernel panic",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	DebugLevelSSpec = &definition.TuningSpec{
-		Name:        DebugLevelS,
-		Description: "Set debug level for process %s",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 0,
-			Min:     0,
-			Max:     9,
-		},
-		Roles: definition.AllRoles,
-	}
-	DebugMaxCoreDumpSpec = &definition.TuningSpec{
-		Name:        DebugMaxCoreDump,
-		Description: "Set the total number of core files before oldest are removed",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 0,
-			Min:     0,
-			Max:     999,
-		},
-		Roles: definition.AllRoles,
-	}
-	DesignateDebugEnabledSpec = &definition.TuningSpec{
-		Name:        DesignateDebugEnabled,
-		Description: "Set to true to enable designate verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.ControlRoles,
-	}
-	GlanceDebugEnabledSpec = &definition.TuningSpec{
-		Name:        GlanceDebugEnabled,
-		Description: "Set to true to enable glance verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	GlanceExportRpSpec = &definition.TuningSpec{
-		Name:        GlanceExportRp,
-		Description: "glance export retention policy in copies.",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 3,
-			Min:     0,
-			Max:     255,
-		},
-		Roles: definition.AllRoles,
-	}
-	HeatDebugEnabledSpec = &definition.TuningSpec{
-		Name:        HeatDebugEnabled,
-		Description: "Set to true to enable heat verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	InfluxdbCuratorRpSpec = &definition.TuningSpec{
-		Name:        InfluxdbCuratorRp,
-		Description: "influxdb curator retention policy in days.",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 7,
-			Min:     0,
-			Max:     365,
-		},
-		Roles: definition.AllRoles,
-	}
-	IronicDebugEnabledSpec = &definition.TuningSpec{
-		Name:        IronicDebugEnabled,
-		Description: "Set to true to enable ironic verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllGeneralRoles,
-	}
-	IronicDeployServerSpec = &definition.TuningSpec{
-		Name:        IronicDeployServer,
-		Description: "Set to true to enable ironic deploy server (dhcp/tftp/pxe/http).",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllGeneralRoles,
-	}
-	KapacitorAlertCheckEnabledSpec = &definition.TuningSpec{
-		Name:        KapacitorAlertCheckEnabled,
-		Description: "Set true to enable kapacitor alert check.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.ControlRoles,
-	}
-	KapacitorAlertCheckEventIdSpec = &definition.TuningSpec{
-		Name:        KapacitorAlertCheckEventId,
-		Description: "Set kapacitor alert check eventid.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "SYS00002W",
-			Regex:   "",
-		},
-		Roles: definition.ControlRoles,
-	}
-	KapacitorAlertCheckIntervalSpec = &definition.TuningSpec{
-		Name:        KapacitorAlertCheckInterval,
-		Description: "Set kapacitor alert check interval (default to 60m).",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "60m",
-			Regex:   "",
-		},
-		Roles: definition.ControlRoles,
-	}
-	KapacitorAlertExtraPrefixSpec = &definition.TuningSpec{
-		Name:        KapacitorAlertExtraPrefix,
-		Description: "Set kapacitor alert message prefix.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "Cube",
-			Regex:   "",
-		},
-		Roles: definition.ControlRoles,
-	}
-	KapacitorAlertFlowBaseSpec = &definition.TuningSpec{
-		Name:        KapacitorAlertFlowBase,
-		Description: "Set kapacitor alert base for abnormal flow.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "7d",
-			Regex:   "",
-		},
-		Roles: definition.ControlRoles,
-	}
-	KapacitorAlertFlowThresholdSpec = &definition.TuningSpec{
-		Name:        KapacitorAlertFlowThreshold,
-		Description: "Set kapacitor alert threshold for abnormal flow.",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 30,
-			Min:     0,
-			Max:     65535,
-		},
-		Roles: definition.ControlRoles,
-	}
-	KapacitorAlertFlowUnitSpec = &definition.TuningSpec{
-		Name:        KapacitorAlertFlowUnit,
-		Description: "Set kapacitor alert unit for abnormal flow.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "5m",
-			Regex:   "",
-		},
-		Roles: definition.ControlRoles,
-	}
-	KeystoneDebugEnabledSpec = &definition.TuningSpec{
-		Name:        KeystoneDebugEnabled,
-		Description: "Set to true to enable keystone verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	ManilaDebugEnabledSpec = &definition.TuningSpec{
-		Name:        ManilaDebugEnabled,
-		Description: "Set to true to enable manila verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	ManilaVolumeTypeSpec = &definition.TuningSpec{
-		Name:        ManilaVolumeType,
-		Description: "Set manila backend volume type.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "CubeStorage",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	MasakariHostEvacuateAllSpec = &definition.TuningSpec{
-		Name:        MasakariHostEvacuateAll,
-		Description: "Set to true to enable evacuate all instances when host goes down.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: true,
-		},
-		Roles: definition.AllRoles,
-	}
-	MasakariWaitPeriodSpec = &definition.TuningSpec{
-		Name:        MasakariWaitPeriod,
-		Description: "Set wait period after service update",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 0,
-			Min:     0,
-			Max:     99999,
-		},
-		Roles: definition.ControlRoles,
-	}
-	MonascaDebugEnabledSpec = &definition.TuningSpec{
-		Name:        MonascaDebugEnabled,
-		Description: "Set to true to enable monasca verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	MysqlBackupCuratorRpSpec = &definition.TuningSpec{
-		Name:        MysqlBackupCuratorRp,
-		Description: "mysql backup retention policy in weeks.",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 14,
-			Min:     0,
-			Max:     52,
-		},
-		Roles: definition.AllRoles,
-	}
-	NetIfMtuNameSpec = &definition.TuningSpec{
-		Name:        NetIfMtuName,
-		Description: "Set interface MTU (MTU of parent interface must be greater than its VLAN interface).",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 1500,
-			Min:     68,
-			Max:     65536,
-		},
-		Roles: definition.AllRoles,
-	}
-	NetIpv4TcpSyncookiesSpec = &definition.TuningSpec{
-		Name:        NetIpv4TcpSyncookies,
-		Description: "Turn on the Linux SYN cookies implementation.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: true,
-		},
-		Roles: definition.AllRoles,
-	}
-	NetLacpDefaultRateSpec = &definition.TuningSpec{
-		Name:        NetLacpDefaultRate,
-		Description: "Set default LACP rate (fast/slow).",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "fast",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	NetLacpDefaultXmitSpec = &definition.TuningSpec{
-		Name:        NetLacpDefaultXmit,
-		Description: "Set default LACP transmit hash policy (layer2/layer2+3/layer3+4).",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "layer3+4",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	NeutronDebugEnabledSpec = &definition.TuningSpec{
-		Name:        NeutronDebugEnabled,
-		Description: "Set to true to enable neutron verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	NovaControlHostMemorySpec = &definition.TuningSpec{
-		Name:        NovaControlHostMemory,
-		Description: "Amount of memory in MB to reserve for the control host.",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 0,
-			Min:     0,
-			Max:     524288,
-		},
-		Roles: definition.ComputeRoles,
-	}
-	NovaControlHostVcpuSpec = &definition.TuningSpec{
-		Name:        NovaControlHostVcpu,
-		Description: "Amount of vcpu to reserve for the control host.",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 0,
-			Min:     0,
-			Max:     128,
-		},
-		Roles: []*definition.Role{definition.GetControlConvergeRole(), definition.GetEdgeCoreRole()},
-	}
-	NovaDebugEnabledSpec = &definition.TuningSpec{
-		Name:        NovaDebugEnabled,
-		Description: "Set to true to enable nova verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	NovaGpuTypeSpec = &definition.TuningSpec{
-		Name:        NovaGpuType,
-		Description: "Specify a supported gpu type instances would get.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "",
-			Regex:   "",
-		},
-		Roles: definition.ComputeRoles,
-		Selector: definition.Selector{
-			Enabled: true,
-			Labels:  map[string]string{"isGpuEnabled": "true"},
-		},
-	}
-	NovaOvercommitCpuRatioSpec = &definition.TuningSpec{
-		Name:        NovaOvercommitCpuRatio,
-		Description: "Specify an allowed CPU overcommitted ratio.",
-		Limitation: definition.TuningLimitation{
-			Type:    "float",
-			Default: 16.0,
-		},
-		Roles: definition.AllRoles,
-	}
-	NovaOvercommitDiskRatioSpec = &definition.TuningSpec{
-		Name:        NovaOvercommitDiskRatio,
-		Description: "Specify an allowed disk overcommitted ratio.",
-		Limitation: definition.TuningLimitation{
-			Type:    "float",
-			Default: 1.0,
-		},
-		Roles: definition.AllRoles,
-	}
-	NovaOvercommitRamRatioSpec = &definition.TuningSpec{
-		Name:        NovaOvercommitRamRatio,
-		Description: "Specify an allowed RAM overcommitted ratio.",
-		Limitation: definition.TuningLimitation{
-			Type:    "float",
-			Default: 1.5,
-		},
-		Roles: definition.AllRoles,
-	}
-	NtpDebugEnabledSpec = &definition.TuningSpec{
-		Name:        NtpDebugEnabled,
-		Description: "Set to true to enable ntp verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	OctaviaDebugEnabledSpec = &definition.TuningSpec{
-		Name:        OctaviaDebugEnabled,
-		Description: "Set to true to enable octavia verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	OctaviaHaSpec = &definition.TuningSpec{
-		Name:        OctaviaHa,
-		Description: "Set to true to enable octavia HA mode.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	OpensearchCuratorRpSpec = &definition.TuningSpec{
-		Name:        OpensearchCuratorRp,
-		Description: "opensearch curator retention policy in days.",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 7,
-			Min:     0,
-			Max:     365,
-		},
-		Roles: definition.AllRoles,
-	}
-	OpensearchHeapSizeSpec = &definition.TuningSpec{
-		Name:        OpensearchHeapSize,
-		Description: "Set opensearch heap size in MB.",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 1024,
-			Min:     256,
-			Max:     65536,
-		},
-		Roles: definition.AllRoles,
-	}
-	SenlinDebugEnabledSpec = &definition.TuningSpec{
-		Name:        SenlinDebugEnabled,
-		Description: "Set to true to enable senlin verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	SkylineDebugEnabledSpec = &definition.TuningSpec{
-		Name:        SkylineDebugEnabled,
-		Description: "Set to true to enable skyline verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	SnapshotApplyActionSpec = &definition.TuningSpec{
-		Name:        SnapshotApplyAction,
-		Description: "Set snapshot apply action <apply|revert>.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "apply",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	SnapshotApplyPolicyIgnoreSpec = &definition.TuningSpec{
-		Name:        SnapshotApplyPolicyIgnore,
-		Description: "Set snapshot apply policy ignore <true|false>.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	SshdBindToAllInterfacesSpec = &definition.TuningSpec{
-		Name:        SshdBindToAllInterfaces,
-		Description: "Set to true to bind sshd to all interfaces.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	SshdSessionInactivitySpec = &definition.TuningSpec{
-		Name:        SshdSessionInactivity,
-		Description: "Set sshd session inactivity timeout in seconds.",
-		Limitation: definition.TuningLimitation{
-			Type:    "int",
-			Default: 0,
-			Min:     0,
-			Max:     86400,
-		},
-		Roles: definition.AllRoles,
-	}
-	TimeTimezoneSpec = &definition.TuningSpec{
-		Name:        TimeTimezone,
-		Description: "Set system timezone.",
-		Limitation: definition.TuningLimitation{
-			Type:    "string",
-			Default: "UTC",
-			Regex:   "",
-		},
-		Roles: definition.AllRoles,
-	}
-	UpdateSecurityAutoUpdateSpec = &definition.TuningSpec{
-		Name:        UpdateSecurityAutoUpdate,
-		Description: "Set to true to enable security autoupdate.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-	WatcherDebugEnabledSpec = &definition.TuningSpec{
-		Name:        WatcherDebugEnabled,
-		Description: "Set to true to enable watcher verbose log.",
-		Limitation: definition.TuningLimitation{
-			Type:    "bool",
-			Default: false,
-		},
-		Roles: definition.AllRoles,
-	}
-
 	tuningToRoles     = map[string][]*definition.Role{}
 	tuningToSelectors = map[string]definition.Selector{}
 )
@@ -926,18 +206,18 @@ func setTuningToSelectors() {
 }
 
 func setTuningSpecs() {
-	b, err := exec.Command("hex_sdk", "-f", "json", "tuning_dump").Output()
+	out, err := exec.Command("hex_sdk", "-f", "json", "tuning_dump").Output()
 	if err != nil {
 		return
 	}
 
-	rawTuningSpecs := []definition.RawTuningSpec{}
-	err = json.Unmarshal(b, &rawTuningSpecs)
+	rawSpecs := []definition.RawTuningSpec{}
+	err = json.Unmarshal(out, &rawSpecs)
 	if err != nil {
 		return
 	}
 
-	for _, rawtuningSpec := range rawTuningSpecs {
+	for _, rawtuningSpec := range rawSpecs {
 		definition.SetTuningSpec(rawtuningSpec.Name, convertToTuningSpec(rawtuningSpec))
 	}
 }
@@ -946,28 +226,46 @@ func convertToTuningSpec(rawSpec definition.RawTuningSpec) *definition.TuningSpe
 	spec := &definition.TuningSpec{
 		Name:        rawSpec.Name,
 		Description: rawSpec.Description,
-	}
-
-	switch rawSpec.Limitation.Type {
-	case "int", "uint":
-		spec.Limitation = convertIntLimit(rawSpec.Limitation)
-	case "boolean":
-		spec.Limitation = convertBoolLimit(rawSpec.Limitation)
-	case "str":
-		spec.Limitation = convertStringLimit(rawSpec.Limitation)
-	}
-
-	roles, found := tuningToRoles[rawSpec.Name]
-	if found {
-		spec.Roles = roles
-	}
-
-	selectors, found := tuningToSelectors[rawSpec.Name]
-	if found {
-		spec.Selector = selectors
+		Limitation:  convertLimit(rawSpec),
+		Roles:       getTuningRoles(rawSpec.Name),
+		Selector:    getTuningSelectors(rawSpec.Name),
 	}
 
 	return spec
+}
+
+func convertLimit(raw definition.RawTuningSpec) definition.TuningLimitation {
+	switch raw.Limitation.Type {
+	case "int", "uint":
+		return convertIntLimit(raw.Limitation)
+	case "boolean":
+		return convertBoolLimit(raw.Limitation)
+	case "str":
+		return convertStringLimit(raw.Limitation)
+	}
+
+	return definition.TuningLimitation{
+		Type:    fmt.Sprintf("invalid tuning spec from cos(%s)", raw.Limitation.Type),
+		Default: raw.Limitation.Default,
+	}
+}
+
+func getTuningRoles(tuningName string) []*definition.Role {
+	roles, found := tuningToRoles[tuningName]
+	if found {
+		return roles
+	}
+
+	return definition.AllRoles
+}
+
+func getTuningSelectors(tuningName string) definition.Selector {
+	selectors, found := tuningToSelectors[tuningName]
+	if found {
+		return selectors
+	}
+
+	return definition.Selector{}
 }
 
 func convertIntLimit(raw definition.RawTuningLimitation) definition.TuningLimitation {
@@ -991,8 +289,8 @@ func convertIntLimit(raw definition.RawTuningLimitation) definition.TuningLimita
 	return definition.TuningLimitation{
 		Type:    raw.Type,
 		Default: defaultVal,
-		Min:     min,
-		Max:     max,
+		Min:     &min,
+		Max:     &max,
 		Regex:   raw.Regex,
 	}
 }
@@ -1021,90 +319,16 @@ func convertStringLimit(raw definition.RawTuningLimitation) definition.TuningLim
 
 func init() {
 	setTuningSpecs()
-
-	// definition.SetTuningSpec(BarbicanDebugEnabled, BarbicanDebugEnabledSpec)
-	// definition.SetTuningSpec(CephDebugEnabled, CephDebugEnabledSpec)
-	// definition.SetTuningSpec(CephMirrorMetaSync, CephMirrorMetaSyncSpec)
-	// definition.SetTuningSpec(CinderBackupAccount, CinderBackupAccountSpec)
-	// definition.SetTuningSpec(CinderBackupEndpoint, CinderBackupEndpointSpec)
-	// definition.SetTuningSpec(CinderBackupOverride, CinderBackupOverrideSpec)
-	// definition.SetTuningSpec(CinderBackupPool, CinderBackupPoolSpec)
-	// definition.SetTuningSpec(CinderBackupSecret, CinderBackupSecretSpec)
-	// definition.SetTuningSpec(CinderBackupType, CinderBackupTypeSpec)
-	// definition.SetTuningSpec(CinderDebugEnabled, CinderDebugEnabledSpec)
-	// definition.SetTuningSpec(CinderExternalAccount, CinderExternalAccountSpec)
-	// definition.SetTuningSpec(CinderExternalDriver, CinderExternalDriverSpec)
-	// definition.SetTuningSpec(CinderExternalEndpoint, CinderExternalEndpointSpec)
-	// definition.SetTuningSpec(CinderExternalName, CinderExternalNameSpec)
-	// definition.SetTuningSpec(CinderExternalPool, CinderExternalPoolSpec)
-	// definition.SetTuningSpec(CinderExternalSecret, CinderExternalSecretSpec)
-	// definition.SetTuningSpec(CubesysAlertLevel, CubesysAlertLevelSpec)
-	// definition.SetTuningSpec(CubesysAlertLevelS, CubesysAlertLevelSSpec)
-	// definition.SetTuningSpec(CubesysConntableMax, CubesysConntableMaxSpec)
-	// definition.SetTuningSpec(CubesysLogDefaultRetention, CubesysLogDefaultRetentionSpec)
-	// definition.SetTuningSpec(CubesysProviderExtra, CubesysProviderExtraSpec) // no setup logic in cubecos
-	// definition.SetTuningSpec(CyborgDebugEnabled, CyborgDebugEnabledSpec)
-	// definition.SetTuningSpec(DebugEnableCoreDumpS, DebugEnableCoreDumpSSpec)
-	// definition.SetTuningSpec(DebugEnableKdump, DebugEnableKdumpSpec)
-	// definition.SetTuningSpec(DebugLevelS, DebugLevelSSpec)
-	// definition.SetTuningSpec(DebugMaxCoreDump, DebugMaxCoreDumpSpec)
-	// definition.SetTuningSpec(DesignateDebugEnabled, DesignateDebugEnabledSpec) // need to check edge part
-	// definition.SetTuningSpec(GlanceDebugEnabled, GlanceDebugEnabledSpec)       // no setup logic in cubecos
-	// definition.SetTuningSpec(GlanceExportRp, GlanceExportRpSpec)
-	// definition.SetTuningSpec(HeatDebugEnabled, HeatDebugEnabledSpec)
-	// definition.SetTuningSpec(InfluxdbCuratorRp, InfluxdbCuratorRpSpec)
-	// definition.SetTuningSpec(IronicDebugEnabled, IronicDebugEnabledSpec)
-	// definition.SetTuningSpec(IronicDeployServer, IronicDeployServerSpec)
-	// definition.SetTuningSpec(KapacitorAlertCheckEnabled, KapacitorAlertCheckEnabledSpec)
-	// definition.SetTuningSpec(KapacitorAlertCheckEventId, KapacitorAlertCheckEventIdSpec)
-	// definition.SetTuningSpec(KapacitorAlertCheckInterval, KapacitorAlertCheckIntervalSpec)
-	// definition.SetTuningSpec(KapacitorAlertExtraPrefix, KapacitorAlertExtraPrefixSpec)
-	// definition.SetTuningSpec(KapacitorAlertFlowBase, KapacitorAlertFlowBaseSpec)
-	// definition.SetTuningSpec(KapacitorAlertFlowThreshold, KapacitorAlertFlowThresholdSpec)
-	// definition.SetTuningSpec(KapacitorAlertFlowUnit, KapacitorAlertFlowUnitSpec)
-	// definition.SetTuningSpec(KeystoneDebugEnabled, KeystoneDebugEnabledSpec) // no setup logic in cubecos
-	// definition.SetTuningSpec(ManilaDebugEnabled, ManilaDebugEnabledSpec)
-	// definition.SetTuningSpec(ManilaVolumeType, ManilaVolumeTypeSpec)
-	// definition.SetTuningSpec(MasakariHostEvacuateAll, MasakariHostEvacuateAllSpec)
-	// definition.SetTuningSpec(MasakariWaitPeriod, MasakariWaitPeriodSpec) // need to check IsEdge(s_eCubeRole) means what
-	// definition.SetTuningSpec(MonascaDebugEnabled, MonascaDebugEnabledSpec)
-	// definition.SetTuningSpec(MysqlBackupCuratorRp, MysqlBackupCuratorRpSpec)
-	// definition.SetTuningSpec(NetIfMtuName, NetIfMtuNameSpec)
-	// definition.SetTuningSpec(NetIpv4TcpSyncookies, NetIpv4TcpSyncookiesSpec)
-	// definition.SetTuningSpec(NetLacpDefaultRate, NetLacpDefaultRateSpec)
-	// definition.SetTuningSpec(NetLacpDefaultXmit, NetLacpDefaultXmitSpec)
-	// definition.SetTuningSpec(NeutronDebugEnabled, NeutronDebugEnabledSpec)
-	// definition.SetTuningSpec(NovaControlHostMemory, NovaControlHostMemorySpec)
-	// definition.SetTuningSpec(NovaControlHostVcpu, NovaControlHostVcpuSpec) // why no compute role
-	// definition.SetTuningSpec(NovaDebugEnabled, NovaDebugEnabledSpec)
-	// definition.SetTuningSpec(NovaGpuType, NovaGpuTypeSpec)
-	// definition.SetTuningSpec(NovaOvercommitCpuRatio, NovaOvercommitCpuRatioSpec)
-	// definition.SetTuningSpec(NovaOvercommitDiskRatio, NovaOvercommitDiskRatioSpec)
-	// definition.SetTuningSpec(NovaOvercommitRamRatio, NovaOvercommitRamRatioSpec)
-	// definition.SetTuningSpec(NtpDebugEnabled, NtpDebugEnabledSpec) // no setup logic in cubecos
-	// definition.SetTuningSpec(OctaviaDebugEnabled, OctaviaDebugEnabledSpec)
-	// definition.SetTuningSpec(OctaviaHa, OctaviaHaSpec)
-	// definition.SetTuningSpec(OpensearchCuratorRp, OpensearchCuratorRpSpec)
-	// definition.SetTuningSpec(OpensearchHeapSize, OpensearchHeapSizeSpec)
-	// definition.SetTuningSpec(SenlinDebugEnabled, SenlinDebugEnabledSpec)   // EOL in OpenStack, consider to remove
-	// definition.SetTuningSpec(SkylineDebugEnabled, SkylineDebugEnabledSpec) // why only check IsControl() but no IsConverged()
-	// definition.SetTuningSpec(SnapshotApplyAction, SnapshotApplyActionSpec) // no setup logic in cubecos
-	// definition.SetTuningSpec(SnapshotApplyPolicyIgnore, SnapshotApplyPolicyIgnoreSpec)
-	// definition.SetTuningSpec(SshdBindToAllInterfaces, SshdBindToAllInterfacesSpec)
-	// definition.SetTuningSpec(SshdSessionInactivity, SshdSessionInactivitySpec)
-	// definition.SetTuningSpec(TimeTimezone, TimeTimezoneSpec)
-	// definition.SetTuningSpec(UpdateSecurityAutoUpdate, UpdateSecurityAutoUpdateSpec)
-	// definition.SetTuningSpec(WatcherDebugEnabled, WatcherDebugEnabledSpec)
 }
 
 func GetTuningValue(name string) (string, error) {
-	b, err := exec.Command("hex_tuning_helper", "/etc/settings.txt", "", name).Output()
+	out, err := exec.Command("hex_tuning_helper", "/etc/settings.txt", "", name).Output()
 	if err != nil {
 		log.Errorf("failed to read hex tuning value: %s", err.Error())
 		return "", err
 	}
 
-	keyValue := strings.Split(string(b), "'")
+	keyValue := strings.Split(string(out), "'")
 	if len(keyValue) < 2 {
 		return "", cuberr.TuningNotFound
 	}
@@ -1314,7 +538,7 @@ func ListTuningsFromOtherNodes() (map[string][]definition.Tuning, error) {
 	return nodeTunings, nil
 }
 
-func getNodeTunings(node definition.Node) ([]v1.Tuning, error) {
+func getNodeTunings(node definition.Node) ([]definition.Tuning, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&api.TuningListData{}).
@@ -1370,7 +594,7 @@ func SyncTunings() {
 			srcTuning.IsModified = true
 			srcTuning.Description = spec.Description
 			srcTuning.Limitation = spec.Limitation
-			srcTuning.Hosts = []v1.Host{{Name: definition.Hostname, Ip: definition.AdvertiseIp}}
+			srcTuning.Hosts = []definition.Host{{Name: definition.Hostname, Ip: definition.AdvertiseIp}}
 			checkAndUpdateTuning(spec.Name, *srcTuning)
 		}
 
@@ -1406,7 +630,7 @@ func setDefaultTuning(tuning definition.TuningSpec) {
 		Enabled:     true,
 		Name:        tuning.Name,
 		Value:       tuning.Limitation.Default,
-		Hosts:       []v1.Host{{Name: definition.Hostname, Ip: definition.AdvertiseIp}},
+		Hosts:       []definition.Host{{Name: definition.Hostname, Ip: definition.AdvertiseIp}},
 		Description: tuning.Description,
 		Limitation:  tuning.Limitation,
 		IsModified:  false,
