@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -147,7 +148,7 @@ func GetSupportFile(file support.File) (string, error) {
 		return "", err
 	}
 
-	return filepath.Join("/var/support", info.Name()), nil
+	return info.Name(), nil
 }
 
 func UploadSupportFileToObjectStore(supportFile support.File) error {
@@ -173,13 +174,12 @@ func UploadSupportFileToObjectStore(supportFile support.File) error {
 	)
 }
 
-func GetSupportFileUrl(file support.File) (string, error) {
-	h := aws.GetGlobalHelper()
-	return h.GenPresignedUrl(
-		support.DefaultBucket,
-		file.ObjectKey(),
-		v1.Day*7,
-	)
+func GetSupportFileUrl(file support.File) string {
+	u := url.URL{}
+	u.Scheme = "https"
+	u.Host = fmt.Sprintf("%s:%d", v1.DataCenterVip, config.Opts.Saml.ServiceProvider.Host.Port)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/%s/%s", v1.DataCenterName, file.Group, file.Name)
+	return u.String()
 }
 
 func SyncBucketStore() error {

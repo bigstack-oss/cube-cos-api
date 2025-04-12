@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -110,11 +111,13 @@ func (h *helper) downloadSupportFile() error {
 				continue
 			}
 
-			if file.Source.Host != v1.Hostname {
-				continue
+			if file.Source.Host == v1.Hostname {
+				h.streamFileDownload(file.Name)
+				break
 			}
 
-			h.streamFileDownload(file.Name)
+			h.streamFromPeerNode(set, file)
+			break
 		}
 	}
 
@@ -140,5 +143,31 @@ func (h *helper) streamFileDownload(filename string) {
 		"application/octet-stream",
 		file,
 		nil,
+	)
+}
+
+func (h *helper) streamFromPeerNode(set support.FileSet, file support.File) {
+	node, err := v1.GetNodeByHostname(file.Source.Host)
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to get node by hostname %s: %s", api.GetReqId(h.c), file.Source.Host, err.Error())
+		return
+	}
+
+	url := node.DownloadSupportFileUrl(set.Name, file.Name)
+	http := http.GetGlobalHelper()
+	resp, err := http.R().SetHeader(node.GenAuthHeader()).Get(url)
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to download support file %s from %s: %s", api.GetReqId(h.c), file.Name, node.Hostname, err.Error())
+		return
+	}
+	if resp.IsError() {
+		log.Errorf("supportFiles(%s): %s resp error from %s: %d %s", api.GetReqId(h.c), file.Name, node.Hostname, resp.StatusCode(), string(resp.Body()))
+		return
+	}
+
+	h.c.Data(
+		nethttp.StatusOK,
+		"application/octet-stream",
+		resp.Body(),
 	)
 }

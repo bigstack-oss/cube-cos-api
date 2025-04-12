@@ -154,6 +154,16 @@ func (n *Node) GetSupportFileUrl() string {
 	return u.String()
 }
 
+func (n *Node) DownloadSupportFileUrl(setname, filename string) string {
+	u := url.URL{
+		Scheme: n.Protocol,
+		Host:   n.Address,
+		Path:   fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/%s/%s", n.DataCenter, setname, filename),
+	}
+
+	return u.String()
+}
+
 func (n *Node) PatchTuningUrl(tuning Tuning) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol

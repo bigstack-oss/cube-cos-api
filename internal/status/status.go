@@ -68,7 +68,7 @@ type Trigger struct {
 
 type SupportFile struct {
 	Current string `json:"current,omitempty" bson:"current"`
-	Desired string `json:"-,omitempty" bson:"desired"`
+	Desired string `json:"-" bson:"desired"`
 
 	CreatedAt  string `json:"createdAt,omitzero" bson:"createdAt"`
 	IsCreating bool   `json:"isCreating" bson:"isCreating"`
