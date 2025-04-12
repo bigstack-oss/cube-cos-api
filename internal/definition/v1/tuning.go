@@ -37,6 +37,20 @@ type TuningPolicy struct {
 	Tunings []Tuning `json:"tunings" yaml:"tunings"`
 }
 
+type RawTuningSpec struct {
+	Name        string              `json:"name"`
+	Description string              `json:"description"`
+	Limitation  RawTuningLimitation `json:"limitation"`
+}
+
+type RawTuningLimitation struct {
+	Type    string `json:"type"`
+	Default string `json:"default"`
+	Min     string `json:"min,omitempty"`
+	Max     string `json:"max,omitempty"`
+	Regex   string `json:"regex,omitempty"`
+}
+
 type TuningSpec struct {
 	Name        string           `json:"name"`
 	Description string           `json:"description"`

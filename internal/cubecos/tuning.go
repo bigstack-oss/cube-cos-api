@@ -1,12 +1,14 @@
 package cubecos
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
@@ -830,82 +832,269 @@ var (
 		},
 		Roles: definition.AllRoles,
 	}
+
+	tuningToRoles     = map[string][]*definition.Role{}
+	tuningToSelectors = map[string]definition.Selector{}
 )
 
 func init() {
-	definition.SetTuningSpec(BarbicanDebugEnabled, BarbicanDebugEnabledSpec)
-	definition.SetTuningSpec(CephDebugEnabled, CephDebugEnabledSpec)
-	definition.SetTuningSpec(CephMirrorMetaSync, CephMirrorMetaSyncSpec)
-	definition.SetTuningSpec(CinderBackupAccount, CinderBackupAccountSpec)
-	definition.SetTuningSpec(CinderBackupEndpoint, CinderBackupEndpointSpec)
-	definition.SetTuningSpec(CinderBackupOverride, CinderBackupOverrideSpec)
-	definition.SetTuningSpec(CinderBackupPool, CinderBackupPoolSpec)
-	definition.SetTuningSpec(CinderBackupSecret, CinderBackupSecretSpec)
-	definition.SetTuningSpec(CinderBackupType, CinderBackupTypeSpec)
-	definition.SetTuningSpec(CinderDebugEnabled, CinderDebugEnabledSpec)
-	definition.SetTuningSpec(CinderExternalAccount, CinderExternalAccountSpec)
-	definition.SetTuningSpec(CinderExternalDriver, CinderExternalDriverSpec)
-	definition.SetTuningSpec(CinderExternalEndpoint, CinderExternalEndpointSpec)
-	definition.SetTuningSpec(CinderExternalName, CinderExternalNameSpec)
-	definition.SetTuningSpec(CinderExternalPool, CinderExternalPoolSpec)
-	definition.SetTuningSpec(CinderExternalSecret, CinderExternalSecretSpec)
-	definition.SetTuningSpec(CubesysAlertLevel, CubesysAlertLevelSpec)
-	definition.SetTuningSpec(CubesysAlertLevelS, CubesysAlertLevelSSpec)
-	definition.SetTuningSpec(CubesysConntableMax, CubesysConntableMaxSpec)
-	definition.SetTuningSpec(CubesysLogDefaultRetention, CubesysLogDefaultRetentionSpec)
-	definition.SetTuningSpec(CubesysProviderExtra, CubesysProviderExtraSpec) // no setup logic in cubecos
-	definition.SetTuningSpec(CyborgDebugEnabled, CyborgDebugEnabledSpec)
-	definition.SetTuningSpec(DebugEnableCoreDumpS, DebugEnableCoreDumpSSpec)
-	definition.SetTuningSpec(DebugEnableKdump, DebugEnableKdumpSpec)
-	definition.SetTuningSpec(DebugLevelS, DebugLevelSSpec)
-	definition.SetTuningSpec(DebugMaxCoreDump, DebugMaxCoreDumpSpec)
-	definition.SetTuningSpec(DesignateDebugEnabled, DesignateDebugEnabledSpec) // need to check edge part
-	definition.SetTuningSpec(GlanceDebugEnabled, GlanceDebugEnabledSpec)       // no setup logic in cubecos
-	definition.SetTuningSpec(GlanceExportRp, GlanceExportRpSpec)
-	definition.SetTuningSpec(HeatDebugEnabled, HeatDebugEnabledSpec)
-	definition.SetTuningSpec(InfluxdbCuratorRp, InfluxdbCuratorRpSpec)
-	definition.SetTuningSpec(IronicDebugEnabled, IronicDebugEnabledSpec)
-	definition.SetTuningSpec(IronicDeployServer, IronicDeployServerSpec)
-	definition.SetTuningSpec(KapacitorAlertCheckEnabled, KapacitorAlertCheckEnabledSpec)
-	definition.SetTuningSpec(KapacitorAlertCheckEventId, KapacitorAlertCheckEventIdSpec)
-	definition.SetTuningSpec(KapacitorAlertCheckInterval, KapacitorAlertCheckIntervalSpec)
-	definition.SetTuningSpec(KapacitorAlertExtraPrefix, KapacitorAlertExtraPrefixSpec)
-	definition.SetTuningSpec(KapacitorAlertFlowBase, KapacitorAlertFlowBaseSpec)
-	definition.SetTuningSpec(KapacitorAlertFlowThreshold, KapacitorAlertFlowThresholdSpec)
-	definition.SetTuningSpec(KapacitorAlertFlowUnit, KapacitorAlertFlowUnitSpec)
-	definition.SetTuningSpec(KeystoneDebugEnabled, KeystoneDebugEnabledSpec) // no setup logic in cubecos
-	definition.SetTuningSpec(ManilaDebugEnabled, ManilaDebugEnabledSpec)
-	definition.SetTuningSpec(ManilaVolumeType, ManilaVolumeTypeSpec)
-	definition.SetTuningSpec(MasakariHostEvacuateAll, MasakariHostEvacuateAllSpec)
-	definition.SetTuningSpec(MasakariWaitPeriod, MasakariWaitPeriodSpec) // need to check IsEdge(s_eCubeRole) means what
-	definition.SetTuningSpec(MonascaDebugEnabled, MonascaDebugEnabledSpec)
-	definition.SetTuningSpec(MysqlBackupCuratorRp, MysqlBackupCuratorRpSpec)
-	definition.SetTuningSpec(NetIfMtuName, NetIfMtuNameSpec)
-	definition.SetTuningSpec(NetIpv4TcpSyncookies, NetIpv4TcpSyncookiesSpec)
-	definition.SetTuningSpec(NetLacpDefaultRate, NetLacpDefaultRateSpec)
-	definition.SetTuningSpec(NetLacpDefaultXmit, NetLacpDefaultXmitSpec)
-	definition.SetTuningSpec(NeutronDebugEnabled, NeutronDebugEnabledSpec)
-	definition.SetTuningSpec(NovaControlHostMemory, NovaControlHostMemorySpec)
-	definition.SetTuningSpec(NovaControlHostVcpu, NovaControlHostVcpuSpec) // why no compute role
-	definition.SetTuningSpec(NovaDebugEnabled, NovaDebugEnabledSpec)
-	definition.SetTuningSpec(NovaGpuType, NovaGpuTypeSpec)
-	definition.SetTuningSpec(NovaOvercommitCpuRatio, NovaOvercommitCpuRatioSpec)
-	definition.SetTuningSpec(NovaOvercommitDiskRatio, NovaOvercommitDiskRatioSpec)
-	definition.SetTuningSpec(NovaOvercommitRamRatio, NovaOvercommitRamRatioSpec)
-	definition.SetTuningSpec(NtpDebugEnabled, NtpDebugEnabledSpec) // no setup logic in cubecos
-	definition.SetTuningSpec(OctaviaDebugEnabled, OctaviaDebugEnabledSpec)
-	definition.SetTuningSpec(OctaviaHa, OctaviaHaSpec)
-	definition.SetTuningSpec(OpensearchCuratorRp, OpensearchCuratorRpSpec)
-	definition.SetTuningSpec(OpensearchHeapSize, OpensearchHeapSizeSpec)
-	definition.SetTuningSpec(SenlinDebugEnabled, SenlinDebugEnabledSpec)   // EOL in OpenStack, consider to remove
-	definition.SetTuningSpec(SkylineDebugEnabled, SkylineDebugEnabledSpec) // why only check IsControl() but no IsConverged()
-	definition.SetTuningSpec(SnapshotApplyAction, SnapshotApplyActionSpec) // no setup logic in cubecos
-	definition.SetTuningSpec(SnapshotApplyPolicyIgnore, SnapshotApplyPolicyIgnoreSpec)
-	definition.SetTuningSpec(SshdBindToAllInterfaces, SshdBindToAllInterfacesSpec)
-	definition.SetTuningSpec(SshdSessionInactivity, SshdSessionInactivitySpec)
-	definition.SetTuningSpec(TimeTimezone, TimeTimezoneSpec)
-	definition.SetTuningSpec(UpdateSecurityAutoUpdate, UpdateSecurityAutoUpdateSpec)
-	definition.SetTuningSpec(WatcherDebugEnabled, WatcherDebugEnabledSpec)
+	setTuningToRoles()
+	setTuningToSelectors()
+}
+
+func setTuningToRoles() {
+	tuningToRoles[BarbicanDebugEnabled] = definition.AllGeneralRoles
+	tuningToRoles[CephDebugEnabled] = definition.AllGeneralRoles
+	tuningToRoles[CephMirrorMetaSync] = definition.ControlRoles
+	tuningToRoles[CinderBackupAccount] = definition.AllGeneralRoles
+	tuningToRoles[CinderBackupEndpoint] = definition.AllRoles
+	tuningToRoles[CinderBackupOverride] = definition.AllRoles
+	tuningToRoles[CinderBackupPool] = definition.AllRoles
+	tuningToRoles[CinderBackupSecret] = definition.AllRoles
+	tuningToRoles[CinderBackupType] = definition.AllRoles
+	tuningToRoles[CinderDebugEnabled] = definition.AllRoles
+	tuningToRoles[CinderExternalAccount] = definition.AllRoles
+	tuningToRoles[CinderExternalDriver] = definition.AllRoles
+	tuningToRoles[CinderExternalEndpoint] = definition.AllRoles
+	tuningToRoles[CinderExternalName] = definition.AllRoles
+	tuningToRoles[CinderExternalPool] = definition.AllRoles
+	tuningToRoles[CinderExternalSecret] = definition.AllRoles
+	tuningToRoles[CubesysAlertLevel] = definition.AllRoles
+	tuningToRoles[CubesysAlertLevelS] = definition.AllRoles
+	tuningToRoles[CubesysConntableMax] = definition.AllRoles
+	tuningToRoles[CubesysLogDefaultRetention] = definition.AllRoles
+	tuningToRoles[CubesysProviderExtra] = definition.AllRoles
+	tuningToRoles[CyborgDebugEnabled] = definition.AllRoles
+	tuningToRoles[DebugEnableCoreDumpS] = definition.AllRoles
+	tuningToRoles[DebugEnableKdump] = definition.AllRoles
+	tuningToRoles[DebugLevelS] = definition.AllRoles
+	tuningToRoles[DebugMaxCoreDump] = definition.AllRoles
+	tuningToRoles[DesignateDebugEnabled] = definition.AllRoles
+	tuningToRoles[GlanceDebugEnabled] = definition.AllRoles
+	tuningToRoles[GlanceExportRp] = definition.AllRoles
+	tuningToRoles[HeatDebugEnabled] = definition.AllRoles
+	tuningToRoles[InfluxdbCuratorRp] = definition.AllRoles
+	tuningToRoles[IronicDebugEnabled] = definition.AllGeneralRoles
+	tuningToRoles[IronicDeployServer] = definition.AllGeneralRoles
+	tuningToRoles[KapacitorAlertCheckEnabled] = definition.ControlRoles
+	tuningToRoles[KapacitorAlertCheckEventId] = definition.ControlRoles
+	tuningToRoles[KapacitorAlertCheckInterval] = definition.ControlRoles
+	tuningToRoles[KapacitorAlertExtraPrefix] = definition.ControlRoles
+	tuningToRoles[KapacitorAlertFlowBase] = definition.ControlRoles
+	tuningToRoles[KapacitorAlertFlowThreshold] = definition.ControlRoles
+	tuningToRoles[KapacitorAlertFlowUnit] = definition.ControlRoles
+	tuningToRoles[KeystoneDebugEnabled] = definition.AllRoles
+	tuningToRoles[ManilaDebugEnabled] = definition.AllRoles
+	tuningToRoles[ManilaVolumeType] = definition.AllRoles
+	tuningToRoles[MasakariHostEvacuateAll] = definition.AllRoles
+	tuningToRoles[MasakariWaitPeriod] = definition.ControlRoles
+	tuningToRoles[MonascaDebugEnabled] = definition.AllRoles
+	tuningToRoles[MysqlBackupCuratorRp] = definition.AllRoles
+	tuningToRoles[NetIfMtuName] = definition.AllRoles
+	tuningToRoles[NetIpv4TcpSyncookies] = definition.AllRoles
+	tuningToRoles[NetLacpDefaultRate] = definition.AllRoles
+	tuningToRoles[NetLacpDefaultXmit] = definition.AllRoles
+	tuningToRoles[NeutronDebugEnabled] = definition.AllRoles
+	tuningToRoles[NovaControlHostMemory] = definition.ComputeRoles
+	tuningToRoles[NovaControlHostVcpu] = []*definition.Role{definition.GetControlConvergeRole(), definition.GetEdgeCoreRole()}
+	tuningToRoles[NovaDebugEnabled] = definition.AllRoles
+	tuningToRoles[NovaGpuType] = definition.ComputeRoles
+	tuningToRoles[NovaOvercommitCpuRatio] = definition.AllRoles
+	tuningToRoles[NovaOvercommitDiskRatio] = definition.AllRoles
+	tuningToRoles[NovaOvercommitRamRatio] = definition.AllRoles
+	tuningToRoles[NtpDebugEnabled] = definition.AllRoles
+	tuningToRoles[OctaviaDebugEnabled] = definition.AllRoles
+	tuningToRoles[OctaviaHa] = definition.AllRoles
+	tuningToRoles[OpensearchCuratorRp] = definition.AllRoles
+	tuningToRoles[OpensearchHeapSize] = definition.AllRoles
+	tuningToRoles[SenlinDebugEnabled] = definition.AllRoles
+	tuningToRoles[SkylineDebugEnabled] = definition.AllRoles
+	tuningToRoles[SnapshotApplyAction] = definition.AllRoles
+	tuningToRoles[SnapshotApplyPolicyIgnore] = definition.AllRoles
+	tuningToRoles[SshdBindToAllInterfaces] = definition.AllRoles
+	tuningToRoles[SshdSessionInactivity] = definition.AllRoles
+	tuningToRoles[TimeTimezone] = definition.AllRoles
+	tuningToRoles[UpdateSecurityAutoUpdate] = definition.AllRoles
+	tuningToRoles[WatcherDebugEnabled] = definition.AllRoles
+}
+
+func setTuningToSelectors() {
+	tuningToSelectors[NovaGpuType] = definition.Selector{
+		Enabled: true,
+		Labels:  map[string]string{"isGpuEnabled": "true"},
+	}
+}
+
+func setTuningSpecs() {
+	b, err := exec.Command("hex_sdk", "-f", "json", "tuning_dump").Output()
+	if err != nil {
+		return
+	}
+
+	rawTuningSpecs := []definition.RawTuningSpec{}
+	err = json.Unmarshal(b, &rawTuningSpecs)
+	if err != nil {
+		return
+	}
+
+	for _, rawtuningSpec := range rawTuningSpecs {
+		definition.SetTuningSpec(rawtuningSpec.Name, convertToTuningSpec(rawtuningSpec))
+	}
+}
+
+func convertToTuningSpec(rawSpec definition.RawTuningSpec) *definition.TuningSpec {
+	spec := &definition.TuningSpec{
+		Name:        rawSpec.Name,
+		Description: rawSpec.Description,
+	}
+
+	switch rawSpec.Limitation.Type {
+	case "int", "uint":
+		spec.Limitation = convertIntLimit(rawSpec.Limitation)
+	case "boolean":
+		spec.Limitation = convertBoolLimit(rawSpec.Limitation)
+	case "str":
+		spec.Limitation = convertStringLimit(rawSpec.Limitation)
+	}
+
+	roles, found := tuningToRoles[rawSpec.Name]
+	if found {
+		spec.Roles = roles
+	}
+
+	selectors, found := tuningToSelectors[rawSpec.Name]
+	if found {
+		spec.Selector = selectors
+	}
+
+	return spec
+}
+
+func convertIntLimit(raw definition.RawTuningLimitation) definition.TuningLimitation {
+	defaultVal, err := strconv.Atoi(raw.Default)
+	if err != nil {
+		log.Errorf("failed to convert default value %s to int: %v", raw.Default, err)
+	}
+
+	min, err := strconv.Atoi(raw.Min)
+	if err != nil {
+		log.Errorf("failed to convert min value %s to int: %v", raw.Min, err)
+		min = 0
+	}
+
+	max, err := strconv.Atoi(raw.Max)
+	if err != nil {
+		log.Errorf("failed to convert max value %s to int: %v", raw.Max, err)
+		max = 0
+	}
+
+	return definition.TuningLimitation{
+		Type:    raw.Type,
+		Default: defaultVal,
+		Min:     min,
+		Max:     max,
+		Regex:   raw.Regex,
+	}
+}
+
+func convertBoolLimit(raw definition.RawTuningLimitation) definition.TuningLimitation {
+	defaultVal, err := strconv.ParseBool(strings.ToLower(raw.Default))
+	if err != nil {
+		log.Errorf("failed to convert default value %s to bool: %v", raw.Default, err)
+		defaultVal = false
+	}
+
+	return definition.TuningLimitation{
+		Type:    raw.Type,
+		Default: defaultVal,
+		Regex:   raw.Regex,
+	}
+}
+
+func convertStringLimit(raw definition.RawTuningLimitation) definition.TuningLimitation {
+	return definition.TuningLimitation{
+		Type:    raw.Type,
+		Default: raw.Default,
+		Regex:   raw.Regex,
+	}
+}
+
+func init() {
+	setTuningSpecs()
+
+	// definition.SetTuningSpec(BarbicanDebugEnabled, BarbicanDebugEnabledSpec)
+	// definition.SetTuningSpec(CephDebugEnabled, CephDebugEnabledSpec)
+	// definition.SetTuningSpec(CephMirrorMetaSync, CephMirrorMetaSyncSpec)
+	// definition.SetTuningSpec(CinderBackupAccount, CinderBackupAccountSpec)
+	// definition.SetTuningSpec(CinderBackupEndpoint, CinderBackupEndpointSpec)
+	// definition.SetTuningSpec(CinderBackupOverride, CinderBackupOverrideSpec)
+	// definition.SetTuningSpec(CinderBackupPool, CinderBackupPoolSpec)
+	// definition.SetTuningSpec(CinderBackupSecret, CinderBackupSecretSpec)
+	// definition.SetTuningSpec(CinderBackupType, CinderBackupTypeSpec)
+	// definition.SetTuningSpec(CinderDebugEnabled, CinderDebugEnabledSpec)
+	// definition.SetTuningSpec(CinderExternalAccount, CinderExternalAccountSpec)
+	// definition.SetTuningSpec(CinderExternalDriver, CinderExternalDriverSpec)
+	// definition.SetTuningSpec(CinderExternalEndpoint, CinderExternalEndpointSpec)
+	// definition.SetTuningSpec(CinderExternalName, CinderExternalNameSpec)
+	// definition.SetTuningSpec(CinderExternalPool, CinderExternalPoolSpec)
+	// definition.SetTuningSpec(CinderExternalSecret, CinderExternalSecretSpec)
+	// definition.SetTuningSpec(CubesysAlertLevel, CubesysAlertLevelSpec)
+	// definition.SetTuningSpec(CubesysAlertLevelS, CubesysAlertLevelSSpec)
+	// definition.SetTuningSpec(CubesysConntableMax, CubesysConntableMaxSpec)
+	// definition.SetTuningSpec(CubesysLogDefaultRetention, CubesysLogDefaultRetentionSpec)
+	// definition.SetTuningSpec(CubesysProviderExtra, CubesysProviderExtraSpec) // no setup logic in cubecos
+	// definition.SetTuningSpec(CyborgDebugEnabled, CyborgDebugEnabledSpec)
+	// definition.SetTuningSpec(DebugEnableCoreDumpS, DebugEnableCoreDumpSSpec)
+	// definition.SetTuningSpec(DebugEnableKdump, DebugEnableKdumpSpec)
+	// definition.SetTuningSpec(DebugLevelS, DebugLevelSSpec)
+	// definition.SetTuningSpec(DebugMaxCoreDump, DebugMaxCoreDumpSpec)
+	// definition.SetTuningSpec(DesignateDebugEnabled, DesignateDebugEnabledSpec) // need to check edge part
+	// definition.SetTuningSpec(GlanceDebugEnabled, GlanceDebugEnabledSpec)       // no setup logic in cubecos
+	// definition.SetTuningSpec(GlanceExportRp, GlanceExportRpSpec)
+	// definition.SetTuningSpec(HeatDebugEnabled, HeatDebugEnabledSpec)
+	// definition.SetTuningSpec(InfluxdbCuratorRp, InfluxdbCuratorRpSpec)
+	// definition.SetTuningSpec(IronicDebugEnabled, IronicDebugEnabledSpec)
+	// definition.SetTuningSpec(IronicDeployServer, IronicDeployServerSpec)
+	// definition.SetTuningSpec(KapacitorAlertCheckEnabled, KapacitorAlertCheckEnabledSpec)
+	// definition.SetTuningSpec(KapacitorAlertCheckEventId, KapacitorAlertCheckEventIdSpec)
+	// definition.SetTuningSpec(KapacitorAlertCheckInterval, KapacitorAlertCheckIntervalSpec)
+	// definition.SetTuningSpec(KapacitorAlertExtraPrefix, KapacitorAlertExtraPrefixSpec)
+	// definition.SetTuningSpec(KapacitorAlertFlowBase, KapacitorAlertFlowBaseSpec)
+	// definition.SetTuningSpec(KapacitorAlertFlowThreshold, KapacitorAlertFlowThresholdSpec)
+	// definition.SetTuningSpec(KapacitorAlertFlowUnit, KapacitorAlertFlowUnitSpec)
+	// definition.SetTuningSpec(KeystoneDebugEnabled, KeystoneDebugEnabledSpec) // no setup logic in cubecos
+	// definition.SetTuningSpec(ManilaDebugEnabled, ManilaDebugEnabledSpec)
+	// definition.SetTuningSpec(ManilaVolumeType, ManilaVolumeTypeSpec)
+	// definition.SetTuningSpec(MasakariHostEvacuateAll, MasakariHostEvacuateAllSpec)
+	// definition.SetTuningSpec(MasakariWaitPeriod, MasakariWaitPeriodSpec) // need to check IsEdge(s_eCubeRole) means what
+	// definition.SetTuningSpec(MonascaDebugEnabled, MonascaDebugEnabledSpec)
+	// definition.SetTuningSpec(MysqlBackupCuratorRp, MysqlBackupCuratorRpSpec)
+	// definition.SetTuningSpec(NetIfMtuName, NetIfMtuNameSpec)
+	// definition.SetTuningSpec(NetIpv4TcpSyncookies, NetIpv4TcpSyncookiesSpec)
+	// definition.SetTuningSpec(NetLacpDefaultRate, NetLacpDefaultRateSpec)
+	// definition.SetTuningSpec(NetLacpDefaultXmit, NetLacpDefaultXmitSpec)
+	// definition.SetTuningSpec(NeutronDebugEnabled, NeutronDebugEnabledSpec)
+	// definition.SetTuningSpec(NovaControlHostMemory, NovaControlHostMemorySpec)
+	// definition.SetTuningSpec(NovaControlHostVcpu, NovaControlHostVcpuSpec) // why no compute role
+	// definition.SetTuningSpec(NovaDebugEnabled, NovaDebugEnabledSpec)
+	// definition.SetTuningSpec(NovaGpuType, NovaGpuTypeSpec)
+	// definition.SetTuningSpec(NovaOvercommitCpuRatio, NovaOvercommitCpuRatioSpec)
+	// definition.SetTuningSpec(NovaOvercommitDiskRatio, NovaOvercommitDiskRatioSpec)
+	// definition.SetTuningSpec(NovaOvercommitRamRatio, NovaOvercommitRamRatioSpec)
+	// definition.SetTuningSpec(NtpDebugEnabled, NtpDebugEnabledSpec) // no setup logic in cubecos
+	// definition.SetTuningSpec(OctaviaDebugEnabled, OctaviaDebugEnabledSpec)
+	// definition.SetTuningSpec(OctaviaHa, OctaviaHaSpec)
+	// definition.SetTuningSpec(OpensearchCuratorRp, OpensearchCuratorRpSpec)
+	// definition.SetTuningSpec(OpensearchHeapSize, OpensearchHeapSizeSpec)
+	// definition.SetTuningSpec(SenlinDebugEnabled, SenlinDebugEnabledSpec)   // EOL in OpenStack, consider to remove
+	// definition.SetTuningSpec(SkylineDebugEnabled, SkylineDebugEnabledSpec) // why only check IsControl() but no IsConverged()
+	// definition.SetTuningSpec(SnapshotApplyAction, SnapshotApplyActionSpec) // no setup logic in cubecos
+	// definition.SetTuningSpec(SnapshotApplyPolicyIgnore, SnapshotApplyPolicyIgnoreSpec)
+	// definition.SetTuningSpec(SshdBindToAllInterfaces, SshdBindToAllInterfacesSpec)
+	// definition.SetTuningSpec(SshdSessionInactivity, SshdSessionInactivitySpec)
+	// definition.SetTuningSpec(TimeTimezone, TimeTimezoneSpec)
+	// definition.SetTuningSpec(UpdateSecurityAutoUpdate, UpdateSecurityAutoUpdateSpec)
+	// definition.SetTuningSpec(WatcherDebugEnabled, WatcherDebugEnabledSpec)
 }
 
 func GetTuningValue(name string) (string, error) {
