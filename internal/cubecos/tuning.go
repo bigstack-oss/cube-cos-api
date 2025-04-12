@@ -208,12 +208,14 @@ func setTuningToSelectors() {
 func setTuningSpecs() {
 	out, err := exec.Command("hex_sdk", "-f", "json", "tuning_dump").Output()
 	if err != nil {
+		log.Errorf("tunings: failed to get tuning specs: %s", err.Error())
 		return
 	}
 
 	rawSpecs := []definition.RawTuningSpec{}
 	err = json.Unmarshal(out, &rawSpecs)
 	if err != nil {
+		log.Errorf("tunings: failed to unmarshal tuning specs: %s", err.Error())
 		return
 	}
 
@@ -271,18 +273,18 @@ func getTuningSelectors(tuningName string) definition.Selector {
 func convertIntLimit(raw definition.RawTuningLimitation) definition.TuningLimitation {
 	defaultVal, err := strconv.Atoi(raw.Default)
 	if err != nil {
-		log.Errorf("failed to convert default value %s to int: %v", raw.Default, err)
+		log.Errorf("tunings: failed to convert default value %s to int: %v", raw.Default, err)
 	}
 
 	min, err := strconv.Atoi(raw.Min)
 	if err != nil {
-		log.Errorf("failed to convert min value %s to int: %v", raw.Min, err)
+		log.Errorf("tunings: failed to convert min value %s to int: %v", raw.Min, err)
 		min = 0
 	}
 
 	max, err := strconv.Atoi(raw.Max)
 	if err != nil {
-		log.Errorf("failed to convert max value %s to int: %v", raw.Max, err)
+		log.Errorf("tunings: failed to convert max value %s to int: %v", raw.Max, err)
 		max = 0
 	}
 
@@ -298,7 +300,7 @@ func convertIntLimit(raw definition.RawTuningLimitation) definition.TuningLimita
 func convertBoolLimit(raw definition.RawTuningLimitation) definition.TuningLimitation {
 	defaultVal, err := strconv.ParseBool(strings.ToLower(raw.Default))
 	if err != nil {
-		log.Errorf("failed to convert default value %s to bool: %v", raw.Default, err)
+		log.Errorf("tunings: failed to convert default value %s to bool: %v", raw.Default, err)
 		defaultVal = false
 	}
 
@@ -324,7 +326,7 @@ func init() {
 func GetTuningValue(name string) (string, error) {
 	out, err := exec.Command("hex_tuning_helper", "/etc/settings.txt", "", name).Output()
 	if err != nil {
-		log.Errorf("failed to read hex tuning value: %s", err.Error())
+		log.Errorf("tunings: failed to read hex tuning value: %s", err.Error())
 		return "", err
 	}
 
@@ -354,7 +356,7 @@ func GetTuning(name string) (*definition.Tuning, error) {
 func ApplyTuning(isolatedDir string) error {
 	out, err := exec.Command("hex_config", "apply", isolatedDir).CombinedOutput()
 	if err != nil {
-		log.Errorf("failed to apply hex tuning value: %s", string(out))
+		log.Errorf("tunings: failed to apply hex tuning value: %s", string(out))
 		return err
 	}
 
@@ -434,7 +436,7 @@ func genTuningsAsYaml(tunings []definition.Tuning) ([]byte, error) {
 
 	yml, err := yaml.Marshal(&tuningTemplate)
 	if err != nil {
-		log.Errorf("failed to marshal batch tuning info: %s", err.Error())
+		log.Errorf("tunings: failed to marshal batch tuning info: %s", err.Error())
 		return nil, err
 	}
 
@@ -445,20 +447,20 @@ func writeTuningToFile(tmpDir string, yml []byte) error {
 	fullDir := fmt.Sprintf("%s/tuning", tmpDir)
 	err := os.MkdirAll(fullDir, 0755)
 	if err != nil {
-		log.Errorf("failed to create isolated tuning directory: %s", err.Error())
+		log.Errorf("tunings: failed to create isolated tuning directory: %s", err.Error())
 		return err
 	}
 
 	file, err := os.Create(fmt.Sprintf("%s/tuning1_0.yml", fullDir))
 	if err != nil {
-		log.Errorf("failed to create isolated tuning file: %s", err.Error())
+		log.Errorf("tunings: failed to create isolated tuning file: %s", err.Error())
 		return err
 	}
 
 	defer file.Close()
 	_, err = io.Writer.Write(file, yml)
 	if err != nil {
-		log.Errorf("failed to write tuning info to isolated file: %s", err.Error())
+		log.Errorf("tunings: failed to write tuning info to isolated file: %s", err.Error())
 		return err
 	}
 
@@ -528,7 +530,7 @@ func ListTuningsFromOtherNodes() (map[string][]definition.Tuning, error) {
 
 		tunings, err := getNodeTunings(node)
 		if err != nil {
-			log.Errorf("failed to get tunings from node %s: %s", node.Name, err.Error())
+			log.Errorf("tunings: failed to get tunings from node %s: %s", node.Name, err.Error())
 			continue
 		}
 
