@@ -213,15 +213,24 @@ func (h *helper) addMetricToNode(node *definition.Node) {
 	if err != nil {
 		log.Errorf("nodes(%s): failed to get cpu summary of host: %s", api.GetReqId(h.c), err.Error())
 	}
+	if cpu == nil {
+		cpu = &definition.ComputeStatistic{}
+	}
 
 	memory, err := cubecos.GetMemoryUsageSummaryOfHost(node.Hostname)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to get memory summary of host: %s", api.GetReqId(h.c), err.Error())
 	}
+	if memory == nil {
+		memory = &definition.SpaceStatistic{}
+	}
 
 	storage, err := cubecos.GetDiskStorageSummaryOfHost()
 	if err != nil {
 		log.Errorf("nodes(%s): failed to get disk summary of host: %s", api.GetReqId(h.c), err.Error())
+	}
+	if storage == nil {
+		storage = &definition.SpaceStatistic{}
 	}
 
 	node.Vcpu = *cpu

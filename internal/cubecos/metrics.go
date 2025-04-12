@@ -629,11 +629,11 @@ func GetDiskStorageSummaryOfHost() (*definition.SpaceStatistic, error) {
 	spaceStatistic := &definition.SpaceStatistic{}
 	for c.Next() {
 		record := c.Record()
-		spaceStatistic.TotalMiB = math.RoundDown(float64(record.ValueByKey("total").(int64)/1024.0/1024.0), 4)
-		spaceStatistic.UsedMiB = math.RoundDown(float64(record.ValueByKey("used").(int64)/1024.0/1024.0), 4)
-		spaceStatistic.FreeMiB = math.RoundDown(float64(record.ValueByKey("free").(int64)/1024.0/1024.0), 4)
-		spaceStatistic.UsedPercent = math.RoundDown(record.ValueByKey("used_percent").(float64), 4)
-		spaceStatistic.FreePercent = math.RoundDown(100.0-record.ValueByKey("used_percent").(float64), 4)
+		spaceStatistic.TotalMiB = parseDiskTotal(record)
+		spaceStatistic.UsedMiB = parseDiskUsed(record)
+		spaceStatistic.FreeMiB = parseDiskFree(record)
+		spaceStatistic.UsedPercent = parseDiskUsedPercent(record)
+		spaceStatistic.FreePercent = math.RoundDown(100-spaceStatistic.UsedPercent, 4)
 	}
 
 	return spaceStatistic, nil
@@ -1554,4 +1554,40 @@ func parseDevice(record *query.FluxRecord) string {
 	}
 
 	return device
+}
+
+func parseDiskTotal(record *query.FluxRecord) float64 {
+	total, ok := record.ValueByKey("total").(int64)
+	if !ok {
+		return 0
+	}
+
+	return math.RoundDown(float64(total)/1024.0/1024.0, 4)
+}
+
+func parseDiskUsed(record *query.FluxRecord) float64 {
+	total, ok := record.ValueByKey("used").(int64)
+	if !ok {
+		return 0
+	}
+
+	return math.RoundDown(float64(total)/1024.0/1024.0, 4)
+}
+
+func parseDiskFree(record *query.FluxRecord) float64 {
+	total, ok := record.ValueByKey("free").(int64)
+	if !ok {
+		return 0
+	}
+
+	return math.RoundDown(float64(total)/1024.0/1024.0, 4)
+}
+
+func parseDiskUsedPercent(record *query.FluxRecord) float64 {
+	usedPercent, ok := record.ValueByKey("used_percent").(float64)
+	if !ok {
+		return 0
+	}
+
+	return math.RoundDown(usedPercent, 4)
 }
