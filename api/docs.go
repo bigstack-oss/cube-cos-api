@@ -7658,7 +7658,7 @@ const docTemplate = `{
                                                         "enabled": true,
                                                         "isModified": false,
                                                         "limitation": {
-                                                            "type": "bool",
+                                                            "type": "boolean",
                                                             "default": false
                                                         },
                                                         "status": {
@@ -7681,7 +7681,7 @@ const docTemplate = `{
                                                         "enabled": true,
                                                         "isModified": false,
                                                         "limitation": {
-                                                            "type": "string",
+                                                            "type": "str",
                                                             "default": "",
                                                             "regex": ""
                                                         },
@@ -7705,7 +7705,7 @@ const docTemplate = `{
                                                         "enabled": true,
                                                         "isModified": false,
                                                         "limitation": {
-                                                            "type": "bool",
+                                                            "type": "boolean",
                                                             "default": false
                                                         },
                                                         "status": {
@@ -7728,7 +7728,7 @@ const docTemplate = `{
                                                         "enabled": true,
                                                         "isModified": false,
                                                         "limitation": {
-                                                            "type": "string",
+                                                            "type": "str",
                                                             "default": "",
                                                             "regex": ""
                                                         },
@@ -7895,7 +7895,7 @@ const docTemplate = `{
                                                     "name": "barbican.debug.enabled",
                                                     "description": "Set to true to enable barbican verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7914,7 +7914,7 @@ const docTemplate = `{
                                                     "name": "ceph.debug.enabled",
                                                     "description": "Set to true to enable ceph debug logs.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7933,7 +7933,7 @@ const docTemplate = `{
                                                     "name": "ceph.mirror.meta.sync",
                                                     "description": "Set to true to enable automatically volume metadata sync.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": true
                                                     },
                                                     "roles": [
@@ -7952,7 +7952,7 @@ const docTemplate = `{
                                                     "name": "cinder.backup.account",
                                                     "description": "Set cinder backup storage account.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": ""
                                                     },
                                                     "roles": [
@@ -7971,7 +7971,7 @@ const docTemplate = `{
                                                     "name": "cinder.backup.endpoint",
                                                     "description": "Set cinder backup storage endpoint.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": ""
                                                     },
                                                     "roles": [
@@ -7990,7 +7990,7 @@ const docTemplate = `{
                                                     "name": "cinder.backup.override",
                                                     "description": "Enable override cinder backup configurations.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8009,7 +8009,7 @@ const docTemplate = `{
                                                     "name": "cinder.backup.pool",
                                                     "description": "Set cinder backup storage pool.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": ""
                                                     },
                                                     "roles": [
@@ -8028,7 +8028,7 @@ const docTemplate = `{
                                                     "name": "cinder.backup.secret",
                                                     "description": "Set cinder backup storage account secret.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": ""
                                                     },
                                                     "roles": [
@@ -8047,7 +8047,7 @@ const docTemplate = `{
                                                     "name": "cinder.backup.type",
                                                     "description": "Set cinder backup storage type <cube-storage|cube-swift>.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": ""
                                                     },
                                                     "roles": [
@@ -8066,7 +8066,7 @@ const docTemplate = `{
                                                     "name": "cinder.debug.enabled",
                                                     "description": "Set to true to enable cinder verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8085,7 +8085,7 @@ const docTemplate = `{
                                                     "name": "cinder.external.%d.account",
                                                     "description": "Set cinder external storage account.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": ""
                                                     },
                                                     "roles": [
@@ -8104,7 +8104,7 @@ const docTemplate = `{
                                                     "name": "cinder.external.%d.driver",
                                                     "description": "Set cinder external storage type name <cube|purestorage>.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": ""
                                                     },
                                                     "roles": [
@@ -8123,7 +8123,7 @@ const docTemplate = `{
                                                     "name": "cinder.external.%d.endpoint",
                                                     "description": "Set cinder external storage endpoint.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": ""
                                                     },
                                                     "roles": [
@@ -8142,7 +8142,7 @@ const docTemplate = `{
                                                     "name": "cinder.external.%d.name",
                                                     "description": "Set cinder external storage rule name.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": ""
                                                     },
                                                     "roles": [
@@ -8161,7 +8161,7 @@ const docTemplate = `{
                                                     "name": "cinder.external.%d.pool",
                                                     "description": "Set cinder external storage pool.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": ""
                                                     },
                                                     "roles": [
@@ -8180,7 +8180,7 @@ const docTemplate = `{
                                                     "name": "cinder.external.%d.secret",
                                                     "description": "Set cinder external storage account secret.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": ""
                                                     },
                                                     "roles": [
@@ -8283,7 +8283,7 @@ const docTemplate = `{
                                                     "name": "cubesys.provider.extra",
                                                     "description": "Set extra provider interfaces ('pvd-' prefix and <= 15 chars) [IF.2:pvd-xxx,eth2:pvd-yyy,...].",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": ""
                                                     },
                                                     "roles": [
@@ -8302,7 +8302,7 @@ const docTemplate = `{
                                                     "name": "cyborg.debug.enabled",
                                                     "description": "Set to true to enable cyborg verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8321,7 +8321,7 @@ const docTemplate = `{
                                                     "name": "debug.enable_core_dump.%s",
                                                     "description": "Enable core dump for process %s",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8340,7 +8340,7 @@ const docTemplate = `{
                                                     "name": "debug.enable_kdump",
                                                     "description": "Enable kdump to collect dump from kernel panic",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8401,7 +8401,7 @@ const docTemplate = `{
                                                     "name": "designate.debug.enabled",
                                                     "description": "Set to true to enable designate verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8420,7 +8420,7 @@ const docTemplate = `{
                                                     "name": "glance.debug.enabled",
                                                     "description": "Set to true to enable glance verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8460,7 +8460,7 @@ const docTemplate = `{
                                                     "name": "heat.debug.enabled",
                                                     "description": "Set to true to enable heat verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8500,7 +8500,7 @@ const docTemplate = `{
                                                     "name": "ironic.debug.enabled",
                                                     "description": "Set to true to enable ironic verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8519,7 +8519,7 @@ const docTemplate = `{
                                                     "name": "ironic.deploy.server",
                                                     "description": "Set to true to enable ironic deploy server (dhcp/tftp/pxe/http).",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8538,7 +8538,7 @@ const docTemplate = `{
                                                     "name": "kapacitor.alert.check.enabled",
                                                     "description": "Set true to enable kapacitor alert check.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8557,7 +8557,7 @@ const docTemplate = `{
                                                     "name": "kapacitor.alert.check.eventid",
                                                     "description": "Set kapacitor alert check eventid.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": "SYS00002W"
                                                     },
                                                     "roles": [
@@ -8576,7 +8576,7 @@ const docTemplate = `{
                                                     "name": "kapacitor.alert.check.interval",
                                                     "description": "Set kapacitor alert check interval (default to 60m).",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": "60m"
                                                     },
                                                     "roles": [
@@ -8595,7 +8595,7 @@ const docTemplate = `{
                                                     "name": "kapacitor.alert.extra.prefix",
                                                     "description": "Set kapacitor alert message prefix.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": "Cube"
                                                     },
                                                     "roles": [
@@ -8614,7 +8614,7 @@ const docTemplate = `{
                                                     "name": "kapacitor.alert.flow.base",
                                                     "description": "Set kapacitor alert base for abnormal flow.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": "7d"
                                                     },
                                                     "roles": [
@@ -8654,7 +8654,7 @@ const docTemplate = `{
                                                     "name": "kapacitor.alert.flow.unit",
                                                     "description": "Set kapacitor alert unit for abnormal flow.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": "5m"
                                                     },
                                                     "roles": [
@@ -8673,7 +8673,7 @@ const docTemplate = `{
                                                     "name": "keystone.debug.enabled",
                                                     "description": "Set to true to enable keystone verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8692,7 +8692,7 @@ const docTemplate = `{
                                                     "name": "manila.debug.enabled",
                                                     "description": "Set to true to enable manila verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8711,7 +8711,7 @@ const docTemplate = `{
                                                     "name": "manila.volume.type",
                                                     "description": "Set manila backend volume type.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": "CubeStorage"
                                                     },
                                                     "roles": [
@@ -8730,7 +8730,7 @@ const docTemplate = `{
                                                     "name": "masakari.host.evacuate_all",
                                                     "description": "Set to true to enable evacuate all instances when host goes down.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": true
                                                     },
                                                     "roles": [
@@ -8770,7 +8770,7 @@ const docTemplate = `{
                                                     "name": "monasca.debug.enabled",
                                                     "description": "Set to true to enable monasca verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8831,7 +8831,7 @@ const docTemplate = `{
                                                     "name": "net.ipv4.tcp_syncookies",
                                                     "description": "Turn on the Linux SYN cookies implementation.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": true
                                                     },
                                                     "roles": [
@@ -8850,7 +8850,7 @@ const docTemplate = `{
                                                     "name": "net.lacp.default.rate",
                                                     "description": "Set default LACP rate (fast/slow).",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": "fast"
                                                     },
                                                     "roles": [
@@ -8869,7 +8869,7 @@ const docTemplate = `{
                                                     "name": "net.lacp.default.xmit",
                                                     "description": "Set default LACP transmit hash policy (layer2/layer2+3/layer3+4).",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": "layer3+4"
                                                     },
                                                     "roles": [
@@ -8888,7 +8888,7 @@ const docTemplate = `{
                                                     "name": "neutron.debug.enabled",
                                                     "description": "Set to true to enable neutron verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8949,7 +8949,7 @@ const docTemplate = `{
                                                     "name": "nova.debug.enabled",
                                                     "description": "Set to true to enable nova verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -8968,7 +8968,7 @@ const docTemplate = `{
                                                     "name": "nova.gpu.type",
                                                     "description": "Specify a supported gpu type instances would get.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": ""
                                                     },
                                                     "roles": []
@@ -9034,7 +9034,7 @@ const docTemplate = `{
                                                     "name": "ntp.debug.enabled",
                                                     "description": "Set to true to enable ntp verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -9053,7 +9053,7 @@ const docTemplate = `{
                                                     "name": "octavia.debug.enabled",
                                                     "description": "Set to true to enable octavia verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -9072,7 +9072,7 @@ const docTemplate = `{
                                                     "name": "octavia.ha",
                                                     "description": "Set to true to enable octavia HA mode.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -9133,7 +9133,7 @@ const docTemplate = `{
                                                     "name": "senlin.debug.enabled",
                                                     "description": "Set to true to enable senlin verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -9152,7 +9152,7 @@ const docTemplate = `{
                                                     "name": "skyline.debug.enabled",
                                                     "description": "Set to true to enable skyline verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -9171,7 +9171,7 @@ const docTemplate = `{
                                                     "name": "snapshot.apply.action",
                                                     "description": "Set snapshot apply action <apply|revert>.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": "apply"
                                                     },
                                                     "roles": [
@@ -9190,7 +9190,7 @@ const docTemplate = `{
                                                     "name": "snapshot.apply.policy.ignore",
                                                     "description": "Set snapshot apply policy ignore <true|false>.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -9209,7 +9209,7 @@ const docTemplate = `{
                                                     "name": "sshd.bind_to_all_interfaces",
                                                     "description": "Set to true to bind sshd to all interfaces.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -9249,7 +9249,7 @@ const docTemplate = `{
                                                     "name": "time.timezone",
                                                     "description": "Set system timezone.",
                                                     "limitation": {
-                                                        "type": "string",
+                                                        "type": "str",
                                                         "default": "UTC"
                                                     },
                                                     "roles": [
@@ -9268,7 +9268,7 @@ const docTemplate = `{
                                                     "name": "update.security.autoupdate",
                                                     "description": "Set to true to enable security autoupdate.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -9287,7 +9287,7 @@ const docTemplate = `{
                                                     "name": "watcher.debug.enabled",
                                                     "description": "Set to true to enable watcher verbose log.",
                                                     "limitation": {
-                                                        "type": "bool",
+                                                        "type": "boolean",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -15217,9 +15217,6 @@ const docTemplate = `{
                                                     "type": "integer"
                                                 },
                                                 {
-                                                    "type": "number"
-                                                },
-                                                {
                                                     "type": "boolean"
                                                 }
                                             ]
@@ -15228,9 +15225,6 @@ const docTemplate = `{
                                             "oneOf": [
                                                 {
                                                     "type": "integer"
-                                                },
-                                                {
-                                                    "type": "number"
                                                 }
                                             ]
                                         },
@@ -15238,9 +15232,6 @@ const docTemplate = `{
                                             "oneOf": [
                                                 {
                                                     "type": "integer"
-                                                },
-                                                {
-                                                    "type": "number"
                                                 }
                                             ]
                                         },
@@ -16468,10 +16459,10 @@ const docTemplate = `{
             "TuningLimitationType": {
                 "type": "string",
                 "enum": [
-                    "string",
+                    "str",
                     "int",
-                    "float",
-                    "bool"
+                    "uint",
+                    "boolean"
                 ]
             }
         }
