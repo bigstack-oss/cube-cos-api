@@ -90,7 +90,7 @@ func initCreateHelper(h *helper) (*helper, error) {
 }
 
 func initDownloadHelper(h *helper) (*helper, error) {
-	h.group.Name = h.c.Param("supportFileSet")
+	h.group.Name = h.c.Param("supportFileGroup")
 	h.file.Name = h.c.Param("supportFileName")
 	return h, nil
 }

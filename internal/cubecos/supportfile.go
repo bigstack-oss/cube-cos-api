@@ -178,7 +178,13 @@ func GetSupportFileUrl(file support.File) string {
 	u := url.URL{}
 	u.Scheme = "https"
 	u.Host = fmt.Sprintf("%s:%d", v1.DataCenterVip, config.Opts.Saml.ServiceProvider.Host.Port)
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/%s/%s", v1.DataCenterName, file.Group, file.Name)
+	u.Path = fmt.Sprintf(
+		"/api/v1/datacenters/%s/supportFiles/%s/%s",
+		v1.DataCenterName,
+		url.PathEscape(file.Group),
+		url.PathEscape(file.Name),
+	)
+
 	return u.String()
 }
 

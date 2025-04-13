@@ -100,28 +100,36 @@ func (h *helper) downloadSupportFile() error {
 	if err != nil {
 		return err
 	}
-
 	if len(setList.SupportFileSet) == 0 {
 		return errors.New("no support files found")
 	}
 
-	for _, set := range setList.SupportFileSet {
-		for _, file := range set.Files {
-			if file.Name != h.file.Name {
-				continue
-			}
-
-			if file.Source.Host == v1.Hostname {
-				h.streamFileDownload(file.Name)
-				break
-			}
-
-			h.streamFromPeerNode(set, file)
-			break
+	set := h.findFileSet(setList.SupportFileSet)
+	for _, file := range set.Files {
+		if file.Name != h.file.Name {
+			continue
 		}
+
+		if file.Source.Host == v1.Hostname {
+			h.streamFileDownload(file.Name)
+			return nil
+		}
+
+		h.streamFromPeerNode(set, file)
+		return nil
 	}
 
 	return nil
+}
+
+func (h *helper) findFileSet(sets []support.FileSet) support.FileSet {
+	for _, set := range sets {
+		if set.Name == h.file.Name {
+			return set
+		}
+	}
+
+	return support.FileSet{}
 }
 
 func (h *helper) streamFileDownload(filename string) {
