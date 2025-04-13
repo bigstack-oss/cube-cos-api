@@ -59,7 +59,7 @@ func checkAndSyncSupportFiles(event fsnotify.Event) {
 		return
 	}
 
-	if event.Has(fsnotify.Write) {
+	if event.Has(fsnotify.Create) {
 		printOrThrottleLog(event)
 		cubecos.SyncSupportFiles()
 	}
