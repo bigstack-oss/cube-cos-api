@@ -13678,8 +13678,10 @@
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/TimeValuePair"
-                    },
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TimeValuePair"
+                        }                    },
                     "msg": {
                         "type": "string"
                     },
@@ -13701,7 +13703,10 @@
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/TimeValuePair"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TimeValuePair"
+                        }
                     },
                     "msg": {
                         "type": "string"

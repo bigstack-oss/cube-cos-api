@@ -10162,18 +10162,21 @@ const docTemplate = `{
                                                         {
                                                             "name": "amqp-alert-p1",
                                                             "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
-                                                            "description": "example slack channel 1"
+                                                            "description": "example slack channel 1",
+                                                            "enabled": false
                                                         },
                                                         {
                                                             "name": "#test-cos-300-notification",
                                                             "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
-                                                            "description": "example slack channel 2"
+                                                            "description": "example slack channel 2",
+                                                            "enabled": false
                                                         }
                                                     ],
                                                     "emails": [
                                                         {
                                                             "address": "example.user@example.com",
-                                                            "note": "example email recipient"
+                                                            "note": "example email recipient",
+                                                            "enabled": false
                                                         }
                                                     ]
                                                 },
@@ -13679,8 +13682,10 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/TimeValuePair"
-                    },
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TimeValuePair"
+                        }                    },
                     "msg": {
                         "type": "string"
                     },
@@ -13702,7 +13707,10 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/TimeValuePair"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TimeValuePair"
+                        }
                     },
                     "msg": {
                         "type": "string"
