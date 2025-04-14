@@ -10085,7 +10085,7 @@ const docTemplate = `{
                                 },
                                 "examples": {
                                     "example": {
-                                        "summary": "Get a specific trigger",
+                                        "summary": "Trigger",
                                         "value": {
                                             "code": 200,
                                             "data": {
@@ -10343,7 +10343,7 @@ const docTemplate = `{
                                                 }
                                             ]
                                         },
-                                        "enabled": false
+                                        "description": "example-update-description"
                                     }
                                 }
                             }
@@ -15515,6 +15515,9 @@ const docTemplate = `{
                                                     },
                                                     "description": {
                                                         "type": "string"
+                                                    },
+                                                    "enabled": {
+                                                        "type": "boolean"
                                                     }
                                                 }
                                             }
@@ -15534,6 +15537,9 @@ const docTemplate = `{
                                                     },
                                                     "note": {
                                                         "type": "string"
+                                                    },
+                                                    "enabled": {
+                                                        "type": "boolean"
                                                     }
                                                 }
                                             }

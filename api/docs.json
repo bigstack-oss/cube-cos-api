@@ -10081,7 +10081,7 @@
                                 },
                                 "examples": {
                                     "example": {
-                                        "summary": "Get a specific trigger",
+                                        "summary": "Trigger",
                                         "value": {
                                             "code": 200,
                                             "data": {
@@ -10158,18 +10158,21 @@
                                                         {
                                                             "name": "amqp-alert-p1",
                                                             "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
-                                                            "description": "example slack channel 1"
+                                                            "description": "example slack channel 1",
+                                                            "enabled": false
                                                         },
                                                         {
                                                             "name": "#test-cos-300-notification",
                                                             "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
-                                                            "description": "example slack channel 2"
+                                                            "description": "example slack channel 2",
+                                                            "enabled": false
                                                         }
                                                     ],
                                                     "emails": [
                                                         {
                                                             "address": "example.user@example.com",
-                                                            "note": "example email recipient"
+                                                            "note": "example email recipient",
+                                                            "enabled": false
                                                         }
                                                     ]
                                                 },
@@ -10339,7 +10342,7 @@
                                                 }
                                             ]
                                         },
-                                        "enabled": false
+                                        "description": "example-update-description"
                                     }
                                 }
                             }
@@ -15511,6 +15514,9 @@
                                                     },
                                                     "description": {
                                                         "type": "string"
+                                                    },
+                                                    "enabled": {
+                                                        "type": "boolean"
                                                     }
                                                 }
                                             }
@@ -15530,6 +15536,9 @@
                                                     },
                                                     "note": {
                                                         "type": "string"
+                                                    },
+                                                    "enabled": {
+                                                        "type": "boolean"
                                                     }
                                                 }
                                             }
