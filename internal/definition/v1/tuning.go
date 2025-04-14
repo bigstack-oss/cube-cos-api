@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -255,22 +256,39 @@ func CheckTuningSpec(tuning Tuning) error {
 
 func isTuningValueValid(tuning Tuning, spec *TuningSpec) bool {
 	switch spec.Limitation.Type {
-	case "int":
-		value, ok := tuning.Value.(int)
-		if !ok {
-			return false
-		}
-
-		return spec.IsInLimitedRange(value)
-	case "string":
-		_, ok := tuning.Value.(string)
-		return ok
-	case "bool":
+	case "int", "uint":
+		return isValidInt(tuning, spec)
+	case "str":
+		return isValidString(tuning, spec)
+	case "boolean":
 		_, ok := tuning.Value.(bool)
 		return ok
 	}
 
 	return false
+}
+
+func isValidInt(tuning Tuning, spec *TuningSpec) bool {
+	value, ok := tuning.Value.(int)
+	if !ok {
+		return false
+	}
+
+	return spec.IsInLimitedRange(value)
+}
+
+func isValidString(tuning Tuning, spec *TuningSpec) bool {
+	value, ok := tuning.Value.(string)
+	if !ok {
+		return false
+	}
+
+	if spec.Limitation.Regex == "na" {
+		return true
+	}
+
+	regex := regexp.MustCompile(spec.Limitation.Regex)
+	return regex.MatchString(value)
 }
 
 func SetTuningSpec(name string, spec *TuningSpec) {
