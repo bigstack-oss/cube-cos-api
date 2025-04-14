@@ -64,7 +64,7 @@ func (h *helper) initTaskHelper() (*helper, error) {
 func (h *helper) listTriggers() ([]trigger.Options, error) {
 	triggers := []trigger.Options{}
 	for _, trigger := range trigger.DefaultOptions {
-		h.setResponseItemsToTrigger(&trigger)
+		h.syncSelectableResponseItems(&trigger)
 		h.syncCubePolicy(&trigger)
 		h.syncUpdateStatus(&trigger)
 		triggers = append(triggers, trigger)
@@ -84,31 +84,15 @@ func (h *helper) syncCubePolicy(trigger *trigger.Options) {
 		return
 	}
 
-	h.setAttributionEnablement(trigger, policyTrigger)
-	h.setResponseEnablement(trigger, policyTrigger)
 	trigger.Description = policyTrigger.Description
 	trigger.Enabled = policyTrigger.Enabled
+	h.syncAttrEnablement(trigger, policyTrigger)
+	h.setResponseEnablement(trigger, policyTrigger)
 }
 
-func (h *helper) setAttributionEnablement(options *trigger.Options, policyTrigger trigger.Options) []trigger.Attribute {
+func (h *helper) syncAttrEnablement(options *trigger.Options, policyTrigger trigger.Options) []trigger.Attribute {
+	enabledAttrs := h.getEnabledAttrs(policyTrigger)
 	attributes := []trigger.Attribute{}
-	matchRule := strings.ReplaceAll(policyTrigger.Match, `"`, ``)
-	parts := strings.Split(matchRule, " OR ")
-
-	enabledAttrs := []trigger.Attribute{}
-	for _, part := range parts {
-		attrPair := strings.Split(part, " == ")
-		if isValidAttrPair(attrPair) {
-			enabledAttrs = append(
-				enabledAttrs,
-				trigger.Attribute{
-					Name:  strings.TrimSpace(attrPair[0]),
-					Value: strings.TrimSpace(attrPair[1]),
-				},
-			)
-		}
-	}
-
 	for i, attr := range options.Attributes {
 		for _, enabledAttr := range enabledAttrs {
 			if attr.Name != enabledAttr.Name {
@@ -127,11 +111,38 @@ func (h *helper) setAttributionEnablement(options *trigger.Options, policyTrigge
 	return attributes
 }
 
+func (h *helper) getEnabledAttrs(policyTrigger trigger.Options) []trigger.Attribute {
+	enabledAttrs := []trigger.Attribute{}
+	matchRule := strings.ReplaceAll(policyTrigger.Match, `"`, ``)
+	parts := strings.SplitSeq(matchRule, " OR ")
+	for part := range parts {
+		attrPair := strings.Split(part, " == ")
+		if !isValidAttrPair(attrPair) {
+			continue
+		}
+
+		enabledAttrs = append(
+			enabledAttrs,
+			trigger.Attribute{
+				Name:  strings.TrimSpace(attrPair[0]),
+				Value: strings.TrimSpace(attrPair[1]),
+			},
+		)
+	}
+
+	return enabledAttrs
+}
+
 func isValidAttrPair(attrPair []string) bool {
 	return len(attrPair) == 2
 }
 
 func (h *helper) setResponseEnablement(trigger *trigger.Options, policyTrigger trigger.Options) {
+	h.syncEmailEnablement(trigger, policyTrigger)
+	h.syncSlackEnablement(trigger, policyTrigger)
+}
+
+func (h *helper) syncEmailEnablement(trigger *trigger.Options, policyTrigger trigger.Options) {
 	for i, email := range trigger.Response.Emails {
 		for _, policyEmail := range policyTrigger.Response.Emails {
 			if email.Address == policyEmail.Address {
@@ -140,7 +151,9 @@ func (h *helper) setResponseEnablement(trigger *trigger.Options, policyTrigger t
 			}
 		}
 	}
+}
 
+func (h *helper) syncSlackEnablement(trigger *trigger.Options, policyTrigger trigger.Options) {
 	for i, slack := range trigger.Response.Slacks {
 		for _, policySlack := range policyTrigger.Response.Slacks {
 			if slack.URL == policySlack.URL {
@@ -170,7 +183,7 @@ func (h *helper) syncUpdateStatus(trigger *trigger.Options) {
 func (h *helper) getTrigger(name string) (*trigger.Options, error) {
 	for _, trigger := range trigger.DefaultOptions {
 		if trigger.Name == name {
-			h.setResponseItemsToTrigger(&trigger)
+			h.syncSelectableResponseItems(&trigger)
 			return &trigger, nil
 		}
 	}

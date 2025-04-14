@@ -294,7 +294,6 @@ func (o *Options) IsSame(trigger Options) bool {
 	}
 
 	// have to add a comparsion for response data
-
 	return true
 }
 
