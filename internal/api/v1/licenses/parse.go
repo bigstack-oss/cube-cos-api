@@ -24,15 +24,15 @@ func (h *helper) parseListParams() error {
 }
 
 func (h *helper) parseType() {
-	h.Types = h.c.QueryArray("type")
+	h.Types = h.c.QueryArray("types")
 }
 
 func (h *helper) parseProduct() {
-	h.Products = h.c.QueryArray("product")
+	h.Products = h.c.QueryArray("products")
 }
 
 func (h *helper) parseStatus() {
-	h.Statuses = h.c.QueryArray("status")
+	h.Statuses = h.c.QueryArray("statuses")
 }
 
 func (h *helper) parsePage() error {

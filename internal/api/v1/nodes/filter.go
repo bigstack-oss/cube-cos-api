@@ -40,12 +40,12 @@ func (h *helper) isFilterRequired() bool {
 	return h.isProductRequired() || h.isKeywordRequired() || h.isRolesRequired() || h.isLicenseStatusRequired()
 }
 
-func (h *helper) isProductRequired() bool {
-	return len(h.products) > 0
-}
-
 func (h *helper) isRolesRequired() bool {
 	return len(h.roles) > 0
+}
+
+func (h *helper) isProductRequired() bool {
+	return len(h.products) > 0
 }
 
 func (h *helper) isKeywordRequired() bool {
@@ -53,8 +53,7 @@ func (h *helper) isKeywordRequired() bool {
 }
 
 func (h *helper) isLicenseStatusRequired() bool {
-	_, required := h.c.GetQuery("licenseStatus")
-	return required
+	return len(h.licenseStatuses) > 0
 }
 
 func (h *helper) filteredByLicenseStatus(nodes []definition.Node) []definition.Node {

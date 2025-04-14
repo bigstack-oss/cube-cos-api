@@ -8,21 +8,21 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 )
 
-func (h *helper) parseProduct() {
-	h.products = h.c.QueryArray("product")
-}
-
 func (h *helper) parseKeyword() {
 	keyword := h.c.DefaultQuery("keyword", "")
 	h.keyword = strings.ToLower(keyword)
 }
 
+func (h *helper) parseProduct() {
+	h.products = h.c.QueryArray("products")
+}
+
 func (h *helper) parseRoles() {
-	h.roles = h.c.QueryArray("role")
+	h.roles = h.c.QueryArray("roles")
 }
 
 func (h *helper) parseLicenseStatus() {
-	h.licenseStatuses = h.c.QueryArray("licenseStatus")
+	h.licenseStatuses = h.c.QueryArray("licenseStatuses")
 }
 
 func (h *helper) parsePage() error {
