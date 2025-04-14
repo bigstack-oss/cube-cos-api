@@ -16069,7 +16069,6 @@
                     "dataCenter",
                     "hostname",
                     "role",
-                    "protocol",
                     "address",
                     "ip",
                     "managementIP",
@@ -16099,9 +16098,6 @@
                         "type": "string"
                     },
                     "role": {
-                        "type": "string"
-                    },
-                    "protocol": {
                         "type": "string"
                     },
                     "address": {

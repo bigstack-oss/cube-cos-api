@@ -16073,7 +16073,6 @@ const docTemplate = `{
                     "dataCenter",
                     "hostname",
                     "role",
-                    "protocol",
                     "address",
                     "ip",
                     "managementIP",
@@ -16103,9 +16102,6 @@ const docTemplate = `{
                         "type": "string"
                     },
                     "role": {
-                        "type": "string"
-                    },
-                    "protocol": {
                         "type": "string"
                     },
                     "address": {
