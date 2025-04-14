@@ -16130,6 +16130,9 @@ const docTemplate = `{
                             "expiry"
                         ],
                         "properties": {
+                            "name": {
+                                "type": "string"
+                            },
                             "type": {
                                 "type": "string"
                             },
