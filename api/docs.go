@@ -2496,20 +2496,13 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/keyword"
                     },
                     {
-                        "in": "query",
-                        "name": "type",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "trial",
-                                "perpetual",
-                                "community",
-                                "enterprise"
-                            ]
-                        },
-                        "description": "The type of the license to query, click 'try it out' to see a few options.",
-                        "example": "trial"
+                        "$ref": "#/components/parameters/products"
+                    },
+                    {
+                        "$ref": "#/components/parameters/statuses"
+                    },
+                    {
+                        "$ref": "#/components/parameters/types"
                     },
                     {
                         "$ref": "#/components/parameters/pageSize"
@@ -4420,10 +4413,10 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/roles"
                     },
                     {
-                        "$ref": "#/components/parameters/licenseStatus"
+                        "$ref": "#/components/parameters/licenseStatuses"
                     },
                     {
-                        "$ref": "#/components/parameters/product"
+                        "$ref": "#/components/parameters/products"
                     },
                     {
                         "$ref": "#/components/parameters/pageSize"
@@ -11681,35 +11674,79 @@ const docTemplate = `{
                 "description": "The role of the host",
                 "example": "control-converged"
             },
-            "licenseStatus": {
+            "statuses": {
                 "in": "query",
-                "name": "licenseStatus",
+                "name": "statuses",
                 "required": false,
                 "schema": {
-                    "type": "string",
-                    "enum": [
-                        "ok",
-                        "expiring",
-                        "expired",
-                        "error"
-                    ]
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "ok",
+                            "expiring",
+                            "expired",
+                            "error"
+                        ]
+                    }
                 },
                 "description": "The status of the host",
                 "example": "active"
             },
-            "product": {
+            "types": {
                 "in": "query",
-                "name": "product",
+                "name": "types",
                 "required": false,
                 "schema": {
-                    "type": "string",
-                    "enum": [
-                        "cubeCOS",
-                        "cubeCMP"
-                    ]
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "trial",
+                            "perpetual",
+                            "community",
+                            "enterprise"
+                        ]
+                    }
+                },
+                "description": "The type of the license to query, click 'try it out' to see a few options.",
+                "example": "trial"
+            },
+            "licenseStatuses": {
+                "in": "query",
+                "name": "licenseStatuses",
+                "required": false,
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "ok",
+                            "expiring",
+                            "expired",
+                            "error"
+                        ]
+                    }
+                },
+                "description": "The status of the host",
+                "example": "active"
+            },
+            "products": {
+                "in": "query",
+                "name": "products",
+                "required": false,
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "cubeCOS",
+                            "cubeCMP"
+                        ]
+                    }
                 },
                 "description": "The product of the host",
-                "example": "example-product"
+                "example": "cubeCOS"
             },
             "metricType": {
                 "in": "path",
