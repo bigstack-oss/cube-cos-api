@@ -26,7 +26,8 @@ func (h *helper) addMetricsToNode(node *definition.Node) {
 		return
 	}
 
-	node.ManagementIP = hypervisor.HostIP
+	node.ManagementIP = definition.MgmtIP
+	node.StorageIP = definition.StorageIP
 	node.Status = hypervisor.State
 	h.addHardwareInfoToNode(node)
 	h.addMetricToNode(node)
@@ -200,7 +201,8 @@ func (h *helper) addDetailsToNodes(nodes *[]definition.Node) {
 			continue
 		}
 
-		(*nodes)[i].ManagementIP = hypervisor.HostIP
+		(*nodes)[i].ManagementIP = definition.MgmtIP
+		(*nodes)[i].StorageIP = definition.StorageIP
 		(*nodes)[i].Status = hypervisor.State
 		h.addHardwareInfoToNode((&(*nodes)[i]))
 		h.addMetricToNode((&(*nodes)[i]))

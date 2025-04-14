@@ -35,6 +35,8 @@ var (
 	AdvertisePort            int
 	MgmtNet                  string
 	MgmtIP                   string
+	StorageNet               string
+	StorageIP                string
 	IsHaEnabled              bool
 	IsGpuEnabled             bool
 
@@ -54,6 +56,7 @@ type Node struct {
 	Address           string `json:"address" yaml:"address"`
 	Ip                string `json:"ip" yaml:"ip"`
 	ManagementIP      string `json:"managementIP" yaml:"managementIP"`
+	StorageIP         string `json:"storageIP" yaml:"storageIP"`
 	License           `json:"license" yaml:"license,omitempty" bson:"license,omitempty"`
 	Status            string             `json:"status" yaml:"status"`
 	CpuSpec           string             `json:"cpuSpec" yaml:"cpuSpec" bson:"cpuSpec"`

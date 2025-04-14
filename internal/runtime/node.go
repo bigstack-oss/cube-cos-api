@@ -51,6 +51,18 @@ func initNodeIdentities() error {
 		return err
 	}
 
+	definition.StorageNet, err = cubecos.GetStorageNet()
+	if err != nil {
+		log.Errorf("runtime: failed to get storage network: %s", err.Error())
+		return err
+	}
+
+	definition.StorageIP, err = cubecos.GetStorageIp(definition.StorageNet)
+	if err != nil {
+		log.Errorf("runtime: failed to get storage ip: %s", err.Error())
+		return err
+	}
+
 	definition.DataCenterVip, err = cubecos.GetControllerVirtualIp(definition.MgmtNet)
 	if err != nil {
 		log.Errorf("runtime: failed to get controller virtual ip: %s", err.Error())

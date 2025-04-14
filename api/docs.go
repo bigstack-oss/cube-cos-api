@@ -4452,6 +4452,7 @@ const docTemplate = `{
                                                         "address": "10.10.10.10:8001",
                                                         "ip": "10.10.10.10",
                                                         "managementIP": "10.10.10.10",
+                                                        "storageIP": "10.10.10.10",
                                                         "license": {
                                                             "name": "example-license",
                                                             "type": "trial",
@@ -5385,6 +5386,7 @@ const docTemplate = `{
                                                 "address": "10.10.10.10:8001",
                                                 "ip": "10.10.10.10",
                                                 "managementIP": "10.10.10.10",
+                                                "storageIP": "10.10.10.10",
                                                 "license": {
                                                     "name": "example-license",
                                                     "type": "trial",
@@ -16075,6 +16077,7 @@ const docTemplate = `{
                     "address",
                     "ip",
                     "managementIP",
+                    "storageIP",
                     "license",
                     "status",
                     "cpuSpec",
@@ -16112,6 +16115,9 @@ const docTemplate = `{
                         "type": "string"
                     },
                     "managementIP": {
+                        "type": "string"
+                    },
+                    "storageIP": {
                         "type": "string"
                     },
                     "license": {

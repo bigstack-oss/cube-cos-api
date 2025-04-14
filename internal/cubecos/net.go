@@ -33,3 +33,16 @@ func GetManagementIp(mgmtNet string) (string, error) {
 	netIfAddrMgmtIp := fmt.Sprintf("%s%s", CubeNetIfAddrPrefix, mgmtNet)
 	return GetTuningValue(netIfAddrMgmtIp)
 }
+
+func GetStorageNet() (string, error) {
+	return GetTuningValue(CubeSysStorageNetwork)
+}
+
+func GetStorageIp(stroageNet string) (string, error) {
+	if stroageNet == "" {
+		return "", fmt.Errorf("storage network is empty")
+	}
+
+	netIfAddrStorageIp := fmt.Sprintf("%s%s", CubeNetIfAddrPrefix, stroageNet)
+	return GetTuningValue(netIfAddrStorageIp)
+}
