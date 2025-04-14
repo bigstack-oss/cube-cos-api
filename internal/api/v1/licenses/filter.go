@@ -1,6 +1,8 @@
 package licenses
 
 import (
+	"slices"
+
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
@@ -53,7 +55,7 @@ func (h *helper) filteredByKeyword(licenses []v1.License) []v1.License {
 func (h *helper) filteredByStatus(licenses []v1.License) []v1.License {
 	filtered := []v1.License{}
 	for _, license := range licenses {
-		if license.Status.Current == h.Status {
+		if slices.Contains(h.Statuses, license.Status.Current) {
 			filtered = append(filtered, license)
 		}
 	}
@@ -64,7 +66,7 @@ func (h *helper) filteredByStatus(licenses []v1.License) []v1.License {
 func (h *helper) filteredByType(licenses []v1.License) []v1.License {
 	filtered := []v1.License{}
 	for _, license := range licenses {
-		if license.Type == h.Type {
+		if slices.Contains(h.Types, license.Type) {
 			filtered = append(filtered, license)
 		}
 	}
@@ -75,7 +77,7 @@ func (h *helper) filteredByType(licenses []v1.License) []v1.License {
 func (h *helper) filteredByProduct(licenses []v1.License) []v1.License {
 	filtered := []v1.License{}
 	for _, license := range licenses {
-		if license.Product.Name == h.Product {
+		if slices.Contains(h.Products, license.Product.Name) {
 			filtered = append(filtered, license)
 		}
 	}

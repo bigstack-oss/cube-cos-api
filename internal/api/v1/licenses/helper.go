@@ -12,11 +12,12 @@ type helper struct {
 	c       *gin.Context
 	handler string
 
-	Type    string
-	Product string
-	Status  string
-	Keyword string
-	Watch   bool
+	Types    []string
+	Products []string
+	Statuses []string
+	Keyword  string
+
+	Watch bool
 	v1.Page
 }
 

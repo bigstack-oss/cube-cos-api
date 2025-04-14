@@ -12,15 +12,15 @@ func (h *helper) isFilterRequired() bool {
 }
 
 func (h *helper) isTypeRequired() bool {
-	return h.Type != ""
+	return len(h.Types) > 0
 }
 
 func (h *helper) isProductRequired() bool {
-	return h.Product != ""
+	return len(h.Products) > 0
 }
 
 func (h *helper) isStatusRequired() bool {
-	return h.Status != ""
+	return len(h.Statuses) > 0
 }
 
 func (h *helper) isKeywordRequired() bool {
