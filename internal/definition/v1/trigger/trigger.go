@@ -30,19 +30,19 @@ var DefaultOptions = []Options{
 				Name:   "severity",
 				Type:   "string",
 				Value:  "W",
-				Enable: true,
+				Enable: false,
 			},
 			{
 				Name:   "severity",
 				Type:   "string",
 				Value:  "E",
-				Enable: true,
+				Enable: false,
 			},
 			{
 				Name:   "severity",
 				Type:   "string",
 				Value:  "C",
-				Enable: true,
+				Enable: false,
 			},
 			{
 				Name:   "category",
@@ -97,7 +97,7 @@ var DefaultOptions = []Options{
 				Name:   "severity",
 				Type:   "string",
 				Value:  "W",
-				Enable: true,
+				Enable: false,
 			},
 			{
 				Name:   "severity",
@@ -109,7 +109,7 @@ var DefaultOptions = []Options{
 				Name:   "severity",
 				Type:   "string",
 				Value:  "C",
-				Enable: true,
+				Enable: false,
 			},
 			{
 				Name:   "category",

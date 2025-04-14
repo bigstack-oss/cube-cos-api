@@ -15690,7 +15690,7 @@ const docTemplate = `{
                 "required": [
                     "attributes",
                     "response",
-                    "enabled"
+                    "description"
                 ],
                 "properties": {
                     "attributes": {
@@ -15756,8 +15756,8 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "enabled": {
-                        "type": "boolean"
+                    "description": {
+                        "type": "string"
                     }
                 }
             },

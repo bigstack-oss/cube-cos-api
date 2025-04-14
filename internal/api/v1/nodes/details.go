@@ -59,6 +59,7 @@ func addNetworkSpecToNode(node *definition.Node) {
 		return
 	}
 
+	node.NetworkInterfaces = []definition.NetworkInterface{}
 	lines := strings.SplitSeq(string(out), "\n")
 	for line := range lines {
 		line = strings.TrimSpace(line)
@@ -94,6 +95,7 @@ func addBlockDeviceSpecToNode(node *definition.Node) {
 		return
 	}
 
+	node.BlockDevices = []definition.BlockDevice{}
 	parentBlockDevs := map[string]string{}
 	for _, rawBlockDev := range rawBlockDevs {
 		if rawBlockDev.IsMainBlockDevice() {

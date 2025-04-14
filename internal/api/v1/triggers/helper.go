@@ -3,6 +3,7 @@ package triggers
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
@@ -63,12 +64,91 @@ func (h *helper) initTaskHelper() (*helper, error) {
 func (h *helper) listTriggers() ([]trigger.Options, error) {
 	triggers := []trigger.Options{}
 	for _, trigger := range trigger.DefaultOptions {
-		setResponseItemsToTrigger(&trigger)
+		h.setResponseItemsToTrigger(&trigger)
+		h.syncCubePolicy(&trigger)
 		h.syncUpdateStatus(&trigger)
 		triggers = append(triggers, trigger)
 	}
 
 	return triggers, nil
+}
+
+func (h *helper) syncCubePolicy(trigger *trigger.Options) {
+	policy, err := cubecos.GetTriggerPolicy()
+	if err != nil {
+		return
+	}
+
+	policyTrigger := policy.GetTrigger(trigger.Name)
+	if policyTrigger.Name == "" {
+		return
+	}
+
+	h.setAttributionEnablement(trigger, policyTrigger)
+	h.setResponseEnablement(trigger, policyTrigger)
+	trigger.Description = policyTrigger.Description
+	trigger.Enable = policyTrigger.Enable
+}
+
+func (h *helper) setAttributionEnablement(options *trigger.Options, policyTrigger trigger.Options) []trigger.Attribute {
+	attributes := []trigger.Attribute{}
+	matchRule := strings.ReplaceAll(policyTrigger.Match, `"`, ``)
+	parts := strings.Split(matchRule, " OR ")
+
+	enabledAttrs := []trigger.Attribute{}
+	for _, part := range parts {
+		attrPair := strings.Split(part, " == ")
+		if isValidAttrPair(attrPair) {
+			enabledAttrs = append(
+				enabledAttrs,
+				trigger.Attribute{
+					Name:  strings.TrimSpace(attrPair[0]),
+					Value: strings.TrimSpace(attrPair[1]),
+				},
+			)
+		}
+	}
+
+	for i, attr := range options.Attributes {
+		for _, enabledAttr := range enabledAttrs {
+			if attr.Name != enabledAttr.Name {
+				continue
+			}
+
+			if attr.Value != enabledAttr.Value {
+				continue
+			}
+
+			options.Attributes[i].Enable = true
+			break
+		}
+	}
+
+	return attributes
+}
+
+func isValidAttrPair(attrPair []string) bool {
+	return len(attrPair) == 2
+}
+
+func (h *helper) setResponseEnablement(trigger *trigger.Options, policyTrigger trigger.Options) {
+	for i, email := range trigger.Response.Emails {
+		for _, policyEmail := range policyTrigger.Response.Emails {
+			if email.Address == policyEmail.Address {
+				trigger.Response.Emails[i].Enabled = true
+				break
+			}
+		}
+	}
+
+	for i, slack := range trigger.Response.Slacks {
+		for _, policySlack := range policyTrigger.Response.Slacks {
+			if slack.URL == policySlack.URL {
+				trigger.Response.Slacks[i].Enabled = true
+				break
+			}
+		}
+	}
 }
 
 func (h *helper) syncUpdateStatus(trigger *trigger.Options) {
@@ -82,7 +162,7 @@ func (h *helper) syncUpdateStatus(trigger *trigger.Options) {
 		return
 	}
 
-	trigger.Status.IsUpdating = record.Status.IsUpdating
+	trigger.Status.IsUpdating = true
 	trigger.Status.Current = record.Status.Current
 	trigger.Status.UpdatedAt = record.Status.UpdatedAt
 }
@@ -90,7 +170,7 @@ func (h *helper) syncUpdateStatus(trigger *trigger.Options) {
 func (h *helper) getTrigger(name string) (*trigger.Options, error) {
 	for _, trigger := range trigger.DefaultOptions {
 		if trigger.Name == name {
-			setResponseItemsToTrigger(&trigger)
+			h.setResponseItemsToTrigger(&trigger)
 			return &trigger, nil
 		}
 	}

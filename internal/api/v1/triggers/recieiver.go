@@ -5,7 +5,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 )
 
-func setResponseItemsToTrigger(trigger *trigger.Options) {
+func (h *helper) setResponseItemsToTrigger(trigger *trigger.Options) {
 	trigger.InitResponse()
 
 	setEmailRecipientsToTrigger(trigger)

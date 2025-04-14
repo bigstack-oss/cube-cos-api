@@ -48,6 +48,7 @@ func (s *Sender) ErasePassword() {
 type Recipient struct {
 	Address string `json:"address" bson:"address"`
 	Note    string `json:"note" bson:"note"`
+	Enabled bool   `json:"enabled" bson:"-"`
 }
 
 type Trial struct {

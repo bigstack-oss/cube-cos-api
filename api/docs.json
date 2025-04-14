@@ -15686,7 +15686,7 @@
                 "required": [
                     "attributes",
                     "response",
-                    "enabled"
+                    "description"
                 ],
                 "properties": {
                     "attributes": {
@@ -15752,8 +15752,8 @@
                             }
                         }
                     },
-                    "enabled": {
-                        "type": "boolean"
+                    "description": {
+                        "type": "string"
                     }
                 }
             },
