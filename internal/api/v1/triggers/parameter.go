@@ -22,5 +22,5 @@ func (h *helper) parseTrigger() error {
 func (h *helper) setUpdateInfo() {
 	h.trigger.Name = h.c.Param("triggerName")
 	h.trigger.Match = h.trigger.GenMatchRule()
-	h.trigger.InitStatus("updating", "updated")
+	h.trigger.InitUpdateStatus()
 }

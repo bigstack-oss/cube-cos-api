@@ -162,7 +162,7 @@ func (h *helper) syncUpdateStatus(trigger *trigger.Options) {
 		return
 	}
 
-	trigger.Status.IsUpdating = true
+	trigger.Status.IsUpdating = record.Status.IsUpdating
 	trigger.Status.Current = record.Status.Current
 	trigger.Status.UpdatedAt = record.Status.UpdatedAt
 }

@@ -277,14 +277,6 @@ func (o *Options) GenTaskUpdate() Options {
 	}
 }
 
-func (o *Options) InitStatus(current, desired string) {
-	o.Status = &status.Trigger{
-		Current:   current,
-		Desired:   desired,
-		CreatedAt: time.Now().Local().Format(time.RFC3339),
-	}
-}
-
 func (o *Options) IsSame(trigger Options) bool {
 	if o.Name != trigger.Name {
 		log.Errorf("trigger name not same: %s != %s", o.Name, trigger.Name)
