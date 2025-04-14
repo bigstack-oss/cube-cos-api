@@ -43,7 +43,7 @@ func (h *helper) genUpsertPayload() bson.M {
 			"name":     h.trigger.Name,
 			"match":    h.trigger.Match,
 			"response": h.trigger.Response,
-			"enabled":  h.trigger.Enable,
+			"enabled":  h.trigger.Enabled,
 			"status":   h.trigger.Status,
 		},
 	}

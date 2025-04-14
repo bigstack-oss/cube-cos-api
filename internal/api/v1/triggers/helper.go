@@ -87,7 +87,7 @@ func (h *helper) syncCubePolicy(trigger *trigger.Options) {
 	h.setAttributionEnablement(trigger, policyTrigger)
 	h.setResponseEnablement(trigger, policyTrigger)
 	trigger.Description = policyTrigger.Description
-	trigger.Enable = policyTrigger.Enable
+	trigger.Enabled = policyTrigger.Enabled
 }
 
 func (h *helper) setAttributionEnablement(options *trigger.Options, policyTrigger trigger.Options) []trigger.Attribute {
@@ -119,7 +119,7 @@ func (h *helper) setAttributionEnablement(options *trigger.Options, policyTrigge
 				continue
 			}
 
-			options.Attributes[i].Enable = true
+			options.Attributes[i].Enabled = true
 			break
 		}
 	}
@@ -211,7 +211,7 @@ func (h *helper) parseTriggerEnablement() error {
 	}
 
 	h.trigger = *trigger
-	h.trigger.Enable = h.toggle.Enable
+	h.trigger.Enabled = h.toggle.Enable
 	h.trigger.InitUpdateStatus()
 	return nil
 }

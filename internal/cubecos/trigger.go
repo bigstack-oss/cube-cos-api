@@ -50,7 +50,7 @@ func ApplyTriggers(triggers []trigger.Options) error {
 	trigger.WriteFakePolicyFile(&trigger.Policy{
 		Name:     "alert_resp",
 		Version:  2.0,
-		Enable:   true,
+		Enabled:  true,
 		Triggers: triggers,
 	})
 
@@ -115,7 +115,7 @@ func genTriggersAsYaml(triggers []trigger.Options) ([]byte, error) {
 	triggerTemplate := trigger.Policy{
 		Name:     "alert_resp",
 		Version:  2.0,
-		Enable:   true,
+		Enabled:  true,
 		Triggers: triggers,
 	}
 

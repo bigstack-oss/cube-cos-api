@@ -25,7 +25,7 @@ func genFakePolicy() *Policy {
 	policy := &Policy{
 		Name:     "alert_resp",
 		Version:  2.0,
-		Enable:   true,
+		Enabled:  true,
 		Triggers: DefaultOptions,
 	}
 

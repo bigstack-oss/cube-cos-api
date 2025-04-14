@@ -27,141 +27,141 @@ var DefaultOptions = []Options{
 		Description: `Configure how you are going to be notified for system events and host alerts, including levels 'warning', 'error', and 'critical'.`,
 		Attributes: []Attribute{
 			{
-				Name:   "severity",
-				Type:   "string",
-				Value:  "W",
-				Enable: false,
+				Name:    "severity",
+				Type:    "string",
+				Value:   "W",
+				Enabled: false,
 			},
 			{
-				Name:   "severity",
-				Type:   "string",
-				Value:  "E",
-				Enable: false,
+				Name:    "severity",
+				Type:    "string",
+				Value:   "E",
+				Enabled: false,
 			},
 			{
-				Name:   "severity",
-				Type:   "string",
-				Value:  "C",
-				Enable: false,
+				Name:    "severity",
+				Type:    "string",
+				Value:   "C",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "DEV",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "DEV",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "CPU",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "CPU",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "DSK",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "DSK",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "MEM",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "MEM",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "NET",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "NET",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "SRV",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "SRV",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "VRT",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "VRT",
+				Enabled: false,
 			},
 		},
-		Enable: false,
+		Enabled: false,
 	},
 	{
 		Name:        "Instance Level Notification",
 		Description: `Configure how you are going to be notified for instance alerts, including levels 'warning', and 'critical'.`,
 		Attributes: []Attribute{
 			{
-				Name:   "severity",
-				Type:   "string",
-				Value:  "W",
-				Enable: false,
+				Name:    "severity",
+				Type:    "string",
+				Value:   "W",
+				Enabled: false,
 			},
 			{
-				Name:   "severity",
-				Type:   "string",
-				Value:  "E",
-				Enable: false,
+				Name:    "severity",
+				Type:    "string",
+				Value:   "E",
+				Enabled: false,
 			},
 			{
-				Name:   "severity",
-				Type:   "string",
-				Value:  "C",
-				Enable: false,
+				Name:    "severity",
+				Type:    "string",
+				Value:   "C",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "DEV",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "DEV",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "CPU",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "CPU",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "DSK",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "DSK",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "MEM",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "MEM",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "NET",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "NET",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "SRV",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "SRV",
+				Enabled: false,
 			},
 			{
-				Name:   "category",
-				Type:   "string",
-				Value:  "VRT",
-				Enable: false,
+				Name:    "category",
+				Type:    "string",
+				Value:   "VRT",
+				Enabled: false,
 			},
 		},
-		Enable: false,
+		Enabled: false,
 	},
 }
 
 type Policy struct {
 	Name     string    `json:"name" yaml:"name"`
 	Version  float64   `json:"version" yaml:"version"`
-	Enable   bool      `json:"enable" yaml:"enable"`
+	Enabled  bool      `json:"enabled" yaml:"enabled"`
 	Triggers []Options `json:"triggers" yaml:"triggers"`
 }
 
@@ -192,7 +192,7 @@ func (p *Policy) existingTriggerUpdated(trigger Options) bool {
 			p.Triggers[i].Description = trigger.Description
 			p.Triggers[i].Match = trigger.GenMatchRule()
 			p.Triggers[i].Response = trigger.Response
-			p.Triggers[i].Enable = trigger.Enable
+			p.Triggers[i].Enabled = trigger.Enabled
 			return true
 		}
 	}
@@ -210,7 +210,7 @@ type Options struct {
 	Match       string      `json:"-" yaml:"match"`
 	Attributes  []Attribute `json:"attributes" bson:"-" yaml:"-"`
 	Response    `json:"response" yaml:"response"`
-	Enable      bool            `json:"enable" yaml:"enable"`
+	Enabled     bool            `json:"enabled" yaml:"enabled"`
 	Status      *status.Trigger `json:"status" yaml:"-" bson:"status"`
 }
 
@@ -249,7 +249,7 @@ func (o *Options) InitUpdateStatus() {
 func (o *Options) GenMatchRule() string {
 	rule := []string{}
 	for _, attr := range o.Attributes {
-		if !attr.Enable {
+		if !attr.Enabled {
 			continue
 		}
 
@@ -296,8 +296,8 @@ func (o *Options) IsSame(trigger Options) bool {
 		return false
 	}
 
-	if o.Enable != trigger.Enable {
-		log.Errorf("trigger enable not same: %v != %v", o.Enable, trigger.Enable)
+	if o.Enabled != trigger.Enabled {
+		log.Errorf("trigger enable not same: %v != %v", o.Enabled, trigger.Enabled)
 		return false
 	}
 
@@ -322,10 +322,10 @@ type Response struct {
 }
 
 type Attribute struct {
-	Name   string `json:"name"`
-	Type   string `json:"type"`
-	Value  any    `json:"value"`
-	Enable bool   `json:"enable"`
+	Name    string `json:"name"`
+	Type    string `json:"type"`
+	Value   any    `json:"value"`
+	Enabled bool   `json:"enabled"`
 }
 
 func Get(name string) (*Options, bool) {
