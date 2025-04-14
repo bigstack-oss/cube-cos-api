@@ -9,7 +9,7 @@ import (
 )
 
 func (h *helper) parseProduct() {
-	h.product = h.c.DefaultQuery("product", "")
+	h.products = h.c.QueryArray("product")
 }
 
 func (h *helper) parseKeyword() {
@@ -22,7 +22,7 @@ func (h *helper) parseRoles() {
 }
 
 func (h *helper) parseLicenseStatus() {
-	h.licenseStatus = h.c.DefaultQuery("licenseStatus", "")
+	h.licenseStatuses = h.c.QueryArray("licenseStatus")
 }
 
 func (h *helper) parsePage() error {

@@ -17,7 +17,7 @@ func (h *helper) filterNodes(nodes []definition.Node) []definition.Node {
 		return nodes
 	}
 
-	if h.isProduct() {
+	if h.isProductRequired() {
 		nodes = h.filteredByProduct(nodes)
 	}
 
@@ -37,11 +37,11 @@ func (h *helper) filterNodes(nodes []definition.Node) []definition.Node {
 }
 
 func (h *helper) isFilterRequired() bool {
-	return h.isProduct() || h.isKeywordRequired() || h.isRolesRequired() || h.isLicenseStatusRequired()
+	return h.isProductRequired() || h.isKeywordRequired() || h.isRolesRequired() || h.isLicenseStatusRequired()
 }
 
-func (h *helper) isProduct() bool {
-	return h.product != ""
+func (h *helper) isProductRequired() bool {
+	return len(h.products) > 0
 }
 
 func (h *helper) isRolesRequired() bool {
@@ -60,7 +60,7 @@ func (h *helper) isLicenseStatusRequired() bool {
 func (h *helper) filteredByLicenseStatus(nodes []definition.Node) []definition.Node {
 	filtered := []definition.Node{}
 	for _, node := range nodes {
-		if node.License.Status.Current == h.licenseStatus {
+		if slices.Contains(h.licenseStatuses, node.License.Status.Current) {
 			filtered = append(filtered, node)
 		}
 	}
@@ -71,7 +71,7 @@ func (h *helper) filteredByLicenseStatus(nodes []definition.Node) []definition.N
 func (h *helper) filteredByProduct(nodes []definition.Node) []definition.Node {
 	filtered := []definition.Node{}
 	for _, node := range nodes {
-		if node.License.Product.Name == h.product {
+		if slices.Contains(h.products, node.License.Product.Name) {
 			filtered = append(filtered, node)
 		}
 	}

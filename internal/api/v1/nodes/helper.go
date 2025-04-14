@@ -14,11 +14,11 @@ type helper struct {
 	c       *gin.Context
 	handler string
 
-	nodeName      string
-	product       string
-	keyword       string
-	licenseStatus string
-	roles         []string
+	nodeName        string
+	keyword         string
+	products        []string
+	licenseStatuses []string
+	roles           []string
 
 	definition.Page
 	watch bool
