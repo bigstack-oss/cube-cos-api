@@ -79,6 +79,12 @@ type License struct {
 	IsExpiring bool   `json:"isExpiring" bson:"isExpiring"`
 }
 
+type Settings struct {
+	Current    string `json:"current,omitempty" bson:"current"`
+	Desired    string `json:"desired,omitempty" bson:"desired"`
+	IsUpdating bool   `json:"isUpdating" bson:"isUpdating"`
+}
+
 func NewHealthOk() *Health {
 	return &Health{Current: Ok}
 }
@@ -136,4 +142,9 @@ func (h *Health) SetCurrentToError(err error) {
 	if err != nil {
 		h.Description = err.Error()
 	}
+}
+
+func (s *Settings) InitOkStatus() {
+	s.Current = Ok
+	s.IsUpdating = false
 }

@@ -20,12 +20,12 @@ import (
 )
 
 const (
-	LicenseValid              = 1
-	LicenseExpired            = 251
-	LicenseNotInstalled       = 252
-	LicenseInvalidHardware    = 253
-	LicenseInvalidSignature   = 254
-	LicenseSysytemCompromised = 255
+	LicenseValid              = 0
+	LicenseSysytemCompromised = -1
+	LicenseInvalidSignature   = -2
+	LicenseInvalidHardware    = -3
+	LicenseNotInstalled       = -4
+	LicenseExpired            = -5
 )
 
 func VerifyLicense(license string) (*definition.VerificationDetails, error) {
@@ -250,9 +250,11 @@ func checkLicenseErr(err error) error {
 		return errors.New("internal license system error")
 	}
 
-	switch result.ExitCode() {
-	case LicenseValid:
+	if result.ExitCode() >= LicenseValid {
 		return nil
+	}
+
+	switch result.ExitCode() {
 	case LicenseExpired:
 		return errors.New("license is already expired")
 	case LicenseNotInstalled:
@@ -270,7 +272,7 @@ func checkLicenseErr(err error) error {
 
 func checkImportLicense(license string) error {
 	dir, file := getDirAndLicenseName(license)
-	_, err := exec.Command("hex_sdk", "license_import_check", dir, file).Output()
+	_, err := exec.Command("hex_config", "license_check", "def", filepath.Join(dir, file)).Output()
 	return checkLicenseErr(err)
 }
 

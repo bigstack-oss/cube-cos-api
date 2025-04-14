@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/mail"
 	"net/smtp"
+
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 )
 
 const (
@@ -17,12 +19,13 @@ type Options struct {
 }
 
 type Sender struct {
-	Host           string `json:"host" bson:"host"`
-	Port           int    `json:"port" bson:"port"`
-	Username       string `json:"username" bson:"username"`
-	Password       string `json:"password,omitzero" bson:"password"`
-	Email          string `json:"email" bson:"email"`
-	AccessVerified bool   `json:"accessVerified" bson:"accessVerified"`
+	Host           string           `json:"host,omitempty" bson:"host" yaml:"host,omitempty"`
+	Port           int              `json:"port,omitempty" bson:"port" yaml:"port,omitempty"`
+	Username       string           `json:"username,omitempty" bson:"username" yaml:"username,omitempty"`
+	Password       string           `json:"password,omitzero" bson:"password" yaml:"password,omitempty"`
+	Email          string           `json:"email,omitempty" bson:"email" yaml:"email,omitempty"`
+	AccessVerified bool             `json:"accessVerified,omitempty" bson:"accessVerified" yaml:"accessVerified,omitempty"`
+	Status         *status.Settings `json:"status,omitempty" bson:"status" yaml:"status,omitempty"`
 }
 
 func (s *Sender) RequirePasswordChange() bool {
@@ -45,10 +48,26 @@ func (s *Sender) ErasePassword() {
 	s.Password = ""
 }
 
+func (s *Sender) InitOkStatus() {
+	s.Status = &status.Settings{
+		Current:    status.Ok,
+		IsUpdating: false,
+	}
+}
+
+func (s *Sender) InitUpdateStatus() {
+	s.Status = &status.Settings{
+		Current:    status.Updating,
+		Desired:    status.Updated,
+		IsUpdating: true,
+	}
+}
+
 type Recipient struct {
-	Address string `json:"address" bson:"address"`
-	Note    string `json:"note" bson:"note"`
-	Enabled bool   `json:"enabled" bson:"-"`
+	Address string          `json:"address" bson:"address"`
+	Note    string          `json:"note" bson:"note"`
+	Enabled bool            `json:"enabled,omitempty" bson:"-"`
+	Status  status.Settings `json:"status" bson:"status"`
 }
 
 type Trial struct {
@@ -58,4 +77,22 @@ type Trial struct {
 func CheckFormat(email string) error {
 	_, err := mail.ParseAddress(email)
 	return err
+}
+
+func (r *Recipient) InitUpdateStatus() {
+	r.Status = status.Settings{
+		Current:    status.Updating,
+		Desired:    status.Updated,
+		IsUpdating: true,
+	}
+}
+
+func (o *Options) InitOkStatus() {
+	for i := range o.Recipients {
+		o.Recipients[i].Status.InitOkStatus()
+	}
+
+	for i := range o.Senders {
+		o.Senders[i].InitOkStatus()
+	}
 }

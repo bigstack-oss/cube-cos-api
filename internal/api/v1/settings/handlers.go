@@ -117,7 +117,14 @@ var Handlers = []api.Handler{
 }
 
 func listSettings(c *gin.Context) {
-	setting, err := getAllSettings()
+	h, err := initReqHelper(c)
+	if err != nil {
+		log.Errorf("request(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	setting, err := h.listSettings()
 	if err != nil {
 		log.Errorf("request(%s): failed to get setting: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)

@@ -7,6 +7,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -265,6 +266,74 @@ func isChannelExist(channel string) bool {
 	)
 	if err != nil {
 		log.Errorf("failed to get count of slack channel (%s)", err.Error())
+		return false
+	}
+
+	return count > 0
+}
+
+func (h *helper) isTitlePrefixUpdating(titlePrefix *setting.TitlePrefix) bool {
+	count, err := h.mongo.GetCount(
+		setting.DB,
+		setting.ReqCollection,
+		bson.M{
+			"type":  "titlePrefix",
+			"value": titlePrefix.Value,
+		},
+	)
+	if err != nil {
+		log.Errorf("failed to get titlePrefix count: %s", err.Error())
+		return false
+	}
+
+	return count > 0
+}
+
+func (h *helper) isEmailRecipientUpdating(recipient *email.Recipient) bool {
+	count, err := h.mongo.GetCount(
+		setting.DB,
+		setting.ReqCollection,
+		bson.M{
+			"type":    "emailRecipient",
+			"address": recipient.Address,
+		},
+	)
+	if err != nil {
+		log.Errorf("failed to get email count: %s", err.Error())
+		return false
+	}
+
+	return count > 0
+}
+
+func (h *helper) isEmailSenderUpdating(sender *email.Sender) bool {
+	count, err := h.mongo.GetCount(
+		setting.DB,
+		setting.ReqCollection,
+		bson.M{
+			"type": "emailSender",
+			"host": sender.Host,
+		},
+	)
+	if err != nil {
+		log.Errorf("failed to get email count: %s", err.Error())
+		return false
+	}
+
+	return count > 0
+}
+
+func (h *helper) isSlackUpdating(channel *slack.Channel) bool {
+	count, err := h.mongo.GetCount(
+		setting.DB,
+		setting.ReqCollection,
+		bson.M{
+			"type": "slackChannel",
+			"url":  channel.URL,
+		},
+	)
+	if err != nil {
+		log.Errorf("failed to get slack count: %s", err.Error())
 		return false
 	}
 
