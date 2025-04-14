@@ -38,11 +38,11 @@ func GetStorageNet() (string, error) {
 	return GetTuningValue(CubeSysStorageNetwork)
 }
 
-func GetStorageIp(stroageNet string) (string, error) {
-	if stroageNet == "" {
+func GetStorageIp(storageNet string) (string, error) {
+	if storageNet == "" {
 		return "", fmt.Errorf("storage network is empty")
 	}
 
-	netIfAddrStorageIp := fmt.Sprintf("%s%s", CubeNetIfAddrPrefix, stroageNet)
+	netIfAddrStorageIp := fmt.Sprintf("%s%s", CubeNetIfAddrPrefix, storageNet)
 	return GetTuningValue(netIfAddrStorageIp)
 }
