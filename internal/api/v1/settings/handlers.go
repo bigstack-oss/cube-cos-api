@@ -6,115 +6,120 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
+	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/settings"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
 
-var Handlers = []api.Handler{
-	{
-		Version: api.V1,
-		Method:  "GET",
-		Path:    "/settings",
-		Func:    listSettings,
-	},
-	{
-		Version: api.V1,
-		Method:  "PUT",
-		Path:    "/settings/titlePrefix",
-		Func:    patchTitlePrefix,
-	},
-	{
-		Version: api.V1,
-		Method:  "POST",
-		Path:    "/settings/email/senders",
-		Func:    createEmailSender,
-	},
-	{
-		Version: api.V1,
-		Method:  "POST",
-		Path:    "/settings/email/senders/:senderHost",
-		Func:    tryEmailSender,
-	},
-	{
-		Version: api.V1,
-		Method:  "GET",
-		Path:    "/settings/email/senders",
-		Func:    listEmailSenders,
-	},
-	{
-		Version: api.V1,
-		Method:  "PATCH",
-		Path:    "/settings/email/senders/:senderHost",
-		Func:    patchEmailSender,
-	},
-	{
-		Version: api.V1,
-		Method:  "DELETE",
-		Path:    "/settings/email/senders/:senderHost",
-		Func:    deleteEmailSender,
-	},
-	{
-		Version: api.V1,
-		Method:  "POST",
-		Path:    "/settings/email/recipients",
-		Func:    createEmailRecipient,
-	},
-	{
-		Version: api.V1,
-		Method:  "POST",
-		Path:    "/settings/email/recipients/:recipientEmail",
-		Func:    tryEmailRecipient,
-	},
-	{
-		Version: api.V1,
-		Method:  "GET",
-		Path:    "/settings/email/recipients",
-		Func:    listEmailRecipients,
-	},
-	{
-		Version: api.V1,
-		Method:  "PUT",
-		Path:    "/settings/email/recipients/:recipientEmail",
-		Func:    patchEmailRecipient,
-	},
-	{
-		Version: api.V1,
-		Method:  "DELETE",
-		Path:    "/settings/email/recipients/:recipientEmail",
-		Func:    deleteEmailRecipient,
-	},
-	{
-		Version: api.V1,
-		Method:  "POST",
-		Path:    "/settings/slack/channels",
-		Func:    createSlackChannel,
-	},
-	{
-		Version: api.V1,
-		Method:  "POST",
-		Path:    "/settings/slack/channels/:channelName",
-		Func:    trySlackChannel,
-	},
-	{
-		Version: api.V1,
-		Method:  "GET",
-		Path:    "/settings/slack/channels",
-		Func:    listSlackChannels,
-	},
-	{
-		Version: api.V1,
-		Method:  "PUT",
-		Path:    "/settings/slack/channels/:channelName",
-		Func:    putSlackChannel,
-	},
-	{
-		Version: api.V1,
-		Method:  "DELETE",
-		Path:    "/settings/slack/channels/:channelName",
-		Func:    deleteSlackChannel,
-	},
-}
+var (
+	reqQueue = settings.ReqQueue
+	Handlers = []api.Handler{
+		{
+			Version: api.V1,
+			Method:  "GET",
+			Path:    "/settings",
+			Func:    listSettings,
+		},
+		{
+			Version: api.V1,
+			Method:  "PUT",
+			Path:    "/settings/titlePrefix",
+			Func:    patchTitlePrefix,
+		},
+		{
+			Version: api.V1,
+			Method:  "POST",
+			Path:    "/settings/email/senders",
+			Func:    createEmailSender,
+		},
+		{
+			Version: api.V1,
+			Method:  "POST",
+			Path:    "/settings/email/senders/:senderHost",
+			Func:    tryEmailSender,
+		},
+		{
+			Version: api.V1,
+			Method:  "GET",
+			Path:    "/settings/email/senders",
+			Func:    listEmailSenders,
+		},
+		{
+			Version: api.V1,
+			Method:  "PATCH",
+			Path:    "/settings/email/senders/:senderHost",
+			Func:    patchEmailSender,
+		},
+		{
+			Version: api.V1,
+			Method:  "DELETE",
+			Path:    "/settings/email/senders/:senderHost",
+			Func:    deleteEmailSender,
+		},
+		{
+			Version: api.V1,
+			Method:  "POST",
+			Path:    "/settings/email/recipients",
+			Func:    createEmailRecipient,
+		},
+		{
+			Version: api.V1,
+			Method:  "POST",
+			Path:    "/settings/email/recipients/:recipientEmail",
+			Func:    tryEmailRecipient,
+		},
+		{
+			Version: api.V1,
+			Method:  "GET",
+			Path:    "/settings/email/recipients",
+			Func:    listEmailRecipients,
+		},
+		{
+			Version: api.V1,
+			Method:  "PUT",
+			Path:    "/settings/email/recipients/:recipientEmail",
+			Func:    patchEmailRecipient,
+		},
+		{
+			Version: api.V1,
+			Method:  "DELETE",
+			Path:    "/settings/email/recipients/:recipientEmail",
+			Func:    deleteEmailRecipient,
+		},
+		{
+			Version: api.V1,
+			Method:  "POST",
+			Path:    "/settings/slack/channels",
+			Func:    createSlackChannel,
+		},
+		{
+			Version: api.V1,
+			Method:  "POST",
+			Path:    "/settings/slack/channels/:channelName",
+			Func:    trySlackChannel,
+		},
+		{
+			Version: api.V1,
+			Method:  "GET",
+			Path:    "/settings/slack/channels",
+			Func:    listSlackChannels,
+		},
+		{
+			Version: api.V1,
+			Method:  "PUT",
+			Path:    "/settings/slack/channels/:channelName",
+			Func:    putSlackChannel,
+		},
+		{
+			Version: api.V1,
+			Method:  "DELETE",
+			Path:    "/settings/slack/channels/:channelName",
+			Func:    deleteSlackChannel,
+		},
+	}
+)
 
 func listSettings(c *gin.Context) {
 	h, err := initReqHelper(c)
@@ -139,7 +144,7 @@ func listSettings(c *gin.Context) {
 }
 
 func patchTitlePrefix(c *gin.Context) {
-	titlePrefix := definition.TitlePrefix{}
+	titlePrefix := setting.TitlePrefix{}
 	err := c.ShouldBindJSON(&titlePrefix)
 	if err != nil {
 		log.Errorf("request(%s): failed to decode title prefix: %s", api.GetReqId(c), err.Error())
@@ -147,16 +152,10 @@ func patchTitlePrefix(c *gin.Context) {
 		return
 	}
 
-	err = upsertTitlePrefix(titlePrefix.Value)
-	if err != nil {
-		log.Errorf("request(%s): failed to update title prefix: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
-		return
-	}
-
+	updateTitlePrefix(titlePrefix)
 	api.SetStatusOk(
 		c,
-		"title prefix updated successfully",
+		"title prefix update request successfully",
 		nil,
 	)
 }

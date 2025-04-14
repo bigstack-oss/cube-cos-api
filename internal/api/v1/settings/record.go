@@ -12,7 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func getAllSettings() (*definition.Setting, error) {
@@ -60,15 +59,9 @@ func eraseSenderPassword(senders []email.Sender) []email.Sender {
 	return senders
 }
 
-func upsertTitlePrefix(titlePrefix string) error {
-	h := mongo.GetGlobalHelper()
-	return h.UpdateOne(
-		definition.SettingsDB(),
-		definition.TitlePrefixCollection(),
-		bson.M{"value": bson.M{"$exists": true}},
-		bson.M{"$set": bson.M{"value": titlePrefix}},
-		options.Update().SetUpsert(true),
-	)
+func (h *helper) updateTitlePrefix(titlePrefix setting.TitlePrefix) error {
+	h.addReqRecord(titlePrefix)
+	reqQueue.Add(&titlePrefix)
 }
 
 func getTitlePrefix() (string, error) {
