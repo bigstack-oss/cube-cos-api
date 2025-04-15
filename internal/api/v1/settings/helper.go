@@ -12,17 +12,24 @@ import (
 )
 
 type helper struct {
-	c       *gin.Context
-	handler string
-	mongo   *mongo.Helper
+	c     *gin.Context
+	mongo *mongo.Helper
+
+	handler     string
+	task        *setting.Options
+	titlePrefix setting.TitlePrefix
 }
 
-func initReqHelper(c *gin.Context) (*helper, error) {
-	return &helper{
-		c:       c,
-		handler: c.Request.URL.Path,
-		mongo:   mongo.GetGlobalHelper(),
-	}, nil
+func initReqHelper(c *gin.Context, handler string) (*helper, error) {
+	h := &helper{c: c, handler: handler, mongo: mongo.GetGlobalHelper()}
+	switch handler {
+	case "listSettings":
+		return h, nil
+	case "patchTitlePrefix":
+		return h, h.parseTitlePrefixPatchReq()
+	}
+
+	return h, nil
 }
 
 func (h *helper) listSettings() (*setting.ApiPolicy, error) {
@@ -33,11 +40,12 @@ func (h *helper) listSettings() (*setting.ApiPolicy, error) {
 	}
 
 	apiPoliy := convertEtcPolicyToApiPolicy(etcPolicy)
-	h.syncUpdateStatus(apiPoliy)
+	h.syncUpdateStatus(&apiPoliy)
+	h.eraseSenderPassword(&apiPoliy.Email.Senders)
 	return &apiPoliy, nil
 }
 
-func (h *helper) syncUpdateStatus(apiPolicy setting.ApiPolicy) {
+func (h *helper) syncUpdateStatus(apiPolicy *setting.ApiPolicy) {
 	apiPolicy.InitOkStatus()
 	h.syncTitlePrefixUpdate(&apiPolicy.TitlePrefix)
 	h.syncEmailRecipientUpdate(&apiPolicy.Email.Recipients)
@@ -46,7 +54,7 @@ func (h *helper) syncUpdateStatus(apiPolicy setting.ApiPolicy) {
 }
 
 func (h *helper) syncTitlePrefixUpdate(titlePrefix *setting.TitlePrefix) {
-	if h.isTitlePrefixUpdating(titlePrefix) {
+	if h.isTitlePrefixUpdating() {
 		titlePrefix.InitUpdateStatus()
 	}
 }

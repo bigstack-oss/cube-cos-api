@@ -8,6 +8,7 @@ import (
 	"slices"
 	"sync"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	"github.com/blevesearch/bleve/v2"
@@ -204,6 +205,14 @@ func (n *Node) PatchSupportFileTaskUrl(file support.File) string {
 	u.Scheme = n.Protocol
 	u.Host = n.Address
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/%s", DataCenterName, file.Group)
+	return u.String()
+}
+
+func (n *Node) PatchSettingTaskUrl(setting setting.Options) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/settings/tasks", DataCenterName)
 	return u.String()
 }
 

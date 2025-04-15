@@ -14,54 +14,52 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func getAllSettings() (*definition.Setting, error) {
-	titlePrefix, err := getTitlePrefix()
-	if err != nil {
-		log.Errorf("failed to get title prefix (%s)", err.Error())
-		return nil, err
-	}
+// func getAllSettings() (*definition.Setting, error) {
+// 	titlePrefix, err := getTitlePrefix()
+// 	if err != nil {
+// 		log.Errorf("failed to get title prefix (%s)", err.Error())
+// 		return nil, err
+// 	}
 
-	senders, err := definition.GetEmailSenders()
-	if err != nil {
-		log.Errorf("failed to get email sender (%s)", err.Error())
-		return nil, err
-	}
+// 	senders, err := definition.GetEmailSenders()
+// 	if err != nil {
+// 		log.Errorf("failed to get email sender (%s)", err.Error())
+// 		return nil, err
+// 	}
 
-	recipients, err := definition.GetEmailRecipients()
-	if err != nil {
-		log.Errorf("failed to get email recipient (%s)", err.Error())
-		return nil, err
-	}
+// 	recipients, err := definition.GetEmailRecipients()
+// 	if err != nil {
+// 		log.Errorf("failed to get email recipient (%s)", err.Error())
+// 		return nil, err
+// 	}
 
-	channels, err := definition.GetSlackChannels()
-	if err != nil {
-		log.Errorf("failed to get slack channel (%s)", err.Error())
-		return nil, err
-	}
+// 	channels, err := definition.GetSlackChannels()
+// 	if err != nil {
+// 		log.Errorf("failed to get slack channel (%s)", err.Error())
+// 		return nil, err
+// 	}
 
-	return &definition.Setting{
-		TitlePrefix: titlePrefix,
-		Email: email.Options{
-			Senders:    eraseSenderPassword(senders),
-			Recipients: recipients,
-		},
-		Slack: slack.Options{
-			Channels: channels,
-		},
-	}, nil
+// 	return &definition.Setting{
+// 		TitlePrefix: titlePrefix,
+// 		Email: email.Options{
+// 			Senders:    eraseSenderPassword(senders),
+// 			Recipients: recipients,
+// 		},
+// 		Slack: slack.Options{
+// 			Channels: channels,
+// 		},
+// 	}, nil
+// }
+
+func (h *helper) eraseSenderPassword(senders *[]email.Sender) {
+	for i := range *senders {
+		(*senders)[i].ErasePassword()
+	}
 }
 
-func eraseSenderPassword(senders []email.Sender) []email.Sender {
-	for i := range senders {
-		senders[i].ErasePassword()
-	}
-
-	return senders
-}
-
-func (h *helper) updateTitlePrefix(titlePrefix setting.TitlePrefix) error {
-	h.addReqRecord(titlePrefix)
-	reqQueue.Add(&titlePrefix)
+func (h *helper) updateSetting(setting setting.Options) {
+	h.addReqRecord(setting)
+	reqQueue.Add(&setting)
 }
 
 func getTitlePrefix() (string, error) {
@@ -265,17 +263,14 @@ func isChannelExist(channel string) bool {
 	return count > 0
 }
 
-func (h *helper) isTitlePrefixUpdating(titlePrefix *setting.TitlePrefix) bool {
+func (h *helper) isTitlePrefixUpdating() bool {
 	count, err := h.mongo.GetCount(
 		setting.DB,
 		setting.ReqCollection,
-		bson.M{
-			"type":  "titlePrefix",
-			"value": titlePrefix.Value,
-		},
+		bson.M{"type": "titlePrefix"},
 	)
 	if err != nil {
-		log.Errorf("failed to get titlePrefix count: %s", err.Error())
+		log.Errorf("settings: failed to check title prefix update: %v", err)
 		return false
 	}
 
@@ -331,4 +326,19 @@ func (h *helper) isSlackUpdating(channel *slack.Channel) bool {
 	}
 
 	return count > 0
+}
+
+func (h *helper) updateSettingTask() error {
+	return h.mongo.DeleteOne(
+		setting.DB,
+		setting.ReqCollection,
+		h.genTaskFilter(),
+	)
+}
+
+func (h *helper) genTaskFilter() bson.M {
+	return bson.M{
+		"type": h.task.Type,
+		"key":  h.task.Key,
+	}
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"github.com/fsnotify/fsnotify"
 	"k8s.io/client-go/util/workqueue"

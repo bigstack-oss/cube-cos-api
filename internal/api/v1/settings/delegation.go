@@ -8,28 +8,30 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (h *helper) addReqRecord(titlePrefix setting.TitlePrefix) {
+func (h *helper) addReqRecord(req setting.Options) {
 	err := mongo.GetGlobalHelper().UpdateOne(
 		setting.DB,
 		setting.ReqCollection,
-		bson.M{"value": titlePrefix.Value},
-		h.genUpsertPayload(titlePrefix),
+		bson.M{"type": req.Type, "key": req.GetKey()},
+		h.genUpsertPayload(req),
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
 		log.Errorf(
-			"failed to sync title prefix record for %s (%s)",
-			titlePrefix.Value,
+			"failed to sync %s record for %s (%s)",
+			req.Type,
+			req.GetKey(),
 			err.Error(),
 		)
 	}
 }
 
-func (h *helper) genUpsertPayload(titlePrefix setting.TitlePrefix) bson.M {
+func (h *helper) genUpsertPayload(setting setting.Options) bson.M {
 	return bson.M{
 		"$set": bson.M{
-			"type":  "titlePrefix",
-			"value": titlePrefix.Value,
+			"type":   setting.Type,
+			"key":    setting.GetKey(),
+			"status": setting.Status,
 		},
 	}
 }

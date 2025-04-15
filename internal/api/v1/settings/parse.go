@@ -2,6 +2,7 @@ package settings
 
 import (
 	"context"
+	"errors"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
@@ -12,6 +13,10 @@ import (
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 )
+
+func (h *helper) parseTitlePrefixPatchReq() error {
+	return h.c.ShouldBindJSON(&h.titlePrefix)
+}
 
 func parseTitlePrefix(cursor *mongo.Cursor) (string, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
@@ -67,6 +72,28 @@ func parseSlackChannelUpdate(c *gin.Context) (*slack.Channel, error) {
 func parseEmailRecipientUpdate(c *gin.Context, recipient *email.Recipient) error {
 	if recipient.Address == "" {
 		recipient.Address = c.Param("recipientEmail")
+	}
+
+	return nil
+}
+
+func (h *helper) parseTaskUpdate() error {
+	err := h.c.ShouldBindJSON(&h.task)
+	if err != nil {
+		log.Errorf("request(%s): failed to parse task: %s", api.GetReqId(h.c), err.Error())
+		return err
+	}
+
+	if h.task.Type == "" {
+		err := errors.New("task type is empty")
+		log.Errorf("request(%s): %v", api.GetReqId(h.c), err)
+		return err
+	}
+
+	if h.task.Key == "" {
+		err := errors.New("task key is empty")
+		log.Errorf("request(%s): %v", api.GetReqId(h.c), err)
+		return err
 	}
 
 	return nil

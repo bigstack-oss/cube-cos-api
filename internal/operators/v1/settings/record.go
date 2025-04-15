@@ -5,44 +5,44 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	log "go-micro.dev/v5/logger"
 )
 
-func (o *Operator) handleExit(trigger trigger.Options, err error) {
+func (o *Operator) handleExit(setting setting.Options, err error) {
 	if err != nil {
-		log.Errorf("triggers: failed to %s %s: %s", trigger.Status.Desired, trigger.Name, err.Error())
-		trigger.SetError()
+		log.Errorf("settings: failed to %s %s: %s", setting.Status.Desired, setting.Type, err.Error())
+		setting.SetError()
 	} else {
-		log.Infof("triggers: %s %s successfully", trigger.Status.Desired, trigger.Name)
-		trigger.SetCompleted()
+		log.Infof("settings: %s %s successfully", setting.Status.Desired, setting.Type)
+		setting.SetCompleted()
 	}
 
-	err = o.reportToController(trigger)
+	err = o.reportToController(setting)
 	if err != nil {
 		return
 	}
 }
 
-func (o *Operator) reportToController(trigger trigger.Options) error {
+func (o *Operator) reportToController(setting setting.Options) error {
 	node, err := definition.GetOneOfControllerNode()
 	if err != nil {
-		log.Errorf("triggers: failed to get controller nodes: %s", err.Error())
+		log.Errorf("settings: failed to get controller nodes: %s", err.Error())
 		return err
 	}
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetHeader(node.GenAuthHeader()).
-		SetBody(trigger.GenTaskUpdate()).
-		Patch(node.PatchTriggerTaskUrl(trigger))
+		SetBody(setting.GenTaskUpdate()).
+		Patch(node.PatchSettingTaskUrl(setting))
 	if err != nil {
-		log.Errorf("triggers: failed to send trigger %s to %s: %s", trigger.Name, node.Hostname, err.Error())
+		log.Errorf("settings: failed to send setting %s to %s: %s", setting.Type, node.Hostname, err.Error())
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("triggers: failed to send trigger %s to %s: %v", trigger.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("settings: failed to send setting %s to %s: %v", setting.Type, node.Hostname, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 

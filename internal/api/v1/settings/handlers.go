@@ -6,7 +6,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/settings"
 	"github.com/gin-gonic/gin"
@@ -118,20 +117,26 @@ var (
 			Path:    "/settings/slack/channels/:channelName",
 			Func:    deleteSlackChannel,
 		},
+		{
+			Version: api.V1,
+			Method:  "PATCH",
+			Path:    "/settings/tasks",
+			Func:    updateSettingTask,
+		},
 	}
 )
 
 func listSettings(c *gin.Context) {
-	h, err := initReqHelper(c)
+	h, err := initReqHelper(c, "listSettings")
 	if err != nil {
-		log.Errorf("request(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
+		log.Errorf("settings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
 		return
 	}
 
 	setting, err := h.listSettings()
 	if err != nil {
-		log.Errorf("request(%s): failed to get setting: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to get setting: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -144,19 +149,18 @@ func listSettings(c *gin.Context) {
 }
 
 func patchTitlePrefix(c *gin.Context) {
-	titlePrefix := setting.TitlePrefix{}
-	err := c.ShouldBindJSON(&titlePrefix)
+	h, err := initReqHelper(c, "patchTitlePrefix")
 	if err != nil {
-		log.Errorf("request(%s): failed to decode title prefix: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	updateTitlePrefix(titlePrefix)
-	api.SetStatusOk(
+	req := h.genUpdateReq("titlePrefix")
+	h.updateSetting(req)
+	api.SetStatusAccepted(
 		c,
 		"title prefix update request successfully",
-		nil,
 	)
 }
 
@@ -164,7 +168,7 @@ func createEmailSender(c *gin.Context) {
 	sender := email.Sender{}
 	err := c.ShouldBindJSON(&sender)
 	if err != nil {
-		log.Errorf("request(%s): failed to decode email sender: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to decode email sender: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
@@ -176,7 +180,7 @@ func createEmailSender(c *gin.Context) {
 
 	err = insertEmailSender(sender)
 	if err != nil {
-		log.Errorf("request(%s): failed to create email sender: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to create email sender: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -192,21 +196,21 @@ func tryEmailSender(c *gin.Context) {
 	trial := email.Trial{}
 	err := c.ShouldBindJSON(&trial)
 	if err != nil {
-		log.Errorf("request(%s): failed to decode email: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to decode email: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	err = email.CheckFormat(trial.Email)
 	if err != nil {
-		log.Errorf("request(%s): invalid email format: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): invalid email format: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	senders, err := definition.GetEmailSenders()
 	if err != nil {
-		log.Errorf("request(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -218,14 +222,14 @@ func tryEmailSender(c *gin.Context) {
 	sender := senders[0]
 	err = sendTrialEmail(sender, trial.Email)
 	if err != nil {
-		log.Errorf("request(%s): failed to try email sender: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to try email sender: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
 	err = setSenderAsVerified(sender)
 	if err != nil {
-		log.Errorf("request(%s): failed to enable email trial toggle: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to enable email trial toggle: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -240,7 +244,7 @@ func tryEmailSender(c *gin.Context) {
 func listEmailSenders(c *gin.Context) {
 	senders, err := definition.GetEmailSenders()
 	if err != nil {
-		log.Errorf("request(%s): failed to list email senders: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to list email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -255,20 +259,20 @@ func listEmailSenders(c *gin.Context) {
 func patchEmailSender(c *gin.Context) {
 	err := checkSenderUpdate(c)
 	if err != nil {
-		log.Errorf("request(%s): failed to check email sender: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to check email sender: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 	}
 
 	sender, err := parseEmailSenderUpdate(c)
 	if err != nil {
-		log.Errorf("request(%s): failed to parse email sender: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to parse email sender: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	err = updateEmailSender(c, *sender)
 	if err != nil {
-		log.Errorf("request(%s): failed to update email sender: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to update email sender: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -289,7 +293,7 @@ func deleteEmailSender(c *gin.Context) {
 
 	err := removeEmailSender(host)
 	if err != nil {
-		log.Errorf("request(%s): failed to delete email sender: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to delete email sender: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -305,13 +309,13 @@ func createEmailRecipient(c *gin.Context) {
 	recipient := email.Recipient{}
 	err := c.ShouldBindJSON(&recipient)
 	if err != nil {
-		log.Errorf("request(%s): failed to decode email recipient: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to decode email recipient: %s", api.GetReqId(c), err.Error())
 		return
 	}
 
 	err = email.CheckFormat(recipient.Address)
 	if err != nil {
-		log.Errorf("request(%s): invalid email format: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): invalid email format: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
@@ -323,7 +327,7 @@ func createEmailRecipient(c *gin.Context) {
 
 	err = insertEmailRecipient(recipient)
 	if err != nil {
-		log.Errorf("request(%s): failed to create email recipient: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to create email recipient: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -344,7 +348,7 @@ func tryEmailRecipient(c *gin.Context) {
 
 	senders, err := definition.GetEmailSenders()
 	if err != nil {
-		log.Errorf("request(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -361,7 +365,7 @@ func tryEmailRecipient(c *gin.Context) {
 
 	err = sendTrialEmail(sender, recipientEmail)
 	if err != nil {
-		log.Errorf("request(%s): failed to try email recipient: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to try email recipient: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -376,7 +380,7 @@ func tryEmailRecipient(c *gin.Context) {
 func listEmailRecipients(c *gin.Context) {
 	recipients, err := definition.GetEmailRecipients()
 	if err != nil {
-		log.Errorf("request(%s): failed to list email recipients: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to list email recipients: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -392,27 +396,27 @@ func patchEmailRecipient(c *gin.Context) {
 	recipient := email.Recipient{}
 	err := c.ShouldBindJSON(&recipient)
 	if err != nil {
-		log.Errorf("request(%s): failed to decode email recipient: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to decode email recipient: %s", api.GetReqId(c), err.Error())
 		return
 	}
 
 	err = checkRecipientUpdate(c)
 	if err != nil {
-		log.Errorf("request(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	err = parseEmailRecipientUpdate(c, &recipient)
 	if err != nil {
-		log.Errorf("request(%s): failed to parse email recipient: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to parse email recipient: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	err = updateEmailRecipient(c, recipient)
 	if err != nil {
-		log.Errorf("request(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -433,7 +437,7 @@ func deleteEmailRecipient(c *gin.Context) {
 
 	err := removeEmailRecipient(recipient)
 	if err != nil {
-		log.Errorf("request(%s): failed to delete email recipient: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to delete email recipient: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -449,7 +453,7 @@ func createSlackChannel(c *gin.Context) {
 	channel := slack.Channel{}
 	err := c.ShouldBindJSON(&channel)
 	if err != nil {
-		log.Errorf("request(%s): failed to decode slack channel: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to decode slack channel: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
@@ -461,7 +465,7 @@ func createSlackChannel(c *gin.Context) {
 
 	err = insertSlackChannel(channel)
 	if err != nil {
-		log.Errorf("request(%s): failed to create slack channel: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to create slack channel: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -476,14 +480,14 @@ func createSlackChannel(c *gin.Context) {
 func trySlackChannel(c *gin.Context) {
 	channel, err := getSlackChannel(c.Param("channelName"))
 	if err != nil {
-		log.Errorf("request(%s): failed to get slack channel: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to get slack channel: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
 	err = sendTrialSlackMessage(*channel)
 	if err != nil {
-		log.Errorf("request(%s): failed to try slack channel: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to try slack channel: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -498,7 +502,7 @@ func trySlackChannel(c *gin.Context) {
 func listSlackChannels(c *gin.Context) {
 	channels, err := definition.GetSlackChannels()
 	if err != nil {
-		log.Errorf("request(%s): failed to list slack channels: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to list slack channels: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -513,21 +517,21 @@ func listSlackChannels(c *gin.Context) {
 func putSlackChannel(c *gin.Context) {
 	err := checkSlackChannelUpdate(c)
 	if err != nil {
-		log.Errorf("request(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	channel, err := parseSlackChannelUpdate(c)
 	if err != nil {
-		log.Errorf("request(%s): failed to parse slack channel: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to parse slack channel: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	err = updateSlackChannel(c, *channel)
 	if err != nil {
-		log.Errorf("request(%s): failed to update slack channel: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to update slack channel: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -548,7 +552,7 @@ func deleteSlackChannel(c *gin.Context) {
 
 	err := removeSlackChannel(name)
 	if err != nil {
-		log.Errorf("request(%s): failed to delete slack channel: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to delete slack channel: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -556,6 +560,34 @@ func deleteSlackChannel(c *gin.Context) {
 	api.SetStatusOk(
 		c,
 		"slack channel deleted successfully",
+		nil,
+	)
+}
+
+func updateSettingTask(c *gin.Context) {
+	h, err := initReqHelper(c, "updateSettingTask")
+	if err != nil {
+		log.Errorf("tunings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.parseTaskUpdate()
+	if err != nil {
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.updateSettingTask()
+	if err != nil {
+		log.Errorf("settings(%s): failed to update setting task: %s", api.GetReqId(c), err.Error())
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"setting status updated",
 		nil,
 	)
 }
