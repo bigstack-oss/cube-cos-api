@@ -65,9 +65,59 @@ func (h *helper) initEmailSenderDeleteParams() error {
 		return errors.New("email sender host is empty")
 	}
 
-	h.task = &setting.Options{}
-	h.task.Type = "emailSender"
+	h.task = &setting.Options{Type: "emailSender"}
 	h.task.Sender = &email.Sender{Host: host}
+	h.task.InitDeleteStatus()
+	return nil
+}
+
+func (h *helper) initEmailRecipientCreateParams() error {
+	h.task = &setting.Options{Type: "emailRecipient"}
+	err := h.c.ShouldBindJSON(&h.task.Recipient)
+	if err != nil {
+		log.Errorf("request(%s): failed to decode email recipient: %s", api.GetReqId(h.c), err.Error())
+		return err
+	}
+
+	err = email.CheckFormat(h.task.Recipient.Address)
+	if err != nil {
+		log.Errorf("settings(%s): invalid email format: %s", api.GetReqId(h.c), err.Error())
+		api.SetBadRequest(h.c, err)
+		return err
+	}
+
+	h.task.InitUpdateStatus()
+	return nil
+}
+
+func (h *helper) initEmailRecipientPatchParams() error {
+	recipientEmail := h.c.Param("recipientEmail")
+	if recipientEmail == "" {
+		return errors.New("email recipient email is empty")
+	}
+
+	h.task = &setting.Options{Type: "emailRecipient", Key: recipientEmail}
+	err := h.c.ShouldBindJSON(&h.task.Recipient)
+	if err != nil {
+		return err
+	}
+
+	if h.task.Recipient.Address == "" {
+		h.task.Recipient.Address = recipientEmail
+	}
+
+	h.task.InitUpdateStatus()
+	return nil
+}
+
+func (h *helper) initEmailRecipientDeleteParams() error {
+	recipientEmail := h.c.Param("recipientEmail")
+	if recipientEmail == "" {
+		return errors.New("email recipient email is empty")
+	}
+
+	h.task = &setting.Options{Type: "emailRecipient"}
+	h.task.Recipient = &email.Recipient{Address: recipientEmail}
 	h.task.InitDeleteStatus()
 	return nil
 }

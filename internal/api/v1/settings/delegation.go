@@ -12,7 +12,7 @@ func (h *helper) addReqRecord(req setting.Options) {
 	err := mongo.GetGlobalHelper().UpdateOne(
 		setting.DB,
 		setting.ReqCollection,
-		bson.M{"type": req.Type, "key": req.GetKey()},
+		bson.M{"type": req.Type, "key": req.Key},
 		h.genUpsertPayload(req),
 		options.Update().SetUpsert(true),
 	)

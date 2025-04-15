@@ -3,26 +3,16 @@ package settings
 import (
 	"errors"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
-	"github.com/gin-gonic/gin"
 )
 
-// func checkSenderUpdate(c *gin.Context) error {
-// 	host := c.Param("senderHost")
-// 	if !isSenderExist(host) {
-// 		return errors.New("sender not found")
-// 	}
-
-// 	return nil
-// }
-
-func checkRecipientUpdate(c *gin.Context) error {
-	recipientEmail := c.Param("recipientEmail")
-	if !isRecipientExist(recipientEmail) {
+func (h *helper) checkRecipientUpdate() error {
+	if !h.isRecipientExist() {
 		return errors.New("recipient not found")
 	}
 
-	err := email.CheckFormat(recipientEmail)
+	err := email.CheckFormat(h.c.Param("recipientEmail"))
 	if err != nil {
 		return errors.New("recipient email format is invalid")
 	}
@@ -30,11 +20,20 @@ func checkRecipientUpdate(c *gin.Context) error {
 	return nil
 }
 
-func checkSlackChannelUpdate(c *gin.Context) error {
-	name := c.Param("channelName")
+func (h *helper) checkSlackChannelUpdate() error {
+	name := h.c.Param("channelName")
 	if !isChannelExist(name) {
 		return errors.New("channel not found")
 	}
 
 	return nil
+}
+
+func (h *helper) isRecipientExist() bool {
+	policy, err := cubecos.GetEtcSettingPolicy()
+	if err != nil {
+		return false
+	}
+
+	return policy.HasRecipient(h.c.Param("recipientEmail"))
 }

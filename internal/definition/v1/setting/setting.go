@@ -3,6 +3,8 @@ package setting
 import (
 	"reflect"
 
+	"slices"
+
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -16,7 +18,7 @@ const (
 
 type Options struct {
 	Type string `json:"type" bson:"type"`
-	Key  string `json:"key" bson:"key"`
+	Key  string `json:"key" bson:"-"`
 
 	TitlePrefix *TitlePrefix     `json:"titlePrefix,omitempty" bson:"titlePrefix,omitempty"`
 	Sender      *email.Sender    `json:"sender,omitempty" bson:"sender,omitempty"`
@@ -93,7 +95,7 @@ func (o *Options) SetCompleted() {
 func (o *Options) GenTaskUpdate() Options {
 	return Options{
 		Type:   o.Type,
-		Key:    o.GetKey(),
+		Key:    o.Key,
 		Status: o.Status,
 	}
 }
@@ -112,6 +114,16 @@ func (e *EtcPolicy) HasSender(host string) bool {
 	return e.Sender.Host == host
 }
 
+func (e *EtcPolicy) HasRecipient(address string) bool {
+	for _, recipient := range e.Receiver.Emails {
+		if recipient.Address == address {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (e *EtcPolicy) IsTitlePrefixEqual(titlePrefix string) bool {
 	return e.TitlePrefix == titlePrefix
 }
@@ -124,6 +136,16 @@ func (e *EtcPolicy) IsSenderEqual(sender email.Sender) bool {
 	return reflect.DeepEqual(*e.Sender, sender)
 }
 
+func (e *EtcPolicy) IsRecipientEqual(recipient email.Recipient) bool {
+	for _, email := range e.Receiver.Emails {
+		if reflect.DeepEqual(email, recipient) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (e *EtcPolicy) UpdateOrAppendSetting(setting Options) {
 	if !e.existingSettingUpdated(setting) {
 		e.AppendSetting(setting)
@@ -134,6 +156,8 @@ func (e *EtcPolicy) DeleteSetting(setting Options) {
 	switch setting.Type {
 	case "emailSender":
 		e.Sender = nil
+	case "emailRecipient":
+		e.deleteRecipient(setting)
 	}
 }
 
@@ -145,13 +169,40 @@ func (e *EtcPolicy) existingSettingUpdated(setting Options) bool {
 	case "emailSender":
 		e.Sender = setting.Sender
 		return true
+	case "emailRecipient":
+		return e.updateEmailRecipient(setting)
+	}
+
+	return false
+}
+
+func (e *EtcPolicy) deleteRecipient(setting Options) {
+	for i, recipient := range e.Receiver.Emails {
+		if recipient.Address == setting.Recipient.Address {
+			e.Receiver.Emails = slices.Delete(e.Receiver.Emails, i, i+1)
+			return
+		}
+	}
+}
+
+func (e *EtcPolicy) updateEmailRecipient(setting Options) bool {
+	for i, recipient := range e.Receiver.Emails {
+		if recipient.Address == setting.Key {
+			e.Receiver.Emails[i] = *setting.Recipient
+			return true
+		}
 	}
 
 	return false
 }
 
 func (e *EtcPolicy) AppendSetting(setting Options) {
-
+	switch setting.Type {
+	case "emailRecipient":
+		e.Receiver.Emails = append(e.Receiver.Emails, *setting.Recipient)
+	case "slack":
+		e.Receiver.Slacks = append(e.Receiver.Slacks, *setting.Slack)
+	}
 }
 
 func initUpdateStatus() status.Settings {

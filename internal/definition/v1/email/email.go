@@ -25,7 +25,7 @@ type Sender struct {
 	Password       string           `json:"password,omitzero" bson:"password" yaml:"password,omitempty"`
 	Email          string           `json:"email,omitempty" bson:"email" yaml:"email,omitempty"`
 	AccessVerified bool             `json:"accessVerified" bson:"accessVerified" yaml:"-"`
-	Status         *status.Settings `json:"status,omitempty" bson:"status" yaml:"status,omitempty"`
+	Status         *status.Settings `json:"status,omitempty" bson:"status" yaml:"-"`
 }
 
 func (s *Sender) RequirePasswordChange() bool {
@@ -67,7 +67,7 @@ type Recipient struct {
 	Address string          `json:"address" bson:"address"`
 	Note    string          `json:"note" bson:"note"`
 	Enabled bool            `json:"enabled,omitempty" bson:"-"`
-	Status  status.Settings `json:"status" bson:"status"`
+	Status  status.Settings `json:"status" bson:"status" yaml:"-"`
 }
 
 type Trial struct {

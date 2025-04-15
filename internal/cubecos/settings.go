@@ -89,6 +89,8 @@ func IsSettingApplied(setting setting.Options) bool {
 		isApplied = policy.IsTitlePrefixEqual(setting.TitlePrefix.Value)
 	case "emailSender":
 		isApplied = policy.IsSenderEqual(*setting.Sender)
+	case "emailRecipient":
+		isApplied = policy.IsRecipientEqual(*setting.Recipient)
 	}
 
 	return isApplied

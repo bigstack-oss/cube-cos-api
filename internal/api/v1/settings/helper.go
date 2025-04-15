@@ -33,6 +33,12 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 		return h, h.initEmailSenderPatchParams()
 	case "deleteEmailSender":
 		return h, h.initEmailSenderDeleteParams()
+	case "createEmailRecipient":
+		return h, h.initEmailRecipientCreateParams()
+	case "patchEmailRecipient":
+		return h, h.initEmailRecipientPatchParams()
+	case "deleteEmailRecipient":
+		return h, h.initEmailRecipientDeleteParams()
 	}
 
 	return h, nil
