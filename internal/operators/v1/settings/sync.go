@@ -13,6 +13,8 @@ func (o *Operator) operateReq(setting setting.Options) error {
 	switch setting.Status.Desired {
 	case status.Updated:
 		return o.updateSetting(setting)
+	case status.Deleted:
+		return o.deleteSetting(setting)
 	}
 
 	return fmt.Errorf(
@@ -37,6 +39,26 @@ func (o *Operator) updateSetting(setting setting.Options) error {
 
 	if !cubecos.IsSettingApplied(setting) {
 		return fmt.Errorf("settings: %s(%s) is not applied", setting.Type, setting.GetKey())
+	}
+
+	return nil
+}
+
+func (o *Operator) deleteSetting(setting setting.Options) error {
+	policy, err := cubecos.GetEtcSettingPolicy()
+	if err != nil {
+		log.Infof("settings: %v", err)
+		return err
+	}
+
+	policy.DeleteSetting(setting)
+	err = cubecos.ApplySettings(policy)
+	if err != nil {
+		return err
+	}
+
+	if cubecos.IsSettingDeleted(setting) {
+		return fmt.Errorf("settings: %s(%s) is not deleted", setting.Type, setting.GetKey())
 	}
 
 	return nil

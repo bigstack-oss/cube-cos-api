@@ -7,14 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func checkSenderUpdate(c *gin.Context) error {
-	host := c.Param("senderHost")
-	if !isSenderExist(host) {
-		return errors.New("sender not found")
-	}
+// func checkSenderUpdate(c *gin.Context) error {
+// 	host := c.Param("senderHost")
+// 	if !isSenderExist(host) {
+// 		return errors.New("sender not found")
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func checkRecipientUpdate(c *gin.Context) error {
 	recipientEmail := c.Param("recipientEmail")

@@ -1,6 +1,8 @@
 package setting
 
 import (
+	"reflect"
+
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -57,6 +59,10 @@ func (o *Options) InitUpdateStatus() {
 	o.Status = initUpdateStatus()
 }
 
+func (o *Options) InitDeleteStatus() {
+	o.Status = initDeleteStatus()
+}
+
 func (o *Options) GetKey() string {
 	key := ""
 
@@ -98,8 +104,24 @@ func (a *ApiPolicy) InitOkStatus() {
 	a.Slack.InitOkStatus()
 }
 
-func (e *EtcPolicy) IsTitlePrefixSame(titlePrefix string) bool {
+func (e *EtcPolicy) HasSender(host string) bool {
+	if e.Sender == nil {
+		return false
+	}
+
+	return e.Sender.Host == host
+}
+
+func (e *EtcPolicy) IsTitlePrefixEqual(titlePrefix string) bool {
 	return e.TitlePrefix == titlePrefix
+}
+
+func (e *EtcPolicy) IsSenderEqual(sender email.Sender) bool {
+	if e.Sender == nil {
+		return false
+	}
+
+	return reflect.DeepEqual(*e.Sender, sender)
 }
 
 func (e *EtcPolicy) UpdateOrAppendSetting(setting Options) {
@@ -108,10 +130,20 @@ func (e *EtcPolicy) UpdateOrAppendSetting(setting Options) {
 	}
 }
 
+func (e *EtcPolicy) DeleteSetting(setting Options) {
+	switch setting.Type {
+	case "emailSender":
+		e.Sender = nil
+	}
+}
+
 func (e *EtcPolicy) existingSettingUpdated(setting Options) bool {
 	switch setting.Type {
 	case "titlePrefix":
 		e.TitlePrefix = setting.TitlePrefix.Value
+		return true
+	case "emailSender":
+		e.Sender = setting.Sender
 		return true
 	}
 
@@ -126,6 +158,14 @@ func initUpdateStatus() status.Settings {
 	return status.Settings{
 		Current:    status.Updating,
 		Desired:    status.Updated,
+		IsUpdating: true,
+	}
+}
+
+func initDeleteStatus() status.Settings {
+	return status.Settings{
+		Current:    status.Deleting,
+		Desired:    status.Deleted,
 		IsUpdating: true,
 	}
 }

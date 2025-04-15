@@ -14,10 +14,12 @@ const (
 	Pending              = "pending"
 	Updating             = "updating"
 	Repairing            = "repairing"
+	Deleting             = "deleting"
 	CheckingAndRepairing = "checkingAndRepairing"
 
 	Completed = "completed"
 	Updated   = "updated"
+	Deleted   = "deleted"
 	Ok        = "ok"
 	Ng        = "ng"
 	Error     = "error"

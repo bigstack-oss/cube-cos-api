@@ -11,6 +11,7 @@ import (
 	v1slack "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func sendTrialEmail(sender v1email.Sender, recipient string) error {
@@ -51,5 +52,6 @@ func setSenderAsVerified(sender v1email.Sender) error {
 		v1email.SenderCollection,
 		bson.M{"host": sender.Host},
 		bson.M{"$set": bson.M{"accessVerified": true}},
+		options.Update().SetUpsert(true),
 	)
 }

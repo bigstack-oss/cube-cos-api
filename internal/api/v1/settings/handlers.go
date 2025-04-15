@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
@@ -156,8 +157,7 @@ func patchTitlePrefix(c *gin.Context) {
 		return
 	}
 
-	req := h.genUpdateReq("titlePrefix")
-	h.updateSetting(req)
+	h.updateSetting()
 	api.SetStatusAccepted(
 		c,
 		"title prefix update request successfully",
@@ -165,30 +165,22 @@ func patchTitlePrefix(c *gin.Context) {
 }
 
 func createEmailSender(c *gin.Context) {
-	sender := email.Sender{}
-	err := c.ShouldBindJSON(&sender)
+	h, err := initReqHelper(c, "createEmailSender")
 	if err != nil {
-		log.Errorf("settings(%s): failed to decode email sender: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	if isSenderExist(sender.Host) {
+	if h.isSenderExist() {
 		api.SetStatusConflict(c, errors.New("sender host already exists"))
 		return
 	}
 
-	err = insertEmailSender(sender)
-	if err != nil {
-		log.Errorf("settings(%s): failed to create email sender: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
-		return
-	}
-
-	api.SetStatusCreated(
+	h.updateSetting()
+	api.SetStatusAccepted(
 		c,
 		"email sender created successfully",
-		nil,
 	)
 }
 
@@ -208,7 +200,7 @@ func tryEmailSender(c *gin.Context) {
 		return
 	}
 
-	senders, err := definition.GetEmailSenders()
+	senders, err := cubecos.GetEmailSenders()
 	if err != nil {
 		log.Errorf("settings(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -257,51 +249,43 @@ func listEmailSenders(c *gin.Context) {
 }
 
 func patchEmailSender(c *gin.Context) {
-	err := checkSenderUpdate(c)
+	h, err := initReqHelper(c, "patchEmailSender")
 	if err != nil {
-		log.Errorf("settings(%s): failed to check email sender: %s", api.GetReqId(c), err.Error())
-		api.SetBadRequest(c, err)
-	}
-
-	sender, err := parseEmailSenderUpdate(c)
-	if err != nil {
-		log.Errorf("settings(%s): failed to parse email sender: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	err = updateEmailSender(c, *sender)
-	if err != nil {
-		log.Errorf("settings(%s): failed to update email sender: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
-		return
-	}
-
-	api.SetStatusOk(
-		c,
-		"email sender updated successfully",
-		nil,
-	)
-}
-
-func deleteEmailSender(c *gin.Context) {
-	host := c.Param("senderHost")
-	if !isSenderExist(host) {
+	if !h.isSenderExist() {
 		api.SetBadRequest(c, errors.New("sender not found"))
 		return
 	}
 
-	err := removeEmailSender(host)
+	h.resetAccessVerification()
+	h.updateSetting()
+	api.SetStatusAccepted(
+		c,
+		"email sender update requested successfully",
+	)
+}
+
+func deleteEmailSender(c *gin.Context) {
+	h, err := initReqHelper(c, "deleteEmailSender")
 	if err != nil {
-		log.Errorf("settings(%s): failed to delete email sender: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
+		log.Errorf("settings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
 		return
 	}
 
-	api.SetStatusOk(
+	if !h.isSenderExist() {
+		api.SetBadRequest(c, errors.New("sender not found"))
+		return
+	}
+
+	h.updateSetting()
+	api.SetStatusAccepted(
 		c,
-		"email sender deleted successfully",
-		nil,
+		"email sender deletion requested successfully",
 	)
 }
 
@@ -332,10 +316,9 @@ func createEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	api.SetStatusCreated(
+	api.SetStatusAccepted(
 		c,
 		"email recipient created successfully",
-		nil,
 	)
 }
 
@@ -470,10 +453,9 @@ func createSlackChannel(c *gin.Context) {
 		return
 	}
 
-	api.SetStatusCreated(
+	api.SetStatusAccepted(
 		c,
 		"slack channel created successfully",
-		nil,
 	)
 }
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
@@ -17,25 +18,25 @@ import (
 // func getAllSettings() (*definition.Setting, error) {
 // 	titlePrefix, err := getTitlePrefix()
 // 	if err != nil {
-// 		log.Errorf("failed to get title prefix (%s)", err.Error())
+// 		log.Errorf("settings: failed to get title prefix (%s)", err.Error())
 // 		return nil, err
 // 	}
 
 // 	senders, err := definition.GetEmailSenders()
 // 	if err != nil {
-// 		log.Errorf("failed to get email sender (%s)", err.Error())
+// 		log.Errorf("settings: failed to get email sender (%s)", err.Error())
 // 		return nil, err
 // 	}
 
 // 	recipients, err := definition.GetEmailRecipients()
 // 	if err != nil {
-// 		log.Errorf("failed to get email recipient (%s)", err.Error())
+// 		log.Errorf("settings: failed to get email recipient (%s)", err.Error())
 // 		return nil, err
 // 	}
 
 // 	channels, err := definition.GetSlackChannels()
 // 	if err != nil {
-// 		log.Errorf("failed to get slack channel (%s)", err.Error())
+// 		log.Errorf("settings: failed to get slack channel (%s)", err.Error())
 // 		return nil, err
 // 	}
 
@@ -57,9 +58,9 @@ func (h *helper) eraseSenderPassword(senders *[]email.Sender) {
 	}
 }
 
-func (h *helper) updateSetting(setting setting.Options) {
-	h.addReqRecord(setting)
-	reqQueue.Add(&setting)
+func (h *helper) updateSetting() {
+	h.addReqRecord(*h.task)
+	reqQueue.Add(h.task)
 }
 
 func getTitlePrefix() (string, error) {
@@ -70,7 +71,7 @@ func getTitlePrefix() (string, error) {
 		bson.M{},
 	)
 	if err != nil {
-		log.Errorf("failed to get cursor for email sender (%s)", err.Error())
+		log.Errorf("settings: failed to get cursor for email sender (%s)", err.Error())
 		return "", err
 	}
 
@@ -89,17 +90,17 @@ func insertEmailSender(sender email.Sender) error {
 	)
 }
 
-func updateEmailSender(c *gin.Context, sender email.Sender) error {
-	h := mongo.GetGlobalHelper()
-	return h.UpdateOne(
-		definition.SettingsDB(),
-		email.SenderCollection,
-		bson.M{"host": c.Param("senderHost")},
-		bson.M{
-			"$set": genSenderPatch(sender),
-		},
-	)
-}
+// func updateEmailSender(c *gin.Context, sender email.Sender) error {
+// 	h := mongo.GetGlobalHelper()
+// 	return h.UpdateOne(
+// 		definition.SettingsDB(),
+// 		email.SenderCollection,
+// 		bson.M{"host": c.Param("senderHost")},
+// 		bson.M{
+// 			"$set": genSenderPatch(sender),
+// 		},
+// 	)
+// }
 
 func genSenderPatch(sender email.Sender) bson.M {
 	if !sender.RequirePasswordChange() {
@@ -179,14 +180,14 @@ func getSlackChannel(name string) (*slack.Channel, error) {
 		bson.M{"name": name},
 	)
 	if err != nil {
-		log.Errorf("failed to get slack channel (%s)", err.Error())
+		log.Errorf("settings: failed to get slack channel (%s)", err.Error())
 		return nil, err
 	}
 
 	channel := slack.Channel{}
 	err = resp.Decode(&channel)
 	if err != nil {
-		log.Errorf("failed to decode slack channel (%s)", err.Error())
+		log.Errorf("settings: failed to decode slack channel (%s)", err.Error())
 		return nil, err
 	}
 
@@ -218,19 +219,13 @@ func removeSlackChannel(name string) error {
 	)
 }
 
-func isSenderExist(sender string) bool {
-	h := mongo.GetGlobalHelper()
-	count, err := h.GetCount(
-		definition.SettingsDB(),
-		email.SenderCollection,
-		bson.M{"host": sender},
-	)
+func (h *helper) isSenderExist() bool {
+	policy, err := cubecos.GetEtcSettingPolicy()
 	if err != nil {
-		log.Errorf("failed to get count of email sender (%s)", err.Error())
 		return false
 	}
 
-	return count > 0
+	return policy.HasSender(h.c.Param("senderHost"))
 }
 
 func isRecipientExist(recipient string) bool {
@@ -241,7 +236,7 @@ func isRecipientExist(recipient string) bool {
 		bson.M{"address": recipient},
 	)
 	if err != nil {
-		log.Errorf("failed to get count of email recipient (%s)", err.Error())
+		log.Errorf("settings: failed to get count of email recipient (%s)", err.Error())
 		return false
 	}
 
@@ -256,7 +251,7 @@ func isChannelExist(channel string) bool {
 		bson.M{"name": channel},
 	)
 	if err != nil {
-		log.Errorf("failed to get count of slack channel (%s)", err.Error())
+		log.Errorf("settings: failed to get count of slack channel (%s)", err.Error())
 		return false
 	}
 
@@ -287,7 +282,7 @@ func (h *helper) isEmailRecipientUpdating(recipient *email.Recipient) bool {
 		},
 	)
 	if err != nil {
-		log.Errorf("failed to get email count: %s", err.Error())
+		log.Errorf("settings: failed to get email count: %s", err.Error())
 		return false
 	}
 
@@ -300,11 +295,11 @@ func (h *helper) isEmailSenderUpdating(sender *email.Sender) bool {
 		setting.ReqCollection,
 		bson.M{
 			"type": "emailSender",
-			"host": sender.Host,
+			"key":  sender.Host,
 		},
 	)
 	if err != nil {
-		log.Errorf("failed to get email count: %s", err.Error())
+		log.Errorf("settings: failed to get email count: %s", err.Error())
 		return false
 	}
 
@@ -321,7 +316,7 @@ func (h *helper) isSlackUpdating(channel *slack.Channel) bool {
 		},
 	)
 	if err != nil {
-		log.Errorf("failed to get slack count: %s", err.Error())
+		log.Errorf("settings: failed to get slack count: %s", err.Error())
 		return false
 	}
 
@@ -341,4 +336,13 @@ func (h *helper) genTaskFilter() bson.M {
 		"type": h.task.Type,
 		"key":  h.task.Key,
 	}
+}
+
+func (h *helper) resetAccessVerification() error {
+	return h.mongo.UpdateMany(
+		setting.DB,
+		email.SenderCollection,
+		bson.M{"host": h.c.Param("senderHost")},
+		bson.M{"$set": bson.M{"accessVerified": false}},
+	)
 }

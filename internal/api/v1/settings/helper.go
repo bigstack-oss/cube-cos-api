@@ -9,15 +9,15 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type helper struct {
 	c     *gin.Context
 	mongo *mongo.Helper
 
-	handler     string
-	task        *setting.Options
-	titlePrefix setting.TitlePrefix
+	handler string
+	task    *setting.Options
 }
 
 func initReqHelper(c *gin.Context, handler string) (*helper, error) {
@@ -26,7 +26,13 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 	case "listSettings":
 		return h, nil
 	case "patchTitlePrefix":
-		return h, h.parseTitlePrefixPatchReq()
+		return h, h.initTitlePrefixPatchParams()
+	case "createEmailSender":
+		return h, h.initEmailSenderCreateParams()
+	case "patchEmailSender":
+		return h, h.initEmailSenderPatchParams()
+	case "deleteEmailSender":
+		return h, h.initEmailSenderDeleteParams()
 	}
 
 	return h, nil
@@ -42,7 +48,30 @@ func (h *helper) listSettings() (*setting.ApiPolicy, error) {
 	apiPoliy := convertEtcPolicyToApiPolicy(etcPolicy)
 	h.syncUpdateStatus(&apiPoliy)
 	h.eraseSenderPassword(&apiPoliy.Email.Senders)
+	h.syncEmailSenderVerification(&apiPoliy.Email.Senders)
 	return &apiPoliy, nil
+}
+
+func (h *helper) syncEmailSenderVerification(senders *[]email.Sender) {
+	for i, sender := range *senders {
+		if h.isEmailSenderVerified(&sender) {
+			(*senders)[i].AccessVerified = true
+		}
+	}
+}
+
+func (h *helper) isEmailSenderVerified(sender *email.Sender) bool {
+	count, err := h.mongo.GetCount(
+		setting.DB,
+		email.SenderCollection,
+		bson.M{"host": sender.Host, "accessVerified": true},
+	)
+	if err != nil {
+		log.Errorf("settings: failed to check email sender verification (%s)", err.Error())
+		return false
+	}
+
+	return count > 0
 }
 
 func (h *helper) syncUpdateStatus(apiPolicy *setting.ApiPolicy) {

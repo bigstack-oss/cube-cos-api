@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	log "go-micro.dev/v5/logger"
 	"gopkg.in/yaml.v3"
@@ -22,6 +23,16 @@ func GetEtcSettingPolicy() (*setting.EtcPolicy, error) {
 	}
 
 	return settings, nil
+}
+
+func GetEmailSenders() ([]email.Sender, error) {
+	policy, err := GetEtcSettingPolicy()
+	if err != nil {
+		log.Errorf("settings: failed to get email senders (%s)", err.Error())
+		return nil, err
+	}
+
+	return []email.Sender{*policy.Sender}, nil
 }
 
 func ApplySettings(policy *setting.EtcPolicy) error {
@@ -75,8 +86,25 @@ func IsSettingApplied(setting setting.Options) bool {
 	isApplied := false
 	switch setting.Type {
 	case "titlePrefix":
-		isApplied = policy.IsTitlePrefixSame(setting.TitlePrefix.Value)
+		isApplied = policy.IsTitlePrefixEqual(setting.TitlePrefix.Value)
+	case "emailSender":
+		isApplied = policy.IsSenderEqual(*setting.Sender)
 	}
 
 	return isApplied
+}
+
+func IsSettingDeleted(setting setting.Options) bool {
+	policy, err := GetEtcSettingPolicy()
+	if err != nil {
+		return false
+	}
+
+	isDeleted := false
+	switch setting.Type {
+	case "emailSender":
+		isDeleted = policy.HasSender(setting.Sender.Host)
+	}
+
+	return isDeleted
 }
