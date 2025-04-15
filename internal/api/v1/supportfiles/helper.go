@@ -1,16 +1,20 @@
 package supportfiles
 
 import (
+	"context"
 	"errors"
+	"net/url"
 
 	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
-	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type helper struct {
@@ -32,7 +36,7 @@ type helper struct {
 
 // note:
 // deletion is not support in the 3.0.0 release
-func initHandler(c *gin.Context, handler string) (*helper, error) {
+func initHepler(c *gin.Context, handler string) (*helper, error) {
 	h := helper{c: c, handler: handler}
 	switch h.handler {
 	case "listSupportFiles":
@@ -90,7 +94,12 @@ func initCreateHelper(h *helper) (*helper, error) {
 }
 
 func initDownloadHelper(h *helper) (*helper, error) {
-	h.group.Name = h.c.Param("supportFileGroup")
+	groupName, err := url.PathUnescape(h.c.Param("supportFileGroup"))
+	if err != nil {
+		return nil, err
+	}
+
+	h.group.Name = groupName
 	h.file.Name = h.c.Param("supportFileName")
 	return h, nil
 }
@@ -110,7 +119,7 @@ func (h *helper) listSupportFiles() (*fileSetList, error) {
 		return nil, err
 	}
 
-	h.syncFileIsCreatedOrPending(files)
+	h.syncCreatingFile(&files)
 	sets := h.convertToFileSets(files)
 	pagedSets, err := h.paginateSupportFileSets(sets)
 	if err != nil {
@@ -134,21 +143,39 @@ func (h *helper) listHostSupportFiles() ([]support.File, error) {
 	return cubecos.ListHostSupportFiles(support.ListFileOptions{Host: h.host})
 }
 
-func (h *helper) syncFileIsCreatedOrPending(files []support.File) {
+func (h *helper) syncCreatingFile(files *[]support.File) {
 	mongo := cubeMongo.GetGlobalHelper()
-	for i, file := range files {
-		count, err := mongo.GetCount(
-			support.FileDB,
-			support.FileReqCollection,
-			genTaskFilter(file),
-		)
+	c, err := mongo.GetQueryCursor(
+		support.FileDB,
+		support.FileReqCollection,
+		bson.M{"status.current": "creating"},
+	)
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to get creating file set: %s", api.GetReqId(h.c), err.Error())
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
+	defer cancel()
+	defer c.Close(ctx)
+	h.setCreatingFile(files, c)
+}
+
+func (h *helper) setCreatingFile(files *[]support.File, c *mongo.Cursor) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
+	defer cancel()
+	for c.Next(ctx) {
+		file := support.File{}
+		err := c.Decode(&file)
 		if err != nil {
+			log.Errorf("supportFiles(%s): failed to decode creating file set: %s", api.GetReqId(h.c), err.Error())
 			continue
 		}
 
-		if count > 0 {
-			files[i].Status.Current = status.Creating
-			files[i].Status.IsCreating = true
-		}
+		*files = append(*files, file)
+	}
+	if c.Err() != nil {
+		log.Errorf("supportFiles(%s): failed to iterate support file cursor: %s", api.GetReqId(h.c), c.Err().Error())
+		return
 	}
 }

@@ -44,7 +44,7 @@ var (
 )
 
 func listSupportFiles(c *gin.Context) {
-	h, err := initHandler(c, "listSupportFiles")
+	h, err := initHepler(c, "listSupportFiles")
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to init req helper: %v", api.GetReqId(c), err)
 		return
@@ -64,7 +64,7 @@ func listSupportFiles(c *gin.Context) {
 }
 
 func createSupportFile(c *gin.Context) {
-	h, err := initHandler(c, "createSupportFile")
+	h, err := initHepler(c, "createSupportFile")
 	if err != nil {
 		log.Infof("supportFiles(%s): failed to init req helper: %v", api.GetReqId(c), err)
 		return
@@ -78,7 +78,7 @@ func createSupportFile(c *gin.Context) {
 }
 
 func downloadSupportFile(c *gin.Context) {
-	h, err := initHandler(c, "downloadSupportFile")
+	h, err := initHepler(c, "downloadSupportFile")
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to init req helper: %v", api.GetReqId(c), err)
 		return
@@ -92,7 +92,7 @@ func downloadSupportFile(c *gin.Context) {
 }
 
 func updateSupportFileTask(c *gin.Context) {
-	h, err := initHandler(c, "updateSupportFileTask")
+	h, err := initHepler(c, "updateSupportFileTask")
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to init req helper: %v", api.GetReqId(c), err)
 		return
@@ -106,7 +106,7 @@ func updateSupportFileTask(c *gin.Context) {
 }
 
 func listHostSupportFiles(c *gin.Context) {
-	h, err := initHandler(c, "listHostSupportFiles")
+	h, err := initHepler(c, "listHostSupportFiles")
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to init req helper: %v", api.GetReqId(c), err)
 		return

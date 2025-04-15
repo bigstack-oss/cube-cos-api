@@ -48,9 +48,10 @@ func (h *helper) setSupportFile() {
 			Host: v1.Hostname,
 		},
 		Status: status.SupportFile{
-			Current:   status.Creating,
-			Desired:   status.Create,
-			CreatedAt: h.fileReq.CreatedAt,
+			Current:    status.Creating,
+			Desired:    status.Create,
+			CreatedAt:  h.fileReq.CreatedAt,
+			IsCreating: true,
 		},
 	}
 }
@@ -64,7 +65,7 @@ func (h *helper) genFilSetGroup() string {
 }
 
 func (h *helper) delegateToLocal() {
-	addReqRecord(h.file)
+	h.addReqRecord(h.file)
 	reqQueue.Add(&h.file)
 }
 
@@ -112,11 +113,11 @@ func (h *helper) downloadSupportFile() error {
 
 		if file.Source.Host == v1.Hostname {
 			h.streamFileDownload(file.Name)
-			return nil
+			break
 		}
 
 		h.streamFromPeerNode(set, file)
-		return nil
+		break
 	}
 
 	return nil
@@ -124,7 +125,8 @@ func (h *helper) downloadSupportFile() error {
 
 func (h *helper) findFileSet(sets []support.FileSet) support.FileSet {
 	for _, set := range sets {
-		if set.Name == h.file.Name {
+		if set.Name == h.group.Name {
+			log.Infof("found file set: %s", set.Name)
 			return set
 		}
 	}
@@ -133,7 +135,8 @@ func (h *helper) findFileSet(sets []support.FileSet) support.FileSet {
 }
 
 func (h *helper) streamFileDownload(filename string) {
-	file, err := os.Open(fmt.Sprintf("%s/%s", support.DefaultFileDir, filename))
+	filepath := fmt.Sprintf("%s/%s", support.DefaultFileDir, filename)
+	file, err := os.Open(filepath)
 	if err != nil {
 		return
 	}

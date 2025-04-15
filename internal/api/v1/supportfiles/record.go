@@ -8,9 +8,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func addReqRecord(file support.File) {
-	h := cubeMongo.GetGlobalHelper()
-	err := h.UpdateOne(
+func (h *helper) addReqRecord(file support.File) {
+	mongo := cubeMongo.GetGlobalHelper()
+	err := mongo.UpdateOne(
 		support.FileDB,
 		support.FileReqCollection,
 		genFilter(file),

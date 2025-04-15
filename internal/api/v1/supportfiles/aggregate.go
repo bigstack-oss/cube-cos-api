@@ -8,40 +8,26 @@ import (
 )
 
 func (h *helper) convertToFileSets(files []support.File) []support.FileSet {
-	fileSets := aggregateToFileSets(files)
+	fileSets := h.aggregateToFileSets(files)
 	fileSets = h.filterSupportFiles(fileSets)
 	h.sortSupportFileSets(&fileSets)
 	return fileSets
 }
 
-func aggregateToFileSets(files []support.File) []support.FileSet {
+func (h *helper) aggregateToFileSets(files []support.File) []support.FileSet {
 	fileSetMap := map[string]*support.FileSet{}
 
 	for _, file := range files {
 		key := file.Group
-		if _, exists := fileSetMap[key]; !exists {
-			fileSetMap[key] = &support.FileSet{
-				Name:        fmt.Sprintf("%s Support File Set %s", v1.DataCenterVersion, file.Status.CreatedAt),
-				Description: file.Description,
-				SizeMiB:     0,
-				Files:       []support.File{},
-				Status:      file.Status,
-			}
+		_, found := fileSetMap[key]
+		if !found {
+			fileSetMap[key] = h.genSupportFileSet(file)
 		}
 
 		fileSetMap[key].SizeMiB += file.SizeMiB
-		file := support.File{
-			Name:        file.Name,
-			Group:       file.Group,
-			Description: file.Description,
-			SizeMiB:     file.SizeMiB,
-			Url:         file.Url,
-			Source:      file.Source,
-		}
-
 		fileSetMap[key].Files = append(
 			fileSetMap[key].Files,
-			file,
+			h.enrichSupportFileInfo(file),
 		)
 	}
 
@@ -51,4 +37,32 @@ func aggregateToFileSets(files []support.File) []support.FileSet {
 	}
 
 	return fileSets
+}
+
+func (h *helper) genSupportFileSet(file support.File) *support.FileSet {
+	return &support.FileSet{
+		Name:        fmt.Sprintf("%s Support File Set %s", v1.DataCenterVersion, file.Status.CreatedAt),
+		Description: file.Description,
+		SizeMiB:     0,
+		Files:       []support.File{},
+		Status:      file.Status,
+	}
+}
+
+func (h *helper) enrichSupportFileInfo(file support.File) support.File {
+	if file.Name == "" {
+		file.Name = "filename will be generated later once the file is created"
+		file.Url = "file url will be generated later once the file is created"
+		file.Status.IsCreating = true
+		return file
+	}
+
+	return support.File{
+		Name:        file.Name,
+		Group:       file.Group,
+		Description: file.Description,
+		SizeMiB:     file.SizeMiB,
+		Url:         file.Url,
+		Source:      file.Source,
+	}
 }
