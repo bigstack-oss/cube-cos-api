@@ -398,7 +398,7 @@ func GetCpuSummaryOfHost(hostname string) (*definition.ComputeStatistic, error) 
 	}, nil
 }
 
-func GetCpuHistoryOfHost(stmt string) ([]definition.TimeValue, error) {
+func GetCpuHistoryOfHost(stmt string) (*definition.MetricHistory, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -406,7 +406,16 @@ func GetCpuHistoryOfHost(stmt string) ([]definition.TimeValue, error) {
 
 	defer cancel()
 	defer c.Close()
-	return parseCpuUsageHistory(c)
+	history, err := parseCpuUsageHistory(c)
+	if err != nil {
+		log.Errorf("metrics: failed to parse cpu usage history: %v", err)
+		return nil, err
+	}
+
+	return &definition.MetricHistory{
+		Unit:    "percentage",
+		History: history,
+	}, nil
 }
 
 func parseCpuUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
@@ -478,13 +487,13 @@ func GetCpuUsageRankOfHosts(stmt string) (*definition.MetricRank, error) {
 
 func appendHistoryToCpuUsageRank(rank []definition.RankPoint) {
 	for i, host := range rank {
-		history, err := GetCpuHistoryOfHost(genHostCpuUsageHistoryStmt(host.Id))
+		data, err := GetCpuHistoryOfHost(genHostCpuUsageHistoryStmt(host.Id))
 		if err != nil {
 			log.Errorf("failed to get cpu history of host %s: %v", host.Id, err)
 			continue
 		}
 
-		rank[i].History = history
+		rank[i].History = data.History
 	}
 }
 
@@ -595,6 +604,26 @@ func GetMemoryHistoryOfHost(stmt string) ([]definition.TimeValue, error) {
 	return parseMemoryUsageHistory(c)
 }
 
+func GetMemorySizeHistoryOfHost(stmt string) (*definition.MetricHistory, error) {
+	c, cancel, err := influx.GetQueryCursor(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer cancel()
+	defer c.Close()
+	history, err := parseMemorySizeHistory(c)
+	if err != nil {
+		log.Errorf("metrics: failed to parse memory usage history: %v", err)
+		return nil, err
+	}
+
+	return &definition.MetricHistory{
+		Unit:    "sizeMiB",
+		History: history,
+	}, nil
+}
+
 func parseMemoryUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
 	points := []definition.TimeValue{}
 	for c.Next() {
@@ -608,6 +637,27 @@ func parseMemoryUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, e
 			definition.TimeValue{
 				Time:  definition.TimeLocalRFC3339(date),
 				Value: parseUsedOfHost(c.Record()),
+			},
+		)
+	}
+
+	return points, nil
+}
+
+func parseMemorySizeHistory(c *api.QueryTableResult) ([]definition.TimeValue, error) {
+	points := []definition.TimeValue{}
+	for c.Next() {
+		date, err := time.Parse(eventTimeLayout, c.Record().Time().String())
+		if err != nil {
+			continue
+		}
+
+		value := float64(parseSizeOfHost(c.Record())) / 1024.0 / 1024.0
+		points = append(
+			points,
+			definition.TimeValue{
+				Time:  definition.TimeLocalRFC3339(date),
+				Value: math.RoundDown(value, 4),
 			},
 		)
 	}
@@ -1500,6 +1550,15 @@ func parseUsedOfHost(record *query.FluxRecord) float64 {
 	}
 
 	return math.RoundDown(used, 4)
+}
+
+func parseSizeOfHost(record *query.FluxRecord) int64 {
+	used, ok := record.ValueByKey("used").(int64)
+	if !ok {
+		return 0
+	}
+
+	return used
 }
 
 func parseCpuUsedOfVm(record *query.FluxRecord) float64 {

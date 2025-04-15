@@ -43,8 +43,8 @@ func (h *helper) getMemoryUsageSummary() (any, error) {
 func (h *helper) getMemoryHistory() (any, error) {
 	switch h.entityType {
 	case "host":
-		stmt := h.genHostMemoryUsageHistoryStmt()
-		return cubecos.GetMemoryHistoryOfHost(stmt)
+		stmt := h.genHostMemorySizeHistoryStmt()
+		return cubecos.GetMemorySizeHistoryOfHost(stmt)
 	case "vm":
 		return nil, fmt.Errorf("vm is not supported yet for memory history")
 	}

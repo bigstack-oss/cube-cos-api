@@ -177,18 +177,18 @@ func (h *helper) genHostNetworkEgressRankStmt() string {
 func (h *helper) genHostCpuUsageHistoryStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range("start: -1h").
+		Range(fmt.Sprintf("start: -%s", h.past)).
 		Filter(fmt.Sprintf(`fn: (r) => r._measurement == "cpu" and r.host == "%s" and r._field == "usage_idle"`, h.entityId)).
 		Map(`fn: (r) => ({ r with _value: 100.0 - r._value })`).
 		Rename(`columns: {_value: "used"}`).
 		String()
 }
 
-func (h *helper) genHostMemoryUsageHistoryStmt() string {
+func (h *helper) genHostMemorySizeHistoryStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
-		Range("start: -1h").
-		Filter(fmt.Sprintf(`fn: (r) => r._measurement == "mem" and r.host == "%s" and r._field == "used_percent"`, h.entityId)).
+		Range(fmt.Sprintf("start: -%s", h.past)).
+		Filter(fmt.Sprintf(`fn: (r) => r._measurement == "mem" and r.host == "%s" and r._field == "used"`, h.entityId)).
 		Rename(`columns: {_value: "used"}`).
 		Keep(`columns: ["_time", "used", "host"]`).
 		String()

@@ -47,6 +47,11 @@ type MetricRank struct {
 	Rank []RankPoint `json:"rank"`
 }
 
+type MetricHistory struct {
+	Unit    string      `json:"unit"`
+	History []TimeValue `json:"history"`
+}
+
 type RankPoint struct {
 	Id      string      `json:"id"`
 	Name    string      `json:"name"`

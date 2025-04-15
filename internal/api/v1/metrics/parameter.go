@@ -90,7 +90,7 @@ func (h *helper) parseLimit() error {
 func (h *helper) parsePast() error {
 	h.past = h.c.DefaultQuery("past", "")
 	if h.past == "" {
-		return nil
+		h.past = "1h"
 	}
 
 	_, err := duration.Str2Duration(h.past)
