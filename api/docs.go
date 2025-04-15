@@ -4278,64 +4278,63 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "oneOf": [
-                                        {
-                                            "$ref": "#/components/schemas/GetCpuUsageHistoryOfHostResponse"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/GetMemoryUsageHistoryOfHostResponse"
-                                        }
-                                    ]
+                                    "$ref": "#/components/schemas/HostMetricHistoryResponse"
                                 },
                                 "examples": {
                                     "example1": {
                                         "summary": "Cpu usage history of host",
                                         "value": {
                                             "code": 200,
-                                            "data": [
-                                                {
-                                                    "time": "2025-03-24T09:39:00+08:00",
-                                                    "value": 10.9059
-                                                },
-                                                {
-                                                    "time": "2025-03-24T09:40:00+08:00",
-                                                    "value": 10.5089
-                                                },
-                                                {
-                                                    "time": "2025-03-24T09:41:00+08:00",
-                                                    "value": 15.3512
-                                                },
-                                                {
-                                                    "time": "2025-03-24T09:42:00+08:00",
-                                                    "value": 12.3685
-                                                }
-                                            ],
+                                            "data": {
+                                                "unit": "percentage",
+                                                "history": [
+                                                    {
+                                                        "time": "2025-03-24T09:39:00+08:00",
+                                                        "value": 10.9059
+                                                    },
+                                                    {
+                                                        "time": "2025-03-24T09:40:00+08:00",
+                                                        "value": 10.5089
+                                                    },
+                                                    {
+                                                        "time": "2025-03-24T09:41:00+08:00",
+                                                        "value": 15.3512
+                                                    },
+                                                    {
+                                                        "time": "2025-03-24T09:42:00+08:00",
+                                                        "value": 12.3685
+                                                    }
+                                                ]
+                                            },
                                             "msg": "fetch metrics successfully",
                                             "status": "ok"
                                         }
                                     },
                                     "example2": {
-                                        "summary": "Memory usage history of host",
+                                        "summary": "Memory size history of host",
                                         "value": {
                                             "code": 200,
-                                            "data": [
-                                                {
-                                                    "time": "2025-03-24T07:06:00+08:00",
-                                                    "value": 55.9796
-                                                },
-                                                {
-                                                    "time": "2025-03-24T07:07:00+08:00",
-                                                    "value": 55.9997
-                                                },
-                                                {
-                                                    "time": "2025-03-24T07:08:00+08:00",
-                                                    "value": 55.9884
-                                                },
-                                                {
-                                                    "time": "2025-03-24T07:09:00+08:00",
-                                                    "value": 55.9449
-                                                }
-                                            ],
+                                            "data": {
+                                                "unit": "sizeMiB",
+                                                "history": [
+                                                    {
+                                                        "time": "2025-04-15T05:42:00+08:00",
+                                                        "value": 25918.1601
+                                                    },
+                                                    {
+                                                        "time": "2025-04-15T05:43:00+08:00",
+                                                        "value": 26017.2656
+                                                    },
+                                                    {
+                                                        "time": "2025-04-15T05:44:00+08:00",
+                                                        "value": 25927.0429
+                                                    },
+                                                    {
+                                                        "time": "2025-04-15T05:45:00+08:00",
+                                                        "value": 25998.707
+                                                    }
+                                                ]
+                                            },
                                             "msg": "fetch metrics successfully",
                                             "status": "ok"
                                         }
@@ -13669,7 +13668,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "GetCpuUsageHistoryOfHostResponse": {
+            "HostMetricHistoryResponse": {
                 "type": "object",
                 "required": [
                     "code",
@@ -13682,34 +13681,21 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/TimeValuePair"
-                        }                    },
-                    "msg": {
-                        "type": "string"
-                    },
-                    "status": {
-                        "type": "string"
-                    }
-                }
-            },
-            "GetMemoryUsageHistoryOfHostResponse": {
-                "type": "object",
-                "required": [
-                    "code",
-                    "data",
-                    "msg",
-                    "status"
-                ],
-                "properties": {
-                    "code": {
-                        "type": "integer"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/TimeValuePair"
+                        "type": "object",
+                        "required": [
+                            "unit",
+                            "history"
+                        ],
+                        "properties": {
+                            "unit": {
+                                "type": "string"
+                            },
+                            "history": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/TimeValuePair"
+                                }
+                            }
                         }
                     },
                     "msg": {
