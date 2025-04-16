@@ -1,56 +1,15 @@
 package settings
 
 import (
-	"context"
-
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
-	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 )
-
-// func getAllSettings() (*definition.Setting, error) {
-// 	titlePrefix, err := getTitlePrefix()
-// 	if err != nil {
-// 		log.Errorf("settings: failed to get title prefix (%s)", err.Error())
-// 		return nil, err
-// 	}
-
-// 	senders, err := definition.GetEmailSenders()
-// 	if err != nil {
-// 		log.Errorf("settings: failed to get email sender (%s)", err.Error())
-// 		return nil, err
-// 	}
-
-// 	recipients, err := definition.GetEmailRecipients()
-// 	if err != nil {
-// 		log.Errorf("settings: failed to get email recipient (%s)", err.Error())
-// 		return nil, err
-// 	}
-
-// 	channels, err := definition.GetSlackChannels()
-// 	if err != nil {
-// 		log.Errorf("settings: failed to get slack channel (%s)", err.Error())
-// 		return nil, err
-// 	}
-
-// 	return &definition.Setting{
-// 		TitlePrefix: titlePrefix,
-// 		Email: email.Options{
-// 			Senders:    eraseSenderPassword(senders),
-// 			Recipients: recipients,
-// 		},
-// 		Slack: slack.Options{
-// 			Channels: channels,
-// 		},
-// 	}, nil
-// }
 
 func (h *helper) eraseSenderPassword(senders *[]email.Sender) {
 	for i := range *senders {
@@ -61,115 +20,6 @@ func (h *helper) eraseSenderPassword(senders *[]email.Sender) {
 func (h *helper) updateSetting() {
 	h.addReqRecord(*h.task)
 	reqQueue.Add(h.task)
-}
-
-func getTitlePrefix() (string, error) {
-	h := mongo.GetGlobalHelper()
-	cursor, err := h.GetQueryCursor(
-		definition.SettingsDB(),
-		definition.TitlePrefixCollection(),
-		bson.M{},
-	)
-	if err != nil {
-		log.Errorf("settings: failed to get cursor for email sender (%s)", err.Error())
-		return "", err
-	}
-
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	defer cursor.Close(ctx)
-	return parseTitlePrefix(cursor)
-}
-
-func insertEmailSender(sender email.Sender) error {
-	h := mongo.GetGlobalHelper()
-	return h.Insert(
-		definition.SettingsDB(),
-		email.SenderCollection,
-		sender,
-	)
-}
-
-// func updateEmailSender(c *gin.Context, sender email.Sender) error {
-// 	h := mongo.GetGlobalHelper()
-// 	return h.UpdateOne(
-// 		definition.SettingsDB(),
-// 		email.SenderCollection,
-// 		bson.M{"host": c.Param("senderHost")},
-// 		bson.M{
-// 			"$set": genSenderPatch(sender),
-// 		},
-// 	)
-// }
-
-func genSenderPatch(sender email.Sender) bson.M {
-	if !sender.RequirePasswordChange() {
-		return bson.M{
-			"host":     sender.Host,
-			"port":     sender.Port,
-			"username": sender.Username,
-			"email":    sender.Email,
-		}
-	}
-
-	return bson.M{
-		"host":     sender.Host,
-		"port":     sender.Port,
-		"username": sender.Username,
-		"password": sender.Password,
-		"email":    sender.Email,
-	}
-}
-
-func removeEmailSender(host string) error {
-	h := mongo.GetGlobalHelper()
-	return h.DeleteOne(
-		definition.SettingsDB(),
-		email.SenderCollection,
-		bson.M{"host": host},
-	)
-}
-
-func insertEmailRecipient(recipient email.Recipient) error {
-	h := mongo.GetGlobalHelper()
-	return h.Insert(
-		definition.SettingsDB(),
-		email.RecipientCollection,
-		recipient,
-	)
-}
-
-func updateEmailRecipient(c *gin.Context, recipient email.Recipient) error {
-	h := mongo.GetGlobalHelper()
-	return h.UpdateOne(
-		definition.SettingsDB(),
-		email.RecipientCollection,
-		bson.M{"address": c.Param("recipientEmail")},
-		bson.M{
-			"$set": bson.M{
-				"address": recipient.Address,
-				"note":    recipient.Note,
-			},
-		},
-	)
-}
-
-func removeEmailRecipient(recipient string) error {
-	h := mongo.GetGlobalHelper()
-	return h.DeleteOne(
-		definition.SettingsDB(),
-		email.RecipientCollection,
-		bson.M{"address": recipient},
-	)
-}
-
-func insertSlackChannel(channel slack.Channel) error {
-	h := mongo.GetGlobalHelper()
-	return h.Insert(
-		definition.SettingsDB(),
-		slack.ChannelCollection,
-		channel,
-	)
 }
 
 func getSlackChannel(name string) (*slack.Channel, error) {
@@ -194,31 +44,6 @@ func getSlackChannel(name string) (*slack.Channel, error) {
 	return &channel, nil
 }
 
-func updateSlackChannel(c *gin.Context, channel slack.Channel) error {
-	h := mongo.GetGlobalHelper()
-	return h.UpdateOne(
-		definition.SettingsDB(),
-		slack.ChannelCollection,
-		bson.M{"name": c.Param("channelName")},
-		bson.M{
-			"$set": bson.M{
-				"name":        channel.Name,
-				"url":         channel.URL,
-				"description": channel.Description,
-			},
-		},
-	)
-}
-
-func removeSlackChannel(name string) error {
-	h := mongo.GetGlobalHelper()
-	return h.DeleteOne(
-		definition.SettingsDB(),
-		slack.ChannelCollection,
-		bson.M{"name": name},
-	)
-}
-
 func (h *helper) isSenderExist() bool {
 	policy, err := cubecos.GetEtcSettingPolicy()
 	if err != nil {
@@ -237,21 +62,6 @@ func isRecipientExist(recipient string) bool {
 	)
 	if err != nil {
 		log.Errorf("settings: failed to get count of email recipient (%s)", err.Error())
-		return false
-	}
-
-	return count > 0
-}
-
-func isChannelExist(channel string) bool {
-	h := mongo.GetGlobalHelper()
-	count, err := h.GetCount(
-		definition.SettingsDB(),
-		slack.ChannelCollection,
-		bson.M{"name": channel},
-	)
-	if err != nil {
-		log.Errorf("settings: failed to get count of slack channel (%s)", err.Error())
 		return false
 	}
 
