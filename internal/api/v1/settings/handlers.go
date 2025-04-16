@@ -233,9 +233,9 @@ func tryEmailSender(c *gin.Context) {
 }
 
 func listEmailSenders(c *gin.Context) {
-	senders, err := definition.GetEmailSenders()
+	policy, err := cubecos.GetEtcSettingPolicy()
 	if err != nil {
-		log.Errorf("settings(%s): failed to list email senders: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to get email recipients: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -243,7 +243,7 @@ func listEmailSenders(c *gin.Context) {
 	api.SetStatusOk(
 		c,
 		"email senders retrieved successfully",
-		senders,
+		policy.Sender,
 	)
 }
 
@@ -347,9 +347,9 @@ func tryEmailRecipient(c *gin.Context) {
 }
 
 func listEmailRecipients(c *gin.Context) {
-	recipients, err := definition.GetEmailRecipients()
+	policy, err := cubecos.GetEtcSettingPolicy()
 	if err != nil {
-		log.Errorf("settings(%s): failed to list email recipients: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to get email recipients: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -357,7 +357,7 @@ func listEmailRecipients(c *gin.Context) {
 	api.SetStatusOk(
 		c,
 		"email recipients retrieved successfully",
-		recipients,
+		policy.Receiver.Emails,
 	)
 }
 
