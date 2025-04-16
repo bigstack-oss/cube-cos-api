@@ -6286,16 +6286,30 @@
                                         "value": {
                                             "code": 200,
                                             "data": {
-                                                "titlePrefix": "example title prefix",
+                                                "titlePrefix": {
+                                                    "value": "example title prefix",
+                                                    "status": {
+                                                        "current": "ok",
+                                                        "isUpdating": false
+                                                    }
+                                                },
                                                 "email": {
                                                     "recipients": [
                                                         {
                                                             "address": "example.user.1@example.com",
-                                                            "note": "example note 1"
+                                                            "note": "example note 1",
+                                                            "status": {
+                                                                "current": "ok",
+                                                                "isUpdating": false
+                                                            }
                                                         },
                                                         {
                                                             "address": "example.user.2@example.com",
-                                                            "note": "example note 2"
+                                                            "note": "example note 2",
+                                                            "status": {
+                                                                "current": "updating",
+                                                                "isUpdating": true
+                                                            }
                                                         }
                                                     ],
                                                     "senders": [
@@ -6304,7 +6318,11 @@
                                                             "port": 587,
                                                             "username": "ABBBBBBMJM56DCCCCJR",
                                                             "email": "noreply@example.com",
-                                                            "accessVerified": true
+                                                            "accessVerified": true,
+                                                            "status": {
+                                                                "current": "ok",
+                                                                "isUpdating": false
+                                                            }
                                                         }
                                                     ]
                                                 },
@@ -6313,12 +6331,20 @@
                                                         {
                                                             "name": "#example-alert-channel-1",
                                                             "url": "https://hooks.slack.com/services/T9LMBBBBB/B08GQABBBBB/BBBBBBBSevAyxkM2dPYBBBBB",
-                                                            "description": "example alert channel 1"
+                                                            "description": "example alert channel 1",
+                                                            "status": {
+                                                                "current": "ok",
+                                                                "isUpdating": false
+                                                            }
                                                         },
                                                         {
                                                             "name": "#example-alert-channel-2",
                                                             "url": "https://hooks.slack.com/services/T9LMCCCCC/C08GQACCCCC/CCCCCCCSevAyxkM2dPYCCCCC",
-                                                            "description": "example alert channel 2"
+                                                            "description": "example alert channel 2",
+                                                            "status": {
+                                                                "current": "ok",
+                                                                "isUpdating": false
+                                                            }
                                                         }
                                                     ]
                                                 }
@@ -6527,7 +6553,11 @@
                                                     "port": 587,
                                                     "username": "example-user",
                                                     "email": "noreply@bigstack.co",
-                                                    "accessVerified": true
+                                                    "accessVerified": true,
+                                                    "status": {
+                                                        "current": "ok",
+                                                        "isUpdating": false
+                                                    }
                                                 }
                                             ],
                                             "msg": "email senders retrieved successfully",
@@ -6876,11 +6906,19 @@
                                             "data": [
                                                 {
                                                     "address": "example.user.1@example.com",
-                                                    "note": "example email recipient 1"
+                                                    "note": "example email recipient 1", 
+                                                    "status": {
+                                                        "current": "ok",
+                                                        "isUpdating": false
+                                                    }
                                                 },
                                                 {
                                                     "address": "example.user.2@example.com",
-                                                    "note": "example email recipient 2"
+                                                    "note": "example email recipient 2",
+                                                    "status": {
+                                                        "current": "ok",
+                                                        "isUpdating": false
+                                                    }
                                                 }
                                             ],
                                             "msg": "email recipients retrieved successfully",
@@ -7232,12 +7270,20 @@
                                                     {
                                                         "name": "#example-alert-channel-1",
                                                         "url": "https://hooks.slack.com/services/T9LMBBBBB/B08GQABBBBB/BBBBBBBSevAyxkM2dPYBBBBB",
-                                                        "description": "example alert channel 1"
+                                                        "description": "example alert channel 1",
+                                                        "status": {
+                                                            "current": "ok",
+                                                            "isUpdating": false
+                                                        }
                                                     },
                                                     {
                                                         "name": "#example-alert-channel-2",
                                                         "url": "https://hooks.slack.com/services/T9LMCCCCC/C08GQACCCCC/CCCCCCCSevAyxkM2dPYCCCCC",
-                                                        "description": "example alert channel 2"
+                                                        "description": "example alert channel 2",
+                                                        "status": {
+                                                            "current": "ok",
+                                                            "isUpdating": false
+                                                        }
                                                     }
                                                 ]
                                             },
@@ -14323,11 +14369,15 @@
             "TitlePrefix": {
                 "type": "object",
                 "required": [
-                    "value"
+                    "value",
+                    "status"
                 ],
                 "properties": {
                     "value": {
                         "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/SettingStatus"
                     }
                 }
             },
@@ -14429,7 +14479,8 @@
                     "port",
                     "username",
                     "email",
-                    "accessVerified"
+                    "accessVerified",
+                    "status"
                 ],
                 "properties": {
                     "host": {
@@ -14446,6 +14497,9 @@
                     },
                     "accessVerified": {
                         "type": "boolean"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/SettingStatus"
                     }
                 }
             },
@@ -14456,7 +14510,8 @@
                     "port",
                     "username",
                     "password",
-                    "email"
+                    "email",
+                    "status"
                 ],
                 "properties": {
                     "host": {
@@ -14511,7 +14566,8 @@
                 "type": "object",
                 "required": [
                     "address",
-                    "note"
+                    "note",
+                    "status"
                 ],
                 "properties": {
                     "address": {
@@ -14519,6 +14575,9 @@
                     },
                     "note": {
                         "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/SettingStatus"
                     }
                 }
             },
@@ -14553,7 +14612,8 @@
                 "required": [
                     "name",
                     "url",
-                    "description"
+                    "description",
+                    "status"
                 ],
                 "properties": {
                     "name": {
@@ -14564,6 +14624,9 @@
                     },
                     "description": {
                         "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/SettingStatus"
                     }
                 }
             },
@@ -14621,7 +14684,19 @@
                         ],
                         "properties": {
                             "titlePrefix": {
-                                "type": "string"
+                                "type": "object",
+                                "required": [
+                                    "value",
+                                    "status"
+                                ],
+                                "properties": {
+                                    "value": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                       "$ref": "#/components/schemas/SettingStatus"
+                                    }
+                                }
                             },
                             "email": {
                                 "type": "object",
@@ -14650,7 +14725,7 @@
                                     "channels": {
                                         "type": "array",
                                         "items": {
-                                            "$ref": "#/components/schemas/SlackChannelPostRequest"
+                                            "$ref": "#/components/schemas/SlackChannelGetResponse"
                                         }
                                     }
                                 }
@@ -16514,6 +16589,21 @@
                     "uint",
                     "boolean"
                 ]
+            },
+            "SettingStatus": {
+                "type": "object",
+                "required": [
+                    "current",
+                    "isUpdating"
+                ],
+                "properties": {
+                    "current": {
+                        "type": "string"
+                    },
+                    "isUpdating": {
+                        "type": "boolean"
+                    }
+                }
             }
         }
     }

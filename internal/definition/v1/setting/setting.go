@@ -18,7 +18,7 @@ const (
 
 type Options struct {
 	Type string `json:"type" bson:"type"`
-	Key  string `json:"key" bson:"bson"`
+	Key  string `json:"key" bson:"key"`
 
 	TitlePrefix *TitlePrefix     `json:"titlePrefix,omitempty" bson:"titlePrefix,omitempty"`
 	Sender      *email.Sender    `json:"sender,omitempty" bson:"sender,omitempty"`

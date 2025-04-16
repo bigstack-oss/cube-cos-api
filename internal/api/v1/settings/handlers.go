@@ -503,7 +503,7 @@ func deleteSlackChannel(c *gin.Context) {
 func updateSettingTask(c *gin.Context) {
 	h, err := initReqHelper(c, "updateSettingTask")
 	if err != nil {
-		log.Errorf("tunings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}

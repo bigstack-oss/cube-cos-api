@@ -6290,16 +6290,30 @@ const docTemplate = `{
                                         "value": {
                                             "code": 200,
                                             "data": {
-                                                "titlePrefix": "example title prefix",
+                                                "titlePrefix": {
+                                                    "value": "example title prefix",
+                                                    "status": {
+                                                        "current": "ok",
+                                                        "isUpdating": false
+                                                    }
+                                                },
                                                 "email": {
                                                     "recipients": [
                                                         {
                                                             "address": "example.user.1@example.com",
-                                                            "note": "example note 1"
+                                                            "note": "example note 1",
+                                                            "status": {
+                                                                "current": "ok",
+                                                                "isUpdating": false
+                                                            }
                                                         },
                                                         {
                                                             "address": "example.user.2@example.com",
-                                                            "note": "example note 2"
+                                                            "note": "example note 2",
+                                                            "status": {
+                                                                "current": "updating",
+                                                                "isUpdating": true
+                                                            }
                                                         }
                                                     ],
                                                     "senders": [
@@ -6308,7 +6322,11 @@ const docTemplate = `{
                                                             "port": 587,
                                                             "username": "ABBBBBBMJM56DCCCCJR",
                                                             "email": "noreply@example.com",
-                                                            "accessVerified": true
+                                                            "accessVerified": true,
+                                                            "status": {
+                                                                "current": "ok",
+                                                                "isUpdating": false
+                                                            }
                                                         }
                                                     ]
                                                 },
@@ -6317,12 +6335,20 @@ const docTemplate = `{
                                                         {
                                                             "name": "#example-alert-channel-1",
                                                             "url": "https://hooks.slack.com/services/T9LMBBBBB/B08GQABBBBB/BBBBBBBSevAyxkM2dPYBBBBB",
-                                                            "description": "example alert channel 1"
+                                                            "description": "example alert channel 1",
+                                                            "status": {
+                                                                "current": "ok",
+                                                                "isUpdating": false
+                                                            }
                                                         },
                                                         {
                                                             "name": "#example-alert-channel-2",
                                                             "url": "https://hooks.slack.com/services/T9LMCCCCC/C08GQACCCCC/CCCCCCCSevAyxkM2dPYCCCCC",
-                                                            "description": "example alert channel 2"
+                                                            "description": "example alert channel 2",
+                                                            "status": {
+                                                                "current": "ok",
+                                                                "isUpdating": false
+                                                            }
                                                         }
                                                     ]
                                                 }
@@ -6531,7 +6557,11 @@ const docTemplate = `{
                                                     "port": 587,
                                                     "username": "example-user",
                                                     "email": "noreply@bigstack.co",
-                                                    "accessVerified": true
+                                                    "accessVerified": true,
+                                                    "status": {
+                                                        "current": "ok",
+                                                        "isUpdating": false
+                                                    }
                                                 }
                                             ],
                                             "msg": "email senders retrieved successfully",
@@ -6880,11 +6910,19 @@ const docTemplate = `{
                                             "data": [
                                                 {
                                                     "address": "example.user.1@example.com",
-                                                    "note": "example email recipient 1"
+                                                    "note": "example email recipient 1", 
+                                                    "status": {
+                                                        "current": "ok",
+                                                        "isUpdating": false
+                                                    }
                                                 },
                                                 {
                                                     "address": "example.user.2@example.com",
-                                                    "note": "example email recipient 2"
+                                                    "note": "example email recipient 2",
+                                                    "status": {
+                                                        "current": "ok",
+                                                        "isUpdating": false
+                                                    }
                                                 }
                                             ],
                                             "msg": "email recipients retrieved successfully",
@@ -7236,12 +7274,20 @@ const docTemplate = `{
                                                     {
                                                         "name": "#example-alert-channel-1",
                                                         "url": "https://hooks.slack.com/services/T9LMBBBBB/B08GQABBBBB/BBBBBBBSevAyxkM2dPYBBBBB",
-                                                        "description": "example alert channel 1"
+                                                        "description": "example alert channel 1",
+                                                        "status": {
+                                                            "current": "ok",
+                                                            "isUpdating": false
+                                                        }
                                                     },
                                                     {
                                                         "name": "#example-alert-channel-2",
                                                         "url": "https://hooks.slack.com/services/T9LMCCCCC/C08GQACCCCC/CCCCCCCSevAyxkM2dPYCCCCC",
-                                                        "description": "example alert channel 2"
+                                                        "description": "example alert channel 2",
+                                                        "status": {
+                                                            "current": "ok",
+                                                            "isUpdating": false
+                                                        }
                                                     }
                                                 ]
                                             },
@@ -14327,11 +14373,15 @@ const docTemplate = `{
             "TitlePrefix": {
                 "type": "object",
                 "required": [
-                    "value"
+                    "value",
+                    "status"
                 ],
                 "properties": {
                     "value": {
                         "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/SettingStatus"
                     }
                 }
             },
@@ -14433,7 +14483,8 @@ const docTemplate = `{
                     "port",
                     "username",
                     "email",
-                    "accessVerified"
+                    "accessVerified",
+                    "status"
                 ],
                 "properties": {
                     "host": {
@@ -14450,6 +14501,9 @@ const docTemplate = `{
                     },
                     "accessVerified": {
                         "type": "boolean"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/SettingStatus"
                     }
                 }
             },
@@ -14460,7 +14514,8 @@ const docTemplate = `{
                     "port",
                     "username",
                     "password",
-                    "email"
+                    "email",
+                    "status"
                 ],
                 "properties": {
                     "host": {
@@ -14515,7 +14570,8 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "address",
-                    "note"
+                    "note",
+                    "status"
                 ],
                 "properties": {
                     "address": {
@@ -14523,6 +14579,9 @@ const docTemplate = `{
                     },
                     "note": {
                         "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/SettingStatus"
                     }
                 }
             },
@@ -14557,7 +14616,8 @@ const docTemplate = `{
                 "required": [
                     "name",
                     "url",
-                    "description"
+                    "description",
+                    "status"
                 ],
                 "properties": {
                     "name": {
@@ -14568,6 +14628,9 @@ const docTemplate = `{
                     },
                     "description": {
                         "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/SettingStatus"
                     }
                 }
             },
@@ -14625,7 +14688,19 @@ const docTemplate = `{
                         ],
                         "properties": {
                             "titlePrefix": {
-                                "type": "string"
+                                "type": "object",
+                                "required": [
+                                    "value",
+                                    "status"
+                                ],
+                                "properties": {
+                                    "value": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                       "$ref": "#/components/schemas/SettingStatus"
+                                    }
+                                }
                             },
                             "email": {
                                 "type": "object",
@@ -14654,7 +14729,7 @@ const docTemplate = `{
                                     "channels": {
                                         "type": "array",
                                         "items": {
-                                            "$ref": "#/components/schemas/SlackChannelPostRequest"
+                                            "$ref": "#/components/schemas/SlackChannelGetResponse"
                                         }
                                     }
                                 }
@@ -16518,6 +16593,21 @@ const docTemplate = `{
                     "uint",
                     "boolean"
                 ]
+            },
+            "SettingStatus": {
+                "type": "object",
+                "required": [
+                    "current",
+                    "isUpdating"
+                ],
+                "properties": {
+                    "current": {
+                        "type": "string"
+                    },
+                    "isUpdating": {
+                        "type": "boolean"
+                    }
+                }
             }
         }
     }
