@@ -7,7 +7,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/settings"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -307,39 +306,6 @@ func createEmailRecipient(c *gin.Context) {
 		c,
 		"email recipient created successfully",
 	)
-
-	//
-
-	// recipient := email.Recipient{}
-	// err := c.ShouldBindJSON(&recipient)
-	// if err != nil {
-	// 	log.Errorf("settings(%s): failed to decode email recipient: %s", api.GetReqId(c), err.Error())
-	// 	return
-	// }
-
-	// err = email.CheckFormat(recipient.Address)
-	// if err != nil {
-	// 	log.Errorf("settings(%s): invalid email format: %s", api.GetReqId(c), err.Error())
-	// 	api.SetBadRequest(c, err)
-	// 	return
-	// }
-
-	// if isRecipientExist(recipient.Address) {
-	// 	api.SetStatusConflict(c, errors.New("recipient already exists"))
-	// 	return
-	// }
-
-	// err = insertEmailRecipient(recipient)
-	// if err != nil {
-	// 	log.Errorf("settings(%s): failed to create email recipient: %s", api.GetReqId(c), err.Error())
-	// 	api.SetInternalServerError(c, err)
-	// 	return
-	// }
-
-	// api.SetStatusAccepted(
-	// 	c,
-	// 	"email recipient created successfully",
-	// )
 }
 
 func tryEmailRecipient(c *gin.Context) {
@@ -415,42 +381,6 @@ func patchEmailRecipient(c *gin.Context) {
 		c,
 		"email recipient updated successfully",
 	)
-
-	//
-
-	// recipient := email.Recipient{}
-	// err := c.ShouldBindJSON(&recipient)
-	// if err != nil {
-	// 	log.Errorf("settings(%s): failed to decode email recipient: %s", api.GetReqId(c), err.Error())
-	// 	return
-	// }
-
-	// err = checkRecipientUpdate(c)
-	// if err != nil {
-	// 	log.Errorf("settings(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
-	// 	api.SetBadRequest(c, err)
-	// 	return
-	// }
-
-	// err = parseEmailRecipientUpdate(c, &recipient)
-	// if err != nil {
-	// 	log.Errorf("settings(%s): failed to parse email recipient: %s", api.GetReqId(c), err.Error())
-	// 	api.SetBadRequest(c, err)
-	// 	return
-	// }
-
-	// err = updateEmailRecipient(c, recipient)
-	// if err != nil {
-	// 	log.Errorf("settings(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
-	// 	api.SetInternalServerError(c, err)
-	// 	return
-	// }
-
-	// api.SetStatusOk(
-	// 	c,
-	// 	"email recipient updated successfully",
-	// 	nil,
-	// )
 }
 
 func deleteEmailRecipient(c *gin.Context) {
@@ -471,53 +401,25 @@ func deleteEmailRecipient(c *gin.Context) {
 		c,
 		"email recipient updated successfully",
 	)
-
-	//
-
-	// recipient := c.Param("recipientEmail")
-	// if !isRecipientExist(recipient) {
-	// 	api.SetBadRequest(c, errors.New("recipient not found"))
-	// 	return
-	// }
-
-	// err := removeEmailRecipient(recipient)
-	// if err != nil {
-	// 	log.Errorf("settings(%s): failed to delete email recipient: %s", api.GetReqId(c), err.Error())
-	// 	api.SetInternalServerError(c, err)
-	// 	return
-	// }
-
-	// api.SetStatusOk(
-	// 	c,
-	// 	"email recipient deleted successfully",
-	// 	nil,
-	// )
 }
 
 func createSlackChannel(c *gin.Context) {
-	channel := slack.Channel{}
-	err := c.ShouldBindJSON(&channel)
+	h, err := initReqHelper(c, "createSlackChannel")
 	if err != nil {
-		log.Errorf("settings(%s): failed to decode slack channel: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	if isChannelExist(channel.Name) {
-		api.SetBadRequest(c, errors.New("channel already exists"))
+	if h.isSlackChannlExist() {
+		api.SetStatusConflict(c, errors.New("sender host already exists"))
 		return
 	}
 
-	err = insertSlackChannel(channel)
-	if err != nil {
-		log.Errorf("settings(%s): failed to create slack channel: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
-		return
-	}
-
+	h.updateSetting()
 	api.SetStatusAccepted(
 		c,
-		"slack channel created successfully",
+		"slack channel creation requested successfully",
 	)
 }
 
@@ -544,9 +446,9 @@ func trySlackChannel(c *gin.Context) {
 }
 
 func listSlackChannels(c *gin.Context) {
-	channels, err := definition.GetSlackChannels()
+	policy, err := cubecos.GetEtcSettingPolicy()
 	if err != nil {
-		log.Errorf("settings(%s): failed to list slack channels: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to get slack channels: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -554,57 +456,47 @@ func listSlackChannels(c *gin.Context) {
 	api.SetStatusOk(
 		c,
 		"slack channels retrieved successfully",
-		channels,
+		policy.Slacks,
 	)
 }
 
 func putSlackChannel(c *gin.Context) {
-	// err := checkSlackChannelUpdate(c)
-	// if err != nil {
-	// 	log.Errorf("settings(%s): failed to update email recipient: %s", api.GetReqId(c), err.Error())
-	// 	api.SetBadRequest(c, err)
-	// 	return
-	// }
-
-	channel, err := parseSlackChannelUpdate(c)
+	h, err := initReqHelper(c, "putSlackChannel")
 	if err != nil {
-		log.Errorf("settings(%s): failed to parse slack channel: %s", api.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	err = updateSlackChannel(c, *channel)
-	if err != nil {
-		log.Errorf("settings(%s): failed to update slack channel: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
-		return
-	}
-
-	api.SetStatusOk(
-		c,
-		"slack channel updated successfully",
-		nil,
-	)
-}
-
-func deleteSlackChannel(c *gin.Context) {
-	name := c.Param("channelName")
-	if !isChannelExist(name) {
+	if !h.isSlackChannlExist() {
 		api.SetBadRequest(c, errors.New("channel not found"))
 		return
 	}
 
-	err := removeSlackChannel(name)
+	h.updateSetting()
+	api.SetStatusAccepted(
+		c,
+		"slack channel updated successfully",
+	)
+}
+
+func deleteSlackChannel(c *gin.Context) {
+	h, err := initReqHelper(c, "deleteSlackChannel")
 	if err != nil {
-		log.Errorf("settings(%s): failed to delete slack channel: %s", api.GetReqId(c), err.Error())
-		api.SetInternalServerError(c, err)
+		log.Errorf("settings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
+		api.SetBadRequest(c, err)
 		return
 	}
 
-	api.SetStatusOk(
+	if !h.isSlackChannlExist() {
+		api.SetBadRequest(c, errors.New("channel not found"))
+		return
+	}
+
+	h.updateSetting()
+	api.SetStatusAccepted(
 		c,
 		"slack channel deleted successfully",
-		nil,
 	)
 }
 

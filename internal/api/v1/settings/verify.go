@@ -20,15 +20,6 @@ func (h *helper) checkRecipientUpdate() error {
 	return nil
 }
 
-func (h *helper) checkSlackChannelUpdate() error {
-	name := h.c.Param("channelName")
-	if !isChannelExist(name) {
-		return errors.New("channel not found")
-	}
-
-	return nil
-}
-
 func (h *helper) isRecipientExist() bool {
 	policy, err := cubecos.GetEtcSettingPolicy()
 	if err != nil {
@@ -36,4 +27,13 @@ func (h *helper) isRecipientExist() bool {
 	}
 
 	return policy.HasRecipient(h.c.Param("recipientEmail"))
+}
+
+func (h *helper) isSlackChannlExist() bool {
+	policy, err := cubecos.GetEtcSettingPolicy()
+	if err != nil {
+		return false
+	}
+
+	return policy.HasSlackChannel(h.c.Param("channelName"))
 }

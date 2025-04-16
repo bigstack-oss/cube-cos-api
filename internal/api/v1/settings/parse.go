@@ -122,6 +122,51 @@ func (h *helper) initEmailRecipientDeleteParams() error {
 	return nil
 }
 
+func (h *helper) initSlackChannelDeleteParams() error {
+	channelName := h.c.Param("channelName")
+	if channelName == "" {
+		return errors.New("slack channel name is empty")
+	}
+
+	h.task = &setting.Options{Type: "slackChannel", Key: channelName}
+	h.task.Slack = &slack.Channel{Name: channelName}
+	h.task.InitDeleteStatus()
+	return nil
+}
+
+func (h *helper) initSlackChannelCreateParams() error {
+	h.task = &setting.Options{Type: "slackChannel"}
+	err := h.c.ShouldBindJSON(&h.task.Slack)
+	if err != nil {
+		log.Errorf("request(%s): failed to decode slack channel: %s", api.GetReqId(h.c), err.Error())
+		return err
+	}
+
+	h.task.Key = h.task.Slack.Name
+	h.task.InitUpdateStatus()
+	return nil
+}
+
+func (h *helper) initSlackChannelPatchParams() error {
+	channelName := h.c.Param("channelName")
+	if channelName == "" {
+		return errors.New("slack channel name is empty")
+	}
+
+	h.task = &setting.Options{Type: "slackChannel", Key: channelName}
+	err := h.c.ShouldBindJSON(&h.task.Slack)
+	if err != nil {
+		return err
+	}
+
+	if h.task.Slack.Name == "" {
+		h.task.Slack.Name = channelName
+	}
+
+	h.task.InitUpdateStatus()
+	return nil
+}
+
 func parseTitlePrefix(cursor *mongo.Cursor) (string, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
 	defer cancel()

@@ -18,7 +18,7 @@ const (
 
 type Options struct {
 	Type string `json:"type" bson:"type"`
-	Key  string `json:"key" bson:"-"`
+	Key  string `json:"key" bson:"bson"`
 
 	TitlePrefix *TitlePrefix     `json:"titlePrefix,omitempty" bson:"titlePrefix,omitempty"`
 	Sender      *email.Sender    `json:"sender,omitempty" bson:"sender,omitempty"`
@@ -75,7 +75,7 @@ func (o *Options) GetKey() string {
 		key = o.Sender.Host
 	case "emailRecipient":
 		key = o.Recipient.Address
-	case "slack":
+	case "slackChannel":
 		key = o.Slack.Name
 	}
 
@@ -124,6 +124,16 @@ func (e *EtcPolicy) HasRecipient(address string) bool {
 	return false
 }
 
+func (e *EtcPolicy) HasSlackChannel(channel string) bool {
+	for _, slack := range e.Receiver.Slacks {
+		if slack.Name == channel {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (e *EtcPolicy) IsTitlePrefixEqual(titlePrefix string) bool {
 	return e.TitlePrefix == titlePrefix
 }
@@ -146,6 +156,16 @@ func (e *EtcPolicy) IsRecipientEqual(recipient email.Recipient) bool {
 	return false
 }
 
+func (e *EtcPolicy) IsSlackChannelEqual(channel slack.Channel) bool {
+	for _, slack := range e.Receiver.Slacks {
+		if reflect.DeepEqual(slack, channel) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (e *EtcPolicy) UpdateOrAppendSetting(setting Options) {
 	if !e.existingSettingUpdated(setting) {
 		e.AppendSetting(setting)
@@ -158,6 +178,8 @@ func (e *EtcPolicy) DeleteSetting(setting Options) {
 		e.Sender = nil
 	case "emailRecipient":
 		e.deleteRecipient(setting)
+	case "slackChannel":
+		e.deleteSlackChannel(setting)
 	}
 }
 
@@ -171,6 +193,8 @@ func (e *EtcPolicy) existingSettingUpdated(setting Options) bool {
 		return true
 	case "emailRecipient":
 		return e.updateEmailRecipient(setting)
+	case "slackChannel":
+		return e.updateSlackChannel(setting)
 	}
 
 	return false
@@ -196,11 +220,31 @@ func (e *EtcPolicy) updateEmailRecipient(setting Options) bool {
 	return false
 }
 
+func (e *EtcPolicy) deleteSlackChannel(setting Options) {
+	for i, slack := range e.Receiver.Slacks {
+		if slack.Name == setting.Slack.Name {
+			e.Receiver.Slacks = slices.Delete(e.Receiver.Slacks, i, i+1)
+			return
+		}
+	}
+}
+
+func (e *EtcPolicy) updateSlackChannel(setting Options) bool {
+	for i, slack := range e.Receiver.Slacks {
+		if slack.Name == setting.Key {
+			e.Receiver.Slacks[i] = *setting.Slack
+			return true
+		}
+	}
+
+	return false
+}
+
 func (e *EtcPolicy) AppendSetting(setting Options) {
 	switch setting.Type {
 	case "emailRecipient":
 		e.Receiver.Emails = append(e.Receiver.Emails, *setting.Recipient)
-	case "slack":
+	case "slackChannel":
 		e.Receiver.Slacks = append(e.Receiver.Slacks, *setting.Slack)
 	}
 }

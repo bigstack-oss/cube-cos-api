@@ -39,6 +39,12 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 		return h, h.initEmailRecipientPatchParams()
 	case "deleteEmailRecipient":
 		return h, h.initEmailRecipientDeleteParams()
+	case "createSlackChannel":
+		return h, h.initSlackChannelCreateParams()
+	case "putSlackChannel":
+		return h, h.initSlackChannelPatchParams()
+	case "deleteSlackChannel":
+		return h, h.initSlackChannelDeleteParams()
 	}
 
 	return h, nil

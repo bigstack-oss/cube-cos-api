@@ -91,6 +91,8 @@ func IsSettingApplied(setting setting.Options) bool {
 		isApplied = policy.IsSenderEqual(*setting.Sender)
 	case "emailRecipient":
 		isApplied = policy.IsRecipientEqual(*setting.Recipient)
+	case "slackChannel":
+		isApplied = policy.IsSlackChannelEqual(*setting.Slack)
 	}
 
 	return isApplied
@@ -106,6 +108,10 @@ func IsSettingDeleted(setting setting.Options) bool {
 	switch setting.Type {
 	case "emailSender":
 		isDeleted = policy.HasSender(setting.Sender.Host)
+	case "emailRecipient":
+		isDeleted = policy.HasRecipient(setting.Recipient.Address)
+	case "slackChannel":
+		isDeleted = policy.HasSlackChannel(setting.Slack.Name)
 	}
 
 	return isDeleted
