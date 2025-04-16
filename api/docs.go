@@ -2537,10 +2537,7 @@ const docTemplate = `{
                                                         "serial": "1H2ZLG2",
                                                         "product": {
                                                             "name": "CubeCOS",
-                                                            "features": [
-                                                                "virtualization",
-                                                                "kubernetes"
-                                                            ]
+                                                            "feature": "kubernetes"
                                                         },
                                                         "issue": {
                                                             "by": "Bigstack co., ltd.",
@@ -2548,11 +2545,8 @@ const docTemplate = `{
                                                             "hardware": "*",
                                                             "date": "2025-03-16T17:31:21+08:00"
                                                         },
-                                                        "quantity": {
-                                                            "type": "",
-                                                            "value": 0
-                                                        },
-                                                        "serviceLevelAgreement": "5x8",
+                                                        "quantity": "some of string about cpu capacity",
+                                                        "supportPlan": "5x8",
                                                         "expiry": {
                                                             "date": "2025-05-15T17:31:21+08:00",
                                                             "days": 56
@@ -2762,9 +2756,7 @@ const docTemplate = `{
                                                     "type": "trial",
                                                     "product": {
                                                         "name": "CubeCOS",
-                                                        "features": [
-                                                            "virtualization"
-                                                        ]
+                                                        "feature": "virtualization"
                                                     },
                                                     "issue": {
                                                         "by": "Bigstack Ltd.",
@@ -2772,11 +2764,8 @@ const docTemplate = `{
                                                         "hardware": "*",
                                                         "date": "2025-04-09T19:16:13+08:00"
                                                     },
-                                                    "quantity": {
-                                                        "type": "",
-                                                        "value": 0
-                                                    },
-                                                    "serviceLevelAgreement": "5x8",
+                                                    "quantity": "some of string about cpu capacity",
+                                                    "supportPlan": "5x8",
                                                     "expiry": {
                                                         "date": "2025-05-09T19:16:13+08:00",
                                                         "days": 29
@@ -4459,9 +4448,7 @@ const docTemplate = `{
                                                             "serial": "1H2ZLG2",
                                                             "product": {
                                                                 "name": "CubeCOS",
-                                                                "features": [
-                                                                    "virtualization"
-                                                                ]
+                                                                "feature": "virtualization"
                                                             },
                                                             "issue": {
                                                                 "by": "Bigstack co., ltd.",
@@ -4469,11 +4456,8 @@ const docTemplate = `{
                                                                 "hardware": "*",
                                                                 "date": "2025-01-23T14:51:50+08:00"
                                                             },
-                                                            "quantity": {
-                                                                "type": "",
-                                                                "value": 0
-                                                            },
-                                                            "serviceLevelAgreement": "5x8",
+                                                            "quantity": "some of string about cpu capacity",
+                                                            "supportPlan": "5x8",
                                                             "expiry": {
                                                                 "date": "2025-03-24T14:51:50+08:00",
                                                                 "days": 9
@@ -5393,9 +5377,7 @@ const docTemplate = `{
                                                     "serial": "1H2ZLG2",
                                                     "product": {
                                                         "name": "CubeCOS",
-                                                        "features": [
-                                                            "virtualization"
-                                                        ]
+                                                        "feature": "virtualization"
                                                     },
                                                     "issue": {
                                                         "by": "Bigstack co., ltd.",
@@ -5403,11 +5385,8 @@ const docTemplate = `{
                                                         "hardware": "*",
                                                         "date": "2025-01-23T14:51:50+08:00"
                                                     },
-                                                    "quantity": {
-                                                        "type": "",
-                                                        "value": 0
-                                                    },
-                                                    "serviceLevelAgreement": "5x8",
+                                                    "quantity": "some of string about cpu capacity",
+                                                    "supportPlan": "5x8",
                                                     "expiry": {
                                                         "date": "2025-03-24T14:51:50+08:00",
                                                         "days": 9
@@ -12924,7 +12903,7 @@ const docTemplate = `{
                                         "product",
                                         "issue",
                                         "quantity",
-                                        "serviceLevelAgreement",
+                                        "supportPlan",
                                         "expiry",
                                         "status"
                                     ],
@@ -12945,17 +12924,14 @@ const docTemplate = `{
                                             "type": "object",
                                             "required": [
                                                 "name",
-                                                "features"
+                                                "feature"
                                             ],
                                             "properties": {
                                                 "name": {
                                                     "type": "string"
                                                 },
-                                                "features": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
+                                                "feature": {
+                                                    "type": "string"
                                                 }
                                             }
                                         },
@@ -12983,21 +12959,9 @@ const docTemplate = `{
                                             }
                                         },
                                         "quantity": {
-                                            "type": "object",
-                                            "required": [
-                                                "type",
-                                                "value"
-                                            ],
-                                            "properties": {
-                                                "type": {
-                                                    "type": "string"
-                                                },
-                                                "value": {
-                                                    "type": "integer"
-                                                }
-                                            }
+                                            "type": "string"
                                         },
-                                        "serviceLevelAgreement": {
+                                        "supportPlan": {
                                             "type": "string"
                                         },
                                         "expiry": {
@@ -13090,7 +13054,7 @@ const docTemplate = `{
                                     "product",
                                     "issue",
                                     "quantity",
-                                    "serviceLevelAgreement",
+                                    "supportPlan",
                                     "expiry",
                                     "status"
                                 ],
@@ -13105,17 +13069,14 @@ const docTemplate = `{
                                         "type": "object",
                                         "required": [
                                             "name",
-                                            "features"
+                                            "feature"
                                         ],
                                         "properties": {
                                             "name": {
                                                 "type": "string"
                                             },
-                                            "features": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
+                                            "feature": {
+                                                "type": "string"
                                             }
                                         }
                                     },
@@ -13143,21 +13104,9 @@ const docTemplate = `{
                                         }
                                     },
                                     "quantity": {
-                                        "type": "object",
-                                        "required": [
-                                            "type",
-                                            "value"
-                                        ],
-                                        "properties": {
-                                            "type": {
-                                                "type": "string"
-                                            },
-                                            "value": {
-                                                "type": "integer"
-                                            }
-                                        }
+                                        "type": "string"
                                     },
-                                    "serviceLevelAgreement": {
+                                    "supportPlan": {
                                         "type": "string"
                                     },
                                     "expiry": {
@@ -16213,7 +16162,7 @@ const docTemplate = `{
                             "product",
                             "issue",
                             "quantity",
-                            "serviceLevelAgreement",
+                            "supportPlan",
                             "expiry"
                         ],
                         "properties": {
@@ -16233,14 +16182,14 @@ const docTemplate = `{
                                 "type": "object",
                                 "required": [
                                     "name",
-                                    "features"
+                                    "feature"
                                 ],
                                 "properties": {
                                     "name": {
                                         "type": "string"
                                     },
-                                    "features": {
-                                        "type": "object"
+                                    "feature": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -16269,21 +16218,9 @@ const docTemplate = `{
                                 }
                             },
                             "quantity": {
-                                "type": "object",
-                                "required": [
-                                    "type",
-                                    "value"
-                                ],
-                                "properties": {
-                                    "type": {
-                                        "type": "string"
-                                    },
-                                    "value": {
-                                        "type": "integer"
-                                    }
-                                }
+                                "type": "string"
                             },
-                            "serviceLevelAgreement": {
+                            "supportPlan": {
                                 "type": "string"
                             },
                             "expiry": {

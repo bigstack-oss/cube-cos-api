@@ -148,15 +148,15 @@ func genLicenseMap(licenses []definition.License) map[string]definition.License 
 
 func parseLicense(raw definition.RawLicense) definition.License {
 	return definition.License{
-		Name:                  raw.Name,
-		Type:                  raw.Type,
-		Hosts:                 []string{raw.Hostname},
-		Product:               parseProduct(raw),
-		Serial:                raw.Serial,
-		ServiceLevelAgreement: raw.SLA,
-		Issue:                 parseIssue(raw),
-		Expiry:                parseExpiry(raw),
-		Status:                parseStatus(raw),
+		Name:        raw.Name,
+		Type:        raw.Type,
+		Hosts:       []string{raw.Hostname},
+		Product:     parseProduct(raw),
+		Serial:      raw.Serial,
+		SupportPlan: raw.SLA,
+		Issue:       parseIssue(raw),
+		Expiry:      parseExpiry(raw),
+		Status:      parseStatus(raw),
 	}
 }
 
@@ -398,7 +398,7 @@ func setValueToLicenseDat(licenseDat *definition.License, parts []string) {
 	case "quantity":
 		licenseDat.Quantity = value
 	case "sla":
-		licenseDat.ServiceLevelAgreement = value
+		licenseDat.SupportPlan = value
 	case "issue.date":
 		licenseDat.Issue.Date = parseLicenseDatIssueDate(value)
 	case "expiry.date":

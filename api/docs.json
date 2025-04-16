@@ -2533,10 +2533,7 @@
                                                         "serial": "1H2ZLG2",
                                                         "product": {
                                                             "name": "CubeCOS",
-                                                            "features": [
-                                                                "virtualization",
-                                                                "kubernetes"
-                                                            ]
+                                                            "feature": "kubernetes"
                                                         },
                                                         "issue": {
                                                             "by": "Bigstack co., ltd.",
@@ -2544,11 +2541,8 @@
                                                             "hardware": "*",
                                                             "date": "2025-03-16T17:31:21+08:00"
                                                         },
-                                                        "quantity": {
-                                                            "type": "",
-                                                            "value": 0
-                                                        },
-                                                        "serviceLevelAgreement": "5x8",
+                                                        "quantity": "some of string about cpu capacity",
+                                                        "supportPlan": "5x8",
                                                         "expiry": {
                                                             "date": "2025-05-15T17:31:21+08:00",
                                                             "days": 56
@@ -2758,9 +2752,7 @@
                                                     "type": "trial",
                                                     "product": {
                                                         "name": "CubeCOS",
-                                                        "features": [
-                                                            "virtualization"
-                                                        ]
+                                                        "feature": "virtualization"
                                                     },
                                                     "issue": {
                                                         "by": "Bigstack Ltd.",
@@ -2768,11 +2760,8 @@
                                                         "hardware": "*",
                                                         "date": "2025-04-09T19:16:13+08:00"
                                                     },
-                                                    "quantity": {
-                                                        "type": "",
-                                                        "value": 0
-                                                    },
-                                                    "serviceLevelAgreement": "5x8",
+                                                    "quantity": "some of string about cpu capacity",
+                                                    "supportPlan": "5x8",
                                                     "expiry": {
                                                         "date": "2025-05-09T19:16:13+08:00",
                                                         "days": 29
@@ -4455,9 +4444,7 @@
                                                             "serial": "1H2ZLG2",
                                                             "product": {
                                                                 "name": "CubeCOS",
-                                                                "features": [
-                                                                    "virtualization"
-                                                                ]
+                                                                "feature": "virtualization"
                                                             },
                                                             "issue": {
                                                                 "by": "Bigstack co., ltd.",
@@ -4465,11 +4452,8 @@
                                                                 "hardware": "*",
                                                                 "date": "2025-01-23T14:51:50+08:00"
                                                             },
-                                                            "quantity": {
-                                                                "type": "",
-                                                                "value": 0
-                                                            },
-                                                            "serviceLevelAgreement": "5x8",
+                                                            "quantity": "some of string about cpu capacity",
+                                                            "supportPlan": "5x8",
                                                             "expiry": {
                                                                 "date": "2025-03-24T14:51:50+08:00",
                                                                 "days": 9
@@ -5389,9 +5373,7 @@
                                                     "serial": "1H2ZLG2",
                                                     "product": {
                                                         "name": "CubeCOS",
-                                                        "features": [
-                                                            "virtualization"
-                                                        ]
+                                                        "feature": "virtualization"
                                                     },
                                                     "issue": {
                                                         "by": "Bigstack co., ltd.",
@@ -5399,11 +5381,8 @@
                                                         "hardware": "*",
                                                         "date": "2025-01-23T14:51:50+08:00"
                                                     },
-                                                    "quantity": {
-                                                        "type": "",
-                                                        "value": 0
-                                                    },
-                                                    "serviceLevelAgreement": "5x8",
+                                                    "quantity": "some of string about cpu capacity",
+                                                    "supportPlan": "5x8",
                                                     "expiry": {
                                                         "date": "2025-03-24T14:51:50+08:00",
                                                         "days": 9
@@ -12920,7 +12899,7 @@
                                         "product",
                                         "issue",
                                         "quantity",
-                                        "serviceLevelAgreement",
+                                        "supportPlan",
                                         "expiry",
                                         "status"
                                     ],
@@ -12941,17 +12920,14 @@
                                             "type": "object",
                                             "required": [
                                                 "name",
-                                                "features"
+                                                "feature"
                                             ],
                                             "properties": {
                                                 "name": {
                                                     "type": "string"
                                                 },
-                                                "features": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
+                                                "feature": {
+                                                    "type": "string"
                                                 }
                                             }
                                         },
@@ -12979,21 +12955,9 @@
                                             }
                                         },
                                         "quantity": {
-                                            "type": "object",
-                                            "required": [
-                                                "type",
-                                                "value"
-                                            ],
-                                            "properties": {
-                                                "type": {
-                                                    "type": "string"
-                                                },
-                                                "value": {
-                                                    "type": "integer"
-                                                }
-                                            }
+                                            "type": "string"
                                         },
-                                        "serviceLevelAgreement": {
+                                        "supportPlan": {
                                             "type": "string"
                                         },
                                         "expiry": {
@@ -13086,7 +13050,7 @@
                                     "product",
                                     "issue",
                                     "quantity",
-                                    "serviceLevelAgreement",
+                                    "supportPlan",
                                     "expiry",
                                     "status"
                                 ],
@@ -13101,17 +13065,14 @@
                                         "type": "object",
                                         "required": [
                                             "name",
-                                            "features"
+                                            "feature"
                                         ],
                                         "properties": {
                                             "name": {
                                                 "type": "string"
                                             },
-                                            "features": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
+                                            "feature": {
+                                                "type": "string"
                                             }
                                         }
                                     },
@@ -13139,21 +13100,9 @@
                                         }
                                     },
                                     "quantity": {
-                                        "type": "object",
-                                        "required": [
-                                            "type",
-                                            "value"
-                                        ],
-                                        "properties": {
-                                            "type": {
-                                                "type": "string"
-                                            },
-                                            "value": {
-                                                "type": "integer"
-                                            }
-                                        }
+                                        "type": "string"
                                     },
-                                    "serviceLevelAgreement": {
+                                    "supportPlan": {
                                         "type": "string"
                                     },
                                     "expiry": {
@@ -16209,7 +16158,7 @@
                             "product",
                             "issue",
                             "quantity",
-                            "serviceLevelAgreement",
+                            "supportPlan",
                             "expiry"
                         ],
                         "properties": {
@@ -16229,14 +16178,14 @@
                                 "type": "object",
                                 "required": [
                                     "name",
-                                    "features"
+                                    "feature"
                                 ],
                                 "properties": {
                                     "name": {
                                         "type": "string"
                                     },
-                                    "features": {
-                                        "type": "object"
+                                    "feature": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -16265,21 +16214,9 @@
                                 }
                             },
                             "quantity": {
-                                "type": "object",
-                                "required": [
-                                    "type",
-                                    "value"
-                                ],
-                                "properties": {
-                                    "type": {
-                                        "type": "string"
-                                    },
-                                    "value": {
-                                        "type": "integer"
-                                    }
-                                }
+                                "type": "string"
                             },
-                            "serviceLevelAgreement": {
+                            "supportPlan": {
                                 "type": "string"
                             },
                             "expiry": {
