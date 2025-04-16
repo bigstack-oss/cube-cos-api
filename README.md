@@ -46,33 +46,12 @@ scp <path of rpm> <user>@<cubecos>:<path to place rpm>
 
 <br/>
 
-3). Prepare the running environment
+3). Install the rpm and start the service
 
 ```bash
 systemctl stop cube-cos-api
-systemctl disable cube-cos-api
-dnf remove cube-cos-api
-```
-
-<br/>
-
-4). Install the rpm and start the service
-
-```bash
-dnf install "<path to cube-cos-api rpm>"
-cp -f /etc/cube/api/cube-cos-api.yaml.in /etc/cube/api/cube-cos-api.yaml
-systemctl enable cube-cos-api
-systemctl start cube-cos-api
-```
-
-<br/>
-
-5). Clean up
-
-```bash
-systemctl stop cube-cos-api
-systemctl disable cube-cos-api
-dnf remove cube-cos-api
+dnf reinstall "<path to cube-cos-api rpm>"
+hex_config bootstrap api
 ```
 
 <br/>
