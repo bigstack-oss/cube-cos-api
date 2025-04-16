@@ -60,8 +60,9 @@ func livenessCheck() gin.HandlerFunc {
 
 func initReqInfo(c *gin.Context) {
 	uuidV4 := uuid.New()
-	c.Set("reqId", uuidV4.String())
-	log.Infof("request(%s): %s %s", uuidV4, c.Request.Method, c.Request.URL.Path)
+	shortId := uuidV4.String()[:8]
+	c.Set("reqId", shortId)
+	log.Infof("request(%s): %s %s", shortId, c.Request.Method, c.Request.URL.Path)
 	c.Next()
 }
 

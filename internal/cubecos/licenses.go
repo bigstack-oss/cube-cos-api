@@ -9,7 +9,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"slices"
-	"strconv"
 	"strings"
 	"time"
 
@@ -167,8 +166,8 @@ func parseProduct(raw definition.RawLicense) definition.Product {
 	}
 
 	return definition.Product{
-		Name:     raw.Product,
-		Features: parseFeatures(raw),
+		Name:    raw.Product,
+		Feature: raw.Feature,
 	}
 }
 
@@ -395,9 +394,9 @@ func setValueToLicenseDat(licenseDat *definition.License, parts []string) {
 	case "product":
 		licenseDat.Product.Name = value
 	case "feature":
-		licenseDat.Product.Features = append(licenseDat.Product.Features, value)
+		licenseDat.Product.Feature = value
 	case "quantity":
-		licenseDat.Quantity = parseLicenseDatQuantity(value)
+		licenseDat.Quantity = value
 	case "sla":
 		licenseDat.ServiceLevelAgreement = value
 	case "issue.date":
@@ -407,17 +406,6 @@ func setValueToLicenseDat(licenseDat *definition.License, parts []string) {
 		licenseDat.Expiry = expiry
 		licenseDat.Status = status
 	}
-}
-
-func parseLicenseDatQuantity(value string) definition.Quantity {
-	quantity := definition.Quantity{Value: 0}
-	val, err := strconv.Atoi(value)
-	if err != nil {
-		return quantity
-	}
-
-	quantity.Value = val
-	return quantity
 }
 
 func parseLicenseDatIssueDate(value string) string {

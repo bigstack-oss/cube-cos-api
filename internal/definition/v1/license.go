@@ -35,15 +35,15 @@ type License struct {
 	Serial                string   `json:"serial,omitzero" yaml:"serial" bson:"serial"`
 	Product               `json:"product" yaml:"product" bson:"product"`
 	Issue                 `json:"issue" yaml:"issue" bson:"issue"`
-	Quantity              `json:"quantity" yaml:"quantity" bson:"quantity"`
+	Quantity              string `json:"quantity" yaml:"quantity" bson:"quantity"`
 	ServiceLevelAgreement string `json:"serviceLevelAgreement" yaml:"sla" bson:"serviceLevelAgreement"`
 	Expiry                `json:"expiry" yaml:"expiry" bson:"expiry"`
 	Status                status.License `json:"status" yaml:"status" bson:"status"`
 }
 
 type Product struct {
-	Name     string   `json:"name" yaml:"name" bson:"name"`
-	Features []string `json:"features" yaml:"features" bson:"features"`
+	Name    string `json:"name" yaml:"name" bson:"name"`
+	Feature string `json:"features" yaml:"features" bson:"features"`
 }
 
 type Issue struct {
@@ -51,11 +51,6 @@ type Issue struct {
 	To       string `json:"to" yaml:"to" bson:"to"`
 	Hardware string `json:"hardware" yaml:"hardware" bson:"hardware"`
 	Date     string `json:"date" yaml:"date" bson:"date"`
-}
-
-type Quantity struct {
-	Type  string `json:"type" yaml:"type" bson:"type"`
-	Value int    `json:"value" yaml:"vcpu" bson:"value"`
 }
 
 type Expiry struct {
