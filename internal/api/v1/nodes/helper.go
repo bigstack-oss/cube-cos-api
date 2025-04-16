@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
@@ -62,26 +63,23 @@ func (h *helper) parseGetOptions() error {
 
 func (h *helper) listNodes() (*data, error) {
 	nodes := definition.ListNodes()
-	h.addLicenseInfoToNodes(&nodes)
-	h.addDetailsToNodes(&nodes)
 	nodes = h.filterNodes(nodes)
-
-	pagedNodes, err := paginateNodes(nodes, h.Page)
-	if err != nil {
-		log.Errorf("request(%s): failed to paginate nodes: %s", api.GetReqId(h.c), err.Error())
-		return nil, err
-	}
-
-	page, err := genPageInfo(nodes, h.Page)
-	if err != nil {
-		log.Errorf("request(%s): failed to gen page info: %s", api.GetReqId(h.c), err.Error())
-		return nil, err
-	}
+	nodesPerPage := h.paginateNodes(nodes)
+	h.sortNodes(&nodesPerPage)
 
 	return &data{
-		Nodes: pagedNodes,
-		Page:  page,
+		Nodes: nodesPerPage,
+		Page:  genPageInfo(nodes, h.Page),
 	}, nil
+}
+
+func (h *helper) sortNodes(node *[]definition.Node) {
+	sort.SliceStable(
+		*node,
+		func(i, j int) bool {
+			return (*node)[i].Hostname < (*node)[j].Hostname
+		},
+	)
 }
 
 func isPageReceived(num, size string) bool {

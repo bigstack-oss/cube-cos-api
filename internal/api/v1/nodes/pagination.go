@@ -6,24 +6,24 @@ import (
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
 
-func paginateNodes(nodes []definition.Node, page definition.Page) ([]definition.Node, error) {
-	if !page.IsRequired() {
-		return nodes, nil
+func (h *helper) paginateNodes(nodes []definition.Node) []definition.Node {
+	if !h.Page.IsRequired() {
+		return nodes
 	}
 
-	left := min((page.Number-1)*page.Size, len(nodes))
-	right := min(left+page.Size, len(nodes))
-	return nodes[left:right], nil
+	left := min((h.Page.Number-1)*h.Page.Size, len(nodes))
+	right := min(left+h.Page.Size, len(nodes))
+	return nodes[left:right]
 }
 
-func genPageInfo(nodes []definition.Node, page definition.Page) (definition.Page, error) {
+func genPageInfo(nodes []definition.Node, page definition.Page) definition.Page {
 	if !page.IsRequired() {
 		return definition.Page{
 			Total:          1,
 			Number:         1,
 			Size:           len(nodes),
 			TotalItemCount: int64(len(nodes)),
-		}, nil
+		}
 	}
 
 	return definition.Page{
@@ -31,5 +31,5 @@ func genPageInfo(nodes []definition.Node, page definition.Page) (definition.Page
 		Number:         page.Number,
 		Size:           page.Size,
 		TotalItemCount: int64(len(nodes)),
-	}, nil
+	}
 }

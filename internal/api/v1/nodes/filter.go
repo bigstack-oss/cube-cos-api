@@ -18,18 +18,22 @@ func (h *helper) filterNodes(nodes []definition.Node) []definition.Node {
 	}
 
 	if h.isProductRequired() {
+		log.Infof("filtering by product: %v", h.products)
 		nodes = h.filteredByProduct(nodes)
 	}
 
 	if h.isKeywordRequired() {
+		log.Infof("filtering by keyword: %s", h.keyword)
 		nodes = h.filteredByKeyword(nodes)
 	}
 
 	if h.isRolesRequired() {
+		log.Infof("filtering by roles: %v", h.roles)
 		nodes = h.filteredByRoles(nodes)
 	}
 
 	if h.isLicenseStatusRequired() {
+		log.Infof("filtering by license status: %v", h.licenseStatuses)
 		nodes = h.filteredByLicenseStatus(nodes)
 	}
 
@@ -81,13 +85,14 @@ func (h *helper) filteredByProduct(nodes []definition.Node) []definition.Node {
 func (h *helper) filteredByKeyword(nodes []definition.Node) []definition.Node {
 	result, err := h.searchNodes(nodes)
 	if err != nil {
-		log.Errorf("failed to search nodes: %s", err.Error())
+		log.Errorf("nodes: failed to search nodes: %s", err.Error())
 		return nodes
 	}
 
 	nodeMap := genNodeMap(nodes)
 	filtered := []definition.Node{}
 	for _, hit := range result.Hits {
+		log.Infof("hit: %s", hit.ID)
 		filtered = append(filtered, nodeMap[hit.ID])
 	}
 
@@ -97,7 +102,7 @@ func (h *helper) filteredByKeyword(nodes []definition.Node) []definition.Node {
 func (h *helper) searchNodes(nodes []definition.Node) (*bleve.SearchResult, error) {
 	searcher := definition.GetNodeSearcher()
 	for _, node := range nodes {
-		err := searcher.Index(node.Name, node)
+		err := searcher.Index(node.Hostname, node)
 		if err != nil {
 			continue
 		}
@@ -120,7 +125,7 @@ func (h *helper) wrapWilcardKeyword() string {
 func genNodeMap(nodes []definition.Node) map[string]definition.Node {
 	nodeMap := map[string]definition.Node{}
 	for _, node := range nodes {
-		nodeMap[node.Name] = node
+		nodeMap[node.Hostname] = node
 	}
 
 	return nodeMap

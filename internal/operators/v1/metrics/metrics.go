@@ -40,7 +40,7 @@ func (o *Operator) Sync() {
 		case <-o.ctx.Done():
 			return
 		default:
-			cubecos.SyncDataCenterMetricsSummary()
+			cubecos.SyncMetricsSummary()
 			wait.Seconds(60)
 		}
 	}

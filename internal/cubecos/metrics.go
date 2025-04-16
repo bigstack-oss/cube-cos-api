@@ -212,7 +212,7 @@ func IsMetricReportTypeValid(t string) bool {
 	return isMetricReportTypeValid[t]
 }
 
-func SyncDataCenterMetricsSummary() {
+func SyncMetricsSummary() {
 	summaryUpdate.Lock()
 	defer summaryUpdate.Unlock()
 

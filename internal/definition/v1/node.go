@@ -42,7 +42,7 @@ var (
 	IsGpuEnabled             bool
 
 	getRegisteredServices = sync.Mutex{}
-	updateNodes           = sync.Mutex{}
+	UpdateNodes           = sync.Mutex{}
 	nodes                 = []Node{}
 	nodeSearcher          bleve.Index
 )
@@ -333,9 +333,6 @@ func GetNodeByHostname(hostname string) (*Node, error) {
 }
 
 func SyncNodes() {
-	updateNodes.Lock()
-	defer updateNodes.Unlock()
-
 	syncNodes := []Node{}
 	for _, role := range Roles {
 		role := getRole(role)
@@ -350,6 +347,12 @@ func SyncNodes() {
 	}
 
 	nodes = syncNodes
+}
+
+func SetNodeDetails(nodesWithDetails []Node) {
+	UpdateNodes.Lock()
+	defer UpdateNodes.Unlock()
+	nodes = nodesWithDetails
 }
 
 func ListNodes() []Node {
