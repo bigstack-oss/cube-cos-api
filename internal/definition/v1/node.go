@@ -332,21 +332,18 @@ func GetNodeByHostname(hostname string) (*Node, error) {
 	)
 }
 
-func SyncNodes() {
-	syncNodes := []Node{}
+func GetNodesFromRoles() []Node {
+	roleNodes := []Node{}
 	for _, role := range Roles {
 		role := getRole(role)
 		if role == nil {
 			continue
 		}
 
-		syncNodes = append(
-			syncNodes,
-			role.Nodes...,
-		)
+		roleNodes = append(roleNodes, role.Nodes...)
 	}
 
-	nodes = syncNodes
+	return roleNodes
 }
 
 func SetNodeDetails(nodesWithDetails []Node) {

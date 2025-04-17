@@ -369,7 +369,7 @@ func GetCpuSummaryOfHosts(stmt string) (*definition.ComputeStatistic, error) {
 
 func GetCpuSummaryOfHost(hostname string) (*definition.ComputeStatistic, error) {
 	if !definition.IsLocalNode(hostname) {
-		return askPeerHostForCpuSummary(hostname)
+		return askPeerNodeCpuSummary(hostname)
 	}
 
 	usagePerCore, err := cpu.Percent(time.Second, true)
@@ -438,7 +438,7 @@ func parseCpuUsageHistory(c *api.QueryTableResult) ([]definition.TimeValue, erro
 	return points, nil
 }
 
-func askPeerHostForCpuSummary(hostname string) (*definition.ComputeStatistic, error) {
+func askPeerNodeCpuSummary(hostname string) (*definition.ComputeStatistic, error) {
 	node, err := definition.GetNodeByHostname(hostname)
 	if err != nil {
 		return nil, err

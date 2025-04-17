@@ -18,22 +18,18 @@ func (h *helper) filterNodes(nodes []definition.Node) []definition.Node {
 	}
 
 	if h.isProductRequired() {
-		log.Infof("filtering by product: %v", h.products)
 		nodes = h.filteredByProduct(nodes)
 	}
 
 	if h.isKeywordRequired() {
-		log.Infof("filtering by keyword: %s", h.keyword)
 		nodes = h.filteredByKeyword(nodes)
 	}
 
 	if h.isRolesRequired() {
-		log.Infof("filtering by roles: %v", h.roles)
 		nodes = h.filteredByRoles(nodes)
 	}
 
 	if h.isLicenseStatusRequired() {
-		log.Infof("filtering by license status: %v", h.licenseStatuses)
 		nodes = h.filteredByLicenseStatus(nodes)
 	}
 
@@ -92,7 +88,6 @@ func (h *helper) filteredByKeyword(nodes []definition.Node) []definition.Node {
 	nodeMap := genNodeMap(nodes)
 	filtered := []definition.Node{}
 	for _, hit := range result.Hits {
-		log.Infof("hit: %s", hit.ID)
 		filtered = append(filtered, nodeMap[hit.ID])
 	}
 

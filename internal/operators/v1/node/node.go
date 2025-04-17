@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
@@ -32,6 +33,7 @@ type Operator struct {
 	ctx             context.Context
 	cancel          context.CancelFunc
 	isFirstTimeSync bool
+	sync            sync.Mutex
 }
 
 func (o *Operator) Name() string {
@@ -43,7 +45,8 @@ func (o *Operator) Init() error {
 	o.ctx = ctx
 	o.cancel = cancel
 	o.isFirstTimeSync = true
-	go o.syncNodeDetails()
+	o.sync = sync.Mutex{}
+	go o.traceNodeDetails()
 	return nil
 }
 
@@ -76,28 +79,21 @@ func (o *Operator) watchAndSyncNodeRoles(watcher *registry.Watcher) {
 		return
 	}
 
-	definition.SyncRoleNodes()
-	definition.SyncNodes()
-	nodes := definition.ListNodes()
-	o.addLicenseInfoToNodes(&nodes)
-	o.addDetailsToNodes(&nodes)
-	definition.SetNodeDetails(nodes)
+	o.syncNodeDetails()
 	logThrottling(event)
 }
 
-func (o *Operator) addLicenseInfoToNodes(nodes *[]definition.Node) {
+func (o *Operator) setLicenseToNode(node *definition.Node) {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
 		log.Warnf("request(%s): failed to add license info to the nodes: %s", err.Error())
 		return
 	}
 
-	for i, node := range *nodes {
-		(*nodes)[i].License = o.getLicenseByHostname(
-			licenses,
-			node.Hostname,
-		)
-	}
+	node.License = o.getLicenseByHostname(
+		licenses,
+		node.Hostname,
+	)
 }
 
 func (o *Operator) getLicenseByHostname(licenses []definition.License, hostname string) definition.License {
@@ -111,22 +107,20 @@ func (o *Operator) getLicenseByHostname(licenses []definition.License, hostname 
 	return definition.License{}
 }
 
-func (o *Operator) addDetailsToNodes(nodes *[]definition.Node) {
-	openstack := openstack.GetGlobalHelper()
-	for i, node := range *nodes {
-		hypervisor, err := openstack.GetHypervisorByHostname(node.Hostname)
-		if err != nil {
-			log.Debugf("nodes: failed to add hypervisor info to the node: %s", err.Error())
-			continue
-		}
-
-		(*nodes)[i].ManagementIP = node.Ip
-		(*nodes)[i].StorageIP = node.Ip
-		(*nodes)[i].Status = hypervisor.State
-		o.addHardwareInfoToNode((&(*nodes)[i]))
-		o.addMetricToNode((&(*nodes)[i]))
-		o.addUptimeToNode((&(*nodes)[i]))
+func (o *Operator) setInfraSpecToNode(node *definition.Node) {
+	h := openstack.GetGlobalHelper()
+	hypervisor, err := h.GetHypervisorByHostname(node.Hostname)
+	if err != nil {
+		log.Debugf("nodes: failed to add hypervisor info to the node: %s", err.Error())
+		return
 	}
+
+	node.ManagementIP = node.Ip
+	node.StorageIP = node.Ip
+	node.Status = hypervisor.State
+	o.addHardwareInfoToNode(node)
+	o.addMetricToNode(node)
+	o.addUptimeToNode(node)
 }
 
 func (o *Operator) addHardwareInfoToNode(node *definition.Node) {

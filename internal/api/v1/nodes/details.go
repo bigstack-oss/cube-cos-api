@@ -9,46 +9,12 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/dustin/go-humanize"
-	"github.com/shirou/gopsutil/v4/cpu"
 	log "go-micro.dev/v5/logger"
 )
-
-func (h *helper) addMetricsToNode(node *definition.Node) {
-	openstack := openstack.GetGlobalHelper()
-	hypervisor, err := openstack.GetHypervisorByHostname(node.Hostname)
-	if err != nil {
-		log.Debugf("nodes(%s): failed to add hypervisor info to the node: %s", api.GetReqId(h.c), err.Error())
-		return
-	}
-
-	node.ManagementIP = definition.MgmtIP
-	node.StorageIP = definition.StorageIP
-	node.Status = hypervisor.State
-	h.addHardwareInfoToNode(node)
-	h.addMetricToNode(node)
-	h.addUptimeToNode(node)
-}
-
-func (h *helper) addHardwareInfoToNode(node *definition.Node) {
-	addCpuSpecToNode(node)
-	addNetworkSpecToNode(node)
-	addBlockDeviceSpecToNode(node)
-}
-
-func addCpuSpecToNode(node *definition.Node) {
-	info, err := cpu.Info()
-	if err != nil {
-		log.Errorf("nodes: failed to get cpu info: %s", err.Error())
-		return
-	}
-
-	node.CpuSpec = info[0].ModelName
-}
 
 // M1 TODO: COS dev is working on the refactoring to support JSON output from 'hex_sdk DumpInterface'
 // the implementation below will be replaced with the new one once it's ready
@@ -192,24 +158,6 @@ func isNotMounted(mountPoints []string) bool {
 
 func isSkippableLine(line string) bool {
 	return line == "" || strings.HasPrefix(line, "-") || strings.HasPrefix(line, "Label")
-}
-
-func (h *helper) addDetailsToNodes(nodes *[]definition.Node) {
-	openstack := openstack.GetGlobalHelper()
-	for i, node := range *nodes {
-		hypervisor, err := openstack.GetHypervisorByHostname(node.Hostname)
-		if err != nil {
-			log.Debugf("nodes(%s): failed to add hypervisor info to the node: %s", api.GetReqId(h.c), err.Error())
-			continue
-		}
-
-		(*nodes)[i].ManagementIP = node.Ip
-		(*nodes)[i].StorageIP = node.Ip
-		(*nodes)[i].Status = hypervisor.State
-		h.addHardwareInfoToNode((&(*nodes)[i]))
-		h.addMetricToNode((&(*nodes)[i]))
-		h.addUptimeToNode((&(*nodes)[i]))
-	}
 }
 
 func (h *helper) addMetricToNode(node *definition.Node) {

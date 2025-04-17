@@ -94,15 +94,13 @@ func (h *helper) getNode() (*definition.Node, error) {
 	}
 
 	if node.IsLocal() {
-		h.addLicenseToNode(node)
-		h.addMetricsToNode(node)
 		return node, nil
 	}
 
-	return h.askFromOtherNode(node)
+	return h.askPeerNode(node)
 }
 
-func (h *helper) askFromOtherNode(node *definition.Node) (*definition.Node, error) {
+func (h *helper) askPeerNode(node *definition.Node) (*definition.Node, error) {
 	helper := http.GetGlobalHelper()
 	resp, err := helper.R().
 		SetResult(&api.NodeData{}).
