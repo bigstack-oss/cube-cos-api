@@ -157,7 +157,7 @@ func (o *Operator) addNetworkSpecToNode(node *definition.Node) {
 		}
 
 		fields := strings.Fields(line)
-		if noEnoughNetFields(fields) {
+		if isNetFieldNotEnough(fields) {
 			continue
 		}
 
@@ -172,10 +172,6 @@ func (o *Operator) addNetworkSpecToNode(node *definition.Node) {
 			},
 		)
 	}
-}
-
-func noEnoughNetFields(fields []string) bool {
-	return len(fields) < 5
 }
 
 func (o *Operator) addBlockDeviceSpecToNode(node *definition.Node) {
@@ -199,6 +195,58 @@ func (o *Operator) addBlockDeviceSpecToNode(node *definition.Node) {
 	}
 
 	addSerialToBlockDevices(node, parentBlockDevs)
+}
+
+func (o *Operator) addMetricToNode(node *definition.Node) {
+	cpu, err := cubecos.GetCpuSummaryOfHost(node.Hostname)
+	if err != nil {
+		log.Errorf("nodes: failed to get cpu summary of host: %s", err.Error())
+	}
+	if cpu == nil {
+		cpu = &definition.ComputeStatistic{}
+	}
+
+	memory, err := cubecos.GetMemoryUsageSummaryOfHost(node.Hostname)
+	if err != nil {
+		log.Errorf("nodes: failed to get memory summary of host: %s", err.Error())
+	}
+	if memory == nil {
+		memory = &definition.SpaceStatistic{}
+	}
+
+	storage, err := cubecos.GetDiskStorageSummaryOfHost()
+	if err != nil {
+		log.Errorf("nodes: failed to get disk summary of host: %s", err.Error())
+	}
+	if storage == nil {
+		storage = &definition.SpaceStatistic{}
+	}
+
+	node.Vcpu = *cpu
+	node.Memory = *memory
+	node.Storage = *storage
+}
+
+func (o *Operator) addUptimeToNode(node *definition.Node) {
+	data, err := os.ReadFile("/proc/uptime")
+	if err != nil {
+		log.Errorf("nodes: failed to read uptime file: %s", err.Error())
+		return
+	}
+
+	fields := strings.Fields(string(data))
+	if len(fields) < 1 {
+		log.Errorf("nodes: invalid uptime format")
+		return
+	}
+
+	uptimeSeconds, err := strconv.ParseFloat(fields[0], 64)
+	if err != nil {
+		log.Errorf("nodes: failed to parse uptime: %s", err.Error())
+		return
+	}
+
+	node.UptimeSeconds = uptimeSeconds
 }
 
 func getOsBlockDevices() ([]definition.RawBlockDevice, error) {
@@ -275,62 +323,14 @@ func addSerialToBlockDevices(node *definition.Node, parentBlockDevs map[string]s
 	}
 }
 
+func isNetFieldNotEnough(fields []string) bool {
+	return len(fields) < 5
+}
+
 func isNotMounted(mountPoints []string) bool {
 	return len(mountPoints) == 0 || mountPoints[0] == ""
 }
 
 func isSkippableLine(line string) bool {
 	return line == "" || strings.HasPrefix(line, "-") || strings.HasPrefix(line, "Label")
-}
-
-func (o *Operator) addMetricToNode(node *definition.Node) {
-	cpu, err := cubecos.GetCpuSummaryOfHost(node.Hostname)
-	if err != nil {
-		log.Errorf("nodes: failed to get cpu summary of host: %s", err.Error())
-	}
-	if cpu == nil {
-		cpu = &definition.ComputeStatistic{}
-	}
-
-	memory, err := cubecos.GetMemoryUsageSummaryOfHost(node.Hostname)
-	if err != nil {
-		log.Errorf("nodes: failed to get memory summary of host: %s", err.Error())
-	}
-	if memory == nil {
-		memory = &definition.SpaceStatistic{}
-	}
-
-	storage, err := cubecos.GetDiskStorageSummaryOfHost()
-	if err != nil {
-		log.Errorf("nodes: failed to get disk summary of host: %s", err.Error())
-	}
-	if storage == nil {
-		storage = &definition.SpaceStatistic{}
-	}
-
-	node.Vcpu = *cpu
-	node.Memory = *memory
-	node.Storage = *storage
-}
-
-func (o *Operator) addUptimeToNode(node *definition.Node) {
-	data, err := os.ReadFile("/proc/uptime")
-	if err != nil {
-		log.Errorf("nodes: failed to read uptime file: %s", err.Error())
-		return
-	}
-
-	fields := strings.Fields(string(data))
-	if len(fields) < 1 {
-		log.Errorf("nodes: invalid uptime format")
-		return
-	}
-
-	uptimeSeconds, err := strconv.ParseFloat(fields[0], 64)
-	if err != nil {
-		log.Errorf("nodes: failed to parse uptime: %s", err.Error())
-		return
-	}
-
-	node.UptimeSeconds = uptimeSeconds
 }

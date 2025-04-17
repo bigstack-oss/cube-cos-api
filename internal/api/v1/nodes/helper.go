@@ -89,7 +89,7 @@ func isPageReceived(num, size string) bool {
 func (h *helper) getNode() (*definition.Node, error) {
 	node, err := definition.GetNodeByHostname(h.nodeName)
 	if err != nil {
-		log.Errorf("request(%s): failed to get node: %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("nodes(%s): failed to get node: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
@@ -111,7 +111,8 @@ func (h *helper) askPeerNode(node *definition.Node) (*definition.Node, error) {
 	}
 	if resp.IsError() {
 		return nil, fmt.Errorf(
-			"failed to get node details %s: %d %s",
+			"nodes(%s): failed to get node details %s: %d %s",
+			api.GetReqId(h.c),
 			node.Hostname,
 			resp.StatusCode(),
 			string(resp.Body()),

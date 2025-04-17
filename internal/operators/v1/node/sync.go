@@ -17,7 +17,7 @@ func (o *Operator) traceNodeDetails() {
 			return
 		default:
 			o.syncNodeDetails()
-			time.Sleep(time.Second * 15)
+			time.Sleep(time.Second * 30)
 		}
 	}
 }
