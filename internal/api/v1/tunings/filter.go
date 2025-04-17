@@ -84,7 +84,7 @@ func (h *helper) filteredByKeyword(tunings []definition.Tuning) []definition.Tun
 func (h *helper) searchTunings(tunings []definition.Tuning) (*bleve.SearchResult, error) {
 	searcher := definition.GetTuningSearcher()
 	for _, tuning := range tunings {
-		err := searcher.Index(tuning.Name, tuning)
+		err := searcher.Index(tuning.SearchKey(), tuning)
 		if err != nil {
 			continue
 		}
@@ -145,7 +145,7 @@ func (h *helper) containsHosts(hosts []definition.Host) bool {
 func genTuningMap(tunings []definition.Tuning) map[string]definition.Tuning {
 	tuningMap := map[string]definition.Tuning{}
 	for _, tuning := range tunings {
-		tuningMap[tuning.Name] = tuning
+		tuningMap[tuning.SearchKey()] = tuning
 	}
 
 	return tuningMap
