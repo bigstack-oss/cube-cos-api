@@ -6889,7 +6889,7 @@ const docTemplate = `{
                                             "data": [
                                                 {
                                                     "address": "example.user.1@example.com",
-                                                    "note": "example email recipient 1", 
+                                                    "note": "example email recipient 1",
                                                     "status": {
                                                         "current": "ok",
                                                         "isUpdating": false
@@ -14647,7 +14647,7 @@ const docTemplate = `{
                                         "type": "string"
                                     },
                                     "status": {
-                                       "$ref": "#/components/schemas/SettingStatus"
+                                        "$ref": "#/components/schemas/SettingStatus"
                                     }
                                 }
                             },
@@ -15478,25 +15478,28 @@ const docTemplate = `{
                                     "type": "string"
                                 },
                                 "attributes": {
-                                    "type": "object",
-                                    "required": [
-                                        "name",
-                                        "type",
-                                        "value",
-                                        "enabled"
-                                    ],
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "type": {
-                                            "type": "string"
-                                        },
-                                        "value": {
-                                            "type": "string"
-                                        },
-                                        "enabled": {
-                                            "type": "boolean"
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "name",
+                                            "type",
+                                            "value",
+                                            "enabled"
+                                        ],
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "type": "string"
+                                            },
+                                            "value": {
+                                                "type": "string"
+                                            },
+                                            "enabled": {
+                                                "type": "boolean"
+                                            }
                                         }
                                     }
                                 },
@@ -15624,25 +15627,28 @@ const docTemplate = `{
                                 "type": "string"
                             },
                             "attributes": {
-                                "type": "object",
-                                "required": [
-                                    "name",
-                                    "type",
-                                    "value",
-                                    "enabled"
-                                ],
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "type": {
-                                        "type": "string"
-                                    },
-                                    "value": {
-                                        "type": "string"
-                                    },
-                                    "enabled": {
-                                        "type": "boolean"
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "name",
+                                        "type",
+                                        "value",
+                                        "enabled"
+                                    ],
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        }
                                     }
                                 }
                             },
@@ -15691,12 +15697,12 @@ const docTemplate = `{
                                         "items": {
                                             "type": "object",
                                             "required": [
-                                                "email",
+                                                "address",
                                                 "note",
                                                 "enabled"
                                             ],
                                             "properties": {
-                                                "email": {
+                                                "address": {
                                                     "type": "string"
                                                 },
                                                 "note": {
@@ -16539,7 +16545,12 @@ const docTemplate = `{
                 ],
                 "properties": {
                     "current": {
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "ok",
+                            "updating",
+                            "error"
+                        ]
                     },
                     "isUpdating": {
                         "type": "boolean"
