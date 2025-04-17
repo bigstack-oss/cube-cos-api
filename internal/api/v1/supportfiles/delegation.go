@@ -30,7 +30,7 @@ func (h *helper) delegateSupportFileReq() {
 
 		err = h.delegateToNode(node)
 		if err != nil {
-			log.Errorf("supportFiles: failed to delegate %s to %s: %s", h.file.Name, node.Name, err.Error())
+			log.Errorf("supportFiles: failed to delegate %s to %s: %s", h.file.Name, node.Hostname, err.Error())
 		}
 	}
 }

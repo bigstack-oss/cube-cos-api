@@ -44,7 +44,7 @@ func (h *helper) parsePage() error {
 }
 
 func (h *helper) parseScope() {
-	h.allNodes = h.c.DefaultQuery("allNodes", "false") == "true"
+	h.allNodes = h.c.DefaultQuery("allNodes", "true") == "true"
 }
 
 func (h *helper) parseKeyword() {

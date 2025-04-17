@@ -68,7 +68,7 @@ func ListSupportFilesFromOtherNodes() ([]support.File, error) {
 
 		file, err := getNodeSupportFiles(node)
 		if err != nil {
-			log.Errorf("failed to get supportFiles from node %s: %s", node.Name, err.Error())
+			log.Errorf("failed to get supportFiles from node %s: %s", node.Hostname, err.Error())
 			continue
 		}
 

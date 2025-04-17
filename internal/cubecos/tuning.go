@@ -531,11 +531,11 @@ func ListTuningsFromOtherNodes() (map[string][]definition.Tuning, error) {
 
 		tunings, err := getNodeTunings(node)
 		if err != nil {
-			log.Errorf("tunings: failed to get tunings from node %s: %s", node.Name, err.Error())
+			log.Errorf("tunings: failed to get tunings from node %s: %s", node.Hostname, err.Error())
 			continue
 		}
 
-		nodeTunings[node.Name] = tunings
+		nodeTunings[node.Hostname] = tunings
 	}
 
 	return nodeTunings, nil
@@ -552,7 +552,7 @@ func getNodeTunings(node definition.Node) ([]definition.Tuning, error) {
 	}
 	if resp.IsError() {
 		return nil, fmt.Errorf(
-			"failed to get tunings from %s: %d %s",
+			"tunings: failed to get tunings from %s: %d %s",
 			node.Hostname,
 			resp.StatusCode(),
 			string(resp.Body()),
@@ -560,7 +560,7 @@ func getNodeTunings(node definition.Node) ([]definition.Tuning, error) {
 	}
 
 	tuningList := resp.Result().(*api.TuningListData)
-	return tuningList.Data, nil
+	return tuningList.Data.Tunings, nil
 }
 
 func aggregateTunings(nodeToTuning map[string][]definition.Tuning) []definition.Tuning {

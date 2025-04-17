@@ -16,10 +16,14 @@ type NodeData struct {
 }
 
 type TuningListData struct {
-	Code   int         `json:"code"`
-	Status string      `json:"status"`
-	Msg    string      `json:"msg"`
-	Data   []v1.Tuning `json:"data"`
+	Code   int        `json:"code"`
+	Status string     `json:"status"`
+	Msg    string     `json:"msg"`
+	Data   tuningData `json:"data"`
+}
+
+type tuningData struct {
+	Tunings []v1.Tuning `json:"tunings"`
 }
 
 type ComputeStatisticData struct {

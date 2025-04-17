@@ -141,7 +141,7 @@ func (n *Node) GetTuningUrl() string {
 	u := url.URL{
 		Scheme:   n.Protocol,
 		Host:     n.Address,
-		Path:     fmt.Sprintf("/api/v1/datacenters/%s/tunings", n.DataCenter),
+		Path:     fmt.Sprintf("/api/v1/datacenters/%s/tunings/parameters", n.DataCenter),
 		RawQuery: "allNodes=false",
 	}
 

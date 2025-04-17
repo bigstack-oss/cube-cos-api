@@ -32,7 +32,7 @@ func (h *helper) delegateTuningReq() {
 
 		err = h.delegateToOtherNode(node)
 		if err != nil {
-			log.Errorf("failed to delegate %s to %s: %s", h.tuning.Name, node.Name, err.Error())
+			log.Errorf("failed to delegate %s to %s: %s", h.tuning.Name, node.Hostname, err.Error())
 		}
 	}
 }
