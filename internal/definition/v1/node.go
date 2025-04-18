@@ -73,6 +73,14 @@ type Node struct {
 
 type NetworkInterface struct {
 	Label       string `json:"label" yaml:"label" bson:"label"`
+	BusIdSlaves string `json:"busIdSlaves" yaml:"busIdSlaves" bson:"busIdSlaves"`
+	Driver      string `json:"driver" yaml:"driver" bson:"driver"`
+	State       string `json:"state" yaml:"state" bson:"state"`
+	Speed       string `json:"speed" yaml:"speed" bson:"speed"`
+}
+
+type RawNetworkInterface struct {
+	Label       string `json:"label" yaml:"label" bson:"label"`
 	BusIdSlaves string `json:"busid" yaml:"busid" bson:"busid"`
 	Driver      string `json:"driver" yaml:"driver" bson:"driver"`
 	State       string `json:"state" yaml:"state" bson:"state"`
@@ -97,6 +105,10 @@ type RawBlockDevice struct {
 
 func (r *RawBlockDevice) IsMainBlockDevice() bool {
 	return r.Serial != ""
+}
+
+func (r *RawBlockDevice) NoMountPoints() bool {
+	return len(r.MountPoints) == 0
 }
 
 func (n *Node) GetBearerToken() string {

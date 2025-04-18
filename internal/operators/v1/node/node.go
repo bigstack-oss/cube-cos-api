@@ -3,8 +3,10 @@ package node
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
@@ -14,6 +16,8 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/dustin/go-humanize"
 	json "github.com/json-iterator/go"
 	"github.com/shirou/gopsutil/v4/cpu"
@@ -80,7 +84,7 @@ func (o *Operator) watchAndSyncNodeRoles(watcher *registry.Watcher) {
 	}
 
 	o.syncNodeDetails()
-	logThrottling(event)
+	cubelog.Throttle("node", genDiscoveryMsg(event))
 }
 
 func (o *Operator) setLicenseToNode(node *v1.Node) {
@@ -146,11 +150,18 @@ func (o *Operator) setNetworkSpecToNode(node *v1.Node) {
 		return
 	}
 
-	node.NetworkInterfaces = []v1.NetworkInterface{}
-	err = json.Unmarshal(out, &node.NetworkInterfaces)
+	raws := []v1.RawNetworkInterface{}
+	err = json.Unmarshal(out, &raws)
 	if err != nil {
 		log.Errorf("nodes: failed to unmarshal network info: %s", err.Error())
 		return
+	}
+
+	for _, raw := range raws {
+		node.NetworkInterfaces = append(
+			node.NetworkInterfaces,
+			v1.NetworkInterface(raw),
+		)
 	}
 }
 
@@ -161,10 +172,10 @@ func (o *Operator) setBlockDeviceSpecToNode(node *v1.Node) {
 	}
 
 	node.BlockDevices = []v1.BlockDevice{}
-	parentBlockDevs := map[string]string{}
+	blockDevMountPoints := map[string][]string{}
 	for _, rawBlockDev := range rawBlockDevs {
-		if rawBlockDev.IsMainBlockDevice() {
-			parentBlockDevs[rawBlockDev.Name] = rawBlockDev.Serial
+		if !rawBlockDev.IsMainBlockDevice() {
+			setBlockDevMountPoints(rawBlockDev, blockDevMountPoints)
 			continue
 		}
 
@@ -174,7 +185,15 @@ func (o *Operator) setBlockDeviceSpecToNode(node *v1.Node) {
 		)
 	}
 
-	addSerialToBlockDevices(node, parentBlockDevs)
+	addStatusToBlockDevices(node, blockDevMountPoints)
+}
+
+func setBlockDevMountPoints(blockDev v1.RawBlockDevice, blockDevMountPoints map[string][]string) {
+	if blockDev.NoMountPoints() {
+		return
+	}
+
+	blockDevMountPoints[blockDev.Name] = blockDev.MountPoints
 }
 
 func (o *Operator) setMetricToNode(node *v1.Node) {
@@ -230,7 +249,7 @@ func (o *Operator) setUptimeToNode(node *v1.Node) {
 }
 
 func getOsBlockDevices() ([]v1.RawBlockDevice, error) {
-	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS").Output()
+	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS", "-e", v1.NetBlockDeviceCode).Output()
 	if err != nil {
 		log.Errorf("nodes: failed to get block device info: %s", err.Error())
 		return nil, err
@@ -262,7 +281,7 @@ func convertToBlockDevice(rawBlockDev v1.RawBlockDevice) v1.BlockDevice {
 		Name:    rawBlockDev.Name,
 		Type:    convertBlockDeviceType(rawBlockDev.Rota),
 		SizeMiB: convertBlockDeviceSize(rawBlockDev.Size),
-		Status:  identifyBlockDeviceStatus(rawBlockDev.MountPoints),
+		Status:  "can be added",
 	}
 }
 
@@ -285,24 +304,72 @@ func convertBlockDeviceSize(sizeStr string) float64 {
 	return math.RoundDown(sizeMiB, 4)
 }
 
-func identifyBlockDeviceStatus(mountPoints []string) string {
-	if isNotMounted(mountPoints) {
-		return "can be added"
+func parentDeviceSysfs(device string) (string, error) {
+	link := "/sys/class/block/" + device
+	target, err := filepath.EvalSymlinks(link)
+	if err != nil {
+		return "", err
 	}
-
-	return "in-use"
+	parent := filepath.Base(filepath.Dir(target))
+	return parent, nil
 }
 
-func addSerialToBlockDevices(node *v1.Node, parentBlockDevs map[string]string) {
-	for name, serial := range parentBlockDevs {
-		for i := range node.BlockDevices {
-			if strings.Contains(node.BlockDevices[i].Name, name) {
-				node.BlockDevices[i].Serial = serial
-			}
+func addStatusToBlockDevices(node *v1.Node, partitions map[string][]string) {
+	partToStatus := map[string]string{}
+	for partition, mountPoints := range partitions {
+		if len(mountPoints) == 0 {
+			continue
+		}
+
+		partToStatus[partition] = "in-use"
+		if slices.Contains(mountPoints, "/") {
+			partToStatus[partition] = "system"
 		}
 	}
+
+	mainBlockDevToStatus := map[string]string{}
+	for partition, status := range partToStatus {
+		parent, err := parentDeviceSysfs(partition)
+		if err != nil {
+			log.Errorf("nodes: failed to get parent device: %s", err.Error())
+			continue
+		}
+
+		val, found := mainBlockDevToStatus[parent]
+		if !found {
+			mainBlockDevToStatus[parent] = status
+			continue
+		}
+
+		if val == "system" {
+			continue
+		}
+
+		mainBlockDevToStatus[parent] = status
+	}
+
+	for i, blockDev := range node.BlockDevices {
+		node.BlockDevices[i].Status = mainBlockDevToStatus[blockDev.Name]
+	}
 }
 
-func isNotMounted(mountPoints []string) bool {
-	return len(mountPoints) == 0 || mountPoints[0] == ""
+func genDiscoveryMsg(event *registry.Result) string {
+	return fmt.Sprintf(
+		"node(%s) role(%s) ip(%s) %s",
+		event.Service.Nodes[0].Metadata["hostname"],
+		event.Service.Nodes[0].Metadata["role"],
+		event.Service.Nodes[0].Address,
+		convertAction(event.Action),
+	)
+}
+
+func convertAction(action string) string {
+	switch action {
+	case status.Create:
+		return "joined"
+	case status.Delete:
+		return "left"
+	}
+
+	return action
 }

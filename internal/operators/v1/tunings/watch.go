@@ -1,20 +1,13 @@
 package tunings
 
 import (
-	"context"
-	"time"
+	"fmt"
 
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/cnf/structhash"
+	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
 	"github.com/fsnotify/fsnotify"
-	"go-micro.dev/v5/cache"
 	log "go-micro.dev/v5/logger"
-)
-
-var (
-	logCache = cache.NewCache(cache.Expiration(time.Second * 3))
 )
 
 func (o *Operator) initPolicyWatcher() error {
@@ -58,30 +51,7 @@ func checkAndSyncTunings(event fsnotify.Event) {
 	}
 
 	if event.Has(fsnotify.Write) {
-		logThrottling(event)
+		cubelog.Throttle("tunings", fmt.Sprintf("%s changed, syncing tunings", event.Name))
 		cubecos.SyncTunings()
 	}
-}
-
-func logThrottling(event fsnotify.Event) {
-	key, err := structhash.Hash(event, 1)
-	if err != nil {
-		return
-	}
-
-	getCtx, getCancel := context.WithTimeout(wait.CtxSeconds(10))
-	defer getCancel()
-	_, _, err = logCache.Get(getCtx, key)
-	if err == nil {
-		return
-	}
-
-	putCtx, putCancel := context.WithTimeout(wait.CtxSeconds(10))
-	defer putCancel()
-	err = logCache.Put(putCtx, key, []byte{}, time.Second*3)
-	if err != nil {
-		return
-	}
-
-	log.Infof("tunings: %s changed, syncing tunings", event.Name)
 }

@@ -1,21 +1,14 @@
 package supportfiles
 
 import (
-	"context"
+	"fmt"
 	"path/filepath"
-	"time"
 
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
-	"github.com/cnf/structhash"
+	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
 	"github.com/fsnotify/fsnotify"
-	"go-micro.dev/v5/cache"
 	log "go-micro.dev/v5/logger"
-)
-
-var (
-	logCache = cache.NewCache(cache.Expiration(time.Second * 3))
 )
 
 func (o *Operator) initWatcher() error {
@@ -60,39 +53,7 @@ func checkAndSyncSupportFiles(event fsnotify.Event) {
 	}
 
 	if event.Has(fsnotify.Create) {
-		printOrThrottleLog(event)
+		cubelog.Throttle("supportFiles", fmt.Sprintf("support file %s created", event.Name))
 		cubecos.SyncSupportFiles()
 	}
-}
-
-func printOrThrottleLog(event fsnotify.Event) {
-	key, err := structhash.Hash(event, 1)
-	if err != nil {
-		return
-	}
-
-	if isLogThrottled(key) {
-		return
-	}
-
-	log.Infof("supportFiles: %s changed, syncing supportFiles", event.Name)
-	throttleLog(key)
-}
-
-func isLogThrottled(key string) bool {
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
-	defer cancel()
-	_, _, err := logCache.Get(ctx, key)
-	return err == nil
-}
-
-func throttleLog(key string) error {
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
-	defer cancel()
-	return logCache.Put(
-		ctx,
-		key,
-		[]byte{},
-		time.Second*3,
-	)
 }
