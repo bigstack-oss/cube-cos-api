@@ -172,27 +172,29 @@ func parseProduct(raw v1.RawLicense) v1.Product {
 }
 
 func parseIssue(raw v1.RawLicense) v1.Issue {
+	date := "no license"
 	issue, err := time.Parse("2006-01-02 15:04:05 MST", raw.Date)
-	if err != nil {
-		raw.Date = "unknown issue date"
+	if err == nil {
+		date = issue.In(v1.LocalTimeFixedZone).Format(time.RFC3339)
 	}
 
 	return v1.Issue{
 		By:       raw.IssueBy,
 		To:       raw.IssueTo,
 		Hardware: raw.Hardware,
-		Date:     issue.In(v1.LocalTimeFixedZone).Format(time.RFC3339),
+		Date:     date,
 	}
 }
 
 func parseExpiry(raw v1.RawLicense) v1.Expiry {
+	date := "no license"
 	expiry, err := time.Parse("2006-01-02 15:04:05 MST", raw.Expiry)
-	if err != nil {
-		raw.Expiry = "unknown expiry date"
+	if err == nil {
+		date = expiry.In(v1.LocalTimeFixedZone).Format(time.RFC3339)
 	}
 
 	return v1.Expiry{
-		Date: expiry.In(v1.LocalTimeFixedZone).Format(time.RFC3339),
+		Date: date,
 		Days: raw.Days,
 	}
 }

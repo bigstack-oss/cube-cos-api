@@ -32,14 +32,14 @@ func init() {
 func listNodes(c *gin.Context) {
 	h, err := initHelper(c, "listNodes")
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("nodes(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	resp, err := h.listNodes()
 	if err != nil {
-		log.Errorf("request(%s): failed to gen node: %v", api.GetReqId(c), err)
+		log.Errorf("nodes(%s): failed to gen node: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -59,14 +59,14 @@ func listNodes(c *gin.Context) {
 func getNode(c *gin.Context) {
 	h, err := initHelper(c, "getNode")
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("nodes(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	node, err := h.getNode()
 	if err != nil {
-		log.Errorf("request(%s): failed to get node details: %v", api.GetReqId(c), err)
+		log.Errorf("nodes(%s): failed to get node details: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
 		return
 	}
