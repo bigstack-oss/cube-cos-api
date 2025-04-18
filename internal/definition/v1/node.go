@@ -103,8 +103,8 @@ type RawBlockDevice struct {
 	MountPoints []string `json:"mountpoints"`
 }
 
-func (r *RawBlockDevice) IsMainBlockDevice() bool {
-	return r.Serial != ""
+func (r *RawBlockDevice) IsPartition() bool {
+	return r.Serial == ""
 }
 
 func (r *RawBlockDevice) NoMountPoints() bool {

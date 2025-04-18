@@ -172,28 +172,28 @@ func (o *Operator) setBlockDeviceSpecToNode(node *v1.Node) {
 	}
 
 	node.BlockDevices = []v1.BlockDevice{}
-	blockDevMountPoints := map[string][]string{}
-	for _, rawBlockDev := range rawBlockDevs {
-		if !rawBlockDev.IsMainBlockDevice() {
-			setBlockDevMountPoints(rawBlockDev, blockDevMountPoints)
+	partitionMounts := map[string][]string{}
+	for _, raw := range rawBlockDevs {
+		if raw.IsPartition() {
+			setPartitionMounts(raw, partitionMounts)
 			continue
 		}
 
 		node.BlockDevices = append(
 			node.BlockDevices,
-			convertToBlockDevice(rawBlockDev),
+			convertToBlockDevice(raw),
 		)
 	}
 
-	addStatusToBlockDevices(node, blockDevMountPoints)
+	addStatusToBlockDevices(node, partitionMounts)
 }
 
-func setBlockDevMountPoints(blockDev v1.RawBlockDevice, blockDevMountPoints map[string][]string) {
+func setPartitionMounts(blockDev v1.RawBlockDevice, partitionMounts map[string][]string) {
 	if blockDev.NoMountPoints() {
 		return
 	}
 
-	blockDevMountPoints[blockDev.Name] = blockDev.MountPoints
+	partitionMounts[blockDev.Name] = blockDev.MountPoints
 }
 
 func (o *Operator) setMetricToNode(node *v1.Node) {
@@ -315,29 +315,42 @@ func parentDeviceSysfs(device string) (string, error) {
 }
 
 func addStatusToBlockDevices(node *v1.Node, partitions map[string][]string) {
-	partToStatus := map[string]string{}
+	partitionStatuses := genPartitionStatuses(partitions)
+	mainBlockDevStatus := genMainBlockDevStatus(partitionStatuses)
+	for i, blockDev := range node.BlockDevices {
+		node.BlockDevices[i].Status = mainBlockDevStatus[blockDev.Name]
+	}
+}
+
+func genPartitionStatuses(partitions map[string][]string) map[string]string {
+	partitionStatuses := map[string]string{}
+
 	for partition, mountPoints := range partitions {
 		if len(mountPoints) == 0 {
 			continue
 		}
 
-		partToStatus[partition] = "in-use"
+		partitionStatuses[partition] = "in-use"
 		if slices.Contains(mountPoints, "/") {
-			partToStatus[partition] = "system"
+			partitionStatuses[partition] = "system"
 		}
 	}
 
-	mainBlockDevToStatus := map[string]string{}
-	for partition, status := range partToStatus {
+	return partitionStatuses
+}
+
+func genMainBlockDevStatus(partitionStatuses map[string]string) map[string]string {
+	mainBlockDevStatus := map[string]string{}
+	for partition, status := range partitionStatuses {
 		parent, err := parentDeviceSysfs(partition)
 		if err != nil {
 			log.Errorf("nodes: failed to get parent device: %s", err.Error())
 			continue
 		}
 
-		val, found := mainBlockDevToStatus[parent]
+		val, found := mainBlockDevStatus[parent]
 		if !found {
-			mainBlockDevToStatus[parent] = status
+			mainBlockDevStatus[parent] = status
 			continue
 		}
 
@@ -345,12 +358,10 @@ func addStatusToBlockDevices(node *v1.Node, partitions map[string][]string) {
 			continue
 		}
 
-		mainBlockDevToStatus[parent] = status
+		mainBlockDevStatus[parent] = status
 	}
 
-	for i, blockDev := range node.BlockDevices {
-		node.BlockDevices[i].Status = mainBlockDevToStatus[blockDev.Name]
-	}
+	return mainBlockDevStatus
 }
 
 func genDiscoveryMsg(event *registry.Result) string {
