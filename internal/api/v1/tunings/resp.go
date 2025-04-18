@@ -1,8 +1,8 @@
 package tunings
 
-import definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+import v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 
 type data struct {
-	Tunings         []definition.Tuning `json:"tunings"`
-	definition.Page `json:"page"`
+	Tunings []v1.Tuning `json:"tunings"`
+	v1.Page `json:"page"`
 }

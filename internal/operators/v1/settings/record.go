@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	log "go-micro.dev/v5/logger"
 )
@@ -25,7 +25,7 @@ func (o *Operator) handleExit(setting setting.Options, err error) {
 }
 
 func (o *Operator) reportToController(setting setting.Options) error {
-	node, err := definition.GetOneOfControllerNode()
+	node, err := v1.GetOneOfControllerNode()
 	if err != nil {
 		log.Errorf("settings: failed to get controller nodes: %s", err.Error())
 		return err

@@ -4,10 +4,10 @@ import (
 	"math"
 	"sort"
 
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
 
-func (h *helper) paginateTunings(tunings []definition.Tuning) ([]definition.Tuning, error) {
+func (h *helper) paginateTunings(tunings []v1.Tuning) ([]v1.Tuning, error) {
 	if !h.Page.IsRequired() {
 		return tunings, nil
 	}
@@ -17,15 +17,15 @@ func (h *helper) paginateTunings(tunings []definition.Tuning) ([]definition.Tuni
 	return tunings[left:right], nil
 }
 
-func (h *helper) sortTunings(tunings *[]definition.Tuning) {
+func (h *helper) sortTunings(tunings *[]v1.Tuning) {
 	sort.Slice(*tunings, func(i, j int) bool {
 		return (*tunings)[i].Name < (*tunings)[j].Name
 	})
 }
 
-func (h *helper) genPageInfo(tunings []definition.Tuning) (definition.Page, error) {
+func (h *helper) genPageInfo(tunings []v1.Tuning) (v1.Page, error) {
 	if !h.Page.IsRequired() {
-		return definition.Page{
+		return v1.Page{
 			Total:          1,
 			Number:         1,
 			Size:           len(tunings),
@@ -33,7 +33,7 @@ func (h *helper) genPageInfo(tunings []definition.Tuning) (definition.Page, erro
 		}, nil
 	}
 
-	return definition.Page{
+	return v1.Page{
 		Total:          int64(math.Ceil(float64(len(tunings)) / float64(h.Page.Size))),
 		Number:         h.Page.Number,
 		Size:           h.Page.Size,

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +17,7 @@ type helper struct {
 	entityType string
 	entityId   string
 
-	definition.Period
+	v1.Period
 	past string
 
 	limit int

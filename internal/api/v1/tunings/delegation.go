@@ -6,7 +6,7 @@ import (
 	cubeHttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -37,8 +37,8 @@ func (h *helper) delegateTuningReq() {
 	}
 }
 
-func (h *helper) getTuningByNameAndHost(name, host string) (*definition.Tuning, error) {
-	tunings, err := cubecos.ListTunings(definition.ListTuningOptions{AllNodes: h.allNodes})
+func (h *helper) getTuningByNameAndHost(name, host string) (*v1.Tuning, error) {
+	tunings, err := cubecos.ListTunings(v1.ListTuningOptions{AllNodes: h.allNodes})
 	if err != nil {
 		log.Errorf("tunings(%s): failed to get tunings: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
@@ -59,8 +59,8 @@ func (h *helper) getTuningByNameAndHost(name, host string) (*definition.Tuning, 
 	return nil, errors.New("tuning not found")
 }
 
-func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*definition.Tuning, error) {
-	tunings, err := cubecos.ListTunings(definition.ListTuningOptions{AllNodes: h.allNodes})
+func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*v1.Tuning, error) {
+	tunings, err := cubecos.ListTunings(v1.ListTuningOptions{AllNodes: h.allNodes})
 	if err != nil {
 		log.Errorf("tunings(%s): failed to get tuning: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
@@ -81,12 +81,12 @@ func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*definiti
 	return nil, errors.New("tuning not found")
 }
 
-func delegateToLocal(tuning definition.Tuning) {
+func delegateToLocal(tuning v1.Tuning) {
 	addReqRecord(tuning)
 	reqQueue.Add(&tuning)
 }
 
-func (h *helper) backfillTuningInfoByHandler(tuning definition.Tuning) {
+func (h *helper) backfillTuningInfoByHandler(tuning v1.Tuning) {
 	switch h.handler {
 	case "updateTuning":
 		h.tuning.Enabled = tuning.Enabled
@@ -97,7 +97,7 @@ func (h *helper) backfillTuningInfoByHandler(tuning definition.Tuning) {
 	h.tuning.Id = h.tuning.GenerateId()
 }
 
-func (h *helper) delegateToOtherNode(node *definition.Node) error {
+func (h *helper) delegateToOtherNode(node *v1.Node) error {
 	url := node.PatchTuningUrl(h.tuning)
 	body := h.tuning.CopyAndOverrideHost(*node)
 	http := cubeHttp.GetGlobalHelper()

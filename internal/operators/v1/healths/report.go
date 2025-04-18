@@ -5,12 +5,12 @@ import (
 	nativehttp "net/http"
 	"net/url"
 
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	log "go-micro.dev/v5/logger"
 )
 
 func genControllerAuthToken() (*nativehttp.Cookie, error) {
-	nodes, err := definition.GetControllerNodes()
+	nodes, err := v1.GetControllerNodes()
 	if err != nil {
 		log.Errorf("failed to get controller nodes: %s", err.Error())
 		return nil, err
@@ -24,7 +24,7 @@ func genControllerAuthToken() (*nativehttp.Cookie, error) {
 }
 
 func genControllerHealthReportUrl() (string, error) {
-	nodes, err := definition.GetControllerNodes()
+	nodes, err := v1.GetControllerNodes()
 	if err != nil {
 		log.Errorf("failed to get controller nodes: %s", err.Error())
 		return "", err
@@ -33,7 +33,7 @@ func genControllerHealthReportUrl() (string, error) {
 	u := url.URL{
 		Scheme: "http",
 		Host:   nodes[0].Address,
-		Path:   fmt.Sprintf("/api/v1/datacenters/%s/healths/all", definition.DataCenterName),
+		Path:   fmt.Sprintf("/api/v1/datacenters/%s/healths/all", v1.DataCenterName),
 	}
 
 	return u.String(), nil

@@ -3,13 +3,13 @@ package api
 import (
 	"net/http"
 
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	ginFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 const (
-	apiDoc = definition.ApiDoc
+	apiDoc = v1.ApiDoc
 )
 
 var (
@@ -27,7 +27,7 @@ func init() {
 	RegisterHandlersToRoles(
 		apiDoc,
 		handlers,
-		definition.RoleControl,
-		definition.RoleCompute,
+		v1.RoleControl,
+		v1.RoleCompute,
 	)
 }

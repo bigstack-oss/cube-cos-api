@@ -1,13 +1,13 @@
 package cubecos
 
-import definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+import v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 
 var (
-	OrderSensitiveServices = []definition.Service{
+	OrderSensitiveServices = []v1.Service{
 		{
 			Name:     "clusterLink",
 			Category: "core",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "link", IsRepairable: false},
 				{Name: "clock", IsRepairable: true},
 				{Name: "dns", IsRepairable: false},
@@ -16,7 +16,7 @@ var (
 		{
 			Name:     "clusterSys",
 			Category: "core",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "bootstrap", IsRepairable: false},
 				{Name: "license", IsRepairable: false},
 			},
@@ -24,7 +24,7 @@ var (
 		{
 			Name:     "clusterSettings",
 			Category: "core",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "etcd", IsRepairable: true},
 				{Name: "nodelist", IsRepairable: false},
 			},
@@ -32,21 +32,21 @@ var (
 		{
 			Name:     "haCluster",
 			Category: "core",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "hacluster", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "msgQueue",
 			Category: "core",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "rabbitmq", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "iaasDb",
 			Category: "core",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "mysql", IsRepairable: true},
 				{Name: "mongodb", IsRepairable: true},
 			},
@@ -54,7 +54,7 @@ var (
 		{
 			Name:     "virtualIp",
 			Category: "core",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "vip", IsRepairable: true},
 				{Name: "haproxy_ha", IsRepairable: true},
 			},
@@ -62,7 +62,7 @@ var (
 		{
 			Name:     "storage",
 			Category: "storage",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "ceph", IsRepairable: false},
 				{Name: "ceph_mon", IsRepairable: true},
 				{Name: "ceph_mgr", IsRepairable: true},
@@ -75,7 +75,7 @@ var (
 		{
 			Name:     "apiService",
 			Category: "core",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "haproxy", IsRepairable: true},
 				{Name: "httpd", IsRepairable: true},
 				{Name: "skyline", IsRepairable: true},
@@ -87,7 +87,7 @@ var (
 		{
 			Name:     "singleSignOn",
 			Category: "core",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "k3s", IsRepairable: true},
 				{Name: "keycloak", IsRepairable: true},
 			},
@@ -95,14 +95,14 @@ var (
 		{
 			Name:     "network",
 			Category: "cloud computing",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "neutron", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "compute",
 			Category: "cloud computing",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "nova", IsRepairable: true},
 				{Name: "cyborg", IsRepairable: true},
 			},
@@ -110,77 +110,77 @@ var (
 		{
 			Name:     "bareMetal",
 			Category: "cloud computing",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "ironic", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "image",
 			Category: "cloud computing",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "glance", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "blockStor",
 			Category: "cloud computing",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "cinder", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "fileStor",
 			Category: "cloud computing",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "manila", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "objectStor",
 			Category: "cloud computing",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "swift", IsRepairable: false},
 			},
 		},
 		{
 			Name:     "orchestration",
 			Category: "cloud computing",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "heat", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "lbaas",
 			Category: "cloud computing",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "octavia", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "dnsaas",
 			Category: "cloud computing",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "designate", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "k8saas",
 			Category: "cloud computing",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "rancher", IsRepairable: false},
 			},
 		},
 		{
 			Name:     "instanceHa",
 			Category: "cloud computing",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "masakari", IsRepairable: true},
 			},
 		},
 		{
 			Name:     "businessLogic",
 			Category: "cloud computing",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "senlin", IsRepairable: true},
 				{Name: "watcher", IsRepairable: true},
 			},
@@ -188,7 +188,7 @@ var (
 		{
 			Name:     "dataPipe",
 			Category: "infrascope",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "zookeeper", IsRepairable: true},
 				{Name: "kafka", IsRepairable: true},
 			},
@@ -196,7 +196,7 @@ var (
 		{
 			Name:     "metrics",
 			Category: "infrascope",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "monasca", IsRepairable: true},
 				{Name: "telegraf", IsRepairable: true},
 				{Name: "grafana", IsRepairable: true},
@@ -205,7 +205,7 @@ var (
 		{
 			Name:     "logAnalytics",
 			Category: "infrascope",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "filebeat", IsRepairable: true},
 				{Name: "auditbeat", IsRepairable: true},
 				{Name: "logstash", IsRepairable: true},
@@ -216,7 +216,7 @@ var (
 		{
 			Name:     "notifications",
 			Category: "infrascope",
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "influxdb", IsRepairable: true},
 				{Name: "kapacitor", IsRepairable: true},
 			},
@@ -224,16 +224,16 @@ var (
 		{
 			Name:               "node",
 			IsInternalViewOnly: true,
-			Modules: []definition.Module{
+			Modules: []v1.Module{
 				{Name: "node", IsRepairable: false},
 			},
 		},
 	}
 
-	Modules           = map[string]definition.Module{}
+	Modules           = map[string]v1.Module{}
 	ModuleToService   = map[string]string{}
 	ServiceToCategory = map[string]string{}
-	ServiceToModules  = map[string][]definition.Module{}
+	ServiceToModules  = map[string][]v1.Module{}
 )
 
 func init() {

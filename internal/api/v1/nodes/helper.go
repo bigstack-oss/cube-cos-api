@@ -6,7 +6,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -21,7 +21,7 @@ type helper struct {
 	licenseStatuses []string
 	roles           []string
 
-	definition.Page
+	v1.Page
 	watch bool
 }
 
@@ -62,7 +62,7 @@ func (h *helper) parseGetOptions() error {
 }
 
 func (h *helper) listNodes() (*data, error) {
-	nodes := definition.ListNodes()
+	nodes := v1.ListNodes()
 	nodes = h.filterNodes(nodes)
 	nodesPerPage := h.paginateNodes(nodes)
 	h.sortNodes(&nodesPerPage)
@@ -73,7 +73,7 @@ func (h *helper) listNodes() (*data, error) {
 	}, nil
 }
 
-func (h *helper) sortNodes(node *[]definition.Node) {
+func (h *helper) sortNodes(node *[]v1.Node) {
 	sort.SliceStable(
 		*node,
 		func(i, j int) bool {
@@ -86,8 +86,8 @@ func isPageReceived(num, size string) bool {
 	return num != "" || size != ""
 }
 
-func (h *helper) getNode() (*definition.Node, error) {
-	node, err := definition.GetNodeByHostname(h.nodeName)
+func (h *helper) getNode() (*v1.Node, error) {
+	node, err := v1.GetNodeByHostname(h.nodeName)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to get node: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
@@ -100,7 +100,7 @@ func (h *helper) getNode() (*definition.Node, error) {
 	return h.askPeerNode(node)
 }
 
-func (h *helper) askPeerNode(node *definition.Node) (*definition.Node, error) {
+func (h *helper) askPeerNode(node *v1.Node) (*v1.Node, error) {
 	helper := http.GetGlobalHelper()
 	resp, err := helper.R().
 		SetResult(&api.NodeData{}).

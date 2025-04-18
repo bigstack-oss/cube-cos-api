@@ -5,7 +5,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/settings"
 	"github.com/gin-gonic/gin"
@@ -315,7 +315,7 @@ func tryEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	senders, err := definition.GetEmailSenders()
+	senders, err := v1.GetEmailSenders()
 	if err != nil {
 		log.Errorf("settings(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)

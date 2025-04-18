@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 )
 
-func parseUserBody(c *gin.Context) (*definition.User, error) {
-	u := &definition.User{}
+func parseUserBody(c *gin.Context) (*v1.User, error) {
+	u := &v1.User{}
 	err := json.NewDecoder(c.Request.Body).Decode(&u)
 	if err != nil {
 		return nil, err

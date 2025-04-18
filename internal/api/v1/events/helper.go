@@ -10,7 +10,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 	duration "github.com/xhit/go-str2duration"
 	log "go-micro.dev/v5/logger"
@@ -42,7 +42,7 @@ type helper struct {
 	period
 	past string
 
-	definition.Page
+	v1.Page
 	limit int
 
 	watch bool
@@ -188,21 +188,21 @@ func (h *helper) parsePeriod() error {
 		return fmt.Errorf("'past' and 'start'/'stop' cannot be used together")
 	}
 
-	qStart := h.c.DefaultQuery("start", definition.TimeRFC3339(-24*time.Hour))
-	start, err := time.Parse(definition.RFC3339, qStart)
+	qStart := h.c.DefaultQuery("start", v1.TimeRFC3339(-24*time.Hour))
+	start, err := time.Parse(v1.RFC3339, qStart)
 	if err != nil {
 		return fmt.Errorf("'start' time format should be aligned with RFC3339: %s", qStart)
 	}
 
-	qStop := h.c.DefaultQuery("stop", definition.TimeNowRFC3339())
-	stop, err := time.Parse(definition.RFC3339, qStop)
+	qStop := h.c.DefaultQuery("stop", v1.TimeNowRFC3339())
+	stop, err := time.Parse(v1.RFC3339, qStop)
 	if err != nil {
 		return fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", qStop)
 	}
 
 	h.period = period{
-		start: definition.TimeUTC(start),
-		stop:  definition.TimeUTC(stop),
+		start: v1.TimeUTC(start),
+		stop:  v1.TimeUTC(stop),
 	}
 
 	return nil
@@ -280,7 +280,7 @@ func (h *helper) parseFilterConditions() error {
 		case "category":
 			h.category = strings.ToUpper(v[0])
 		case "severity":
-			h.severity = definition.SeverityShortName(v[0])
+			h.severity = v1.SeverityShortName(v[0])
 		case "host":
 			h.host = v[0]
 		case "instance":
@@ -333,7 +333,7 @@ func (h *helper) genEventAbstract() (*data, error) {
 
 	return &data{
 		Events: events,
-		Limit: &definition.Limit{
+		Limit: &v1.Limit{
 			Number:      h.limit,
 			Description: fmt.Sprintf("the top %d recent events", h.limit),
 		},
@@ -356,29 +356,29 @@ func (h *helper) genEventRank() (*data, error) {
 	h.setQueryUrlToEachEvent(&rank)
 	return &data{
 		Events: rank,
-		Limit: &definition.Limit{
+		Limit: &v1.Limit{
 			Number:      h.limit,
 			Description: fmt.Sprintf("The top %d event IDs with the highest proportion", len(rank)),
 		},
 	}, nil
 }
 
-func (h *helper) setQueryUrlToEachEvent(events *[]definition.EventStat) {
+func (h *helper) setQueryUrlToEachEvent(events *[]v1.EventStat) {
 	for i, event := range *events {
 		(*events)[i].Query = h.genEventQueryUrl(event)
 	}
 }
 
-func (h *helper) genEventQueryUrl(event definition.EventStat) string {
+func (h *helper) genEventQueryUrl(event v1.EventStat) string {
 	u := url.URL{}
 	u.Scheme = "https"
 	u.Host = h.c.Request.Host
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/events", definition.DataCenterName)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/events", v1.DataCenterName)
 	u.RawQuery = h.genEventQuery(event)
 	return u.String()
 }
 
-func (h *helper) genEventQuery(event definition.EventStat) string {
+func (h *helper) genEventQuery(event v1.EventStat) string {
 	if h.isPastRequired() {
 		return fmt.Sprintf(
 			"type=%s&id=%s&past=%s&pageNum=1&pageSize=20",
@@ -397,7 +397,7 @@ func (h *helper) genEventQuery(event definition.EventStat) string {
 	)
 }
 
-func (h *helper) genEventFilterConditions() (*definition.EventFilter, error) {
+func (h *helper) genEventFilterConditions() (*v1.EventFilter, error) {
 	systemCategories, err := cubecos.GetEventFilterConditions(h.genFilterConditionStmt("system", "category"))
 	if err != nil {
 		log.Errorf("request(%s): failed to get system categories: %v", api.GetReqId(h.c), err)
@@ -434,16 +434,16 @@ func (h *helper) genEventFilterConditions() (*definition.EventFilter, error) {
 		return nil, err
 	}
 
-	return &definition.EventFilter{
-		System: definition.SystemFilter{
+	return &v1.EventFilter{
+		System: v1.SystemFilter{
 			Categories: systemCategories,
 			Severities: convertSystemSeverities(systemSeverities),
 		},
-		Host: definition.HostFilter{
+		Host: v1.HostFilter{
 			Categories: hostCategories,
 			Names:      hostNames,
 		},
-		Instance: definition.InstanceFilter{
+		Instance: v1.InstanceFilter{
 			Categories: instanceCategories,
 			Ids:        instanceIds,
 		},
@@ -455,7 +455,7 @@ func convertSystemSeverities(severities []string) []string {
 	for _, s := range severities {
 		converted = append(
 			converted,
-			definition.SeverityFullName(s),
+			v1.SeverityFullName(s),
 		)
 	}
 

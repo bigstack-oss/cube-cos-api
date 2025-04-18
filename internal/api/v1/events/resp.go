@@ -1,9 +1,9 @@
 package events
 
-import definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+import v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 
 type data struct {
-	Events            any `json:"events"`
-	*definition.Page  `json:"page,omitempty"`
-	*definition.Limit `json:"limit,omitempty"`
+	Events    any `json:"events"`
+	*v1.Page  `json:"page,omitempty"`
+	*v1.Limit `json:"limit,omitempty"`
 }

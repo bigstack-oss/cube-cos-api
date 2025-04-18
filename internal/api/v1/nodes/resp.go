@@ -1,8 +1,8 @@
 package nodes
 
-import definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+import v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 
 type data struct {
-	Nodes           []definition.Node `json:"nodes"`
-	definition.Page `json:"page"`
+	Nodes   []v1.Node `json:"nodes"`
+	v1.Page `json:"page"`
 }

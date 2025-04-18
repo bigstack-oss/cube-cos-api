@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/crewjam/saml"
 	"github.com/crewjam/saml/samlsp"
 	"github.com/gin-gonic/gin"
@@ -114,7 +114,7 @@ func GenIdentityProviderMetadata(opts Options) (*saml.EntityDescriptor, error) {
 func GenIdentityProviderMetadataUrl(opts Options) url.URL {
 	return url.URL{
 		Scheme: opts.IdentityProvider.Host.Scheme,
-		Host:   fmt.Sprintf("%s:%d", definition.DataCenterVip, opts.IdentityProvider.Host.Port),
+		Host:   fmt.Sprintf("%s:%d", v1.DataCenterVip, opts.IdentityProvider.Host.Port),
 		Path:   opts.IdentityProvider.MetadataPath,
 	}
 }
@@ -122,7 +122,7 @@ func GenIdentityProviderMetadataUrl(opts Options) url.URL {
 func GenServiceProviderMetadataUrl(opts Options) url.URL {
 	return url.URL{
 		Scheme: opts.ServiceProvider.Scheme,
-		Host:   fmt.Sprintf("%s:%d", definition.DataCenterVip, opts.ServiceProvider.Host.Port),
+		Host:   fmt.Sprintf("%s:%d", v1.DataCenterVip, opts.ServiceProvider.Host.Port),
 		Path:   opts.ServiceProvider.MetadataPath,
 	}
 }
@@ -210,7 +210,7 @@ func AuthRequest(c *gin.Context) {
 func genRootUrl(opts Options) url.URL {
 	return url.URL{
 		Scheme: opts.ServiceProvider.Host.Scheme,
-		Host:   fmt.Sprintf("%s:%d", definition.DataCenterVip, opts.ServiceProvider.Host.Port),
+		Host:   fmt.Sprintf("%s:%d", v1.DataCenterVip, opts.ServiceProvider.Host.Port),
 	}
 }
 

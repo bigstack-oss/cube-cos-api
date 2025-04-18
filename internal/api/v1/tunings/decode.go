@@ -5,19 +5,19 @@ import (
 	"io"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 )
 
-func (h *helper) decodeTuningReq(reqBody io.ReadCloser) (*definition.Tuning, error) {
+func (h *helper) decodeTuningReq(reqBody io.ReadCloser) (*v1.Tuning, error) {
 	b, err := io.ReadAll(reqBody)
 	if err != nil {
 		log.Errorf("request(%s): failed to read request body: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
-	tuning := &definition.Tuning{}
+	tuning := &v1.Tuning{}
 	err = json.Unmarshal(b, tuning)
 	if err != nil {
 		log.Errorf("request(%s): failed to decode tuning request: %s", api.GetReqId(h.c), err.Error())
@@ -28,7 +28,7 @@ func (h *helper) decodeTuningReq(reqBody io.ReadCloser) (*definition.Tuning, err
 }
 
 func (h *helper) checkTuningPatchReq() error {
-	err := definition.CheckTuningSpec(h.tuning)
+	err := v1.CheckTuningSpec(h.tuning)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (h *helper) checkTuningResetReq() error {
 
 func (h *helper) checkHostsAreValid() error {
 	for _, host := range h.tuning.Hosts {
-		_, err := definition.GetNodeByHostname(host.Name)
+		_, err := v1.GetNodeByHostname(host.Name)
 		if err != nil {
 			return fmt.Errorf("host(%s) not found", host.Name)
 		}
@@ -51,7 +51,7 @@ func (h *helper) checkHostsAreValid() error {
 	return nil
 }
 
-func (h *helper) checkTaskUpdateReq(tuning *definition.Tuning) error {
+func (h *helper) checkTaskUpdateReq(tuning *v1.Tuning) error {
 	if tuning.Id == "" {
 		return fmt.Errorf("tuning id is required")
 	}

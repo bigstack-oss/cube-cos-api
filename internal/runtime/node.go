@@ -7,7 +7,7 @@ import (
 
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/node"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
@@ -15,93 +15,93 @@ import (
 
 func initNodeIdentities() error {
 	var err error
-	definition.Hostname, err = getHostname()
+	v1.Hostname, err = getHostname()
 	if err != nil {
 		log.Errorf("runtime: failed to get hostname: %s", err.Error())
 		return err
 	}
 
-	definition.HostID, err = definition.GenerateNodeHashByMacAddr()
+	v1.HostID, err = v1.GenerateNodeHashByMacAddr()
 	if err != nil {
 		log.Errorf("runtime: failed to generate host id: %s", err.Error())
 		return err
 	}
 
-	definition.CurrentRole, err = cubecos.GetNodeRole()
+	v1.CurrentRole, err = cubecos.GetNodeRole()
 	if err != nil {
 		log.Errorf("runtime: failed to get node role: %s", err.Error())
 		return err
 	}
 
-	definition.IsHaEnabled, err = cubecos.IsHaEnabled()
+	v1.IsHaEnabled, err = cubecos.IsHaEnabled()
 	if err != nil {
 		log.Errorf("runtime: failed to get ha enabled: %s", err.Error())
 		return err
 	}
 
-	definition.MgmtNet, err = cubecos.GetMgmtNet()
+	v1.MgmtNet, err = cubecos.GetMgmtNet()
 	if err != nil {
 		log.Errorf("runtime: failed to get management network: %s", err.Error())
 		return err
 	}
 
-	definition.MgmtIP, err = cubecos.GetManagementIp(definition.MgmtNet)
+	v1.MgmtIP, err = cubecos.GetManagementIp(v1.MgmtNet)
 	if err != nil {
 		log.Errorf("runtime: failed to get management ip: %s", err.Error())
 		return err
 	}
 
-	definition.StorageNet, err = cubecos.GetStorageNet()
+	v1.StorageNet, err = cubecos.GetStorageNet()
 	if err != nil {
 		log.Errorf("runtime: failed to get storage network: %s", err.Error())
 		return err
 	}
 
-	definition.StorageIP, err = cubecos.GetStorageIp(definition.StorageNet)
+	v1.StorageIP, err = cubecos.GetStorageIp(v1.StorageNet)
 	if err != nil {
 		log.Errorf("runtime: failed to get storage ip: %s", err.Error())
 		return err
 	}
 
-	definition.DataCenterVip, err = cubecos.GetControllerVirtualIp(definition.MgmtNet)
+	v1.DataCenterVip, err = cubecos.GetControllerVirtualIp(v1.MgmtNet)
 	if err != nil {
 		log.Errorf("runtime: failed to get controller virtual ip: %s", err.Error())
 		return err
 	}
 
-	definition.DataCenterName, err = cubecos.GetDataCenterName()
+	v1.DataCenterName, err = cubecos.GetDataCenterName()
 	if err != nil {
 		log.Errorf("runtime: failed to get data center name: %s", err.Error())
 		return err
 	}
 
-	definition.DataCenterVersion, err = cubecos.GetDataCenterVersion()
+	v1.DataCenterVersion, err = cubecos.GetDataCenterVersion()
 	if err != nil {
 		log.Errorf("runtime: failed to get data center version: %s", err.Error())
 		return err
 	}
 
-	definition.DataCenterNumericVersion, err = cubecos.GetDataCenterNumericVersion()
+	v1.DataCenterNumericVersion, err = cubecos.GetDataCenterNumericVersion()
 	if err != nil {
 		log.Errorf("runtime: failed to get data center numeric version: %s", err.Error())
 		return err
 	}
 
-	definition.SerialNumber, err = definition.GetSystemSerial()
+	v1.SerialNumber, err = v1.GetSystemSerial()
 	if err != nil {
 		log.Errorf("runtime: failed to get system serial: %s", err.Error())
 	}
 
-	definition.ListenIp = conf.Opts.Spec.Listen.Local
-	definition.ListenPort = conf.Opts.Spec.Listen.Port
-	definition.ListenAddr = genLocalAddr()
-	definition.AdvertisePort = conf.Opts.Spec.Listen.Port
-	definition.AdvertiseAddr = genServiceDiscoveryAddr()
-	definition.IsGpuEnabled = cubecos.IsGpuEnabled()
-	definition.LogoutRedirectUrl = genLogoutRedirectUrl()
-	definition.LocalTimeZone = getLocalTimeZone()
-	definition.LocalTimeZoneSeconds = getLocalTimeZoneSeconds()
-	definition.LocalTimeFixedZone = time.FixedZone("", definition.LocalTimeZoneSeconds)
+	v1.ListenIp = conf.Opts.Spec.Listen.Local
+	v1.ListenPort = conf.Opts.Spec.Listen.Port
+	v1.ListenAddr = genLocalAddr()
+	v1.AdvertisePort = conf.Opts.Spec.Listen.Port
+	v1.AdvertiseAddr = genServiceDiscoveryAddr()
+	v1.IsGpuEnabled = cubecos.IsGpuEnabled()
+	v1.LogoutRedirectUrl = genLogoutRedirectUrl()
+	v1.LocalTimeZone = getLocalTimeZone()
+	v1.LocalTimeZoneSeconds = getLocalTimeZoneSeconds()
+	v1.LocalTimeFixedZone = time.FixedZone("", v1.LocalTimeZoneSeconds)
 	cubecos.SyncTunings()
 	cubecos.SyncSupportFiles()
 
@@ -145,15 +145,15 @@ func initNodePeerSyncer() {
 
 func genNodeMetadata() map[string]string {
 	return map[string]string{
-		"role":         definition.CurrentRole,
-		"hostname":     definition.Hostname,
-		"dataCenter":   definition.DataCenterName,
-		"nodeID":       definition.HostID,
-		"serialNumber": definition.SerialNumber,
+		"role":         v1.CurrentRole,
+		"hostname":     v1.Hostname,
+		"dataCenter":   v1.DataCenterName,
+		"nodeID":       v1.HostID,
+		"serialNumber": v1.SerialNumber,
 		"protocol":     conf.Opts.Kind,
-		"ip":           definition.MgmtIP,
-		"isGpuEnabled": fmt.Sprintf("%t", definition.IsGpuEnabled),
-		"token":        definition.DefaultNodeToken,
+		"ip":           v1.MgmtIP,
+		"isGpuEnabled": fmt.Sprintf("%t", v1.IsGpuEnabled),
+		"token":        v1.DefaultNodeToken,
 	}
 }
 
@@ -168,7 +168,7 @@ func genLocalAddr() string {
 func genServiceDiscoveryAddr() string {
 	return fmt.Sprintf(
 		"%s:%d",
-		definition.MgmtIP,
+		v1.MgmtIP,
 		conf.Opts.Spec.Listen.Port,
 	)
 }
@@ -176,7 +176,7 @@ func genServiceDiscoveryAddr() string {
 func genLogoutRedirectUrl() string {
 	return fmt.Sprintf(
 		"https://%s:4443%s",
-		definition.DataCenterVip,
+		v1.DataCenterVip,
 		conf.Opts.Spec.Identity.LogoutRedirect,
 	)
 }

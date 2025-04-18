@@ -5,7 +5,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -41,9 +41,9 @@ func (h *helper) isInstanceRequired() bool {
 	return h.instance != ""
 }
 
-func (h *helper) genPageInfo(events []definition.Event) (definition.Page, error) {
+func (h *helper) genPageInfo(events []v1.Event) (v1.Page, error) {
 	if !h.isPageRequired() {
-		return definition.Page{
+		return v1.Page{
 			Total:          1,
 			Number:         1,
 			Size:           len(events),
@@ -53,10 +53,10 @@ func (h *helper) genPageInfo(events []definition.Event) (definition.Page, error)
 
 	totalCounts, totalPages, err := h.getAmountDetails()
 	if err != nil {
-		return definition.Page{}, err
+		return v1.Page{}, err
 	}
 
-	return definition.Page{
+	return v1.Page{
 		Total:          totalPages,
 		Number:         h.Page.Number,
 		Size:           h.Page.Size,

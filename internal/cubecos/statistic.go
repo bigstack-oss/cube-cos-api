@@ -4,7 +4,7 @@ import (
 	json "github.com/json-iterator/go"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
 
 type Summary struct {
@@ -14,7 +14,7 @@ type Summary struct {
 }
 
 type DataCenterSummary struct {
-	Usage definition.DataCenterUsage `json:"usage"`
+	Usage v1.DataCenterUsage `json:"usage"`
 }
 
 type HostSummary struct {
@@ -22,8 +22,8 @@ type HostSummary struct {
 	Usages []HostUsage `json:"usages"`
 }
 
-func (h *HostSummary) ListCpuUsages() []definition.ComputeStatistic {
-	var list []definition.ComputeStatistic
+func (h *HostSummary) ListCpuUsages() []v1.ComputeStatistic {
+	var list []v1.ComputeStatistic
 	for _, u := range h.Usages {
 		list = append(list, u.Cpu)
 	}
@@ -31,8 +31,8 @@ func (h *HostSummary) ListCpuUsages() []definition.ComputeStatistic {
 	return list
 }
 
-func (h *HostSummary) ListMemoryUsages() []definition.SpaceStatistic {
-	var list []definition.SpaceStatistic
+func (h *HostSummary) ListMemoryUsages() []v1.SpaceStatistic {
+	var list []v1.SpaceStatistic
 	for _, u := range h.Usages {
 		list = append(list, u.Memory)
 	}
@@ -40,7 +40,7 @@ func (h *HostSummary) ListMemoryUsages() []definition.SpaceStatistic {
 	return list
 }
 
-func (h *HostSummary) SetHostUsageByNodes(nodes []definition.Node) {
+func (h *HostSummary) SetHostUsageByNodes(nodes []v1.Node) {
 	for _, node := range nodes {
 		usage, err := GetHostUsage(node)
 		if err != nil {
@@ -108,20 +108,20 @@ func (h *HostSummary) summarizeRoleUsage(roleMap map[string]RoleUsage) {
 }
 
 func (h *HostSummary) setRoleUsage(roleMap map[string]RoleUsage) {
-	h.Role.ControlConverged = roleMap[definition.RoleControlConverged]
-	h.Role.Control = roleMap[definition.RoleControl]
-	h.Role.Compute = roleMap[definition.RoleCompute]
-	h.Role.Storage = roleMap[definition.RoleStorage]
-	h.Role.EdgeCore = roleMap[definition.RoleEdgeCore]
-	h.Role.Moderator = roleMap[definition.RoleModerator]
+	h.Role.ControlConverged = roleMap[v1.RoleControlConverged]
+	h.Role.Control = roleMap[v1.RoleControl]
+	h.Role.Compute = roleMap[v1.RoleCompute]
+	h.Role.Storage = roleMap[v1.RoleStorage]
+	h.Role.EdgeCore = roleMap[v1.RoleEdgeCore]
+	h.Role.Moderator = roleMap[v1.RoleModerator]
 }
 
 type HostUsage struct {
-	Role    string                      `json:"role"`
-	Name    string                      `json:"name"`
-	Address string                      `json:"address"`
-	Cpu     definition.ComputeStatistic `json:"cpu"`
-	Memory  definition.SpaceStatistic   `json:"memory"`
+	Role    string              `json:"role"`
+	Name    string              `json:"name"`
+	Address string              `json:"address"`
+	Cpu     v1.ComputeStatistic `json:"cpu"`
+	Memory  v1.SpaceStatistic   `json:"memory"`
 }
 
 type Role struct {
@@ -134,14 +134,14 @@ type Role struct {
 }
 
 type RoleUsage struct {
-	Count  int                         `json:"count"`
-	Cpu    definition.ComputeStatistic `json:"cpu"`
-	Memory definition.SpaceStatistic   `json:"memory"`
+	Count  int                 `json:"count"`
+	Cpu    v1.ComputeStatistic `json:"cpu"`
+	Memory v1.SpaceStatistic   `json:"memory"`
 }
 
 type VmSummary struct {
-	Status             VmStatus `json:"status"`
-	definition.VmUsage `json:"usage"`
+	Status     VmStatus `json:"status"`
+	v1.VmUsage `json:"usage"`
 }
 
 type VmStatus struct {

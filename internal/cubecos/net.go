@@ -3,13 +3,13 @@ package cubecos
 import (
 	"fmt"
 
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
 
 const ()
 
 func GetControllerVirtualIp(mgmtNet string) (string, error) {
-	if definition.IsHaEnabled {
+	if v1.IsHaEnabled {
 		return GetTuningValue(CubeSysControllerVip)
 	}
 

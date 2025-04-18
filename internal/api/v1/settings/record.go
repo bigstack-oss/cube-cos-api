@@ -3,7 +3,7 @@ package settings
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
@@ -25,7 +25,7 @@ func (h *helper) updateSetting() {
 func getSlackChannel(name string) (*slack.Channel, error) {
 	h := mongo.GetGlobalHelper()
 	resp, err := h.Get(
-		definition.SettingsDB(),
+		v1.SettingsDB(),
 		slack.ChannelCollection,
 		bson.M{"name": name},
 	)
@@ -56,7 +56,7 @@ func (h *helper) isSenderExist() bool {
 func isRecipientExist(recipient string) bool {
 	h := mongo.GetGlobalHelper()
 	count, err := h.GetCount(
-		definition.SettingsDB(),
+		v1.SettingsDB(),
 		email.RecipientCollection,
 		bson.M{"address": recipient},
 	)

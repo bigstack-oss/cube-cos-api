@@ -3,7 +3,7 @@ package nodes
 import (
 	"slices"
 
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
 )
@@ -12,7 +12,7 @@ const (
 	maxSearchResults = 10000
 )
 
-func (h *helper) filterNodes(nodes []definition.Node) []definition.Node {
+func (h *helper) filterNodes(nodes []v1.Node) []v1.Node {
 	if !h.isFilterRequired() {
 		return nodes
 	}
@@ -56,8 +56,8 @@ func (h *helper) isLicenseStatusRequired() bool {
 	return len(h.licenseStatuses) > 0
 }
 
-func (h *helper) filteredByLicenseStatus(nodes []definition.Node) []definition.Node {
-	filtered := []definition.Node{}
+func (h *helper) filteredByLicenseStatus(nodes []v1.Node) []v1.Node {
+	filtered := []v1.Node{}
 	for _, node := range nodes {
 		if slices.Contains(h.licenseStatuses, node.License.Status.Current) {
 			filtered = append(filtered, node)
@@ -67,8 +67,8 @@ func (h *helper) filteredByLicenseStatus(nodes []definition.Node) []definition.N
 	return filtered
 }
 
-func (h *helper) filteredByProduct(nodes []definition.Node) []definition.Node {
-	filtered := []definition.Node{}
+func (h *helper) filteredByProduct(nodes []v1.Node) []v1.Node {
+	filtered := []v1.Node{}
 	for _, node := range nodes {
 		if slices.Contains(h.products, node.License.Product.Name) {
 			filtered = append(filtered, node)
@@ -78,7 +78,7 @@ func (h *helper) filteredByProduct(nodes []definition.Node) []definition.Node {
 	return filtered
 }
 
-func (h *helper) filteredByKeyword(nodes []definition.Node) []definition.Node {
+func (h *helper) filteredByKeyword(nodes []v1.Node) []v1.Node {
 	result, err := h.searchNodes(nodes)
 	if err != nil {
 		log.Errorf("nodes: failed to search nodes: %s", err.Error())
@@ -86,7 +86,7 @@ func (h *helper) filteredByKeyword(nodes []definition.Node) []definition.Node {
 	}
 
 	nodeMap := genNodeMap(nodes)
-	filtered := []definition.Node{}
+	filtered := []v1.Node{}
 	for _, hit := range result.Hits {
 		filtered = append(filtered, nodeMap[hit.ID])
 	}
@@ -94,8 +94,8 @@ func (h *helper) filteredByKeyword(nodes []definition.Node) []definition.Node {
 	return filtered
 }
 
-func (h *helper) searchNodes(nodes []definition.Node) (*bleve.SearchResult, error) {
-	searcher := definition.GetNodeSearcher()
+func (h *helper) searchNodes(nodes []v1.Node) (*bleve.SearchResult, error) {
+	searcher := v1.GetNodeSearcher()
 	for _, node := range nodes {
 		err := searcher.Index(node.Hostname, node)
 		if err != nil {
@@ -117,8 +117,8 @@ func (h *helper) wrapWilcardKeyword() string {
 	return "*" + h.keyword + "*"
 }
 
-func genNodeMap(nodes []definition.Node) map[string]definition.Node {
-	nodeMap := map[string]definition.Node{}
+func genNodeMap(nodes []v1.Node) map[string]v1.Node {
+	nodeMap := map[string]v1.Node{}
 	for _, node := range nodes {
 		nodeMap[node.Hostname] = node
 	}
@@ -126,8 +126,8 @@ func genNodeMap(nodes []definition.Node) map[string]definition.Node {
 	return nodeMap
 }
 
-func (h *helper) filteredByRoles(nodes []definition.Node) []definition.Node {
-	filtered := []definition.Node{}
+func (h *helper) filteredByRoles(nodes []v1.Node) []v1.Node {
+	filtered := []v1.Node{}
 	for _, node := range nodes {
 		if h.containsRoles(node) {
 			filtered = append(filtered, node)
@@ -137,6 +137,6 @@ func (h *helper) filteredByRoles(nodes []definition.Node) []definition.Node {
 	return filtered
 }
 
-func (h *helper) containsRoles(node definition.Node) bool {
+func (h *helper) containsRoles(node v1.Node) bool {
 	return slices.Contains(h.roles, node.Role)
 }

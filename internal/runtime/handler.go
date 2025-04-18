@@ -18,111 +18,111 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/tokens"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/triggers"
 	apitunings "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 )
 
 func initNodeApiHandler() {
 	api.RegisterHandlersToRoles(
-		definition.DataCenters,
+		v1.DataCenters,
 		datacenters.Handlers,
-		definition.RoleControl,
+		v1.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Services,
+		v1.Services,
 		services.Handlers,
-		definition.RoleControl,
+		v1.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Me,
+		v1.Me,
 		me.Handlers,
-		definition.RoleControl,
+		v1.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Integrations,
+		v1.Integrations,
 		integrations.Handlers,
-		definition.RoleControl,
+		v1.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Healths,
+		v1.Healths,
 		healths.Handlers,
-		definition.RoleControl,
+		v1.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Events,
+		v1.Events,
 		events.Handlers,
-		definition.RoleControl,
+		v1.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Nodes,
+		v1.Nodes,
 		nodes.Handlers,
-		definition.RoleControl,
+		v1.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Tunings,
+		v1.Tunings,
 		apitunings.Handlers,
-		definition.RoleControl,
-		definition.RoleCompute,
+		v1.RoleControl,
+		v1.RoleCompute,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Metrics,
+		v1.Metrics,
 		metrics.Handlers,
-		definition.RoleControl,
+		v1.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Tokens,
+		v1.Tokens,
 		tokens.Handlers,
-		definition.RoleControl,
+		v1.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Logout,
+		v1.Logout,
 		logout.Handlers,
-		definition.RoleControl,
+		v1.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Licenses,
+		v1.Licenses,
 		licenses.Handlers,
-		definition.RoleControl,
+		v1.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Triggers,
+		v1.Triggers,
 		triggers.Handlers,
-		definition.RoleControl,
+		v1.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
 		support.Files,
 		supportfiles.Handlers,
-		definition.RoleControlConverged,
-		definition.RoleControl,
-		definition.RoleCompute,
-		definition.RoleStorage,
-		definition.RoleEdgeCore,
-		definition.RoleModerator,
+		v1.RoleControlConverged,
+		v1.RoleControl,
+		v1.RoleCompute,
+		v1.RoleStorage,
+		v1.RoleEdgeCore,
+		v1.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Grafana,
+		v1.Grafana,
 		grafana.Handlers,
-		definition.RoleControl,
-		definition.RoleControlConverged,
+		v1.RoleControl,
+		v1.RoleControlConverged,
 	)
 
 	api.RegisterHandlersToRoles(
-		definition.Settings,
+		v1.Settings,
 		settings.Handlers,
-		definition.RoleControl,
+		v1.RoleControl,
 	)
 }

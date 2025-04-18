@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,16 +33,16 @@ func getDataCenters(c *gin.Context) {
 	api.SetStatusOk(
 		c,
 		"fetch data center list successfully",
-		[]definition.DataCenter{
+		[]v1.DataCenter{
 			{
-				Name:        definition.DataCenterName,
-				Version:     definition.DataCenterVersion,
-				VirtualIp:   definition.DataCenterVip,
+				Name:        v1.DataCenterName,
+				Version:     v1.DataCenterVersion,
+				VirtualIp:   v1.DataCenterVip,
 				IsLocal:     true,
-				IsHaEnabled: definition.IsHaEnabled,
-				UtcTimeZone: definition.LocalTimeZone,
-				Additional: definition.Additional{
-					HelpUrl: definition.DataCenterHelpUrl,
+				IsHaEnabled: v1.IsHaEnabled,
+				UtcTimeZone: v1.LocalTimeZone,
+				Additional: v1.Additional{
+					HelpUrl: v1.DataCenterHelpUrl,
 				},
 			},
 		},
@@ -53,15 +53,15 @@ func getDataCenter(c *gin.Context) {
 	api.SetStatusOk(
 		c,
 		"fetch data center list successfully",
-		definition.DataCenter{
-			Name:        definition.DataCenterName,
-			Version:     definition.DataCenterVersion,
-			VirtualIp:   definition.DataCenterVip,
+		v1.DataCenter{
+			Name:        v1.DataCenterName,
+			Version:     v1.DataCenterVersion,
+			VirtualIp:   v1.DataCenterVip,
 			IsLocal:     true,
-			IsHaEnabled: definition.IsHaEnabled,
-			UtcTimeZone: definition.LocalTimeZone,
-			Additional: definition.Additional{
-				HelpUrl: definition.DataCenterHelpUrl,
+			IsHaEnabled: v1.IsHaEnabled,
+			UtcTimeZone: v1.LocalTimeZone,
+			Additional: v1.Additional{
+				HelpUrl: v1.DataCenterHelpUrl,
 			},
 		},
 	)

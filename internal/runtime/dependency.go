@@ -13,7 +13,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
@@ -182,7 +181,7 @@ func newGlobalAwsHelper(opts aws.Options) error {
 
 func newGlobalKeycloakHelper(opts keycloak.Options) error {
 	if opts.Ip == "" {
-		opts.Ip = definition.DataCenterVip
+		opts.Ip = v1.DataCenterVip
 	}
 
 	return keycloak.NewGlobalHelper(
@@ -214,8 +213,8 @@ func newKeycloakOidcAuth() error {
 	}
 
 	_, err = h.CreateClient(
-		definition.DefaultKeycloakRealm,
-		definition.DefaultOidcClientOpts,
+		v1.DefaultKeycloakRealm,
+		v1.DefaultOidcClientOpts,
 	)
 	if err == nil {
 		return nil
@@ -236,8 +235,8 @@ func newDefaultOidcSecret() error {
 	}
 
 	clients, err := h.GetClients(
-		definition.DefaultKeycloakRealm,
-		gocloak.GetClientsParams{ClientID: gocloak.StringP(definition.DefaultOidcClientId)},
+		v1.DefaultKeycloakRealm,
+		gocloak.GetClientsParams{ClientID: gocloak.StringP(v1.DefaultOidcClientId)},
 	)
 	if err != nil {
 		log.Errorf("failed to get clients: %s", err.Error())
@@ -248,7 +247,7 @@ func newDefaultOidcSecret() error {
 	}
 
 	secret, err := h.GetClientSecret(
-		definition.DefaultKeycloakRealm,
+		v1.DefaultKeycloakRealm,
 		*clients[0].ID,
 	)
 	if err != nil {
@@ -256,16 +255,16 @@ func newDefaultOidcSecret() error {
 		return err
 	}
 
-	definition.DefaultOidcClientSecret = *secret.Value
+	v1.DefaultOidcClientSecret = *secret.Value
 	return nil
 }
 
 func newDefaultNodeToken() error {
-	definition.DefaultNodeToken = definition.GenNodeToken(
-		definition.Hostname,
-		definition.AdvertiseAddr,
+	v1.DefaultNodeToken = v1.GenNodeToken(
+		v1.Hostname,
+		v1.AdvertiseAddr,
 	)
-	if definition.DefaultNodeToken == "" {
+	if v1.DefaultNodeToken == "" {
 		return fmt.Errorf("failed to generate node token")
 	}
 
@@ -282,7 +281,7 @@ func newKeycloakSamlMapper() error {
 
 	samlId := saml.GenServiceProviderMetadataUrl(conf.Opts.Spec.Identity.Saml)
 	clients, err := h.GetClients(
-		definition.DefaultKeycloakRealm,
+		v1.DefaultKeycloakRealm,
 		gocloak.GetClientsParams{ClientID: gocloak.StringP(samlId.String())},
 	)
 	if err != nil {
@@ -294,7 +293,7 @@ func newKeycloakSamlMapper() error {
 	}
 
 	_, err = h.CreateClientProtocolMapper(
-		definition.DefaultKeycloakRealm,
+		v1.DefaultKeycloakRealm,
 		*clients[0].ID,
 		genSamlMapper(),
 	)
@@ -322,16 +321,16 @@ func genSamlMapper() gocloak.ProtocolMapperRepresentation {
 }
 
 func newTuningSearchIndex() error {
-	return definition.InitTuningSearchIndex()
+	return v1.InitTuningSearchIndex()
 }
 
 func newTuningRecordTTL() error {
 	mongo := mongo.GetGlobalHelper()
 	return mongo.CreateExpirationIndex(
-		definition.TuningDB(),
-		definition.TuningReqCollection(),
+		v1.TuningDB(),
+		v1.TuningReqCollection(),
 		bson.D{{Key: "status.createdAt", Value: 1}},
-		definition.TuningRecordTTL,
+		v1.TuningRecordTTL,
 	)
 }
 
@@ -340,9 +339,9 @@ func newSupportFileSearchIndex() error {
 }
 
 func newLicenseSearchIndex() error {
-	return definition.InitLicenseSearchIndex()
+	return v1.InitLicenseSearchIndex()
 }
 
 func newNodeSearchIndex() error {
-	return definition.InitNodeSearchIndex()
+	return v1.InitNodeSearchIndex()
 }

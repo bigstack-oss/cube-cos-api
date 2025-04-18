@@ -5,7 +5,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"github.com/fsnotify/fsnotify"
 	"k8s.io/client-go/util/workqueue"
@@ -54,7 +54,7 @@ func (o *Operator) Sync() {
 		return
 	}
 
-	tuning := req.(*definition.Tuning)
+	tuning := req.(*v1.Tuning)
 	err := o.operateReq(*tuning)
 	o.handleExit(*tuning, err)
 

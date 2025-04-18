@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	duration "github.com/xhit/go-str2duration"
 )
@@ -64,21 +63,21 @@ func (h *helper) parsePeriod() error {
 		return fmt.Errorf("'past' and 'start'/'stop' cannot be used together")
 	}
 
-	qStart := h.c.DefaultQuery("start", definition.TimeRFC3339(-24*time.Hour))
-	start, err := time.Parse(definition.RFC3339, qStart)
+	qStart := h.c.DefaultQuery("start", v1.TimeRFC3339(-24*time.Hour))
+	start, err := time.Parse(v1.RFC3339, qStart)
 	if err != nil {
 		return fmt.Errorf("'start' time format should be aligned with RFC3339: %s", qStart)
 	}
 
-	qStop := h.c.DefaultQuery("stop", definition.TimeNowRFC3339())
-	stop, err := time.Parse(definition.RFC3339, qStop)
+	qStop := h.c.DefaultQuery("stop", v1.TimeNowRFC3339())
+	stop, err := time.Parse(v1.RFC3339, qStop)
 	if err != nil {
 		return fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", qStop)
 	}
 
-	h.Period = definition.Period{
-		Start: definition.TimeUTC(start),
-		Stop:  definition.TimeUTC(stop),
+	h.Period = v1.Period{
+		Start: v1.TimeUTC(start),
+		Stop:  v1.TimeUTC(stop),
 	}
 
 	return nil

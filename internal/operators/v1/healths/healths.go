@@ -5,7 +5,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 	"k8s.io/client-go/util/workqueue"
@@ -37,7 +37,7 @@ func (o *Operator) Init() error {
 }
 
 func (o *Operator) Sync() {
-	defer definition.CapturePanic()
+	defer v1.CapturePanic()
 	req, shutdown := ReqQueue.Get()
 	if shutdown {
 		return

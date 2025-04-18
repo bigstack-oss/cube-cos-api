@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/oidc"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/gin-gonic/gin"
@@ -24,7 +24,7 @@ func newHttpServer() (*server.Server, error) {
 	}
 
 	srv := http.NewServer(
-		server.Name(definition.DataCenterName),
+		server.Name(v1.DataCenterName),
 		server.Metadata(genNodeMetadata()),
 		server.WithLogger(log.DefaultLogger),
 		server.Address(genLocalAddr()),
@@ -68,7 +68,7 @@ func initReqInfo(c *gin.Context) {
 func verifyAuthToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := parseToken(c)
-		if token == definition.DefaultNodeToken {
+		if token == v1.DefaultNodeToken {
 			c.Set("isTokenValid", true)
 			c.Set("authType", "oidc")
 			c.Set("authUser", c.ClientIP())
@@ -124,9 +124,9 @@ func isTokenRequest(c *gin.Context) bool {
 }
 
 func registerHandlersByRole(router *gin.Engine) error {
-	groupHandlers := api.GetGroupHandlersByRole(definition.CurrentRole)
+	groupHandlers := api.GetGroupHandlersByRole(v1.CurrentRole)
 	if len(groupHandlers) == 0 {
-		return fmt.Errorf("no handlers found for role(%s)", definition.CurrentRole)
+		return fmt.Errorf("no handlers found for role(%s)", v1.CurrentRole)
 	}
 
 	for _, handlers := range groupHandlers {

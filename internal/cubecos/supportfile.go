@@ -22,7 +22,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	log "go-micro.dev/v5/logger"
@@ -61,7 +60,7 @@ func ListHostSupportFiles(opts support.ListFileOptions) ([]support.File, error) 
 
 func ListSupportFilesFromOtherNodes() ([]support.File, error) {
 	files := []support.File{}
-	for _, node := range definition.ListNodes() {
+	for _, node := range v1.ListNodes() {
 		if node.IsLocal() {
 			continue
 		}

@@ -6,16 +6,16 @@ import (
 	"net/url"
 
 	cubeHttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 )
 
-func genUrl(node definition.Node) string {
+func genUrl(node v1.Node) string {
 	u := url.URL{
 		Scheme: "http",
 		Host:   node.Address,
-		Path:   fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/licenses", definition.DataCenterName, node.Role),
+		Path:   fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/licenses", v1.DataCenterName, node.Role),
 	}
 	return u.String()
 }

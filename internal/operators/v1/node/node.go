@@ -14,7 +14,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/dustin/go-humanize"
 	"github.com/shirou/gopsutil/v4/cpu"
 	log "go-micro.dev/v5/logger"
@@ -52,7 +52,7 @@ func (o *Operator) Init() error {
 
 func (o *Operator) Sync() {
 	watcher, err := registry.Watch(
-		registry.WatchService(definition.DataCenterName),
+		registry.WatchService(v1.DataCenterName),
 	)
 	if err != nil {
 		log.Errorf("failed to create watcher (%s)", err.Error())
@@ -83,7 +83,7 @@ func (o *Operator) watchAndSyncNodeRoles(watcher *registry.Watcher) {
 	logThrottling(event)
 }
 
-func (o *Operator) setLicenseToNode(node *definition.Node) {
+func (o *Operator) setLicenseToNode(node *v1.Node) {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
 		log.Warnf("request(%s): failed to add license info to the nodes: %s", err.Error())
@@ -96,7 +96,7 @@ func (o *Operator) setLicenseToNode(node *definition.Node) {
 	)
 }
 
-func (o *Operator) getLicenseByHostname(licenses []definition.License, hostname string) definition.License {
+func (o *Operator) getLicenseByHostname(licenses []v1.License, hostname string) v1.License {
 	for _, license := range licenses {
 		if slices.Contains(license.Hosts, hostname) {
 			license.Hosts = nil
@@ -104,10 +104,10 @@ func (o *Operator) getLicenseByHostname(licenses []definition.License, hostname 
 		}
 	}
 
-	return definition.License{}
+	return v1.License{}
 }
 
-func (o *Operator) setInfraSpecToNode(node *definition.Node) {
+func (o *Operator) setInfraSpecToNode(node *v1.Node) {
 	h := openstack.GetGlobalHelper()
 	hypervisor, err := h.GetHypervisorByHostname(node.Hostname)
 	if err != nil {
@@ -123,13 +123,13 @@ func (o *Operator) setInfraSpecToNode(node *definition.Node) {
 	o.setUptimeToNode(node)
 }
 
-func (o *Operator) setHardwareInfoToNode(node *definition.Node) {
+func (o *Operator) setHardwareInfoToNode(node *v1.Node) {
 	o.setCpuSpecToNode(node)
 	o.setNetworkSpecToNode(node)
 	o.setBlockDeviceSpecToNode(node)
 }
 
-func (o *Operator) setCpuSpecToNode(node *definition.Node) {
+func (o *Operator) setCpuSpecToNode(node *v1.Node) {
 	info, err := cpu.Info()
 	if err != nil {
 		log.Errorf("nodes: failed to get cpu info: %s", err.Error())
@@ -139,14 +139,14 @@ func (o *Operator) setCpuSpecToNode(node *definition.Node) {
 	node.CpuSpec = info[0].ModelName
 }
 
-func (o *Operator) setNetworkSpecToNode(node *definition.Node) {
+func (o *Operator) setNetworkSpecToNode(node *v1.Node) {
 	out, err := exec.Command("hex_sdk", "-f", "json", "DumpInterface").CombinedOutput()
 	if err != nil {
 		log.Errorf("nodes: failed to get network info: %s", err.Error())
 		return
 	}
 
-	node.NetworkInterfaces = []definition.NetworkInterface{}
+	node.NetworkInterfaces = []v1.NetworkInterface{}
 	err = json.Unmarshal(out, &node.NetworkInterfaces)
 	if err != nil {
 		log.Errorf("nodes: failed to unmarshal network info: %s", err.Error())
@@ -154,13 +154,13 @@ func (o *Operator) setNetworkSpecToNode(node *definition.Node) {
 	}
 }
 
-func (o *Operator) setBlockDeviceSpecToNode(node *definition.Node) {
+func (o *Operator) setBlockDeviceSpecToNode(node *v1.Node) {
 	rawBlockDevs, err := getOsBlockDevices()
 	if err != nil {
 		return
 	}
 
-	node.BlockDevices = []definition.BlockDevice{}
+	node.BlockDevices = []v1.BlockDevice{}
 	parentBlockDevs := map[string]string{}
 	for _, rawBlockDev := range rawBlockDevs {
 		if rawBlockDev.IsMainBlockDevice() {
@@ -177,13 +177,13 @@ func (o *Operator) setBlockDeviceSpecToNode(node *definition.Node) {
 	addSerialToBlockDevices(node, parentBlockDevs)
 }
 
-func (o *Operator) setMetricToNode(node *definition.Node) {
+func (o *Operator) setMetricToNode(node *v1.Node) {
 	cpu, err := cubecos.GetCpuSummaryOfHost(node.Hostname)
 	if err != nil {
 		log.Errorf("nodes: failed to get cpu summary of host: %s", err.Error())
 	}
 	if cpu == nil {
-		cpu = &definition.ComputeStatistic{}
+		cpu = &v1.ComputeStatistic{}
 	}
 
 	memory, err := cubecos.GetMemoryUsageSummaryOfHost(node.Hostname)
@@ -191,7 +191,7 @@ func (o *Operator) setMetricToNode(node *definition.Node) {
 		log.Errorf("nodes: failed to get memory summary of host: %s", err.Error())
 	}
 	if memory == nil {
-		memory = &definition.SpaceStatistic{}
+		memory = &v1.SpaceStatistic{}
 	}
 
 	storage, err := cubecos.GetDiskStorageSummaryOfHost()
@@ -199,7 +199,7 @@ func (o *Operator) setMetricToNode(node *definition.Node) {
 		log.Errorf("nodes: failed to get disk summary of host: %s", err.Error())
 	}
 	if storage == nil {
-		storage = &definition.SpaceStatistic{}
+		storage = &v1.SpaceStatistic{}
 	}
 
 	node.Vcpu = *cpu
@@ -207,7 +207,7 @@ func (o *Operator) setMetricToNode(node *definition.Node) {
 	node.Storage = *storage
 }
 
-func (o *Operator) setUptimeToNode(node *definition.Node) {
+func (o *Operator) setUptimeToNode(node *v1.Node) {
 	data, err := os.ReadFile("/proc/uptime")
 	if err != nil {
 		log.Errorf("nodes: failed to read uptime file: %s", err.Error())
@@ -229,14 +229,14 @@ func (o *Operator) setUptimeToNode(node *definition.Node) {
 	node.UptimeSeconds = uptimeSeconds
 }
 
-func getOsBlockDevices() ([]definition.RawBlockDevice, error) {
+func getOsBlockDevices() ([]v1.RawBlockDevice, error) {
 	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS").Output()
 	if err != nil {
 		log.Errorf("nodes: failed to get block device info: %s", err.Error())
 		return nil, err
 	}
 
-	blockDevMap := map[string][]definition.RawBlockDevice{}
+	blockDevMap := map[string][]v1.RawBlockDevice{}
 	err = json.Unmarshal(b, &blockDevMap)
 	if err != nil {
 		log.Errorf("nodes: failed to unmarshal block device info: %s", err.Error())
@@ -256,8 +256,8 @@ func getOsBlockDevices() ([]definition.RawBlockDevice, error) {
 	return rawBlockDevs, nil
 }
 
-func convertToBlockDevice(rawBlockDev definition.RawBlockDevice) definition.BlockDevice {
-	return definition.BlockDevice{
+func convertToBlockDevice(rawBlockDev v1.RawBlockDevice) v1.BlockDevice {
+	return v1.BlockDevice{
 		Serial:  rawBlockDev.Serial,
 		Name:    rawBlockDev.Name,
 		Type:    convertBlockDeviceType(rawBlockDev.Rota),
@@ -293,7 +293,7 @@ func identifyBlockDeviceStatus(mountPoints []string) string {
 	return "in-use"
 }
 
-func addSerialToBlockDevices(node *definition.Node, parentBlockDevs map[string]string) {
+func addSerialToBlockDevices(node *v1.Node, parentBlockDevs map[string]string) {
 	for name, serial := range parentBlockDevs {
 		for i := range node.BlockDevices {
 			if strings.Contains(node.BlockDevices[i].Name, name) {

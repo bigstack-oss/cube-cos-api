@@ -1,7 +1,7 @@
 package triggers
 
 import (
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 )
 
@@ -26,7 +26,7 @@ func (h *helper) syncSelectableResponseItems(trigger *trigger.Options) {
 }
 
 func setEmailRecipientsToTrigger(trigger *trigger.Options) {
-	recipients, err := definition.GetEmailRecipients()
+	recipients, err := v1.GetEmailRecipients()
 	if err != nil {
 		return
 	}
@@ -35,7 +35,7 @@ func setEmailRecipientsToTrigger(trigger *trigger.Options) {
 }
 
 func setSlackChannelsToTrigger(trigger *trigger.Options) {
-	channels, err := definition.GetSlackChannels()
+	channels, err := v1.GetSlackChannels()
 	if err != nil {
 		return
 	}

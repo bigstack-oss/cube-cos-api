@@ -6,7 +6,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v1"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v1/accelerators/devices"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -45,7 +45,7 @@ func IsGpuEnabled() bool {
 
 	devices, err := devices.List(
 		accelerator,
-		devices.ListOpts{Hostname: definition.Hostname},
+		devices.ListOpts{Hostname: v1.Hostname},
 	)
 	if err != nil {
 		log.Errorf("failed to list accelerator devices: %s", err.Error())
@@ -64,17 +64,17 @@ func GetRoleStatus() (*Role, error) {
 	role := &Role{}
 	for _, node := range nodes {
 		switch node.Role {
-		case definition.RoleControl:
+		case v1.RoleControl:
 			role.Control.Count++
-		case definition.RoleCompute:
+		case v1.RoleCompute:
 			role.Compute.Count++
-		case definition.RoleStorage:
+		case v1.RoleStorage:
 			role.Storage.Count++
-		case definition.RoleControlConverged:
+		case v1.RoleControlConverged:
 			role.ControlConverged.Count++
-		case definition.RoleEdgeCore:
+		case v1.RoleEdgeCore:
 			role.EdgeCore.Count++
-		case definition.RoleModerator:
+		case v1.RoleModerator:
 			role.Moderator.Count++
 		}
 	}

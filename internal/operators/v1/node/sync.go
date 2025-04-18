@@ -6,7 +6,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -26,13 +26,13 @@ func (o *Operator) syncNodeDetails() {
 	o.sync.Lock()
 	defer o.sync.Unlock()
 
-	definition.SyncRoleNodes()
-	nodes := definition.GetNodesFromRoles()
+	v1.SyncRoleNodes()
+	nodes := v1.GetNodesFromRoles()
 	o.setNodeDetails(&nodes)
-	definition.SetNodeDetails(nodes)
+	v1.SetNodeDetails(nodes)
 }
 
-func (o *Operator) setNodeDetails(nodes *[]definition.Node) {
+func (o *Operator) setNodeDetails(nodes *[]v1.Node) {
 	if len(*nodes) == 0 {
 		return
 	}
@@ -61,7 +61,7 @@ func (o *Operator) setNodeDetails(nodes *[]definition.Node) {
 	}
 }
 
-func (o *Operator) askPeerNode(node definition.Node) (*definition.Node, error) {
+func (o *Operator) askPeerNode(node v1.Node) (*v1.Node, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&api.NodeData{}).

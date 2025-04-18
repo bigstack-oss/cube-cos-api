@@ -3,10 +3,10 @@ package nodes
 import (
 	"math"
 
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
 
-func (h *helper) paginateNodes(nodes []definition.Node) []definition.Node {
+func (h *helper) paginateNodes(nodes []v1.Node) []v1.Node {
 	if !h.Page.IsRequired() {
 		return nodes
 	}
@@ -16,9 +16,9 @@ func (h *helper) paginateNodes(nodes []definition.Node) []definition.Node {
 	return nodes[left:right]
 }
 
-func genPageInfo(nodes []definition.Node, page definition.Page) definition.Page {
+func genPageInfo(nodes []v1.Node, page v1.Page) v1.Page {
 	if !page.IsRequired() {
-		return definition.Page{
+		return v1.Page{
 			Total:          1,
 			Number:         1,
 			Size:           len(nodes),
@@ -26,7 +26,7 @@ func genPageInfo(nodes []definition.Node, page definition.Page) definition.Page 
 		}
 	}
 
-	return definition.Page{
+	return v1.Page{
 		Total:          int64(math.Ceil(float64(len(nodes)) / float64(page.Size))),
 		Number:         page.Number,
 		Size:           page.Size,

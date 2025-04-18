@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"strconv"
 
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
 
 func IsHaEnabled() (bool, error) {
@@ -38,7 +38,7 @@ func IsClusterSetReady() bool {
 }
 
 func GetDataCenterName() (string, error) {
-	if !definition.IsHaEnabled {
+	if !v1.IsHaEnabled {
 		return os.Hostname()
 	}
 

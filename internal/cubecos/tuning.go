@@ -14,7 +14,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/google/uuid"
 	log "go-micro.dev/v5/logger"
@@ -114,8 +114,8 @@ const (
 )
 
 var (
-	tuningToRoles     = map[string][]*definition.Role{}
-	tuningToSelectors = map[string]definition.Selector{}
+	tuningToRoles     = map[string][]*v1.Role{}
+	tuningToSelectors = map[string]v1.Selector{}
 )
 
 func init() {
@@ -124,83 +124,83 @@ func init() {
 }
 
 func setTuningToRoles() {
-	tuningToRoles[BarbicanDebugEnabled] = definition.AllGeneralRoles
-	tuningToRoles[CephDebugEnabled] = definition.AllGeneralRoles
-	tuningToRoles[CephMirrorMetaSync] = definition.ControlRoles
-	tuningToRoles[CinderBackupAccount] = definition.AllGeneralRoles
-	tuningToRoles[CinderBackupEndpoint] = definition.AllRoles
-	tuningToRoles[CinderBackupOverride] = definition.AllRoles
-	tuningToRoles[CinderBackupPool] = definition.AllRoles
-	tuningToRoles[CinderBackupSecret] = definition.AllRoles
-	tuningToRoles[CinderBackupType] = definition.AllRoles
-	tuningToRoles[CinderDebugEnabled] = definition.AllRoles
-	tuningToRoles[CinderExternalAccount] = definition.AllRoles
-	tuningToRoles[CinderExternalDriver] = definition.AllRoles
-	tuningToRoles[CinderExternalEndpoint] = definition.AllRoles
-	tuningToRoles[CinderExternalName] = definition.AllRoles
-	tuningToRoles[CinderExternalPool] = definition.AllRoles
-	tuningToRoles[CinderExternalSecret] = definition.AllRoles
-	tuningToRoles[CubesysAlertLevel] = definition.AllRoles
-	tuningToRoles[CubesysAlertLevelS] = definition.AllRoles
-	tuningToRoles[CubesysConntableMax] = definition.AllRoles
-	tuningToRoles[CubesysLogDefaultRetention] = definition.AllRoles
-	tuningToRoles[CubesysProviderExtra] = definition.AllRoles
-	tuningToRoles[CyborgDebugEnabled] = definition.AllRoles
-	tuningToRoles[DebugEnableCoreDumpS] = definition.AllRoles
-	tuningToRoles[DebugEnableKdump] = definition.AllRoles
-	tuningToRoles[DebugLevelS] = definition.AllRoles
-	tuningToRoles[DebugMaxCoreDump] = definition.AllRoles
-	tuningToRoles[DesignateDebugEnabled] = definition.AllRoles
-	tuningToRoles[GlanceDebugEnabled] = definition.AllRoles
-	tuningToRoles[GlanceExportRp] = definition.AllRoles
-	tuningToRoles[HeatDebugEnabled] = definition.AllRoles
-	tuningToRoles[InfluxdbCuratorRp] = definition.AllRoles
-	tuningToRoles[IronicDebugEnabled] = definition.AllGeneralRoles
-	tuningToRoles[IronicDeployServer] = definition.AllGeneralRoles
-	tuningToRoles[KapacitorAlertCheckEnabled] = definition.ControlRoles
-	tuningToRoles[KapacitorAlertCheckEventId] = definition.ControlRoles
-	tuningToRoles[KapacitorAlertCheckInterval] = definition.ControlRoles
-	tuningToRoles[KapacitorAlertExtraPrefix] = definition.ControlRoles
-	tuningToRoles[KapacitorAlertFlowBase] = definition.ControlRoles
-	tuningToRoles[KapacitorAlertFlowThreshold] = definition.ControlRoles
-	tuningToRoles[KapacitorAlertFlowUnit] = definition.ControlRoles
-	tuningToRoles[KeystoneDebugEnabled] = definition.AllRoles
-	tuningToRoles[ManilaDebugEnabled] = definition.AllRoles
-	tuningToRoles[ManilaVolumeType] = definition.AllRoles
-	tuningToRoles[MasakariHostEvacuateAll] = definition.AllRoles
-	tuningToRoles[MasakariWaitPeriod] = definition.ControlRoles
-	tuningToRoles[MonascaDebugEnabled] = definition.AllRoles
-	tuningToRoles[MysqlBackupCuratorRp] = definition.AllRoles
-	tuningToRoles[NetIfMtuName] = definition.AllRoles
-	tuningToRoles[NetIpv4TcpSyncookies] = definition.AllRoles
-	tuningToRoles[NetLacpDefaultRate] = definition.AllRoles
-	tuningToRoles[NetLacpDefaultXmit] = definition.AllRoles
-	tuningToRoles[NeutronDebugEnabled] = definition.AllRoles
-	tuningToRoles[NovaControlHostMemory] = definition.ComputeRoles
-	tuningToRoles[NovaControlHostVcpu] = []*definition.Role{definition.GetControlConvergeRole(), definition.GetEdgeCoreRole()}
-	tuningToRoles[NovaDebugEnabled] = definition.AllRoles
-	tuningToRoles[NovaGpuType] = definition.ComputeRoles
-	tuningToRoles[NovaOvercommitCpuRatio] = definition.AllRoles
-	tuningToRoles[NovaOvercommitDiskRatio] = definition.AllRoles
-	tuningToRoles[NovaOvercommitRamRatio] = definition.AllRoles
-	tuningToRoles[NtpDebugEnabled] = definition.AllRoles
-	tuningToRoles[OctaviaDebugEnabled] = definition.AllRoles
-	tuningToRoles[OctaviaHa] = definition.AllRoles
-	tuningToRoles[OpensearchCuratorRp] = definition.AllRoles
-	tuningToRoles[OpensearchHeapSize] = definition.AllRoles
-	tuningToRoles[SenlinDebugEnabled] = definition.AllRoles
-	tuningToRoles[SkylineDebugEnabled] = definition.AllRoles
-	tuningToRoles[SnapshotApplyAction] = definition.AllRoles
-	tuningToRoles[SnapshotApplyPolicyIgnore] = definition.AllRoles
-	tuningToRoles[SshdBindToAllInterfaces] = definition.AllRoles
-	tuningToRoles[SshdSessionInactivity] = definition.AllRoles
-	tuningToRoles[TimeTimezone] = definition.AllRoles
-	tuningToRoles[UpdateSecurityAutoUpdate] = definition.AllRoles
-	tuningToRoles[WatcherDebugEnabled] = definition.AllRoles
+	tuningToRoles[BarbicanDebugEnabled] = v1.AllGeneralRoles
+	tuningToRoles[CephDebugEnabled] = v1.AllGeneralRoles
+	tuningToRoles[CephMirrorMetaSync] = v1.ControlRoles
+	tuningToRoles[CinderBackupAccount] = v1.AllGeneralRoles
+	tuningToRoles[CinderBackupEndpoint] = v1.AllRoles
+	tuningToRoles[CinderBackupOverride] = v1.AllRoles
+	tuningToRoles[CinderBackupPool] = v1.AllRoles
+	tuningToRoles[CinderBackupSecret] = v1.AllRoles
+	tuningToRoles[CinderBackupType] = v1.AllRoles
+	tuningToRoles[CinderDebugEnabled] = v1.AllRoles
+	tuningToRoles[CinderExternalAccount] = v1.AllRoles
+	tuningToRoles[CinderExternalDriver] = v1.AllRoles
+	tuningToRoles[CinderExternalEndpoint] = v1.AllRoles
+	tuningToRoles[CinderExternalName] = v1.AllRoles
+	tuningToRoles[CinderExternalPool] = v1.AllRoles
+	tuningToRoles[CinderExternalSecret] = v1.AllRoles
+	tuningToRoles[CubesysAlertLevel] = v1.AllRoles
+	tuningToRoles[CubesysAlertLevelS] = v1.AllRoles
+	tuningToRoles[CubesysConntableMax] = v1.AllRoles
+	tuningToRoles[CubesysLogDefaultRetention] = v1.AllRoles
+	tuningToRoles[CubesysProviderExtra] = v1.AllRoles
+	tuningToRoles[CyborgDebugEnabled] = v1.AllRoles
+	tuningToRoles[DebugEnableCoreDumpS] = v1.AllRoles
+	tuningToRoles[DebugEnableKdump] = v1.AllRoles
+	tuningToRoles[DebugLevelS] = v1.AllRoles
+	tuningToRoles[DebugMaxCoreDump] = v1.AllRoles
+	tuningToRoles[DesignateDebugEnabled] = v1.AllRoles
+	tuningToRoles[GlanceDebugEnabled] = v1.AllRoles
+	tuningToRoles[GlanceExportRp] = v1.AllRoles
+	tuningToRoles[HeatDebugEnabled] = v1.AllRoles
+	tuningToRoles[InfluxdbCuratorRp] = v1.AllRoles
+	tuningToRoles[IronicDebugEnabled] = v1.AllGeneralRoles
+	tuningToRoles[IronicDeployServer] = v1.AllGeneralRoles
+	tuningToRoles[KapacitorAlertCheckEnabled] = v1.ControlRoles
+	tuningToRoles[KapacitorAlertCheckEventId] = v1.ControlRoles
+	tuningToRoles[KapacitorAlertCheckInterval] = v1.ControlRoles
+	tuningToRoles[KapacitorAlertExtraPrefix] = v1.ControlRoles
+	tuningToRoles[KapacitorAlertFlowBase] = v1.ControlRoles
+	tuningToRoles[KapacitorAlertFlowThreshold] = v1.ControlRoles
+	tuningToRoles[KapacitorAlertFlowUnit] = v1.ControlRoles
+	tuningToRoles[KeystoneDebugEnabled] = v1.AllRoles
+	tuningToRoles[ManilaDebugEnabled] = v1.AllRoles
+	tuningToRoles[ManilaVolumeType] = v1.AllRoles
+	tuningToRoles[MasakariHostEvacuateAll] = v1.AllRoles
+	tuningToRoles[MasakariWaitPeriod] = v1.ControlRoles
+	tuningToRoles[MonascaDebugEnabled] = v1.AllRoles
+	tuningToRoles[MysqlBackupCuratorRp] = v1.AllRoles
+	tuningToRoles[NetIfMtuName] = v1.AllRoles
+	tuningToRoles[NetIpv4TcpSyncookies] = v1.AllRoles
+	tuningToRoles[NetLacpDefaultRate] = v1.AllRoles
+	tuningToRoles[NetLacpDefaultXmit] = v1.AllRoles
+	tuningToRoles[NeutronDebugEnabled] = v1.AllRoles
+	tuningToRoles[NovaControlHostMemory] = v1.ComputeRoles
+	tuningToRoles[NovaControlHostVcpu] = []*v1.Role{v1.GetControlConvergeRole(), v1.GetEdgeCoreRole()}
+	tuningToRoles[NovaDebugEnabled] = v1.AllRoles
+	tuningToRoles[NovaGpuType] = v1.ComputeRoles
+	tuningToRoles[NovaOvercommitCpuRatio] = v1.AllRoles
+	tuningToRoles[NovaOvercommitDiskRatio] = v1.AllRoles
+	tuningToRoles[NovaOvercommitRamRatio] = v1.AllRoles
+	tuningToRoles[NtpDebugEnabled] = v1.AllRoles
+	tuningToRoles[OctaviaDebugEnabled] = v1.AllRoles
+	tuningToRoles[OctaviaHa] = v1.AllRoles
+	tuningToRoles[OpensearchCuratorRp] = v1.AllRoles
+	tuningToRoles[OpensearchHeapSize] = v1.AllRoles
+	tuningToRoles[SenlinDebugEnabled] = v1.AllRoles
+	tuningToRoles[SkylineDebugEnabled] = v1.AllRoles
+	tuningToRoles[SnapshotApplyAction] = v1.AllRoles
+	tuningToRoles[SnapshotApplyPolicyIgnore] = v1.AllRoles
+	tuningToRoles[SshdBindToAllInterfaces] = v1.AllRoles
+	tuningToRoles[SshdSessionInactivity] = v1.AllRoles
+	tuningToRoles[TimeTimezone] = v1.AllRoles
+	tuningToRoles[UpdateSecurityAutoUpdate] = v1.AllRoles
+	tuningToRoles[WatcherDebugEnabled] = v1.AllRoles
 }
 
 func setTuningToSelectors() {
-	tuningToSelectors[NovaGpuType] = definition.Selector{
+	tuningToSelectors[NovaGpuType] = v1.Selector{
 		Enabled: true,
 		Labels:  map[string]string{"isGpuEnabled": "true"},
 	}
@@ -213,7 +213,7 @@ func setTuningSpecs() {
 		return
 	}
 
-	rawSpecs := []definition.RawTuningSpec{}
+	rawSpecs := []v1.RawTuningSpec{}
 	err = json.Unmarshal(out, &rawSpecs)
 	if err != nil {
 		log.Errorf("tunings: failed to unmarshal tuning specs: %s", err.Error())
@@ -221,12 +221,12 @@ func setTuningSpecs() {
 	}
 
 	for _, rawtuningSpec := range rawSpecs {
-		definition.SetTuningSpec(rawtuningSpec.Name, convertToTuningSpec(rawtuningSpec))
+		v1.SetTuningSpec(rawtuningSpec.Name, convertToTuningSpec(rawtuningSpec))
 	}
 }
 
-func convertToTuningSpec(rawSpec definition.RawTuningSpec) *definition.TuningSpec {
-	spec := &definition.TuningSpec{
+func convertToTuningSpec(rawSpec v1.RawTuningSpec) *v1.TuningSpec {
+	spec := &v1.TuningSpec{
 		Name:        rawSpec.Name,
 		Description: rawSpec.Description,
 		Limitation:  convertLimit(rawSpec),
@@ -237,7 +237,7 @@ func convertToTuningSpec(rawSpec definition.RawTuningSpec) *definition.TuningSpe
 	return spec
 }
 
-func convertLimit(raw definition.RawTuningSpec) definition.TuningLimitation {
+func convertLimit(raw v1.RawTuningSpec) v1.TuningLimitation {
 	switch raw.Limitation.Type {
 	case "int", "uint":
 		return convertIntLimit(raw.Limitation)
@@ -247,31 +247,31 @@ func convertLimit(raw definition.RawTuningSpec) definition.TuningLimitation {
 		return convertStringLimit(raw.Limitation)
 	}
 
-	return definition.TuningLimitation{
+	return v1.TuningLimitation{
 		Type:    fmt.Sprintf("invalid tuning spec from cos(%s)", raw.Limitation.Type),
 		Default: raw.Limitation.Default,
 	}
 }
 
-func getTuningRoles(tuningName string) []*definition.Role {
+func getTuningRoles(tuningName string) []*v1.Role {
 	roles, found := tuningToRoles[tuningName]
 	if found {
 		return roles
 	}
 
-	return definition.AllRoles
+	return v1.AllRoles
 }
 
-func getTuningSelectors(tuningName string) definition.Selector {
+func getTuningSelectors(tuningName string) v1.Selector {
 	selectors, found := tuningToSelectors[tuningName]
 	if found {
 		return selectors
 	}
 
-	return definition.Selector{}
+	return v1.Selector{}
 }
 
-func convertIntLimit(raw definition.RawTuningLimitation) definition.TuningLimitation {
+func convertIntLimit(raw v1.RawTuningLimitation) v1.TuningLimitation {
 	defaultVal, err := strconv.Atoi(raw.Default)
 	if err != nil {
 		log.Errorf("tunings: failed to convert default value %s to int: %v", raw.Default, err)
@@ -289,7 +289,7 @@ func convertIntLimit(raw definition.RawTuningLimitation) definition.TuningLimita
 		max = 0
 	}
 
-	return definition.TuningLimitation{
+	return v1.TuningLimitation{
 		Type:    raw.Type,
 		Default: defaultVal,
 		Min:     &min,
@@ -298,22 +298,22 @@ func convertIntLimit(raw definition.RawTuningLimitation) definition.TuningLimita
 	}
 }
 
-func convertBoolLimit(raw definition.RawTuningLimitation) definition.TuningLimitation {
+func convertBoolLimit(raw v1.RawTuningLimitation) v1.TuningLimitation {
 	defaultVal, err := strconv.ParseBool(strings.ToLower(raw.Default))
 	if err != nil {
 		log.Errorf("tunings: failed to convert default value %s to bool: %v", raw.Default, err)
 		defaultVal = false
 	}
 
-	return definition.TuningLimitation{
+	return v1.TuningLimitation{
 		Type:    raw.Type,
 		Default: defaultVal,
 		Regex:   raw.Regex,
 	}
 }
 
-func convertStringLimit(raw definition.RawTuningLimitation) definition.TuningLimitation {
-	return definition.TuningLimitation{
+func convertStringLimit(raw v1.RawTuningLimitation) v1.TuningLimitation {
+	return v1.TuningLimitation{
 		Type:    raw.Type,
 		Default: raw.Default,
 		Regex:   raw.Regex,
@@ -339,7 +339,7 @@ func GetTuningValue(name string) (string, error) {
 	return keyValue[1], nil
 }
 
-func GetTuning(name string) (*definition.Tuning, error) {
+func GetTuning(name string) (*v1.Tuning, error) {
 	policy, err := GetTuningPolicy(TuningPolicyFile)
 	if err != nil {
 		return nil, err
@@ -364,7 +364,7 @@ func ApplyTuning(isolatedDir string) error {
 	return nil
 }
 
-func IsTuningApplied(tuning definition.Tuning) error {
+func IsTuningApplied(tuning v1.Tuning) error {
 	maxTries := 10
 	for range maxTries {
 		if isValueApplied(tuning) {
@@ -381,7 +381,7 @@ func IsTuningApplied(tuning definition.Tuning) error {
 	)
 }
 
-func isValueApplied(tuning definition.Tuning) bool {
+func isValueApplied(tuning v1.Tuning) bool {
 	value, err := GetTuningValue(tuning.Name)
 	if tuning.Enabled {
 		return tuning.StrValue() == value
@@ -407,7 +407,7 @@ func noValueInSettings(err error) bool {
 	return errors.Is(err, cuberr.TuningNotFound)
 }
 
-func ApplyTunings(tunings []definition.Tuning) error {
+func ApplyTunings(tunings []v1.Tuning) error {
 	newTunings, err := genTuningsAsYaml(tunings)
 	if err != nil {
 		return err
@@ -427,8 +427,8 @@ func ApplyTunings(tunings []definition.Tuning) error {
 	return nil
 }
 
-func genTuningsAsYaml(tunings []definition.Tuning) ([]byte, error) {
-	tuningTemplate := definition.TuningPolicy{
+func genTuningsAsYaml(tunings []v1.Tuning) ([]byte, error) {
+	tuningTemplate := v1.TuningPolicy{
 		Name:    "tuning",
 		Version: "1.0",
 		Enabled: true,
@@ -481,13 +481,13 @@ func ReleaseTuningLock() error {
 	return nil
 }
 
-func GetTuningPolicy(filePath string) (*definition.TuningPolicy, error) {
+func GetTuningPolicy(filePath string) (*v1.TuningPolicy, error) {
 	b, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	policy := &definition.TuningPolicy{}
+	policy := &v1.TuningPolicy{}
 	err = yaml.Unmarshal(b, policy)
 	if err != nil {
 		return nil, err
@@ -496,7 +496,7 @@ func GetTuningPolicy(filePath string) (*definition.TuningPolicy, error) {
 	return policy, nil
 }
 
-func IsTuningDeleted(tuning definition.Tuning) bool {
+func IsTuningDeleted(tuning v1.Tuning) bool {
 	_, valueErr := GetTuningValue(tuning.Name)
 	policy, policyErr := GetTuningPolicy(TuningPolicyFile)
 	if policyErr != nil {
@@ -507,8 +507,8 @@ func IsTuningDeleted(tuning definition.Tuning) bool {
 		noValueInSettings(valueErr)
 }
 
-func ListTunings(opts definition.ListTuningOptions) ([]definition.Tuning, error) {
-	localTunings := definition.ListLocalTunings()
+func ListTunings(opts v1.ListTuningOptions) ([]v1.Tuning, error) {
+	localTunings := v1.ListLocalTunings()
 	if !opts.AllNodes {
 		return localTunings, nil
 	}
@@ -518,13 +518,13 @@ func ListTunings(opts definition.ListTuningOptions) ([]definition.Tuning, error)
 		return nil, err
 	}
 
-	allTunings[definition.Hostname] = localTunings
+	allTunings[v1.Hostname] = localTunings
 	return aggregateTunings(allTunings), nil
 }
 
-func ListTuningsFromOtherNodes() (map[string][]definition.Tuning, error) {
-	nodeTunings := map[string][]definition.Tuning{}
-	for _, node := range definition.ListNodes() {
+func ListTuningsFromOtherNodes() (map[string][]v1.Tuning, error) {
+	nodeTunings := map[string][]v1.Tuning{}
+	for _, node := range v1.ListNodes() {
 		if node.IsLocal() {
 			continue
 		}
@@ -541,7 +541,7 @@ func ListTuningsFromOtherNodes() (map[string][]definition.Tuning, error) {
 	return nodeTunings, nil
 }
 
-func getNodeTunings(node definition.Node) ([]definition.Tuning, error) {
+func getNodeTunings(node v1.Node) ([]v1.Tuning, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&api.TuningListData{}).
@@ -563,13 +563,13 @@ func getNodeTunings(node definition.Node) ([]definition.Tuning, error) {
 	return tuningList.Data.Tunings, nil
 }
 
-func aggregateTunings(nodeToTuning map[string][]definition.Tuning) []definition.Tuning {
-	mergedMap := make(map[string]definition.Tuning)
+func aggregateTunings(nodeToTuning map[string][]v1.Tuning) []v1.Tuning {
+	mergedMap := make(map[string]v1.Tuning)
 	for _, tunings := range nodeToTuning {
 		setTunings(mergedMap, tunings)
 	}
 
-	tunings := []definition.Tuning{}
+	tunings := []v1.Tuning{}
 	for _, item := range mergedMap {
 		tunings = append(tunings, item)
 	}
@@ -577,7 +577,7 @@ func aggregateTunings(nodeToTuning map[string][]definition.Tuning) []definition.
 	return tunings
 }
 
-func setTunings(mergedMap map[string]definition.Tuning, tunings []definition.Tuning) {
+func setTunings(mergedMap map[string]v1.Tuning, tunings []v1.Tuning) {
 	for _, tuning := range tunings {
 		key := tuning.SearchKey()
 		existing, found := mergedMap[key]
@@ -591,13 +591,13 @@ func setTunings(mergedMap map[string]definition.Tuning, tunings []definition.Tun
 }
 
 func SyncTunings() {
-	for _, spec := range definition.ListTuningSpecs() {
+	for _, spec := range v1.ListTuningSpecs() {
 		srcTuning, err := GetTuning(spec.Name)
 		if err == nil {
 			srcTuning.IsModified = true
 			srcTuning.Description = spec.Description
 			srcTuning.Limitation = spec.Limitation
-			srcTuning.Hosts = []definition.Host{{Name: definition.Hostname, Ip: definition.AdvertiseIp}}
+			srcTuning.Hosts = []v1.Host{{Name: v1.Hostname, Ip: v1.AdvertiseIp}}
 			checkAndUpdateTuning(spec.Name, *srcTuning)
 		}
 
@@ -607,16 +607,16 @@ func SyncTunings() {
 	}
 }
 
-func checkAndUpdateTuning(key string, sourceTuning definition.Tuning) {
-	tuning := definition.GetLocalTuning(key)
+func checkAndUpdateTuning(key string, sourceTuning v1.Tuning) {
+	tuning := v1.GetLocalTuning(key)
 	if !isTuningChanged(tuning, sourceTuning) {
 		return
 	}
 
-	definition.SetLocalTuning(sourceTuning)
+	v1.SetLocalTuning(sourceTuning)
 }
 
-func isTuningChanged(tuning, fileTuning definition.Tuning) bool {
+func isTuningChanged(tuning, fileTuning v1.Tuning) bool {
 	if tuning.Value != fileTuning.Value {
 		return true
 	}
@@ -628,12 +628,12 @@ func isTuningChanged(tuning, fileTuning definition.Tuning) bool {
 	return false
 }
 
-func setDefaultTuning(tuning definition.TuningSpec) {
-	definition.SetLocalTuning(definition.Tuning{
+func setDefaultTuning(tuning v1.TuningSpec) {
+	v1.SetLocalTuning(v1.Tuning{
 		Enabled:     true,
 		Name:        tuning.Name,
 		Value:       tuning.Limitation.Default,
-		Hosts:       []definition.Host{{Name: definition.Hostname, Ip: definition.AdvertiseIp}},
+		Hosts:       []v1.Host{{Name: v1.Hostname, Ip: v1.AdvertiseIp}},
 		Description: tuning.Description,
 		Limitation:  tuning.Limitation,
 		IsModified:  false,

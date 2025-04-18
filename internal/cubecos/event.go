@@ -8,7 +8,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	definition "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
 	log "go-micro.dev/v5/logger"
@@ -58,7 +58,7 @@ func countEvents(c *api.QueryTableResult) (int64, error) {
 	return count, nil
 }
 
-func GetEvents(stmt string) ([]definition.Event, error) {
+func GetEvents(stmt string) ([]v1.Event, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
 
@@ -70,7 +70,7 @@ func GetEvents(stmt string) ([]definition.Event, error) {
 	}
 
 	defer c.Close()
-	events := []definition.Event{}
+	events := []v1.Event{}
 	err = parseEvents(c, &events)
 	if err != nil {
 		log.Errorf("failed to parse events from cursor: %v", err)
@@ -80,7 +80,7 @@ func GetEvents(stmt string) ([]definition.Event, error) {
 	return events, nil
 }
 
-func GetEventRank(stmt string) ([]definition.EventStat, error) {
+func GetEventRank(stmt string) ([]v1.EventStat, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
 
@@ -92,7 +92,7 @@ func GetEventRank(stmt string) ([]definition.EventStat, error) {
 	}
 
 	defer c.Close()
-	events := []definition.EventStat{}
+	events := []v1.EventStat{}
 	err = parseEventStats(c, &events)
 	if err != nil {
 		log.Errorf("failed to parse events from cursor: %v", err)
@@ -139,7 +139,7 @@ func parseEventValues(c *api.QueryTableResult, values *[]string) error {
 	return nil
 }
 
-func setPercentageToEachEvent(events *[]definition.EventStat) {
+func setPercentageToEachEvent(events *[]v1.EventStat) {
 	total := int64(0)
 	for _, event := range *events {
 		total = total + event.Number
@@ -151,7 +151,7 @@ func setPercentageToEachEvent(events *[]definition.EventStat) {
 	}
 }
 
-func parseEventStats(c *api.QueryTableResult, events *[]definition.EventStat) error {
+func parseEventStats(c *api.QueryTableResult, events *[]v1.EventStat) error {
 	for c.Next() {
 		event := genEventStatsByRecord(c.Record())
 		*events = append(*events, event)
@@ -163,14 +163,14 @@ func parseEventStats(c *api.QueryTableResult, events *[]definition.EventStat) er
 	return nil
 }
 
-func genEventStatsByRecord(record *query.FluxRecord) definition.EventStat {
-	return definition.EventStat{
+func genEventStatsByRecord(record *query.FluxRecord) v1.EventStat {
+	return v1.EventStat{
 		Id:     record.ValueByKey("key").(string),
 		Number: record.ValueByKey("number").(int64),
 	}
 }
 
-func parseEvents(c *api.QueryTableResult, events *[]definition.Event) error {
+func parseEvents(c *api.QueryTableResult, events *[]v1.Event) error {
 	for c.Next() {
 		record := c.Record()
 		event := genEventByRecord(record)
@@ -184,7 +184,7 @@ func parseEvents(c *api.QueryTableResult, events *[]definition.Event) error {
 	return nil
 }
 
-func genEventByRecord(record *query.FluxRecord) definition.Event {
+func genEventByRecord(record *query.FluxRecord) v1.Event {
 	date, err := time.Parse(eventTimeLayout, record.Time().Local().String())
 	if err != nil {
 		log.Debugf("failed to parse date from record: %v", record)
@@ -210,17 +210,17 @@ func genEventByRecord(record *query.FluxRecord) definition.Event {
 		log.Debugf("failed to parse host from record: %v", record)
 	}
 
-	return definition.Event{
+	return v1.Event{
 		Type:        record.Measurement(),
-		Severity:    definition.SeverityFullName(severity),
+		Severity:    v1.SeverityFullName(severity),
 		Id:          eventId,
 		Description: msg,
 		Host:        host,
-		Time:        definition.TimeRFC3339Z(date),
+		Time:        v1.TimeRFC3339Z(date),
 	}
 }
 
-func setMetadataToEvent(event *definition.Event, record *query.FluxRecord) {
+func setMetadataToEvent(event *v1.Event, record *query.FluxRecord) {
 	metadata, ok := record.ValueByKey("metadata").(string)
 	if !ok {
 		log.Debugf("failed to parse metadata from record: %v", record)
@@ -240,7 +240,7 @@ func setMetadataToEvent(event *definition.Event, record *query.FluxRecord) {
 	setHostnameToEvent(event, metaObj)
 }
 
-func setCategoryToEvent(event *definition.Event, metaObj map[string]any) {
+func setCategoryToEvent(event *v1.Event, metaObj map[string]any) {
 	metaCategory, found := metaObj["category"]
 	if !found {
 		return
@@ -249,7 +249,7 @@ func setCategoryToEvent(event *definition.Event, metaObj map[string]any) {
 	event.Category, _ = metaCategory.(string)
 }
 
-func setServiceToEvent(event *definition.Event, metaObj map[string]any) {
+func setServiceToEvent(event *v1.Event, metaObj map[string]any) {
 	metaService, found := metaObj["service"]
 	if !found {
 		return
@@ -258,7 +258,7 @@ func setServiceToEvent(event *definition.Event, metaObj map[string]any) {
 	event.Service, _ = metaService.(string)
 }
 
-func setHostnameToEvent(event *definition.Event, metaObj map[string]any) {
+func setHostnameToEvent(event *v1.Event, metaObj map[string]any) {
 	metaHost, found := metaObj["host"]
 	if !found {
 		return
