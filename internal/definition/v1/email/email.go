@@ -28,6 +28,14 @@ type Sender struct {
 	Status         *status.Settings `json:"status,omitempty" bson:"status" yaml:"-"`
 }
 
+func (s *Sender) IsHostEmpty() bool {
+	return s.Host == ""
+}
+
+func (s *Sender) IsPortEmpty() bool {
+	return s.Port == 0
+}
+
 func (s *Sender) RequirePasswordChange() bool {
 	return s.Password != ""
 }

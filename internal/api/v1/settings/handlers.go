@@ -166,7 +166,6 @@ func patchTitlePrefix(c *gin.Context) {
 func createEmailSender(c *gin.Context) {
 	h, err := initReqHelper(c, "createEmailSender")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
 		return
 	}

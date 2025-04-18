@@ -19,6 +19,9 @@ var (
 
 	DataCenterIsNotReady  = errors.New("data center is not set ready")
 	DataCenterIsRepairing = errors.New("data center is repairing")
+
+	EmailSenderHostInvalid = errors.New("email sender host is invalid")
+	EmailSenderPortInvalid = errors.New("email sender port is invalid")
 )
 
 type Template struct {

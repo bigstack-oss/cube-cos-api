@@ -6384,7 +6384,15 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/TitlePrefix"
+                                "type": "object",
+                                "required": [
+                                    "value"
+                                ],
+                                "properties": {
+                                    "value": {
+                                        "type": "string"
+                                    }
+                                }
                             },
                             "examples": {
                                 "example": {
@@ -14461,8 +14469,6 @@ const docTemplate = `{
                 "required": [
                     "host",
                     "port",
-                    "username",
-                    "password",
                     "email",
                     "status"
                 ],

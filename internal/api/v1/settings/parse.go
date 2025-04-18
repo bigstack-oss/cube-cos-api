@@ -7,6 +7,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
+	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -25,8 +26,18 @@ func (h *helper) initEmailSenderCreateParams() error {
 	h.task = &setting.Options{Type: "emailSender"}
 	err := h.c.ShouldBindJSON(&h.task.Sender)
 	if err != nil {
-		log.Errorf("request(%s): failed to decode email sender: %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("settings(%s): failed to decode email sender: %s", api.GetReqId(h.c), err.Error())
 		return err
+	}
+
+	if h.task.Sender.IsHostEmpty() {
+		log.Errorf("settings(%s): %v", api.GetReqId(h.c), cuberr.EmailSenderHostInvalid)
+		return cuberr.EmailSenderHostInvalid
+	}
+
+	if h.task.Sender.IsPortEmpty() {
+		log.Errorf("settings(%s): %v", api.GetReqId(h.c), cuberr.EmailSenderPortInvalid)
+		return cuberr.EmailSenderPortInvalid
 	}
 
 	h.task.InitUpdateStatus()
@@ -70,7 +81,7 @@ func (h *helper) initEmailRecipientCreateParams() error {
 	h.task = &setting.Options{Type: "emailRecipient"}
 	err := h.c.ShouldBindJSON(&h.task.Recipient)
 	if err != nil {
-		log.Errorf("request(%s): failed to decode email recipient: %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("settings(%s): failed to decode email recipient: %s", api.GetReqId(h.c), err.Error())
 		return err
 	}
 
@@ -133,7 +144,7 @@ func (h *helper) initSlackChannelCreateParams() error {
 	h.task = &setting.Options{Type: "slackChannel"}
 	err := h.c.ShouldBindJSON(&h.task.Slack)
 	if err != nil {
-		log.Errorf("request(%s): failed to decode slack channel: %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("settings(%s): failed to decode slack channel: %s", api.GetReqId(h.c), err.Error())
 		return err
 	}
 
@@ -165,19 +176,19 @@ func (h *helper) initSlackChannelPatchParams() error {
 func (h *helper) parseTaskUpdate() error {
 	err := h.c.ShouldBindJSON(&h.task)
 	if err != nil {
-		log.Errorf("request(%s): failed to parse task: %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("settings(%s): failed to parse task: %s", api.GetReqId(h.c), err.Error())
 		return err
 	}
 
 	if h.task.Type == "" {
 		err := errors.New("task type is empty")
-		log.Errorf("request(%s): %v", api.GetReqId(h.c), err)
+		log.Errorf("settings(%s): %v", api.GetReqId(h.c), err)
 		return err
 	}
 
 	if h.task.Key == "" {
 		err := errors.New("task key is empty")
-		log.Errorf("request(%s): %v", api.GetReqId(h.c), err)
+		log.Errorf("settings(%s): %v", api.GetReqId(h.c), err)
 		return err
 	}
 
