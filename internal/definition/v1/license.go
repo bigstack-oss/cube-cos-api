@@ -43,7 +43,7 @@ type License struct {
 
 type Product struct {
 	Name    string `json:"name" yaml:"name" bson:"name"`
-	Feature string `json:"features" yaml:"features" bson:"features"`
+	Feature string `json:"feature" yaml:"feature" bson:"feature"`
 }
 
 type Issue struct {

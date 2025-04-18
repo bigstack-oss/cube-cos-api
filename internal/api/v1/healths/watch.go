@@ -29,8 +29,6 @@ var (
 	}{}
 )
 
-// M1 TODO:
-// have to discuss with the FE to about should we auto shift the period in every round of watch?
 func streamHealth() {
 	for {
 		wait.Seconds(2)

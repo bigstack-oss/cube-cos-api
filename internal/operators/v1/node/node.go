@@ -118,18 +118,18 @@ func (o *Operator) setInfraSpecToNode(node *definition.Node) {
 	node.ManagementIP = node.Ip
 	node.StorageIP = node.Ip
 	node.Status = hypervisor.State
-	o.addHardwareInfoToNode(node)
-	o.addMetricToNode(node)
-	o.addUptimeToNode(node)
+	o.setHardwareInfoToNode(node)
+	o.setMetricToNode(node)
+	o.setUptimeToNode(node)
 }
 
-func (o *Operator) addHardwareInfoToNode(node *definition.Node) {
-	o.addCpuSpecToNode(node)
-	o.addNetworkSpecToNode(node)
-	o.addBlockDeviceSpecToNode(node)
+func (o *Operator) setHardwareInfoToNode(node *definition.Node) {
+	o.setCpuSpecToNode(node)
+	o.setNetworkSpecToNode(node)
+	o.setBlockDeviceSpecToNode(node)
 }
 
-func (o *Operator) addCpuSpecToNode(node *definition.Node) {
+func (o *Operator) setCpuSpecToNode(node *definition.Node) {
 	info, err := cpu.Info()
 	if err != nil {
 		log.Errorf("nodes: failed to get cpu info: %s", err.Error())
@@ -139,42 +139,22 @@ func (o *Operator) addCpuSpecToNode(node *definition.Node) {
 	node.CpuSpec = info[0].ModelName
 }
 
-// M1 TODO: COS dev is working on the refactoring to support JSON output from 'hex_sdk DumpInterface'
-// the implementation below will be replaced with the new one once it's ready
-func (o *Operator) addNetworkSpecToNode(node *definition.Node) {
-	out, err := exec.Command("hex_sdk", "DumpInterface").CombinedOutput()
+func (o *Operator) setNetworkSpecToNode(node *definition.Node) {
+	out, err := exec.Command("hex_sdk", "-f", "json", "DumpInterface").CombinedOutput()
 	if err != nil {
 		log.Errorf("nodes: failed to get network info: %s", err.Error())
 		return
 	}
 
 	node.NetworkInterfaces = []definition.NetworkInterface{}
-	lines := strings.SplitSeq(string(out), "\n")
-	for line := range lines {
-		line = strings.TrimSpace(line)
-		if isSkippableLine(line) {
-			continue
-		}
-
-		fields := strings.Fields(line)
-		if isNetFieldNotEnough(fields) {
-			continue
-		}
-
-		node.NetworkInterfaces = append(
-			node.NetworkInterfaces,
-			definition.NetworkInterface{
-				Label:       fields[0],
-				BusIdSlaves: fields[1],
-				Driver:      fields[2],
-				State:       fields[3],
-				Speed:       fields[4],
-			},
-		)
+	err = json.Unmarshal(out, &node.NetworkInterfaces)
+	if err != nil {
+		log.Errorf("nodes: failed to unmarshal network info: %s", err.Error())
+		return
 	}
 }
 
-func (o *Operator) addBlockDeviceSpecToNode(node *definition.Node) {
+func (o *Operator) setBlockDeviceSpecToNode(node *definition.Node) {
 	rawBlockDevs, err := getOsBlockDevices()
 	if err != nil {
 		return
@@ -197,7 +177,7 @@ func (o *Operator) addBlockDeviceSpecToNode(node *definition.Node) {
 	addSerialToBlockDevices(node, parentBlockDevs)
 }
 
-func (o *Operator) addMetricToNode(node *definition.Node) {
+func (o *Operator) setMetricToNode(node *definition.Node) {
 	cpu, err := cubecos.GetCpuSummaryOfHost(node.Hostname)
 	if err != nil {
 		log.Errorf("nodes: failed to get cpu summary of host: %s", err.Error())
@@ -227,7 +207,7 @@ func (o *Operator) addMetricToNode(node *definition.Node) {
 	node.Storage = *storage
 }
 
-func (o *Operator) addUptimeToNode(node *definition.Node) {
+func (o *Operator) setUptimeToNode(node *definition.Node) {
 	data, err := os.ReadFile("/proc/uptime")
 	if err != nil {
 		log.Errorf("nodes: failed to read uptime file: %s", err.Error())

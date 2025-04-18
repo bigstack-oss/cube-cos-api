@@ -19,13 +19,3 @@ type Additional struct {
 	HelpUrl     string `json:"helpUrl,omitempty" bson:"helpUrl"`
 	V1ApiDocUrl string `json:"v1ApiDoc,omitempty" bson:"v1ApiDoc"`
 }
-
-// M1 TODO: have to think about if we
-// 1). need to add the Id of datacenter
-// 2). if (1) is true, then what's factor to generate the Id
-func (d *DataCenter) SetDetailsByInitedInfo() {
-	d.Name = DataCenterName
-	d.VirtualIp = DataCenterVip
-	d.IsLocal = IsHaEnabled
-	d.IsHaEnabled = IsHaEnabled
-}

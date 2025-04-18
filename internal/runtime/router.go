@@ -59,10 +59,9 @@ func livenessCheck() gin.HandlerFunc {
 }
 
 func initReqInfo(c *gin.Context) {
-	uuidV4 := uuid.New()
-	shortId := uuidV4.String()[:8]
-	c.Set("reqId", shortId)
-	log.Infof("request(%s): %s %s", shortId, c.Request.Method, c.Request.URL.Path)
+	reqId := uuid.New().String()[:8]
+	c.Set("reqId", reqId)
+	log.Infof("request(%s): %s %s %s", reqId, c.Request.Method, c.Request.URL.Path, c.Request.URL.RawQuery)
 	c.Next()
 }
 
@@ -110,8 +109,7 @@ func conditionalSaml() gin.HandlerFunc {
 			return
 		}
 
-		// M1 TODO: can converge with the saml auth
-		if strings.Contains(c.Request.URL.Path, "/token") {
+		if isTokenRequest(c) {
 			c.Next()
 			return
 		}
@@ -119,6 +117,10 @@ func conditionalSaml() gin.HandlerFunc {
 		c.Set("authType", "saml")
 		saml.AuthRequest(c)
 	}
+}
+
+func isTokenRequest(c *gin.Context) bool {
+	return strings.Contains(c.Request.URL.Path, "/token")
 }
 
 func registerHandlersByRole(router *gin.Engine) error {

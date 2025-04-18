@@ -171,19 +171,6 @@ func parseProduct(raw definition.RawLicense) definition.Product {
 	}
 }
 
-func parseFeatures(raw definition.RawLicense) []string {
-	features := []string{}
-
-	switch raw.Product {
-	case "CubeCOS":
-		features = []string{"virtualization", "kubernetes"}
-	case "CubeCMP":
-		features = []string{"all"}
-	}
-
-	return features
-}
-
 func parseIssue(raw definition.RawLicense) definition.Issue {
 	issue, err := time.Parse("2006-01-02 15:04:05 MST", raw.Date)
 	if err != nil {
