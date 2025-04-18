@@ -4,12 +4,12 @@ import (
 	_ "github.com/bigstack-oss/cube-cos-api/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/runtime"
-	"github.com/bigstack-oss/cube-cos-api/internal/service"
+	svc "github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 )
 
 func main() {
-	err := config.ReadAndOverrideOpts()
+	err := config.SyncOptions()
 	if err != nil {
 		log.Errorf("failed to load config: %s", err.Error())
 		return
@@ -21,7 +21,7 @@ func main() {
 		return
 	}
 
-	err = service.WrapGoMicro(srv).Run()
+	err = svc.Micro(srv).Run()
 	if err != nil {
 		log.Errorf("failed to run service: %s", err.Error())
 	}

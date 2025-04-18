@@ -303,14 +303,6 @@ func addSerialToBlockDevices(node *v1.Node, parentBlockDevs map[string]string) {
 	}
 }
 
-func isNetFieldNotEnough(fields []string) bool {
-	return len(fields) < 5
-}
-
 func isNotMounted(mountPoints []string) bool {
 	return len(mountPoints) == 0 || mountPoints[0] == ""
-}
-
-func isSkippableLine(line string) bool {
-	return line == "" || strings.HasPrefix(line, "-") || strings.HasPrefix(line, "Label")
 }

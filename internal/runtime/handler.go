@@ -22,29 +22,35 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 )
 
-func initNodeApiHandler() {
+// M1 TODO:
+// recheck the role assignments for the handlers
+func registerNodeApiHandler() {
 	api.RegisterHandlersToRoles(
 		v1.DataCenters,
 		datacenters.Handlers,
 		v1.RoleControl,
+		v1.RoleControlConverged,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Services,
 		services.Handlers,
 		v1.RoleControl,
+		v1.RoleControlConverged,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Me,
 		me.Handlers,
 		v1.RoleControl,
+		v1.RoleControlConverged,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Integrations,
 		integrations.Handlers,
 		v1.RoleControl,
+		v1.RoleControlConverged,
 	)
 
 	api.RegisterHandlersToRoles(

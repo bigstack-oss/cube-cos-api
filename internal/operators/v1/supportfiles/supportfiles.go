@@ -2,6 +2,7 @@ package supportfiles
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"github.com/fsnotify/fsnotify"
@@ -31,6 +32,7 @@ func (o *Operator) Name() string {
 }
 
 func (o *Operator) Init() error {
+	cubecos.SyncSupportFiles()
 	return o.initWatcher()
 }
 

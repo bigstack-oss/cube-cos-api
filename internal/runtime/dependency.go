@@ -23,98 +23,98 @@ import (
 func initDependencies() error {
 	err := newGlobalLogHelper(conf.Opts.Spec.Observability.Log)
 	if err != nil {
-		log.Errorf("failed to init logger: %s", err.Error())
+		log.Errorf("runtime: failed to init logger: %s", err.Error())
 		return err
 	}
 
 	err = newGlobalHttpHelper()
 	if err != nil {
-		log.Errorf("failed to init http helper: %s", err.Error())
+		log.Errorf("runtime: failed to init http helper: %s", err.Error())
 		return err
 	}
 
 	err = newGlobalSamlHelper()
 	if err != nil {
-		log.Errorf("failed to init keycloak auth: %s", err.Error())
+		log.Errorf("runtime: failed to init keycloak auth: %s", err.Error())
 		return err
 	}
 
 	err = newGlobalMongoHelper(conf.Opts.Spec.Store.MongoDB)
 	if err != nil {
-		log.Errorf("failed to init mongo helper: %s", err.Error())
+		log.Errorf("runtime: failed to init mongo helper: %s", err.Error())
 		return err
 	}
 
 	err = newGlobalInfluxHelper(conf.Opts.Spec.Store.InfluxDB)
 	if err != nil {
-		log.Errorf("failed to init influx helper: %s", err.Error())
+		log.Errorf("runtime: failed to init influx helper: %s", err.Error())
 		return err
 	}
 
 	err = newGlobalOpenstackHelper(conf.Opts.Spec.Openstack)
 	if err != nil {
-		log.Errorf("failed to init openstack helper: %s", err.Error())
+		log.Errorf("runtime: failed to init openstack helper: %s", err.Error())
 		return err
-	}
-
-	err = newGlobalAwsHelper(conf.Opts.Spec.Aws)
-	if err != nil {
-		log.Errorf("failed to init aws helper: %s", err.Error())
 	}
 
 	err = newGlobalKeycloakHelper(conf.Opts.Spec.Identity.Keycloak)
 	if err != nil {
-		log.Errorf("failed to init keycloak helper: %s", err.Error())
+		log.Errorf("runtime: failed to init keycloak helper: %s", err.Error())
 		return err
 	}
 
 	err = newKeycloakOidcAuth()
 	if err != nil {
-		log.Errorf("failed to init oidc auth in keycloak: %s", err.Error())
+		log.Errorf("runtime: failed to init oidc auth in keycloak: %s", err.Error())
 		return err
 	}
 
 	err = newDefaultOidcSecret()
 	if err != nil {
-		log.Errorf("failed to init oidc secret in keycloak: %s", err.Error())
+		log.Errorf("runtime: failed to init oidc secret in keycloak: %s", err.Error())
 		return err
 	}
 
 	err = newDefaultNodeToken()
 	if err != nil {
-		log.Errorf("failed to init node token: %s", err.Error())
+		log.Errorf("runtime: failed to init node token: %s", err.Error())
 		return err
 	}
 
 	err = newKeycloakSamlMapper()
 	if err != nil {
-		log.Errorf("failed to init saml mapper in keycloak: %s", err.Error())
+		log.Errorf("runtime: failed to init saml mapper in keycloak: %s", err.Error())
 		return err
+	}
+
+	err = newGlobalAwsHelper(conf.Opts.Spec.Aws)
+	if err != nil {
+		log.Warnf("runtime: failed to init aws helper: %s", err.Error())
 	}
 
 	err = newTuningSearchIndex()
 	if err != nil {
-		log.Errorf("failed to init tuning search index: %s", err.Error())
+		log.Warnf("runtime: failed to init tuning search index: %s", err.Error())
 	}
 
 	err = newTuningRecordTTL()
 	if err != nil {
-		log.Errorf("failed to init tuning record ttl: %s", err.Error())
+		log.Warnf("runtime: failed to init tuning record ttl: %s", err.Error())
 	}
 
 	err = newSupportFileSearchIndex()
 	if err != nil {
-		log.Errorf("failed to init support file search index: %s", err.Error())
+		log.Warnf("runtime: failed to init support file search index: %s", err.Error())
 	}
 
 	err = newLicenseSearchIndex()
 	if err != nil {
-		log.Errorf("failed to init license search index: %s", err.Error())
+		log.Warnf("runtime: failed to init license search index: %s", err.Error())
 	}
 
 	err = newNodeSearchIndex()
 	if err != nil {
-		log.Errorf("failed to init node search index: %s", err.Error())
+		log.Warnf("runtime: failed to init node search index: %s", err.Error())
 	}
 
 	return nil
@@ -208,7 +208,7 @@ func newKeycloakOidcAuth() error {
 	h := keycloak.GetGlobalHelper()
 	err := h.LoginAdmin()
 	if err != nil {
-		log.Errorf("failed to login admin: %s", err.Error())
+		log.Errorf("runtime: failed to login admin: %s", err.Error())
 		return err
 	}
 
@@ -230,7 +230,7 @@ func newDefaultOidcSecret() error {
 	h := keycloak.GetGlobalHelper()
 	err := h.LoginAdmin()
 	if err != nil {
-		log.Errorf("failed to login admin: %s", err.Error())
+		log.Errorf("runtime: failed to login admin: %s", err.Error())
 		return err
 	}
 
@@ -239,7 +239,7 @@ func newDefaultOidcSecret() error {
 		gocloak.GetClientsParams{ClientID: gocloak.StringP(v1.DefaultOidcClientId)},
 	)
 	if err != nil {
-		log.Errorf("failed to get clients: %s", err.Error())
+		log.Errorf("runtime: failed to get clients: %s", err.Error())
 		return err
 	}
 	if len(clients) == 0 {
@@ -251,7 +251,7 @@ func newDefaultOidcSecret() error {
 		*clients[0].ID,
 	)
 	if err != nil {
-		log.Errorf("failed to get client secret: %s", err.Error())
+		log.Errorf("runtime: failed to get client secret: %s", err.Error())
 		return err
 	}
 
@@ -275,7 +275,7 @@ func newKeycloakSamlMapper() error {
 	h := keycloak.GetGlobalHelper()
 	err := h.LoginAdmin()
 	if err != nil {
-		log.Errorf("failed to login admin: %s", err.Error())
+		log.Errorf("runtime: failed to login admin: %s", err.Error())
 		return err
 	}
 
@@ -285,7 +285,7 @@ func newKeycloakSamlMapper() error {
 		gocloak.GetClientsParams{ClientID: gocloak.StringP(samlId.String())},
 	)
 	if err != nil {
-		log.Errorf("failed to get clients: %s", err.Error())
+		log.Errorf("runtime: failed to get clients: %s", err.Error())
 		return err
 	}
 	if len(clients) == 0 {

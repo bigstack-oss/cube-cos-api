@@ -1,9 +1,6 @@
 package settings
 
 import (
-	"errors"
-
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
@@ -22,7 +19,6 @@ func init() {
 }
 
 type Operator struct {
-	mongo  *mongo.Helper
 	policy *fsnotify.Watcher
 }
 
@@ -35,11 +31,6 @@ func (o *Operator) Name() string {
 }
 
 func (o *Operator) Init() error {
-	o.mongo = mongo.GetGlobalHelper()
-	if o.mongo == nil {
-		return errors.New("mongo helper is not initialized")
-	}
-
 	return nil
 }
 
@@ -59,7 +50,6 @@ func (o *Operator) Run() {
 func (o *Operator) Stop() {
 	ReqQueue.ShutDown()
 	o.waitForLastTask()
-	o.mongo.Close()
 	o.policy.Close()
 }
 

@@ -21,7 +21,7 @@ func GetControllerVirtualIp(mgmtNet string) (string, error) {
 	return GetTuningValue(netIfAddrMgmtIp)
 }
 
-func GetMgmtNet() (string, error) {
+func GetManagementNet() (string, error) {
 	return GetTuningValue(CubeSysManagementNetwork)
 }
 

@@ -13,17 +13,18 @@ var (
 )
 
 func CapturePanic() {
-	if r := recover(); r != nil {
+	recovery := recover()
+	if recovery != nil {
 		buf := make([]byte, 1<<16)
 		stackSize := runtime.Stack(buf, true)
-		log.Errorf("panic captured: %v\n stack trace:\n%s", r, buf[:stackSize])
+		log.Errorf("panic: captured %v\n stack trace:\n%s", recovery, buf[:stackSize])
 	}
 }
 
-func GetSystemSerial() (string, error) {
-	data, err := os.ReadFile("/sys/class/dmi/id/product_serial")
+func GetSystemSerial(file string) (string, error) {
+	data, err := os.ReadFile(file)
 	if err != nil {
-		return "", err
+		return "no serial number found", err
 	}
 
 	serial := strings.TrimSpace(string(data))

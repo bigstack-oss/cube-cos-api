@@ -241,7 +241,7 @@ func convertLimit(raw v1.RawTuningSpec) v1.TuningLimitation {
 	switch raw.Limitation.Type {
 	case "int", "uint":
 		return convertIntLimit(raw.Limitation)
-	case "boolean":
+	case "bool", "boolean":
 		return convertBoolLimit(raw.Limitation)
 	case "str":
 		return convertStringLimit(raw.Limitation)

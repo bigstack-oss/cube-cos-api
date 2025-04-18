@@ -171,7 +171,8 @@ func (h *helper) isPeriodRequired() bool {
 }
 
 func (h *helper) isPastRequired() bool {
-	return h.past != ""
+	_, found := h.c.GetQuery("past")
+	return found
 }
 
 func (h *helper) genTimeDuration() string {

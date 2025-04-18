@@ -34,8 +34,8 @@ var (
 	AdvertiseIp              string
 	AdvertiseAddr            string
 	AdvertisePort            int
-	MgmtNet                  string
-	MgmtIP                   string
+	ManagementNet            string
+	ManagementIp             string
 	StorageNet               string
 	StorageIP                string
 	IsHaEnabled              bool

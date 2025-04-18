@@ -28,6 +28,7 @@ func init() {
 	flag.StringVar(&Opts.Spec.Listen.Address.Local, "listen.address.local", Opts.Spec.Listen.Address.Local, "")
 	flag.StringVar(&Opts.Spec.Listen.Address.Advertise, "listen.address.advertise", Opts.Spec.Listen.Address.Advertise, "")
 	flag.IntVar(&Opts.Spec.Listen.Port, "listen.port", Opts.Spec.Listen.Port, "")
+	flag.StringVar(&Opts.Spec.Identity.Os.Serial, "identity.os.serial", Opts.Spec.Identity.Os.Serial, "/sys/class/dmi/id/product_serial")
 	flag.StringVar(&Opts.Spec.Identity.Os.Policy, "identity.os.policy", Opts.Spec.Identity.Os.Policy, "")
 	flag.StringVar(&Opts.Spec.Identity.Os.System, "identity.os.system", Opts.Spec.Identity.Os.System, "")
 	flag.StringVar(&Opts.Spec.Identity.Os.Hostname, "identity.os.hostname", Opts.Spec.Identity.Os.Hostname, "")
@@ -116,6 +117,7 @@ type Identity struct {
 }
 
 type Os struct {
+	Serial   string `json:"serial" yaml:"serial"`
 	Policy   string `json:"policy" yaml:"policy"`
 	System   string `json:"system" yaml:"system"`
 	Hostname string `json:"hostname" yaml:"hostname"`

@@ -19,7 +19,7 @@ func newHttpServer() (*server.Server, error) {
 	router := newRouter()
 	err := registerHandlersByRole(router)
 	if err != nil {
-		log.Errorf("failed to register handlers: %s", err.Error())
+		log.Errorf("runtime: failed to register handlers: %s", err.Error())
 		return nil, err
 	}
 
@@ -33,7 +33,7 @@ func newHttpServer() (*server.Server, error) {
 
 	err = srv.Handle(srv.NewHandler(router))
 	if err != nil {
-		log.Errorf("failed to new handler: %s", err.Error())
+		log.Errorf("runtime: failed to new handler: %s", err.Error())
 		return nil, err
 	}
 
@@ -61,7 +61,7 @@ func livenessCheck() gin.HandlerFunc {
 func initReqInfo(c *gin.Context) {
 	reqId := uuid.New().String()[:8]
 	c.Set("reqId", reqId)
-	log.Infof("request(%s): %s %s %s", reqId, c.Request.Method, c.Request.URL.Path, c.Request.URL.RawQuery)
+	log.Infof("request(%s): %s %s%s", reqId, c.Request.Method, c.Request.URL.Path, parseParams(c))
 	c.Next()
 }
 

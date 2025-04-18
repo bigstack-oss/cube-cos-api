@@ -260,7 +260,7 @@ func isTuningValueValid(tuning Tuning, spec *TuningSpec) bool {
 		return isValidInt(tuning, spec)
 	case "str":
 		return isValidString(tuning, spec)
-	case "boolean":
+	case "bool", "boolean":
 		_, ok := tuning.Value.(bool)
 		return ok
 	}
