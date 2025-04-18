@@ -2,7 +2,6 @@ package node
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"os"
 	"os/exec"
@@ -16,6 +15,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/dustin/go-humanize"
+	json "github.com/json-iterator/go"
 	"github.com/shirou/gopsutil/v4/cpu"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
@@ -50,7 +50,7 @@ func (o *Operator) Init() error {
 	return nil
 }
 
-func (o *Operator) Sync() {
+func (o *Operator) Run() {
 	watcher, err := registry.Watch(
 		registry.WatchService(v1.DataCenterName),
 	)

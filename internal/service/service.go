@@ -19,7 +19,7 @@ var (
 type Operator interface {
 	Name() string
 	Init() error
-	Sync()
+	Run()
 	Stop()
 }
 
@@ -31,7 +31,7 @@ func RegisterOperator(name string, operator Operator) {
 	Operators[name] = operator
 }
 
-func WrapGoMicro(server *server.Server) micro.Service {
+func Micro(server *server.Server) micro.Service {
 	return micro.NewService(
 		micro.Server(*server),
 		micro.WrapClient(hystrix.NewClientWrapper()),
@@ -53,16 +53,16 @@ func runOperators() error {
 			return err
 		}
 
-		go runInBackground(o.Sync)
+		go runInBackground(o.Run)
 		log.Infof("operator: %s is running", o.Name())
 	}
 
 	return nil
 }
 
-func runInBackground(f func()) {
+func runInBackground(runOperator func()) {
 	for {
-		f()
+		runOperator()
 	}
 }
 

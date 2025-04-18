@@ -1,7 +1,6 @@
 package tunings
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"reflect"
@@ -11,6 +10,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/gin-gonic/gin"
+	json "github.com/json-iterator/go"
 )
 
 type dataChan chan data

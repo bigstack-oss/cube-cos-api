@@ -1,10 +1,9 @@
 package cubecos
 
 import (
-	json "github.com/json-iterator/go"
-
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	json "github.com/json-iterator/go"
 )
 
 type Summary struct {

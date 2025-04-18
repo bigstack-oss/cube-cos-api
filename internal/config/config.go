@@ -60,6 +60,8 @@ func init() {
 	flag.BoolVar(&Opts.Spec.ResourceControl.Openstack.Auth.EnableAutoRenew, "resourceControl.openstack.auth.enableAutoRenew", Opts.Spec.ResourceControl.Openstack.Auth.EnableAutoRenew, "")
 	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Project.Name, "resourceControl.openstack.auth.project.name", Opts.Spec.ResourceControl.Openstack.Auth.Project.Name, "")
 	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Project.Domain.Name, "resourceControl.openstack.auth.project.domain.name", Opts.Spec.ResourceControl.Openstack.Auth.Project.Domain.Name, "")
+	flag.StringVar(&Opts.Spec.ResourceControl.Aws.AccessKey, "resourceControl.aws.accessKey", Opts.Spec.ResourceControl.Aws.AccessKey, "admin")
+	flag.StringVar(&Opts.Spec.ResourceControl.Aws.SecretKey, "resourceControl.aws.secretKey", Opts.Spec.ResourceControl.Aws.SecretKey, "admin")
 	flag.StringVar(&Opts.Spec.Store.InfluxDB.Url, "store.influxdb.url", Opts.Spec.Store.InfluxDB.Url, "")
 	flag.StringVar(&Opts.Spec.Store.MongoDB.Uri, "store.mongodb.uri", Opts.Spec.Store.MongoDB.Uri, "")
 	flag.StringVar(&Opts.Spec.Store.MongoDB.Database, "store.mongodb.database", Opts.Spec.Store.MongoDB.Database, "")
@@ -147,27 +149,17 @@ func (o *Options) String() (string, error) {
 	return string(b), nil
 }
 
-func ReadAndOverrideOpts() error {
-	err := parseOptsFromFile()
+func SyncOptions() error {
+	err := parseFileOpts()
 	if err != nil {
 		return err
 	}
 
-	overrideOptsFromFlagArgs()
+	overrideOptsByFlags()
 	return nil
 }
 
-func newConfiger() (config.Config, error) {
-	return config.NewConfig(
-		config.WithReader(
-			json.NewReader(
-				reader.WithEncoder(yaml.NewEncoder()),
-			),
-		),
-	)
-}
-
-func parseOptsFromFile() error {
+func parseFileOpts() error {
 	conf, err := newConfiger()
 	if err != nil {
 		return err
@@ -187,6 +179,16 @@ func parseOptsFromFile() error {
 	return nil
 }
 
-func overrideOptsFromFlagArgs() {
+func newConfiger() (config.Config, error) {
+	return config.NewConfig(
+		config.WithReader(
+			json.NewReader(
+				reader.WithEncoder(yaml.NewEncoder()),
+			),
+		),
+	)
+}
+
+func overrideOptsByFlags() {
 	flag.Parse()
 }

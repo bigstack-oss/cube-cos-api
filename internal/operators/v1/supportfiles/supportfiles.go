@@ -34,7 +34,7 @@ func (o *Operator) Init() error {
 	return o.initWatcher()
 }
 
-func (o *Operator) Sync() {
+func (o *Operator) Run() {
 	req, shutdown := ReqQueue.Get()
 	if shutdown {
 		return

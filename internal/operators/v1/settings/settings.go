@@ -43,7 +43,7 @@ func (o *Operator) Init() error {
 	return nil
 }
 
-func (o *Operator) Sync() {
+func (o *Operator) Run() {
 	req, shutdown := ReqQueue.Get()
 	if shutdown {
 		return

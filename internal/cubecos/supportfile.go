@@ -3,7 +3,6 @@ package cubecos
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -13,6 +12,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	json "github.com/json-iterator/go"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"

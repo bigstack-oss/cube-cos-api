@@ -2,7 +2,6 @@ package cubecos
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -15,6 +14,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/zip"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 )
 

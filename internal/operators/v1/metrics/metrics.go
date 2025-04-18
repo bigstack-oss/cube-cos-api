@@ -34,7 +34,7 @@ func (o *Operator) Init() error {
 	return nil
 }
 
-func (o *Operator) Sync() {
+func (o *Operator) Run() {
 	for {
 		select {
 		case <-o.ctx.Done():

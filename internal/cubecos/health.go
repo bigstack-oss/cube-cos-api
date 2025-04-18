@@ -2,15 +2,13 @@ package cubecos
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os/exec"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
 	"time"
-
-	"slices"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/aws"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
@@ -20,6 +18,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
+	json "github.com/json-iterator/go"
 	"github.com/mohae/deepcopy"
 	log "go-micro.dev/v5/logger"
 )

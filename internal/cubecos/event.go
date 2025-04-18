@@ -2,7 +2,6 @@ package cubecos
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
@@ -11,6 +10,7 @@ import (
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
+	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 )
 

@@ -36,7 +36,7 @@ func (o *Operator) Init() error {
 	return nil
 }
 
-func (o *Operator) Sync() {
+func (o *Operator) Run() {
 	defer v1.CapturePanic()
 	req, shutdown := ReqQueue.Get()
 	if shutdown {

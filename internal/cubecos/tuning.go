@@ -1,7 +1,6 @@
 package cubecos
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -17,6 +16,7 @@ import (
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/google/uuid"
+	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 	"gopkg.in/yaml.v3"
 )

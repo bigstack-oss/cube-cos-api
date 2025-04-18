@@ -1,11 +1,11 @@
 package tokens
 
 import (
-	"encoding/json"
 	"errors"
 
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
+	json "github.com/json-iterator/go"
 )
 
 func parseUserBody(c *gin.Context) (*v1.User, error) {
