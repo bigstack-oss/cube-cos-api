@@ -61,8 +61,8 @@ func getDataCenter(c *gin.Context) {
 			IsHaEnabled: v1.IsHaEnabled,
 			UtcTimeZone: v1.LocalTimeZone,
 			Additional: v1.Additional{
-				HelpUrl:       v1.DataCenterHelpUrl,
-				LicenseStatus: getLicenseStatus(),
+				HelpUrl:           v1.DataCenterHelpUrl,
+				NodeLicenseStatus: getNodeLicenseStatus(),
 			},
 		},
 	)

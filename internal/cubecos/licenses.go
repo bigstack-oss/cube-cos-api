@@ -13,6 +13,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/zip"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
@@ -29,13 +30,8 @@ const (
 
 func VerifyLicense(license string) (*v1.VerificationDetails, error) {
 	defer os.Remove(license)
-	err := checkImportLicense(license)
-	if err != nil {
-		log.Errorf("licenses: failed to import license: %v", err)
-		return nil, err
-	}
-
-	dat, err := parseLicenseDat(license)
+	checkInfo := checkImportLicense(license)
+	dat, err := parseLicenseDat(license, checkInfo)
 	if err != nil {
 		log.Errorf("licenses: failed to parse license: %v", err)
 		return nil, err
@@ -235,8 +231,6 @@ func parseStatus(raw v1.RawLicense) status.License {
 }
 
 func checkLicenseErr(err error) error {
-	return errors.New("license is not installed")
-
 	if err == nil {
 		return nil
 	}
@@ -252,15 +246,15 @@ func checkLicenseErr(err error) error {
 
 	switch result.ExitCode() {
 	case LicenseExpired:
-		return errors.New("license is already expired")
+		return cuberr.LicenseAlreadyExpired
 	case LicenseNotInstalled:
-		return errors.New("license is not installed")
+		return cuberr.LicenseNotInstalled
 	case LicenseInvalidHardware:
-		return errors.New("license's hardware serial is not matched with the current system")
+		return cuberr.LicenseInvalidHardware
 	case LicenseInvalidSignature:
-		return errors.New("license's signature is invalid")
+		return cuberr.LicenseInvalidSignature
 	case LicenseSysytemCompromised:
-		return errors.New("license system is compromised")
+		return cuberr.LicenseSysytemCompromised
 	}
 
 	return errors.New("unknown license status")
@@ -272,7 +266,7 @@ func checkImportLicense(license string) error {
 	return checkLicenseErr(err)
 }
 
-func parseLicenseDat(license string) (*v1.License, error) {
+func parseLicenseDat(license string, checkInfo error) (*v1.License, error) {
 	dir, file := getDirAndLicenseName(license)
 	err := zip.DecompressFromTo(license, dir)
 	if err != nil {
@@ -288,6 +282,7 @@ func parseLicenseDat(license string) (*v1.License, error) {
 	defer datFile.Close()
 	licenseDat := &v1.License{}
 	setLicenseDat(datFile, licenseDat)
+	setLicenseDatStatus(licenseDat, checkInfo)
 	return licenseDat, nil
 }
 
@@ -314,6 +309,38 @@ func setLicenseDat(datFile *os.File, licenseDat *v1.License) {
 	err := scanner.Err()
 	if err != nil {
 		log.Errorf("licenses: failed to read license dat file: %v", err)
+		return
+	}
+}
+
+func setLicenseDatStatus(licenseDat *v1.License, checkInfo error) {
+	if checkInfo == nil {
+		licenseDat.InitValidStatus()
+		return
+	}
+
+	if errors.Is(checkInfo, cuberr.LicenseNotInstalled) {
+		licenseDat.InitValidStatus()
+		return
+	}
+
+	if errors.Is(checkInfo, cuberr.LicenseAlreadyExpired) {
+		licenseDat.InitExpiredStatus()
+		return
+	}
+
+	if errors.Is(checkInfo, cuberr.LicenseInvalidHardware) {
+		licenseDat.InitInvalidHardwareStatus()
+		return
+	}
+
+	if errors.Is(checkInfo, cuberr.LicenseInvalidSignature) {
+		licenseDat.InitInvalidSignatureStatus()
+		return
+	}
+
+	if errors.Is(checkInfo, cuberr.LicenseSysytemCompromised) {
+		licenseDat.InitCompromisedStatus()
 		return
 	}
 }

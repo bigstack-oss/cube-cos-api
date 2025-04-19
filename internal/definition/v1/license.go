@@ -90,6 +90,26 @@ func (l *License) Key() string {
 	)
 }
 
+func (l *License) InitValidStatus() {
+	l.Status = status.License{Current: status.Valid}
+}
+
+func (l *License) InitExpiredStatus() {
+	l.Status = status.License{Current: status.Expired}
+}
+
+func (l *License) InitInvalidHardwareStatus() {
+	l.Status = status.License{Current: "unmatched hardware"}
+}
+
+func (l *License) InitInvalidSignatureStatus() {
+	l.Status = status.License{Current: "invalid signature"}
+}
+
+func (l *License) InitCompromisedStatus() {
+	l.Status = status.License{Current: "system compromised"}
+}
+
 func (r *RawLicense) IsUnlicense() bool {
 	return r.Date == ""
 }

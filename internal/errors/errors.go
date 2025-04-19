@@ -22,6 +22,12 @@ var (
 
 	EmailSenderHostInvalid = errors.New("email sender host is invalid")
 	EmailSenderPortInvalid = errors.New("email sender port is invalid")
+
+	LicenseAlreadyExpired     = errors.New("license is already expired")
+	LicenseNotInstalled       = errors.New("license is not installed")
+	LicenseInvalidHardware    = errors.New("license's hardware serial is not matched with the current system")
+	LicenseInvalidSignature   = errors.New("license's signature is invalid")
+	LicenseSysytemCompromised = errors.New("license system is compromised")
 )
 
 type Template struct {

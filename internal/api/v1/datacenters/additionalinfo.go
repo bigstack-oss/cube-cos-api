@@ -5,20 +5,20 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 )
 
-func getLicenseStatus() v1.LicenseStatus {
+func getNodeLicenseStatus() v1.NodeLicenseStatus {
 	nodes := v1.ListNodes()
-	licenseStatus := v1.LicenseStatus{}
+	nodeStatus := v1.NodeLicenseStatus{}
 
 	for _, node := range nodes {
 		switch node.License.Status.Current {
 		case status.Valid:
-			licenseStatus.Valid++
+			nodeStatus.Valid++
 		case status.Expired:
-			licenseStatus.Expired++
+			nodeStatus.Expired++
 		case status.Unlicense:
-			licenseStatus.Unlicensed++
+			nodeStatus.Unlicensed++
 		}
 	}
 
-	return licenseStatus
+	return nodeStatus
 }
