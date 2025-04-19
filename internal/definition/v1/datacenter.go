@@ -16,6 +16,13 @@ type DataCenter struct {
 }
 
 type Additional struct {
-	HelpUrl     string `json:"helpUrl,omitempty" bson:"helpUrl"`
-	V1ApiDocUrl string `json:"v1ApiDoc,omitempty" bson:"v1ApiDoc"`
+	HelpUrl       string `json:"helpUrl,omitempty" bson:"helpUrl"`
+	V1ApiDocUrl   string `json:"v1ApiDoc,omitempty" bson:"v1ApiDoc"`
+	LicenseStatus `json:"licenseStatus" bson:"licenseStatus"`
+}
+
+type LicenseStatus struct {
+	Valid      int `json:"valid" bson:"valid"`
+	Expired    int `json:"expired" bson:"expired"`
+	Unlicensed int `json:"unlicensed" bson:"unlicensed"`
 }

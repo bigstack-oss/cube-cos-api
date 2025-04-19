@@ -54,8 +54,8 @@ func (o *Operator) setNodeDetails(nodes *[]v1.Node) {
 
 	for i, node := range *nodes {
 		if node.IsLocal() {
-			o.setLicenseToNode(&(*nodes)[i])
-			o.setInfraSpecToNode(&(*nodes)[i])
+			o.setNodeLicense(&(*nodes)[i])
+			o.setNodeInfraSpec(&(*nodes)[i])
 			continue
 		}
 
@@ -95,7 +95,7 @@ func (o *Operator) askPeerNode(node v1.Node) (*v1.Node, error) {
 	return &resp.Result().(*api.NodeData).Data, nil
 }
 
-func (o *Operator) setLicenseToNode(node *v1.Node) {
+func (o *Operator) setNodeLicense(node *v1.Node) {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
 		log.Warnf("nodes(%s): failed to add license info to the nodes: %s", err.Error())
@@ -119,7 +119,7 @@ func (o *Operator) getLicenseByHostname(licenses []v1.License, hostname string) 
 	return v1.License{}
 }
 
-func (o *Operator) setInfraSpecToNode(node *v1.Node) {
+func (o *Operator) setNodeInfraSpec(node *v1.Node) {
 	h := openstack.GetGlobalHelper()
 	hypervisor, err := h.GetHypervisorByHostname(node.Hostname)
 	if err != nil {

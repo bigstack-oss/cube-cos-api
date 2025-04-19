@@ -22,6 +22,9 @@ const (
 	Deleted   = "deleted"
 	Ok        = "ok"
 	Ng        = "ng"
+	Valid     = "valid"
+	Unlicense = "unlicense"
+	Expired   = "expired"
 	Error     = "error"
 )
 

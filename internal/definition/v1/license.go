@@ -90,6 +90,10 @@ func (l *License) Key() string {
 	)
 }
 
+func (r *RawLicense) IsUnlicense() bool {
+	return r.Date == ""
+}
+
 func InitLicenseSearchIndex() error {
 	if licenseSearcher != nil {
 		return nil

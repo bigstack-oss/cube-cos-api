@@ -11,6 +11,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
@@ -234,6 +235,14 @@ func (n *Node) IsLocal() bool {
 
 func (n *Node) MatchHardwareSerial(hardwareSerials []string) bool {
 	return slices.Contains(hardwareSerials, n.SerialNumber)
+}
+
+func (n *Node) IsLicenseExpired() bool {
+	return n.License.Status.Current == status.Expired
+}
+
+func (n *Node) IsUnlicensed() bool {
+	return n.License.Status.Current == status.Unlicense
 }
 
 func IsLocalNode(hostname string) bool {

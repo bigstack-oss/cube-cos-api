@@ -111,6 +111,10 @@ func parseLicenses(raws []v1.RawLicense) []v1.License {
 func convertToLicenses(raws []v1.RawLicense) []v1.License {
 	licenses := []v1.License{}
 	for _, raw := range raws {
+		if raw.IsUnlicense() {
+			continue
+		}
+
 		licenses = append(
 			licenses,
 			parseLicense(raw),
@@ -161,10 +165,6 @@ func parseLicense(raw v1.RawLicense) v1.License {
 }
 
 func parseProduct(raw v1.RawLicense) v1.Product {
-	if raw.Product == "" {
-		raw.Product = "CubeCOS"
-	}
-
 	return v1.Product{
 		Name:    raw.Product,
 		Feature: raw.Feature,
@@ -172,7 +172,7 @@ func parseProduct(raw v1.RawLicense) v1.Product {
 }
 
 func parseIssue(raw v1.RawLicense) v1.Issue {
-	date := "no license"
+	date := ""
 	issue, err := time.Parse("2006-01-02 15:04:05 MST", raw.Date)
 	if err == nil {
 		date = issue.In(v1.LocalTimeFixedZone).Format(time.RFC3339)
@@ -187,7 +187,7 @@ func parseIssue(raw v1.RawLicense) v1.Issue {
 }
 
 func parseExpiry(raw v1.RawLicense) v1.Expiry {
-	date := "no license"
+	date := ""
 	expiry, err := time.Parse("2006-01-02 15:04:05 MST", raw.Expiry)
 	if err == nil {
 		date = expiry.In(v1.LocalTimeFixedZone).Format(time.RFC3339)
@@ -200,10 +200,16 @@ func parseExpiry(raw v1.RawLicense) v1.Expiry {
 }
 
 // note:
-// the reason to assign time.Now().Local() to expiry if expiry is invalid is that
+// the reason to assign time.Now().Local() to expiry if expiry is that
 // the expiry field shouldn't be invalid in whatever case, if it's invalid, then there must be something wrong
 // during signing process, we should raise the unexpected symptom and block the further process.
 func parseStatus(raw v1.RawLicense) status.License {
+	if raw.Expiry == "" {
+		return status.License{
+			Current: status.Unlicense,
+		}
+	}
+
 	expiry, err := time.Parse("2006-01-02 15:04:05 MST", raw.Expiry)
 	if err != nil {
 		expiry = time.Now().Local()
@@ -211,24 +217,26 @@ func parseStatus(raw v1.RawLicense) status.License {
 
 	if time.Now().After(expiry) {
 		return status.License{
-			Current: "expired",
+			Current: status.Expired,
 		}
 	}
 
 	if time.Now().AddDate(0, 0, 30).After(expiry) {
 		return status.License{
-			Current:    "expiring",
+			Current:    status.Valid,
 			IsExpiring: true,
 		}
 	}
 
 	return status.License{
-		Current:    "ok",
+		Current:    status.Valid,
 		IsExpiring: false,
 	}
 }
 
 func checkLicenseErr(err error) error {
+	return errors.New("license is not installed")
+
 	if err == nil {
 		return nil
 	}

@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	SerialNumber = ""
+	SerialNumber      = ""
+	defaultSerialPath = "/sys/class/dmi/id/product_serial"
 )
 
 func CapturePanic() {
@@ -22,6 +23,10 @@ func CapturePanic() {
 }
 
 func GetSystemSerial(file string) (string, error) {
+	if file == "" {
+		file = defaultSerialPath
+	}
+
 	data, err := os.ReadFile(file)
 	if err != nil {
 		return "no serial number found", err
