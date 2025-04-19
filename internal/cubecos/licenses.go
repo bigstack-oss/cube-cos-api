@@ -31,13 +31,13 @@ func VerifyLicense(license string) (*v1.VerificationDetails, error) {
 	defer os.Remove(license)
 	err := checkImportLicense(license)
 	if err != nil {
-		log.Errorf("license: failed to import license: %v", err)
+		log.Errorf("licenses: failed to import license: %v", err)
 		return nil, err
 	}
 
 	dat, err := parseLicenseDat(license)
 	if err != nil {
-		log.Errorf("license: failed to parse license: %v", err)
+		log.Errorf("licenses: failed to parse license: %v", err)
 		return nil, err
 	}
 
@@ -55,7 +55,7 @@ func ImportClusterLicense(licensePath string) error {
 	dir, base := getDirAndLicenseName(licensePath)
 	out, err := exec.Command("hex_config", "sdk_run", "license_cluster_import", dir, base).Output()
 	if err != nil {
-		log.Errorf("license: failed to import licenses: %v (%s)", err, string(out))
+		log.Errorf("licenses: failed to import licenses: %v (%s)", err, string(out))
 		return err
 	}
 
@@ -67,7 +67,7 @@ func ImportNodeLicense(licensePath string) error {
 	filename := strings.TrimSuffix(filepath.Base(licensePath), filepath.Ext(licensePath))
 	_, err := exec.Command("hex_config", "sdk_run", "license_node_import", dir, filename).Output()
 	if err != nil {
-		log.Errorf("license: failed to import licenses: %v", err)
+		log.Errorf("licenses: failed to import licenses: %v", err)
 		return err
 	}
 
@@ -77,13 +77,13 @@ func ImportNodeLicense(licensePath string) error {
 func ListLicenses() ([]v1.License, error) {
 	b, err := exec.Command("hex_config", "sdk_run", "-f", "json", "license_cluster_show").Output()
 	if err != nil {
-		log.Errorf("license: licenses: failed to list licenses: %v", err)
+		log.Errorf("licenses: licenses: failed to list licenses: %v", err)
 		return nil, err
 	}
 
 	raws, err := parseRawLicenses(b)
 	if err != nil {
-		log.Errorf("license: licenses: failed to parse raw licenses: %v", err)
+		log.Errorf("licenses: licenses: failed to parse raw licenses: %v", err)
 		return nil, err
 	}
 
@@ -268,7 +268,7 @@ func parseLicenseDat(license string) (*v1.License, error) {
 	dir, file := getDirAndLicenseName(license)
 	err := zip.DecompressFromTo(license, dir)
 	if err != nil {
-		log.Errorf("license: failed to decompress license: %v", err)
+		log.Errorf("licenses: failed to decompress license: %v", err)
 		return nil, err
 	}
 
@@ -305,7 +305,7 @@ func setLicenseDat(datFile *os.File, licenseDat *v1.License) {
 
 	err := scanner.Err()
 	if err != nil {
-		log.Errorf("license: failed to read license dat file: %v", err)
+		log.Errorf("licenses: failed to read license dat file: %v", err)
 		return
 	}
 }
@@ -352,7 +352,7 @@ func convertToLicenseNodes(nodes []v1.Node) []v1.LicenseNode {
 func getLicenseByNodeName(nodeName string) v1.License {
 	licenses, err := ListLicenses()
 	if err != nil {
-		log.Errorf("license: failed to get license by node name: %v", err)
+		log.Errorf("licenses: failed to get license by node name: %v", err)
 		return v1.License{}
 	}
 

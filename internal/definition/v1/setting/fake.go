@@ -18,7 +18,6 @@ func genFakePolicy() *EtcPolicy {
 	policy := &EtcPolicy{
 		Name:        "alert_setting",
 		Version:     1.0,
-		Enabled:     true,
 		TitlePrefix: "",
 		Receiver: Receiver{
 			Emails: []email.Recipient{},

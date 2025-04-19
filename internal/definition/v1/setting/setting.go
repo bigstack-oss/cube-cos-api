@@ -31,7 +31,6 @@ type Options struct {
 type EtcPolicy struct {
 	Name        string        `json:"name" yaml:"name"`
 	Version     float64       `json:"version" yaml:"version"`
-	Enabled     bool          `json:"enabled" yaml:"enabled"`
 	TitlePrefix string        `json:"titlePrefix" yaml:"titlePrefix"`
 	Sender      *email.Sender `json:"sender,omitempty" yaml:"sender,omitempty"`
 	Receiver    `json:"receiver" yaml:"receiver"`
