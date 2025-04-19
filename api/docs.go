@@ -2772,7 +2772,7 @@ const docTemplate = `{
                                                     },
                                                     "status": {
                                                         "current": "valid",
-                                                        "isExpiring": true
+                                                        "isExpiring": false
                                                     }
                                                 },
                                                 "effectNodes": [
@@ -2785,7 +2785,7 @@ const docTemplate = `{
                                                         },
                                                         "status": {
                                                             "current": "valid",
-                                                            "isExpiring": true
+                                                            "isExpiring": false
                                                         }
                                                     },
                                                     {
@@ -2797,7 +2797,7 @@ const docTemplate = `{
                                                         },
                                                         "status": {
                                                             "current": "valid",
-                                                            "isExpiring": true
+                                                            "isExpiring": false
                                                         }
                                                     },
                                                     {
@@ -2809,7 +2809,7 @@ const docTemplate = `{
                                                         },
                                                         "status": {
                                                             "current": "valid",
-                                                            "isExpiring": true
+                                                            "isExpiring": false
                                                         }
                                                     }
                                                 ]
@@ -11512,7 +11512,7 @@ const docTemplate = `{
                                             }
                                         },
                                         "status": {
-                                            "$ref": "#/components/schemas/LicenseStatus"
+                                            "$ref": "#/components/schemas/ListLicenseStatus"
                                         }
                                     }
                                 }
@@ -11641,7 +11641,7 @@ const docTemplate = `{
                                         }
                                     },
                                     "status": {
-                                        "$ref": "#/components/schemas/LicenseStatus"
+                                        "$ref": "#/components/schemas/VerifyLicenseStatus"
                                     }
                                 }
                             },
@@ -14744,7 +14744,7 @@ const docTemplate = `{
                                 }
                             },
                             "status": {
-                                "$ref": "#/components/schemas/LicenseStatus"
+                                "$ref": "#/components/schemas/NodeLicenseStatus"
                             }
                         }
                     },
@@ -15038,7 +15038,26 @@ const docTemplate = `{
                     "boolean"
                 ]
             },
-            "LicenseStatus": {
+            "ListLicenseStatus": {
+                "type": "object",
+                "required": [
+                    "current",
+                    "isExpiring"
+                ],
+                "properties": {
+                    "current": {
+                        "type": "string",
+                        "enum": [
+                            "valid",
+                            "expired"
+                        ]
+                    },
+                    "isExpiring": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "NodeLicenseStatus": {
                 "type": "object",
                 "required": [
                     "current",
@@ -15050,6 +15069,28 @@ const docTemplate = `{
                         "enum": [
                             "unlicense",
                             "valid",
+                            "expired"
+                        ]
+                    },
+                    "isExpiring": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "VerifyLicenseStatus": {
+                "type": "object",
+                "required": [
+                    "current",
+                    "isExpiring"
+                ],
+                "properties": {
+                    "current": {
+                        "type": "string",
+                        "enum": [
+                            "valid",
+                            "unmatched hardware",
+                            "invalid signature",
+                            "system compromised",
                             "expired"
                         ]
                     },

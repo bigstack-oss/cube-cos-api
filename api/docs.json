@@ -2768,7 +2768,7 @@
                                                     },
                                                     "status": {
                                                         "current": "valid",
-                                                        "isExpiring": true
+                                                        "isExpiring": false
                                                     }
                                                 },
                                                 "effectNodes": [
@@ -2781,7 +2781,7 @@
                                                         },
                                                         "status": {
                                                             "current": "valid",
-                                                            "isExpiring": true
+                                                            "isExpiring": false
                                                         }
                                                     },
                                                     {
@@ -2793,7 +2793,7 @@
                                                         },
                                                         "status": {
                                                             "current": "valid",
-                                                            "isExpiring": true
+                                                            "isExpiring": false
                                                         }
                                                     },
                                                     {
@@ -2805,7 +2805,7 @@
                                                         },
                                                         "status": {
                                                             "current": "valid",
-                                                            "isExpiring": true
+                                                            "isExpiring": false
                                                         }
                                                     }
                                                 ]
@@ -11508,7 +11508,7 @@
                                             }
                                         },
                                         "status": {
-                                            "$ref": "#/components/schemas/LicenseStatus"
+                                            "$ref": "#/components/schemas/ListLicenseStatus"
                                         }
                                     }
                                 }
@@ -11637,7 +11637,7 @@
                                         }
                                     },
                                     "status": {
-                                        "$ref": "#/components/schemas/LicenseStatus"
+                                        "$ref": "#/components/schemas/VerifyLicenseStatus"
                                     }
                                 }
                             },
@@ -14740,7 +14740,7 @@
                                 }
                             },
                             "status": {
-                                "$ref": "#/components/schemas/LicenseStatus"
+                                "$ref": "#/components/schemas/NodeLicenseStatus"
                             }
                         }
                     },
@@ -15034,7 +15034,26 @@
                     "boolean"
                 ]
             },
-            "LicenseStatus": {
+            "ListLicenseStatus": {
+                "type": "object",
+                "required": [
+                    "current",
+                    "isExpiring"
+                ],
+                "properties": {
+                    "current": {
+                        "type": "string",
+                        "enum": [
+                            "valid",
+                            "expired"
+                        ]
+                    },
+                    "isExpiring": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "NodeLicenseStatus": {
                 "type": "object",
                 "required": [
                     "current",
@@ -15046,6 +15065,28 @@
                         "enum": [
                             "unlicense",
                             "valid",
+                            "expired"
+                        ]
+                    },
+                    "isExpiring": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "VerifyLicenseStatus": {
+                "type": "object",
+                "required": [
+                    "current",
+                    "isExpiring"
+                ],
+                "properties": {
+                    "current": {
+                        "type": "string",
+                        "enum": [
+                            "valid",
+                            "unmatched hardware",
+                            "invalid signature",
+                            "system compromised",
                             "expired"
                         ]
                     },

@@ -50,7 +50,6 @@ func (o *Operator) Run() {
 func (o *Operator) Stop() {
 	ReqQueue.ShutDown()
 	o.waitForLastTask()
-	// o.policy.Close()
 }
 
 func (o *Operator) waitForLastTask() {
