@@ -59,7 +59,7 @@ func (o *Operator) Run() {
 		registry.WatchService(v1.DataCenterName),
 	)
 	if err != nil {
-		log.Errorf("failed to create watcher (%s)", err.Error())
+		log.Errorf("nodes: failed to create watcher (%s)", err.Error())
 		return
 	}
 
@@ -308,10 +308,11 @@ func parentDeviceSysfs(device string) (string, error) {
 	link := "/sys/class/block/" + device
 	target, err := filepath.EvalSymlinks(link)
 	if err != nil {
+		log.Errorf("nodes: failed to get parent device for %s: %s", device, err.Error())
 		return "", err
 	}
-	parent := filepath.Base(filepath.Dir(target))
-	return parent, nil
+
+	return filepath.Base(filepath.Dir(target)), nil
 }
 
 func addStatusToBlockDevices(node *v1.Node, partitions map[string][]string) {
