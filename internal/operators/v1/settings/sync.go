@@ -25,39 +25,29 @@ func (o *Operator) operateReq(setting setting.Options) error {
 }
 
 func (o *Operator) updateSetting(setting setting.Options) error {
-	var err error
-
 	switch setting.Type {
 	case "titlePrefix":
-		err = cubecos.ApplyTitlePrefix(setting.TitlePrefix.Value)
+		return cubecos.ApplyTitlePrefix(setting.TitlePrefix.Value)
 	case "emailSender":
-		err = cubecos.ApplyEmailSender(*setting.Sender)
+		return cubecos.ApplyEmailSender(*setting.Sender)
 	case "emailRecipient":
-		err = cubecos.ApplyEmailRecipient(*setting.Recipient)
+		return cubecos.ApplyEmailRecipient(*setting.Recipient)
 	case "slackChannel":
-		err = cubecos.ApplySlackChannel(setting.Slack.ConvertToCosSchema())
-	default:
-		return cuberr.UnknownSettingType
+		return cubecos.ApplySlackChannel(setting.Slack.ConvertToCosSchema())
 	}
 
-	return err
+	return cuberr.UnknownSettingType
 }
 
 func (o *Operator) deleteSetting(setting setting.Options) error {
-	var err error
-
 	switch setting.Type {
-	case "titlePrefix":
-		err = cubecos.ApplyTitlePrefix(setting.TitlePrefix.Value)
 	case "emailSender":
-		err = cubecos.DeleteEmailSender()
+		return cubecos.DeleteEmailSender()
 	case "emailRecipient":
-		err = cubecos.DeleteEmailRecipient(setting.Recipient.Address)
+		return cubecos.DeleteEmailRecipient(setting.Recipient.Address)
 	case "slackChannel":
-		err = cubecos.DeleteSlackChannel(setting.Slack.URL)
-	default:
-		return cuberr.UnknownSettingType
+		return cubecos.DeleteSlackChannel(setting.Slack.URL)
 	}
 
-	return err
+	return cuberr.UnknownSettingType
 }
