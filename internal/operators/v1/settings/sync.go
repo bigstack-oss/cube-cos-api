@@ -25,7 +25,7 @@ func (o *Operator) operateReq(setting setting.Options) error {
 }
 
 func (o *Operator) updateSetting(setting setting.Options) error {
-	policy, err := cubecos.GetEtcSettingPolicy()
+	policy, err := cubecos.GetAlertSetting()
 	if err != nil {
 		log.Infof("settings: %v", err)
 		return err
@@ -45,7 +45,7 @@ func (o *Operator) updateSetting(setting setting.Options) error {
 }
 
 func (o *Operator) deleteSetting(setting setting.Options) error {
-	policy, err := cubecos.GetEtcSettingPolicy()
+	policy, err := cubecos.GetAlertSetting()
 	if err != nil {
 		log.Infof("settings: %v", err)
 		return err

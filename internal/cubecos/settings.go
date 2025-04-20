@@ -2,23 +2,27 @@ package cubecos
 
 import (
 	"os"
+	"os/exec"
 
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
+	json "github.com/json-iterator/go"
+
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
+	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	log "go-micro.dev/v5/logger"
 	"gopkg.in/yaml.v3"
 )
 
-func GetEtcSettingPolicy() (*setting.EtcPolicy, error) {
-	b, err := os.ReadFile(setting.PolicyV1)
+func GetAlertSetting() (*setting.CosAlert, error) {
+	out, err := exec.Command("hex_sdk", "alert_get_setting").CombinedOutput()
 	if err != nil {
-		return nil, err
+		return nil, cuberr.SdkExecutionError
 	}
 
-	settings := &setting.EtcPolicy{}
-	err = yaml.Unmarshal(b, settings)
+	settings := &setting.CosAlert{}
+	err = json.Unmarshal(out, settings)
 	if err != nil {
+		log.Errorf("settings: failed to unmarshal cos alert settings (%s)", err.Error())
 		return nil, err
 	}
 
@@ -26,7 +30,7 @@ func GetEtcSettingPolicy() (*setting.EtcPolicy, error) {
 }
 
 func GetEmailSenders() ([]email.Sender, error) {
-	policy, err := GetEtcSettingPolicy()
+	policy, err := GetAlertSetting()
 	if err != nil {
 		log.Errorf("settings: failed to get email senders (%s)", err.Error())
 		return nil, err
@@ -35,33 +39,12 @@ func GetEmailSenders() ([]email.Sender, error) {
 	return []email.Sender{*policy.Sender}, nil
 }
 
-func ApplySettings(policy *setting.EtcPolicy) error {
-	// M1 TODO: to remove the code below once CubeCOS side finish the hex_config refactor
-	setting.WriteFakePolicyFile(policy)
-	wait.Seconds(3)
+func ApplySettings(policy *setting.CosAlert) error {
+
 	return nil
-
-	// M1 TODO: to recover the code below once CubeCOS side finish the hex_config refactor
-	// newTriggers, err := genTriggersAsYaml(triggers)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// tmpTriggerDir := genTmpTriggerDir()
-	// err = writeTriggerToFile(tmpTriggerDir, newTriggers)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// err = ApplyTrigger(tmpTriggerDir)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// return nil
 }
 
-func WriteFakePolicyFile(policy *setting.EtcPolicy) {
+func WriteFakePolicyFile(policy *setting.CosAlert) {
 	policyFile, err := os.Create(setting.PolicyV1)
 	if err != nil {
 		log.Errorf("failed to create fake policy file: %s", err.Error())
@@ -78,7 +61,7 @@ func WriteFakePolicyFile(policy *setting.EtcPolicy) {
 }
 
 func IsSettingApplied(setting setting.Options) bool {
-	policy, err := GetEtcSettingPolicy()
+	policy, err := GetAlertSetting()
 	if err != nil {
 		return false
 	}
@@ -99,7 +82,7 @@ func IsSettingApplied(setting setting.Options) bool {
 }
 
 func IsSettingDeleted(setting setting.Options) bool {
-	policy, err := GetEtcSettingPolicy()
+	policy, err := GetAlertSetting()
 	if err != nil {
 		return false
 	}

@@ -50,18 +50,19 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 	return h, nil
 }
 
-func (h *helper) listSettings() (*setting.ApiPolicy, error) {
-	etcPolicy, err := cubecos.GetEtcSettingPolicy()
+func (h *helper) listSettings() (*setting.ApiAlert, error) {
+	cosAlert, err := cubecos.GetAlertSetting()
 	if err != nil {
 		log.Infof("settings(%s): failed to get settings: %v", api.GetReqId(h.c), err)
 		return nil, err
 	}
 
-	apiPoliy := convertEtcPolicyToApiPolicy(etcPolicy)
-	h.syncUpdateStatus(&apiPoliy)
-	h.eraseSenderPassword(&apiPoliy.Email.Senders)
-	h.syncEmailSenderVerification(&apiPoliy.Email.Senders)
-	return &apiPoliy, nil
+	apiAlert := cosAlert.ConvertToApiSchema()
+	h.syncUpdateStatus(&apiAlert)
+	h.eraseSenderPassword(&apiAlert.Email.Senders)
+	h.syncEmailSenderVerification(&apiAlert.Email.Senders)
+
+	return &apiAlert, nil
 }
 
 func (h *helper) syncEmailSenderVerification(senders *[]email.Sender) {
@@ -86,12 +87,12 @@ func (h *helper) isEmailSenderVerified(sender *email.Sender) bool {
 	return count > 0
 }
 
-func (h *helper) syncUpdateStatus(apiPolicy *setting.ApiPolicy) {
-	apiPolicy.InitOkStatus()
-	h.syncTitlePrefixUpdate(&apiPolicy.TitlePrefix)
-	h.syncEmailRecipientUpdate(&apiPolicy.Email.Recipients)
-	h.syncEmailSenderUpdate(&apiPolicy.Email.Senders)
-	h.syncSlackUpdate(&apiPolicy.Slack)
+func (h *helper) syncUpdateStatus(alert *setting.ApiAlert) {
+	alert.InitOkStatus()
+	h.syncTitlePrefixUpdate(&alert.TitlePrefix)
+	h.syncEmailRecipientUpdate(&alert.Email.Recipients)
+	h.syncEmailSenderUpdate(&alert.Email.Senders)
+	h.syncSlackUpdate(&alert.Slack)
 }
 
 func (h *helper) syncTitlePrefixUpdate(titlePrefix *setting.TitlePrefix) {

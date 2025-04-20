@@ -28,6 +28,8 @@ var (
 	LicenseInvalidHardware    = errors.New("license's hardware serial is not matched with the current system")
 	LicenseInvalidSignature   = errors.New("license's signature is invalid")
 	LicenseSysytemCompromised = errors.New("license system is compromised")
+
+	SdkExecutionError = errors.New("sdk execution error")
 )
 
 type Template struct {

@@ -232,7 +232,7 @@ func tryEmailSender(c *gin.Context) {
 }
 
 func listEmailSenders(c *gin.Context) {
-	policy, err := cubecos.GetEtcSettingPolicy()
+	policy, err := cubecos.GetAlertSetting()
 	if err != nil {
 		log.Errorf("settings(%s): failed to get email recipients: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -346,7 +346,7 @@ func tryEmailRecipient(c *gin.Context) {
 }
 
 func listEmailRecipients(c *gin.Context) {
-	policy, err := cubecos.GetEtcSettingPolicy()
+	policy, err := cubecos.GetAlertSetting()
 	if err != nil {
 		log.Errorf("settings(%s): failed to get email recipients: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -445,7 +445,7 @@ func trySlackChannel(c *gin.Context) {
 }
 
 func listSlackChannels(c *gin.Context) {
-	policy, err := cubecos.GetEtcSettingPolicy()
+	policy, err := cubecos.GetAlertSetting()
 	if err != nil {
 		log.Errorf("settings(%s): failed to get slack channels: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)

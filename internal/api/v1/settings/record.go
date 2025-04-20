@@ -45,7 +45,7 @@ func getSlackChannel(name string) (*slack.Channel, error) {
 }
 
 func (h *helper) isSenderExist() bool {
-	policy, err := cubecos.GetEtcSettingPolicy()
+	policy, err := cubecos.GetAlertSetting()
 	if err != nil {
 		return false
 	}

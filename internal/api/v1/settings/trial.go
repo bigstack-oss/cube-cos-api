@@ -18,7 +18,7 @@ func sendTrialEmail(sender v1email.Sender, recipient string) error {
 	err := email.Send(
 		sender.Address(),
 		sender.UserAuth(),
-		sender.Email,
+		sender.From,
 		[]string{recipient},
 		[]byte("Subject: [Cube COS] A Trial Email From Settings\n\nThis is a trial email from Cube COS."),
 	)

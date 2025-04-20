@@ -21,7 +21,7 @@ func (h *helper) checkRecipientUpdate() error {
 }
 
 func (h *helper) isRecipientExist() bool {
-	policy, err := cubecos.GetEtcSettingPolicy()
+	policy, err := cubecos.GetAlertSetting()
 	if err != nil {
 		return false
 	}
@@ -30,7 +30,7 @@ func (h *helper) isRecipientExist() bool {
 }
 
 func (h *helper) isSlackChannlExist() bool {
-	policy, err := cubecos.GetEtcSettingPolicy()
+	policy, err := cubecos.GetAlertSetting()
 	if err != nil {
 		return false
 	}

@@ -28,23 +28,21 @@ type Options struct {
 	Status status.Settings `json:"status" bson:"status"`
 }
 
-type EtcPolicy struct {
-	Name        string        `json:"name" yaml:"name"`
-	Version     float64       `json:"version" yaml:"version"`
+type CosAlert struct {
 	TitlePrefix string        `json:"titlePrefix" yaml:"titlePrefix"`
 	Sender      *email.Sender `json:"sender,omitempty" yaml:"sender,omitempty"`
 	Receiver    `json:"receiver" yaml:"receiver"`
 }
 
-type Receiver struct {
-	Emails []email.Recipient `json:"emails" yaml:"emails"`
-	Slacks []slack.Channel   `json:"slacks" yaml:"slacks"`
-}
-
-type ApiPolicy struct {
+type ApiAlert struct {
 	TitlePrefix `json:"titlePrefix" bson:"titlePrefix"`
 	Email       email.Options `json:"email" bson:"email"`
 	Slack       slack.Options `json:"slack" bson:"slack"`
+}
+
+type Receiver struct {
+	Emails []email.Recipient `json:"emails" yaml:"emails"`
+	Slacks []slack.Channel   `json:"slacks" yaml:"slacks"`
 }
 
 type TitlePrefix struct {
@@ -99,13 +97,13 @@ func (o *Options) GenTaskUpdate() Options {
 	}
 }
 
-func (a *ApiPolicy) InitOkStatus() {
+func (a *ApiAlert) InitOkStatus() {
 	a.TitlePrefix.Status.InitOkStatus()
 	a.Email.InitOkStatus()
 	a.Slack.InitOkStatus()
 }
 
-func (e *EtcPolicy) HasSender(host string) bool {
+func (e *CosAlert) HasSender(host string) bool {
 	if e.Sender == nil {
 		return false
 	}
@@ -113,7 +111,7 @@ func (e *EtcPolicy) HasSender(host string) bool {
 	return e.Sender.Host == host
 }
 
-func (e *EtcPolicy) HasRecipient(address string) bool {
+func (e *CosAlert) HasRecipient(address string) bool {
 	for _, recipient := range e.Receiver.Emails {
 		if recipient.Address == address {
 			return true
@@ -123,7 +121,7 @@ func (e *EtcPolicy) HasRecipient(address string) bool {
 	return false
 }
 
-func (e *EtcPolicy) HasSlackChannel(channel string) bool {
+func (e *CosAlert) HasSlackChannel(channel string) bool {
 	for _, slack := range e.Receiver.Slacks {
 		if slack.Name == channel {
 			return true
@@ -133,11 +131,11 @@ func (e *EtcPolicy) HasSlackChannel(channel string) bool {
 	return false
 }
 
-func (e *EtcPolicy) IsTitlePrefixEqual(titlePrefix string) bool {
+func (e *CosAlert) IsTitlePrefixEqual(titlePrefix string) bool {
 	return e.TitlePrefix == titlePrefix
 }
 
-func (e *EtcPolicy) IsSenderEqual(sender email.Sender) bool {
+func (e *CosAlert) IsSenderEqual(sender email.Sender) bool {
 	if e.Sender == nil {
 		return false
 	}
@@ -145,7 +143,7 @@ func (e *EtcPolicy) IsSenderEqual(sender email.Sender) bool {
 	return reflect.DeepEqual(*e.Sender, sender)
 }
 
-func (e *EtcPolicy) IsRecipientEqual(recipient email.Recipient) bool {
+func (e *CosAlert) IsRecipientEqual(recipient email.Recipient) bool {
 	for _, email := range e.Receiver.Emails {
 		if reflect.DeepEqual(email, recipient) {
 			return true
@@ -155,7 +153,7 @@ func (e *EtcPolicy) IsRecipientEqual(recipient email.Recipient) bool {
 	return false
 }
 
-func (e *EtcPolicy) IsSlackChannelEqual(channel slack.Channel) bool {
+func (e *CosAlert) IsSlackChannelEqual(channel slack.Channel) bool {
 	for _, slack := range e.Receiver.Slacks {
 		if reflect.DeepEqual(slack, channel) {
 			return true
@@ -165,13 +163,33 @@ func (e *EtcPolicy) IsSlackChannelEqual(channel slack.Channel) bool {
 	return false
 }
 
-func (e *EtcPolicy) UpdateOrAppendSetting(setting Options) {
+func (e *CosAlert) ConvertToApiSchema() ApiAlert {
+	senders := []email.Sender{}
+	if e.Sender.Host != "" {
+		senders = append(senders, *e.Sender)
+	}
+
+	return ApiAlert{
+		TitlePrefix: TitlePrefix{
+			Value: e.TitlePrefix,
+		},
+		Email: email.Options{
+			Senders:    senders,
+			Recipients: e.Receiver.Emails,
+		},
+		Slack: slack.Options{
+			Channels: e.Receiver.Slacks,
+		},
+	}
+}
+
+func (e *CosAlert) UpdateOrAppendSetting(setting Options) {
 	if !e.existingSettingUpdated(setting) {
 		e.AppendSetting(setting)
 	}
 }
 
-func (e *EtcPolicy) DeleteSetting(setting Options) {
+func (e *CosAlert) DeleteSetting(setting Options) {
 	switch setting.Type {
 	case "emailSender":
 		e.Sender = nil
@@ -182,7 +200,7 @@ func (e *EtcPolicy) DeleteSetting(setting Options) {
 	}
 }
 
-func (e *EtcPolicy) existingSettingUpdated(setting Options) bool {
+func (e *CosAlert) existingSettingUpdated(setting Options) bool {
 	switch setting.Type {
 	case "titlePrefix":
 		e.TitlePrefix = setting.TitlePrefix.Value
@@ -199,7 +217,7 @@ func (e *EtcPolicy) existingSettingUpdated(setting Options) bool {
 	return false
 }
 
-func (e *EtcPolicy) deleteRecipient(setting Options) {
+func (e *CosAlert) deleteRecipient(setting Options) {
 	for i, recipient := range e.Receiver.Emails {
 		if recipient.Address == setting.Recipient.Address {
 			e.Receiver.Emails = slices.Delete(e.Receiver.Emails, i, i+1)
@@ -208,7 +226,7 @@ func (e *EtcPolicy) deleteRecipient(setting Options) {
 	}
 }
 
-func (e *EtcPolicy) updateEmailRecipient(setting Options) bool {
+func (e *CosAlert) updateEmailRecipient(setting Options) bool {
 	for i, recipient := range e.Receiver.Emails {
 		if recipient.Address == setting.Key {
 			e.Receiver.Emails[i] = *setting.Recipient
@@ -219,7 +237,7 @@ func (e *EtcPolicy) updateEmailRecipient(setting Options) bool {
 	return false
 }
 
-func (e *EtcPolicy) deleteSlackChannel(setting Options) {
+func (e *CosAlert) deleteSlackChannel(setting Options) {
 	for i, slack := range e.Receiver.Slacks {
 		if slack.Name == setting.Slack.Name {
 			e.Receiver.Slacks = slices.Delete(e.Receiver.Slacks, i, i+1)
@@ -228,7 +246,7 @@ func (e *EtcPolicy) deleteSlackChannel(setting Options) {
 	}
 }
 
-func (e *EtcPolicy) updateSlackChannel(setting Options) bool {
+func (e *CosAlert) updateSlackChannel(setting Options) bool {
 	for i, slack := range e.Receiver.Slacks {
 		if slack.Name == setting.Key {
 			e.Receiver.Slacks[i] = *setting.Slack
@@ -239,7 +257,7 @@ func (e *EtcPolicy) updateSlackChannel(setting Options) bool {
 	return false
 }
 
-func (e *EtcPolicy) AppendSetting(setting Options) {
+func (e *CosAlert) AppendSetting(setting Options) {
 	switch setting.Type {
 	case "emailRecipient":
 		e.Receiver.Emails = append(e.Receiver.Emails, *setting.Recipient)

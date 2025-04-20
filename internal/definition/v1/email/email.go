@@ -23,7 +23,7 @@ type Sender struct {
 	Port           int              `json:"port,omitempty" bson:"port" yaml:"port,omitempty"`
 	Username       string           `json:"username,omitempty" bson:"username" yaml:"username,omitempty"`
 	Password       string           `json:"password,omitzero" bson:"password" yaml:"password,omitempty"`
-	Email          string           `json:"email,omitempty" bson:"email" yaml:"email,omitempty"`
+	From           string           `json:"from,omitempty" bson:"from" yaml:"from,omitempty"`
 	AccessVerified bool             `json:"accessVerified" bson:"accessVerified" yaml:"-"`
 	Status         *status.Settings `json:"status,omitempty" bson:"status" yaml:"-"`
 }
