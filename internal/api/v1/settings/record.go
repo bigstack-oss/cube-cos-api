@@ -22,7 +22,7 @@ func (h *helper) updateSetting() {
 	reqQueue.Add(h.task)
 }
 
-func getSlackChannel(name string) (*slack.Channel, error) {
+func getSlackChannel(name string) (*slack.ApiChannel, error) {
 	h := mongo.GetGlobalHelper()
 	resp, err := h.Get(
 		v1.SettingsDB(),
@@ -34,7 +34,7 @@ func getSlackChannel(name string) (*slack.Channel, error) {
 		return nil, err
 	}
 
-	channel := slack.Channel{}
+	channel := slack.ApiChannel{}
 	err = resp.Decode(&channel)
 	if err != nil {
 		log.Errorf("settings: failed to decode slack channel (%s)", err.Error())
@@ -116,7 +116,7 @@ func (h *helper) isEmailSenderUpdating(sender *email.Sender) bool {
 	return count > 0
 }
 
-func (h *helper) isSlackUpdating(channel *slack.Channel) bool {
+func (h *helper) isSlackUpdating(channel *slack.ApiChannel) bool {
 	count, err := h.mongo.GetCount(
 		setting.DB,
 		setting.ReqCollection,

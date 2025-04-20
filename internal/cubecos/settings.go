@@ -8,6 +8,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	log "go-micro.dev/v5/logger"
 	"gopkg.in/yaml.v3"
@@ -39,7 +40,153 @@ func GetEmailSenders() ([]email.Sender, error) {
 	return []email.Sender{*policy.Sender}, nil
 }
 
-func ApplySettings(policy *setting.CosAlert) error {
+func ApplyTitlePrefix(titlePrefix string) error {
+	payload := map[string]string{"titlePrefix": titlePrefix}
+	bytes, err := json.Marshal(payload)
+	if err != nil {
+		log.Errorf("settings: failed to marshal title prefix (%s)", err.Error())
+		return err
+	}
+
+	out, err := exec.Command("hex_sdk", "alert_set_setting_title_prefix", string(bytes)).CombinedOutput()
+	if err != nil {
+		log.Errorf("settings: failed to set title prefix (%s)", err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	err = checkSettingReturnError(err)
+	if err != nil {
+		log.Errorf("settings: failed to set title prefix: %s (%s)", string(out), err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	return nil
+}
+
+func DeleteEmailSender() error {
+	out, err := exec.Command("hex_sdk", "alert_delete_setting_sender_email").CombinedOutput()
+	if err != nil {
+		log.Errorf("settings: failed to delete email sender (%s)", err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	err = checkSettingReturnError(err)
+	if err != nil {
+		log.Errorf("settings: failed to delete email sender: %s (%s)", string(out), err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	return nil
+}
+
+func ApplyEmailSender(sender email.Sender) error {
+	bytes, err := json.Marshal(sender)
+	if err != nil {
+		log.Errorf("settings: failed to marshal email sender (%s)", err.Error())
+		return err
+	}
+
+	out, err := exec.Command("hex_sdk", "alert_set_setting_sender_email", string(bytes)).CombinedOutput()
+	if err != nil {
+		log.Errorf("settings: failed to set email sender (%s)", err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	err = checkSettingReturnError(err)
+	if err != nil {
+		log.Errorf("settings: failed to set email sender: %s (%s)", string(out), err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	return nil
+}
+
+func ApplyEmailRecipient(recipient email.Recipient) error {
+	bytes, err := json.Marshal(recipient)
+	if err != nil {
+		log.Errorf("settings: failed to marshal email recipient (%s)", err.Error())
+		return err
+	}
+
+	out, err := exec.Command("hex_sdk", "alert_put_setting_receiver_email", string(bytes)).CombinedOutput()
+	if err != nil {
+		log.Errorf("settings: failed to set email recipient (%s)", err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	err = checkSettingReturnError(err)
+	if err != nil {
+		log.Errorf("settings: failed to set email recipient: %s (%s)", string(out), err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	return nil
+}
+
+func DeleteEmailRecipient(address string) error {
+	payload := map[string]string{"address": address}
+	bytes, err := json.Marshal(payload)
+	if err != nil {
+		log.Errorf("settings: failed to marshal email recipient (%s)", err.Error())
+		return err
+	}
+
+	out, err := exec.Command("hex_sdk", "alert_delete_setting_receiver_email", string(bytes)).CombinedOutput()
+	if err != nil {
+		log.Errorf("settings: failed to delete email recipient (%s)", err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	err = checkSettingReturnError(err)
+	if err != nil {
+		log.Errorf("settings: failed to delete email recipient: %s (%s)", string(out), err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	return nil
+}
+
+func ApplySlackChannel(channel slack.CosChannel) error {
+	bytes, err := json.Marshal(channel)
+	if err != nil {
+		log.Errorf("settings: failed to marshal slack channel (%s)", err.Error())
+		return err
+	}
+
+	out, err := exec.Command("hex_sdk", "alert_put_setting_receiver_slack", string(bytes)).CombinedOutput()
+	if err != nil {
+		log.Errorf("settings: failed to set slack channel (%s)", err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	err = checkSettingReturnError(err)
+	if err != nil {
+		log.Errorf("settings: failed to set slack channel: %s (%s)", string(out), err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	return nil
+}
+
+func DeleteSlackChannel(url string) error {
+	payload := map[string]string{"url": url}
+	bytes, err := json.Marshal(payload)
+	if err != nil {
+		log.Errorf("settings: failed to marshal slack channel (%s)", err.Error())
+		return err
+	}
+
+	out, err := exec.Command("hex_sdk", "alert_delete_setting_receiver_slack", string(bytes)).CombinedOutput()
+	if err != nil {
+		log.Errorf("settings: failed to delete slack channel (%s)", err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	err = checkSettingReturnError(err)
+	if err != nil {
+		log.Errorf("settings: failed to delete slack channel: %s (%s)", string(out), err.Error())
+		return cuberr.SdkExecutionError
+	}
 
 	return nil
 }
@@ -47,7 +194,7 @@ func ApplySettings(policy *setting.CosAlert) error {
 func WriteFakePolicyFile(policy *setting.CosAlert) {
 	policyFile, err := os.Create(setting.PolicyV1)
 	if err != nil {
-		log.Errorf("failed to create fake policy file: %s", err.Error())
+		log.Errorf("settings: failed to create fake policy file: %s", err.Error())
 		return
 	}
 
@@ -56,29 +203,8 @@ func WriteFakePolicyFile(policy *setting.CosAlert) {
 	yamlEncoder.SetIndent(2)
 	err = yamlEncoder.Encode(policy)
 	if err != nil {
-		log.Errorf("failed to encode fake policy to yaml: %s", err.Error())
+		log.Errorf("settings: failed to encode fake policy to yaml: %s", err.Error())
 	}
-}
-
-func IsSettingApplied(setting setting.Options) bool {
-	policy, err := GetAlertSetting()
-	if err != nil {
-		return false
-	}
-
-	isApplied := false
-	switch setting.Type {
-	case "titlePrefix":
-		isApplied = policy.IsTitlePrefixEqual(setting.TitlePrefix.Value)
-	case "emailSender":
-		isApplied = policy.IsSenderEqual(*setting.Sender)
-	case "emailRecipient":
-		isApplied = policy.IsRecipientEqual(*setting.Recipient)
-	case "slackChannel":
-		isApplied = policy.IsSlackChannelEqual(*setting.Slack)
-	}
-
-	return isApplied
 }
 
 func IsSettingDeleted(setting setting.Options) bool {
@@ -98,4 +224,23 @@ func IsSettingDeleted(setting setting.Options) bool {
 	}
 
 	return isDeleted
+}
+
+func checkSettingReturnError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	exitErr, ok := err.(*exec.ExitError)
+	if !ok {
+		log.Errorf("settings: failed to get setting exit error (%s)", err.Error())
+		return cuberr.SdkExecutionError
+	}
+
+	if exitErr.ExitCode() != 0 {
+		log.Errorf("settings: failed to get setting exit code (%d)", exitErr.ExitCode())
+		return cuberr.SdkExecutionError
+	}
+
+	return nil
 }

@@ -7,15 +7,23 @@ const (
 )
 
 type Options struct {
-	Channels []Channel `json:"channels" bson:"channels"`
+	Channels []ApiChannel `json:"channels" bson:"channels"`
 }
 
-type Channel struct {
+type ApiChannel struct {
 	Name        string          `json:"name" bson:"name"`
 	URL         string          `json:"url" bson:"url"`
 	Description string          `json:"description" bson:"description"`
 	Enabled     bool            `json:"enabled,omitempty" bson:"enabled"`
 	Status      status.Settings `json:"status" bson:"status"`
+}
+
+type CosChannel struct {
+	Channel     string `json:"channel" bson:"channel"`
+	URL         string `json:"url" bson:"url"`
+	Username    string `json:"username" bson:"username"`
+	Workspace   string `json:"workspace" bson:"workspace"`
+	Description string `json:"description" bson:"description"`
 }
 
 func (o *Options) InitOkStatus() {
@@ -24,10 +32,20 @@ func (o *Options) InitOkStatus() {
 	}
 }
 
-func (c *Channel) InitUpdateStatus() {
+func (c *ApiChannel) InitUpdateStatus() {
 	c.Status = status.Settings{
 		Current:    status.Updating,
 		Desired:    status.Updated,
 		IsUpdating: true,
+	}
+}
+
+func (c *ApiChannel) ConvertToCosSchema() CosChannel {
+	return CosChannel{
+		Channel:     c.Name,
+		URL:         c.URL,
+		Username:    "",
+		Workspace:   "",
+		Description: c.Description,
 	}
 }

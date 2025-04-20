@@ -5,8 +5,8 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
+	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
-	log "go-micro.dev/v5/logger"
 )
 
 func (o *Operator) operateReq(setting setting.Options) error {
@@ -25,41 +25,39 @@ func (o *Operator) operateReq(setting setting.Options) error {
 }
 
 func (o *Operator) updateSetting(setting setting.Options) error {
-	policy, err := cubecos.GetAlertSetting()
-	if err != nil {
-		log.Infof("settings: %v", err)
-		return err
+	var err error
+
+	switch setting.Type {
+	case "titlePrefix":
+		err = cubecos.ApplyTitlePrefix(setting.TitlePrefix.Value)
+	case "emailSender":
+		err = cubecos.ApplyEmailSender(*setting.Sender)
+	case "emailRecipient":
+		err = cubecos.ApplyEmailRecipient(*setting.Recipient)
+	case "slackChannel":
+		err = cubecos.ApplySlackChannel(setting.Slack.ConvertToCosSchema())
+	default:
+		return cuberr.UnknownSettingType
 	}
 
-	policy.UpdateOrAppendSetting(setting)
-	err = cubecos.ApplySettings(policy)
-	if err != nil {
-		return err
-	}
-
-	if !cubecos.IsSettingApplied(setting) {
-		return fmt.Errorf("settings: %s(%s) is not applied", setting.Type, setting.GetKey())
-	}
-
-	return nil
+	return err
 }
 
 func (o *Operator) deleteSetting(setting setting.Options) error {
-	policy, err := cubecos.GetAlertSetting()
-	if err != nil {
-		log.Infof("settings: %v", err)
-		return err
+	var err error
+
+	switch setting.Type {
+	case "titlePrefix":
+		err = cubecos.ApplyTitlePrefix(setting.TitlePrefix.Value)
+	case "emailSender":
+		err = cubecos.DeleteEmailSender()
+	case "emailRecipient":
+		err = cubecos.DeleteEmailRecipient(setting.Recipient.Address)
+	case "slackChannel":
+		err = cubecos.DeleteSlackChannel(setting.Slack.URL)
+	default:
+		return cuberr.UnknownSettingType
 	}
 
-	policy.DeleteSetting(setting)
-	err = cubecos.ApplySettings(policy)
-	if err != nil {
-		return err
-	}
-
-	if cubecos.IsSettingDeleted(setting) {
-		return fmt.Errorf("settings: %s(%s) is not deleted", setting.Type, setting.GetKey())
-	}
-
-	return nil
+	return err
 }

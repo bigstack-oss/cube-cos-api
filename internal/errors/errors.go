@@ -29,7 +29,8 @@ var (
 	LicenseInvalidSignature   = errors.New("license's signature is invalid")
 	LicenseSysytemCompromised = errors.New("license system is compromised")
 
-	SdkExecutionError = errors.New("sdk execution error")
+	SdkExecutionError  = errors.New("sdk execution error")
+	UnknownSettingType = errors.New("unknown setting type")
 )
 
 type Template struct {

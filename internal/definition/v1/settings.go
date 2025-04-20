@@ -27,7 +27,7 @@ type TitlePrefix struct {
 	Value string `json:"value" bson:"value"`
 }
 
-func GetSlackChannels() ([]slack.Channel, error) {
+func GetSlackChannels() ([]slack.ApiChannel, error) {
 	h := bsmongo.GetGlobalHelper()
 	cursor, err := h.GetQueryCursor(
 		Settings,
@@ -44,13 +44,13 @@ func GetSlackChannels() ([]slack.Channel, error) {
 	return parseChannels(cursor)
 }
 
-func parseChannels(cursor *mongo.Cursor) ([]slack.Channel, error) {
+func parseChannels(cursor *mongo.Cursor) ([]slack.ApiChannel, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
 	defer cancel()
 
-	channels := []slack.Channel{}
+	channels := []slack.ApiChannel{}
 	for cursor.Next(ctx) {
-		channel := slack.Channel{}
+		channel := slack.ApiChannel{}
 		err := cursor.Decode(&channel)
 		if err != nil {
 			continue

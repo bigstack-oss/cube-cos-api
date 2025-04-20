@@ -135,7 +135,7 @@ func (h *helper) initSlackChannelDeleteParams() error {
 	}
 
 	h.task = &setting.Options{Type: "slackChannel", Key: channelName}
-	h.task.Slack = &slack.Channel{Name: channelName}
+	h.task.Slack = &slack.ApiChannel{Name: channelName}
 	h.task.InitDeleteStatus()
 	return nil
 }

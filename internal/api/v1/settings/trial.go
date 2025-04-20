@@ -7,14 +7,14 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/slack"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	v1email "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
-	v1slack "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
+	emailv1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
+	slackv1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func sendTrialEmail(sender v1email.Sender, recipient string) error {
+func sendTrialEmail(sender emailv1.Sender, recipient string) error {
 	err := email.Send(
 		sender.Address(),
 		sender.UserAuth(),
@@ -32,7 +32,7 @@ func sendTrialEmail(sender v1email.Sender, recipient string) error {
 	return nil
 }
 
-func sendTrialSlackMessage(channel v1slack.Channel) error {
+func sendTrialSlackMessage(channel slackv1.ApiChannel) error {
 	h, err := slack.NewHelper()
 	if err != nil {
 		log.Errorf("settings: failed to create slack helper (%s)", err.Error())
@@ -45,11 +45,11 @@ func sendTrialSlackMessage(channel v1slack.Channel) error {
 	)
 }
 
-func setSenderAsVerified(sender v1email.Sender) error {
+func setSenderAsVerified(sender emailv1.Sender) error {
 	mongo := mongo.GetGlobalHelper()
 	return mongo.UpdateOne(
 		v1.SettingsDB(),
-		v1email.SenderCollection,
+		emailv1.SenderCollection,
 		bson.M{"host": sender.Host},
 		bson.M{"$set": bson.M{"accessVerified": true}},
 		options.Update().SetUpsert(true),

@@ -216,7 +216,7 @@ type Options struct {
 
 func (o *Options) InitResponse() {
 	o.Response.Types = []string{}
-	o.Response.Slacks = []slack.Channel{}
+	o.Response.Slacks = []slack.ApiChannel{}
 	o.Response.Emails = []email.Recipient{}
 }
 
@@ -307,9 +307,9 @@ func (o *Options) SetCompleted() {
 }
 
 type Response struct {
-	Types  []string          `json:"types" yaml:"-"`
-	Slacks []slack.Channel   `json:"slacks" yaml:"slacks"`
-	Emails []email.Recipient `json:"emails" yaml:"emails"`
+	Types  []string           `json:"types" yaml:"-"`
+	Slacks []slack.ApiChannel `json:"slacks" yaml:"slacks"`
+	Emails []email.Recipient  `json:"emails" yaml:"emails"`
 }
 
 type Attribute struct {

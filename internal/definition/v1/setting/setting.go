@@ -20,10 +20,10 @@ type Options struct {
 	Type string `json:"type" bson:"type"`
 	Key  string `json:"key" bson:"key"`
 
-	TitlePrefix *TitlePrefix     `json:"titlePrefix,omitempty" bson:"titlePrefix,omitempty"`
-	Sender      *email.Sender    `json:"sender,omitempty" bson:"sender,omitempty"`
-	Recipient   *email.Recipient `json:"recipient,omitempty" bson:"recipient,omitempty"`
-	Slack       *slack.Channel   `json:"slack,omitempty" bson:"slack,omitempty"`
+	TitlePrefix *TitlePrefix      `json:"titlePrefix,omitempty" bson:"titlePrefix,omitempty"`
+	Sender      *email.Sender     `json:"sender,omitempty" bson:"sender,omitempty"`
+	Recipient   *email.Recipient  `json:"recipient,omitempty" bson:"recipient,omitempty"`
+	Slack       *slack.ApiChannel `json:"slack,omitempty" bson:"slack,omitempty"`
 
 	Status status.Settings `json:"status" bson:"status"`
 }
@@ -41,8 +41,8 @@ type ApiAlert struct {
 }
 
 type Receiver struct {
-	Emails []email.Recipient `json:"emails" yaml:"emails"`
-	Slacks []slack.Channel   `json:"slacks" yaml:"slacks"`
+	Emails []email.Recipient  `json:"emails" yaml:"emails"`
+	Slacks []slack.ApiChannel `json:"slacks" yaml:"slacks"`
 }
 
 type TitlePrefix struct {
@@ -146,16 +146,6 @@ func (e *CosAlert) IsSenderEqual(sender email.Sender) bool {
 func (e *CosAlert) IsRecipientEqual(recipient email.Recipient) bool {
 	for _, email := range e.Receiver.Emails {
 		if reflect.DeepEqual(email, recipient) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func (e *CosAlert) IsSlackChannelEqual(channel slack.Channel) bool {
-	for _, slack := range e.Receiver.Slacks {
-		if reflect.DeepEqual(slack, channel) {
 			return true
 		}
 	}
