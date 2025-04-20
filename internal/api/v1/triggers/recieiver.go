@@ -1,7 +1,8 @@
 package triggers
 
 import (
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 )
 
@@ -26,7 +27,7 @@ func (h *helper) syncSelectableResponseItems(trigger *trigger.Options) {
 }
 
 func setEmailRecipientsToTrigger(trigger *trigger.Options) {
-	recipients, err := v1.GetEmailRecipients()
+	recipients, err := cubecos.GetEmailRecipients()
 	if err != nil {
 		return
 	}
@@ -35,10 +36,24 @@ func setEmailRecipientsToTrigger(trigger *trigger.Options) {
 }
 
 func setSlackChannelsToTrigger(trigger *trigger.Options) {
-	channels, err := v1.GetSlackChannels()
+	channels, err := cubecos.GetSlackChannels()
 	if err != nil {
 		return
 	}
 
-	trigger.Slacks = channels
+	trigger.Slacks = convertToApiChannels(channels)
+}
+
+func convertToApiChannels(channels []slack.CosChannel) []slack.ApiChannel {
+	apiChannels := []slack.ApiChannel{}
+
+	for i, channel := range channels {
+		apiChannels[i] = slack.ApiChannel{
+			Name:        channel.Channel,
+			URL:         channel.URL,
+			Description: channel.Description,
+		}
+	}
+
+	return apiChannels
 }

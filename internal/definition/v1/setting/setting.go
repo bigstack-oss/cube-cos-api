@@ -3,8 +3,6 @@ package setting
 import (
 	"reflect"
 
-	"slices"
-
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -42,7 +40,7 @@ type ApiAlert struct {
 
 type Receiver struct {
 	Emails []email.Recipient  `json:"emails" yaml:"emails"`
-	Slacks []slack.ApiChannel `json:"slacks" yaml:"slacks"`
+	Slacks []slack.CosChannel `json:"slacks" yaml:"slacks"`
 }
 
 type TitlePrefix struct {
@@ -123,7 +121,7 @@ func (e *CosAlert) HasRecipient(address string) bool {
 
 func (e *CosAlert) HasSlackChannel(channel string) bool {
 	for _, slack := range e.Receiver.Slacks {
-		if slack.Name == channel {
+		if slack.Channel == channel {
 			return true
 		}
 	}
@@ -168,92 +166,23 @@ func (e *CosAlert) ConvertToApiSchema() ApiAlert {
 			Recipients: e.Receiver.Emails,
 		},
 		Slack: slack.Options{
-			Channels: e.Receiver.Slacks,
+			Channels: convertToApiChannels(e.Receiver.Slacks),
 		},
 	}
 }
 
-func (e *CosAlert) UpdateOrAppendSetting(setting Options) {
-	if !e.existingSettingUpdated(setting) {
-		e.AppendSetting(setting)
-	}
-}
+func convertToApiChannels(channels []slack.CosChannel) []slack.ApiChannel {
+	apiChannels := []slack.ApiChannel{}
 
-func (e *CosAlert) DeleteSetting(setting Options) {
-	switch setting.Type {
-	case "emailSender":
-		e.Sender = nil
-	case "emailRecipient":
-		e.deleteRecipient(setting)
-	case "slackChannel":
-		e.deleteSlackChannel(setting)
-	}
-}
-
-func (e *CosAlert) existingSettingUpdated(setting Options) bool {
-	switch setting.Type {
-	case "titlePrefix":
-		e.TitlePrefix = setting.TitlePrefix.Value
-		return true
-	case "emailSender":
-		e.Sender = setting.Sender
-		return true
-	case "emailRecipient":
-		return e.updateEmailRecipient(setting)
-	case "slackChannel":
-		return e.updateSlackChannel(setting)
-	}
-
-	return false
-}
-
-func (e *CosAlert) deleteRecipient(setting Options) {
-	for i, recipient := range e.Receiver.Emails {
-		if recipient.Address == setting.Recipient.Address {
-			e.Receiver.Emails = slices.Delete(e.Receiver.Emails, i, i+1)
-			return
-		}
-	}
-}
-
-func (e *CosAlert) updateEmailRecipient(setting Options) bool {
-	for i, recipient := range e.Receiver.Emails {
-		if recipient.Address == setting.Key {
-			e.Receiver.Emails[i] = *setting.Recipient
-			return true
+	for i, channel := range channels {
+		apiChannels[i] = slack.ApiChannel{
+			Name:        channel.Channel,
+			URL:         channel.URL,
+			Description: channel.Description,
 		}
 	}
 
-	return false
-}
-
-func (e *CosAlert) deleteSlackChannel(setting Options) {
-	for i, slack := range e.Receiver.Slacks {
-		if slack.Name == setting.Slack.Name {
-			e.Receiver.Slacks = slices.Delete(e.Receiver.Slacks, i, i+1)
-			return
-		}
-	}
-}
-
-func (e *CosAlert) updateSlackChannel(setting Options) bool {
-	for i, slack := range e.Receiver.Slacks {
-		if slack.Name == setting.Key {
-			e.Receiver.Slacks[i] = *setting.Slack
-			return true
-		}
-	}
-
-	return false
-}
-
-func (e *CosAlert) AppendSetting(setting Options) {
-	switch setting.Type {
-	case "emailRecipient":
-		e.Receiver.Emails = append(e.Receiver.Emails, *setting.Recipient)
-	case "slackChannel":
-		e.Receiver.Slacks = append(e.Receiver.Slacks, *setting.Slack)
-	}
+	return apiChannels
 }
 
 func initUpdateStatus() status.Settings {

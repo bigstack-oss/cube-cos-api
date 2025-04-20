@@ -32,7 +32,7 @@ func sendTrialEmail(sender emailv1.Sender, recipient string) error {
 	return nil
 }
 
-func sendTrialSlackMessage(channel slackv1.ApiChannel) error {
+func sendTrialSlackMessage(channel slackv1.CosChannel) error {
 	h, err := slack.NewHelper()
 	if err != nil {
 		log.Errorf("settings: failed to create slack helper (%s)", err.Error())

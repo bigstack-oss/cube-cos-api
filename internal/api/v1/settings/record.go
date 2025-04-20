@@ -22,28 +22,6 @@ func (h *helper) updateSetting() {
 	reqQueue.Add(h.task)
 }
 
-func getSlackChannel(name string) (*slack.ApiChannel, error) {
-	h := mongo.GetGlobalHelper()
-	resp, err := h.Get(
-		v1.SettingsDB(),
-		slack.ChannelCollection,
-		bson.M{"name": name},
-	)
-	if err != nil {
-		log.Errorf("settings: failed to get slack channel (%s)", err.Error())
-		return nil, err
-	}
-
-	channel := slack.ApiChannel{}
-	err = resp.Decode(&channel)
-	if err != nil {
-		log.Errorf("settings: failed to decode slack channel (%s)", err.Error())
-		return nil, err
-	}
-
-	return &channel, nil
-}
-
 func (h *helper) isSenderExist() bool {
 	policy, err := cubecos.GetAlertSetting()
 	if err != nil {

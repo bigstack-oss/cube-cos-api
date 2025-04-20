@@ -5,7 +5,6 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/settings"
 	"github.com/gin-gonic/gin"
@@ -242,7 +241,7 @@ func listEmailSenders(c *gin.Context) {
 	api.SetStatusOk(
 		c,
 		"email senders retrieved successfully",
-		policy.Sender,
+		[]email.Sender{*policy.Sender},
 	)
 }
 
@@ -314,7 +313,7 @@ func tryEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	senders, err := v1.GetEmailSenders()
+	senders, err := cubecos.GetEmailSenders()
 	if err != nil {
 		log.Errorf("settings(%s): failed to get email senders: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -423,14 +422,14 @@ func createSlackChannel(c *gin.Context) {
 }
 
 func trySlackChannel(c *gin.Context) {
-	channel, err := getSlackChannel(c.Param("channelName"))
+	channel, err := cubecos.GetSlackChannel(c.Param("channelName"))
 	if err != nil {
 		log.Errorf("settings(%s): failed to get slack channel: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	err = sendTrialSlackMessage(*channel)
+	err = sendTrialSlackMessage(channel)
 	if err != nil {
 		log.Errorf("settings(%s): failed to try slack channel: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -445,7 +444,7 @@ func trySlackChannel(c *gin.Context) {
 }
 
 func listSlackChannels(c *gin.Context) {
-	policy, err := cubecos.GetAlertSetting()
+	setting, err := cubecos.GetAlertSetting()
 	if err != nil {
 		log.Errorf("settings(%s): failed to get slack channels: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
@@ -455,7 +454,7 @@ func listSlackChannels(c *gin.Context) {
 	api.SetStatusOk(
 		c,
 		"slack channels retrieved successfully",
-		policy.Slacks,
+		convertToApiSlackChannels(setting.Receiver.Slacks),
 	)
 }
 

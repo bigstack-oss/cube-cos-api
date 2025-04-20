@@ -73,44 +73,6 @@ func SettingsDB() string {
 	return Settings
 }
 
-func GetEmailSenders() ([]email.Sender, error) {
-	h := bsmongo.GetGlobalHelper()
-	cursor, err := h.GetQueryCursor(
-		Settings,
-		email.SenderCollection,
-		bson.M{},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	defer cursor.Close(ctx)
-	return parseSenders(cursor)
-}
-
-func parseSenders(cursor *mongo.Cursor) ([]email.Sender, error) {
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-
-	senders := []email.Sender{}
-	for cursor.Next(ctx) {
-		sender := email.Sender{}
-		err := cursor.Decode(&sender)
-		if err != nil {
-			continue
-		}
-
-		senders = append(senders, sender)
-	}
-	if cursor.Err() != nil {
-		log.Errorf("failed to iterate email sender(%s)", cursor.Err().Error())
-	}
-
-	return senders, nil
-}
-
 func GetEmailRecipients() ([]email.Recipient, error) {
 	h := bsmongo.GetGlobalHelper()
 	c, err := h.GetQueryCursor(

@@ -40,6 +40,42 @@ func GetEmailSenders() ([]email.Sender, error) {
 	return []email.Sender{*policy.Sender}, nil
 }
 
+func GetEmailRecipients() ([]email.Recipient, error) {
+	setting, err := GetAlertSetting()
+	if err != nil {
+		log.Errorf("settings: failed to get email recipients (%s)", err.Error())
+		return nil, err
+	}
+
+	return setting.Emails, nil
+}
+
+func GetSlackChannel(channel string) (slack.CosChannel, error) {
+	setting, err := GetAlertSetting()
+	if err != nil {
+		log.Errorf("settings: failed to get slack channel (%s)", err.Error())
+		return slack.CosChannel{}, err
+	}
+
+	for _, slack := range setting.Slacks {
+		if slack.Channel == channel {
+			return slack, nil
+		}
+	}
+
+	return slack.CosChannel{}, nil
+}
+
+func GetSlackChannels() ([]slack.CosChannel, error) {
+	setting, err := GetAlertSetting()
+	if err != nil {
+		log.Errorf("settings: failed to get slack channels (%s)", err.Error())
+		return nil, err
+	}
+
+	return setting.Slacks, nil
+}
+
 func ApplyTitlePrefix(titlePrefix string) error {
 	payload := map[string]string{"titlePrefix": titlePrefix}
 	bytes, err := json.Marshal(payload)
