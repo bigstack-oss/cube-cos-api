@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/mail"
 	"net/smtp"
+	"strconv"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 )
@@ -16,6 +17,29 @@ const (
 type Options struct {
 	Recipients []Recipient `json:"recipients" bson:"recipients"`
 	Senders    []Sender    `json:"senders" bson:"senders"`
+}
+
+type CosSender struct {
+	Host     string `json:"host,omitempty" bson:"host" yaml:"host,omitempty"`
+	Port     string `json:"port,omitempty" bson:"port" yaml:"port,omitempty"`
+	Username string `json:"username,omitempty" bson:"username" yaml:"username,omitempty"`
+	Password string `json:"password,omitzero" bson:"password" yaml:"password,omitempty"`
+	From     string `json:"from,omitempty" bson:"from" yaml:"from,omitempty"`
+}
+
+func (c *CosSender) ConvertToApiSchema() Sender {
+	port, err := strconv.Atoi(c.Port)
+	if err != nil {
+		port = 0
+	}
+
+	return Sender{
+		Host:     c.Host,
+		Port:     port,
+		Username: c.Username,
+		Password: c.Password,
+		From:     c.From,
+	}
 }
 
 type Sender struct {

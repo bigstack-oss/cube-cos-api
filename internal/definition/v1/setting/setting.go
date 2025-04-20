@@ -27,9 +27,13 @@ type Options struct {
 }
 
 type CosAlert struct {
-	TitlePrefix string        `json:"titlePrefix" yaml:"titlePrefix"`
-	Sender      *email.Sender `json:"sender,omitempty" yaml:"sender,omitempty"`
+	TitlePrefix string `json:"titlePrefix" yaml:"titlePrefix"`
+	Sender      `json:"sender" yaml:"sender"`
 	Receiver    `json:"receiver" yaml:"receiver"`
+}
+
+type Sender struct {
+	Email *email.CosSender `json:"email,omitempty" yaml:"email,omitempty"`
 }
 
 type ApiAlert struct {
@@ -102,11 +106,11 @@ func (a *ApiAlert) InitOkStatus() {
 }
 
 func (e *CosAlert) HasSender(host string) bool {
-	if e.Sender == nil {
+	if e.Sender.Email == nil {
 		return false
 	}
 
-	return e.Sender.Host == host
+	return e.Sender.Email.Host == host
 }
 
 func (e *CosAlert) HasRecipient(address string) bool {
@@ -129,18 +133,6 @@ func (e *CosAlert) HasSlackChannel(channel string) bool {
 	return false
 }
 
-func (e *CosAlert) IsTitlePrefixEqual(titlePrefix string) bool {
-	return e.TitlePrefix == titlePrefix
-}
-
-func (e *CosAlert) IsSenderEqual(sender email.Sender) bool {
-	if e.Sender == nil {
-		return false
-	}
-
-	return reflect.DeepEqual(*e.Sender, sender)
-}
-
 func (e *CosAlert) IsRecipientEqual(recipient email.Recipient) bool {
 	for _, email := range e.Receiver.Emails {
 		if reflect.DeepEqual(email, recipient) {
@@ -153,8 +145,8 @@ func (e *CosAlert) IsRecipientEqual(recipient email.Recipient) bool {
 
 func (e *CosAlert) ConvertToApiSchema() ApiAlert {
 	senders := []email.Sender{}
-	if e.Sender.Host != "" {
-		senders = append(senders, *e.Sender)
+	if e.Sender.Email.Host != "" {
+		senders = append(senders, e.Sender.Email.ConvertToApiSchema())
 	}
 
 	return ApiAlert{
@@ -174,12 +166,15 @@ func (e *CosAlert) ConvertToApiSchema() ApiAlert {
 func convertToApiChannels(channels []slack.CosChannel) []slack.ApiChannel {
 	apiChannels := []slack.ApiChannel{}
 
-	for i, channel := range channels {
-		apiChannels[i] = slack.ApiChannel{
-			Name:        channel.Channel,
-			URL:         channel.URL,
-			Description: channel.Description,
-		}
+	for _, channel := range channels {
+		apiChannels = append(
+			apiChannels,
+			slack.ApiChannel{
+				Name:        channel.Channel,
+				URL:         channel.URL,
+				Description: channel.Description,
+			},
+		)
 	}
 
 	return apiChannels

@@ -40,6 +40,7 @@ func (h *helper) initEmailSenderCreateParams() error {
 		return cuberr.EmailSenderPortInvalid
 	}
 
+	h.task.Key = h.task.Sender.Host
 	h.task.InitUpdateStatus()
 	return nil
 }
@@ -60,6 +61,7 @@ func (h *helper) initEmailSenderPatchParams() error {
 		h.task.Sender.Host = host
 	}
 
+	h.task.Key = h.task.Sender.Host
 	h.task.Sender.ResetAccessVerification()
 	h.task.InitUpdateStatus()
 	return nil
@@ -71,7 +73,7 @@ func (h *helper) initEmailSenderDeleteParams() error {
 		return errors.New("email sender host is empty")
 	}
 
-	h.task = &setting.Options{Type: "emailSender"}
+	h.task = &setting.Options{Type: "emailSender", Key: host}
 	h.task.Sender = &email.Sender{Host: host}
 	h.task.InitDeleteStatus()
 	return nil
@@ -92,6 +94,7 @@ func (h *helper) initEmailRecipientCreateParams() error {
 		return err
 	}
 
+	h.task.Key = h.task.Recipient.Address
 	h.task.InitUpdateStatus()
 	return nil
 }
@@ -112,6 +115,7 @@ func (h *helper) initEmailRecipientPatchParams() error {
 		h.task.Recipient.Address = recipientEmail
 	}
 
+	h.task.Key = h.task.Recipient.Address
 	h.task.InitUpdateStatus()
 	return nil
 }
@@ -122,7 +126,7 @@ func (h *helper) initEmailRecipientDeleteParams() error {
 		return errors.New("email recipient email is empty")
 	}
 
-	h.task = &setting.Options{Type: "emailRecipient"}
+	h.task = &setting.Options{Type: "emailRecipient", Key: recipientEmail}
 	h.task.Recipient = &email.Recipient{Address: recipientEmail}
 	h.task.InitDeleteStatus()
 	return nil

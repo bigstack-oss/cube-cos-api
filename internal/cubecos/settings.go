@@ -31,13 +31,14 @@ func GetAlertSetting() (*setting.CosAlert, error) {
 }
 
 func GetEmailSenders() ([]email.Sender, error) {
-	policy, err := GetAlertSetting()
+	setting, err := GetAlertSetting()
 	if err != nil {
 		log.Errorf("settings: failed to get email senders (%s)", err.Error())
 		return nil, err
 	}
 
-	return []email.Sender{*policy.Sender}, nil
+	sender := setting.Sender.Email.ConvertToApiSchema()
+	return []email.Sender{sender}, nil
 }
 
 func GetEmailRecipients() ([]email.Recipient, error) {

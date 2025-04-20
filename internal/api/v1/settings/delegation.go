@@ -2,6 +2,7 @@ package settings
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -18,7 +19,8 @@ func (h *helper) addReqRecord(req setting.Options) {
 	)
 	if err != nil {
 		log.Errorf(
-			"failed to sync %s record for %s (%s)",
+			"settings(%s): failed to sync %s record for %s (%s)",
+			api.GetReqId(h.c),
 			req.Type,
 			req.GetKey(),
 			err.Error(),

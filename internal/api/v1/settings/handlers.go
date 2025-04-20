@@ -169,7 +169,7 @@ func createEmailSender(c *gin.Context) {
 		return
 	}
 
-	if h.isSenderExist() {
+	if h.isSenderExist(h.task.Sender.Host) {
 		api.SetStatusConflict(c, errors.New("sender host already exists"))
 		return
 	}
@@ -231,17 +231,18 @@ func tryEmailSender(c *gin.Context) {
 }
 
 func listEmailSenders(c *gin.Context) {
-	policy, err := cubecos.GetAlertSetting()
+	setting, err := cubecos.GetAlertSetting()
 	if err != nil {
 		log.Errorf("settings(%s): failed to get email recipients: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
+	sender := setting.Sender.Email.ConvertToApiSchema()
 	api.SetStatusOk(
 		c,
 		"email senders retrieved successfully",
-		[]email.Sender{*policy.Sender},
+		[]email.Sender{sender},
 	)
 }
 
@@ -253,7 +254,7 @@ func patchEmailSender(c *gin.Context) {
 		return
 	}
 
-	if !h.isSenderExist() {
+	if !h.isSenderExist(h.task.Sender.Host) {
 		api.SetBadRequest(c, errors.New("sender not found"))
 		return
 	}
@@ -274,7 +275,7 @@ func deleteEmailSender(c *gin.Context) {
 		return
 	}
 
-	if !h.isSenderExist() {
+	if !h.isSenderExist(h.task.Sender.Host) {
 		api.SetBadRequest(c, errors.New("sender not found"))
 		return
 	}

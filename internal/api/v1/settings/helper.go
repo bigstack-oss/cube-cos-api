@@ -51,13 +51,13 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 }
 
 func (h *helper) listSettings() (*setting.ApiAlert, error) {
-	cosAlert, err := cubecos.GetAlertSetting()
+	setting, err := cubecos.GetAlertSetting()
 	if err != nil {
 		log.Infof("settings(%s): failed to get settings: %v", api.GetReqId(h.c), err)
 		return nil, err
 	}
 
-	apiAlert := cosAlert.ConvertToApiSchema()
+	apiAlert := setting.ConvertToApiSchema()
 	h.syncUpdateStatus(&apiAlert)
 	h.eraseSenderPassword(&apiAlert.Email.Senders)
 	h.syncEmailSenderVerification(&apiAlert.Email.Senders)

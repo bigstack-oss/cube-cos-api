@@ -22,13 +22,13 @@ func (h *helper) updateSetting() {
 	reqQueue.Add(h.task)
 }
 
-func (h *helper) isSenderExist() bool {
+func (h *helper) isSenderExist(host string) bool {
 	policy, err := cubecos.GetAlertSetting()
 	if err != nil {
 		return false
 	}
 
-	return policy.HasSender(h.c.Param("senderHost"))
+	return policy.HasSender(host)
 }
 
 func isRecipientExist(recipient string) bool {
