@@ -2509,7 +2509,7 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/products"
                     },
                     {
-                        "$ref": "#/components/parameters/statuses"
+                        "$ref": "#/components/parameters/listLicenseStatuses"
                     },
                     {
                         "$ref": "#/components/parameters/types"
@@ -2556,7 +2556,7 @@ const docTemplate = `{
                                                             "date": "2025-03-16T17:31:21+08:00"
                                                         },
                                                         "quantity": "some of string about cpu capacity",
-                                                        "supportPlan": "5x8",
+                                                        "supportPlan": "FMA",
                                                         "expiry": {
                                                             "date": "2025-05-15T17:31:21+08:00",
                                                             "days": 56
@@ -2775,7 +2775,7 @@ const docTemplate = `{
                                                         "date": "2025-04-09T19:16:13+08:00"
                                                     },
                                                     "quantity": "some of string about cpu capacity",
-                                                    "supportPlan": "5x8",
+                                                    "supportPlan": "FMA",
                                                     "expiry": {
                                                         "date": "2025-05-09T19:16:13+08:00",
                                                         "days": 29
@@ -4411,7 +4411,7 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/roles"
                     },
                     {
-                        "$ref": "#/components/parameters/licenseStatuses"
+                        "$ref": "#/components/parameters/nodeLicenseStatuses"
                     },
                     {
                         "$ref": "#/components/parameters/products"
@@ -4467,7 +4467,7 @@ const docTemplate = `{
                                                                 "date": "2025-01-23T14:51:50+08:00"
                                                             },
                                                             "quantity": "some of string about cpu capacity",
-                                                            "supportPlan": "5x8",
+                                                            "supportPlan": "FMA",
                                                             "expiry": {
                                                                 "date": "2025-03-24T14:51:50+08:00",
                                                                 "days": 9
@@ -4515,14 +4515,21 @@ const docTemplate = `{
                                                                 "device": "nvme0n1",
                                                                 "type": "SSD",
                                                                 "sizeMiB": 222110.7482,
-                                                                "status": "system"
+                                                                "availability": "system",
+                                                                "status": {
+                                                                    "current": "ok"
+                                                                }
                                                             },
                                                             {
                                                                 "serial": "200598804038",
                                                                 "device": "nvme1n1",
                                                                 "type": "SSD",
                                                                 "sizeMiB": 222110.7482,
-                                                                "status": "in-use"
+                                                                "availability": "in-use",
+                                                                "status": {
+                                                                    "current": "warning",
+                                                                    "description": "status fetch timeout"
+                                                                }
                                                             }
                                                         ],
                                                         "vcpu": {
@@ -4658,7 +4665,7 @@ const docTemplate = `{
                                                         "date": "2025-01-23T14:51:50+08:00"
                                                     },
                                                     "quantity": "some of string about cpu capacity",
-                                                    "supportPlan": "5x8",
+                                                    "supportPlan": "FMA",
                                                     "expiry": {
                                                         "date": "2025-03-24T14:51:50+08:00",
                                                         "days": 9
@@ -4706,14 +4713,21 @@ const docTemplate = `{
                                                         "device": "nvme0n1",
                                                         "type": "SSD",
                                                         "sizeMiB": 222110.7482,
-                                                        "status": "system"
+                                                        "availability": "system",
+                                                        "status": {
+                                                            "current": "ok"
+                                                        }
                                                     },
                                                     {
                                                         "serial": "200598804038",
                                                         "device": "nvme1n1",
                                                         "type": "SSD",
                                                         "sizeMiB": 222110.7482,
-                                                        "status": "in-use"
+                                                        "availability": "in-use",
+                                                        "status": {
+                                                            "current": "warning",
+                                                            "description": "status fetch timeout"
+                                                        }
                                                     }
                                                 ],
                                                 "vcpu": {
@@ -6219,7 +6233,7 @@ const docTemplate = `{
                                                         "enabled": true,
                                                         "isModified": false,
                                                         "limitation": {
-                                                            "type": "boolean",
+                                                            "type": "bool",
                                                             "default": false
                                                         },
                                                         "status": {
@@ -6266,7 +6280,7 @@ const docTemplate = `{
                                                         "enabled": true,
                                                         "isModified": false,
                                                         "limitation": {
-                                                            "type": "boolean",
+                                                            "type": "bool",
                                                             "default": false
                                                         },
                                                         "status": {
@@ -6456,7 +6470,7 @@ const docTemplate = `{
                                                     "name": "barbican.debug.enabled",
                                                     "description": "Set to true to enable barbican verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -6475,7 +6489,7 @@ const docTemplate = `{
                                                     "name": "ceph.debug.enabled",
                                                     "description": "Set to true to enable ceph debug logs.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -6494,7 +6508,7 @@ const docTemplate = `{
                                                     "name": "ceph.mirror.meta.sync",
                                                     "description": "Set to true to enable automatically volume metadata sync.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": true
                                                     },
                                                     "roles": [
@@ -6551,7 +6565,7 @@ const docTemplate = `{
                                                     "name": "cinder.backup.override",
                                                     "description": "Enable override cinder backup configurations.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -6627,7 +6641,7 @@ const docTemplate = `{
                                                     "name": "cinder.debug.enabled",
                                                     "description": "Set to true to enable cinder verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -6863,7 +6877,7 @@ const docTemplate = `{
                                                     "name": "cyborg.debug.enabled",
                                                     "description": "Set to true to enable cyborg verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -6882,7 +6896,7 @@ const docTemplate = `{
                                                     "name": "debug.enable_core_dump.%s",
                                                     "description": "Enable core dump for process %s",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -6901,7 +6915,7 @@ const docTemplate = `{
                                                     "name": "debug.enable_kdump",
                                                     "description": "Enable kdump to collect dump from kernel panic",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -6962,7 +6976,7 @@ const docTemplate = `{
                                                     "name": "designate.debug.enabled",
                                                     "description": "Set to true to enable designate verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -6981,7 +6995,7 @@ const docTemplate = `{
                                                     "name": "glance.debug.enabled",
                                                     "description": "Set to true to enable glance verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7021,7 +7035,7 @@ const docTemplate = `{
                                                     "name": "heat.debug.enabled",
                                                     "description": "Set to true to enable heat verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7061,7 +7075,7 @@ const docTemplate = `{
                                                     "name": "ironic.debug.enabled",
                                                     "description": "Set to true to enable ironic verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7080,7 +7094,7 @@ const docTemplate = `{
                                                     "name": "ironic.deploy.server",
                                                     "description": "Set to true to enable ironic deploy server (dhcp/tftp/pxe/http).",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7099,7 +7113,7 @@ const docTemplate = `{
                                                     "name": "kapacitor.alert.check.enabled",
                                                     "description": "Set true to enable kapacitor alert check.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7234,7 +7248,7 @@ const docTemplate = `{
                                                     "name": "keystone.debug.enabled",
                                                     "description": "Set to true to enable keystone verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7253,7 +7267,7 @@ const docTemplate = `{
                                                     "name": "manila.debug.enabled",
                                                     "description": "Set to true to enable manila verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7291,7 +7305,7 @@ const docTemplate = `{
                                                     "name": "masakari.host.evacuate_all",
                                                     "description": "Set to true to enable evacuate all instances when host goes down.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": true
                                                     },
                                                     "roles": [
@@ -7331,7 +7345,7 @@ const docTemplate = `{
                                                     "name": "monasca.debug.enabled",
                                                     "description": "Set to true to enable monasca verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7392,7 +7406,7 @@ const docTemplate = `{
                                                     "name": "net.ipv4.tcp_syncookies",
                                                     "description": "Turn on the Linux SYN cookies implementation.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": true
                                                     },
                                                     "roles": [
@@ -7449,7 +7463,7 @@ const docTemplate = `{
                                                     "name": "neutron.debug.enabled",
                                                     "description": "Set to true to enable neutron verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7510,7 +7524,7 @@ const docTemplate = `{
                                                     "name": "nova.debug.enabled",
                                                     "description": "Set to true to enable nova verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7595,7 +7609,7 @@ const docTemplate = `{
                                                     "name": "ntp.debug.enabled",
                                                     "description": "Set to true to enable ntp verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7614,7 +7628,7 @@ const docTemplate = `{
                                                     "name": "octavia.debug.enabled",
                                                     "description": "Set to true to enable octavia verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7633,7 +7647,7 @@ const docTemplate = `{
                                                     "name": "octavia.ha",
                                                     "description": "Set to true to enable octavia HA mode.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7694,7 +7708,7 @@ const docTemplate = `{
                                                     "name": "senlin.debug.enabled",
                                                     "description": "Set to true to enable senlin verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7713,7 +7727,7 @@ const docTemplate = `{
                                                     "name": "skyline.debug.enabled",
                                                     "description": "Set to true to enable skyline verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7751,7 +7765,7 @@ const docTemplate = `{
                                                     "name": "snapshot.apply.policy.ignore",
                                                     "description": "Set snapshot apply policy ignore <true|false>.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7770,7 +7784,7 @@ const docTemplate = `{
                                                     "name": "sshd.bind_to_all_interfaces",
                                                     "description": "Set to true to bind sshd to all interfaces.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7829,7 +7843,7 @@ const docTemplate = `{
                                                     "name": "update.security.autoupdate",
                                                     "description": "Set to true to enable security autoupdate.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -7848,7 +7862,7 @@ const docTemplate = `{
                                                     "name": "watcher.debug.enabled",
                                                     "description": "Set to true to enable watcher verbose log.",
                                                     "limitation": {
-                                                        "type": "boolean",
+                                                        "type": "bool",
                                                         "default": false
                                                     },
                                                     "roles": [
@@ -10251,24 +10265,18 @@ const docTemplate = `{
                 "description": "The role of the host",
                 "example": "control-converged"
             },
-            "statuses": {
+            "listLicenseStatuses": {
                 "in": "query",
                 "name": "statuses",
                 "required": false,
                 "schema": {
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "enum": [
-                            "ok",
-                            "expiring",
-                            "expired",
-                            "error"
-                        ]
+                        "$ref": "#/components/schemas/ListLicenseCurrentStatus"
                     }
                 },
                 "description": "The status of the host",
-                "example": "active"
+                "example": "valid"
             },
             "types": {
                 "in": "query",
@@ -10289,24 +10297,18 @@ const docTemplate = `{
                 "description": "The type of the license to query, click 'try it out' to see a few options.",
                 "example": "trial"
             },
-            "licenseStatuses": {
+            "nodeLicenseStatuses": {
                 "in": "query",
                 "name": "licenseStatuses",
                 "required": false,
                 "schema": {
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "enum": [
-                            "ok",
-                            "expiring",
-                            "expired",
-                            "error"
-                        ]
+                        "$ref": "#/components/schemas/NodeLicenseCurrentStatus"
                     }
                 },
-                "description": "The status of the host",
-                "example": "active"
+                "description": "The license status of the host",
+                "example": "valid"
             },
             "products": {
                 "in": "query",
@@ -14849,6 +14851,7 @@ const docTemplate = `{
                                 "device",
                                 "type",
                                 "sizeMiB",
+                                "availability",
                                 "status"
                             ],
                             "properties": {
@@ -14864,8 +14867,23 @@ const docTemplate = `{
                                 "sizeMiB": {
                                     "type": "number"
                                 },
-                                "status": {
+                                "availability": {
                                     "type": "string"
+                                },
+                                "status": {
+                                    "type": "object",
+                                    "required": [
+                                        "current",
+                                        "description"
+                                    ],
+                                    "properties": {
+                                        "current": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -15091,7 +15109,14 @@ const docTemplate = `{
                     "str",
                     "int",
                     "uint",
-                    "boolean"
+                    "bool"
+                ]
+            },
+            "ListLicenseCurrentStatus": {
+                "type": "string",
+                "enum": [
+                    "valid",
+                    "expired"
                 ]
             },
             "ListLicenseStatus": {
@@ -15121,17 +15146,20 @@ const docTemplate = `{
                 ],
                 "properties": {
                     "current": {
-                        "type": "string",
-                        "enum": [
-                            "unlicense",
-                            "valid",
-                            "expired"
-                        ]
+                        "$ref": "#/components/schemas/NodeLicenseCurrentStatus"
                     },
                     "isExpiring": {
                         "type": "boolean"
                     }
                 }
+            },
+            "NodeLicenseCurrentStatus": {
+                "type": "string",
+                "enum": [
+                    "unlicense",
+                    "valid",
+                    "expired"
+                ]
             },
             "VerifyLicenseStatus": {
                 "type": "object",
