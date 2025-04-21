@@ -65,8 +65,8 @@ func (h *helper) isEmailRecipientUpdating(recipient *email.Recipient) bool {
 		setting.DB,
 		setting.ReqCollection,
 		bson.M{
-			"type":    "emailRecipient",
-			"address": recipient.Address,
+			"type": "emailRecipient",
+			"key":  recipient.Address,
 		},
 	)
 	if err != nil {
@@ -100,7 +100,7 @@ func (h *helper) isSlackUpdating(channel *slack.ApiChannel) bool {
 		setting.ReqCollection,
 		bson.M{
 			"type": "slackChannel",
-			"url":  channel.URL,
+			"key":  channel.URL,
 		},
 	)
 	if err != nil {

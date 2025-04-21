@@ -179,19 +179,94 @@ func (h *helper) parseEmailSenderUpdateValue(c *mongo.Cursor) *email.Sender {
 			log.Errorf("settings: failed to decode email sender cursor (%s)", err.Error())
 			return nil
 		}
-
-		break
 	}
 
 	return req.Sender
 }
 
 func (h *helper) syncEmailRecipientUpdate(recipients *[]email.Recipient) {
+	h.syncUpdatingEmailRecipient(recipients)
+
 	for i, recipient := range *recipients {
 		if h.isEmailRecipientUpdating(&recipient) {
+			(*recipients)[i] = *h.syncEmailRecipientUpdateValue(&recipient)
 			(*recipients)[i].InitUpdateStatus()
 		}
 	}
+}
+
+func (h *helper) syncUpdatingEmailRecipient(recipients *[]email.Recipient) {
+	c, err := h.mongo.GetQueryCursor(
+		setting.DB,
+		setting.ReqCollection,
+		bson.M{"type": "emailRecipient"},
+	)
+	if err != nil {
+		log.Errorf("settings: failed to update value from email recipient cursor (%s)", err.Error())
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	defer c.Close(ctx)
+	h.parseUpdatingEmailRecipients(c, recipients)
+
+	uniqueRecipients := make(map[string]email.Recipient)
+	for _, recipient := range *recipients {
+		uniqueRecipients[recipient.Address] = recipient
+	}
+
+	*recipients = make([]email.Recipient, 0, len(uniqueRecipients))
+	for _, recipient := range uniqueRecipients {
+		*recipients = append(*recipients, recipient)
+	}
+}
+
+func (h *helper) parseUpdatingEmailRecipients(c *mongo.Cursor, recipients *[]email.Recipient) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	for c.Next(ctx) {
+		req := &setting.Options{}
+		err := c.Decode(req)
+		if err != nil {
+			log.Errorf("settings: failed to decode email recipient cursor (%s)", err.Error())
+			continue
+		}
+
+		*recipients = append(*recipients, *req.Recipient)
+	}
+}
+
+func (h *helper) syncEmailRecipientUpdateValue(recipient *email.Recipient) *email.Recipient {
+	c, err := h.mongo.GetQueryCursor(
+		setting.DB,
+		setting.ReqCollection,
+		bson.M{"type": "emailRecipient", "recipient.address": recipient.Address},
+	)
+	if err != nil {
+		log.Errorf("settings: failed to update value from email recipient cursor (%s)", err.Error())
+		return nil
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	defer c.Close(ctx)
+	return h.parseEmailRecipientUpdateValue(c)
+}
+
+func (h *helper) parseEmailRecipientUpdateValue(c *mongo.Cursor) *email.Recipient {
+	req := &setting.Options{}
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	for c.Next(ctx) {
+		err := c.Decode(req)
+		if err != nil {
+			log.Errorf("settings: failed to decode email recipient cursor (%s)", err.Error())
+			return nil
+		}
+	}
+
+	return req.Recipient
 }
 
 func (h *helper) syncSlackUpdate(slack *slack.Options) {

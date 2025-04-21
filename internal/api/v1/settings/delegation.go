@@ -48,6 +48,15 @@ func (h *helper) genUpsertPayload(setting setting.Options) bson.M {
 				"status": setting.Status,
 			},
 		}
+	case "emailRecipient":
+		return bson.M{
+			"$set": bson.M{
+				"type":      setting.Type,
+				"key":       setting.GetKey(),
+				"recipient": setting.Recipient,
+				"status":    setting.Status,
+			},
+		}
 	}
 
 	return bson.M{
