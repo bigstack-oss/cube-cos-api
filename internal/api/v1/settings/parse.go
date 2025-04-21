@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
@@ -140,8 +141,14 @@ func (h *helper) initSlackChannelDeleteParams() error {
 		return errors.New("slack channel name is empty")
 	}
 
+	policy, err := cubecos.GetAlertSetting()
+	if err != nil {
+		log.Errorf("settings(%s): failed to get alert setting: %s", api.GetReqId(h.c), err.Error())
+		return err
+	}
+
 	h.task = &setting.Options{Type: "slackChannel", Key: channelName}
-	h.task.Slack = &slack.ApiChannel{Name: channelName}
+	h.task.Slack = &slack.ApiChannel{Name: channelName, URL: policy.GetSlackUrlByName(channelName)}
 	h.task.InitDeleteStatus()
 	return nil
 }

@@ -269,11 +269,90 @@ func (h *helper) parseEmailRecipientUpdateValue(c *mongo.Cursor) *email.Recipien
 	return req.Recipient
 }
 
-func (h *helper) syncSlackUpdate(slack *slack.Options) {
-	for i, channel := range slack.Channels {
+func (h *helper) syncSlackUpdate(slackOpts *slack.Options) {
+	if len(slackOpts.Channels) == 0 {
+		slackOpts.Channels = []slack.ApiChannel{}
+	}
+
+	h.syncUpdateSlackChannels(&slackOpts.Channels)
+
+	for i, channel := range slackOpts.Channels {
 		if h.isSlackUpdating(&channel) {
-			slack.Channels[i].InitUpdateStatus()
+			slackOpts.Channels[i] = *h.syncSlackUpdateValue(&channel)
+			slackOpts.Channels[i].InitUpdateStatus()
 		}
+	}
+}
+
+func (h *helper) syncSlackUpdateValue(channel *slack.ApiChannel) *slack.ApiChannel {
+	c, err := h.mongo.GetQueryCursor(
+		setting.DB,
+		setting.ReqCollection,
+		bson.M{"type": "slackChannel", "key": channel.Name},
+	)
+	if err != nil {
+		log.Errorf("settings: failed to update value from slack channel cursor (%s)", err.Error())
+		return nil
+	}
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	defer c.Close(ctx)
+	return h.parseSlackUpdateValue(c)
+}
+
+func (h *helper) parseSlackUpdateValue(c *mongo.Cursor) *slack.ApiChannel {
+	req := &setting.Options{}
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	for c.Next(ctx) {
+		err := c.Decode(req)
+		if err != nil {
+			log.Errorf("settings: failed to decode slack channel cursor (%s)", err.Error())
+			return nil
+		}
+	}
+
+	return req.Slack
+}
+
+func (h *helper) syncUpdateSlackChannels(channels *[]slack.ApiChannel) {
+	c, err := h.mongo.GetQueryCursor(
+		setting.DB,
+		setting.ReqCollection,
+		bson.M{"type": "slackChannel"},
+	)
+	if err != nil {
+		log.Errorf("settings: failed to update value from slack channel cursor (%s)", err.Error())
+		return
+	}
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	defer c.Close(ctx)
+	h.parseUpdatingSlackChannels(c, channels)
+
+	uniqueChannels := make(map[string]slack.ApiChannel)
+	for _, channel := range *channels {
+		uniqueChannels[channel.URL] = channel
+	}
+
+	*channels = make([]slack.ApiChannel, 0, len(uniqueChannels))
+	for _, channel := range uniqueChannels {
+		*channels = append(*channels, channel)
+	}
+}
+
+func (h *helper) parseUpdatingSlackChannels(c *mongo.Cursor, slack *[]slack.ApiChannel) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	for c.Next(ctx) {
+		req := &setting.Options{}
+		err := c.Decode(req)
+		if err != nil {
+			log.Errorf("settings: failed to decode slack channel cursor (%s)", err.Error())
+			continue
+		}
+
+		*slack = append(*slack, *req.Slack)
 	}
 }
 

@@ -76,7 +76,7 @@ func (o *Options) GetKey() string {
 	case "emailRecipient":
 		key = o.Recipient.Address
 	case "slackChannel":
-		key = o.Slack.URL
+		key = o.Slack.Name
 	}
 
 	return key
@@ -122,6 +122,16 @@ func (e *CosAlert) HasRecipient(address string) bool {
 	}
 
 	return false
+}
+
+func (e *CosAlert) GetSlackUrlByName(name string) string {
+	for _, slack := range e.Receiver.Slacks {
+		if slack.Channel == name {
+			return slack.URL
+		}
+	}
+
+	return ""
 }
 
 func (e *CosAlert) HasSlackChannel(channel string) bool {
