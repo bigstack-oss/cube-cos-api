@@ -24,7 +24,7 @@ var (
 			Version: api.V1,
 			Method:  "PUT",
 			Path:    "/settings/titlePrefix",
-			Func:    patchTitlePrefix,
+			Func:    updateTitlePrefix,
 		},
 		{
 			Version: api.V1,
@@ -147,8 +147,8 @@ func listSettings(c *gin.Context) {
 	)
 }
 
-func patchTitlePrefix(c *gin.Context) {
-	h, err := initReqHelper(c, "patchTitlePrefix")
+func updateTitlePrefix(c *gin.Context) {
+	h, err := initReqHelper(c, "updateTitlePrefix")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)

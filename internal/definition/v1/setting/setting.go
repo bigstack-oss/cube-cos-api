@@ -15,8 +15,9 @@ const (
 )
 
 type Options struct {
-	Type string `json:"type" bson:"type"`
-	Key  string `json:"key" bson:"key"`
+	Type  string `json:"type" bson:"type"`
+	Key   string `json:"key" bson:"key"`
+	Value string `json:"value" bson:"value"`
 
 	TitlePrefix *TitlePrefix      `json:"titlePrefix,omitempty" bson:"titlePrefix,omitempty"`
 	Sender      *email.Sender     `json:"sender,omitempty" bson:"sender,omitempty"`
@@ -69,13 +70,13 @@ func (o *Options) GetKey() string {
 
 	switch o.Type {
 	case "titlePrefix":
-		key = o.Type
+		key = o.TitlePrefix.Value
 	case "emailSender":
 		key = o.Sender.Host
 	case "emailRecipient":
 		key = o.Recipient.Address
 	case "slackChannel":
-		key = o.Slack.Name
+		key = o.Slack.URL
 	}
 
 	return key

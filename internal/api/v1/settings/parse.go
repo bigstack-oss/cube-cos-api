@@ -11,13 +11,15 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (h *helper) initTitlePrefixPatchParams() error {
+func (h *helper) initTitlePrefixUpdateParams() error {
 	h.task = &setting.Options{Type: "titlePrefix"}
 	err := h.c.ShouldBindJSON(&h.task.TitlePrefix)
 	if err != nil {
 		return err
 	}
 
+	h.task.Key = h.task.TitlePrefix.Value
+	h.task.Value = h.task.TitlePrefix.Value
 	h.task.InitUpdateStatus()
 	return nil
 }
@@ -186,12 +188,6 @@ func (h *helper) parseTaskUpdate() error {
 
 	if h.task.Type == "" {
 		err := errors.New("task type is empty")
-		log.Errorf("settings(%s): %v", api.GetReqId(h.c), err)
-		return err
-	}
-
-	if h.task.Key == "" {
-		err := errors.New("task key is empty")
 		log.Errorf("settings(%s): %v", api.GetReqId(h.c), err)
 		return err
 	}

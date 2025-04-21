@@ -1,7 +1,10 @@
 package settings
 
 import (
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"context"
+
+	cubemongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
@@ -10,23 +13,25 @@ import (
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type helper struct {
 	c     *gin.Context
-	mongo *mongo.Helper
+	mongo *cubemongo.Helper
 
 	handler string
 	task    *setting.Options
 }
 
 func initReqHelper(c *gin.Context, handler string) (*helper, error) {
-	h := &helper{c: c, handler: handler, mongo: mongo.GetGlobalHelper()}
+	h := &helper{c: c, handler: handler, mongo: cubemongo.GetGlobalHelper()}
+
 	switch handler {
 	case "listSettings":
 		return h, nil
-	case "patchTitlePrefix":
-		return h, h.initTitlePrefixPatchParams()
+	case "updateTitlePrefix":
+		return h, h.initTitlePrefixUpdateParams()
 	case "createEmailSender":
 		return h, h.initEmailSenderCreateParams()
 	case "patchEmailSender":
@@ -97,7 +102,41 @@ func (h *helper) syncUpdateStatus(alert *setting.ApiAlert) {
 
 func (h *helper) syncTitlePrefixUpdate(titlePrefix *setting.TitlePrefix) {
 	if h.isTitlePrefixUpdating() {
+		h.updateTitlePrefixValue(titlePrefix)
 		titlePrefix.InitUpdateStatus()
+	}
+}
+
+func (h *helper) updateTitlePrefixValue(titlePrefix *setting.TitlePrefix) {
+	c, err := h.mongo.GetQueryCursor(
+		setting.DB,
+		setting.ReqCollection,
+		bson.M{"type": "titlePrefix"},
+	)
+	if err != nil {
+		log.Errorf("settings: failed to update value from title prefix cursor (%s)", err.Error())
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	defer c.Close(ctx)
+	h.parseTitlePrefixUpdateValue(c, titlePrefix)
+}
+
+func (h *helper) parseTitlePrefixUpdateValue(c *mongo.Cursor, titlePrefix *setting.TitlePrefix) {
+	req := &setting.Options{}
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	for c.Next(ctx) {
+		err := c.Decode(req)
+		if err != nil {
+			log.Errorf("settings: failed to decode title prefix cursor (%s)", err.Error())
+			continue
+		}
+
+		titlePrefix.Value = req.Value
+		break
 	}
 }
 
