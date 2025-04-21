@@ -95,19 +95,114 @@ func (h *helper) isEmailSenderVerified(sender *email.Sender) bool {
 func (h *helper) syncUpdateStatus(alert *setting.ApiAlert) {
 	alert.InitOkStatus()
 	h.syncTitlePrefixUpdate(&alert.TitlePrefix)
-	h.syncEmailRecipientUpdate(&alert.Email.Recipients)
 	h.syncEmailSenderUpdate(&alert.Email.Senders)
+	h.syncEmailRecipientUpdate(&alert.Email.Recipients)
 	h.syncSlackUpdate(&alert.Slack)
 }
 
 func (h *helper) syncTitlePrefixUpdate(titlePrefix *setting.TitlePrefix) {
 	if h.isTitlePrefixUpdating() {
-		h.updateTitlePrefixValue(titlePrefix)
+		h.syncTitlePrefixUpdateValue(titlePrefix)
 		titlePrefix.InitUpdateStatus()
 	}
 }
 
-func (h *helper) updateTitlePrefixValue(titlePrefix *setting.TitlePrefix) {
+func (h *helper) syncEmailSenderUpdate(senders *[]email.Sender) {
+	if len(*senders) == 0 {
+		h.syncUpdatingEmailSender(senders)
+	}
+
+	for i, sender := range *senders {
+		if h.isEmailSenderUpdating(&sender) {
+			(*senders)[i] = *h.syncEmailSenderUpdateValue(&sender)
+			(*senders)[i].InitUpdateStatus()
+		}
+	}
+}
+
+func (h *helper) syncUpdatingEmailSender(senders *[]email.Sender) {
+	c, err := h.mongo.GetQueryCursor(
+		setting.DB,
+		setting.ReqCollection,
+		bson.M{"type": "emailSender"},
+	)
+	if err != nil {
+		log.Errorf("settings: failed to update value from email sender cursor (%s)", err.Error())
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	defer c.Close(ctx)
+	h.parseUpdatingEmailSenders(c, senders)
+}
+
+func (h *helper) parseUpdatingEmailSenders(c *mongo.Cursor, senders *[]email.Sender) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	for c.Next(ctx) {
+		req := &setting.Options{}
+		err := c.Decode(req)
+		if err != nil {
+			log.Errorf("settings: failed to decode email sender cursor (%s)", err.Error())
+			continue
+		}
+
+		(*senders) = append(*senders, *req.Sender)
+	}
+}
+
+func (h *helper) syncEmailSenderUpdateValue(sender *email.Sender) *email.Sender {
+	c, err := h.mongo.GetQueryCursor(
+		setting.DB,
+		setting.ReqCollection,
+		bson.M{"type": "emailSender", "key": sender.Host},
+	)
+	if err != nil {
+		log.Errorf("settings: failed to update value from email sender cursor (%s)", err.Error())
+		return nil
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	defer c.Close(ctx)
+	return h.parseEmailSenderUpdateValue(c)
+}
+
+func (h *helper) parseEmailSenderUpdateValue(c *mongo.Cursor) *email.Sender {
+	req := &setting.Options{}
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
+	defer cancel()
+	for c.Next(ctx) {
+		err := c.Decode(req)
+		if err != nil {
+			log.Errorf("settings: failed to decode email sender cursor (%s)", err.Error())
+			return nil
+		}
+
+		break
+	}
+
+	return req.Sender
+}
+
+func (h *helper) syncEmailRecipientUpdate(recipients *[]email.Recipient) {
+	for i, recipient := range *recipients {
+		if h.isEmailRecipientUpdating(&recipient) {
+			(*recipients)[i].InitUpdateStatus()
+		}
+	}
+}
+
+func (h *helper) syncSlackUpdate(slack *slack.Options) {
+	for i, channel := range slack.Channels {
+		if h.isSlackUpdating(&channel) {
+			slack.Channels[i].InitUpdateStatus()
+		}
+	}
+}
+
+func (h *helper) syncTitlePrefixUpdateValue(titlePrefix *setting.TitlePrefix) {
 	c, err := h.mongo.GetQueryCursor(
 		setting.DB,
 		setting.ReqCollection,
@@ -135,31 +230,7 @@ func (h *helper) parseTitlePrefixUpdateValue(c *mongo.Cursor, titlePrefix *setti
 			continue
 		}
 
-		titlePrefix.Value = req.Value
+		titlePrefix.Value = req.Value.(string)
 		break
-	}
-}
-
-func (h *helper) syncEmailRecipientUpdate(recipients *[]email.Recipient) {
-	for i, recipient := range *recipients {
-		if h.isEmailRecipientUpdating(&recipient) {
-			(*recipients)[i].InitUpdateStatus()
-		}
-	}
-}
-
-func (h *helper) syncEmailSenderUpdate(senders *[]email.Sender) {
-	for i, sender := range *senders {
-		if h.isEmailSenderUpdating(&sender) {
-			(*senders)[i].InitUpdateStatus()
-		}
-	}
-}
-
-func (h *helper) syncSlackUpdate(slack *slack.Options) {
-	for i, channel := range slack.Channels {
-		if h.isSlackUpdating(&channel) {
-			slack.Channels[i].InitUpdateStatus()
-		}
 	}
 }

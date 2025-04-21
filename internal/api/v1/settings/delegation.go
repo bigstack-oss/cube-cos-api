@@ -29,6 +29,27 @@ func (h *helper) addReqRecord(req setting.Options) {
 }
 
 func (h *helper) genUpsertPayload(setting setting.Options) bson.M {
+	switch setting.Type {
+	case "titlePrefix":
+		return bson.M{
+			"$set": bson.M{
+				"type":   setting.Type,
+				"key":    setting.GetKey(),
+				"value":  setting.Value,
+				"status": setting.Status,
+			},
+		}
+	case "emailSender":
+		return bson.M{
+			"$set": bson.M{
+				"type":   setting.Type,
+				"key":    setting.GetKey(),
+				"sender": setting.Sender,
+				"status": setting.Status,
+			},
+		}
+	}
+
 	return bson.M{
 		"$set": bson.M{
 			"type":   setting.Type,
