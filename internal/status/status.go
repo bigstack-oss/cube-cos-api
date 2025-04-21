@@ -90,6 +90,11 @@ type Settings struct {
 	IsUpdating bool   `json:"isUpdating" bson:"isUpdating"`
 }
 
+type BlockDevice struct {
+	Current     string `json:"current,omitempty" bson:"current"`
+	Description string `json:"description,omitempty" bson:"description"`
+}
+
 func NewHealthOk() *Health {
 	return &Health{Current: Ok}
 }

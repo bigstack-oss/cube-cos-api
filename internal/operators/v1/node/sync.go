@@ -193,7 +193,8 @@ func (o *Operator) setBlockDeviceSpecToNode(node *v1.Node) {
 		)
 	}
 
-	addStatusToBlockDevices(node, partitionMounts)
+	addBlockDevicesAvailability(node, partitionMounts)
+	addBlockDevicesStatus(node)
 }
 
 func setPartitionMounts(blockDev v1.RawBlockDevice, partitionMounts map[string][]string) {
@@ -289,7 +290,7 @@ func convertToBlockDevice(rawBlockDev v1.RawBlockDevice) v1.BlockDevice {
 		Name:    rawBlockDev.Name,
 		Type:    convertBlockDeviceType(rawBlockDev.Rota),
 		SizeMiB: convertBlockDeviceSize(rawBlockDev.Size),
-		Status:  "can be added",
+		Status:  status.BlockDevice{Current: "can be added"},
 	}
 }
 
@@ -323,15 +324,48 @@ func parentDeviceSysfs(device string) (string, error) {
 	return filepath.Base(filepath.Dir(target)), nil
 }
 
-func addStatusToBlockDevices(node *v1.Node, partitions map[string][]string) {
-	partitionStatuses := genPartitionStatuses(partitions)
+func addBlockDevicesAvailability(node *v1.Node, partitions map[string][]string) {
+	partitionStatuses := genPartitionAvailability(partitions)
 	mainBlockDevStatus := genMainBlockDevStatus(partitionStatuses)
 	for i, blockDev := range node.BlockDevices {
-		node.BlockDevices[i].Status = mainBlockDevStatus[blockDev.Name]
+		node.BlockDevices[i].Availability = mainBlockDevStatus[blockDev.Name]
 	}
 }
 
-func genPartitionStatuses(partitions map[string][]string) map[string]string {
+func addBlockDevicesStatus(node *v1.Node) {
+	for i, blockDev := range node.BlockDevices {
+		node.BlockDevices[i].Status = getBlockDeviceStatus(blockDev)
+	}
+}
+
+func getBlockDeviceStatus(blockDev v1.BlockDevice) status.BlockDevice {
+	out, err := exec.Command("smartctl", "-a", fmt.Sprintf("/dev/%s", blockDev.Name), "--json").CombinedOutput()
+	if err != nil {
+		log.Errorf("nodes: failed to get block device(%s) status: %s", blockDev.Name, err.Error())
+		return status.BlockDevice{Current: "failed"}
+	}
+
+	smartCtl := v1.SmartCtl{}
+	err = json.Unmarshal(out, &smartCtl)
+	if err != nil {
+		log.Errorf("nodes: failed to unmarshal block device(%s) status: %s", blockDev.Name, err.Error())
+		return status.BlockDevice{Current: "failed"}
+	}
+
+	return status.BlockDevice{
+		Current: parseSmartCtlStatus(smartCtl),
+	}
+}
+
+func parseSmartCtlStatus(smartCtl v1.SmartCtl) string {
+	if smartCtl.PassStatus.Passed {
+		return "ok"
+	}
+
+	return "failed"
+}
+
+func genPartitionAvailability(partitions map[string][]string) map[string]string {
 	partitionStatuses := map[string]string{}
 
 	for partition, mountPoints := range partitions {

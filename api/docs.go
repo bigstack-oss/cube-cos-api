@@ -118,7 +118,12 @@ const docTemplate = `{
                                                     "isHaEnabled": false,
                                                     "utcTimeZone": "+00:00",
                                                     "additional": {
-                                                        "helpUrl": "https://www.bigstack.co/contact-us"
+                                                        "helpUrl": "https://www.bigstack.co/contact-us",
+                                                        "nodeLicenseStatus": {
+                                                            "valid": 3,
+                                                            "expired": 0,
+                                                            "unlicense": 0
+                                                        }
                                                     }
                                                 }
                                             ],
@@ -191,7 +196,12 @@ const docTemplate = `{
                                                 "isHaEnabled": false,
                                                 "utcTimeZone": "+00:00",
                                                 "additional": {
-                                                    "helpUrl": "https://www.bigstack.co/contact-us"
+                                                    "helpUrl": "https://www.bigstack.co/contact-us",
+                                                    "nodeLicenseStatus": {
+                                                        "valid": 3,
+                                                        "expired": 0,
+                                                        "unlicense": 0
+                                                    }
                                                 }
                                             },
                                             "msg": "fetch data center info successfully",
@@ -10467,11 +10477,34 @@ const docTemplate = `{
                                 "additional": {
                                     "type": "object",
                                     "required": [
-                                        "helpUrl"
+                                        "helpUrl",
+                                        "nodeLicenseStatus"
                                     ],
                                     "properties": {
                                         "helpUrl": {
                                             "type": "string"
+                                        },
+                                        "nodeLicenseStatus": {
+                                            "type": "object",
+                                            "required": [
+                                                "valid",
+                                                "expired",
+                                                "unlicense"
+                                            ],
+                                            "properties": {
+                                                "valid": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "expired": {
+                                                    "type": "integer",
+                                                    "example": 0
+                                                },
+                                                "unlicense": {
+                                                    "type": "integer",
+                                                    "example": 0
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -10534,11 +10567,34 @@ const docTemplate = `{
                             "additional": {
                                 "type": "object",
                                 "required": [
-                                    "helpUrl"
+                                    "helpUrl",
+                                    "nodeLicenseStatus"
                                 ],
                                 "properties": {
                                     "helpUrl": {
                                         "type": "string"
+                                    },
+                                    "nodeLicenseStatus": {
+                                        "type": "object",
+                                        "required": [
+                                            "valid",
+                                            "expired",
+                                            "unlicense"
+                                        ],
+                                        "properties": {
+                                            "valid": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "expired": {
+                                                "type": "integer",
+                                                "example": 0
+                                            },
+                                            "unlicense": {
+                                                "type": "integer",
+                                                "example": 0
+                                            }
+                                        }
                                     }
                                 }
                             }

@@ -20,7 +20,7 @@ func sendTrialEmail(sender emailv1.Sender, recipient string) error {
 		sender.UserAuth(),
 		sender.From,
 		[]string{recipient},
-		[]byte("Subject: [Cube COS] A Trial Email From Settings\n\nThis is a trial email from Cube COS."),
+		[]byte("Subject: Test Email\n\nHi, \nThis is a test email to verify that our email delivery system is working correctly. If you received this message, it means the email route is functioning as expected. No further action is required.\nBest."),
 	)
 	if err != nil {
 		log.Errorf("settings: failed to send trial email (%s)", err.Error())

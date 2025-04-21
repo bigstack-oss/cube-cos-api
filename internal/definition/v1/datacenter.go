@@ -22,7 +22,7 @@ type Additional struct {
 }
 
 type NodeLicenseStatus struct {
-	Valid      int `json:"valid" bson:"valid"`
-	Expired    int `json:"expired" bson:"expired"`
-	Unlicensed int `json:"unlicensed" bson:"unlicensed"`
+	Valid     int `json:"valid" bson:"valid"`
+	Expired   int `json:"expired" bson:"expired"`
+	Unlicense int `json:"unlicense" bson:"unlicense"`
 }

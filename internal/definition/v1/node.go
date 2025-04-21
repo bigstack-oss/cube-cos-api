@@ -89,11 +89,12 @@ type RawNetworkInterface struct {
 }
 
 type BlockDevice struct {
-	Serial  string  `json:"serial"`
-	Name    string  `json:"device" yaml:"device" bson:"device"`
-	Type    string  `json:"type" yaml:"type" bson:"type"`
-	SizeMiB float64 `json:"sizeMiB" yaml:"sizeMiB" bson:"sizeMiB"`
-	Status  string  `json:"status" yaml:"status" bson:"status"`
+	Serial       string             `json:"serial"`
+	Name         string             `json:"device" yaml:"device" bson:"device"`
+	Type         string             `json:"type" yaml:"type" bson:"type"`
+	SizeMiB      float64            `json:"sizeMiB" yaml:"sizeMiB" bson:"sizeMiB"`
+	Availability string             `json:"availability" yaml:"availability" bson:"availability"`
+	Status       status.BlockDevice `json:"status" yaml:"status" bson:"status"`
 }
 
 type RawBlockDevice struct {
