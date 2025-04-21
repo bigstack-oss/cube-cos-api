@@ -14878,7 +14878,12 @@ const docTemplate = `{
                                     ],
                                     "properties": {
                                         "current": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "enum": [
+                                                "ok",
+                                                "warning",
+                                                "fail"
+                                            ]
                                         },
                                         "description": {
                                             "type": "string"

@@ -5,9 +5,9 @@ const (
 )
 
 type SmartCtl struct {
-	PassStatus `json:"passed" bson:"passed"`
+	SmartStatus `json:"smart_status" bson:"smart_status"`
 }
 
-type PassStatus struct {
+type SmartStatus struct {
 	Passed bool `json:"passed" bson:"passed"`
 }

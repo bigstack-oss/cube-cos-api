@@ -358,7 +358,7 @@ func getBlockDeviceStatus(blockDev v1.BlockDevice) status.BlockDevice {
 }
 
 func parseSmartCtlStatus(smartCtl v1.SmartCtl) string {
-	if smartCtl.PassStatus.Passed {
+	if smartCtl.SmartStatus.Passed {
 		return "ok"
 	}
 

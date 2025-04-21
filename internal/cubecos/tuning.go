@@ -490,10 +490,15 @@ func GetTuningPolicy(filePath string) (*v1.TuningPolicy, error) {
 		return nil, err
 	}
 
-	// tuning from /etc/settings.txt
+	backfillTuningsFromEtcSettings(policy)
+	return policy, nil
+}
+
+func backfillTuningsFromEtcSettings(policy *v1.TuningPolicy) {
 	settingTunings, err := v1.GetEtcSettings()
 	if err != nil {
-		return nil, err
+		log.Errorf("tunings: failed to get etc settings: %s", err.Error())
+		return
 	}
 
 	for name, value := range settingTunings {
@@ -508,8 +513,6 @@ func GetTuningPolicy(filePath string) (*v1.TuningPolicy, error) {
 
 		appendSettingTuningToPolicy(policy, spec, value)
 	}
-
-	return policy, nil
 }
 
 func appendSettingTuningToPolicy(policy *v1.TuningPolicy, spec *v1.TuningSpec, value string) {
