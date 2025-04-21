@@ -121,6 +121,7 @@ var (
 func init() {
 	setTuningToRoles()
 	setTuningToSelectors()
+	setTuningSpecs()
 }
 
 func setTuningToRoles() {
@@ -320,10 +321,6 @@ func convertStringLimit(raw v1.RawTuningLimitation) v1.TuningLimitation {
 	}
 }
 
-func init() {
-	setTuningSpecs()
-}
-
 func GetTuningValue(name string) (string, error) {
 	out, err := exec.Command("hex_tuning_helper", "/etc/settings.txt", "", name).Output()
 	if err != nil {
@@ -339,7 +336,7 @@ func GetTuningValue(name string) (string, error) {
 	return keyValue[1], nil
 }
 
-func GetTuning(name string) (*v1.Tuning, error) {
+func GetSourceTuning(name string) (*v1.Tuning, error) {
 	policy, err := GetTuningPolicy(TuningPolicyFile)
 	if err != nil {
 		return nil, err
@@ -493,7 +490,49 @@ func GetTuningPolicy(filePath string) (*v1.TuningPolicy, error) {
 		return nil, err
 	}
 
+	// tuning from /etc/settings.txt
+	settingTunings, err := v1.GetEtcSettings()
+	if err != nil {
+		return nil, err
+	}
+
+	for name, value := range settingTunings {
+		spec, err := v1.GetTuningSpec(name)
+		if err != nil {
+			continue
+		}
+
+		if policy.IsTuningExists(name) {
+			continue
+		}
+
+		appendSettingTuningToPolicy(policy, spec, value)
+	}
+
 	return policy, nil
+}
+
+func appendSettingTuningToPolicy(policy *v1.TuningPolicy, spec *v1.TuningSpec, value string) {
+	tuning := v1.Tuning{
+		Name:       spec.Name,
+		Enabled:    true,
+		IsModified: true,
+	}
+
+	var err error
+	switch spec.Limitation.Type {
+	case "int", "uint":
+		tuning.Value, err = strconv.Atoi(value)
+	case "bool", "boolean":
+		tuning.Value, err = strconv.ParseBool(strings.ToLower(value))
+	case "str":
+		tuning.Value = value
+	}
+	if err != nil {
+		tuning.Value = spec.Limitation.Default
+	}
+
+	policy.Tunings = append(policy.Tunings, tuning)
 }
 
 func IsTuningDeleted(tuning v1.Tuning) bool {
@@ -592,7 +631,7 @@ func setTunings(mergedMap map[string]v1.Tuning, tunings []v1.Tuning) {
 
 func SyncTunings() {
 	for _, spec := range v1.ListTuningSpecs() {
-		srcTuning, err := GetTuning(spec.Name)
+		srcTuning, err := GetSourceTuning(spec.Name)
 		if err == nil {
 			srcTuning.IsModified = true
 			srcTuning.Description = spec.Description
