@@ -26,7 +26,7 @@ import (
 const (
 	healthMeasurement     = `fn: (r) => r._measurement == "health"`
 	convertValueToField   = `rowKey: ["_time","component","node","code"], columnKey: ["_field"], valueColumn: "_value"`
-	repairingCode         = 1
+	repairingCode         = 0
 	defaultAggreateWindow = 10 * time.Minute
 )
 

@@ -6,6 +6,9 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 )
 
+// M1 TODO:
+// the function below will took a bit longer to run due to the hex_sdk
+// need to incrase the perf of the function by async data preloading
 func (h *helper) syncSelectableResponseItems(trigger *trigger.Options) {
 	trigger.InitResponse()
 
@@ -47,12 +50,15 @@ func setSlackChannelsToTrigger(trigger *trigger.Options) {
 func convertToApiChannels(channels []slack.CosChannel) []slack.ApiChannel {
 	apiChannels := []slack.ApiChannel{}
 
-	for i, channel := range channels {
-		apiChannels[i] = slack.ApiChannel{
-			Name:        channel.Channel,
-			URL:         channel.URL,
-			Description: channel.Description,
-		}
+	for _, channel := range channels {
+		apiChannels = append(
+			apiChannels,
+			slack.ApiChannel{
+				Name:        channel.Channel,
+				URL:         channel.URL,
+				Description: channel.Description,
+			},
+		)
 	}
 
 	return apiChannels

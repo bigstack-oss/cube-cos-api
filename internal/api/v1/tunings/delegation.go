@@ -101,17 +101,24 @@ func (h *helper) delegateToOtherNode(node *v1.Node) error {
 	http := cubeHttp.GetGlobalHelper()
 	resp, err := http.R().
 		SetHeader(node.GenAuthHeader()).
-		SetBody(h.tuning.CopyAndOverrideHost(*node)).
+		SetBody(genTuningUpdate(h.tuning, node)).
 		Patch(node.PatchTuningUrl(h.tuning))
 	if err != nil {
-		log.Errorf("failed to send tuning %s to %s: %s", h.tuning.Name, node.Id, err.Error())
+		log.Errorf("tunings: failed to send tuning %s to %s: %s", h.tuning.Name, node.Id, err.Error())
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("failed to send tuning %s to %s: %d %s", h.tuning.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("tunings: failed to send tuning %s to %s: %s(%d)", h.tuning.Name, node.Hostname, string(resp.Body()), resp.StatusCode())
 		return errors.New(string(resp.Body()))
 	}
 
 	return nil
+}
+
+func genTuningUpdate(tuning v1.Tuning, node *v1.Node) *v1.TuningUpdate {
+	return &v1.TuningUpdate{
+		Value: tuning.Value,
+		Hosts: []string{node.Hostname},
+	}
 }

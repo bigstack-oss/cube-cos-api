@@ -10,10 +10,10 @@ import (
 
 func (o *Operator) handleExit(tuning v1.Tuning, err error) {
 	if err != nil {
-		log.Errorf("tuning: failed to %s %s to %v(%v)", tuning.Status.Desired, tuning.Name, tuning.Value, err)
+		log.Errorf("tunings: failed to %s %s to %v(%v)", tuning.Status.Desired, tuning.Name, tuning.Value, err)
 		tuning.SetError()
 	} else {
-		log.Infof("tuning: %s %s to %v", tuning.Status.Desired, tuning.Name, tuning.Value)
+		log.Infof("tunings: %s %s to %v", tuning.Status.Desired, tuning.Name, tuning.Value)
 		tuning.SetCompleted()
 	}
 
@@ -26,7 +26,7 @@ func (o *Operator) handleExit(tuning v1.Tuning, err error) {
 func (o *Operator) reportToController(tuning v1.Tuning) error {
 	node, err := v1.GetOneOfControllerNode()
 	if err != nil {
-		log.Errorf("tuning: failed to get controller nodes: %s", err.Error())
+		log.Errorf("tunings: failed to get controller nodes: %s", err.Error())
 		return err
 	}
 
@@ -36,12 +36,12 @@ func (o *Operator) reportToController(tuning v1.Tuning) error {
 		SetBody(tuning.GenTaskUpdate()).
 		Patch(node.PatchTuningTaskUrl(tuning))
 	if err != nil {
-		log.Errorf("failed to send tuning %s to %s: %s", tuning.Name, node.Hostname, err.Error())
+		log.Errorf("tunings: failed to send tuning %s to %s: %s", tuning.Name, node.Hostname, err.Error())
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("failed to send tuning %s to %s: %d %s", tuning.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("tunings: failed to send tuning %s to %s: %d %s", tuning.Name, node.Hostname, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 

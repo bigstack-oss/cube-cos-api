@@ -48,6 +48,7 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 func (h *helper) parseTuningUpdate() error {
 	err := h.c.ShouldBindJSON(&h.update)
 	if err != nil {
+
 		return err
 	}
 
