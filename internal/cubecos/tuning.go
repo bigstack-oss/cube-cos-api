@@ -490,52 +490,7 @@ func GetTuningPolicy(filePath string) (*v1.TuningPolicy, error) {
 		return nil, err
 	}
 
-	backfillTuningsFromEtcSettings(policy)
 	return policy, nil
-}
-
-func backfillTuningsFromEtcSettings(policy *v1.TuningPolicy) {
-	settingTunings, err := v1.GetEtcSettings()
-	if err != nil {
-		log.Errorf("tunings: failed to get etc settings: %s", err.Error())
-		return
-	}
-
-	for name, value := range settingTunings {
-		spec, err := v1.GetTuningSpec(name)
-		if err != nil {
-			continue
-		}
-
-		if policy.IsTuningExists(name) {
-			continue
-		}
-
-		appendSettingTuningToPolicy(policy, spec, value)
-	}
-}
-
-func appendSettingTuningToPolicy(policy *v1.TuningPolicy, spec *v1.TuningSpec, value string) {
-	tuning := v1.Tuning{
-		Name:       spec.Name,
-		Enabled:    true,
-		IsModified: true,
-	}
-
-	var err error
-	switch spec.Limitation.Type {
-	case "int", "uint":
-		tuning.Value, err = strconv.Atoi(value)
-	case "bool", "boolean":
-		tuning.Value, err = strconv.ParseBool(strings.ToLower(value))
-	case "str":
-		tuning.Value = value
-	}
-	if err != nil {
-		tuning.Value = spec.Limitation.Default
-	}
-
-	policy.Tunings = append(policy.Tunings, tuning)
 }
 
 func IsTuningDeleted(tuning v1.Tuning) bool {

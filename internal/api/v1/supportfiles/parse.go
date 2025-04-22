@@ -27,7 +27,7 @@ func (h *helper) parseWatch() error {
 }
 
 func (h *helper) parseRoles() {
-	h.roles = h.c.QueryArray("role")
+	h.roles = h.c.QueryArray("roles")
 }
 
 func (h *helper) parseHost() {

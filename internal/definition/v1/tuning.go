@@ -1,9 +1,7 @@
 package v1
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"regexp"
 	"slices"
 	"strconv"
@@ -293,38 +291,6 @@ func isValidString(tuning Tuning, spec *TuningSpec) bool {
 	return regex.MatchString(value)
 }
 
-func GetEtcSettings() (map[string]string, error) {
-	file, err := os.Open("/etc/settings.txt")
-	if err != nil {
-		return nil, err
-	}
-
-	defer file.Close()
-	tunings := map[string]string{}
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "" {
-			continue
-		}
-
-		parts := strings.Split(line, "=")
-		if len(parts) != 2 {
-			continue
-		}
-
-		key := strings.TrimSpace(parts[0])
-		value := strings.TrimSpace(parts[1])
-		tunings[key] = value
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
-
-	return tunings, nil
-}
-
 func SetTuningSpec(name string, spec *TuningSpec) {
 	tuningSpecs.Store(name, spec)
 }
@@ -467,16 +433,6 @@ func (t *TuningPolicy) AppendTuning(tuning Tuning) {
 
 func (t *TuningPolicy) AppendTunings(tunings []Tuning) {
 	t.Tunings = slices.Concat(t.Tunings, tunings)
-}
-
-func (t *TuningPolicy) IsTuningExists(name string) bool {
-	for _, existing := range t.Tunings {
-		if existing.Name == name {
-			return true
-		}
-	}
-
-	return false
 }
 
 func (t *TuningPolicy) HasMatchedTuning(tuning Tuning) bool {

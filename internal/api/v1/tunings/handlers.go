@@ -22,7 +22,7 @@ var (
 			Version: api.V1,
 			Method:  http.MethodGet,
 			Path:    "/tunings/parameters",
-			Func:    getTunings,
+			Func:    listTunings,
 		},
 		{
 			Version: api.V1,
@@ -55,8 +55,8 @@ func init() {
 	go streamTunings()
 }
 
-func getTunings(c *gin.Context) {
-	h, err := initHelper(c, "getTunings")
+func listTunings(c *gin.Context) {
+	h, err := initHelper(c, "listTunings")
 	if err != nil {
 		log.Errorf("tunings(%s): failed to init request helper: %s", api.GetReqId(c), err.Error())
 		api.SetBadRequest(c, err)
