@@ -46,6 +46,7 @@ func getNodesBySelector(nodes []v1.Node, selector v1.Selector) []v1.Node {
 }
 
 func (h *helper) filterTunings(tunings []v1.Tuning) []v1.Tuning {
+	tunings = h.filterUnexpectedTunings(tunings)
 	if !h.isFilterRequired() {
 		return tunings
 	}
@@ -65,6 +66,16 @@ func (h *helper) filterTunings(tunings []v1.Tuning) []v1.Tuning {
 	return tunings
 }
 
+func (h *helper) filterUnexpectedTunings(tunings []v1.Tuning) []v1.Tuning {
+	filtered := []v1.Tuning{}
+	for _, tuning := range tunings {
+		if tuning.Name != "" {
+			filtered = append(filtered, tuning)
+		}
+	}
+
+	return filtered
+}
 func (h *helper) filteredByKeyword(tunings []v1.Tuning) []v1.Tuning {
 	result, err := h.searchTunings(tunings)
 	if err != nil {

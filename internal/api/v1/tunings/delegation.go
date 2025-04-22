@@ -98,10 +98,11 @@ func (h *helper) backfillTuningInfoByHandler(tuning v1.Tuning) {
 }
 
 func (h *helper) delegateToOtherNode(node *v1.Node) error {
-	url := node.PatchTuningUrl(h.tuning)
-	body := h.tuning.CopyAndOverrideHost(*node)
 	http := cubeHttp.GetGlobalHelper()
-	resp, err := http.R().SetHeader(node.GenAuthHeader()).SetBody(body).Patch(url)
+	resp, err := http.R().
+		SetHeader(node.GenAuthHeader()).
+		SetBody(h.tuning.CopyAndOverrideHost(*node)).
+		Patch(node.PatchTuningUrl(h.tuning))
 	if err != nil {
 		log.Errorf("failed to send tuning %s to %s: %s", h.tuning.Name, node.Id, err.Error())
 		return err
