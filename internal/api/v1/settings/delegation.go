@@ -61,7 +61,7 @@ func (h *helper) genUpsertPayload(setting setting.Options) bson.M {
 		return bson.M{
 			"$set": bson.M{
 				"type":   setting.Type,
-				"key":    setting.GetKey(),
+				"key":    setting.Key,
 				"slack":  setting.Slack,
 				"status": setting.Status,
 			},

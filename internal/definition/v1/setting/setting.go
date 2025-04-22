@@ -57,6 +57,14 @@ func (t *TitlePrefix) InitUpdateStatus() {
 	t.Status = initUpdateStatus()
 }
 
+func (o *Options) InitCreateStatus() {
+	o.Status = status.Settings{
+		Current:    status.Updating,
+		Desired:    status.Created,
+		IsUpdating: true,
+	}
+}
+
 func (o *Options) InitUpdateStatus() {
 	o.Status = initUpdateStatus()
 }
@@ -76,7 +84,7 @@ func (o *Options) GetKey() string {
 	case "emailRecipient":
 		key = o.Recipient.Address
 	case "slackChannel":
-		key = o.Slack.Name
+		key = o.Slack.URL
 	}
 
 	return key
@@ -134,9 +142,13 @@ func (e *CosAlert) GetSlackUrlByName(name string) string {
 	return ""
 }
 
-func (e *CosAlert) HasSlackChannel(channel string) bool {
+func (e *CosAlert) HasSlackChannel(channel slack.CosChannel) bool {
 	for _, slack := range e.Receiver.Slacks {
-		if slack.Channel == channel {
+		if slack.Channel == channel.Channel {
+			return true
+		}
+
+		if slack.URL == channel.URL {
 			return true
 		}
 	}

@@ -411,7 +411,7 @@ func createSlackChannel(c *gin.Context) {
 	}
 
 	if h.isSlackChannlExist() {
-		api.SetStatusConflict(c, errors.New("sender host already exists"))
+		api.SetStatusConflict(c, errors.New("slack channel already exists"))
 		return
 	}
 

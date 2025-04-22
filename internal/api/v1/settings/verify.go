@@ -5,6 +5,8 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (h *helper) checkRecipientUpdate() error {
@@ -35,5 +37,33 @@ func (h *helper) isSlackChannlExist() bool {
 		return false
 	}
 
-	return policy.HasSlackChannel(h.c.Param("channelName"))
+	channel := h.task.Slack.ConvertToCosSchema()
+	if policy.HasSlackChannel(channel) {
+		return true
+	}
+
+	if h.hasUpdatingSlackChannel() {
+		return true
+	}
+
+	return false
+}
+
+func (h *helper) hasUpdatingSlackChannel() bool {
+	count, err := h.mongo.GetCount(
+		setting.DB,
+		setting.ReqCollection,
+		bson.M{
+			"type": "slackChannel",
+			"$or": bson.A{
+				bson.M{"key": h.c.Param("channelName")},
+				bson.M{"slack.url": h.task.Slack.URL},
+			},
+		},
+	)
+	if err != nil {
+		return true
+	}
+
+	return count > 0
 }

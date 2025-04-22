@@ -18,6 +18,7 @@ const (
 	CheckingAndRepairing = "checkingAndRepairing"
 
 	Completed = "completed"
+	Created   = "created"
 	Updated   = "updated"
 	Deleted   = "deleted"
 	Ok        = "ok"

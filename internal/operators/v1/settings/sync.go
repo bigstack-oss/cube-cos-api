@@ -11,6 +11,8 @@ import (
 
 func (o *Operator) operateReq(setting setting.Options) error {
 	switch setting.Status.Desired {
+	case status.Created:
+		return o.createSetting(setting)
 	case status.Updated:
 		return o.updateSetting(setting)
 	case status.Deleted:
@@ -24,6 +26,17 @@ func (o *Operator) operateReq(setting setting.Options) error {
 	)
 }
 
+func (o *Operator) createSetting(setting setting.Options) error {
+	switch setting.Type {
+	case "emailRecipient":
+		return cubecos.ApplyEmailRecipient(*setting.Recipient)
+	case "slackChannel":
+		return cubecos.ApplySlackChannel(setting.Slack.ConvertToCosSchema())
+	}
+
+	return cuberr.UnknownSettingType
+}
+
 func (o *Operator) updateSetting(setting setting.Options) error {
 	switch setting.Type {
 	case "titlePrefix":
@@ -31,9 +44,9 @@ func (o *Operator) updateSetting(setting setting.Options) error {
 	case "emailSender":
 		return cubecos.ApplyEmailSender(*setting.Sender)
 	case "emailRecipient":
-		return cubecos.ApplyEmailRecipient(*setting.Recipient)
+		return cubecos.DeleteAndCreateEmailRecipient(setting)
 	case "slackChannel":
-		return cubecos.ApplySlackChannel(setting.Slack.ConvertToCosSchema())
+		return cubecos.DeleteAndCreateSlackChannel(setting)
 	}
 
 	return cuberr.UnknownSettingType

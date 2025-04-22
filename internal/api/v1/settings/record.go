@@ -92,7 +92,7 @@ func (h *helper) isSlackUpdating(channel *slack.ApiChannel) bool {
 		setting.ReqCollection,
 		bson.M{
 			"type": "slackChannel",
-			"key":  channel.Name,
+			"key":  channel.URL,
 		},
 	)
 	if err != nil {

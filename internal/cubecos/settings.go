@@ -138,6 +138,15 @@ func ApplyEmailSender(sender email.Sender) error {
 	return nil
 }
 
+func DeleteAndCreateEmailRecipient(setting setting.Options) error {
+	err := DeleteEmailRecipient(setting.Key)
+	if err != nil {
+		return err
+	}
+
+	return ApplyEmailRecipient(*setting.Recipient)
+}
+
 func ApplyEmailRecipient(recipient email.Recipient) error {
 	bytes, err := json.Marshal(recipient)
 	if err != nil {
@@ -181,6 +190,15 @@ func DeleteEmailRecipient(address string) error {
 	}
 
 	return nil
+}
+
+func DeleteAndCreateSlackChannel(setting setting.Options) error {
+	err := DeleteSlackChannel(setting.Key)
+	if err != nil {
+		return err
+	}
+
+	return ApplySlackChannel(setting.Slack.ConvertToCosSchema())
 }
 
 func ApplySlackChannel(channel slack.CosChannel) error {
@@ -257,7 +275,8 @@ func IsSettingDeleted(setting setting.Options) bool {
 	case "emailRecipient":
 		isDeleted = policy.HasRecipient(setting.Recipient.Address)
 	case "slackChannel":
-		isDeleted = policy.HasSlackChannel(setting.Slack.Name)
+		channel := setting.Slack.ConvertToCosSchema()
+		isDeleted = policy.HasSlackChannel(channel)
 	}
 
 	return isDeleted

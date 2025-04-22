@@ -2,6 +2,7 @@ package settings
 
 import (
 	"context"
+	"encoding/json"
 
 	cubemongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
@@ -275,25 +276,52 @@ func (h *helper) syncSlackUpdate(slackOpts *slack.Options) {
 	}
 
 	h.syncUpdateSlackChannels(&slackOpts.Channels)
-
 	for i, channel := range slackOpts.Channels {
 		if h.isSlackUpdating(&channel) {
-			slackOpts.Channels[i] = *h.syncSlackUpdateValue(&channel)
+			val := h.syncSlackUpdateValue(&channel)
+			if val == nil {
+				continue
+			}
+
+			b, _ := json.Marshal(val)
+			log.Infof("val: %s", string(b))
+
+			slackOpts.Channels[i] = *val
 			slackOpts.Channels[i].InitUpdateStatus()
 		}
 	}
+
+	uniqueChannels := map[string]slack.ApiChannel{}
+	for _, channel := range slackOpts.Channels {
+		prev, found := uniqueChannels[channel.URL]
+		if !found {
+			uniqueChannels[channel.URL] = channel
+			continue
+		}
+
+		if !prev.Status.IsUpdating {
+			uniqueChannels[channel.URL] = channel
+		}
+	}
+
+	slackOpts.Channels = make([]slack.ApiChannel, 0, len(uniqueChannels))
+	for _, channel := range uniqueChannels {
+		slackOpts.Channels = append(slackOpts.Channels, channel)
+	}
+
 }
 
 func (h *helper) syncSlackUpdateValue(channel *slack.ApiChannel) *slack.ApiChannel {
 	c, err := h.mongo.GetQueryCursor(
 		setting.DB,
 		setting.ReqCollection,
-		bson.M{"type": "slackChannel", "key": channel.Name},
+		bson.M{"type": "slackChannel", "key": channel.URL},
 	)
 	if err != nil {
 		log.Errorf("settings: failed to update value from slack channel cursor (%s)", err.Error())
 		return nil
 	}
+
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
 	defer cancel()
 	defer c.Close(ctx)
@@ -330,12 +358,12 @@ func (h *helper) syncUpdateSlackChannels(channels *[]slack.ApiChannel) {
 	defer c.Close(ctx)
 	h.parseUpdatingSlackChannels(c, channels)
 
-	uniqueChannels := make(map[string]slack.ApiChannel)
+	uniqueChannels := map[string]slack.ApiChannel{}
 	for _, channel := range *channels {
 		uniqueChannels[channel.URL] = channel
 	}
 
-	*channels = make([]slack.ApiChannel, 0, len(uniqueChannels))
+	*channels = []slack.ApiChannel{}
 	for _, channel := range uniqueChannels {
 		*channels = append(*channels, channel)
 	}

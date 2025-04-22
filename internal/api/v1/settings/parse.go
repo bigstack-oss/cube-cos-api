@@ -98,7 +98,7 @@ func (h *helper) initEmailRecipientCreateParams() error {
 	}
 
 	h.task.Key = h.task.Recipient.Address
-	h.task.InitUpdateStatus()
+	h.task.InitCreateStatus()
 	return nil
 }
 
@@ -162,7 +162,7 @@ func (h *helper) initSlackChannelCreateParams() error {
 	}
 
 	h.task.Key = h.task.Slack.Name
-	h.task.InitUpdateStatus()
+	h.task.InitCreateStatus()
 	return nil
 }
 
@@ -172,8 +172,14 @@ func (h *helper) initSlackChannelPatchParams() error {
 		return errors.New("slack channel name is empty")
 	}
 
-	h.task = &setting.Options{Type: "slackChannel", Key: channelName}
-	err := h.c.ShouldBindJSON(&h.task.Slack)
+	policy, err := cubecos.GetAlertSetting()
+	if err != nil {
+		log.Errorf("settings(%s): failed to get alert setting: %s", api.GetReqId(h.c), err.Error())
+		return err
+	}
+
+	h.task = &setting.Options{Type: "slackChannel", Key: policy.GetSlackUrlByName(channelName)}
+	err = h.c.ShouldBindJSON(&h.task.Slack)
 	if err != nil {
 		return err
 	}
