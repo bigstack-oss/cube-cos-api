@@ -190,9 +190,32 @@ func (h *helper) syncEmailRecipientUpdate(recipients *[]email.Recipient) {
 
 	for i, recipient := range *recipients {
 		if h.isEmailRecipientUpdating(&recipient) {
-			(*recipients)[i] = *h.syncEmailRecipientUpdateValue(&recipient)
+			val := h.syncEmailRecipientUpdateValue(&recipient)
+			if val == nil {
+				continue
+			}
+
+			(*recipients)[i] = *val
 			(*recipients)[i].InitUpdateStatus()
 		}
+	}
+
+	uniqueRecipients := map[string]email.Recipient{}
+	for _, recipient := range *recipients {
+		prev, found := uniqueRecipients[recipient.Address]
+		if !found {
+			uniqueRecipients[recipient.Address] = recipient
+			continue
+		}
+
+		if !prev.Status.IsUpdating {
+			uniqueRecipients[recipient.Address] = recipient
+		}
+	}
+
+	*recipients = make([]email.Recipient, 0, len(uniqueRecipients))
+	for _, recipient := range uniqueRecipients {
+		*recipients = append(*recipients, recipient)
 	}
 }
 
@@ -242,7 +265,7 @@ func (h *helper) syncEmailRecipientUpdateValue(recipient *email.Recipient) *emai
 	c, err := h.mongo.GetQueryCursor(
 		setting.DB,
 		setting.ReqCollection,
-		bson.M{"type": "emailRecipient", "recipient.address": recipient.Address},
+		bson.M{"type": "emailRecipient", "key": recipient.Address},
 	)
 	if err != nil {
 		log.Errorf("settings: failed to update value from email recipient cursor (%s)", err.Error())
@@ -308,7 +331,6 @@ func (h *helper) syncSlackUpdate(slackOpts *slack.Options) {
 	for _, channel := range uniqueChannels {
 		slackOpts.Channels = append(slackOpts.Channels, channel)
 	}
-
 }
 
 func (h *helper) syncSlackUpdateValue(channel *slack.ApiChannel) *slack.ApiChannel {

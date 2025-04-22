@@ -10,7 +10,7 @@ import (
 )
 
 func (h *helper) checkRecipientUpdate() error {
-	if !h.isRecipientExist() {
+	if !h.isRecipientExist(h.c.Param("recipientEmail")) {
 		return errors.New("recipient not found")
 	}
 
@@ -22,13 +22,13 @@ func (h *helper) checkRecipientUpdate() error {
 	return nil
 }
 
-func (h *helper) isRecipientExist() bool {
+func (h *helper) isRecipientExist(recipient string) bool {
 	policy, err := cubecos.GetAlertSetting()
 	if err != nil {
 		return false
 	}
 
-	return policy.HasRecipient(h.c.Param("recipientEmail"))
+	return policy.HasRecipient(recipient)
 }
 
 func (h *helper) isSlackChannlExist() bool {

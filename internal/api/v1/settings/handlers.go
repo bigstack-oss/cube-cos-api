@@ -295,7 +295,7 @@ func createEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	if h.isRecipientExist() {
+	if h.isRecipientExist(h.task.Recipient.Address) {
 		api.SetStatusConflict(c, errors.New("recipient already exists"))
 		return
 	}
@@ -390,7 +390,7 @@ func deleteEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	if !h.isRecipientExist() {
+	if !h.isRecipientExist(h.c.Param("recipientEmail")) {
 		api.SetBadRequest(c, errors.New("recipient not found"))
 		return
 	}

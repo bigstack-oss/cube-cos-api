@@ -118,7 +118,6 @@ func (h *helper) initEmailRecipientPatchParams() error {
 		h.task.Recipient.Address = recipientEmail
 	}
 
-	h.task.Key = h.task.Recipient.Address
 	h.task.InitUpdateStatus()
 	return nil
 }
