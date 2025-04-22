@@ -73,23 +73,6 @@ func (o *Options) InitDeleteStatus() {
 	o.Status = initDeleteStatus()
 }
 
-func (o *Options) GetKey() string {
-	key := ""
-
-	switch o.Type {
-	case "titlePrefix":
-		key = o.TitlePrefix.Value
-	case "emailSender":
-		key = o.Sender.Host
-	case "emailRecipient":
-		key = o.Recipient.Address
-	case "slackChannel":
-		key = o.Slack.URL
-	}
-
-	return key
-}
-
 func (o *Options) SetError() {
 	o.Status.Current = status.Error
 	o.Status.IsUpdating = false

@@ -22,7 +22,7 @@ func (h *helper) addReqRecord(req setting.Options) {
 			"settings(%s): failed to sync %s record for %s (%s)",
 			api.GetReqId(h.c),
 			req.Type,
-			req.GetKey(),
+			req.Key,
 			err.Error(),
 		)
 	}
@@ -31,48 +31,57 @@ func (h *helper) addReqRecord(req setting.Options) {
 func (h *helper) genUpsertPayload(setting setting.Options) bson.M {
 	switch setting.Type {
 	case "titlePrefix":
-		return bson.M{
-			"$set": bson.M{
-				"type":   setting.Type,
-				"key":    setting.GetKey(),
-				"value":  setting.Value,
-				"status": setting.Status,
-			},
-		}
+		return genTitlePrefixUpdate(setting)
 	case "emailSender":
-		return bson.M{
-			"$set": bson.M{
-				"type":   setting.Type,
-				"key":    setting.GetKey(),
-				"sender": setting.Sender,
-				"status": setting.Status,
-			},
-		}
+		return genEmailSenderUpdate(setting)
 	case "emailRecipient":
-		return bson.M{
-			"$set": bson.M{
-				"type":      setting.Type,
-				"key":       setting.Key,
-				"recipient": setting.Recipient,
-				"status":    setting.Status,
-			},
-		}
+		return genEmailRecipientUpdate(setting)
 	case "slackChannel":
-		return bson.M{
-			"$set": bson.M{
-				"type":   setting.Type,
-				"key":    setting.Key,
-				"slack":  setting.Slack,
-				"status": setting.Status,
-			},
-		}
+		return genSlackChannelUpdate(setting)
 	}
 
+	return bson.M{}
+}
+
+func genTitlePrefixUpdate(setting setting.Options) bson.M {
 	return bson.M{
 		"$set": bson.M{
 			"type":   setting.Type,
-			"key":    setting.GetKey(),
+			"key":    setting.TitlePrefix.Value,
 			"value":  setting.Value,
+			"status": setting.Status,
+		},
+	}
+}
+
+func genEmailSenderUpdate(setting setting.Options) bson.M {
+	return bson.M{
+		"$set": bson.M{
+			"type":   setting.Type,
+			"key":    setting.Sender.Host,
+			"sender": setting.Sender,
+			"status": setting.Status,
+		},
+	}
+}
+
+func genEmailRecipientUpdate(setting setting.Options) bson.M {
+	return bson.M{
+		"$set": bson.M{
+			"type":      setting.Type,
+			"key":       setting.Key,
+			"recipient": setting.Recipient,
+			"status":    setting.Status,
+		},
+	}
+}
+
+func genSlackChannelUpdate(setting setting.Options) bson.M {
+	return bson.M{
+		"$set": bson.M{
+			"type":   setting.Type,
+			"key":    setting.Key,
+			"slack":  setting.Slack,
 			"status": setting.Status,
 		},
 	}

@@ -2,7 +2,6 @@ package settings
 
 import (
 	"context"
-	"encoding/json"
 
 	cubemongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
@@ -200,6 +199,10 @@ func (h *helper) syncEmailRecipientUpdate(recipients *[]email.Recipient) {
 		}
 	}
 
+	dedupEmailRecipients(recipients)
+}
+
+func dedupEmailRecipients(recipients *[]email.Recipient) {
 	uniqueRecipients := map[string]email.Recipient{}
 	for _, recipient := range *recipients {
 		prev, found := uniqueRecipients[recipient.Address]
@@ -213,7 +216,7 @@ func (h *helper) syncEmailRecipientUpdate(recipients *[]email.Recipient) {
 		}
 	}
 
-	*recipients = make([]email.Recipient, 0, len(uniqueRecipients))
+	*recipients = []email.Recipient{}
 	for _, recipient := range uniqueRecipients {
 		*recipients = append(*recipients, recipient)
 	}
@@ -234,16 +237,7 @@ func (h *helper) syncUpdatingEmailRecipient(recipients *[]email.Recipient) {
 	defer cancel()
 	defer c.Close(ctx)
 	h.parseUpdatingEmailRecipients(c, recipients)
-
-	uniqueRecipients := make(map[string]email.Recipient)
-	for _, recipient := range *recipients {
-		uniqueRecipients[recipient.Address] = recipient
-	}
-
-	*recipients = make([]email.Recipient, 0, len(uniqueRecipients))
-	for _, recipient := range uniqueRecipients {
-		*recipients = append(*recipients, recipient)
-	}
+	dedupUpdatingEmailRecipients(recipients)
 }
 
 func (h *helper) parseUpdatingEmailRecipients(c *mongo.Cursor, recipients *[]email.Recipient) {
@@ -306,30 +300,43 @@ func (h *helper) syncSlackUpdate(slackOpts *slack.Options) {
 				continue
 			}
 
-			b, _ := json.Marshal(val)
-			log.Infof("val: %s", string(b))
-
 			slackOpts.Channels[i] = *val
 			slackOpts.Channels[i].InitUpdateStatus()
 		}
 	}
 
-	uniqueChannels := map[string]slack.ApiChannel{}
+	dedupSlackChannels(slackOpts)
+}
+
+func dedupSlackChannels(slackOpts *slack.Options) {
+	channles := map[string]slack.ApiChannel{}
 	for _, channel := range slackOpts.Channels {
-		prev, found := uniqueChannels[channel.URL]
+		prev, found := channles[channel.URL]
 		if !found {
-			uniqueChannels[channel.URL] = channel
+			channles[channel.URL] = channel
 			continue
 		}
 
 		if !prev.Status.IsUpdating {
-			uniqueChannels[channel.URL] = channel
+			channles[channel.URL] = channel
 		}
 	}
 
-	slackOpts.Channels = make([]slack.ApiChannel, 0, len(uniqueChannels))
-	for _, channel := range uniqueChannels {
+	slackOpts.Channels = []slack.ApiChannel{}
+	for _, channel := range channles {
 		slackOpts.Channels = append(slackOpts.Channels, channel)
+	}
+}
+
+func dedupUpdatingEmailRecipients(recipients *[]email.Recipient) {
+	uniqueRecipients := make(map[string]email.Recipient)
+	for _, recipient := range *recipients {
+		uniqueRecipients[recipient.Address] = recipient
+	}
+
+	*recipients = make([]email.Recipient, 0, len(uniqueRecipients))
+	for _, recipient := range uniqueRecipients {
+		*recipients = append(*recipients, recipient)
 	}
 }
 
@@ -379,7 +386,10 @@ func (h *helper) syncUpdateSlackChannels(channels *[]slack.ApiChannel) {
 	defer cancel()
 	defer c.Close(ctx)
 	h.parseUpdatingSlackChannels(c, channels)
+	dedupUpdatingSlackChannels(channels)
+}
 
+func dedupUpdatingSlackChannels(channels *[]slack.ApiChannel) {
 	uniqueChannels := map[string]slack.ApiChannel{}
 	for _, channel := range *channels {
 		uniqueChannels[channel.URL] = channel
