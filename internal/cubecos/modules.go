@@ -27,6 +27,7 @@ var (
 			Modules: []v1.Module{
 				{Name: "etcd", IsRepairable: true},
 				{Name: "nodelist", IsRepairable: false},
+				{Name: "mongodb", IsRepairable: true},
 			},
 		},
 		{
@@ -48,7 +49,6 @@ var (
 			Category: "core",
 			Modules: []v1.Module{
 				{Name: "mysql", IsRepairable: true},
-				{Name: "mongodb", IsRepairable: true},
 			},
 		},
 		{

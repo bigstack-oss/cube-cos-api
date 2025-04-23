@@ -18,7 +18,7 @@ func ListBuiltInIntegrations() []v1.Integration {
 		{
 			Name:                    "openstack",
 			IsHeaderShortcutEnabled: true,
-			Description:             "Free and open-Source cloud computing platform",
+			Description:             "Free and open-source cloud computing platform",
 			IsBuiltIn:               true,
 			Url:                     fmt.Sprintf("https://%s:9999/base/overview", v1.DataCenterVip),
 		},

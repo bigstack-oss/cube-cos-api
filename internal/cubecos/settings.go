@@ -17,13 +17,14 @@ import (
 func GetAlertSetting() (*setting.CosAlert, error) {
 	out, err := exec.Command("hex_sdk", "alert_get_setting").CombinedOutput()
 	if err != nil {
+		log.Errorf("settings: failed to get cos alert settings: %s(%s)", string(out), err.Error())
 		return nil, cuberr.SdkExecutionError
 	}
 
 	settings := &setting.CosAlert{}
 	err = json.Unmarshal(out, settings)
 	if err != nil {
-		log.Errorf("settings: failed to unmarshal cos alert settings (%s)", err.Error())
+		log.Errorf("settings: failed to unmarshal cos alert settings: %s(%s)", string(out), err.Error())
 		return nil, err
 	}
 
@@ -33,7 +34,6 @@ func GetAlertSetting() (*setting.CosAlert, error) {
 func GetEmailSenders() ([]email.Sender, error) {
 	setting, err := GetAlertSetting()
 	if err != nil {
-		log.Errorf("settings: failed to get email senders (%s)", err.Error())
 		return nil, err
 	}
 
@@ -44,7 +44,6 @@ func GetEmailSenders() ([]email.Sender, error) {
 func GetEmailRecipients() ([]email.Recipient, error) {
 	setting, err := GetAlertSetting()
 	if err != nil {
-		log.Errorf("settings: failed to get email recipients (%s)", err.Error())
 		return nil, err
 	}
 
