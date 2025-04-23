@@ -3,9 +3,27 @@ package runtime
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/datacenters"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/grafana"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/healths"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/integrations"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/licenses"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/logout"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/me"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/metrics"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/services"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/settings"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/supportfiles"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/tokens"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/triggers"
+	apitunings "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/oidc"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/gin-gonic/gin"
@@ -16,8 +34,9 @@ import (
 )
 
 func newHttpServer() (*server.Server, error) {
-	router := newRouter()
-	err := registerHandlersByRole(router)
+	router := newGinRouter()
+	prepareApisHandlerByRole()
+	err := registerHandlersByCurrentRole(router)
 	if err != nil {
 		log.Errorf("runtime: failed to register handlers: %s", err.Error())
 		return nil, err
@@ -31,19 +50,15 @@ func newHttpServer() (*server.Server, error) {
 		server.Advertise(v1.AdvertiseAddr),
 	)
 
-	err = srv.Handle(srv.NewHandler(router))
-	if err != nil {
-		log.Errorf("runtime: failed to new handler: %s", err.Error())
-		return nil, err
-	}
-
-	return &srv, nil
+	return &srv,
+		srv.Handle(srv.NewHandler(router))
 }
 
-func newRouter() *gin.Engine {
+func newGinRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Recovery())
+	router.Use(timeTracker)
 	router.Use(initReqInfo)
 	router.Any("/live", livenessCheck())
 	router.Any("/saml/*any", saml.ServeAcs())
@@ -52,17 +67,203 @@ func newRouter() *gin.Engine {
 	return router
 }
 
-func livenessCheck() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		api.SetStatusOk(c, "api is alive", nil)
+func setRoleHandlersToRouter(router *gin.Engine, handlers []api.Handler) {
+	for _, h := range handlers {
+		if h.Version == "" {
+			log.Warnf("runtime: skip invalid API registration: %s %s(no version provided)", h.Method, h.Path)
+			continue
+		}
+
+		urlParentPath := getUrlParentPath(h)
+		versionGroup := router.Group(urlParentPath)
+		versionGroup.Handle(h.Method, h.Path, h.Func)
+		log.Infof("register API: %s %s", h.Method, fmt.Sprintf("%s%s", urlParentPath, h.Path))
 	}
+}
+
+func getUrlParentPath(h api.Handler) string {
+	if h.IsNotUnderDataCenter {
+		return h.Version
+	}
+
+	return fmt.Sprintf("%s/datacenters/:DataCenter", h.Version)
+}
+
+func prepareApisHandlerByRole() {
+	api.RegisterHandlersToRoles(
+		v1.DataCenters,
+		datacenters.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Services,
+		services.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Me,
+		me.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Integrations,
+		integrations.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Healths,
+		healths.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleCompute,
+		v1.RoleStorage,
+		v1.RoleModerator,
+		v1.RoleEdgeCore,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Events,
+		events.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Nodes,
+		nodes.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleCompute,
+		v1.RoleStorage,
+		v1.RoleModerator,
+		v1.RoleEdgeCore,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Tunings,
+		apitunings.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleCompute,
+		v1.RoleStorage,
+		v1.RoleModerator,
+		v1.RoleEdgeCore,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Metrics,
+		metrics.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleCompute,
+		v1.RoleStorage,
+		v1.RoleModerator,
+		v1.RoleEdgeCore,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Tokens,
+		tokens.Handlers,
+		v1.RoleControl,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Logout,
+		logout.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Licenses,
+		licenses.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Triggers,
+		triggers.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
+	)
+
+	api.RegisterHandlersToRoles(
+		support.Files,
+		supportfiles.Handlers,
+		v1.RoleControlConverged,
+		v1.RoleControl,
+		v1.RoleCompute,
+		v1.RoleStorage,
+		v1.RoleEdgeCore,
+		v1.RoleModerator,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Grafana,
+		grafana.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.Settings,
+		settings.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
+	)
+}
+
+func timeTracker(c *gin.Context) {
+	start := time.Now()
+
+	c.Next()
+
+	elapsed := time.Since(start)
+	reqId, found := c.Get("reqId")
+	if !found {
+		reqId = "unknown"
+	}
+
+	log.Infof(
+		"request(%s): %s %s%s (%s)",
+		reqId,
+		c.Request.Method,
+		c.Request.URL.Path,
+		parseParams(c),
+		elapsed,
+	)
+
 }
 
 func initReqInfo(c *gin.Context) {
 	reqId := uuid.New().String()[:8]
 	c.Set("reqId", reqId)
-	log.Infof("request(%s): %s %s%s", reqId, c.Request.Method, c.Request.URL.Path, parseParams(c))
 	c.Next()
+}
+
+func livenessCheck() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		api.SetStatusOk(c, "api is alive", nil)
+	}
 }
 
 func verifyAuthToken() gin.HandlerFunc {
@@ -123,37 +324,15 @@ func isTokenRequest(c *gin.Context) bool {
 	return strings.Contains(c.Request.URL.Path, "/token")
 }
 
-func registerHandlersByRole(router *gin.Engine) error {
-	groupHandlers := api.GetGroupHandlersByRole(v1.CurrentRole)
-	if len(groupHandlers) == 0 {
+func registerHandlersByCurrentRole(router *gin.Engine) error {
+	roleHandlers := api.GetRoleHandlers(v1.CurrentRole)
+	if len(roleHandlers) == 0 {
 		return fmt.Errorf("no handlers found for role(%s)", v1.CurrentRole)
 	}
 
-	for _, handlers := range groupHandlers {
-		setGroupHandlersToRouter(router, handlers)
+	for _, handlers := range roleHandlers {
+		setRoleHandlersToRouter(router, handlers)
 	}
 
 	return nil
-}
-
-func setGroupHandlersToRouter(router *gin.Engine, handlers []api.Handler) {
-	for _, h := range handlers {
-		if h.Version == "" {
-			log.Warnf("runtime: skip invalid API registration: %s %s (no version or controller provided)", h.Method, h.Path)
-			continue
-		}
-
-		parentPath := getParentPath(h)
-		routerGroup := router.Group(parentPath)
-		routerGroup.Handle(h.Method, h.Path, h.Func)
-		log.Infof("register API: %s %s", h.Method, fmt.Sprintf("%s%s", parentPath, h.Path))
-	}
-}
-
-func getParentPath(h api.Handler) string {
-	if h.IsNotUnderDataCenter {
-		return h.Version
-	}
-
-	return fmt.Sprintf("%s/datacenters/:DataCenter", h.Version)
 }

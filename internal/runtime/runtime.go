@@ -21,7 +21,6 @@ func NewHttpServer() (*server.Server, error) {
 	}
 
 	printWelcomeMessages()
-	allocateApiHandlerByRole()
 	return newHttpServer()
 }
 

@@ -76,7 +76,7 @@ func GenControlConvergedHandlers() map[string][]Handler {
 	return controlConvergedHandlers
 }
 
-func GetGroupHandlersByRole(role string) map[string][]Handler {
+func GetRoleHandlers(role string) map[string][]Handler {
 	switch role {
 	case v1.RoleControl:
 		return ControlHandlers
