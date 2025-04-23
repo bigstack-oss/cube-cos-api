@@ -11,6 +11,8 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/Nerzal/gocloak/v13"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/crewjam/saml"
@@ -117,6 +119,49 @@ func GenIdentityProviderMetadataUrl(opts Options) url.URL {
 		Host:   fmt.Sprintf("%s:%d", v1.DataCenterVip, opts.IdentityProvider.Host.Port),
 		Path:   opts.IdentityProvider.MetadataPath,
 	}
+}
+
+func GetSamlClient(id string) (*gocloak.Client, error) {
+	h := keycloak.GetGlobalHelper()
+	err := h.LoginAdmin()
+	if err != nil {
+		log.Errorf("runtime: failed to login admin for fetching saml client: %s", err.Error())
+		return nil, err
+	}
+
+	clients, err := h.GetClients(
+		v1.DefaultKeycloakRealm,
+		gocloak.GetClientsParams{ClientID: gocloak.StringP(id)},
+	)
+	if err != nil {
+		log.Errorf("runtime: failed to get clients: %s", err.Error())
+		return nil, err
+	}
+
+	if len(clients) == 0 {
+		return nil, fmt.Errorf("saml client not found")
+	}
+
+	return clients[0], nil
+}
+
+func CreateSamlMapper(id string, mapper gocloak.ProtocolMapperRepresentation) error {
+	h := keycloak.GetGlobalHelper()
+	err := h.LoginAdmin()
+	if err != nil {
+		log.Errorf("runtime: failed to login admin for mapper creation: %s", err.Error())
+		return err
+	}
+
+	_, err = h.CreateClientProtocolMapper(v1.DefaultKeycloakRealm, id, mapper)
+	if err == nil {
+		return nil
+	}
+	if err.(*gocloak.APIError).Code == http.StatusConflict {
+		return nil
+	}
+
+	return err
 }
 
 func GenServiceProviderMetadataUrl(opts Options) url.URL {

@@ -21,7 +21,31 @@ import (
 )
 
 func initDependencies() error {
-	err := newGlobalLogHelper(conf.Opts.Spec.Observability.Log)
+	err := newGlobalHelpers()
+	if err != nil {
+		return err
+	}
+
+	err = newAuthIdentities()
+	if err != nil {
+		return err
+	}
+
+	err = newSearchIndexers()
+	if err != nil {
+		return err
+	}
+
+	err = newReqPendingTTLs()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func newGlobalHelpers() error {
+	err := newGlobalLogHelper()
 	if err != nil {
 		log.Errorf("runtime: failed to init logger: %s", err.Error())
 		return err
@@ -39,31 +63,40 @@ func initDependencies() error {
 		return err
 	}
 
-	err = newGlobalMongoHelper(conf.Opts.Spec.Store.MongoDB)
+	err = newGlobalMongoHelper()
 	if err != nil {
 		log.Errorf("runtime: failed to init mongo helper: %s", err.Error())
 		return err
 	}
 
-	err = newGlobalInfluxHelper(conf.Opts.Spec.Store.InfluxDB)
+	err = newGlobalInfluxHelper()
 	if err != nil {
 		log.Errorf("runtime: failed to init influx helper: %s", err.Error())
 		return err
 	}
 
-	err = newGlobalOpenstackHelper(conf.Opts.Spec.Openstack)
+	err = newGlobalOpenstackHelper()
 	if err != nil {
 		log.Errorf("runtime: failed to init openstack helper: %s", err.Error())
 		return err
 	}
 
-	err = newGlobalKeycloakHelper(conf.Opts.Spec.Identity.Keycloak)
+	err = newGlobalKeycloakHelper()
 	if err != nil {
 		log.Errorf("runtime: failed to init keycloak helper: %s", err.Error())
 		return err
 	}
 
-	err = newKeycloakOidcAuth()
+	err = newGlobalAwsHelper()
+	if err != nil {
+		log.Warnf("runtime: failed to init aws helper: %s", err.Error())
+	}
+
+	return nil
+}
+
+func newAuthIdentities() error {
+	err := newKeycloakOidcAuth()
 	if err != nil {
 		log.Errorf("runtime: failed to init oidc auth in keycloak: %s", err.Error())
 		return err
@@ -87,19 +120,13 @@ func initDependencies() error {
 		return err
 	}
 
-	err = newGlobalAwsHelper(conf.Opts.Spec.Aws)
-	if err != nil {
-		log.Warnf("runtime: failed to init aws helper: %s", err.Error())
-	}
+	return nil
+}
 
-	err = newTuningSearchIndex()
+func newSearchIndexers() error {
+	err := newTuningSearchIndex()
 	if err != nil {
 		log.Warnf("runtime: failed to init tuning search index: %s", err.Error())
-	}
-
-	err = newTuningRecordTTL()
-	if err != nil {
-		log.Warnf("runtime: failed to init tuning record ttl: %s", err.Error())
 	}
 
 	err = newSupportFileSearchIndex()
@@ -120,7 +147,17 @@ func initDependencies() error {
 	return nil
 }
 
-func newGlobalLogHelper(opts bslog.Options) error {
+func newReqPendingTTLs() error {
+	err := newTuningRecordTTL()
+	if err != nil {
+		log.Warnf("runtime: failed to init tuning record ttl: %s", err.Error())
+	}
+
+	return nil
+}
+
+func newGlobalLogHelper() error {
+	opts := conf.Opts.Spec.Observability.Log
 	return bslog.NewGlobalHelper(
 		bslog.File(opts.File),
 		bslog.Level(opts.Level),
@@ -131,7 +168,8 @@ func newGlobalLogHelper(opts bslog.Options) error {
 	)
 }
 
-func newGlobalMongoHelper(opts mongo.Options) error {
+func newGlobalMongoHelper() error {
+	opts := conf.Opts.Spec.Store.MongoDB
 	return mongo.NewGlobalHelper(
 		mongo.Uri(opts.Uri),
 		mongo.AuthEnable(opts.Auth.Enable),
@@ -142,12 +180,15 @@ func newGlobalMongoHelper(opts mongo.Options) error {
 	)
 }
 
-func newGlobalInfluxHelper(opts influx.Options) error {
+func newGlobalInfluxHelper() error {
+	opts := conf.Opts.Spec.Store.InfluxDB
 	return influx.NewGlobalHelper(
 		influx.Url(opts.Url),
 	)
 }
-func newGlobalOpenstackHelper(opts openstack.Options) error {
+
+func newGlobalOpenstackHelper() error {
+	opts := conf.Opts.Spec.Openstack
 	if opts.Auth.Source == "file" {
 		return openstack.NewGlobalHelper(
 			openstack.AuthSource(opts.Auth.Source),
@@ -167,7 +208,8 @@ func newGlobalOpenstackHelper(opts openstack.Options) error {
 	)
 }
 
-func newGlobalAwsHelper(opts aws.Options) error {
+func newGlobalAwsHelper() error {
+	opts := conf.Opts.Spec.Aws
 	return aws.NewGlobalHelper(
 		aws.Region(opts.Region),
 		aws.EnableStaticCreds(opts.EnableStaticCreds),
@@ -179,7 +221,8 @@ func newGlobalAwsHelper(opts aws.Options) error {
 	)
 }
 
-func newGlobalKeycloakHelper(opts keycloak.Options) error {
+func newGlobalKeycloakHelper() error {
+	opts := conf.Opts.Spec.Identity.Keycloak
 	if opts.Ip == "" {
 		opts.Ip = v1.DataCenterVip
 	}
@@ -272,39 +315,17 @@ func newDefaultNodeToken() error {
 }
 
 func newKeycloakSamlMapper() error {
-	h := keycloak.GetGlobalHelper()
-	err := h.LoginAdmin()
+	url := saml.GenServiceProviderMetadataUrl(conf.Opts.Spec.Identity.Saml)
+	client, err := saml.GetSamlClient(url.String())
 	if err != nil {
-		log.Errorf("runtime: failed to login admin: %s", err.Error())
+		log.Errorf("runtime: failed to get saml client: %s", err.Error())
 		return err
 	}
 
-	samlId := saml.GenServiceProviderMetadataUrl(conf.Opts.Spec.Identity.Saml)
-	clients, err := h.GetClients(
-		v1.DefaultKeycloakRealm,
-		gocloak.GetClientsParams{ClientID: gocloak.StringP(samlId.String())},
-	)
-	if err != nil {
-		log.Errorf("runtime: failed to get clients: %s", err.Error())
-		return err
-	}
-	if len(clients) == 0 {
-		return fmt.Errorf("saml client not found")
-	}
-
-	_, err = h.CreateClientProtocolMapper(
-		v1.DefaultKeycloakRealm,
-		*clients[0].ID,
+	return saml.CreateSamlMapper(
+		*client.ID,
 		genSamlMapper(),
 	)
-	if err == nil {
-		return nil
-	}
-	if err.(*gocloak.APIError).Code == http.StatusConflict {
-		return nil
-	}
-
-	return err
 }
 
 func genSamlMapper() gocloak.ProtocolMapperRepresentation {
@@ -324,16 +345,6 @@ func newTuningSearchIndex() error {
 	return v1.InitTuningSearchIndex()
 }
 
-func newTuningRecordTTL() error {
-	mongo := mongo.GetGlobalHelper()
-	return mongo.CreateExpirationIndex(
-		v1.TuningDB(),
-		v1.TuningReqCollection(),
-		bson.D{{Key: "status.createdAt", Value: 1}},
-		v1.TuningRecordTTL,
-	)
-}
-
 func newSupportFileSearchIndex() error {
 	return support.InitFileSearchIndex()
 }
@@ -344,4 +355,14 @@ func newLicenseSearchIndex() error {
 
 func newNodeSearchIndex() error {
 	return v1.InitNodeSearchIndex()
+}
+
+func newTuningRecordTTL() error {
+	mongo := mongo.GetGlobalHelper()
+	return mongo.CreateExpirationIndex(
+		v1.TuningDB(),
+		v1.TuningReqCollection(),
+		bson.D{{Key: "status.createdAt", Value: 1}},
+		v1.TuningRecordTTL,
+	)
 }

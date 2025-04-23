@@ -19,7 +19,7 @@ func printPromptMessages() {
 func printLoadedConfBody() {
 	body, err := config.Opts.String()
 	if err != nil {
-		log.Errorf("failed to process loaded conf, the struct might be corrupted: %s", err.Error())
+		log.Errorf("runtime: failed to process loaded conf, the struct might be corrupted: %s", err.Error())
 		panic(err)
 	}
 
