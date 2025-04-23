@@ -38,7 +38,7 @@ var (
 )
 
 func init() {
-	go streamEvents()
+	go streamingWatcher()
 }
 
 func getEvents(c *gin.Context) {

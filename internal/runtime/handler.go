@@ -22,14 +22,13 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 )
 
-// M1 TODO:
-// recheck the role assignments for the handlers
-func registerNodeApiHandler() {
+func allocateApiHandlerByRole() {
 	api.RegisterHandlersToRoles(
 		v1.DataCenters,
 		datacenters.Handlers,
 		v1.RoleControl,
 		v1.RoleControlConverged,
+		v1.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -37,6 +36,7 @@ func registerNodeApiHandler() {
 		services.Handlers,
 		v1.RoleControl,
 		v1.RoleControlConverged,
+		v1.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -44,6 +44,7 @@ func registerNodeApiHandler() {
 		me.Handlers,
 		v1.RoleControl,
 		v1.RoleControlConverged,
+		v1.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -51,37 +52,59 @@ func registerNodeApiHandler() {
 		integrations.Handlers,
 		v1.RoleControl,
 		v1.RoleControlConverged,
+		v1.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Healths,
 		healths.Handlers,
 		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleCompute,
+		v1.RoleStorage,
+		v1.RoleModerator,
+		v1.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Events,
 		events.Handlers,
 		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Nodes,
 		nodes.Handlers,
 		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleCompute,
+		v1.RoleStorage,
+		v1.RoleModerator,
+		v1.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Tunings,
 		apitunings.Handlers,
 		v1.RoleControl,
+		v1.RoleControlConverged,
 		v1.RoleCompute,
+		v1.RoleStorage,
+		v1.RoleModerator,
+		v1.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Metrics,
 		metrics.Handlers,
 		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleCompute,
+		v1.RoleStorage,
+		v1.RoleModerator,
+		v1.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -94,18 +117,24 @@ func registerNodeApiHandler() {
 		v1.Logout,
 		logout.Handlers,
 		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Licenses,
 		licenses.Handlers,
 		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Triggers,
 		triggers.Handlers,
 		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -124,11 +153,14 @@ func registerNodeApiHandler() {
 		grafana.Handlers,
 		v1.RoleControl,
 		v1.RoleControlConverged,
+		v1.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Settings,
 		settings.Handlers,
 		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
 	)
 }

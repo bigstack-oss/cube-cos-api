@@ -31,6 +31,14 @@ var (
 
 	SdkExecutionError  = errors.New("sdk execution error")
 	UnknownSettingType = errors.New("unknown setting type")
+
+	InvalidListenAddress  = errors.New("invalid listen address")
+	InvalidListenPort     = errors.New("invalid listen port")
+	InvalidTimeZone       = errors.New("invalid time zone")
+	InvalidNodeRole       = errors.New("invalid node role")
+	InvalidHostname       = errors.New("invalid hostname")
+	InvalidDataCenterName = errors.New("invalid data center name")
+	InvalidManagementIp   = errors.New("invalid management ip")
 )
 
 type Template struct {

@@ -47,7 +47,7 @@ var (
 )
 
 func init() {
-	go streamHealth()
+	go streamingWatcher()
 }
 
 func getHealthSummary(c *gin.Context) {

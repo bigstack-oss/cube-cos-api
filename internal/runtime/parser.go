@@ -7,6 +7,7 @@ import (
 
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -52,7 +53,23 @@ func getHostname() (string, error) {
 	return os.Hostname()
 }
 
-func genNodeMetadata() map[string]string {
+func genNodeMetadata() (map[string]string, error) {
+	if v1.CurrentRole == "" {
+		return nil, errors.InvalidNodeRole
+	}
+
+	if v1.Hostname == "" {
+		return nil, errors.InvalidHostname
+	}
+
+	if v1.DataCenterName == "" {
+		return nil, errors.InvalidDataCenterName
+	}
+
+	if v1.ManagementIp == "" {
+		return nil, errors.InvalidManagementIp
+	}
+
 	return map[string]string{
 		"role":         v1.CurrentRole,
 		"hostname":     v1.Hostname,
@@ -63,29 +80,49 @@ func genNodeMetadata() map[string]string {
 		"ip":           v1.ManagementIp,
 		"isGpuEnabled": fmt.Sprintf("%t", v1.IsGpuEnabled),
 		"token":        v1.DefaultNodeToken,
-	}
+	}, nil
 }
 
-func genLocalAddr() string {
+func genLocalAddr() (string, error) {
+	if v1.ListenIp == "" {
+		return "", errors.InvalidListenAddress
+	}
+
+	if v1.ListenPort == 0 {
+		return "", errors.InvalidListenPort
+	}
+
 	return fmt.Sprintf(
 		"%s:%d",
-		conf.Opts.Spec.Listen.Local,
-		conf.Opts.Spec.Listen.Port,
-	)
+		v1.ListenIp,
+		v1.ListenPort,
+	), nil
 }
 
-func genServiceDiscoveryAddr() string {
+func genServiceDiscoveryAddr() (string, error) {
+	if v1.ManagementIp == "" {
+		return "", errors.InvalidListenAddress
+	}
+
+	if v1.ListenPort == 0 {
+		return "", errors.InvalidListenPort
+	}
+
 	return fmt.Sprintf(
 		"%s:%d",
 		v1.ManagementIp,
-		conf.Opts.Spec.Listen.Port,
-	)
+		v1.ListenPort,
+	), nil
 }
 
-func genLogoutRedirectUrl() string {
+func genLogoutRedirectUrl() (string, error) {
+	if v1.DataCenterVip == "" {
+		return "", errors.InvalidListenAddress
+	}
+
 	return fmt.Sprintf(
 		"https://%s:4443%s",
 		v1.DataCenterVip,
 		conf.Opts.Spec.Identity.LogoutRedirect,
-	)
+	), nil
 }

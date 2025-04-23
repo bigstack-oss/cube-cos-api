@@ -6,6 +6,7 @@ import (
 
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
+	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )
@@ -14,8 +15,8 @@ var (
 	module = "node"
 )
 
-func Name() string {
-	return module
+func init() {
+	service.RegisterOperator(module, &Operator{})
 }
 
 type Operator struct {

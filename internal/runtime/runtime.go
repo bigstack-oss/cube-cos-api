@@ -5,7 +5,12 @@ import (
 )
 
 func NewHttpServer() (*server.Server, error) {
-	err := initIdentities()
+	err := initSystemTime()
+	if err != nil {
+		return nil, err
+	}
+
+	err = initIdentities()
 	if err != nil {
 		return nil, err
 	}
@@ -15,11 +20,12 @@ func NewHttpServer() (*server.Server, error) {
 		return nil, err
 	}
 
-	registerNodePeerSyncer()
-	registerNodeApiHandler()
-
-	showPromptMessages()
-	showLoadedConfBody()
-
+	printWelcomeMessages()
+	allocateApiHandlerByRole()
 	return newHttpServer()
+}
+
+func printWelcomeMessages() {
+	printPromptMessages()
+	printLoadedConfBody()
 }

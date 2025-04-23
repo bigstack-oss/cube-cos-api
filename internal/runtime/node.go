@@ -1,14 +1,10 @@
 package runtime
 
 import (
-	"time"
-
-	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/node"
-	"github.com/bigstack-oss/cube-cos-api/internal/service"
+	"github.com/bigstack-oss/cube-cos-api/internal/errors"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -86,38 +82,81 @@ func initIdentities() error {
 		return err
 	}
 
-	v1.SerialNumber, err = v1.GetSystemSerial(config.Opts.Identity.Serial)
+	v1.SerialNumber, err = v1.GetSystemSerial(conf.Opts.Identity.Serial)
 	if err != nil {
 		log.Warnf("runtime: failed to get system serial: %s", err.Error())
 	}
 
-	// M1 TODO: have more error check and default value apply below
-	v1.ListenIp = conf.Opts.Spec.Listen.Local
+	v1.ListenIp, err = parseLocalListenAddr()
+	if err != nil {
+		log.Errorf("runtime: failed to parse local listen address: %s", err.Error())
+		return err
+	}
 
-	v1.ListenPort = conf.Opts.Spec.Listen.Port
+	v1.ListenPort, err = parseLocalListenPort()
+	if err != nil {
+		log.Errorf("runtime: failed to parse local listen port: %s", err.Error())
+		return err
+	}
 
-	v1.ListenAddr = genLocalAddr()
+	v1.ListenAddr, err = genLocalAddr()
+	if err != nil {
+		log.Errorf("runtime: failed to generate local address: %s", err.Error())
+		return err
+	}
 
-	v1.AdvertisePort = conf.Opts.Spec.Listen.Port
+	v1.AdvertisePort, err = parseAdvertisePort()
+	if err != nil {
+		log.Errorf("runtime: failed to parse advertise port: %s", err.Error())
+		return err
+	}
 
-	v1.AdvertiseAddr = genServiceDiscoveryAddr()
+	v1.AdvertiseAddr, err = genServiceDiscoveryAddr()
+	if err != nil {
+		log.Errorf("runtime: failed to generate advertise address: %s", err.Error())
+		return err
+	}
 
 	v1.IsGpuEnabled, err = cubecos.IsGpuEnabled()
 	if err != nil {
 		log.Warnf("runtime: failed to get gpu enablement: %s", err.Error())
 	}
 
-	v1.LogoutRedirectUrl = genLogoutRedirectUrl()
+	v1.LogoutRedirectUrl, err = genLogoutRedirectUrl()
+	if err != nil {
+		log.Errorf("runtime: failed to generate logout redirect url: %s", err.Error())
+		return err
+	}
 
-	v1.LocalTimeZone = getLocalTimeZone()
-
-	v1.LocalTimeZoneSeconds = getLocalTimeZoneSeconds()
-
-	v1.LocalTimeFixedZone = time.FixedZone("", v1.LocalTimeZoneSeconds)
+	v1.NodeMetadata, err = genNodeMetadata()
+	if err != nil {
+		log.Errorf("runtime: failed to generate node metadata: %s", err.Error())
+		return err
+	}
 
 	return nil
 }
 
-func registerNodePeerSyncer() {
-	service.RegisterOperator(node.Name(), &node.Operator{})
+func parseLocalListenAddr() (string, error) {
+	if conf.Opts.Spec.Listen.Local == "" {
+		return "", errors.InvalidListenAddress
+	}
+
+	return conf.Opts.Spec.Listen.Local, nil
+}
+
+func parseLocalListenPort() (int, error) {
+	if conf.Opts.Spec.Listen.Port == 0 {
+		return 0, errors.InvalidListenPort
+	}
+
+	return conf.Opts.Spec.Listen.Port, nil
+}
+
+func parseAdvertisePort() (int, error) {
+	if conf.Opts.Spec.Listen.Port == 0 {
+		return 0, errors.InvalidListenPort
+	}
+
+	return conf.Opts.Spec.Listen.Port, nil
 }

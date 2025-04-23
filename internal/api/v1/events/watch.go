@@ -28,7 +28,7 @@ var (
 	}{}
 )
 
-func streamEvents() {
+func streamingWatcher() {
 	for {
 		wait.Seconds(2)
 		if len(stream.Watchers) == 0 {
@@ -37,7 +37,7 @@ func streamEvents() {
 
 		stream.Lock()
 		for _, w := range stream.Watchers {
-			resp, err := streamEventsByHandlerType(&w.helper)
+			resp, err := streamingWatcherByHandlerType(&w.helper)
 			if err != nil {
 				continue
 			}
@@ -52,7 +52,7 @@ func streamEvents() {
 	}
 }
 
-func streamEventsByHandlerType(h *helper) (*data, error) {
+func streamingWatcherByHandlerType(h *helper) (*data, error) {
 	switch h.handler {
 	case "getEvents":
 		return h.genEvents()

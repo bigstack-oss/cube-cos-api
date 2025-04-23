@@ -29,7 +29,7 @@ var (
 	}{}
 )
 
-func streamHealth() {
+func streamingWatcher() {
 	for {
 		wait.Seconds(2)
 		if len(stream.Watchers) == 0 {

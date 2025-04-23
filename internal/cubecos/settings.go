@@ -4,12 +4,11 @@ import (
 	"os"
 	"os/exec"
 
-	json "github.com/json-iterator/go"
-
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
+	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 	"gopkg.in/yaml.v3"
 )

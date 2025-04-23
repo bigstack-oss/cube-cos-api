@@ -5,7 +5,7 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func showPromptMessages() {
+func printPromptMessages() {
 	log.Info("")
 	log.Info(` _____       _              _____ ____   _____             _____ _____ `)
 	log.Info(`/ ____|     | |            / ____/ __ \ / ____|      /\   |  __ \_   _|`)
@@ -16,7 +16,7 @@ func showPromptMessages() {
 	log.Info("")
 }
 
-func showLoadedConfBody() {
+func printLoadedConfBody() {
 	body, err := config.Opts.String()
 	if err != nil {
 		log.Errorf("failed to process loaded conf, the struct might be corrupted: %s", err.Error())

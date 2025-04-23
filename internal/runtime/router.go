@@ -25,10 +25,10 @@ func newHttpServer() (*server.Server, error) {
 
 	srv := http.NewServer(
 		server.Name(v1.DataCenterName),
-		server.Metadata(genNodeMetadata()),
+		server.Metadata(v1.NodeMetadata),
 		server.WithLogger(log.DefaultLogger),
-		server.Address(genLocalAddr()),
-		server.Advertise(genServiceDiscoveryAddr()),
+		server.Address(v1.ListenAddr),
+		server.Advertise(v1.AdvertiseAddr),
 	)
 
 	err = srv.Handle(srv.NewHandler(router))
@@ -139,7 +139,7 @@ func registerHandlersByRole(router *gin.Engine) error {
 func setGroupHandlersToRouter(router *gin.Engine, handlers []api.Handler) {
 	for _, h := range handlers {
 		if h.Version == "" {
-			log.Warnf("skip invalid API registration: %s %s (no version or controller provided)", h.Method, h.Path)
+			log.Warnf("runtime: skip invalid API registration: %s %s (no version or controller provided)", h.Method, h.Path)
 			continue
 		}
 

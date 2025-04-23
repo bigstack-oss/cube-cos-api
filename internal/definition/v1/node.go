@@ -41,6 +41,7 @@ var (
 	StorageIP                string
 	IsHaEnabled              bool
 	IsGpuEnabled             bool
+	NodeMetadata             map[string]string
 
 	getRegisteredServices = sync.Mutex{}
 	UpdateNodes           = sync.Mutex{}

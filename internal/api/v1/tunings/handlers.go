@@ -52,7 +52,7 @@ var (
 )
 
 func init() {
-	go streamTunings()
+	go streamingWatcher()
 }
 
 func listTunings(c *gin.Context) {

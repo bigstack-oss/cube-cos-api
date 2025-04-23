@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/node"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -26,7 +27,7 @@ var (
 )
 
 func init() {
-	go streamNodes()
+	go streamingWatcher()
 }
 
 func listNodes(c *gin.Context) {
