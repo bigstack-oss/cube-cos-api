@@ -14,7 +14,7 @@ var (
 			Version:              api.V1,
 			Method:               http.MethodGet,
 			Path:                 "/datacenters",
-			Func:                 getDataCenters,
+			Func:                 listDataCenters,
 			IsNotUnderDataCenter: true,
 		},
 		{
@@ -29,23 +29,12 @@ var (
 
 // TODO M2: the data center info will be persisted and retrieved from the database
 // M1 only has one data center, so just return the current one
-func getDataCenters(c *gin.Context) {
+func listDataCenters(c *gin.Context) {
 	api.SetStatusOk(
 		c,
 		"fetch data center list successfully",
 		[]v1.DataCenter{
-			{
-				Name:        v1.DataCenterName,
-				Version:     v1.DataCenterVersion,
-				VirtualIp:   v1.DataCenterVip,
-				IsLocal:     true,
-				IsHaEnabled: v1.IsHaEnabled,
-				UtcTimeZone: v1.LocalTimeZone,
-				Additional: v1.Additional{
-					HelpUrl:           v1.DataCenterHelpUrl,
-					NodeLicenseStatus: getNodeLicenseStatus(),
-				},
-			},
+			getLocalDataCenter(),
 		},
 	)
 }
@@ -54,17 +43,6 @@ func getDataCenter(c *gin.Context) {
 	api.SetStatusOk(
 		c,
 		"fetch data center list successfully",
-		v1.DataCenter{
-			Name:        v1.DataCenterName,
-			Version:     v1.DataCenterVersion,
-			VirtualIp:   v1.DataCenterVip,
-			IsLocal:     true,
-			IsHaEnabled: v1.IsHaEnabled,
-			UtcTimeZone: v1.LocalTimeZone,
-			Additional: v1.Additional{
-				HelpUrl:           v1.DataCenterHelpUrl,
-				NodeLicenseStatus: getNodeLicenseStatus(),
-			},
-		},
+		getLocalDataCenter(),
 	)
 }

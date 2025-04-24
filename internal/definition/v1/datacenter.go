@@ -5,14 +5,16 @@ const (
 )
 
 type DataCenter struct {
-	Id          string `json:"id,omitempty" bson:"id"`
-	Name        string `json:"name" bson:"name"`
-	Version     string `json:"version" bson:"version"`
-	VirtualIp   string `json:"virtualIp" bson:"virtualIp"`
-	IsLocal     bool   `json:"isLocal" bson:"isLocal"`
-	IsHaEnabled bool   `json:"isHaEnabled" bson:"isHaEnabled"`
-	UtcTimeZone string `json:"utcTimeZone,omitempty" bson:"utcTimeZone"`
-	Additional  `json:"additional,omitempty" bson:"additional"`
+	Type        string   `json:"type" bson:"type"`
+	Id          string   `json:"id,omitempty" bson:"id"`
+	Name        string   `json:"name" bson:"name"`
+	Roles       []string `json:"roles" bson:"roles"`
+	Version     string   `json:"version" bson:"version"`
+	VirtualIp   string   `json:"virtualIp" bson:"virtualIp"`
+	IsLocal     bool     `json:"isLocal" bson:"isLocal"`
+	IsHaEnabled bool     `json:"isHaEnabled" bson:"isHaEnabled"`
+	UtcTimeZone string   `json:"utcTimeZone,omitempty" bson:"utcTimeZone"`
+	Additional  `json:"additional" bson:"additional"`
 }
 
 type Additional struct {

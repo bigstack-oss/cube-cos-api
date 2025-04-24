@@ -111,7 +111,14 @@ const docTemplate = `{
                                             "code": 200,
                                             "data": [
                                                 {
+                                                    "type": "cloud",
                                                     "name": "example-data-center",
+                                                    "roles": [
+                                                        "control-converged",
+                                                        "control",
+                                                        "compute",
+                                                        "storage"
+                                                    ],
                                                     "version": "Cube Appliance 3.0.0",
                                                     "virtualIp": "10.10.10.10",
                                                     "isLocal": true,
@@ -184,12 +191,48 @@ const docTemplate = `{
                                     "$ref": "#/components/schemas/GetDataCenterResponse"
                                 },
                                 "examples": {
-                                    "example": {
-                                        "summary": "Data center",
+                                    "example1": {
+                                        "summary": "Cloud type data center",
                                         "value": {
                                             "code": 200,
                                             "data": {
+                                                "type": "cloud",
                                                 "name": "example-data-center",
+                                                "roles": [
+                                                    "control-converged",
+                                                    "control",
+                                                    "compute",
+                                                    "storage"
+                                                ],
+                                                "version": "Cube Appliance 3.0.0",
+                                                "virtualIp": "10.10.10.10",
+                                                "isLocal": true,
+                                                "isHaEnabled": false,
+                                                "utcTimeZone": "+00:00",
+                                                "additional": {
+                                                    "helpUrl": "https://www.bigstack.co/contact-us",
+                                                    "nodeLicenseStatus": {
+                                                        "valid": 3,
+                                                        "expired": 0,
+                                                        "unlicense": 0
+                                                    }
+                                                }
+                                            },
+                                            "msg": "fetch data center info successfully",
+                                            "status": "ok"
+                                        }
+                                    },
+                                    "example2": {
+                                        "summary": "Edge type data center",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "type": "edge",
+                                                "name": "example-data-center",
+                                                "roles": [
+                                                    "moderator",
+                                                    "edge-core"
+                                                ],
                                                 "version": "Cube Appliance 3.0.0",
                                                 "virtualIp": "10.10.10.10",
                                                 "isLocal": true,
@@ -10458,8 +10501,25 @@ const docTemplate = `{
                                 "additional"
                             ],
                             "properties": {
+                                "type": {
+                                    "type": "string"
+                                },
                                 "name": {
                                     "type": "string"
+                                },
+                                "roles": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "enum": [
+                                            "control-converged",
+                                            "control",
+                                            "compute",
+                                            "storage",
+                                            "edge-core",
+                                            "moderator"
+                                        ]
+                                    }
                                 },
                                 "version": {
                                     "type": "string"
@@ -10539,7 +10599,9 @@ const docTemplate = `{
                     "data": {
                         "type": "object",
                         "required": [
+                            "type",
                             "name",
+                            "roles",
                             "version",
                             "virtualIp",
                             "isHaEnabled",
@@ -10548,8 +10610,25 @@ const docTemplate = `{
                             "additional"
                         ],
                         "properties": {
+                            "type": {
+                                "type": "string"
+                            },
                             "name": {
                                 "type": "string"
+                            },
+                            "roles": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "control-converged",
+                                        "control",
+                                        "compute",
+                                        "storage",
+                                        "edge-core",
+                                        "moderator"
+                                    ]
+                                }
                             },
                             "version": {
                                 "type": "string"
