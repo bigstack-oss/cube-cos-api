@@ -16,6 +16,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/me"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/metrics"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/opensearch"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/supportfiles"
@@ -218,6 +219,14 @@ func prepareApisHandlerByRole() {
 	api.RegisterHandlersToRoles(
 		v1.Grafana,
 		grafana.Handlers,
+		v1.RoleControl,
+		v1.RoleControlConverged,
+		v1.RoleModerator,
+	)
+
+	api.RegisterHandlersToRoles(
+		v1.OpenSearch,
+		opensearch.Handlers,
 		v1.RoleControl,
 		v1.RoleControlConverged,
 		v1.RoleModerator,
