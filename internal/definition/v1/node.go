@@ -284,14 +284,14 @@ func GetRegisteredServices() ([]*registry.Service, error) {
 	getRegisteredServices.Lock()
 	defer getRegisteredServices.Unlock()
 
-	svcs, err := registry.GetService(DataCenterName)
+	svcs, err := registry.GetService(ServiceDiscoveryIdentity)
 	if err != nil {
-		log.Errorf("failed to get service from %s (%s)", DataCenterName, err.Error())
+		log.Errorf("failed to get service from %s (%s)", ServiceDiscoveryIdentity, err.Error())
 		return nil, err
 	}
 
 	if len(svcs) <= 0 {
-		err := fmt.Errorf("no any service find from %s", DataCenterName)
+		err := fmt.Errorf("no any service find from %s", ServiceDiscoveryIdentity)
 		log.Errorf(err.Error())
 		return nil, err
 	}

@@ -120,6 +120,12 @@ func newAuthIdentities() error {
 		return err
 	}
 
+	v1.NodeMetadata, err = genNodeMetadata()
+	if err != nil {
+		log.Errorf("runtime: failed to generate node metadata: %s", err.Error())
+		return err
+	}
+
 	return nil
 }
 

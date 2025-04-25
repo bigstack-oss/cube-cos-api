@@ -4,6 +4,10 @@ const (
 	DataCenters = "datacenters"
 )
 
+var (
+	ServiceDiscoveryIdentity = ""
+)
+
 type DataCenter struct {
 	Type        string   `json:"type" bson:"type"`
 	Id          string   `json:"id,omitempty" bson:"id"`

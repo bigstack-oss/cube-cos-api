@@ -44,7 +44,7 @@ func newHttpServer() (*server.Server, error) {
 	}
 
 	srv := http.NewServer(
-		server.Name(v1.DataCenterName),
+		server.Name(v1.ServiceDiscoveryIdentity),
 		server.Metadata(v1.NodeMetadata),
 		server.WithLogger(log.DefaultLogger),
 		server.Address(v1.ListenAddr),

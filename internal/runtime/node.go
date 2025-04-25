@@ -1,6 +1,8 @@
 package runtime
 
 import (
+	"fmt"
+
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
@@ -70,6 +72,12 @@ func initIdentities() error {
 		return err
 	}
 
+	v1.ServiceDiscoveryIdentity, err = parseServiceDiscoveryIdentity()
+	if err != nil {
+		log.Errorf("runtime: failed to parse service discovery identify: %s", err.Error())
+		return err
+	}
+
 	v1.DataCenterVersion, err = cubecos.GetDataCenterVersion()
 	if err != nil {
 		log.Errorf("runtime: failed to get data center version: %s", err.Error())
@@ -128,13 +136,23 @@ func initIdentities() error {
 		return err
 	}
 
-	v1.NodeMetadata, err = genNodeMetadata()
-	if err != nil {
-		log.Errorf("runtime: failed to generate node metadata: %s", err.Error())
-		return err
+	return nil
+}
+
+func parseServiceDiscoveryIdentity() (string, error) {
+	if v1.DataCenterName == "" {
+		return "", errors.InvalidDataCenterName
 	}
 
-	return nil
+	if v1.DataCenterVip == "" {
+		return "", errors.InvalidListenAddress
+	}
+
+	return fmt.Sprintf(
+		"%s-%s",
+		v1.DataCenterName,
+		v1.DataCenterVip,
+	), nil
 }
 
 func parseLocalListenAddr() (string, error) {

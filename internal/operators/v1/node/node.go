@@ -42,7 +42,7 @@ func (o *Operator) Init() error {
 
 func (o *Operator) Run() {
 	watcher, err := registry.Watch(
-		registry.WatchService(v1.DataCenterName),
+		registry.WatchService(v1.ServiceDiscoveryIdentity),
 	)
 	if err != nil {
 		log.Errorf("nodes: failed to create watcher (%s)", err.Error())
