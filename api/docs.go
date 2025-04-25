@@ -2583,6 +2583,7 @@ const docTemplate = `{
                                             "data": {
                                                 "licenses": [
                                                     {
+                                                        "name": "example-license",
                                                         "type": "trial",
                                                         "hosts": [
                                                             "example-node-0"
@@ -10223,6 +10224,97 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/datacenters/{dataCenter}/opensearch/instances/{instanceId}": {
+            "get": {
+                "operationId": "getOpenSearchInstances",
+                "tags": [
+                    "OpenSearch"
+                ],
+                "summary": "Get OpenSearch instances dashboard",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/instanceId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get OpenSearch instances dashboard",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetOpenSearchDashboardLinkResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Grafana instances dashboard link",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "link": "http://example-data-center/opensearch/waitingForCosToProvideTheActualPath/instance?var-TID=example-instance-id",
+                                                "enabled": true
+                                            },
+                                            "msg": "fetch top instance link successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to get OpenSearch instances dashboard: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -10236,6 +10328,16 @@ const docTemplate = `{
                 },
                 "description": "The name of the data center to operate",
                 "example": "example-data-center"
+            },
+            "instanceId": {
+                "in": "path",
+                "name": "instanceId",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The instance ID of the instance to operate",
+                "example": "example-instance-id"
             },
             "hostname": {
                 "in": "path",
@@ -10362,13 +10464,13 @@ const docTemplate = `{
                     "items": {
                         "type": "string",
                         "enum": [
-                            "cubeCOS",
-                            "cubeCMP"
+                            "CubeCOS",
+                            "CubeCMP"
                         ]
                     }
                 },
                 "description": "The product of the host",
-                "example": "cubeCOS"
+                "example": "CubeCOS"
             },
             "metricType": {
                 "in": "path",
@@ -10492,7 +10594,9 @@ const docTemplate = `{
                         "items": {
                             "type": "object",
                             "required": [
+                                "type",
                                 "name",
+                                "roles",
                                 "version",
                                 "virtualIp",
                                 "isHaEnabled",
@@ -10502,7 +10606,11 @@ const docTemplate = `{
                             ],
                             "properties": {
                                 "type": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "enum": [
+                                        "cloud",
+                                        "edge"
+                                    ]
                                 },
                                 "name": {
                                     "type": "string"
@@ -10611,7 +10719,11 @@ const docTemplate = `{
                         ],
                         "properties": {
                             "type": {
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "cloud",
+                                    "edge"
+                                ]
                             },
                             "name": {
                                 "type": "string"
@@ -11566,6 +11678,7 @@ const docTemplate = `{
                                 "items": {
                                     "type": "object",
                                     "required": [
+                                        "name",
                                         "type",
                                         "hosts",
                                         "serial",
@@ -11577,6 +11690,9 @@ const docTemplate = `{
                                         "status"
                                     ],
                                     "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
                                         "type": {
                                             "type": "string"
                                         },
@@ -11605,27 +11721,7 @@ const docTemplate = `{
                                             }
                                         },
                                         "issue": {
-                                            "type": "object",
-                                            "required": [
-                                                "by",
-                                                "to",
-                                                "hardware",
-                                                "date"
-                                            ],
-                                            "properties": {
-                                                "by": {
-                                                    "type": "string"
-                                                },
-                                                "to": {
-                                                    "type": "string"
-                                                },
-                                                "hardware": {
-                                                    "type": "string"
-                                                },
-                                                "date": {
-                                                    "type": "string"
-                                                }
-                                            }
+                                            "$ref": "#/components/schemas/LicenseIssue"
                                         },
                                         "quantity": {
                                             "type": "string"
@@ -11734,27 +11830,7 @@ const docTemplate = `{
                                         }
                                     },
                                     "issue": {
-                                        "type": "object",
-                                        "required": [
-                                            "by",
-                                            "to",
-                                            "hardware",
-                                            "date"
-                                        ],
-                                        "properties": {
-                                            "by": {
-                                                "type": "string"
-                                            },
-                                            "to": {
-                                                "type": "string"
-                                            },
-                                            "hardware": {
-                                                "type": "string"
-                                            },
-                                            "date": {
-                                                "type": "string"
-                                            }
-                                        }
+                                        "$ref": "#/components/schemas/LicenseIssue"
                                     },
                                     "quantity": {
                                         "type": "string"
@@ -14539,6 +14615,41 @@ const docTemplate = `{
                     }
                 }
             },
+            "GetOpenSearchDashboardLinkResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "link",
+                            "enabled"
+                        ],
+                        "properties": {
+                            "link": {
+                                "type": "string"
+                            },
+                            "enabled": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
             "MetricRank": {
                 "type": "object",
                 "required": [
@@ -14835,28 +14946,7 @@ const docTemplate = `{
                                 }
                             },
                             "issue": {
-                                "type": "object",
-                                "required": [
-                                    "by",
-                                    "to",
-                                    "hardware",
-                                    "date"
-                                ],
-                                "properties": {
-                                    "by": {
-                                        "type": "string"
-                                    },
-                                    "to": {
-                                        "type": "string"
-                                    },
-                                    "hardware": {
-                                        "type": "string"
-                                    },
-                                    "date": {
-                                        "type": "string",
-                                        "format": "date-time"
-                                    }
-                                }
+                                "$ref": "#/components/schemas/LicenseIssue"
                             },
                             "quantity": {
                                 "type": "string"
@@ -15195,6 +15285,35 @@ const docTemplate = `{
                     "uint",
                     "bool"
                 ]
+            },
+            "LicenseIssue": {
+                "type": "object",
+                "required": [
+                    "by",
+                    "to",
+                    "hardware",
+                    "date"
+                ],
+                "properties": {
+                    "by": {
+                        "type": "string"
+                    },
+                    "to": {
+                        "type": "string"
+                    },
+                    "hardware": {
+                        "type": "string",
+                        "description": "this field will be the serial number(s) of the host(s) that the license is issued to. '*' means all hosts, genearlly, it's for trial license only. for the paid license, it will be the comma separated serial numbers of the hosts.",
+                        "enum": [
+                            "*",
+                            "example-serial-number-1,example-serial-number-2,example-serial-number-3 ..."
+                        ]
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
             },
             "ListLicenseCurrentStatus": {
                 "type": "string",
