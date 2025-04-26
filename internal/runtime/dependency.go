@@ -309,10 +309,7 @@ func newDefaultOidcSecret() error {
 }
 
 func newDefaultNodeToken() error {
-	v1.DefaultNodeToken = v1.GenNodeToken(
-		v1.Hostname,
-		v1.AdvertiseAddr,
-	)
+	v1.DefaultNodeToken = v1.GenNodeToken(v1.Hostname)
 	if v1.DefaultNodeToken == "" {
 		return fmt.Errorf("failed to generate node token")
 	}

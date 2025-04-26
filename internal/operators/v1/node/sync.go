@@ -80,7 +80,7 @@ func (o *Operator) askPeerNode(node v1.Node) (*v1.Node, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&api.NodeData{}).
-		SetHeader(node.GenAuthHeader()).
+		SetHeaders(v1.GenNodeAuthHeaders()).
 		Get(node.GetNodeDetailsUrl())
 	if err != nil {
 		log.Errorf("nodes: failed to get node details %s: %s", node.Hostname, err.Error())

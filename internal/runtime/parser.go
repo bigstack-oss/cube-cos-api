@@ -119,7 +119,6 @@ func genNodeMetadata() (map[string]string, error) {
 		"protocol":     conf.Opts.Kind,
 		"ip":           v1.ManagementIp,
 		"isGpuEnabled": fmt.Sprintf("%t", v1.IsGpuEnabled),
-		"token":        v1.DefaultNodeToken,
 	}, nil
 }
 

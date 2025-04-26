@@ -188,7 +188,6 @@ func newNode(node *registry.Node) Node {
 		DataCenter:   node.Metadata["dataCenter"],
 		Protocol:     node.Metadata["protocol"],
 		Hostname:     node.Metadata["hostname"],
-		Token:        node.Metadata["token"],
 		Ip:           node.Metadata["ip"],
 		Address:      node.Address,
 		Labels: map[string]string{

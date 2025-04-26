@@ -39,7 +39,14 @@ var (
 	LogoutRedirectUrl = ""
 )
 
-func GenNodeToken(hostname, advertiseAddr string) string {
-	hash := sha512.Sum512([]byte(hostname + advertiseAddr + DefaultOidcClientSecret))
+func GenNodeToken(hostname string) string {
+	hash := sha512.Sum512([]byte(hostname + DefaultOidcClientSecret))
 	return hex.EncodeToString(hash[:])
+}
+
+func GenNodeAuthHeaders() map[string]string {
+	return map[string]string{
+		"Node":          Hostname,
+		"Authorization": fmt.Sprintf("Bearer %s", DefaultNodeToken),
+	}
 }

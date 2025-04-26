@@ -104,7 +104,7 @@ func (h *helper) askPeerNode(node *v1.Node) (*v1.Node, error) {
 	helper := http.GetGlobalHelper()
 	resp, err := helper.R().
 		SetResult(&api.NodeData{}).
-		SetHeader(node.GenAuthHeader()).
+		SetHeaders(v1.GenNodeAuthHeaders()).
 		Get(node.GetNodeDetailsUrl())
 	if err != nil {
 		return nil, err

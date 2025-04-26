@@ -33,7 +33,7 @@ func (o *Operator) reportToController(trigger trigger.Options) error {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetHeader(node.GenAuthHeader()).
+		SetHeaders(v1.GenNodeAuthHeaders()).
 		SetBody(trigger.GenTaskUpdate()).
 		Patch(node.PatchTriggerTaskUrl(trigger))
 	if err != nil {

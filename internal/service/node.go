@@ -29,7 +29,6 @@ func newNode(node *registry.Node) v1.Node {
 		Protocol:   node.Metadata["protocol"],
 		Ip:         node.Metadata["ip"],
 		Hostname:   v1.Hostname,
-		Token:      node.Metadata["token"],
 		Address:    node.Address,
 	}
 }

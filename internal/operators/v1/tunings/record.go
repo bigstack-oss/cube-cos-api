@@ -32,7 +32,7 @@ func (o *Operator) reportToController(tuning v1.Tuning) error {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetHeader(node.GenAuthHeader()).
+		SetHeaders(v1.GenNodeAuthHeaders()).
 		SetBody(tuning.GenTaskUpdate()).
 		Patch(node.PatchTuningTaskUrl(tuning))
 	if err != nil {

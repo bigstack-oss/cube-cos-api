@@ -73,7 +73,7 @@ func (h *helper) delegateToNode(node *v1.Node) error {
 	url := node.CreateSupportFileUrl(h.file)
 	body := h.genFileReqBody(*node)
 	http := http.GetGlobalHelper()
-	resp, err := http.R().SetHeader(node.GenAuthHeader()).SetBody(body).Post(url)
+	resp, err := http.R().SetHeaders(v1.GenNodeAuthHeaders()).SetBody(body).Post(url)
 	if err != nil {
 		log.Errorf("failed to create support file %s to %s: %s", h.file.Name, node.Id, err.Error())
 		return err
@@ -166,7 +166,7 @@ func (h *helper) streamFromPeerNode(set support.FileSet, file support.File) {
 
 	url := node.DownloadSupportFileUrl(set.Name, file.Name)
 	http := http.GetGlobalHelper()
-	resp, err := http.R().SetHeader(node.GenAuthHeader()).Get(url)
+	resp, err := http.R().SetHeaders(v1.GenNodeAuthHeaders()).Get(url)
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to download support file %s from %s: %s", api.GetReqId(h.c), file.Name, node.Hostname, err.Error())
 		return

@@ -288,7 +288,7 @@ func getNodeSupportFiles(node v1.Node) ([]support.File, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&api.SupportFileListData{}).
-		SetHeader(node.GenAuthHeader()).
+		SetHeaders(v1.GenNodeAuthHeaders()).
 		Get(node.GetSupportFileUrl())
 	if err != nil {
 		return nil, err

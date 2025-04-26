@@ -69,7 +69,6 @@ type Node struct {
 	Memory            SpaceStatistic     `json:"memory" yaml:"memory" bson:"memory"`
 	Storage           SpaceStatistic     `json:"storage" yaml:"storage" bson:"storage"`
 	UptimeSeconds     float64            `json:"uptimeSeconds" yaml:"uptimeSeconds" bson:"uptimeSeconds"`
-	Token             string             `json:"-" yaml:"-" bson:"-"`
 	Labels            map[string]string  `json:"labels,omitempty" yaml:"labels,omitempty" bson:"labels,omitempty"`
 }
 
@@ -112,14 +111,6 @@ func (r *RawBlockDevice) IsPartition() bool {
 
 func (r *RawBlockDevice) NoMountPoints() bool {
 	return len(r.MountPoints) == 0
-}
-
-func (n *Node) GetBearerToken() string {
-	return fmt.Sprintf("Bearer %s", n.Token)
-}
-
-func (n *Node) GenAuthHeader() (string, string) {
-	return "Authorization", n.GetBearerToken()
 }
 
 func (n *Node) GetMetricUrl(metric, view string) string {

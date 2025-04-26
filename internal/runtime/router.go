@@ -277,8 +277,8 @@ func livenessCheck() gin.HandlerFunc {
 
 func verifyAuthToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := parseToken(c)
-		if token == v1.DefaultNodeToken {
+		token := parseInternalToken(c)
+		if isValidInternalToken(c, token) {
 			c.Set("isTokenValid", true)
 			c.Set("authType", "oidc")
 			c.Set("authUser", c.ClientIP())
@@ -297,7 +297,12 @@ func verifyAuthToken() gin.HandlerFunc {
 	}
 }
 
-func parseToken(c *gin.Context) string {
+func parseInternalToken(c *gin.Context) string {
+	node := c.GetHeader("Node")
+	if node == "" {
+		return ""
+	}
+
 	auth := c.GetHeader("Authorization")
 	if auth == "" {
 		return ""
@@ -309,6 +314,11 @@ func parseToken(c *gin.Context) string {
 	}
 
 	return strings.TrimPrefix(auth, bearer)
+}
+
+func isValidInternalToken(c *gin.Context, token string) bool {
+	node := c.GetHeader("Node")
+	return token == v1.GenNodeToken(node)
 }
 
 func conditionalSaml() gin.HandlerFunc {

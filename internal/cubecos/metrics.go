@@ -447,7 +447,7 @@ func askPeerNodeCpuSummary(hostname string) (*v1.ComputeStatistic, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&cubeapi.ComputeStatisticData{}).
-		SetHeader(node.GenAuthHeader()).
+		SetHeaders(v1.GenNodeAuthHeaders()).
 		Get(node.GetMetricUrl("cpuUsage", "summary"))
 	if err != nil {
 		return nil, err
@@ -542,7 +542,7 @@ func askTheHostForMemorySummary(hostname string) (*v1.SpaceStatistic, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&cubeapi.SpaceStatisticData{}).
-		SetHeader(node.GenAuthHeader()).
+		SetHeaders(v1.GenNodeAuthHeaders()).
 		Get(node.GetMetricUrl("memoryUsage", "summary"))
 	if err != nil {
 		return nil, err
