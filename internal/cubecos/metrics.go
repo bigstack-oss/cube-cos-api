@@ -1552,13 +1552,13 @@ func parseUsedOfHost(record *query.FluxRecord) float64 {
 	return math.RoundDown(used, 4)
 }
 
-func parseSizeOfHost(record *query.FluxRecord) int64 {
-	used, ok := record.ValueByKey("used").(int64)
+func parseSizeOfHost(record *query.FluxRecord) float64 {
+	used, ok := record.ValueByKey("used").(float64)
 	if !ok {
 		return 0
 	}
 
-	return used
+	return math.RoundDown(used, 4)
 }
 
 func parseCpuUsedOfVm(record *query.FluxRecord) float64 {

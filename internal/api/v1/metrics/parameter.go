@@ -15,7 +15,8 @@ import (
 func (h *helper) parseParams() error {
 	parsers := []func() error{
 		h.parseView, h.parseMetric, h.parseEntity, h.parseEntityId,
-		h.parsePast, h.parsePeriod, h.parseRank, h.parseLimit, h.parseWatch,
+		h.parsePast, h.parseAggregateWindow, h.parsePeriod,
+		h.parseRank, h.parseLimit, h.parseWatch,
 	}
 
 	for _, parse := range parsers {
@@ -96,6 +97,33 @@ func (h *helper) parsePast() error {
 	_, err := duration.Str2Duration(h.past)
 	if err != nil {
 		return fmt.Errorf("invalid 'past' duration: %s", h.past)
+	}
+
+	return nil
+}
+
+func (h *helper) parseAggregateWindow() error {
+	h.aggregateWindow = h.c.DefaultQuery("aggregateWindow", "")
+	if h.aggregateWindow == "" {
+		h.aggregateWindow = "1m"
+	}
+
+	_, err := duration.Str2Duration(h.aggregateWindow)
+	if err != nil {
+		return fmt.Errorf("invalid 'aggregateWindow' duration: %s", h.aggregateWindow)
+	}
+
+	past, err := duration.Str2Duration(h.past)
+	if err != nil {
+		return fmt.Errorf("invalid 'past' duration: %s", h.past)
+	}
+
+	if past > 12*time.Hour {
+		h.aggregateWindow = "30m"
+	}
+
+	if past > 24*time.Hour {
+		h.aggregateWindow = "1h"
 	}
 
 	return nil

@@ -18,7 +18,8 @@ type helper struct {
 	entityId   string
 
 	v1.Period
-	past string
+	past            string
+	aggregateWindow string
 
 	limit int
 	rank

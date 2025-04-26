@@ -39,7 +39,7 @@ func init() {
 func getDataCenterSummary(c *gin.Context) {
 	h, err := initHelper(c, "getDataCenterSummary")
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("metrics(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
@@ -56,14 +56,14 @@ func getDataCenterSummary(c *gin.Context) {
 func getMetrics(c *gin.Context) {
 	h, err := initHelper(c, "getMetrics")
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("metrics(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
 	metrics, err := h.getMetrics()
 	if err != nil {
-		log.Errorf("request(%s): failed to fetch metrics: %v", api.GetReqId(c), err)
+		log.Errorf("metrics(%s): failed to fetch %s: %v", api.GetReqId(c), h.metricType, err)
 		api.SetBadRequest(c, err)
 		return
 	}

@@ -54,7 +54,7 @@ func (o *Operator) Run() {
 	case <-o.ctx.Done():
 		return
 	default:
-		o.watchAndSyncNodeRoles(&watcher)
+		o.watchAndSyncNodes(&watcher)
 	}
 }
 
@@ -62,7 +62,7 @@ func (o *Operator) Stop() {
 	o.cancel()
 }
 
-func (o *Operator) watchAndSyncNodeRoles(watcher *registry.Watcher) {
+func (o *Operator) watchAndSyncNodes(watcher *registry.Watcher) {
 	event, err := (*watcher).Next()
 	if err != nil {
 		log.Errorf("nodes: failed to get service discovery event", err.Error())

@@ -11,6 +11,46 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func parseServiceDiscoveryIdentity() (string, error) {
+	if v1.DataCenterName == "" {
+		return "", errors.InvalidDataCenterName
+	}
+
+	if v1.DataCenterVip == "" {
+		return "", errors.InvalidListenAddress
+	}
+
+	return fmt.Sprintf(
+		"%s-%s",
+		v1.DataCenterName,
+		v1.DataCenterVip,
+	), nil
+}
+
+func parseLocalListenAddr() (string, error) {
+	if conf.Opts.Spec.Listen.Local == "" {
+		return "", errors.InvalidListenAddress
+	}
+
+	return conf.Opts.Spec.Listen.Local, nil
+}
+
+func parseLocalListenPort() (int, error) {
+	if conf.Opts.Spec.Listen.Port == 0 {
+		return 0, errors.InvalidListenPort
+	}
+
+	return conf.Opts.Spec.Listen.Port, nil
+}
+
+func parseAdvertisePort() (int, error) {
+	if conf.Opts.Spec.Listen.Port == 0 {
+		return 0, errors.InvalidListenPort
+	}
+
+	return conf.Opts.Spec.Listen.Port, nil
+}
+
 func parseParams(c *gin.Context) string {
 	if c.Request.URL.RawQuery == "" {
 		return ""

@@ -1,12 +1,9 @@
 package runtime
 
 import (
-	"fmt"
-
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/errors"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -137,44 +134,4 @@ func initIdentities() error {
 	}
 
 	return nil
-}
-
-func parseServiceDiscoveryIdentity() (string, error) {
-	if v1.DataCenterName == "" {
-		return "", errors.InvalidDataCenterName
-	}
-
-	if v1.DataCenterVip == "" {
-		return "", errors.InvalidListenAddress
-	}
-
-	return fmt.Sprintf(
-		"%s-%s",
-		v1.DataCenterName,
-		v1.DataCenterVip,
-	), nil
-}
-
-func parseLocalListenAddr() (string, error) {
-	if conf.Opts.Spec.Listen.Local == "" {
-		return "", errors.InvalidListenAddress
-	}
-
-	return conf.Opts.Spec.Listen.Local, nil
-}
-
-func parseLocalListenPort() (int, error) {
-	if conf.Opts.Spec.Listen.Port == 0 {
-		return 0, errors.InvalidListenPort
-	}
-
-	return conf.Opts.Spec.Listen.Port, nil
-}
-
-func parseAdvertisePort() (int, error) {
-	if conf.Opts.Spec.Listen.Port == 0 {
-		return 0, errors.InvalidListenPort
-	}
-
-	return conf.Opts.Spec.Listen.Port, nil
 }
