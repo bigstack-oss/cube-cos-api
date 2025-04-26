@@ -88,6 +88,7 @@ type License struct {
 type Settings struct {
 	Current    string `json:"current,omitempty" bson:"current"`
 	Desired    string `json:"-" bson:"desired"`
+	CreatedAt  string `json:"-" bson:"createdAt"`
 	IsUpdating bool   `json:"isUpdating" bson:"isUpdating"`
 }
 

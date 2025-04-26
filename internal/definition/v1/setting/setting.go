@@ -2,6 +2,7 @@ package setting
 
 import (
 	"reflect"
+	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
@@ -11,6 +12,7 @@ import (
 const (
 	DB            = "settings"
 	ReqCollection = "requests"
+	ReqTTL        = 3600
 	PolicyV1      = "/etc/policies/alert_setting/alert_setting1_0.yml"
 )
 
@@ -191,6 +193,7 @@ func initUpdateStatus() status.Settings {
 		Current:    status.Updating,
 		Desired:    status.Updated,
 		IsUpdating: true,
+		CreatedAt:  time.Now().Local().Format(time.RFC3339),
 	}
 }
 

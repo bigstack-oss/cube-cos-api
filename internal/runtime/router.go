@@ -61,7 +61,7 @@ func newGinRouter() *gin.Engine {
 	router.Use(gin.Recovery())
 	router.Use(timeTracker)
 	router.Use(initReqInfo)
-	router.Any("/live", livenessCheck())
+	router.Any("/live", checkLive())
 	router.Any("/saml/*any", saml.ServeAcs())
 	router.Use(verifyAuthToken())
 	router.Use(conditionalSaml())
@@ -269,7 +269,7 @@ func initReqInfo(c *gin.Context) {
 	c.Next()
 }
 
-func livenessCheck() gin.HandlerFunc {
+func checkLive() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		api.SetStatusOk(c, "api is alive", nil)
 	}

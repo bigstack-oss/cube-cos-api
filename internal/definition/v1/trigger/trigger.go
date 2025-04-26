@@ -17,6 +17,7 @@ const (
 	DB               = "triggers"
 	Collection       = "triggers"
 	ReqCollection    = "requests"
+	ReqTTL           = 3600
 	ResponsePolicyV2 = "/etc/policies/alert_resp/alert_resp2_0.yml"
 	ISO8601Z         = "2006-01-02T15:04:05+00:00"
 )

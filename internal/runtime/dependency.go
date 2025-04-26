@@ -14,7 +14,9 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -157,6 +159,21 @@ func newReqPendingTTLs() error {
 	err := newTuningRecordTTL()
 	if err != nil {
 		log.Warnf("runtime: failed to init tuning record ttl: %s", err.Error())
+	}
+
+	err = newSupportFileRecordTTL()
+	if err != nil {
+		log.Warnf("runtime: failed to init support file record ttl: %s", err.Error())
+	}
+
+	err = newSettingRecordTTL()
+	if err != nil {
+		log.Warnf("runtime: failed to init setting record ttl: %s", err.Error())
+	}
+
+	err = newTriggerRecordTTL()
+	if err != nil {
+		log.Warnf("runtime: failed to init trigger record ttl: %s", err.Error())
 	}
 
 	return nil
@@ -367,5 +384,35 @@ func newTuningRecordTTL() error {
 		v1.TuningReqCollection(),
 		bson.D{{Key: "status.createdAt", Value: 1}},
 		v1.TuningRecordTTL,
+	)
+}
+
+func newSupportFileRecordTTL() error {
+	mongo := mongo.GetGlobalHelper()
+	return mongo.CreateExpirationIndex(
+		support.FileDB,
+		support.FileReqCollection,
+		bson.D{{Key: "createdAt", Value: 1}},
+		support.ReqTTL,
+	)
+}
+
+func newSettingRecordTTL() error {
+	mongo := mongo.GetGlobalHelper()
+	return mongo.CreateExpirationIndex(
+		setting.DB,
+		setting.ReqCollection,
+		bson.D{{Key: "createdAt", Value: 1}},
+		setting.ReqTTL,
+	)
+}
+
+func newTriggerRecordTTL() error {
+	mongo := mongo.GetGlobalHelper()
+	return mongo.CreateExpirationIndex(
+		trigger.DB,
+		trigger.ReqCollection,
+		bson.D{{Key: "createdAt", Value: 1}},
+		trigger.ReqTTL,
 	)
 }
