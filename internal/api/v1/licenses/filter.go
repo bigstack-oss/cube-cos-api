@@ -90,7 +90,7 @@ func (h *helper) filteredByProduct(licenses []v1.License) []v1.License {
 func (h *helper) searchLicenses(licenses []v1.License) (*bleve.SearchResult, error) {
 	searcher := v1.GetLicenseSearcher()
 	for _, license := range licenses {
-		err := searcher.Index(license.Name, license)
+		err := searcher.Index(license.Issue.Date, license.GenSearchableObject())
 		if err != nil {
 			continue
 		}
@@ -107,13 +107,13 @@ func (h *helper) searchLicenses(licenses []v1.License) (*bleve.SearchResult, err
 }
 
 func (h *helper) wrapWilcardKeyword() string {
-	return "*" + h.Keyword + "*"
+	return "*" + strings.ToLower(h.Keyword) + "*"
 }
 
 func genLicenseMap(licenses []v1.License) map[string]v1.License {
 	licenseMap := map[string]v1.License{}
 	for _, license := range licenses {
-		licenseMap[license.Name] = license
+		licenseMap[license.Issue.Date] = license
 	}
 
 	return licenseMap

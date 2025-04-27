@@ -82,9 +82,9 @@ func ImportClusterLicense(licensePath string) error {
 func ImportNodeLicense(licensePath string) error {
 	dir := filepath.Dir(licensePath)
 	filename := strings.TrimSuffix(filepath.Base(licensePath), filepath.Ext(licensePath))
-	_, err := exec.Command("hex_config", "sdk_run", "license_node_import", dir, filename).Output()
+	out, err := exec.Command("hex_config", "sdk_run", "license_node_import", dir, filename).Output()
 	if err != nil {
-		log.Errorf("licenses: failed to import licenses: %v", err)
+		log.Errorf("licenses: failed to import licenses: %v(%s)", err, string(out))
 		return err
 	}
 

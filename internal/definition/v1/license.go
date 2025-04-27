@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -112,6 +113,27 @@ func (l *License) InitInvalidSignatureStatus() {
 
 func (l *License) InitCompromisedStatus() {
 	l.Status = status.License{Current: "system compromised"}
+}
+
+// note:
+// in the current search lib(bleve), the algo is not able to detect the string if it include uppercase
+// we've tried a few different init settings, but the result is not as expected as always
+// currenlty, the only way we found is to convert all the string to lower case and inject to searcher
+func (l *License) GenSearchableObject() License {
+	l.Type = strings.ToLower(l.Type)
+	l.Name = strings.ToLower(l.Name)
+	l.Product.Name = strings.ToLower(l.Product.Name)
+	l.Product.Feature = strings.ToLower(l.Product.Feature)
+	l.Serial = strings.ToLower(l.Serial)
+	l.SupportPlan = strings.ToLower(l.SupportPlan)
+	l.Issue.By = strings.ToLower(l.Issue.By)
+	l.Issue.To = strings.ToLower(l.Issue.To)
+	l.Issue.Hardware = strings.ToLower(l.Issue.Hardware)
+	for i := range l.Hosts {
+		l.Hosts[i] = strings.ToLower(l.Hosts[i])
+	}
+
+	return *l
 }
 
 func (r *RawLicense) IsUnlicense() bool {
