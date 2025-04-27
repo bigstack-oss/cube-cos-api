@@ -2,6 +2,7 @@ package setting
 
 import (
 	"reflect"
+	"sync"
 	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
@@ -13,7 +14,13 @@ const (
 	DB            = "settings"
 	ReqCollection = "requests"
 	ReqTTL        = 3600
+	PolicyDir     = "/etc/policies/alert_setting"
 	PolicyV1      = "/etc/policies/alert_setting/alert_setting1_0.yml"
+)
+
+var (
+	cosAlert       *CosAlert
+	updateCosAlert sync.Mutex
 )
 
 type Options struct {
@@ -203,4 +210,14 @@ func initDeleteStatus() status.Settings {
 		Desired:    status.Deleted,
 		IsUpdating: true,
 	}
+}
+
+func GetCosAlert() *CosAlert {
+	return cosAlert
+}
+
+func SetCosAlert(alert *CosAlert) {
+	updateCosAlert.Lock()
+	defer updateCosAlert.Unlock()
+	cosAlert = alert
 }

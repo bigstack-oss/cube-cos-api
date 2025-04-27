@@ -39,6 +39,8 @@ var (
 	InvalidHostname       = errors.New("invalid hostname")
 	InvalidDataCenterName = errors.New("invalid data center name")
 	InvalidManagementIp   = errors.New("invalid management ip")
+
+	AlertSettingNotInited = errors.New("alert setting is not initialized")
 )
 
 type Template struct {

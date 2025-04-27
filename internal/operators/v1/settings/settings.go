@@ -20,7 +20,7 @@ func init() {
 }
 
 type Operator struct {
-	policy *fsnotify.Watcher
+	watcher *fsnotify.Watcher
 }
 
 func NewOperator() *Operator {
@@ -32,8 +32,9 @@ func (o *Operator) Name() string {
 }
 
 func (o *Operator) Init() error {
+	cubecos.SyncAlertSettings()
 	cubecos.RemovePendingReq(setting.DB, setting.ReqCollection)
-	return nil
+	return o.initWatcher()
 }
 
 func (o *Operator) Run() {

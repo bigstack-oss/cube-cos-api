@@ -1,11 +1,10 @@
-package supportfiles
+package settings
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
 	"github.com/fsnotify/fsnotify"
 	log "go-micro.dev/v5/logger"
@@ -18,7 +17,7 @@ func (o *Operator) initWatcher() error {
 		return err
 	}
 
-	err = o.watcher.Add(support.DefaultFileDir)
+	err = o.watcher.Add(setting.PolicyDir)
 	if err != nil {
 		return err
 	}
@@ -32,28 +31,27 @@ func (o *Operator) watchChanges() {
 		select {
 		case event, ok := <-o.watcher.Events:
 			if ok {
-				syncSourceSupportFiles(event)
+				syncCosAlertSetting(event)
 			}
 		case err, ok := <-o.watcher.Errors:
 			if !ok {
 				continue
 			}
 			if err != nil {
-				log.Errorf("supportFiles: failed to fetch support file change event: %s", err.Error())
+				log.Errorf("settings: failed to fetch support file change event: %s", err.Error())
 				continue
 			}
 		}
 	}
 }
 
-func syncSourceSupportFiles(event fsnotify.Event) {
-	filename := filepath.Base(event.Name)
-	if !cubecos.IsSupportFile(filename) {
+func syncCosAlertSetting(event fsnotify.Event) {
+	if !cubecos.IsAlertSetting(event.Name) {
 		return
 	}
 
-	if event.Has(fsnotify.Create) {
-		cubelog.Throttle("supportFiles", fmt.Sprintf("support file %s created", event.Name))
-		cubecos.SyncSupportFiles()
+	if event.Has(fsnotify.Create) || event.Has(fsnotify.Write) {
+		cubelog.Throttle("settings", fmt.Sprintf("alert setting %s created or updated", event.Name))
+		cubecos.SyncAlertSettings()
 	}
 }

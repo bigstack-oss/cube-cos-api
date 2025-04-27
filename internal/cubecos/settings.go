@@ -13,7 +13,20 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func GetAlertSetting() (*setting.CosAlert, error) {
+func IsAlertSetting(file string) bool {
+	return file == setting.PolicyV1
+}
+
+func SyncAlertSettings() {
+	srcSetting, err := GetSourceAlertSetting()
+	if err != nil {
+		return
+	}
+
+	setting.SetCosAlert(srcSetting)
+}
+
+func GetSourceAlertSetting() (*setting.CosAlert, error) {
 	out, err := exec.Command("hex_sdk", "alert_get_setting").CombinedOutput()
 	if err != nil {
 		log.Errorf("settings: failed to get cos alert settings: %s(%s)", string(out), err.Error())
@@ -28,6 +41,15 @@ func GetAlertSetting() (*setting.CosAlert, error) {
 	}
 
 	return settings, nil
+}
+
+func GetAlertSetting() (*setting.CosAlert, error) {
+	alert := setting.GetCosAlert()
+	if alert == nil {
+		return nil, cuberr.AlertSettingNotInited
+	}
+
+	return alert, nil
 }
 
 func GetEmailSenders() ([]email.Sender, error) {
