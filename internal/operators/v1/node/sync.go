@@ -98,7 +98,7 @@ func (o *Operator) askPeerNode(node v1.Node) (*v1.Node, error) {
 func (o *Operator) setNodeLicense(node *v1.Node) {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
-		log.Warnf("nodes(%s): failed to add license info to the nodes: %s", err.Error())
+		log.Warnf("nodes: failed to add license info to the nodes: %s", err.Error())
 		return
 	}
 

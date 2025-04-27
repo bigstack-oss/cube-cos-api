@@ -5,6 +5,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/licenses"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )

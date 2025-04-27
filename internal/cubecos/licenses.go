@@ -28,6 +28,27 @@ const (
 	LicenseExpired            = -5
 )
 
+func IsLicenseFile(file string) bool {
+	return strings.Contains(file, "license.")
+}
+
+func SyncSourceLicense() {
+	b, err := exec.Command("hex_config", "sdk_run", "-f", "json", "license_cluster_show").Output()
+	if err != nil {
+		log.Errorf("licenses: licenses: failed to list licenses: %v", err)
+		return
+	}
+
+	raws, err := parseRawLicenses(b)
+	if err != nil {
+		log.Errorf("licenses: licenses: failed to parse raw licenses: %v", err)
+		return
+	}
+
+	licenses := parseLicenses(raws)
+	v1.SetLicenses(licenses)
+}
+
 func VerifyLicense(license string) (*v1.VerificationDetails, error) {
 	defer os.Remove(license)
 	checkInfo := checkImportLicense(license)
@@ -71,19 +92,12 @@ func ImportNodeLicense(licensePath string) error {
 }
 
 func ListLicenses() ([]v1.License, error) {
-	b, err := exec.Command("hex_config", "sdk_run", "-f", "json", "license_cluster_show").Output()
-	if err != nil {
-		log.Errorf("licenses: licenses: failed to list licenses: %v", err)
-		return nil, err
+	licenses := v1.GetLicenses()
+	if len(licenses) == 0 {
+		return nil, errors.New("no license found")
 	}
 
-	raws, err := parseRawLicenses(b)
-	if err != nil {
-		log.Errorf("licenses: licenses: failed to parse raw licenses: %v", err)
-		return nil, err
-	}
-
-	return parseLicenses(raws), nil
+	return licenses, nil
 }
 
 func parseRawLicenses(b []byte) ([]v1.RawLicense, error) {

@@ -2,17 +2,21 @@ package v1
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/blevesearch/bleve/v2"
 )
 
 const (
-	Licenses = "licenses"
+	Licenses   = "licenses"
+	LicenseDir = "/etc/update"
 )
 
 var (
 	licenseSearcher bleve.Index
+	license         = []License{}
+	updateLicense   sync.Mutex
 )
 
 type VerificationDetails struct {
@@ -127,4 +131,14 @@ func InitLicenseSearchIndex() error {
 
 func GetLicenseSearcher() bleve.Index {
 	return licenseSearcher
+}
+
+func SetLicenses(licenses []License) {
+	updateLicense.Lock()
+	defer updateLicense.Unlock()
+	license = licenses
+}
+
+func GetLicenses() []License {
+	return license
 }
