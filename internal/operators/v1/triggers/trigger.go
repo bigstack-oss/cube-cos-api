@@ -2,6 +2,7 @@ package triggers
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"github.com/fsnotify/fsnotify"
@@ -36,20 +37,23 @@ func (o *Operator) Init() error {
 		return err
 	}
 
+	cubecos.RemovePendingReq(trigger.DB, trigger.ReqCollection)
 	return nil
 }
 
 func (o *Operator) Run() {
-	req, shutdown := ReqQueue.Get()
-	if shutdown {
-		return
+	for {
+		req, shutdown := ReqQueue.Get()
+		if shutdown {
+			return
+		}
+
+		trigger := req.(*trigger.Options)
+		err := o.operateReq(*trigger)
+		o.handleExit(*trigger, err)
+
+		ReqQueue.Done(req)
 	}
-
-	trigger := req.(*trigger.Options)
-	err := o.operateReq(*trigger)
-	o.handleExit(*trigger, err)
-
-	ReqQueue.Done(req)
 }
 
 func (o *Operator) Stop() {

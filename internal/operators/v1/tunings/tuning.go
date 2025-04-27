@@ -37,21 +37,24 @@ func (o *Operator) Init() error {
 		return err
 	}
 
+	cubecos.RemovePendingReq(v1.TuningDB(), v1.TuningReqCollection())
 	cubecos.SyncTunings()
 	return nil
 }
 
 func (o *Operator) Run() {
-	req, shutdown := ReqQueue.Get()
-	if shutdown {
-		return
+	for {
+		req, shutdown := ReqQueue.Get()
+		if shutdown {
+			return
+		}
+
+		tuning := req.(*v1.Tuning)
+		err := o.operateReq(*tuning)
+		o.handleExit(*tuning, err)
+
+		ReqQueue.Done(req)
 	}
-
-	tuning := req.(*v1.Tuning)
-	err := o.operateReq(*tuning)
-	o.handleExit(*tuning, err)
-
-	ReqQueue.Done(req)
 }
 
 func (o *Operator) Stop() {

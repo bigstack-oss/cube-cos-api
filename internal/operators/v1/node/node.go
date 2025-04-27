@@ -41,20 +41,22 @@ func (o *Operator) Init() error {
 }
 
 func (o *Operator) Run() {
-	watcher, err := registry.Watch(
-		registry.WatchService(v1.ServiceDiscoveryIdentity),
-	)
-	if err != nil {
-		log.Errorf("nodes: failed to create watcher (%s)", err.Error())
-		return
-	}
+	for {
+		watcher, err := registry.Watch(
+			registry.WatchService(v1.ServiceDiscoveryIdentity),
+		)
+		if err != nil {
+			log.Errorf("nodes: failed to create watcher (%s)", err.Error())
+			return
+		}
 
-	defer watcher.Stop()
-	select {
-	case <-o.ctx.Done():
-		return
-	default:
-		o.watchAndSyncNodes(&watcher)
+		defer watcher.Stop()
+		select {
+		case <-o.ctx.Done():
+			return
+		default:
+			o.watchAndSyncNodes(&watcher)
+		}
 	}
 }
 

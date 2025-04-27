@@ -13,19 +13,20 @@ import (
 	"path/filepath"
 	"strings"
 
-	json "github.com/json-iterator/go"
-
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/aws"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
+	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func ListSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
@@ -319,6 +320,15 @@ func SyncSupportFiles() {
 	}
 
 	findAndParseSupportFiles(files)
+}
+
+func RemovePendingReq(db, collection string) {
+	h := mongo.GetGlobalHelper()
+	err := h.DeleteAll(db, collection, bson.M{})
+	if err != nil {
+		log.Errorf("supportFile: failed to remove pending request: %s", err.Error())
+		return
+	}
 }
 
 func findAndParseSupportFiles(files []os.DirEntry) {

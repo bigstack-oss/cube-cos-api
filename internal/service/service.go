@@ -53,17 +53,11 @@ func runOperators() error {
 			return err
 		}
 
-		go runInBackground(o.Run)
+		go o.Run()
 		log.Infof("operator: %s is running", o.Name())
 	}
 
 	return nil
-}
-
-func runInBackground(runOperator func()) {
-	for {
-		runOperator()
-	}
 }
 
 func stopOperators() error {

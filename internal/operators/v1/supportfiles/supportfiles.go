@@ -33,20 +33,23 @@ func (o *Operator) Name() string {
 
 func (o *Operator) Init() error {
 	cubecos.SyncSupportFiles()
+	cubecos.RemovePendingReq(support.FileDB, support.FileReqCollection)
 	return o.initWatcher()
 }
 
 func (o *Operator) Run() {
-	req, shutdown := ReqQueue.Get()
-	if shutdown {
-		return
+	for {
+		req, shutdown := ReqQueue.Get()
+		if shutdown {
+			return
+		}
+
+		supportFile := req.(*support.File)
+		err := o.operateReq(supportFile)
+		o.handleExit(supportFile, err)
+
+		ReqQueue.Done(req)
 	}
-
-	supportFile := req.(*support.File)
-	err := o.operateReq(supportFile)
-	o.handleExit(supportFile, err)
-
-	ReqQueue.Done(req)
 }
 
 func (o *Operator) Stop() {

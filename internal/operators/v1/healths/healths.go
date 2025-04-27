@@ -38,19 +38,22 @@ func (o *Operator) Init() error {
 
 func (o *Operator) Run() {
 	defer v1.CapturePanic()
-	req, shutdown := ReqQueue.Get()
-	if shutdown {
-		return
-	}
 
-	health := req.(*cubecos.Health)
-	err := o.operateReq(*health)
-	if err != nil {
-		log.Errorf("health: failed to operate request: %s", err.Error())
-		health.Overall.Status.SetCurrentToError(err)
-	}
+	for {
+		req, shutdown := ReqQueue.Get()
+		if shutdown {
+			return
+		}
 
-	ReqQueue.Done(req)
+		health := req.(*cubecos.Health)
+		err := o.operateReq(*health)
+		if err != nil {
+			log.Errorf("health: failed to operate request: %s", err.Error())
+			health.Overall.Status.SetCurrentToError(err)
+		}
+
+		ReqQueue.Done(req)
+	}
 }
 
 func (o *Operator) Stop() {

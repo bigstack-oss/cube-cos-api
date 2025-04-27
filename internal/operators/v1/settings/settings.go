@@ -2,6 +2,7 @@ package settings
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"github.com/fsnotify/fsnotify"
@@ -31,20 +32,23 @@ func (o *Operator) Name() string {
 }
 
 func (o *Operator) Init() error {
+	cubecos.RemovePendingReq(setting.DB, setting.ReqCollection)
 	return nil
 }
 
 func (o *Operator) Run() {
-	req, shutdown := ReqQueue.Get()
-	if shutdown {
-		return
+	for {
+		req, shutdown := ReqQueue.Get()
+		if shutdown {
+			return
+		}
+
+		setting := req.(*setting.Options)
+		err := o.operateReq(*setting)
+		o.handleExit(*setting, err)
+
+		ReqQueue.Done(req)
 	}
-
-	setting := req.(*setting.Options)
-	err := o.operateReq(*setting)
-	o.handleExit(*setting, err)
-
-	ReqQueue.Done(req)
 }
 
 func (o *Operator) Stop() {

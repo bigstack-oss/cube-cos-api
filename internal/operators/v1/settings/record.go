@@ -42,7 +42,7 @@ func (o *Operator) reportToController(setting setting.Options) error {
 	}
 
 	if resp.IsError() {
-		log.Errorf("settings: failed to send setting %s to %s: %v", setting.Type, node.Hostname, string(resp.Body()))
+		log.Errorf("settings: error response from %s %s update: %v", node.Hostname, setting.Type, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 
