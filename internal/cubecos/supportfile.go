@@ -326,7 +326,7 @@ func RemovePendingReq(db, collection string) {
 	h := mongo.GetGlobalHelper()
 	err := h.DeleteAll(db, collection, bson.M{})
 	if err != nil {
-		log.Errorf("supportFile: failed to remove pending request: %s", err.Error())
+		log.Errorf("%s: failed to remove pending request: %s", db, err.Error())
 		return
 	}
 }

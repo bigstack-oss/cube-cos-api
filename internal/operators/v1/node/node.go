@@ -50,7 +50,6 @@ func (o *Operator) Run() {
 			return
 		}
 
-		defer watcher.Stop()
 		select {
 		case <-o.ctx.Done():
 			return
@@ -65,6 +64,7 @@ func (o *Operator) Stop() {
 }
 
 func (o *Operator) watchAndSyncNodes(watcher *registry.Watcher) {
+	defer (*watcher).Stop()
 	event, err := (*watcher).Next()
 	if err != nil {
 		log.Errorf("nodes: failed to get service discovery event", err.Error())
