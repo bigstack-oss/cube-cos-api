@@ -24,13 +24,8 @@ func GetNodeRole() (string, error) {
 }
 
 func GetRoleStatus() (*Role, error) {
-	nodes, err := ListNodes()
-	if err != nil {
-		return nil, err
-	}
-
 	role := &Role{}
-	for _, node := range nodes {
+	for _, node := range v1.ListNodes() {
 		switch node.Role {
 		case v1.RoleControl:
 			role.Control.Count++

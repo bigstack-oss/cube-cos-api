@@ -1,7 +1,6 @@
 package datacenters
 
 import (
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 )
 
@@ -23,12 +22,7 @@ func getLocalDataCenter() v1.DataCenter {
 }
 
 func getDataCenterType() string {
-	nodes, err := cubecos.ListNodes()
-	if err != nil {
-		return "unknown"
-	}
-
-	for _, node := range nodes {
+	for _, node := range v1.ListNodes() {
 		if v1.IsCloudRole(node.Role) {
 			return "cloud"
 		}
