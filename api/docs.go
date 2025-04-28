@@ -5062,7 +5062,7 @@ const docTemplate = `{
                                         "port": 587,
                                         "username": "ABBBBBBMJM56DCCCCJR",
                                         "password": "VBHWEEGEEEEEX0f5NLHDXLESxdZR",
-                                        "email": "noreply@example.com"
+                                        "from": "noreply@example.com"
                                     }
                                 }
                             }
@@ -5281,7 +5281,7 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/EmailSenderPutRequest"
+                                "$ref": "#/components/schemas/EmailSenderPatchRequest"
                             },
                             "examples": {
                                 "example": {
@@ -5291,7 +5291,7 @@ const docTemplate = `{
                                         "port": 587,
                                         "username": "example-user",
                                         "password": "example-password",
-                                        "email": "noreply@bigstack.co"
+                                        "from": "noreply@bigstack.co"
                                     }
                                 }
                             }
@@ -11672,6 +11672,10 @@ const docTemplate = `{
                     },
                     "data": {
                         "type": "object",
+                        "required": [
+                            "licenses",
+                            "page"
+                        ],
                         "properties": {
                             "licenses": {
                                 "type": "array",
@@ -13173,7 +13177,7 @@ const docTemplate = `{
                 "required": [
                     "host",
                     "port",
-                    "email",
+                    "from",
                     "status"
                 ],
                 "properties": {
@@ -13189,12 +13193,12 @@ const docTemplate = `{
                     "password": {
                         "type": "string"
                     },
-                    "email": {
+                    "from": {
                         "type": "string"
                     }
                 }
             },
-            "EmailSenderPutRequest": {
+            "EmailSenderPatchRequest": {
                 "type": "object",
                 "properties": {
                     "host": {
@@ -13209,7 +13213,7 @@ const docTemplate = `{
                     "password": {
                         "type": "string"
                     },
-                    "email": {
+                    "from": {
                         "type": "string"
                     }
                 }
@@ -15303,11 +15307,7 @@ const docTemplate = `{
                     },
                     "hardware": {
                         "type": "string",
-                        "description": "this field will be the serial number(s) of the host(s) that the license is issued to. '*' means all hosts, genearlly, it's for trial license only. for the paid license, it will be the comma separated serial numbers of the hosts.",
-                        "enum": [
-                            "*",
-                            "example-serial-number-1,example-serial-number-2,example-serial-number-3 ..."
-                        ]
+                        "description": "this field will be the serial number(s) of the host(s) that the license is issued to. '*' means all hosts, genearlly, it's for trial license only. for the paid license, it will be the comma separated serial numbers of the hosts.\nexamples:\n  - \"*\"\n  - example-serial-number-1, example-serial-number-2, ...\n"
                     },
                     "date": {
                         "type": "string",

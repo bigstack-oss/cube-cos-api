@@ -4888,7 +4888,7 @@
                                                             "host": "email-smtp.example.mailserver.com",
                                                             "port": 587,
                                                             "username": "ABBBBBBMJM56DCCCCJR",
-                                                            "email": "noreply@example.com",
+                                                            "from": "noreply@example.com",
                                                             "accessVerified": true,
                                                             "status": {
                                                                 "current": "ok",
@@ -5058,7 +5058,7 @@
                                         "port": 587,
                                         "username": "ABBBBBBMJM56DCCCCJR",
                                         "password": "VBHWEEGEEEEEX0f5NLHDXLESxdZR",
-                                        "email": "noreply@example.com"
+                                        "from": "noreply@example.com"
                                     }
                                 }
                             }
@@ -5131,7 +5131,7 @@
                                                     "host": "email-smtp.example.mailserver.com",
                                                     "port": 587,
                                                     "username": "example-user",
-                                                    "email": "noreply@bigstack.co",
+                                                    "from": "noreply@bigstack.co",
                                                     "accessVerified": true,
                                                     "status": {
                                                         "current": "ok",
@@ -5277,7 +5277,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/EmailSenderPutRequest"
+                                "$ref": "#/components/schemas/EmailSenderPatchRequest"
                             },
                             "examples": {
                                 "example": {
@@ -5287,7 +5287,7 @@
                                         "port": 587,
                                         "username": "example-user",
                                         "password": "example-password",
-                                        "email": "noreply@bigstack.co"
+                                        "from": "noreply@bigstack.co"
                                     }
                                 }
                             }
@@ -11668,6 +11668,10 @@
                     },
                     "data": {
                         "type": "object",
+                        "required": [
+                            "licenses",
+                            "page"
+                        ],
                         "properties": {
                             "licenses": {
                                 "type": "array",
@@ -13139,7 +13143,7 @@
                     "host",
                     "port",
                     "username",
-                    "email",
+                    "from",
                     "accessVerified",
                     "status"
                 ],
@@ -13153,7 +13157,7 @@
                     "username": {
                         "type": "string"
                     },
-                    "email": {
+                    "from": {
                         "type": "string"
                     },
                     "accessVerified": {
@@ -13169,7 +13173,7 @@
                 "required": [
                     "host",
                     "port",
-                    "email",
+                    "from",
                     "status"
                 ],
                 "properties": {
@@ -13185,12 +13189,12 @@
                     "password": {
                         "type": "string"
                     },
-                    "email": {
+                    "from": {
                         "type": "string"
                     }
                 }
             },
-            "EmailSenderPutRequest": {
+            "EmailSenderPatchRequest": {
                 "type": "object",
                 "properties": {
                     "host": {
@@ -13205,7 +13209,7 @@
                     "password": {
                         "type": "string"
                     },
-                    "email": {
+                    "from": {
                         "type": "string"
                     }
                 }
@@ -15299,11 +15303,7 @@
                     },
                     "hardware": {
                         "type": "string",
-                        "description": "this field will be the serial number(s) of the host(s) that the license is issued to. '*' means all hosts, genearlly, it's for trial license only. for the paid license, it will be the comma separated serial numbers of the hosts.",
-                        "enum": [
-                            "*",
-                            "example-serial-number-1, example-serial-number-2, ..."
-                        ]
+                        "description": "this field will be the serial number(s) of the host(s) that the license is issued to. '*' means all hosts, genearlly, it's for trial license only. for the paid license, it will be the comma separated serial numbers of the hosts.\nexamples:\n  - \"*\"\n  - example-serial-number-1, example-serial-number-2, ...\n"
                     },
                     "date": {
                         "type": "string",

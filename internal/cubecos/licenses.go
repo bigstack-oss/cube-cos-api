@@ -20,12 +20,12 @@ import (
 )
 
 const (
-	LicenseValid              = 0
-	LicenseSysytemCompromised = -1
-	LicenseInvalidSignature   = -2
-	LicenseInvalidHardware    = -3
-	LicenseNotInstalled       = -4
-	LicenseExpired            = -5
+	LicenseValid              = 1
+	LicenseExpired            = 251
+	LicenseNotInstalled       = 252
+	LicenseInvalidHardware    = 253
+	LicenseInvalidSignature   = 254
+	LicenseSysytemCompromised = 255
 )
 
 func IsLicenseFile(file string) bool {
@@ -254,7 +254,7 @@ func checkLicenseErr(err error) error {
 		return errors.New("internal license system error")
 	}
 
-	if result.ExitCode() >= LicenseValid {
+	if result.ExitCode() == LicenseValid {
 		return nil
 	}
 
@@ -276,18 +276,18 @@ func checkLicenseErr(err error) error {
 
 func checkImportLicense(license string) error {
 	dir, file := getDirAndLicenseName(license)
-	_, err := exec.Command("hex_config", "license_check", "def", filepath.Join(dir, file)).Output()
+	err := zip.DecompressFromTo(license, dir)
+	if err != nil {
+		log.Errorf("licenses: failed to decompress license: %v", err)
+		return err
+	}
+
+	_, err = exec.Command("hex_config", "license_check", "def", filepath.Join(dir, file)).Output()
 	return checkLicenseErr(err)
 }
 
 func parseLicenseDat(license string, checkInfo error) (*v1.License, error) {
 	dir, file := getDirAndLicenseName(license)
-	err := zip.DecompressFromTo(license, dir)
-	if err != nil {
-		log.Errorf("licenses: failed to decompress license: %v", err)
-		return nil, err
-	}
-
 	datFile, err := os.Open(filepath.Join(dir, fmt.Sprintf("%s.dat", file)))
 	if err != nil {
 		return nil, err

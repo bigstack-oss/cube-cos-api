@@ -277,8 +277,8 @@ func checkLive() gin.HandlerFunc {
 
 func verifyAuthToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := parseInternalToken(c)
-		if isValidInternalToken(c, token) {
+		internalToken := parseInternalToken(c)
+		if isValidInternalToken(c, internalToken) {
 			c.Set("isTokenValid", true)
 			c.Set("authType", "oidc")
 			c.Set("authUser", c.ClientIP())
@@ -286,7 +286,8 @@ func verifyAuthToken() gin.HandlerFunc {
 			return
 		}
 
-		claims, err := oidc.VerifyToken(token)
+		oidcToken := parseOidcToken(c)
+		claims, err := oidc.VerifyToken(oidcToken)
 		if err == nil {
 			c.Set("isTokenValid", true)
 			c.Set("authType", "oidc")
@@ -303,6 +304,20 @@ func parseInternalToken(c *gin.Context) string {
 		return ""
 	}
 
+	auth := c.GetHeader("Authorization")
+	if auth == "" {
+		return ""
+	}
+
+	const bearer = "Bearer "
+	if !strings.HasPrefix(auth, bearer) {
+		return ""
+	}
+
+	return strings.TrimPrefix(auth, bearer)
+}
+
+func parseOidcToken(c *gin.Context) string {
 	auth := c.GetHeader("Authorization")
 	if auth == "" {
 		return ""
