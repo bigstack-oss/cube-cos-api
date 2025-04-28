@@ -1,11 +1,23 @@
 package v1
 
+import "slices"
+
 const (
 	DataCenters = "datacenters"
 )
 
 var (
 	ServiceDiscoveryIdentity = ""
+	cloudRoles               = []string{
+		RoleControlConverged,
+		RoleControl,
+		RoleCompute,
+		RoleStorage,
+	}
+	edgeRoles = []string{
+		RoleEdgeCore,
+		RoleModerator,
+	}
 )
 
 type DataCenter struct {
@@ -31,4 +43,20 @@ type NodeLicenseStatus struct {
 	Valid     int `json:"valid" bson:"valid"`
 	Expired   int `json:"expired" bson:"expired"`
 	Unlicense int `json:"unlicense" bson:"unlicense"`
+}
+
+func GetCloudRoles() []string {
+	return cloudRoles
+}
+
+func GetEdgeRoles() []string {
+	return edgeRoles
+}
+
+func IsCloudRole(role string) bool {
+	return slices.Contains(cloudRoles, role)
+}
+
+func IsEdgeRole(role string) bool {
+	return slices.Contains(edgeRoles, role)
 }

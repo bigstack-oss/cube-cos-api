@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"maps"
+
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 )
@@ -25,7 +27,6 @@ var (
 	ControlHandlers   = map[string][]Handler{}
 	ComputeHandlers   = map[string][]Handler{}
 	StorageHandlers   = map[string][]Handler{}
-	NetworkHandlers   = map[string][]Handler{}
 	ModeratorHandlers = map[string][]Handler{}
 	EdgeCoreHandlers  = map[string][]Handler{}
 )
@@ -59,21 +60,18 @@ func RegisterHandlersToRoles(module string, handlers []Handler, rolesToRegister 
 	}
 }
 
-func appendGroupHandlers(dstGroupHandlers, srcGroupHandlers map[string][]Handler) {
-	for name, handlers := range srcGroupHandlers {
-		dstGroupHandlers[name] = handlers
-	}
-}
-
 func GenControlConvergedHandlers() map[string][]Handler {
 	controlConvergedHandlers := map[string][]Handler{}
 
 	appendGroupHandlers(controlConvergedHandlers, ControlHandlers)
 	appendGroupHandlers(controlConvergedHandlers, ComputeHandlers)
 	appendGroupHandlers(controlConvergedHandlers, StorageHandlers)
-	appendGroupHandlers(controlConvergedHandlers, NetworkHandlers)
 
 	return controlConvergedHandlers
+}
+
+func appendGroupHandlers(dstGroupHandlers, srcGroupHandlers map[string][]Handler) {
+	maps.Copy(dstGroupHandlers, srcGroupHandlers)
 }
 
 func GetRoleHandlers(role string) map[string][]Handler {

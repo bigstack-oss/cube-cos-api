@@ -28,22 +28,14 @@ func getDataCenterType() string {
 		return "unknown"
 	}
 
-	dataCenterTypes := map[string]int{}
 	for _, node := range nodes {
-		switch node.Role {
-		case v1.RoleControlConverged, v1.RoleControl, v1.RoleCompute, v1.RoleStorage:
-			dataCenterTypes["cloud"]++
-		case v1.RoleModerator, v1.RoleEdgeCore:
-			dataCenterTypes["edge"]++
+		if v1.IsCloudRole(node.Role) {
+			return "cloud"
 		}
-	}
 
-	if dataCenterTypes["edge"] > 0 {
-		return "edge"
-	}
-
-	if dataCenterTypes["cloud"] > 0 {
-		return "cloud"
+		if v1.IsEdgeRole(node.Role) {
+			return "edge"
+		}
 	}
 
 	return "unknown"
@@ -52,17 +44,9 @@ func getDataCenterType() string {
 func getDataCenterAllowRoles() []string {
 	switch getDataCenterType() {
 	case "edge":
-		return []string{
-			v1.RoleModerator,
-			v1.RoleEdgeCore,
-		}
+		return v1.GetEdgeRoles()
 	case "cloud":
-		return []string{
-			v1.RoleControlConverged,
-			v1.RoleControl,
-			v1.RoleCompute,
-			v1.RoleStorage,
-		}
+		return v1.GetCloudRoles()
 	}
 
 	return []string{}

@@ -228,19 +228,19 @@ func SyncMetricsSummary() {
 func syncDataCenterSummary() (*Summary, error) {
 	host, err := GetHostSummary()
 	if err != nil {
-		log.Errorf("failed to get host summary: %v", err)
+		log.Errorf("metrics: failed to get host summary: %v", err)
 		return nil, err
 	}
 
 	dataCenter, err := GetDataCenterUsage(host)
 	if err != nil {
-		log.Errorf("failed to get data center usage: %v", err)
+		log.Errorf("metrics: failed to get data center usage: %v", err)
 		return nil, err
 	}
 
 	vm, err := GetVmSummary()
 	if err != nil {
-		log.Errorf("failed to get vm summary: %v", err)
+		log.Errorf("metrics: failed to get vm summary: %v", err)
 		return nil, err
 	}
 
@@ -323,13 +323,13 @@ func GetHostSummary() (*HostSummary, error) {
 func GetHostUsage(node v1.Node) (*v1.HostUsage, error) {
 	cpuStat, err := GetCpuSummaryOfHost(node.Hostname)
 	if err != nil {
-		log.Errorf("failed to get cpu summary of host %s: %v", node.Hostname, err)
+		log.Errorf("metrics: failed to get cpu summary of host %s: %v", node.Hostname, err)
 		return nil, err
 	}
 
 	memoryStat, err := GetMemoryUsageSummaryOfHost(node.Hostname)
 	if err != nil {
-		log.Errorf("failed to get memory summary of host %s: %v", node.Hostname, err)
+		log.Errorf("metrics: failed to get memory summary of host %s: %v", node.Hostname, err)
 		return nil, err
 	}
 
@@ -489,7 +489,7 @@ func appendHistoryToCpuUsageRank(rank []v1.RankPoint) {
 	for i, host := range rank {
 		data, err := GetCpuHistoryOfHost(genHostCpuUsageHistoryStmt(host.Id))
 		if err != nil {
-			log.Errorf("failed to get cpu history of host %s: %v", host.Id, err)
+			log.Errorf("metrics: failed to get cpu history of host %s: %v", host.Id, err)
 			continue
 		}
 
@@ -585,7 +585,7 @@ func appendHistoryToMemoryUsageRank(rank []v1.RankPoint) {
 		stmt := fmt.Sprintf(hostMemoryUsageHistoryStmt, host.Id)
 		history, err := GetMemoryHistoryOfHost(stmt)
 		if err != nil {
-			log.Errorf("failed to get memory history of host %s: %v", host.Id, err)
+			log.Errorf("metrics: failed to get memory history of host %s: %v", host.Id, err)
 			continue
 		}
 
@@ -692,13 +692,13 @@ func GetDiskStorageSummaryOfHost() (*v1.SpaceStatistic, error) {
 func GetDiskStorageBandwidthHistory(readStmt, writeStmt string) (*v1.StorageTimeSeries, error) {
 	read, err := getDiskBandwidthHistory(readStmt)
 	if err != nil {
-		log.Errorf("failed to get host storage read bandwidth series: %v", err)
+		log.Errorf("metrics: failed to get host storage read bandwidth series: %v", err)
 		return nil, err
 	}
 
 	write, err := getDiskBandwidthHistory(writeStmt)
 	if err != nil {
-		log.Errorf("failed to get host storage write bandwidth series: %v", err)
+		log.Errorf("metrics: failed to get host storage write bandwidth series: %v", err)
 		return nil, err
 	}
 
@@ -791,7 +791,7 @@ func appendHistoryToDiskUsageRank(rank []v1.RankPoint) {
 	for i, host := range rank {
 		history, err := GetDiskUsageHistoryOfHost(host.Id, v1.Period{})
 		if err != nil {
-			log.Errorf("failed to get disk usage history of host %s: %v", host.Id, err)
+			log.Errorf("metrics: failed to get disk usage history of host %s: %v", host.Id, err)
 			continue
 		}
 
@@ -855,7 +855,7 @@ func appendHistoryToNetworkTrafficInRank(rank []v1.RankPoint) {
 	for i, host := range rank {
 		history, err := GetNetworkTrafficInHistoryOfHost(host.Id, v1.Period{})
 		if err != nil {
-			log.Errorf("failed to get network traffic in history of host %s: %v", host.Id, err)
+			log.Errorf("metrics: failed to get network traffic in history of host %s: %v", host.Id, err)
 			continue
 		}
 
@@ -919,7 +919,7 @@ func appendHistoryToNetworkTrafficOutRank(rank []v1.RankPoint) {
 	for i, host := range rank {
 		history, err := GetNetworkTrafficOutHistoryOfHost(host.Id, v1.Period{})
 		if err != nil {
-			log.Errorf("failed to get network traffic out history of host %s: %v", host.Id, err)
+			log.Errorf("metrics: failed to get network traffic out history of host %s: %v", host.Id, err)
 			continue
 		}
 
@@ -963,7 +963,7 @@ func appendHistoryToCpuUsageRankOfVm(rank []v1.RankPoint) {
 	for i, vm := range rank {
 		history, err := GetCpuHistoryOfVm(vm.Id, v1.Period{})
 		if err != nil {
-			log.Errorf("failed to get cpu history of vm %s: %v", vm.Id, err)
+			log.Errorf("metrics: failed to get cpu history of vm %s: %v", vm.Id, err)
 			continue
 		}
 
@@ -1027,7 +1027,7 @@ func appendHistoryToMemoryUsageRankOfVm(rank []v1.RankPoint) {
 	for i, vm := range rank {
 		history, err := GetMemoryHistoryOfVm(vm.Id, v1.Period{})
 		if err != nil {
-			log.Errorf("failed to get memory history of vm %s: %v", vm.Id, err)
+			log.Errorf("metrics: failed to get memory history of vm %s: %v", vm.Id, err)
 			continue
 		}
 
@@ -1091,7 +1091,7 @@ func appendHistoryToDiskReadIopsRankOfVm(rank []v1.RankPoint) {
 	for i, vm := range rank {
 		history, err := GetDiskReadIopsHistoryOfVm(vm.Id, vm.Device)
 		if err != nil {
-			log.Errorf("failed to get disk iops history of vm %s: %v", vm.Id, err)
+			log.Errorf("metrics: failed to get disk iops history of vm %s: %v", vm.Id, err)
 			continue
 		}
 
@@ -1135,7 +1135,7 @@ func appendHistoryToDiskWriteIopsRankOfVm(rank []v1.RankPoint) {
 	for i, vm := range rank {
 		history, err := GetDiskWriteIopsHistoryOfVm(vm.Id, vm.Device)
 		if err != nil {
-			log.Errorf("failed to get disk iops history of vm %s: %v", vm.Id, err)
+			log.Errorf("metrics: failed to get disk iops history of vm %s: %v", vm.Id, err)
 			continue
 		}
 
@@ -1179,7 +1179,7 @@ func appendHistoryToNetworkTrafficInRankOfVm(rank []v1.RankPoint) {
 	for i, vm := range rank {
 		history, err := GetNetworkTrafficInHistoryOfVm(vm.Id, vm.Device)
 		if err != nil {
-			log.Errorf("failed to get network traffic in history of vm %s: %v", vm.Id, err)
+			log.Errorf("metrics: failed to get network traffic in history of vm %s: %v", vm.Id, err)
 			continue
 		}
 
@@ -1247,7 +1247,7 @@ func appendHistoryToNetworkTrafficOutRankOfVm(rank []v1.RankPoint) {
 	for i, vm := range rank {
 		history, err := GetNetworkTrafficOutHistoryOfVm(vm.Id, vm.Device)
 		if err != nil {
-			log.Errorf("failed to get network traffic out history of vm %s: %v", vm.Id, err)
+			log.Errorf("metrics: failed to get network traffic out history of vm %s: %v", vm.Id, err)
 			continue
 		}
 

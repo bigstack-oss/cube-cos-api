@@ -296,7 +296,7 @@ func newDefaultOidcSecret() error {
 	h := keycloak.GetGlobalHelper()
 	err := h.LoginAdmin()
 	if err != nil {
-		log.Errorf("runtime: failed to login admin: %s", err.Error())
+		log.Errorf("runtime: failed to login keycloak admin: %s", err.Error())
 		return err
 	}
 

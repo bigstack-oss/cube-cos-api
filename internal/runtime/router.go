@@ -243,9 +243,7 @@ func prepareApisHandlerByRole() {
 
 func timeTracker(c *gin.Context) {
 	start := time.Now()
-
 	c.Next()
-
 	elapsed := time.Since(start)
 	reqId, found := c.Get("reqId")
 	if !found {
