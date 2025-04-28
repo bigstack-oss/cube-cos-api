@@ -54,12 +54,12 @@ func streamingWatcher() {
 
 func streamingWatcherByHandlerType(h *helper) (*data, error) {
 	switch h.handler {
-	case "getEvents":
-		return h.genEvents()
-	case "getEventAbstract":
-		return h.genEventAbstract()
-	case "genEventRank":
-		return h.genEventRank()
+	case "listEvents":
+		return h.listEvents()
+	case "listEventAbstract":
+		return h.listEventAbstract()
+	case "getEventRank":
+		return h.getEventRank()
 	}
 
 	return nil, errors.New("no internal function supported")
@@ -77,8 +77,8 @@ func watchEvents(h *helper, data *data) {
 	addWatcher(watcher)
 	defer removeWatcher(watcher)
 
-	sendFirstSummary(h.c, flusher, data)
-	streamingSummary(h.c, flusher, watcher)
+	sendFirstData(h.c, flusher, data)
+	streamNewData(h.c, flusher, watcher)
 }
 
 func setChunkedTransfer(c *gin.Context) {
@@ -106,13 +106,13 @@ func removeWatcher(watcherToRemove watcher) {
 	}
 }
 
-func sendFirstSummary(c *gin.Context, flusher http.Flusher, data *data) {
+func sendFirstData(c *gin.Context, flusher http.Flusher, data *data) {
 	c.Writer.Write(streamingResp(data))
 	c.Writer.Write([]byte("\n"))
 	flusher.Flush()
 }
 
-func streamingSummary(c *gin.Context, flusher http.Flusher, watcher watcher) {
+func streamNewData(c *gin.Context, flusher http.Flusher, watcher watcher) {
 	ctx := c.Request.Context()
 	for {
 		select {

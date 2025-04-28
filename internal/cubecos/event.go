@@ -37,7 +37,7 @@ func CountEvents(stmt string) (int64, error) {
 	h := influx.GetGlobalHelper()
 	c, err := h.QueryApiClient.Query(ctx, stmt)
 	if err != nil {
-		log.Errorf("failed to get query cursor: %v", err)
+		log.Errorf("events: failed to get query cursor: %v", err)
 		return 0, err
 	}
 
@@ -58,14 +58,14 @@ func countEvents(c *api.QueryTableResult) (int64, error) {
 	return count, nil
 }
 
-func GetEvents(stmt string) ([]v1.Event, error) {
+func ListEvents(stmt string) ([]v1.Event, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
 
 	h := influx.GetGlobalHelper()
 	c, err := h.QueryApiClient.Query(ctx, stmt)
 	if err != nil {
-		log.Errorf("failed to get query cursor: %v", err)
+		log.Errorf("events: failed to get query cursor: %v", err)
 		return nil, err
 	}
 
@@ -73,7 +73,7 @@ func GetEvents(stmt string) ([]v1.Event, error) {
 	events := []v1.Event{}
 	err = parseEvents(c, &events)
 	if err != nil {
-		log.Errorf("failed to parse events from cursor: %v", err)
+		log.Errorf("events: failed to parse events from cursor: %v", err)
 		return nil, err
 	}
 
@@ -87,7 +87,7 @@ func GetEventRank(stmt string) ([]v1.EventStat, error) {
 	h := influx.GetGlobalHelper()
 	c, err := h.QueryApiClient.Query(ctx, stmt)
 	if err != nil {
-		log.Errorf("failed to get query cursor: %v", err)
+		log.Errorf("events: failed to get query cursor: %v", err)
 		return nil, err
 	}
 
@@ -95,7 +95,7 @@ func GetEventRank(stmt string) ([]v1.EventStat, error) {
 	events := []v1.EventStat{}
 	err = parseEventStats(c, &events)
 	if err != nil {
-		log.Errorf("failed to parse events from cursor: %v", err)
+		log.Errorf("events: failed to parse events from cursor: %v", err)
 		return nil, err
 	}
 
@@ -110,7 +110,7 @@ func GetEventFilterConditions(stmt string) ([]string, error) {
 	h := influx.GetGlobalHelper()
 	c, err := h.QueryApiClient.Query(ctx, stmt)
 	if err != nil {
-		log.Errorf("failed to get cursor of event filter condition: %v", err)
+		log.Errorf("events: failed to get cursor of event filter condition: %v", err)
 		return nil, err
 	}
 
@@ -118,7 +118,7 @@ func GetEventFilterConditions(stmt string) ([]string, error) {
 	values := []string{}
 	err = parseEventValues(c, &values)
 	if err != nil {
-		log.Errorf("failed to parse filter condition from cursor: %v", err)
+		log.Errorf("events: failed to parse filter condition from cursor: %v", err)
 		return nil, err
 	}
 

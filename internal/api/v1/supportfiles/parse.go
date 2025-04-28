@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	duration "github.com/xhit/go-str2duration"
 )
@@ -18,7 +18,7 @@ func (h *helper) parseKeyword() {
 
 func (h *helper) parseWatch() error {
 	var err error
-	h.watch, err = api.ParseWatch(h.c)
+	h.watch, err = query.GetWatch(h.c)
 	if err != nil {
 		return err
 	}

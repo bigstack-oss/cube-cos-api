@@ -9,14 +9,6 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func isPageRequired(page, pageSize string) bool {
-	return page != "" || pageSize != ""
-}
-
-func (h *helper) isPageRequired() bool {
-	return h.Page.Number > 0 || h.Page.Size > 0
-}
-
 func (h *helper) isKeywordRequired() bool {
 	return h.keyword != ""
 }
@@ -42,7 +34,7 @@ func (h *helper) isInstanceRequired() bool {
 }
 
 func (h *helper) genPageInfo(events []v1.Event) (v1.Page, error) {
-	if !h.isPageRequired() {
+	if !h.Page.IsRequired() {
 		return v1.Page{
 			Total:          1,
 			Number:         1,
@@ -67,7 +59,7 @@ func (h *helper) genPageInfo(events []v1.Event) (v1.Page, error) {
 func (h *helper) getAmountDetails() (int64, int64, error) {
 	count, err := cubecos.CountEvents(h.genCountQueryStmt())
 	if err != nil {
-		log.Errorf("request(%s): failed to count events: %v", api.GetReqId(h.c), err)
+		log.Errorf("events(%s): failed to count events: %v", api.GetReqId(h.c), err)
 		return 0, 0, err
 	}
 

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
 )
 
 func (h *helper) parseKeyword() {
@@ -64,7 +64,7 @@ func (h *helper) parsePage() error {
 
 func (h *helper) parseWatch() error {
 	var err error
-	h.watch, err = api.ParseWatch(h.c)
+	h.watch, err = query.GetWatch(h.c)
 	if err != nil {
 		return err
 	}

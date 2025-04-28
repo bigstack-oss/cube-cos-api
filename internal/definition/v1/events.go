@@ -6,6 +6,17 @@ const (
 	Events = "events"
 )
 
+var (
+	filterConditions = []string{
+		"id",
+		"category",
+		"severity",
+		"host",
+		"instance",
+		"keyword",
+	}
+)
+
 type Event struct {
 	Type        string         `json:"type"`
 	Severity    string         `json:"severity"`
@@ -44,6 +55,10 @@ type InstanceFilter struct {
 type HostFilter struct {
 	Names      []string `json:"names"`
 	Categories []string `json:"categories"`
+}
+
+func GetFilterConditions() []string {
+	return filterConditions
 }
 
 func SeverityFullName(severity string) string {

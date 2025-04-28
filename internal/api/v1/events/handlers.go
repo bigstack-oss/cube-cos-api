@@ -14,19 +14,19 @@ var (
 			Version: api.V1,
 			Method:  http.MethodGet,
 			Path:    "/events",
-			Func:    getEvents,
+			Func:    listEvents,
 		},
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
 			Path:    "/events/abstract",
-			Func:    getEventAbstract,
+			Func:    listEventAbstract,
 		},
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
 			Path:    "/events/rank",
-			Func:    genEventRank,
+			Func:    getEventRank,
 		},
 		{
 			Version: api.V1,
@@ -41,17 +41,16 @@ func init() {
 	go streamingWatcher()
 }
 
-func getEvents(c *gin.Context) {
-	h, err := initHelper(c, "getEvents")
+func listEvents(c *gin.Context) {
+	h, err := initHelper(c, "listEvents")
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("events(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	events, err := h.genEvents()
+	events, err := h.listEvents()
 	if err != nil {
-		log.Errorf("request(%s): failed to gen events: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -68,17 +67,17 @@ func getEvents(c *gin.Context) {
 	)
 }
 
-func getEventAbstract(c *gin.Context) {
-	h, err := initHelper(c, "getEventAbstract")
+func listEventAbstract(c *gin.Context) {
+	h, err := initHelper(c, "listEventAbstract")
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("events(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	abstract, err := h.genEventAbstract()
+	abstract, err := h.listEventAbstract()
 	if err != nil {
-		log.Errorf("request(%s): failed to gen event abstract: %v", api.GetReqId(c), err)
+		log.Errorf("events(%s): failed to gen event abstract: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -95,17 +94,17 @@ func getEventAbstract(c *gin.Context) {
 	)
 }
 
-func genEventRank(c *gin.Context) {
-	h, err := initHelper(c, "genEventRank")
+func getEventRank(c *gin.Context) {
+	h, err := initHelper(c, "getEventRank")
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("events(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	rank, err := h.genEventRank()
+	rank, err := h.getEventRank()
 	if err != nil {
-		log.Errorf("request(%s): failed to gen event rank: %v", api.GetReqId(c), err)
+		log.Errorf("events(%s): failed to gen event rank: %v", api.GetReqId(c), err)
 		api.SetInternalServerError(c, err)
 		return
 	}
@@ -125,21 +124,14 @@ func genEventRank(c *gin.Context) {
 func getEventFilterConditions(c *gin.Context) {
 	h, err := initHelper(c, "getEventFilterConditions")
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("events(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
-		return
-	}
-
-	conditions, err := h.genEventFilterConditions()
-	if err != nil {
-		log.Errorf("request(%s): failed to gen event filter conditions: %v", api.GetReqId(c), err)
-		api.SetInternalServerError(c, err)
 		return
 	}
 
 	api.SetStatusOk(
 		c,
 		"fetch event filter conditions successfully",
-		conditions,
+		h.getEventFilterConditions(),
 	)
 }

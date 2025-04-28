@@ -11,10 +11,6 @@ func (p Page) IsRequired() bool {
 	return p.Number > 0 || p.Size > 0
 }
 
-func IsPageRequired(pageNum, pageSize string) bool {
-	return pageNum != "" || pageSize != ""
-}
-
 type Limit struct {
 	Number      int    `json:"number"`
 	Description string `json:"description"`
