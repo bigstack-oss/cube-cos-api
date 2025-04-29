@@ -6,6 +6,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -33,7 +34,7 @@ func (h *helper) isInstanceRequired() bool {
 	return h.instance != ""
 }
 
-func (h *helper) genPageInfo(events []v1.Event) (v1.Page, error) {
+func (h *helper) genPageInfo(events []events.Options) (v1.Page, error) {
 	if !h.Page.IsRequired() {
 		return v1.Page{
 			Total:          1,

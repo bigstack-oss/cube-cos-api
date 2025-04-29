@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 )
 
@@ -125,7 +124,7 @@ func (h *helper) parseType() error {
 
 func (h *helper) parseFilterConditions() error {
 	queries := h.c.Request.URL.Query()
-	for _, condition := range v1.GetFilterConditions() {
+	for _, condition := range events.GetFilterConditions() {
 		value, found := queries[condition]
 		if !found {
 			continue
@@ -143,7 +142,7 @@ func (h *helper) parseFilterConditions() error {
 		case "category":
 			h.category = strings.ToUpper(value[0])
 		case "severity":
-			h.severity = v1.SeverityShortName(value[0])
+			h.severity = events.GetSeverityShortName(value[0])
 		case "host":
 			h.host = value[0]
 		case "instance":

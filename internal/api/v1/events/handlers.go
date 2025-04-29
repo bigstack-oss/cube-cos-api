@@ -9,6 +9,7 @@ import (
 )
 
 var (
+	Module   = "events"
 	Handlers = []api.Handler{
 		{
 			Version: api.V1,

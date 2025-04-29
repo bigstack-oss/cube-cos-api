@@ -384,6 +384,10 @@ func convertToLicenseNodes(nodes []v1.Node) []v1.LicenseNode {
 	licenseNodes := []v1.LicenseNode{}
 	for _, node := range nodes {
 		license := getLicenseByNodeName(node.Hostname)
+		if !license.IsValid() {
+			license.Status.Current = "unlicense"
+		}
+
 		licenseNodes = append(
 			licenseNodes,
 			v1.LicenseNode{

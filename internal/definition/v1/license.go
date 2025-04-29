@@ -115,6 +115,10 @@ func (l *License) InitCompromisedStatus() {
 	l.Status = status.License{Current: "system compromised"}
 }
 
+func (l *License) IsValid() bool {
+	return l.Expiry.Date != ""
+}
+
 // note:
 // in the current search lib(bleve), the algo is not able to detect the string if it include uppercase
 // we've tried a few different init settings, but the result is not as expected as always

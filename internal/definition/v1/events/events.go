@@ -24,7 +24,7 @@ var (
 	}
 )
 
-type Event struct {
+type Options struct {
 	Type        string         `json:"type"`
 	Severity    string         `json:"severity"`
 	Id          string         `json:"id"`
@@ -36,14 +36,14 @@ type Event struct {
 	Time        string         `json:"time"`
 }
 
-type EventStat struct {
+type Stat struct {
 	Id      string  `json:"id"`
 	Percent float64 `json:"percent"`
 	Number  int64   `json:"number"`
 	Query   string  `json:"query"`
 }
 
-type EventFilter struct {
+type Filter struct {
 	System   SystemFilter   `json:"system"`
 	Instance InstanceFilter `json:"instance"`
 	Host     HostFilter     `json:"host"`
@@ -72,7 +72,7 @@ func GetFilterConditions() []string {
 	return filterConditions
 }
 
-func SeverityFullName(severity string) string {
+func GetSeverityFullName(severity string) string {
 	switch strings.ToLower(severity) {
 	case "c":
 		return "Critical"
@@ -85,7 +85,7 @@ func SeverityFullName(severity string) string {
 	return severity
 }
 
-func SeverityShortName(severity string) string {
+func GetSeverityShortName(severity string) string {
 	switch strings.ToLower(severity) {
 	case "critical":
 		return "C"

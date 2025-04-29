@@ -135,7 +135,7 @@ func prepareApisHandlerByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.Events,
+		events.Module,
 		events.Handlers,
 		v1.RoleControl,
 		v1.RoleControlConverged,
