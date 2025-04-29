@@ -3,6 +3,8 @@ package licenses
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
 )
 
 func (h *helper) parseByHandler() error {
@@ -36,7 +38,7 @@ func (h *helper) parseStatus() {
 }
 
 func (h *helper) parsePage() error {
-	if !h.isPageRequired() {
+	if !query.IsPageRequired(h.c) {
 		return nil
 	}
 

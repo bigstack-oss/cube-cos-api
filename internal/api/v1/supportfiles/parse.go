@@ -84,7 +84,7 @@ func (h *helper) parsePeriod() error {
 }
 
 func (h *helper) parsePage() error {
-	if !h.isPageRequired() {
+	if !query.IsPageRequired(h.c) {
 		return nil
 	}
 
@@ -118,10 +118,6 @@ func (h *helper) parsePage() error {
 	}
 
 	return nil
-}
-
-func (h *helper) isPageRequired() bool {
-	return h.c.DefaultQuery("pageNum", "") != "" || h.c.DefaultQuery("pageSize", "") != ""
 }
 
 func (h *helper) arePeriodAndPastRequired() bool {

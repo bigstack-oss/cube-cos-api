@@ -14,16 +14,16 @@ func GetPeriod(c *gin.Context) (*v1.Period, error) {
 		return nil, fmt.Errorf("'past' and 'start'/'stop' cannot be used together")
 	}
 
-	qStart := c.DefaultQuery("start", v1.TimeRFC3339(-24*time.Hour))
-	start, err := time.Parse(v1.RFC3339, qStart)
+	timeStart := c.DefaultQuery("start", v1.TimeRFC3339(-24*time.Hour))
+	start, err := time.Parse(v1.RFC3339, timeStart)
 	if err != nil {
-		return nil, fmt.Errorf("'start' time format should be aligned with RFC3339: %s", qStart)
+		return nil, fmt.Errorf("'start' time format should be aligned with RFC3339: %s", timeStart)
 	}
 
-	qStop := c.DefaultQuery("stop", v1.TimeNowRFC3339())
-	stop, err := time.Parse(v1.RFC3339, qStop)
+	timeStop := c.DefaultQuery("stop", v1.TimeNowRFC3339())
+	stop, err := time.Parse(v1.RFC3339, timeStop)
 	if err != nil {
-		return nil, fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", qStop)
+		return nil, fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", timeStop)
 	}
 
 	return &v1.Period{

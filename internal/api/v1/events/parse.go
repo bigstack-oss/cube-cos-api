@@ -112,14 +112,14 @@ func (h *helper) parseEventFilterConditions() error {
 }
 
 func (h *helper) parseType() error {
-	t := h.c.DefaultQuery("type", "")
-	if !cubecos.IsEventTypeValid(t) {
+	eventType := h.c.DefaultQuery("type", "")
+	if !cubecos.IsEventTypeValid(eventType) {
 		return errors.New(
 			"'type' can't be null and should be one of 'system', 'host', or 'instance'",
 		)
 	}
 
-	h.eventType = t
+	h.eventType = eventType
 	return nil
 }
 

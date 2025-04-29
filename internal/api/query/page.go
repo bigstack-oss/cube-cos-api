@@ -9,16 +9,16 @@ import (
 )
 
 func GetPage(c *gin.Context) (*v1.Page, error) {
-	num := c.DefaultQuery("pageNum", "")
-	size := c.DefaultQuery("pageSize", "")
-	if !IsPageRequired(num, size) {
+	if !IsPageRequired(c) {
 		return nil, nil
 	}
 
+	num := c.DefaultQuery("pageNum", "")
 	if num == "" {
 		return nil, fmt.Errorf("pageNum should be provided if pageSize is provided")
 	}
 
+	size := c.DefaultQuery("pageSize", "")
 	if size == "" {
 		return nil, fmt.Errorf("pageSize should be provided if pageNum is provided")
 	}
@@ -46,6 +46,6 @@ func GetPage(c *gin.Context) (*v1.Page, error) {
 	return page, nil
 }
 
-func IsPageRequired(num, size string) bool {
-	return num != "" || size != ""
+func IsPageRequired(c *gin.Context) bool {
+	return c.DefaultQuery("pageNum", "") != "" || c.DefaultQuery("pageSize", "") != ""
 }
