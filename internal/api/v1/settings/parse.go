@@ -9,6 +9,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
+	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -22,6 +23,8 @@ func (h *helper) initTitlePrefixUpdateParams() error {
 	h.task.Key = h.task.TitlePrefix.Value
 	h.task.Value = h.task.TitlePrefix.Value
 	h.task.InitUpdateStatus()
+	h.task.ShouldReportToController = h.isClusterWiseRequired
+
 	return nil
 }
 
@@ -45,6 +48,8 @@ func (h *helper) initEmailSenderCreateParams() error {
 
 	h.task.Key = h.task.Sender.Host
 	h.task.InitUpdateStatus()
+	h.task.ShouldReportToController = h.isClusterWiseRequired
+
 	return nil
 }
 
@@ -67,6 +72,8 @@ func (h *helper) initEmailSenderPatchParams() error {
 	h.task.Key = h.task.Sender.Host
 	h.task.Sender.ResetAccessVerification()
 	h.task.InitUpdateStatus()
+	h.task.ShouldReportToController = h.isClusterWiseRequired
+
 	return nil
 }
 
@@ -79,6 +86,8 @@ func (h *helper) initEmailSenderDeleteParams() error {
 	h.task = &setting.Options{Type: "emailSender", Key: host}
 	h.task.Sender = &email.Sender{Host: host}
 	h.task.InitDeleteStatus()
+	h.task.ShouldReportToController = h.isClusterWiseRequired
+
 	return nil
 }
 
@@ -99,6 +108,8 @@ func (h *helper) initEmailRecipientCreateParams() error {
 
 	h.task.Key = h.task.Recipient.Address
 	h.task.InitCreateStatus()
+	h.task.ShouldReportToController = h.isClusterWiseRequired
+
 	return nil
 }
 
@@ -119,6 +130,8 @@ func (h *helper) initEmailRecipientPatchParams() error {
 	}
 
 	h.task.InitUpdateStatus()
+	h.task.ShouldReportToController = h.isClusterWiseRequired
+
 	return nil
 }
 
@@ -131,6 +144,8 @@ func (h *helper) initEmailRecipientDeleteParams() error {
 	h.task = &setting.Options{Type: "emailRecipient", Key: recipientEmail}
 	h.task.Recipient = &email.Recipient{Address: recipientEmail}
 	h.task.InitDeleteStatus()
+	h.task.ShouldReportToController = h.isClusterWiseRequired
+
 	return nil
 }
 
@@ -149,6 +164,8 @@ func (h *helper) initSlackChannelDeleteParams() error {
 	h.task = &setting.Options{Type: "slackChannel", Key: channelName}
 	h.task.Slack = &slack.ApiChannel{Name: channelName, URL: policy.GetSlackUrlByName(channelName)}
 	h.task.InitDeleteStatus()
+	h.task.ShouldReportToController = h.isClusterWiseRequired
+
 	return nil
 }
 
@@ -162,6 +179,8 @@ func (h *helper) initSlackChannelCreateParams() error {
 
 	h.task.Key = h.task.Slack.Name
 	h.task.InitCreateStatus()
+	h.task.ShouldReportToController = h.isClusterWiseRequired
+
 	return nil
 }
 
@@ -188,6 +207,8 @@ func (h *helper) initSlackChannelPatchParams() error {
 	}
 
 	h.task.InitUpdateStatus()
+	h.task.ShouldReportToController = h.isClusterWiseRequired
+
 	return nil
 }
 
@@ -205,4 +226,18 @@ func (h *helper) parseTaskUpdate() error {
 	}
 
 	return nil
+}
+
+func parseClusterWise(c *gin.Context) bool {
+	queries := c.Request.URL.Query()
+	if len(queries) == 0 {
+		return true
+	}
+
+	_, found := queries["clusterWise"]
+	if !found {
+		return true
+	}
+
+	return c.DefaultQuery("clusterWise", "false") == "true"
 }

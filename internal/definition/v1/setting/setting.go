@@ -24,9 +24,10 @@ var (
 )
 
 type Options struct {
-	Type  string `json:"type" bson:"type"`
-	Key   string `json:"key" bson:"key"`
-	Value any    `json:"value" bson:"value"`
+	Type                     string `json:"type" bson:"type"`
+	Key                      string `json:"key" bson:"key"`
+	Value                    any    `json:"value" bson:"value"`
+	ShouldReportToController bool   `json:"-" bson:"-"`
 
 	TitlePrefix *TitlePrefix      `json:"titlePrefix,omitempty" bson:"titlePrefix,omitempty"`
 	Sender      *email.Sender     `json:"sender,omitempty" bson:"sender,omitempty"`

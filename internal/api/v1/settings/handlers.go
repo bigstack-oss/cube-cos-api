@@ -155,7 +155,7 @@ func updateTitlePrefix(c *gin.Context) {
 		return
 	}
 
-	h.updateSetting()
+	h.updateClusterWiseSetting()
 	api.SetStatusAccepted(
 		c,
 		"title prefix update request successfully",
@@ -174,7 +174,7 @@ func createEmailSender(c *gin.Context) {
 		return
 	}
 
-	h.updateSetting()
+	h.updateClusterWiseSetting()
 	api.SetStatusAccepted(
 		c,
 		"email sender created successfully",
@@ -260,7 +260,7 @@ func patchEmailSender(c *gin.Context) {
 	}
 
 	h.resetAccessVerification()
-	h.updateSetting()
+	h.updateClusterWiseSetting()
 	api.SetStatusAccepted(
 		c,
 		"email sender update requested successfully",
@@ -280,7 +280,7 @@ func deleteEmailSender(c *gin.Context) {
 		return
 	}
 
-	h.updateSetting()
+	h.updateClusterWiseSetting()
 	api.SetStatusAccepted(
 		c,
 		"email sender deletion requested successfully",
@@ -300,7 +300,7 @@ func createEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	h.updateSetting()
+	h.updateClusterWiseSetting()
 	api.SetStatusAccepted(
 		c,
 		"email recipient created successfully",
@@ -375,7 +375,7 @@ func patchEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	h.updateSetting()
+	h.updateClusterWiseSetting()
 	api.SetStatusAccepted(
 		c,
 		"email recipient updated successfully",
@@ -395,7 +395,7 @@ func deleteEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	h.updateSetting()
+	h.updateClusterWiseSetting()
 	api.SetStatusAccepted(
 		c,
 		"email recipient updated successfully",
@@ -415,7 +415,7 @@ func createSlackChannel(c *gin.Context) {
 		return
 	}
 
-	h.updateSetting()
+	h.updateClusterWiseSetting()
 	api.SetStatusAccepted(
 		c,
 		"slack channel creation requested successfully",
@@ -472,7 +472,7 @@ func putSlackChannel(c *gin.Context) {
 		return
 	}
 
-	h.updateSetting()
+	h.updateClusterWiseSetting()
 	api.SetStatusAccepted(
 		c,
 		"slack channel updated successfully",
@@ -492,7 +492,7 @@ func deleteSlackChannel(c *gin.Context) {
 		return
 	}
 
-	h.updateSetting()
+	h.updateClusterWiseSetting()
 	api.SetStatusAccepted(
 		c,
 		"slack channel deleted successfully",

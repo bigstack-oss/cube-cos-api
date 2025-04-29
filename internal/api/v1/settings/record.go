@@ -1,7 +1,11 @@
 package settings
 
 import (
+	"maps"
+	"net/http"
+
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
@@ -15,9 +19,62 @@ func (h *helper) eraseSenderPassword(senders *[]email.Sender) {
 	}
 }
 
-func (h *helper) updateSetting() {
+func (h *helper) updateClusterWiseSetting() {
+	h.delegateToLocal()
+	if h.isClusterWiseRequired {
+		h.delegateToPeerControlNodes()
+	}
+}
+
+func (h *helper) delegateToLocal() {
 	h.addReqRecord(*h.task)
 	reqQueue.Add(h.task)
+}
+
+func (h *helper) delegateToPeerControlNodes() {
+	peerNodes, err := v1.GetPeerControlNodes()
+	if err != nil {
+		log.Errorf("settings: failed to get peer controller nodes: %v", err)
+		return
+	}
+
+	for _, node := range peerNodes {
+		h.updateSettingToPeerNode(node)
+	}
+}
+
+func (h *helper) updateSettingToPeerNode(node v1.Node) {
+	req := h.http.R().
+		SetHeaders(h.convertHeadersToMap(h.c.Request.Header)).
+		SetQueryParam("clusterWise", "false").
+		SetBody(string(h.rawBody))
+
+	url := node.GenUrl() + h.c.Request.RequestURI
+	resp, err := req.Execute(h.c.Request.Method, url)
+	if err != nil {
+		log.Errorf("settings: failed to update setting to peer node %s: %v", node.Hostname, err)
+		return
+	}
+
+	if resp.IsError() {
+		log.Errorf("settings: has resp error during updating setting to peer node %s: %s", node.Hostname, resp.String())
+		return
+	}
+}
+
+func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
+	mapHeaderMap := v1.GenNodeAuthHeaders()
+
+	headerMap := map[string]string{}
+	for key, values := range headers {
+		if len(values) > 0 {
+			headerMap[key] = values[0]
+		}
+	}
+
+	maps.Copy(headerMap, mapHeaderMap)
+
+	return headerMap
 }
 
 func (h *helper) isSenderExist(host string) bool {

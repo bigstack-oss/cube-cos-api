@@ -3,6 +3,7 @@ package settings
 import (
 	"context"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	cubemongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
@@ -19,37 +20,49 @@ import (
 type helper struct {
 	c     *gin.Context
 	mongo *cubemongo.Helper
+	http  *http.Helper
 
-	handler string
-	task    *setting.Options
+	handler               string
+	task                  *setting.Options
+	rawBody               []byte
+	isClusterWiseRequired bool
 }
 
 func initReqHelper(c *gin.Context, handler string) (*helper, error) {
-	h := &helper{c: c, handler: handler, mongo: cubemongo.GetGlobalHelper()}
+	h := &helper{
+		c:                     c,
+		handler:               handler,
+		mongo:                 cubemongo.GetGlobalHelper(),
+		http:                  http.GetGlobalHelper(),
+		isClusterWiseRequired: parseClusterWise(c),
+		rawBody:               api.ParseBody(c),
+	}
 
+	var err error
 	switch handler {
-	case "listSettings":
-		return h, nil
 	case "updateTitlePrefix":
-		return h, h.initTitlePrefixUpdateParams()
+		err = h.initTitlePrefixUpdateParams()
 	case "createEmailSender":
-		return h, h.initEmailSenderCreateParams()
+		err = h.initEmailSenderCreateParams()
 	case "patchEmailSender":
-		return h, h.initEmailSenderPatchParams()
+		err = h.initEmailSenderPatchParams()
 	case "deleteEmailSender":
-		return h, h.initEmailSenderDeleteParams()
+		err = h.initEmailSenderDeleteParams()
 	case "createEmailRecipient":
-		return h, h.initEmailRecipientCreateParams()
+		err = h.initEmailRecipientCreateParams()
 	case "patchEmailRecipient":
-		return h, h.initEmailRecipientPatchParams()
+		err = h.initEmailRecipientPatchParams()
 	case "deleteEmailRecipient":
-		return h, h.initEmailRecipientDeleteParams()
+		err = h.initEmailRecipientDeleteParams()
 	case "createSlackChannel":
-		return h, h.initSlackChannelCreateParams()
+		err = h.initSlackChannelCreateParams()
 	case "putSlackChannel":
-		return h, h.initSlackChannelPatchParams()
+		err = h.initSlackChannelPatchParams()
 	case "deleteSlackChannel":
-		return h, h.initSlackChannelDeleteParams()
+		err = h.initSlackChannelDeleteParams()
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	return h, nil

@@ -1,8 +1,6 @@
 package settings
 
 import (
-	"errors"
-
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
@@ -18,17 +16,16 @@ func (o *Operator) handleExit(setting setting.Options, err error) {
 		setting.SetCompleted()
 	}
 
-	err = o.reportToController(setting)
-	if err != nil {
-		return
+	if setting.ShouldReportToController {
+		o.reportToController(setting)
 	}
 }
 
-func (o *Operator) reportToController(setting setting.Options) error {
+func (o *Operator) reportToController(setting setting.Options) {
 	node, err := v1.GetOneOfControllerNode()
 	if err != nil {
 		log.Errorf("settings: failed to get controller nodes: %s", err.Error())
-		return err
+		return
 	}
 
 	h := http.GetGlobalHelper()
@@ -38,13 +35,10 @@ func (o *Operator) reportToController(setting setting.Options) error {
 		Patch(node.PatchSettingTaskUrl(setting))
 	if err != nil {
 		log.Errorf("settings: failed to send setting %s to %s: %s", setting.Type, node.Hostname, err.Error())
-		return err
+		return
 	}
 
 	if resp.IsError() {
 		log.Errorf("settings: error response from %s %s update: %v", node.Hostname, setting.Type, string(resp.Body()))
-		return errors.New(string(resp.Body()))
 	}
-
-	return nil
 }

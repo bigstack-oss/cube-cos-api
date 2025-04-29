@@ -113,6 +113,11 @@ func (r *RawBlockDevice) NoMountPoints() bool {
 	return len(r.MountPoints) == 0
 }
 
+func (n *Node) GenUrl() string {
+	u := url.URL{Scheme: n.Protocol, Host: n.Address}
+	return u.String()
+}
+
 func (n *Node) GetMetricUrl(metric, view string) string {
 	u := url.URL{
 		Scheme: n.Protocol,
@@ -149,6 +154,17 @@ func (n *Node) GetTuningUrl() string {
 		Host:     n.Address,
 		Path:     fmt.Sprintf("/api/v1/datacenters/%s/tunings/parameters", n.DataCenter),
 		RawQuery: "allNodes=false",
+	}
+
+	return u.String()
+}
+
+func (n *Node) GetSettingUrl(path string) string {
+	u := url.URL{
+		Scheme:   n.Protocol,
+		Host:     n.Address,
+		Path:     path,
+		RawQuery: "clusterWise=false",
 	}
 
 	return u.String()
@@ -307,25 +323,61 @@ func HostnameNodeMap() (map[string]Node, error) {
 	return nodeMap, nil
 }
 
-func GetControllerNodes() ([]Node, error) {
+func GetControlNodes() ([]Node, error) {
+	controllers := []Node{}
+
 	nodes, err := GetNodesByRole("control")
 	if err == nil && len(nodes) > 0 {
-		return nodes, nil
+		controllers = append(controllers, nodes...)
 	}
 
 	nodes, err = GetNodesByRole("control-converged")
 	if err == nil && len(nodes) > 0 {
-		return nodes, nil
+		controllers = append(controllers, nodes...)
 	}
 
-	return nil, fmt.Errorf(
-		"failed to get control nodes(control or control-converged): %s",
-		err.Error(),
-	)
+	if len(controllers) == 0 {
+		return nil, fmt.Errorf(
+			"failed to get control nodes(control or control-converged): %s",
+			err.Error(),
+		)
+	}
+
+	return controllers, nil
+}
+
+func GetPeerControlNodes() ([]Node, error) {
+	controllers := []Node{}
+
+	nodes, err := GetNodesByRole("control")
+	if err == nil && len(nodes) > 0 {
+		controllers = append(controllers, nodes...)
+	}
+
+	nodes, err = GetNodesByRole("control-converged")
+	if err == nil && len(nodes) > 0 {
+		controllers = append(controllers, nodes...)
+	}
+
+	if len(controllers) == 0 {
+		return nil, fmt.Errorf(
+			"failed to get control nodes(control or control-converged): %s",
+			err.Error(),
+		)
+	}
+
+	for i, controller := range controllers {
+		if controller.IsLocal() {
+			controllers = slices.Delete(controllers, i, i+1)
+			break
+		}
+	}
+
+	return controllers, nil
 }
 
 func GetOneOfControllerNode() (*Node, error) {
-	nodes, err := GetControllerNodes()
+	nodes, err := GetControlNodes()
 	if err != nil {
 		return nil, err
 	}
