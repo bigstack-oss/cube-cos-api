@@ -8,27 +8,12 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 )
-
-const (
-	eventTimeLayout = "2006-01-02 15:04:05.999999999 -0700 MST"
-)
-
-var (
-	isValidEventMeasurement = map[string]bool{
-		"system":   true,
-		"host":     true,
-		"instance": true,
-	}
-)
-
-func IsEventTypeValid(t string) bool {
-	return isValidEventMeasurement[t]
-}
 
 func CountEvents(stmt string) (int64, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
@@ -185,7 +170,7 @@ func parseEvents(c *api.QueryTableResult, events *[]v1.Event) error {
 }
 
 func genEventByRecord(record *query.FluxRecord) v1.Event {
-	date, err := time.Parse(eventTimeLayout, record.Time().Local().String())
+	date, err := time.Parse(events.TimeLayout, record.Time().Local().String())
 	if err != nil {
 		log.Debugf("failed to parse date from record: %v", record)
 	}

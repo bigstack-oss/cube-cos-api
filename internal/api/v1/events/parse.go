@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 )
 
 func (h *helper) parseEventListingParams() error {
@@ -112,14 +112,14 @@ func (h *helper) parseEventFilterConditions() error {
 }
 
 func (h *helper) parseType() error {
-	eventType := h.c.DefaultQuery("type", "")
-	if !cubecos.IsEventTypeValid(eventType) {
+	query := h.c.DefaultQuery("type", "")
+	if !events.IsValidType(query) {
 		return errors.New(
 			"'type' can't be null and should be one of 'system', 'host', or 'instance'",
 		)
 	}
 
-	h.eventType = eventType
+	h.eventType = query
 	return nil
 }
 
