@@ -17,6 +17,7 @@ func (h *helper) filteredByKeyword(nonFilterEvents []events.Options) []events.Op
 		return nonFilterEvents
 	}
 
+	h.setEventSearchIndex(&nonFilterEvents)
 	result, err := h.searchEvents(nonFilterEvents)
 	if err != nil {
 		log.Errorf("events: failed to search events: %s", err.Error())
@@ -30,6 +31,12 @@ func (h *helper) filteredByKeyword(nonFilterEvents []events.Options) []events.Op
 	}
 
 	return filtered
+}
+
+func (h *helper) setEventSearchIndex(nonFilterEvents *[]events.Options) {
+	for i := range *nonFilterEvents {
+		(*nonFilterEvents)[i].SetSearchIndex()
+	}
 }
 
 func (h *helper) searchEvents(nonFilterEvents []events.Options) (*bleve.SearchResult, error) {

@@ -9,7 +9,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
-	"github.com/google/uuid"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
 	json "github.com/json-iterator/go"
@@ -197,7 +196,6 @@ func parseEventByRecord(record *query.FluxRecord) events.Options {
 	}
 
 	return events.Options{
-		SearchIndex: uuid.New().String(),
 		Type:        record.Measurement(),
 		Severity:    events.GetSeverityFullName(severity),
 		Id:          eventId,

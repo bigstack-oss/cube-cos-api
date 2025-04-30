@@ -39,14 +39,10 @@ func (h *helper) genListingStmt() string {
 	query := influx.Query{}
 	query.Bucket("events").Range(h.genTimeDuration()).Measurement(h.eventType)
 	query = h.addFilters(query)
-	query.Pivot(convertValueToField).Group("").Sort(descByTime)
-	// if !h.Page.IsRequired() {
-	// 	return query.String()
-	// }
-
-	// offset := (h.Page.Number - 1) * h.Page.Size
 	return query.
-		// Limit(fmt.Sprintf(`n: %d, offset: %d`, h.Page.Size, offset)).
+		Pivot(convertValueToField).
+		Group("").
+		Sort(descByTime).
 		String()
 }
 
@@ -77,7 +73,11 @@ func (h *helper) genRankStmt() (string, error) {
 
 func (h *helper) genSystemRankStmt() string {
 	query := influx.Query{}
-	query.Bucket("events").Range(h.genTimeDuration()).Measurement("system")
+	query.
+		Bucket("events").
+		Range(h.genTimeDuration()).
+		Measurement("system").
+		Filter(`fn: (r) => r._field == "message"`)
 
 	if h.category != "" {
 		query.Filter(h.genFilter("category", h.category))
@@ -99,7 +99,11 @@ func (h *helper) genSystemRankStmt() string {
 
 func (h *helper) genHostRankStmt() string {
 	query := influx.Query{}
-	query.Bucket("events").Range(h.genTimeDuration()).Measurement("host")
+	query.
+		Bucket("events").
+		Range(h.genTimeDuration()).
+		Measurement("host").
+		Filter(`fn: (r) => r._field == "message"`)
 
 	if h.category != "" {
 		query.Filter(h.genFilter("category", h.category))
@@ -121,7 +125,11 @@ func (h *helper) genHostRankStmt() string {
 
 func (h *helper) genInstanceRankStmt() string {
 	query := influx.Query{}
-	query.Bucket("events").Range(h.genTimeDuration()).Measurement("instance")
+	query.
+		Bucket("events").
+		Range(h.genTimeDuration()).
+		Measurement("instance").
+		Filter(`fn: (r) => r._field == "message"`)
 
 	if h.category != "" {
 		query.Filter(h.genFilter("category", h.category))

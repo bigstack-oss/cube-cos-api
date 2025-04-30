@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/blevesearch/bleve/v2"
+	"github.com/google/uuid"
 )
 
 const (
@@ -108,6 +109,10 @@ func GetSeverityShortName(severity string) string {
 
 func (o *Options) GetSeverityFullName() string {
 	return GetSeverityFullName(o.Severity)
+}
+
+func (o *Options) SetSearchIndex() {
+	o.SearchIndex = uuid.New().String()
 }
 
 // note:
