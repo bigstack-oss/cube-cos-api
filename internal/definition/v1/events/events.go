@@ -1,6 +1,11 @@
 package events
 
-import "strings"
+import (
+	"maps"
+	"strings"
+
+	"github.com/blevesearch/bleve/v2"
+)
 
 const (
 	Name       = "events"
@@ -8,6 +13,8 @@ const (
 )
 
 var (
+	eventSearcher bleve.Index
+
 	supportEventTypes = map[string]bool{
 		"system":   true,
 		"host":     true,
@@ -25,6 +32,7 @@ var (
 )
 
 type Options struct {
+	SearchIndex string         `json:"-"`
 	Type        string         `json:"type"`
 	Severity    string         `json:"severity"`
 	Id          string         `json:"id"`
@@ -96,4 +104,47 @@ func GetSeverityShortName(severity string) string {
 	}
 
 	return severity
+}
+
+func (o *Options) GetSeverityFullName() string {
+	return GetSeverityFullName(o.Severity)
+}
+
+// note:
+// in the current search lib(bleve), the algo is not able to detect the string if it include uppercase
+// we've tried a few different init settings, but the result is not as expected as always
+// currenlty, the only way we found is to convert all the string to lower case and inject to searcher
+func (o *Options) GenSearchableObject() Options {
+	return Options{
+		SearchIndex: o.SearchIndex,
+		Type:        strings.ToLower(o.Type),
+		Id:          strings.ToLower(o.Id),
+		Severity:    strings.ToLower(o.Severity),
+		Description: strings.ToLower(o.Description),
+		Host:        strings.ToLower(o.Host),
+		Category:    strings.ToLower(o.Category),
+		Service:     strings.ToLower(o.Service),
+		Metadata:    maps.Clone(o.Metadata),
+		Time:        o.Time,
+	}
+}
+
+func InitEventSearchIndex() error {
+	if eventSearcher != nil {
+		return nil
+	}
+
+	var err error
+	mapping := bleve.NewIndexMapping()
+	eventSearcher, err = bleve.NewMemOnly(mapping)
+	return err
+}
+
+func NewSearchIndex() (bleve.Index, error) {
+	mapping := bleve.NewIndexMapping()
+	return bleve.NewMemOnly(mapping)
+}
+
+func GetSearcher() bleve.Index {
+	return eventSearcher
 }

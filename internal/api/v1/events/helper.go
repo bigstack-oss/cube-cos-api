@@ -61,14 +61,21 @@ func (h *helper) listEvents() (*data, error) {
 		return nil, err
 	}
 
-	page, err := h.genPageInfo(events)
+	filteredEvents := h.filteredByKeyword(events)
+	pagedEvents, err := h.paginateEvents(filteredEvents)
+	if err != nil {
+		log.Errorf("tunings(%s): failed to paginate tunings: %s", api.GetReqId(h.c), err.Error())
+		return nil, err
+	}
+
+	page, err := h.genPageInfo(filteredEvents)
 	if err != nil {
 		log.Errorf("events(%s): failed to gen page info: %v", api.GetReqId(h.c), err)
 		return nil, err
 	}
 
 	return &data{
-		Events: events,
+		Events: pagedEvents,
 		Page:   &page,
 	}, nil
 }

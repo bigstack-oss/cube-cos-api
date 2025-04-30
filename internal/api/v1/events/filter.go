@@ -27,9 +27,9 @@ func (h *helper) addFilters(query influx.Query) influx.Query {
 		query.Filter(h.genFuzzyFilter("_value", h.instance))
 	}
 
-	if h.isKeywordRequired() {
-		query.Filter(h.genFuzzyFilter("_value", h.keyword))
-	}
+	// if h.isKeywordRequired() {
+	// 	query.Filter(h.genFuzzyFilter("_value", h.keyword))
+	// }
 
 	return query
 }

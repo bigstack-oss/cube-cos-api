@@ -14,6 +14,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
@@ -150,6 +151,11 @@ func newSearchIndexers() error {
 	err = newNodeSearchIndex()
 	if err != nil {
 		log.Warnf("runtime: failed to init node search index: %s", err.Error())
+	}
+
+	err = newEventSearchIndex()
+	if err != nil {
+		log.Warnf("runtime: failed to init event search index: %s", err.Error())
 	}
 
 	return nil
@@ -375,6 +381,10 @@ func newLicenseSearchIndex() error {
 
 func newNodeSearchIndex() error {
 	return v1.InitNodeSearchIndex()
+}
+
+func newEventSearchIndex() error {
+	return events.InitEventSearchIndex()
 }
 
 func newTuningRecordTTL() error {

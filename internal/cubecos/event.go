@@ -9,6 +9,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
+	"github.com/google/uuid"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
 	json "github.com/json-iterator/go"
@@ -158,7 +159,7 @@ func genEventStatsByRecord(record *query.FluxRecord) events.Stat {
 func parseEvents(c *api.QueryTableResult, events *[]events.Options) error {
 	for c.Next() {
 		record := c.Record()
-		event := genEventByRecord(record)
+		event := parseEventByRecord(record)
 		setMetadataToEvent(&event, record)
 		*events = append(*events, event)
 	}
@@ -169,7 +170,7 @@ func parseEvents(c *api.QueryTableResult, events *[]events.Options) error {
 	return nil
 }
 
-func genEventByRecord(record *query.FluxRecord) events.Options {
+func parseEventByRecord(record *query.FluxRecord) events.Options {
 	date, err := time.Parse(events.TimeLayout, record.Time().Local().String())
 	if err != nil {
 		log.Debugf("failed to parse date from record: %v", record)
@@ -196,6 +197,7 @@ func genEventByRecord(record *query.FluxRecord) events.Options {
 	}
 
 	return events.Options{
+		SearchIndex: uuid.New().String(),
 		Type:        record.Measurement(),
 		Severity:    events.GetSeverityFullName(severity),
 		Id:          eventId,

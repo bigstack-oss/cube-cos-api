@@ -40,13 +40,13 @@ func (h *helper) genListingStmt() string {
 	query.Bucket("events").Range(h.genTimeDuration()).Measurement(h.eventType)
 	query = h.addFilters(query)
 	query.Pivot(convertValueToField).Group("").Sort(descByTime)
-	if !h.Page.IsRequired() {
-		return query.String()
-	}
+	// if !h.Page.IsRequired() {
+	// 	return query.String()
+	// }
 
-	offset := (h.Page.Number - 1) * h.Page.Size
+	// offset := (h.Page.Number - 1) * h.Page.Size
 	return query.
-		Limit(fmt.Sprintf(`n: %d, offset: %d`, h.Page.Size, offset)).
+		// Limit(fmt.Sprintf(`n: %d, offset: %d`, h.Page.Size, offset)).
 		String()
 }
 
@@ -77,11 +77,16 @@ func (h *helper) genRankStmt() (string, error) {
 
 func (h *helper) genSystemRankStmt() string {
 	query := influx.Query{}
-	return query.Bucket("events").
-		Range(h.genTimeDuration()).
-		Measurement("system").
-		Filter(h.genFilter("category", h.category)).
-		Filter(h.genFilter("severity", h.severity)).
+	query.Bucket("events").Range(h.genTimeDuration()).Measurement("system")
+
+	if h.category != "" {
+		query.Filter(h.genFilter("category", h.category))
+	}
+	if h.severity != "" {
+		query.Filter(h.genFilter("severity", h.severity))
+	}
+
+	return query.
 		Group(`columns: ["key", "category", "severity"]`).
 		Count(`column: "_value"`).
 		Rename(`columns: {_value: "number"}`).
@@ -94,11 +99,16 @@ func (h *helper) genSystemRankStmt() string {
 
 func (h *helper) genHostRankStmt() string {
 	query := influx.Query{}
-	return query.Bucket("events").
-		Range(h.genTimeDuration()).
-		Measurement("host").
-		Filter(h.genFilter("category", h.category)).
-		Filter(h.genFilter("host", h.host)).
+	query.Bucket("events").Range(h.genTimeDuration()).Measurement("host")
+
+	if h.category != "" {
+		query.Filter(h.genFilter("category", h.category))
+	}
+	if h.host != "" {
+		query.Filter(h.genFilter("host", h.host))
+	}
+
+	return query.
 		Group(`columns: ["key", "category", "host"]`).
 		Count(`column: "_value"`).
 		Rename(`columns: {_value: "number"}`).
@@ -111,11 +121,16 @@ func (h *helper) genHostRankStmt() string {
 
 func (h *helper) genInstanceRankStmt() string {
 	query := influx.Query{}
-	return query.Bucket("events").
-		Range(h.genTimeDuration()).
-		Measurement("instance").
-		Filter(h.genFilter("category", h.category)).
-		Filter(h.genFilter("instance", h.instance)).
+	query.Bucket("events").Range(h.genTimeDuration()).Measurement("instance")
+
+	if h.category != "" {
+		query.Filter(h.genFilter("category", h.category))
+	}
+	if h.instance != "" {
+		query.Filter(h.genFilter("instance", h.instance))
+	}
+
+	return query.
 		Group(`columns: ["key", "category", "instance"]`).
 		Count(`column: "_value"`).
 		Rename(`columns: {_value: "number"}`).

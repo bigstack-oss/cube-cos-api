@@ -3,11 +3,8 @@ package events
 import (
 	"math"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
-	log "go-micro.dev/v5/logger"
 )
 
 func (h *helper) isKeywordRequired() bool {
@@ -34,6 +31,16 @@ func (h *helper) isInstanceRequired() bool {
 	return h.instance != ""
 }
 
+func (h *helper) paginateEvents(events []events.Options) ([]events.Options, error) {
+	if !h.Page.IsRequired() {
+		return events, nil
+	}
+
+	left := min((h.Page.Number-1)*h.Page.Size, len(events))
+	right := min(left+h.Page.Size, len(events))
+	return events[left:right], nil
+}
+
 func (h *helper) genPageInfo(events []events.Options) (v1.Page, error) {
 	if !h.Page.IsRequired() {
 		return v1.Page{
@@ -44,11 +51,7 @@ func (h *helper) genPageInfo(events []events.Options) (v1.Page, error) {
 		}, nil
 	}
 
-	totalCounts, totalPages, err := h.getAmountDetails()
-	if err != nil {
-		return v1.Page{}, err
-	}
-
+	totalCounts, totalPages := h.getAmountDetails(events)
 	return v1.Page{
 		Total:          totalPages,
 		Number:         h.Page.Number,
@@ -57,14 +60,8 @@ func (h *helper) genPageInfo(events []events.Options) (v1.Page, error) {
 	}, nil
 }
 
-func (h *helper) getAmountDetails() (int64, int64, error) {
-	count, err := cubecos.CountEvents(h.genCountQueryStmt())
-	if err != nil {
-		log.Errorf("events(%s): failed to count events: %v", api.GetReqId(h.c), err)
-		return 0, 0, err
-	}
-
+func (h *helper) getAmountDetails(events []events.Options) (int64, int64) {
+	count := len(events)
 	return int64(count),
-		int64(math.Ceil(float64(count) / float64(h.Page.Size))),
-		nil
+		int64(math.Ceil(float64(count) / float64(h.Page.Size)))
 }
