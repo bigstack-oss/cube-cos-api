@@ -3021,7 +3021,7 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/roles"
                     },
                     {
-                        "$ref": "#/components/parameters/listLicenseStatuses"
+                        "$ref": "#/components/parameters/listLicenseAttachmentStatuses"
                     }
                 ],
                 "responses": {
@@ -10542,6 +10542,19 @@ const docTemplate = `{
                 "description": "The status of the host",
                 "example": "valid"
             },
+            "listLicenseAttachmentStatuses": {
+                "in": "query",
+                "name": "statuses",
+                "required": false,
+                "schema": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/components/schemas/NodeLicenseCurrentStatus"
+                    }
+                },
+                "description": "The status of the host",
+                "example": "valid"
+            },
             "types": {
                 "in": "query",
                 "name": "types",
@@ -12116,7 +12129,7 @@ const docTemplate = `{
                                     "type": "string"
                                 },
                                 "status": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/NodeLicenseCurrentStatus"
                                 }
                             }
                         }
