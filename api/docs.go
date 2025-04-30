@@ -3000,6 +3000,125 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/licenses/attachments": {
+            "get": {
+                "operationId": "getLicenseAttachments",
+                "tags": [
+                    "Licenses"
+                ],
+                "summary": "Retrieve the list of license attachments",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/product"
+                    },
+                    {
+                        "$ref": "#/components/parameters/keyword"
+                    },
+                    {
+                        "$ref": "#/components/parameters/roles"
+                    },
+                    {
+                        "$ref": "#/components/parameters/listLicenseStatuses"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the list of license attachments successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetLicenseAttachmentsResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "License attachment list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "serialNumber": "To Be Filled By O.E.M.",
+                                                    "hostname": "example-node-0",
+                                                    "role": "control-converged",
+                                                    "product": "CubeCOS",
+                                                    "status": "valid"
+                                                },
+                                                {
+                                                    "serialNumber": "To Be Filled By O.E.M.",
+                                                    "hostname": "example-node-1",
+                                                    "role": "control-converged",
+                                                    "product": "CubeCOS",
+                                                    "status": "valid"
+                                                },
+                                                {
+                                                    "serialNumber": "To Be Filled By O.E.M.",
+                                                    "hostname": "example-node-2",
+                                                    "role": "control-converged",
+                                                    "product": "CubeCOS",
+                                                    "status": "unlicense"
+                                                }
+                                            ],
+                                            "msg": "fetch license attachments successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch license attachments: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/metrics": {
             "get": {
                 "operationId": "getMetricsOverview",
@@ -4892,7 +5011,7 @@ const docTemplate = `{
                                                             "host": "email-smtp.example.mailserver.com",
                                                             "port": 587,
                                                             "username": "ABBBBBBMJM56DCCCCJR",
-                                                            "email": "noreply@example.com",
+                                                            "from": "noreply@example.com",
                                                             "accessVerified": true,
                                                             "status": {
                                                                 "current": "ok",
@@ -5135,7 +5254,7 @@ const docTemplate = `{
                                                     "host": "email-smtp.example.mailserver.com",
                                                     "port": 587,
                                                     "username": "example-user",
-                                                    "email": "noreply@bigstack.co",
+                                                    "from": "noreply@bigstack.co",
                                                     "accessVerified": true,
                                                     "status": {
                                                         "current": "ok",
@@ -10455,6 +10574,20 @@ const docTemplate = `{
                 "description": "The license status of the host",
                 "example": "valid"
             },
+            "product": {
+                "in": "query",
+                "name": "product",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "enum": [
+                        "CubeCOS",
+                        "CubeCMP"
+                    ]
+                },
+                "description": "The product of the host",
+                "example": "CubeCOS"
+            },
             "products": {
                 "in": "query",
                 "name": "products",
@@ -10469,7 +10602,7 @@ const docTemplate = `{
                         ]
                     }
                 },
-                "description": "The product of the host",
+                "description": "The products of the host",
                 "example": "CubeCOS"
             },
             "metricType": {
@@ -11946,6 +12079,56 @@ const docTemplate = `{
                     }
                 }
             },
+            "GetLicenseAttachmentsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "serialNumber",
+                                "hostname",
+                                "role",
+                                "product",
+                                "status"
+                            ],
+                            "properties": {
+                                "serialNumber": {
+                                    "type": "string"
+                                },
+                                "hostname": {
+                                    "type": "string"
+                                },
+                                "role": {
+                                    "type": "string"
+                                },
+                                "product": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
             "GetMetricsResponse": {
                 "type": "object",
                 "required": [
@@ -13147,7 +13330,7 @@ const docTemplate = `{
                     "host",
                     "port",
                     "username",
-                    "email",
+                    "from",
                     "accessVerified",
                     "status"
                 ],
@@ -13161,7 +13344,7 @@ const docTemplate = `{
                     "username": {
                         "type": "string"
                     },
-                    "email": {
+                    "from": {
                         "type": "string"
                     },
                     "accessVerified": {

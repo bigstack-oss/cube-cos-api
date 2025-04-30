@@ -81,6 +81,14 @@ type RawLicense struct {
 	Days     int    `json:"days" yaml:"days" bson:"days"`
 }
 
+type LicenseAttachment struct {
+	SerialNumber string `json:"serialNumber"`
+	Hostname     string `json:"hostname"`
+	Role         string `json:"role"`
+	Product      string `json:"product"`
+	Status       string `json:"status"`
+}
+
 func (l *License) Key() string {
 	return fmt.Sprintf(
 		"%s-%s-%s-%s-%s-%s-%s-%d",
@@ -140,6 +148,16 @@ func (l *License) GenSearchableObject() License {
 	return *l
 }
 
+func (l *LicenseAttachment) GenSearchableObject() LicenseAttachment {
+	return LicenseAttachment{
+		SerialNumber: strings.ReplaceAll(strings.ToLower(l.SerialNumber), " ", ""),
+		Hostname:     strings.ToLower(l.Hostname),
+		Role:         strings.ToLower(l.Role),
+		Product:      strings.ToLower(l.Product),
+		Status:       strings.ToLower(l.Status),
+	}
+}
+
 func (r *RawLicense) IsUnlicense() bool {
 	return r.Date == ""
 }
@@ -153,6 +171,11 @@ func InitLicenseSearchIndex() error {
 	mapping := bleve.NewIndexMapping()
 	licenseSearcher, err = bleve.NewMemOnly(mapping)
 	return err
+}
+
+func NewLicenseSearcher() (bleve.Index, error) {
+	mapping := bleve.NewIndexMapping()
+	return bleve.NewMemOnly(mapping)
 }
 
 func GetLicenseSearcher() bleve.Index {

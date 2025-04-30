@@ -37,6 +37,26 @@ func (h *helper) filterLicenses(licenses []v1.License) []v1.License {
 	return licenses
 }
 
+func (h *helper) filterLicenseAttachments(attachments []v1.LicenseAttachment) []v1.LicenseAttachment {
+	if !h.isAttachmentFilterRequired() {
+		return attachments
+	}
+
+	if h.isKeywordRequired() {
+		attachments = h.filteredAttachmentByKeyword(attachments)
+	}
+
+	if h.isAttachmentRolesRequired() {
+		attachments = h.filteredAttachmentsByRoles(attachments)
+	}
+
+	if h.isAttachmenStatusRequired() {
+		attachments = h.filteredAttachmentsByStatuses(attachments)
+	}
+
+	return attachments
+}
+
 func (h *helper) filteredByKeyword(licenses []v1.License) []v1.License {
 	result, err := h.searchLicenses(licenses)
 	if err != nil {
@@ -117,4 +137,76 @@ func genLicenseMap(licenses []v1.License) map[string]v1.License {
 	}
 
 	return licenseMap
+}
+
+func (h *helper) filteredAttachmentByKeyword(attachments []v1.LicenseAttachment) []v1.LicenseAttachment {
+	result, err := h.searchLicenseAttachments(attachments)
+	if err != nil {
+		log.Errorf("failed to search license attachments: %s", err.Error())
+		return attachments
+	}
+
+	attachmentMap := genAttachmentMap(attachments)
+	filtered := []v1.LicenseAttachment{}
+	for _, hit := range result.Hits {
+		filtered = append(filtered, attachmentMap[hit.ID])
+	}
+
+	return filtered
+}
+
+func (h *helper) searchLicenseAttachments(attachments []v1.LicenseAttachment) (*bleve.SearchResult, error) {
+	searcher, err := v1.NewLicenseSearcher()
+	if err != nil {
+		log.Errorf("licenses: failed to create license searcher: %s", err.Error())
+		return nil, err
+	}
+
+	for _, attachment := range attachments {
+		err := searcher.Index(attachment.Hostname, attachment.GenSearchableObject())
+		if err != nil {
+			continue
+		}
+	}
+
+	defer searcher.Close()
+	return searcher.Search(
+		bleve.NewSearchRequestOptions(
+			bleve.NewWildcardQuery(h.wrapWilcardKeyword()),
+			maxSearchResults,
+			0,
+			false,
+		),
+	)
+}
+
+func genAttachmentMap(attachments []v1.LicenseAttachment) map[string]v1.LicenseAttachment {
+	attachmentMap := map[string]v1.LicenseAttachment{}
+	for _, attachment := range attachments {
+		attachmentMap[attachment.Hostname] = attachment
+	}
+
+	return attachmentMap
+}
+
+func (h *helper) filteredAttachmentsByRoles(attachments []v1.LicenseAttachment) []v1.LicenseAttachment {
+	filtered := []v1.LicenseAttachment{}
+	for _, attachment := range attachments {
+		if slices.Contains(h.Roles, attachment.Role) {
+			filtered = append(filtered, attachment)
+		}
+	}
+
+	return filtered
+}
+
+func (h *helper) filteredAttachmentsByStatuses(attachments []v1.LicenseAttachment) []v1.LicenseAttachment {
+	filtered := []v1.LicenseAttachment{}
+	for _, attachment := range attachments {
+		if slices.Contains(h.Statuses, attachment.Status) {
+			filtered = append(filtered, attachment)
+		}
+	}
+
+	return filtered
 }

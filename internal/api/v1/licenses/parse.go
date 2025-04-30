@@ -10,19 +10,29 @@ import (
 func (h *helper) parseByHandler() error {
 	switch h.handler {
 	case "listLicenses":
-		return h.parseListParams()
+		return h.parseListLicenseParams()
+	case "listLicenseAttachments":
+		return h.parseListAttachmentParams()
 	}
 
 	return nil
 }
 
-func (h *helper) parseListParams() error {
+func (h *helper) parseListLicenseParams() error {
 	h.parseType()
-	h.parseProduct()
-	h.parseStatus()
+	h.parseProducts()
+	h.parseStatuses()
 	h.parseKeyword()
 	h.parseWatch()
 	return h.parsePage()
+}
+
+func (h *helper) parseListAttachmentParams() error {
+	h.parseProduct()
+	h.parseKeyword()
+	h.parseRoles()
+	h.parseStatuses()
+	return nil
 }
 
 func (h *helper) parseType() {
@@ -30,10 +40,18 @@ func (h *helper) parseType() {
 }
 
 func (h *helper) parseProduct() {
+	h.Product = h.c.DefaultQuery("product", "")
+}
+
+func (h *helper) parseProducts() {
 	h.Products = h.c.QueryArray("products")
 }
 
-func (h *helper) parseStatus() {
+func (h *helper) parseRoles() {
+	h.Roles = h.c.QueryArray("roles")
+}
+
+func (h *helper) parseStatuses() {
 	h.Statuses = h.c.QueryArray("statuses")
 }
 

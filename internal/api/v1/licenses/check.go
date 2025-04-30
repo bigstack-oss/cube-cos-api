@@ -22,3 +22,19 @@ func (h *helper) isStatusRequired() bool {
 func (h *helper) isKeywordRequired() bool {
 	return h.Keyword != ""
 }
+
+func (h *helper) isAttachmentFilterRequired() bool {
+	return h.isAttachmentProductRequired() || h.isKeywordRequired() || h.isAttachmentRolesRequired() || h.isAttachmenStatusRequired()
+}
+
+func (h *helper) isAttachmentProductRequired() bool {
+	return h.Product != ""
+}
+
+func (h *helper) isAttachmentRolesRequired() bool {
+	return len(h.Roles) > 0
+}
+
+func (h *helper) isAttachmenStatusRequired() bool {
+	return len(h.Statuses) > 0
+}

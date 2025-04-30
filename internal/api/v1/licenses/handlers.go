@@ -36,6 +36,12 @@ var (
 			Path:    "/licenses/hosts/:hostname",
 			Func:    importHostLicense,
 		},
+		{
+			Version: api.V1,
+			Method:  http.MethodGet,
+			Path:    "/licenses/attachments",
+			Func:    listLicenseAttachments,
+		},
 	}
 )
 
@@ -122,4 +128,22 @@ func importHostLicense(c *gin.Context) {
 	}
 
 	api.SetStatusOk(c, "update licenses successfully", nil)
+}
+
+func listLicenseAttachments(c *gin.Context) {
+	h, err := initHelper(c, "listLicenseAttachments")
+	if err != nil {
+		return
+	}
+
+	attachments, err := h.listLicenseAttachments()
+	if err != nil {
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"fetch license attachments successfully",
+		attachments,
+	)
 }

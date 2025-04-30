@@ -444,7 +444,7 @@ func setValueToLicenseDat(licenseDat *v1.License, parts []string) {
 	case "issue.date":
 		licenseDat.Issue.Date = parseLicenseDatIssueDate(value)
 	case "expiry.date":
-		expiry, status := parseLicenseExpiryAndStatus(value)
+		expiry, status := ParseLicenseExpiryAndStatus(value)
 		licenseDat.Expiry = expiry
 		licenseDat.Status = status
 	}
@@ -459,7 +459,7 @@ func parseLicenseDatIssueDate(value string) string {
 	return issue.In(v1.LocalTimeFixedZone).Format(time.RFC3339)
 }
 
-func parseLicenseExpiryAndStatus(value string) (v1.Expiry, status.License) {
+func ParseLicenseExpiryAndStatus(value string) (v1.Expiry, status.License) {
 	expiry, err := time.Parse("2006-01-02 15:04:05 MST", value)
 	if err != nil {
 		return v1.Expiry{
