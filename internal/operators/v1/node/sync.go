@@ -42,9 +42,40 @@ func (o *Operator) syncNodeDetails() {
 	defer o.sync.Unlock()
 
 	v1.SyncRoleNodes()
-	nodes := v1.GetNodesFromRoles()
+	activeNodes := v1.GetActiveNodeMap()
+	sourceNodes, err := cubecos.GetSourceNodeMap()
+	if err != nil {
+		log.Errorf("nodes: failed to get source node map: %s", err.Error())
+		return
+	}
+
+	nodes := o.syncNodeStatus(sourceNodes, activeNodes)
 	o.setNodeDetails(&nodes)
 	v1.SetNodeDetails(nodes)
+}
+
+func (o *Operator) syncNodeStatus(sourceNodes, activeNodes map[string]v1.Node) []v1.Node {
+	nodes := []v1.Node{}
+
+	for _, srcNode := range sourceNodes {
+		node, found := activeNodes[srcNode.Hostname]
+		if found {
+			nodes = append(nodes, node)
+			continue
+		}
+
+		srcNode.DataCenter = v1.DataCenterName
+		srcNode.BlockDevices = []v1.BlockDevice{}
+		srcNode.NetworkInterfaces = []v1.NetworkInterface{}
+		srcNode.Status = "down"
+		srcNode.License = o.getLicenseByHostname(srcNode.Hostname)
+		nodes = append(
+			nodes,
+			srcNode,
+		)
+	}
+
+	return nodes
 }
 
 func (o *Operator) setNodeDetails(nodes *[]v1.Node) {
@@ -56,6 +87,10 @@ func (o *Operator) setNodeDetails(nodes *[]v1.Node) {
 		if node.IsLocal() {
 			o.setNodeLicense(&(*nodes)[i])
 			o.setNodeInfraSpec(&(*nodes)[i])
+			continue
+		}
+
+		if node.IsDown() {
 			continue
 		}
 
@@ -96,19 +131,16 @@ func (o *Operator) askPeerNode(node v1.Node) (*v1.Node, error) {
 }
 
 func (o *Operator) setNodeLicense(node *v1.Node) {
+	node.License = o.getLicenseByHostname(node.Hostname)
+}
+
+func (o *Operator) getLicenseByHostname(hostname string) v1.License {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
 		log.Warnf("nodes: failed to add license info to the nodes: %s", err.Error())
-		return
+		return v1.License{}
 	}
 
-	node.License = o.getLicenseByHostname(
-		licenses,
-		node.Hostname,
-	)
-}
-
-func (o *Operator) getLicenseByHostname(licenses []v1.License, hostname string) v1.License {
 	for _, license := range licenses {
 		if slices.Contains(license.Hosts, hostname) {
 			license.Hosts = nil

@@ -97,6 +97,10 @@ func (h *helper) getNode() (*v1.Node, error) {
 		return node, nil
 	}
 
+	if node.IsDown() {
+		return nil, fmt.Errorf("node %s is down", node.Hostname)
+	}
+
 	return h.askPeerNode(node)
 }
 

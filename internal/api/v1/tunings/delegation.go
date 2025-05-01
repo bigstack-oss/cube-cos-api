@@ -30,6 +30,11 @@ func (h *helper) delegateTuningReq() {
 			continue
 		}
 
+		if node.IsDown() {
+			log.Errorf("tuning %s: node %s is down, cannot delegate", h.tuning.Name, node.Hostname)
+			continue
+		}
+
 		err = h.delegateToOtherNode(node)
 		if err != nil {
 			log.Errorf("failed to delegate %s to %s: %s", h.tuning.Name, node.Hostname, err.Error())

@@ -526,6 +526,10 @@ func ListTuningsFromOtherNodes() (map[string][]v1.Tuning, error) {
 			continue
 		}
 
+		if node.IsDown() {
+			continue
+		}
+
 		tunings, err := getNodeTunings(node)
 		if err != nil {
 			log.Errorf("tunings: failed to get tunings from node %s: %s", node.Hostname, err.Error())

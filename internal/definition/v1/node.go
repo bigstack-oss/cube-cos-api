@@ -242,6 +242,10 @@ func (n *Node) IsLocal() bool {
 	return n.Address == AdvertiseAddr && n.Role == CurrentRole
 }
 
+func (n *Node) IsDown() bool {
+	return n.Status == status.Down
+}
+
 func (n *Node) MatchHardwareSerial(hardwareSerials []string) bool {
 	return slices.Contains(hardwareSerials, n.SerialNumber)
 }
@@ -410,6 +414,15 @@ func GetNodesFromRoles() []Node {
 	}
 
 	return roleNodes
+}
+
+func GetActiveNodeMap() map[string]Node {
+	nodeMap := map[string]Node{}
+	for _, node := range GetNodesFromRoles() {
+		nodeMap[node.Hostname] = node
+	}
+
+	return nodeMap
 }
 
 func SetNodeDetails(nodesWithDetails []Node) {

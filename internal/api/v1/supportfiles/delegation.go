@@ -28,6 +28,11 @@ func (h *helper) delegateSupportFileReq() {
 			continue
 		}
 
+		if node.IsDown() {
+			log.Errorf("supportFiles: node %s is down, cannot delegate %s", node.Hostname, h.file.Name)
+			continue
+		}
+
 		err = h.delegateToNode(node)
 		if err != nil {
 			log.Errorf("supportFiles: failed to delegate %s to %s: %s", h.file.Name, node.Hostname, err.Error())

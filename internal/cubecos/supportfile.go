@@ -57,6 +57,11 @@ func ListHostSupportFiles(opts support.ListFileOptions) ([]support.File, error) 
 		return support.ListLocalFiles(), nil
 	}
 
+	if node.IsDown() {
+		log.Errorf("node %s is down, cannot get support files", node.Hostname)
+		return []support.File{}, nil
+	}
+
 	return getNodeSupportFiles(*node)
 }
 
@@ -64,6 +69,10 @@ func ListSupportFilesFromOtherNodes() ([]support.File, error) {
 	files := []support.File{}
 	for _, node := range v1.ListNodes() {
 		if node.IsLocal() {
+			continue
+		}
+
+		if node.IsDown() {
 			continue
 		}
 

@@ -17,7 +17,7 @@ const (
 
 var (
 	CurrentRole     string
-	Roles           = []string{RoleControl, RoleCompute, RoleStorage, RoleControlConverged, RoleModerator, RoleEdgeCore}
+	Roles           = []string{RoleControlConverged, RoleControl, RoleCompute, RoleStorage, RoleModerator, RoleEdgeCore}
 	updateRoleNodes = sync.Mutex{}
 
 	ControlRole          = newControlRole()
