@@ -1,6 +1,10 @@
 package search
 
-import "github.com/blevesearch/bleve/v2"
+import (
+	"strings"
+
+	"github.com/blevesearch/bleve/v2"
+)
 
 const (
 	MaxSearchResults = 100000
@@ -12,5 +16,5 @@ func New() (bleve.Index, error) {
 }
 
 func WrapWilcard(keyword string) string {
-	return "*" + keyword + "*"
+	return "*" + strings.ToLower(keyword) + "*"
 }

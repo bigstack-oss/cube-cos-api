@@ -64,18 +64,19 @@ func (o *Operator) syncNodeStatus(sourceNodes, activeNodes map[string]v1.Node) [
 			continue
 		}
 
-		srcNode.DataCenter = v1.DataCenterName
-		srcNode.BlockDevices = []v1.BlockDevice{}
-		srcNode.NetworkInterfaces = []v1.NetworkInterface{}
-		srcNode.Status = "down"
-		srcNode.License = o.getLicenseByHostname(srcNode.Hostname)
-		nodes = append(
-			nodes,
-			srcNode,
-		)
+		o.setNodeOfflineInfo(&srcNode)
+		nodes = append(nodes, srcNode)
 	}
 
 	return nodes
+}
+
+func (o *Operator) setNodeOfflineInfo(node *v1.Node) {
+	node.DataCenter = v1.DataCenterName
+	node.BlockDevices = []v1.BlockDevice{}
+	node.NetworkInterfaces = []v1.NetworkInterface{}
+	node.License = o.getLicenseByHostname(node.Hostname)
+	node.Status = "down"
 }
 
 func (o *Operator) setNodeDetails(nodes *[]v1.Node) {
