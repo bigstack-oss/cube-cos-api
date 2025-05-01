@@ -123,14 +123,7 @@ func (h *helper) searchLicenses(licenses []v1.License) (*bleve.SearchResult, err
 	}
 
 	defer searcher.Close()
-	return searcher.Search(
-		bleve.NewSearchRequestOptions(
-			bleve.NewWildcardQuery(search.WrapWilcard(h.Keyword)),
-			search.MaxSearchResults,
-			0,
-			false,
-		),
-	)
+	return searcher.Search(search.WildcardQuery(h.Keyword))
 }
 
 func genLicenseMap(licenses []v1.License) map[string]v1.License {
@@ -173,14 +166,7 @@ func (h *helper) searchLicenseAttachments(attachments []v1.LicenseAttachment) (*
 	}
 
 	defer searcher.Close()
-	return searcher.Search(
-		bleve.NewSearchRequestOptions(
-			bleve.NewWildcardQuery(search.WrapWilcard(h.Keyword)),
-			search.MaxSearchResults,
-			0,
-			false,
-		),
-	)
+	return searcher.Search(search.WildcardQuery(h.Keyword))
 }
 
 func genAttachmentMap(attachments []v1.LicenseAttachment) map[string]v1.LicenseAttachment {

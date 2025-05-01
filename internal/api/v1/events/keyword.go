@@ -53,14 +53,7 @@ func (h *helper) searchEvents(nonFilterEvents []event.Options) (*bleve.SearchRes
 	}
 
 	defer searcher.Close()
-	return searcher.Search(
-		bleve.NewSearchRequestOptions(
-			bleve.NewWildcardQuery(search.WrapWilcard(h.keyword)),
-			search.MaxSearchResults,
-			0,
-			false,
-		),
-	)
+	return searcher.Search(search.WildcardQuery(h.keyword))
 }
 
 func genEventMap(nonFilterEvents []event.Options) map[string]event.Options {

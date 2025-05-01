@@ -84,14 +84,7 @@ func (h *helper) searchSupportFileSets(files []support.FileSet) (*bleve.SearchRe
 	}
 
 	defer searcher.Close()
-	return searcher.Search(
-		bleve.NewSearchRequestOptions(
-			bleve.NewWildcardQuery(search.WrapWilcard(h.keyword)),
-			search.MaxSearchResults,
-			0,
-			false,
-		),
-	)
+	return searcher.Search(search.WildcardQuery(h.keyword))
 }
 
 func genFileSetMap(files []support.FileSet) map[string]support.FileSet {

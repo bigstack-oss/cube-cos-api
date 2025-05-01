@@ -18,3 +18,12 @@ func New() (bleve.Index, error) {
 func WrapWilcard(keyword string) string {
 	return "*" + strings.ToLower(keyword) + "*"
 }
+
+func WildcardQuery(keyword string) *bleve.SearchRequest {
+	return bleve.NewSearchRequestOptions(
+		bleve.NewWildcardQuery(WrapWilcard(keyword)),
+		MaxSearchResults,
+		0,
+		false,
+	)
+}

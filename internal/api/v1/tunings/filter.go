@@ -108,14 +108,7 @@ func (h *helper) searchTunings(tunings []v1.Tuning) (*bleve.SearchResult, error)
 	}
 
 	defer searcher.Close()
-	return searcher.Search(
-		bleve.NewSearchRequestOptions(
-			bleve.NewWildcardQuery(search.WrapWilcard(h.keyword)),
-			search.MaxSearchResults,
-			0,
-			false,
-		),
-	)
+	return searcher.Search(search.WildcardQuery(h.keyword))
 }
 
 func (h *helper) filteredByHosts(tunings []v1.Tuning) []v1.Tuning {

@@ -112,14 +112,7 @@ func (h *helper) searchNodes(nodes []v1.Node) (*bleve.SearchResult, error) {
 	}
 
 	defer searcher.Close()
-	return searcher.Search(
-		bleve.NewSearchRequestOptions(
-			bleve.NewWildcardQuery(search.WrapWilcard(h.keyword)),
-			search.MaxSearchResults,
-			0,
-			false,
-		),
-	)
+	return searcher.Search(search.WildcardQuery(h.keyword))
 }
 
 func genNodeMap(nodes []v1.Node) map[string]v1.Node {
