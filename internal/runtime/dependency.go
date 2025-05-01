@@ -14,7 +14,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
@@ -384,7 +384,7 @@ func newNodeSearchIndex() error {
 }
 
 func newEventSearchIndex() error {
-	return events.InitEventSearchIndex()
+	return event.InitEventSearchIndex()
 }
 
 func newTuningRecordTTL() error {

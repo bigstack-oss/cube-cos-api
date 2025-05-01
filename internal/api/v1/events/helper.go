@@ -6,7 +6,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -120,7 +120,7 @@ func (h *helper) getEventRank() (*data, error) {
 	}, nil
 }
 
-func (h *helper) getEventFilterConditions() *events.Filter {
+func (h *helper) getEventFilterConditions() *event.Filter {
 	systemCategories, err := cubecos.GetEventFilterConditions(h.genFilterConditionStmt("system", "category"))
 	if err != nil {
 		log.Errorf("events(%s): failed to get system categories: %v", api.GetReqId(h.c), err)
@@ -151,16 +151,16 @@ func (h *helper) getEventFilterConditions() *events.Filter {
 		log.Errorf("events(%s): failed to get instances: %v", api.GetReqId(h.c), err)
 	}
 
-	return &events.Filter{
-		System: events.SystemFilter{
+	return &event.Filter{
+		System: event.SystemFilter{
 			Categories: systemCategories,
 			Severities: convertSystemSeverities(systemSeverities),
 		},
-		Host: events.HostFilter{
+		Host: event.HostFilter{
 			Categories: hostCategories,
 			Names:      hostnames,
 		},
-		Instance: events.InstanceFilter{
+		Instance: event.InstanceFilter{
 			Categories: instanceCategories,
 			Ids:        instanceIds,
 		},

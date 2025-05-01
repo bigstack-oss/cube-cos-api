@@ -1,6 +1,7 @@
 package supportfiles
 
 import (
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
@@ -69,7 +70,12 @@ func (h *helper) filteredByPeriod(fileSets []support.FileSet) []support.FileSet 
 }
 
 func (h *helper) searchSupportFileSets(files []support.FileSet) (*bleve.SearchResult, error) {
-	searcher := support.GetFileSetSearcher()
+	searcher, err := search.New()
+	if err != nil {
+		log.Errorf("supportfiles: failed to create searcher: %s", err.Error())
+		return nil, err
+	}
+
 	for _, file := range files {
 		err := searcher.Index(file.Name, file)
 		if err != nil {
@@ -77,18 +83,15 @@ func (h *helper) searchSupportFileSets(files []support.FileSet) (*bleve.SearchRe
 		}
 	}
 
+	defer searcher.Close()
 	return searcher.Search(
 		bleve.NewSearchRequestOptions(
-			bleve.NewWildcardQuery(h.wrapWilcardKeyword()),
-			maxSearchResults,
+			bleve.NewWildcardQuery(search.WrapWilcard(h.keyword)),
+			search.MaxSearchResults,
 			0,
 			false,
 		),
 	)
-}
-
-func (h *helper) wrapWilcardKeyword() string {
-	return "*" + h.keyword + "*"
 }
 
 func genFileSetMap(files []support.FileSet) map[string]support.FileSet {

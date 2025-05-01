@@ -4,7 +4,7 @@ import (
 	"math"
 
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 )
 
 func (h *helper) isKeywordRequired() bool {
@@ -31,7 +31,7 @@ func (h *helper) isInstanceRequired() bool {
 	return h.instance != ""
 }
 
-func (h *helper) paginateEvents(events []events.Options) ([]events.Options, error) {
+func (h *helper) paginateEvents(events []event.Options) ([]event.Options, error) {
 	if !h.Page.IsRequired() {
 		return events, nil
 	}
@@ -41,7 +41,7 @@ func (h *helper) paginateEvents(events []events.Options) ([]events.Options, erro
 	return events[left:right], nil
 }
 
-func (h *helper) genPageInfo(events []events.Options) (v1.Page, error) {
+func (h *helper) genPageInfo(events []event.Options) (v1.Page, error) {
 	if !h.Page.IsRequired() {
 		return v1.Page{
 			Total:          1,
@@ -60,7 +60,7 @@ func (h *helper) genPageInfo(events []events.Options) (v1.Page, error) {
 	}, nil
 }
 
-func (h *helper) getAmountDetails(events []events.Options) (int64, int64) {
+func (h *helper) getAmountDetails(events []event.Options) (int64, int64) {
 	count := len(events)
 	return int64(count),
 		int64(math.Ceil(float64(count) / float64(h.Page.Size)))

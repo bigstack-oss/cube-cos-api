@@ -13,7 +13,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	cubeapi "github.com/bigstack-oss/cube-cos-api/internal/api"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
 	"github.com/shirou/gopsutil/v4/cpu"
@@ -422,7 +422,7 @@ func GetCpuHistoryOfHost(stmt string) (*v1.MetricHistory, error) {
 func parseCpuUsageHistory(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 	points := []v1.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -628,7 +628,7 @@ func GetMemorySizeHistoryOfHost(stmt string) (*v1.MetricHistory, error) {
 func parseMemoryUsageHistory(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 	points := []v1.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -648,7 +648,7 @@ func parseMemoryUsageHistory(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 func parseMemorySizeHistory(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 	points := []v1.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -815,7 +815,7 @@ func GetDiskUsageHistoryOfHost(entityId string, period v1.Period) ([]v1.TimeValu
 func parseDiskUsageHistory(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 	points := []v1.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -879,7 +879,7 @@ func GetNetworkTrafficInHistoryOfHost(entityId string, period v1.Period) ([]v1.T
 func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 	points := []v1.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -987,7 +987,7 @@ func GetCpuHistoryOfVm(entityId string, period v1.Period) ([]v1.TimeValue, error
 func parseCpuUsageHistoryOfVm(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 	points := []v1.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1051,7 +1051,7 @@ func GetMemoryHistoryOfVm(entityId string, period v1.Period) ([]v1.TimeValue, er
 func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 	points := []v1.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1398,7 +1398,7 @@ func parseHostStorageUsageRank(c *api.QueryTableResult) ([]v1.RankPoint, error) 
 func parseDiskOpsHistory(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 	points := []v1.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1418,7 +1418,7 @@ func parseDiskOpsHistory(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 func parseDiskLatencyHistory(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 	points := []v1.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1469,7 +1469,7 @@ func getDiskBandwidthHistory(stmt string) ([]v1.TimeValue, error) {
 func parseDiskBandwidthHistory(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 	points := []v1.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}

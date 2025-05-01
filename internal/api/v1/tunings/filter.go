@@ -3,6 +3,7 @@ package tunings
 import (
 	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -93,7 +94,12 @@ func (h *helper) filteredByKeyword(tunings []v1.Tuning) []v1.Tuning {
 }
 
 func (h *helper) searchTunings(tunings []v1.Tuning) (*bleve.SearchResult, error) {
-	searcher := v1.GetTuningSearcher()
+	searcher, err := search.New()
+	if err != nil {
+		log.Errorf("tunings: failed to create tuning searcher: %s", err.Error())
+		return nil, err
+	}
+
 	for _, tuning := range tunings {
 		err := searcher.Index(tuning.SearchKey(), tuning)
 		if err != nil {
@@ -101,18 +107,15 @@ func (h *helper) searchTunings(tunings []v1.Tuning) (*bleve.SearchResult, error)
 		}
 	}
 
+	defer searcher.Close()
 	return searcher.Search(
 		bleve.NewSearchRequestOptions(
-			bleve.NewWildcardQuery(h.wrapWilcardKeyword()),
-			maxSearchResults,
+			bleve.NewWildcardQuery(search.WrapWilcard(h.keyword)),
+			search.MaxSearchResults,
 			0,
 			false,
 		),
 	)
-}
-
-func (h *helper) wrapWilcardKeyword() string {
-	return "*" + h.keyword + "*"
 }
 
 func (h *helper) filteredByHosts(tunings []v1.Tuning) []v1.Tuning {

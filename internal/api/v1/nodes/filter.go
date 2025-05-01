@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
 )
@@ -97,7 +98,12 @@ func (h *helper) filteredByKeyword(nodes []v1.Node) []v1.Node {
 }
 
 func (h *helper) searchNodes(nodes []v1.Node) (*bleve.SearchResult, error) {
-	searcher := v1.GetNodeSearcher()
+	searcher, err := search.New()
+	if err != nil {
+		log.Errorf("nodes: failed to create node searcher: %s", err.Error())
+		return nil, err
+	}
+
 	for _, node := range nodes {
 		err := searcher.Index(node.Hostname, node)
 		if err != nil {
@@ -105,18 +111,15 @@ func (h *helper) searchNodes(nodes []v1.Node) (*bleve.SearchResult, error) {
 		}
 	}
 
+	defer searcher.Close()
 	return searcher.Search(
 		bleve.NewSearchRequestOptions(
-			bleve.NewWildcardQuery(h.wrapWilcardKeyword()),
-			maxSearchResults,
+			bleve.NewWildcardQuery(search.WrapWilcard(h.keyword)),
+			search.MaxSearchResults,
 			0,
 			false,
 		),
 	)
-}
-
-func (h *helper) wrapWilcardKeyword() string {
-	return "*" + h.keyword + "*"
 }
 
 func genNodeMap(nodes []v1.Node) map[string]v1.Node {

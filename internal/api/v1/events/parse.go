@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 )
 
 func (h *helper) parseEventListingParams() error {
@@ -112,7 +112,7 @@ func (h *helper) parseEventFilterConditions() error {
 
 func (h *helper) parseType() error {
 	query := h.c.DefaultQuery("type", "")
-	if !events.IsValidType(query) {
+	if !event.IsValidType(query) {
 		return errors.New(
 			"'type' can't be null and should be one of 'system', 'host', or 'instance'",
 		)
@@ -124,7 +124,7 @@ func (h *helper) parseType() error {
 
 func (h *helper) parseFilterConditions() error {
 	queries := h.c.Request.URL.Query()
-	for _, condition := range events.GetFilterConditions() {
+	for _, condition := range event.GetFilterConditions() {
 		value, found := queries[condition]
 		if !found {
 			continue
@@ -142,7 +142,7 @@ func (h *helper) parseFilterConditions() error {
 		case "category":
 			h.category = strings.ToUpper(value[0])
 		case "severity":
-			h.severity = events.GetSeverityShortName(value[0])
+			h.severity = event.GetSeverityShortName(value[0])
 		case "host":
 			h.host = value[0]
 		case "instance":

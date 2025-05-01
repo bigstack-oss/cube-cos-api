@@ -6,16 +6,16 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 )
 
-func (h *helper) setQueryUrlToEachEvent(events *[]events.Stat) {
+func (h *helper) setQueryUrlToEachEvent(events *[]event.Stat) {
 	for i, event := range *events {
 		(*events)[i].Query = h.genEventQueryUrl(event)
 	}
 }
 
-func (h *helper) genEventQueryUrl(event events.Stat) string {
+func (h *helper) genEventQueryUrl(event event.Stat) string {
 	u := url.URL{}
 	u.Scheme = "https"
 	u.Host = h.c.Request.Host
@@ -24,7 +24,7 @@ func (h *helper) genEventQueryUrl(event events.Stat) string {
 	return u.String()
 }
 
-func (h *helper) genEventQuery(event events.Stat) string {
+func (h *helper) genEventQuery(event event.Stat) string {
 	if query.IsPastRequired(h.c) {
 		return fmt.Sprintf(
 			"type=%s&id=%s&past=%s&pageNum=1&pageSize=20",
@@ -48,7 +48,7 @@ func convertSystemSeverities(severities []string) []string {
 	for _, s := range severities {
 		converted = append(
 			converted,
-			events.GetSeverityFullName(s),
+			event.GetSeverityFullName(s),
 		)
 	}
 

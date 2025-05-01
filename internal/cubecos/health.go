@@ -14,7 +14,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/influxdata/influxdb-client-go/v2/api"
@@ -313,7 +313,7 @@ func aggregateHealthsByTime(checks []v1.HealthCheck, duration time.Duration) []v
 }
 
 func backfillFirstCheck(t time.Time) v1.HealthCheck {
-	date, err := time.Parse(events.TimeLayout, t.Add(-defaultAggreateWindow).Local().String())
+	date, err := time.Parse(event.TimeLayout, t.Add(-defaultAggreateWindow).Local().String())
 	if err != nil {
 		return v1.HealthCheck{}
 	}
@@ -564,7 +564,7 @@ func parseDetails(record *query.FluxRecord) string {
 }
 
 func parseTime(record *query.FluxRecord) string {
-	date, err := time.Parse(events.TimeLayout, record.Time().Local().String())
+	date, err := time.Parse(event.TimeLayout, record.Time().Local().String())
 	if err != nil {
 		log.Debugf("failed to parse date from record: %v", record)
 	}

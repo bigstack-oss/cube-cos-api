@@ -16,7 +16,7 @@ func ParseBody(c *gin.Context) []byte {
 	}
 
 	// in the gin context, the request body will be closed after reading
-	// so, we need to set it back to the request body if we want to read the Request.Body again by the gin context
+	// so, we need to set it back to the request body if we want to read the Request.Body again
 	c.Request.Body = io.NopCloser(bytes.NewReader(body))
 	return body
 }

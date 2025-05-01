@@ -10,6 +10,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/healths"
+
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/integrations"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/logout"
@@ -24,6 +25,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/triggers"
 	apitunings "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/oidc"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
@@ -135,7 +137,7 @@ func prepareApisHandlerByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		events.Module,
+		event.Module,
 		events.Handlers,
 		v1.RoleControl,
 		v1.RoleControlConverged,

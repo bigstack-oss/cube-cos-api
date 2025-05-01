@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
 )
@@ -108,7 +109,12 @@ func (h *helper) filteredByProduct(licenses []v1.License) []v1.License {
 }
 
 func (h *helper) searchLicenses(licenses []v1.License) (*bleve.SearchResult, error) {
-	searcher := v1.GetLicenseSearcher()
+	searcher, err := search.New()
+	if err != nil {
+		log.Errorf("licenses: failed to create license searcher: %s", err.Error())
+		return nil, err
+	}
+
 	for _, license := range licenses {
 		err := searcher.Index(license.Issue.Date, license.GenSearchableObject())
 		if err != nil {
@@ -116,18 +122,15 @@ func (h *helper) searchLicenses(licenses []v1.License) (*bleve.SearchResult, err
 		}
 	}
 
+	defer searcher.Close()
 	return searcher.Search(
 		bleve.NewSearchRequestOptions(
-			bleve.NewWildcardQuery(h.wrapWilcardKeyword()),
-			maxSearchResults,
+			bleve.NewWildcardQuery(search.WrapWilcard(h.Keyword)),
+			search.MaxSearchResults,
 			0,
 			false,
 		),
 	)
-}
-
-func (h *helper) wrapWilcardKeyword() string {
-	return "*" + strings.ToLower(h.Keyword) + "*"
 }
 
 func genLicenseMap(licenses []v1.License) map[string]v1.License {
@@ -156,7 +159,7 @@ func (h *helper) filteredAttachmentByKeyword(attachments []v1.LicenseAttachment)
 }
 
 func (h *helper) searchLicenseAttachments(attachments []v1.LicenseAttachment) (*bleve.SearchResult, error) {
-	searcher, err := v1.NewLicenseSearcher()
+	searcher, err := search.New()
 	if err != nil {
 		log.Errorf("licenses: failed to create license searcher: %s", err.Error())
 		return nil, err
@@ -172,8 +175,8 @@ func (h *helper) searchLicenseAttachments(attachments []v1.LicenseAttachment) (*
 	defer searcher.Close()
 	return searcher.Search(
 		bleve.NewSearchRequestOptions(
-			bleve.NewWildcardQuery(h.wrapWilcardKeyword()),
-			maxSearchResults,
+			bleve.NewWildcardQuery(search.WrapWilcard(h.Keyword)),
+			search.MaxSearchResults,
 			0,
 			false,
 		),
