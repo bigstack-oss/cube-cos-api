@@ -560,7 +560,7 @@ func parseDetails(record *query.FluxRecord) string {
 		val = ""
 	}
 
-	return val
+	return strings.ReplaceAll(val, `;`, "\n")
 }
 
 func parseTime(record *query.FluxRecord) string {
