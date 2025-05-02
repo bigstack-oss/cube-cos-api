@@ -110,7 +110,6 @@ func (h *helper) getEventRank() (*data, error) {
 		return nil, err
 	}
 
-	h.setQueryUrlToEachEvent(&rank)
 	return &data{
 		Events: rank,
 		Limit: &v1.Limit{

@@ -1368,22 +1368,86 @@ const docTemplate = `{
                                 },
                                 "examples": {
                                     "example1": {
-                                        "summary": "Ranked events",
+                                        "summary": "Ranked system events",
                                         "value": {
                                             "code": 200,
                                             "data": {
                                                 "events": [
                                                     {
                                                         "id": "NET00003I",
+                                                        "category": "NET",
+                                                        "severity": "I",
                                                         "percent": 98.2142,
-                                                        "number": 440,
-                                                        "query": "https://example-datat-center.host/api/v1/datacenters/example-data-center/events?type=system&id=NET00003I&start=2024-12-01T00:00:00Z&stop=2025-02-17T00:00:00Z&pageNum=1&pageSize=20"
+                                                        "number": 440
                                                     },
                                                     {
                                                         "id": "NET00001I",
+                                                        "category": "NET",
+                                                        "severity": "I",
                                                         "percent": 1.7857,
-                                                        "number": 8,
-                                                        "query": "https://example-datat-center.host/api/v1/datacenters/example-data-center/events?type=system&id=NET00001I&start=2024-12-01T00:00:00Z&stop=2025-02-17T00:00:00Z&pageNum=1&pageSize=20"
+                                                        "number": 8
+                                                    }
+                                                ],
+                                                "limit": {
+                                                    "number": 25,
+                                                    "description": "The top 2 event IDs with the highest proportion"
+                                                }
+                                            },
+                                            "msg": "fetch event rank successfully",
+                                            "status": "ok"
+                                        }
+                                    },
+                                    "example2": {
+                                        "summary": "Ranked host events",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "events": [
+                                                    {
+                                                        "id": "CPU00002W",
+                                                        "category": "CPU",
+                                                        "host": "example-host-0",
+                                                        "percent": 75,
+                                                        "number": 3
+                                                    },
+                                                    {
+                                                        "id": "CPU00002W",
+                                                        "category": "CPU",
+                                                        "host": "example-host-1",
+                                                        "percent": 25,
+                                                        "number": 1
+                                                    }
+                                                ],
+                                                "limit": {
+                                                    "number": 25,
+                                                    "description": "The top 2 event IDs with the highest proportion"
+                                                }
+                                            },
+                                            "msg": "fetch event rank successfully",
+                                            "status": "ok"
+                                        }
+                                    },
+                                    "example3": {
+                                        "summary": "Ranked instance events",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "events": [
+                                                    {
+                                                        "id": "CPU00007I",
+                                                        "category": "CPU",
+                                                        "instanceId": "74ac7cb9-800a-430f-809e-d96f0ce3e9a2",
+                                                        "instanceName": "example-vm-0",
+                                                        "percent": 75,
+                                                        "number": 3
+                                                    },
+                                                    {
+                                                        "id": "CPU00007I",
+                                                        "category": "CPU",
+                                                        "instanceId": "e8a44a60-b79f-42f8-bab6-761b1734299a",
+                                                        "instanceName": "example-vm-1",
+                                                        "percent": 25,
+                                                        "number": 1
                                                     }
                                                 ],
                                                 "limit": {
@@ -11230,11 +11294,25 @@ const docTemplate = `{
                                     "required": [
                                         "id",
                                         "percent",
-                                        "number",
-                                        "query"
+                                        "number"
                                     ],
                                     "properties": {
                                         "id": {
+                                            "type": "string"
+                                        },
+                                        "severity": {
+                                            "type": "string"
+                                        },
+                                        "category": {
+                                            "type": "string"
+                                        },
+                                        "host": {
+                                            "type": "string"
+                                        },
+                                        "instanceId": {
+                                            "type": "string"
+                                        },
+                                        "instanceName": {
                                             "type": "string"
                                         },
                                         "percent": {
@@ -11242,9 +11320,6 @@ const docTemplate = `{
                                         },
                                         "number": {
                                             "type": "integer"
-                                        },
-                                        "query": {
-                                            "type": "string"
                                         }
                                     }
                                 }

@@ -1538,7 +1538,7 @@ func parseVmNetworkPacketRank(c *api.QueryTableResult) ([]v1.RankPoint, error) {
 func parseHost(record *query.FluxRecord) string {
 	host, ok := record.ValueByKey("host").(string)
 	if !ok {
-		return "unknown host"
+		return ""
 	}
 
 	return host

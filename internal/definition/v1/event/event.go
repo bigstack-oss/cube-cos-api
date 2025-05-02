@@ -46,10 +46,14 @@ type Options struct {
 }
 
 type Stat struct {
-	Id      string  `json:"id"`
-	Percent float64 `json:"percent"`
-	Number  int64   `json:"number"`
-	Query   string  `json:"query"`
+	Id           string  `json:"id"`
+	Category     string  `json:"category"`
+	Severity     string  `json:"severity,omitempty"`
+	Host         string  `json:"host,omitempty"`
+	InstanceId   string  `json:"instanceId,omitempty"`
+	InstanceName string  `json:"instanceName,omitempty"`
+	Percent      float64 `json:"percent"`
+	Number       int64   `json:"number"`
 }
 
 type Filter struct {

@@ -139,10 +139,10 @@ func (h *helper) genInstanceRankStmt() string {
 	}
 
 	return query.
-		Group(`columns: ["key", "category", "instance"]`).
+		Group(`columns: ["key", "category", "instance", "vm_name"]`).
 		Count(`column: "_value"`).
 		Rename(`columns: {_value: "number"}`).
-		Keep(`columns: ["key", "category", "instance", "number"]`).
+		Keep(`columns: ["key", "category", "instance", "vm_name", "number"]`).
 		Group("").
 		Sort(`columns: ["number"], desc: true`).
 		Limit(fmt.Sprintf(`n: %d`, h.limit)).
