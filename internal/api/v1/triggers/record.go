@@ -49,7 +49,7 @@ func (h *helper) genUpsertPayload() bson.M {
 	}
 }
 
-func (h *helper) hasUpdateHistory(t trigger.Options) bool {
+func (h *helper) hasUpdateHistory(t trigger.ApiOptions) bool {
 	mongo := cubeMongo.GetGlobalHelper()
 	count, err := mongo.GetCount(
 		trigger.DB,
@@ -63,7 +63,7 @@ func (h *helper) hasUpdateHistory(t trigger.Options) bool {
 	return count > 0
 }
 
-func (h *helper) getUpdateRecord(t trigger.Options) (*trigger.Options, error) {
+func (h *helper) getUpdateRecord(t trigger.ApiOptions) (*trigger.ApiOptions, error) {
 	mongo := cubeMongo.GetGlobalHelper()
 	pending, err := mongo.Get(
 		trigger.DB,
@@ -74,7 +74,7 @@ func (h *helper) getUpdateRecord(t trigger.Options) (*trigger.Options, error) {
 		return nil, err
 	}
 
-	record := &trigger.Options{}
+	record := &trigger.ApiOptions{}
 	err = pending.Decode(record)
 	if err != nil {
 		return nil, err

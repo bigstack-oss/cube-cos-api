@@ -6,10 +6,9 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
-	log "go-micro.dev/v5/logger"
 )
 
-func (o *Operator) operateReq(trigger trigger.Options) error {
+func (o *Operator) operateReq(trigger trigger.ApiOptions) error {
 	switch trigger.Status.Desired {
 	case status.Updated:
 		return o.updateTrigger(trigger)
@@ -22,24 +21,7 @@ func (o *Operator) operateReq(trigger trigger.Options) error {
 	)
 }
 
-func (o *Operator) updateTrigger(trigger trigger.Options) error {
-	policy, err := cubecos.GetTriggerPolicy()
-	if err != nil {
-		log.Infof("triggers: %v", err)
-		return err
-	}
-
-	policy.UpdateOrAppendTrigger(trigger)
-	err = cubecos.ApplyTriggers(policy.Triggers)
-	if err != nil {
-		return err
-	}
-
-	err = cubecos.IsTriggerApplied(trigger)
-	if err != nil {
-		log.Errorf("triggers: %v", err)
-		return err
-	}
-
-	return nil
+func (o *Operator) updateTrigger(trigger trigger.ApiOptions) error {
+	cosTrigger := trigger.ConvertToCosOptions()
+	return cubecos.ApplyTrigger(cosTrigger)
 }

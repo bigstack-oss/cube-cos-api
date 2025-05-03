@@ -2,6 +2,7 @@ package licenses
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
@@ -16,6 +17,7 @@ func (o *Operator) initWatcher() error {
 		return err
 	}
 
+	os.MkdirAll(v1.LicenseDir, os.ModeDir)
 	return o.watcher.Add(v1.LicenseDir)
 }
 

@@ -3,7 +3,6 @@ package triggers
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
@@ -13,7 +12,7 @@ import (
 type helper struct {
 	c       *gin.Context
 	handler string
-	trigger trigger.Options
+	trigger trigger.ApiOptions
 	toggle  trigger.Toggle
 }
 
@@ -61,11 +60,9 @@ func (h *helper) initTaskHelper() (*helper, error) {
 	return h, nil
 }
 
-func (h *helper) listTriggers() ([]trigger.Options, error) {
-	triggers := []trigger.Options{}
-	for _, trigger := range trigger.DefaultOptions {
-		h.syncSelectableResponseItems(&trigger)
-		h.syncCubePolicy(&trigger)
+func (h *helper) listTriggers() ([]trigger.ApiOptions, error) {
+	triggers := []trigger.ApiOptions{}
+	for _, trigger := range trigger.List {
 		h.syncUpdateStatus(&trigger)
 		triggers = append(triggers, trigger)
 	}
@@ -73,98 +70,7 @@ func (h *helper) listTriggers() ([]trigger.Options, error) {
 	return triggers, nil
 }
 
-func (h *helper) syncCubePolicy(trigger *trigger.Options) {
-	policy, err := cubecos.GetTriggerPolicy()
-	if err != nil {
-		return
-	}
-
-	policyTrigger := policy.GetTrigger(trigger.Name)
-	if policyTrigger.Name == "" {
-		return
-	}
-
-	trigger.Description = policyTrigger.Description
-	trigger.Enabled = policyTrigger.Enabled
-	h.syncAttrEnablement(trigger, policyTrigger)
-	h.setResponseEnablement(trigger, policyTrigger)
-}
-
-func (h *helper) syncAttrEnablement(options *trigger.Options, policyTrigger trigger.Options) []trigger.Attribute {
-	enabledAttrs := h.getEnabledAttrs(policyTrigger)
-	attributes := []trigger.Attribute{}
-	for i, attr := range options.Attributes {
-		for _, enabledAttr := range enabledAttrs {
-			if attr.Name != enabledAttr.Name {
-				continue
-			}
-
-			if attr.Value != enabledAttr.Value {
-				continue
-			}
-
-			options.Attributes[i].Enabled = true
-			break
-		}
-	}
-
-	return attributes
-}
-
-func (h *helper) getEnabledAttrs(policyTrigger trigger.Options) []trigger.Attribute {
-	enabledAttrs := []trigger.Attribute{}
-	matchRule := strings.ReplaceAll(policyTrigger.Match, `"`, ``)
-	parts := strings.SplitSeq(matchRule, " OR ")
-	for part := range parts {
-		attrPair := strings.Split(part, " == ")
-		if !isValidAttrPair(attrPair) {
-			continue
-		}
-
-		enabledAttrs = append(
-			enabledAttrs,
-			trigger.Attribute{
-				Name:  strings.TrimSpace(attrPair[0]),
-				Value: strings.TrimSpace(attrPair[1]),
-			},
-		)
-	}
-
-	return enabledAttrs
-}
-
-func isValidAttrPair(attrPair []string) bool {
-	return len(attrPair) == 2
-}
-
-func (h *helper) setResponseEnablement(trigger *trigger.Options, policyTrigger trigger.Options) {
-	h.syncEmailEnablement(trigger, policyTrigger)
-	h.syncSlackEnablement(trigger, policyTrigger)
-}
-
-func (h *helper) syncEmailEnablement(trigger *trigger.Options, policyTrigger trigger.Options) {
-	for i, email := range trigger.Response.Emails {
-		for _, policyEmail := range policyTrigger.Response.Emails {
-			if email.Address == policyEmail.Address {
-				trigger.Response.Emails[i].Enabled = true
-				break
-			}
-		}
-	}
-}
-
-func (h *helper) syncSlackEnablement(trigger *trigger.Options, policyTrigger trigger.Options) {
-	for i, slack := range trigger.Response.Slacks {
-		for _, policySlack := range policyTrigger.Response.Slacks {
-			if slack.URL == policySlack.URL {
-				trigger.Response.Slacks[i].Enabled = true
-				break
-			}
-		}
-	}
-}
-
-func (h *helper) syncUpdateStatus(trigger *trigger.Options) {
+func (h *helper) syncUpdateStatus(trigger *trigger.ApiOptions) {
 	trigger.InitOkStatus()
 	if !h.hasUpdateHistory(*trigger) {
 		return
@@ -180,10 +86,9 @@ func (h *helper) syncUpdateStatus(trigger *trigger.Options) {
 	trigger.Status.UpdatedAt = record.Status.UpdatedAt
 }
 
-func (h *helper) getTrigger(name string) (*trigger.Options, error) {
-	for _, trigger := range trigger.DefaultOptions {
+func (h *helper) getTrigger(name string) (*trigger.ApiOptions, error) {
+	for _, trigger := range trigger.GetList() {
 		if trigger.Name == name {
-			h.syncSelectableResponseItems(&trigger)
 			return &trigger, nil
 		}
 	}

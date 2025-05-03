@@ -9,7 +9,7 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (o *Operator) handleExit(trigger trigger.Options, err error) {
+func (o *Operator) handleExit(trigger trigger.ApiOptions, err error) {
 	if err != nil {
 		log.Errorf("triggers: failed to %s %s: %s", trigger.Status.Desired, trigger.Name, err.Error())
 		trigger.SetError()
@@ -24,7 +24,7 @@ func (o *Operator) handleExit(trigger trigger.Options, err error) {
 	}
 }
 
-func (o *Operator) reportToController(trigger trigger.Options) error {
+func (o *Operator) reportToController(trigger trigger.ApiOptions) error {
 	node, err := v1.GetOneOfControllerNode()
 	if err != nil {
 		log.Errorf("triggers: failed to get controller nodes: %s", err.Error())

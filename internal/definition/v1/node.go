@@ -206,7 +206,7 @@ func (n *Node) PatchTuningTaskUrl(tuning Tuning) string {
 	return u.String()
 }
 
-func (n *Node) PatchTriggerTaskUrl(trigger trigger.Options) string {
+func (n *Node) PatchTriggerTaskUrl(trigger trigger.ApiOptions) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address
