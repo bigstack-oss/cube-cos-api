@@ -9,9 +9,9 @@ var (
 func SyncList(triggers []ApiOptions) {
 	updateList.Lock()
 	defer updateList.Unlock()
-	List = triggers
+	list = triggers
 }
 
 func GetList() []ApiOptions {
-	return List
+	return list
 }

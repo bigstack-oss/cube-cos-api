@@ -23,10 +23,9 @@ const (
 )
 
 var (
-	List = []ApiOptions{}
-
-	DefaultOptions = []ApiOptions{
-		{
+	list       = []ApiOptions{}
+	detailsMap = map[string]ApiOptions{
+		"Administrative Level Notification": {
 			Name:        "Administrative Level Notification",
 			Description: `Configure how you are going to be notified for system events and host alerts, including levels 'warning', 'error', and 'critical'.`,
 			Attributes: []Attribute{
@@ -39,7 +38,7 @@ var (
 				{
 					Name:    "severity",
 					Type:    "string",
-					Value:   "E",
+					Value:   "I",
 					Enabled: false,
 				},
 				{
@@ -91,9 +90,8 @@ var (
 					Enabled: false,
 				},
 			},
-			Enabled: false,
 		},
-		{
+		"Instance Level Notification": {
 			Name:        "Instance Level Notification",
 			Description: `Configure how you are going to be notified for instance alerts, including levels 'warning', and 'critical'.`,
 			Attributes: []Attribute{
@@ -106,7 +104,7 @@ var (
 				{
 					Name:    "severity",
 					Type:    "string",
-					Value:   "E",
+					Value:   "I",
 					Enabled: false,
 				},
 				{
@@ -158,7 +156,6 @@ var (
 					Enabled: false,
 				},
 			},
-			Enabled: false,
 		},
 	}
 )
@@ -359,13 +356,17 @@ type Attribute struct {
 }
 
 func Get(name string) (*ApiOptions, bool) {
-	for _, trigger := range DefaultOptions {
+	for _, trigger := range list {
 		if trigger.Name == name {
 			return &trigger, true
 		}
 	}
 
 	return nil, false
+}
+
+func GetDetailsMap() map[string]ApiOptions {
+	return detailsMap
 }
 
 func TimeISO8601Z(t time.Time) string {

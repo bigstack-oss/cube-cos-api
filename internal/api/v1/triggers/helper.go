@@ -62,7 +62,7 @@ func (h *helper) initTaskHelper() (*helper, error) {
 
 func (h *helper) listTriggers() ([]trigger.ApiOptions, error) {
 	triggers := []trigger.ApiOptions{}
-	for _, trigger := range trigger.List {
+	for _, trigger := range trigger.GetList() {
 		h.syncUpdateStatus(&trigger)
 		triggers = append(triggers, trigger)
 	}

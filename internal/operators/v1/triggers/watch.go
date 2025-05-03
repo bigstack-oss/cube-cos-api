@@ -2,9 +2,9 @@ package triggers
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
@@ -24,6 +24,7 @@ func (o *Operator) initPolicyWatcher() error {
 		return err
 	}
 
+	o.syncTriggers()
 	go o.watchChanges()
 	return nil
 }
@@ -67,8 +68,8 @@ func (o *Operator) syncTriggers() {
 
 	apiTriggers := o.convertToApiTriggers(triggers)
 	for i := range apiTriggers {
+		syncTriggerDetails(&apiTriggers[i])
 		syncSelectableResponseItems(&apiTriggers[i])
-		syncAttrEnablement(&apiTriggers[i])
 	}
 
 	trigger.SyncList(apiTriggers)
@@ -85,6 +86,28 @@ func (o *Operator) convertToApiTriggers(triggers []trigger.CosOptions) []trigger
 	}
 
 	return apiTriggers
+}
+
+func syncTriggerDetails(apiTrigger *trigger.ApiOptions) {
+	triggerMap := trigger.GetDetailsMap()
+	details, found := triggerMap[apiTrigger.Name]
+	if found {
+		apiTrigger.Description = details.Description
+		apiTrigger.Attributes = details.Attributes
+	}
+
+	convertAttributesToFullName(apiTrigger)
+}
+
+func convertAttributesToFullName(trigger *trigger.ApiOptions) {
+	for i, attribute := range trigger.Attributes {
+		if attribute.Name != "severity" {
+			continue
+		}
+
+		fullname := event.GetSeverityFullName(attribute.Value.(string))
+		trigger.Attributes[i].Value = fullname
+	}
 }
 
 func syncSelectableResponseItems(trigger *trigger.ApiOptions) {
@@ -155,51 +178,4 @@ func convertToApiChannels(channels []slack.CosChannel) []slack.ApiChannel {
 	}
 
 	return apiChannels
-}
-
-func syncAttrEnablement(options *trigger.ApiOptions) []trigger.Attribute {
-	enabledAttrs := getEnabledAttrs(options)
-	attributes := []trigger.Attribute{}
-	for i, attr := range options.Attributes {
-		for _, enabledAttr := range enabledAttrs {
-			if attr.Name != enabledAttr.Name {
-				continue
-			}
-
-			if attr.Value != enabledAttr.Value {
-				continue
-			}
-
-			options.Attributes[i].Enabled = true
-			break
-		}
-	}
-
-	return attributes
-}
-
-func getEnabledAttrs(policyTrigger *trigger.ApiOptions) []trigger.Attribute {
-	enabledAttrs := []trigger.Attribute{}
-	matchRule := strings.ReplaceAll(policyTrigger.Match, `"`, ``)
-	parts := strings.SplitSeq(matchRule, " OR ")
-	for part := range parts {
-		attrPair := strings.Split(part, " == ")
-		if !isValidAttrPair(attrPair) {
-			continue
-		}
-
-		enabledAttrs = append(
-			enabledAttrs,
-			trigger.Attribute{
-				Name:  strings.TrimSpace(attrPair[0]),
-				Value: strings.TrimSpace(attrPair[1]),
-			},
-		)
-	}
-
-	return enabledAttrs
-}
-
-func isValidAttrPair(attrPair []string) bool {
-	return len(attrPair) == 2
 }
