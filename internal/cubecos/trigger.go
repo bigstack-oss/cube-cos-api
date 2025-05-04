@@ -16,8 +16,9 @@ func IsTriggerExist(name string) bool {
 		return false
 	}
 
+	cosName := trigger.GetNameMap()
 	for _, t := range triggers {
-		if t.Name == name {
+		if t.Name == cosName[name] {
 			return true
 		}
 	}

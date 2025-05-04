@@ -73,7 +73,6 @@ func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
 	}
 
 	maps.Copy(headerMap, mapHeaderMap)
-
 	return headerMap
 }
 

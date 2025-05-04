@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
@@ -44,12 +45,18 @@ func GetSourceAlertSetting() (*setting.CosAlert, error) {
 }
 
 func GetAlertSetting() (*setting.CosAlert, error) {
-	alert := setting.GetCosAlert()
-	if alert == nil {
-		return nil, cuberr.AlertSettingNotInited
+	maxTries := 10
+	for range maxTries {
+		alert := setting.GetCosAlert()
+		if alert != nil {
+			return alert, nil
+		}
+
+		wait.Seconds(2)
+		SyncAlertSettings()
 	}
 
-	return alert, nil
+	return nil, cuberr.AlertSettingNotInited
 }
 
 func GetEmailSenders() ([]email.Sender, error) {

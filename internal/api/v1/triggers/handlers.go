@@ -120,7 +120,7 @@ func enableOrDisableTrigger(c *gin.Context) {
 		return
 	}
 
-	h.delegateTriggerReq()
+	h.updateClusterWiseTrigger()
 	api.SetStatusAccepted(
 		c,
 		"tuning enable or disable request received",

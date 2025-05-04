@@ -4,6 +4,9 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	"github.com/gin-gonic/gin"
@@ -12,12 +15,16 @@ import (
 type helper struct {
 	c       *gin.Context
 	handler string
-	trigger trigger.ApiOptions
-	toggle  trigger.Toggle
+	http    http.Helper
+
+	trigger               trigger.ApiOptions
+	toggle                trigger.Toggle
+	rawBody               []byte
+	isClusterWiseRequired bool
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
-	h := &helper{c: c, handler: handler}
+	h := &helper{c: c, handler: handler, http: *http.GetGlobalHelper(), rawBody: api.ParseBody(c)}
 
 	switch handler {
 	case "listTriggers", "getTrigger":
@@ -39,6 +46,7 @@ func (h *helper) initUpdateHelper() (*helper, error) {
 		return nil, err
 	}
 
+	h.isClusterWiseRequired = query.ParseClusterWise(h.c)
 	return h, nil
 }
 
@@ -48,6 +56,7 @@ func (h *helper) initToggleHelper() (*helper, error) {
 		return nil, errors.New("trigger does not exist")
 	}
 
+	h.isClusterWiseRequired = query.ParseClusterWise(h.c)
 	return h, nil
 }
 
@@ -129,6 +138,7 @@ func (h *helper) parseTriggerEnablement() error {
 	}
 
 	h.trigger = *trigger
+	h.trigger.ShouldReportToController = h.isClusterWiseRequired
 	h.trigger.Enabled = h.toggle.Enable
 	h.trigger.InitUpdateStatus()
 	return nil

@@ -92,8 +92,7 @@ func syncTriggerDetails(apiTrigger *trigger.ApiOptions) {
 	triggerMap := trigger.GetDetailsMap()
 	details, found := triggerMap[apiTrigger.Name]
 	if found {
-		apiTrigger.Description = details.Description
-		apiTrigger.Attributes = details.Attributes
+		apiTrigger.Name = details.Name
 	}
 
 	convertAttributesToFullName(apiTrigger)

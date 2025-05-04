@@ -7,6 +7,7 @@ import (
 	cubemongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
@@ -34,7 +35,7 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 		handler:               handler,
 		mongo:                 cubemongo.GetGlobalHelper(),
 		http:                  http.GetGlobalHelper(),
-		isClusterWiseRequired: parseClusterWise(c),
+		isClusterWiseRequired: query.ParseClusterWise(c),
 		rawBody:               api.ParseBody(c),
 	}
 

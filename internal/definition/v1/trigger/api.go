@@ -23,140 +23,22 @@ const (
 )
 
 var (
-	list       = []ApiOptions{}
+	list = []ApiOptions{}
+
 	detailsMap = map[string]ApiOptions{
-		"Administrative Level Notification": {
+		"admin-notify": {
 			Name:        "Administrative Level Notification",
 			Description: `Configure how you are going to be notified for system events and host alerts, including levels 'warning', 'error', and 'critical'.`,
-			Attributes: []Attribute{
-				{
-					Name:    "severity",
-					Type:    "string",
-					Value:   "W",
-					Enabled: false,
-				},
-				{
-					Name:    "severity",
-					Type:    "string",
-					Value:   "I",
-					Enabled: false,
-				},
-				{
-					Name:    "severity",
-					Type:    "string",
-					Value:   "C",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "DEV",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "CPU",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "DSK",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "MEM",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "NET",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "SRV",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "VRT",
-					Enabled: false,
-				},
-			},
 		},
-		"Instance Level Notification": {
+		"instance-notify": {
 			Name:        "Instance Level Notification",
 			Description: `Configure how you are going to be notified for instance alerts, including levels 'warning', and 'critical'.`,
-			Attributes: []Attribute{
-				{
-					Name:    "severity",
-					Type:    "string",
-					Value:   "W",
-					Enabled: false,
-				},
-				{
-					Name:    "severity",
-					Type:    "string",
-					Value:   "I",
-					Enabled: false,
-				},
-				{
-					Name:    "severity",
-					Type:    "string",
-					Value:   "C",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "DEV",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "CPU",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "DSK",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "MEM",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "NET",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "SRV",
-					Enabled: false,
-				},
-				{
-					Name:    "category",
-					Type:    "string",
-					Value:   "VRT",
-					Enabled: false,
-				},
-			},
 		},
+	}
+
+	nameMap = map[string]string{
+		"Administrative Level Notification": "admin-notify",
+		"Instance Level Notification":       "instance-notify",
 	}
 )
 
@@ -165,32 +47,33 @@ type Toggle struct {
 }
 
 type ApiOptions struct {
-	Name        string      `json:"name" yaml:"name" bson:"name"`
-	Description string      `json:"description" yaml:"description"`
-	Match       string      `json:"-" yaml:"match"`
-	Attributes  []Attribute `json:"attributes" bson:"-" yaml:"-"`
-	Response    `json:"response" yaml:"response"`
-	Enabled     bool            `json:"enabled" yaml:"enabled"`
-	Status      *status.Trigger `json:"status" yaml:"-" bson:"status"`
+	Name                     string      `json:"name" yaml:"name" bson:"name"`
+	Description              string      `json:"description" yaml:"description"`
+	Match                    string      `json:"-" yaml:"match"`
+	Attributes               []Attribute `json:"attributes" bson:"-" yaml:"-"`
+	Response                 `json:"response" yaml:"response"`
+	Enabled                  bool            `json:"enabled" yaml:"enabled"`
+	Status                   *status.Trigger `json:"status" yaml:"-" bson:"status"`
+	ShouldReportToController bool            `json:"-" yaml:"-"`
 }
 
 func (a *ApiOptions) ConvertToCosOptions() CosOptions {
 	return CosOptions{
-		Name:        a.Name,
+		Name:        nameMap[a.Name],
 		Description: a.Description,
 		Match:       a.GenMatchRule(),
-		Emails:      a.GenEmailList(),
-		Slacks:      a.GenSlackList(),
-		Enabled:     a.Enabled,
+		WriteResponses: WriteResponses{
+			Emails: a.GenEmailList(),
+			Slacks: a.GenSlackList(),
+		},
+		Enabled: a.Enabled,
 	}
 }
 
 func (a *ApiOptions) GenEmailList() []string {
 	emails := []string{}
 	for _, email := range a.Response.Emails {
-		if email.Enabled {
-			emails = append(emails, email.Address)
-		}
+		emails = append(emails, email.Address)
 	}
 
 	return emails
@@ -199,9 +82,7 @@ func (a *ApiOptions) GenEmailList() []string {
 func (a *ApiOptions) GenSlackList() []string {
 	slacks := []string{}
 	for _, slack := range a.Response.Slacks {
-		if slack.Enabled {
-			slacks = append(slacks, slack.URL)
-		}
+		slacks = append(slacks, slack.URL)
 	}
 
 	return slacks
@@ -308,8 +189,9 @@ func (a *ApiOptions) AppendSlack(slack slack.ApiChannel) {
 }
 
 func (a *ApiOptions) GenTaskUpdate() ApiOptions {
+	details := detailsMap[a.Name]
 	return ApiOptions{
-		Name:   a.Name,
+		Name:   details.Name,
 		Status: a.Status,
 	}
 }
@@ -367,6 +249,10 @@ func Get(name string) (*ApiOptions, bool) {
 
 func GetDetailsMap() map[string]ApiOptions {
 	return detailsMap
+}
+
+func GetNameMap() map[string]string {
+	return nameMap
 }
 
 func TimeISO8601Z(t time.Time) string {

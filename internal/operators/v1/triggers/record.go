@@ -18,9 +18,8 @@ func (o *Operator) handleExit(trigger trigger.ApiOptions, err error) {
 		trigger.SetCompleted()
 	}
 
-	err = o.reportToController(trigger)
-	if err != nil {
-		return
+	if trigger.ShouldReportToController {
+		o.reportToController(trigger)
 	}
 }
 

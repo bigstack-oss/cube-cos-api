@@ -9,7 +9,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
-	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -226,18 +225,4 @@ func (h *helper) parseTaskUpdate() error {
 	}
 
 	return nil
-}
-
-func parseClusterWise(c *gin.Context) bool {
-	queries := c.Request.URL.Query()
-	if len(queries) == 0 {
-		return true
-	}
-
-	_, found := queries["clusterWise"]
-	if !found {
-		return true
-	}
-
-	return c.DefaultQuery("clusterWise", "false") == "true"
 }

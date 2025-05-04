@@ -91,6 +91,8 @@ func GetSeverityFullName(severity string) string {
 		return "Critical"
 	case "w":
 		return "Warning"
+	case "e":
+		return "Error"
 	case "i":
 		return "Info"
 	}
@@ -104,6 +106,8 @@ func GetSeverityShortName(severity string) string {
 		return "C"
 	case "warning":
 		return "W"
+	case "error":
+		return "E"
 	case "info":
 		return "I"
 	}

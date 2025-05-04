@@ -16,11 +16,18 @@ func (h *helper) parseTrigger() error {
 		return errors.New("trigger does not exist")
 	}
 
-	return h.c.ShouldBindJSON(&h.trigger)
+	err := h.c.ShouldBindJSON(&h.trigger)
+	if err != nil {
+		return err
+	}
+
+	h.trigger.Name = name
+	return nil
 }
 
 func (h *helper) setUpdateInfo() {
 	h.trigger.Name = h.c.Param("triggerName")
 	h.trigger.Match = h.trigger.GenMatchRule()
 	h.trigger.InitUpdateStatus()
+	h.trigger.ShouldReportToController = h.isClusterWiseRequired
 }
