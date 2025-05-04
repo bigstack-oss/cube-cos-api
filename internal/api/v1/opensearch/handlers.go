@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 )
@@ -13,18 +14,25 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
-			Path:    "/opensearch/instances/:instanceId",
-			Func:    forwardInstanceLink,
+			Path:    "/opensearch/request/:requestId",
+			Func:    forwardRequestLink,
 		},
 	}
 )
 
-func forwardInstanceLink(c *gin.Context) {
+func forwardRequestLink(c *gin.Context) {
+	requestId := c.Param("requestId")
+	link, err := cubecos.GetOpenSearchRequestLink(requestId)
+	if err != nil {
+		api.SetInternalServerError(c, err)
+		return
+	}
+
 	api.SetStatusOk(
 		c,
-		"fetch instance link successfully",
+		"fetch request link successfully",
 		v1.Dashboard{
-			Link:    genInstanceLink(c),
+			Link:    link,
 			Enabled: true,
 		},
 	)
