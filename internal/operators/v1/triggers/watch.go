@@ -3,6 +3,7 @@ package triggers
 import (
 	"fmt"
 
+	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
@@ -19,7 +20,7 @@ func (o *Operator) initPolicyWatcher() error {
 		return err
 	}
 
-	err = o.policy.Add("/etc/policies/alert_resp")
+	err = o.policy.Add("/etc")
 	if err != nil {
 		return err
 	}
@@ -49,11 +50,11 @@ func (o *Operator) watchChanges() {
 }
 
 func (o *Operator) checkTriggers(event fsnotify.Event) {
-	if event.Name != trigger.ResponsePolicyV2 {
+	if event.Name != conf.Opts.Spec.Identity.Policy {
 		return
 	}
 
-	if event.Has(fsnotify.Write) {
+	if event.Has(fsnotify.Write) || event.Has(fsnotify.Create) {
 		cubelog.Throttle("triggers", fmt.Sprintf("%s changed, syncing triggers", event.Name))
 		o.syncTriggers()
 	}
@@ -110,20 +111,33 @@ func convertAttributesToFullName(trigger *trigger.ApiOptions) {
 }
 
 func syncSelectableResponseItems(trigger *trigger.ApiOptions) {
+	trigger.Response.Types = []string{}
 	setEmailRecipientsToTrigger(trigger)
 	if trigger.HasEmailRecipients() {
-		trigger.Response.Types = append(
-			trigger.Response.Types,
-			"email",
-		)
+		for _, recipient := range trigger.Response.Emails {
+			if recipient.Enabled {
+				trigger.Response.Types = append(
+					trigger.Response.Types,
+					"email",
+				)
+
+				break
+			}
+		}
 	}
 
 	setSlackChannelsToTrigger(trigger)
 	if trigger.HasSlackChannels() {
-		trigger.Response.Types = append(
-			trigger.Response.Types,
-			"slack",
-		)
+		for _, channel := range trigger.Response.Slacks {
+			if channel.Enabled {
+				trigger.Response.Types = append(
+					trigger.Response.Types,
+					"slack",
+				)
+
+				break
+			}
+		}
 	}
 }
 

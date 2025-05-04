@@ -50,7 +50,7 @@ func checkAndSyncTunings(event fsnotify.Event) {
 		return
 	}
 
-	if event.Has(fsnotify.Write) {
+	if event.Has(fsnotify.Write) || event.Has(fsnotify.Create) {
 		cubelog.Throttle("tunings", fmt.Sprintf("%s changed, syncing tunings", event.Name))
 		cubecos.SyncTunings()
 	}

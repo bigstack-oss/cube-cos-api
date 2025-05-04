@@ -72,14 +72,14 @@ func (h *helper) initTaskHelper() (*helper, error) {
 func (h *helper) listTriggers() ([]trigger.ApiOptions, error) {
 	triggers := []trigger.ApiOptions{}
 	for _, trigger := range trigger.GetList() {
-		h.syncUpdateStatus(&trigger)
+		h.syncUpdatingInfo(&trigger)
 		triggers = append(triggers, trigger)
 	}
 
 	return triggers, nil
 }
 
-func (h *helper) syncUpdateStatus(trigger *trigger.ApiOptions) {
+func (h *helper) syncUpdatingInfo(trigger *trigger.ApiOptions) {
 	trigger.InitOkStatus()
 	if !h.hasUpdateHistory(*trigger) {
 		return
@@ -90,6 +90,19 @@ func (h *helper) syncUpdateStatus(trigger *trigger.ApiOptions) {
 		return
 	}
 
+	h.syncUpdatingPayload(trigger, record)
+	h.syncUpdatingStatus(trigger, record)
+}
+
+func (h *helper) syncUpdatingPayload(trigger *trigger.ApiOptions, record *trigger.ApiOptions) {
+	trigger.Attributes = record.Attributes
+	trigger.Types = record.Types
+	trigger.Response = record.Response
+	trigger.Enabled = record.Enabled
+	trigger.Description = record.Description
+}
+
+func (h *helper) syncUpdatingStatus(trigger *trigger.ApiOptions, record *trigger.ApiOptions) {
 	trigger.Status.IsUpdating = record.Status.IsUpdating
 	trigger.Status.Current = record.Status.Current
 	trigger.Status.UpdatedAt = record.Status.UpdatedAt
@@ -106,11 +119,6 @@ func (h *helper) getTrigger(name string) (*trigger.ApiOptions, error) {
 		"trigger(%s): trigger not found",
 		name,
 	)
-}
-
-func (h *helper) delegateTriggerReq() {
-	h.addReqRecord()
-	reqQueue.Add(&h.trigger)
 }
 
 func (h *helper) checkTaskUpdateReq() error {

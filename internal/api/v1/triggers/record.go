@@ -18,7 +18,7 @@ func (h *helper) addReqRecord() {
 		trigger.DB,
 		trigger.ReqCollection,
 		bson.M{"name": h.trigger.Name},
-		h.genUpsertPayload(),
+		bson.M{"$set": h.trigger},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
@@ -37,18 +37,6 @@ func (h *helper) updateTaskStatus() error {
 		trigger.ReqCollection,
 		bson.M{"name": h.trigger.Name},
 	)
-}
-
-func (h *helper) genUpsertPayload() bson.M {
-	return bson.M{
-		"$set": bson.M{
-			"name":     h.trigger.Name,
-			"match":    h.trigger.Match,
-			"response": h.trigger.Response,
-			"enabled":  h.trigger.Enabled,
-			"status":   h.trigger.Status,
-		},
-	}
 }
 
 func (h *helper) hasUpdateHistory(t trigger.ApiOptions) bool {
@@ -93,7 +81,10 @@ func (h *helper) updateClusterWiseTrigger() {
 }
 
 func (h *helper) delegateToLocal() {
-	h.addReqRecord()
+	if h.isClusterWiseRequired {
+		h.addReqRecord()
+	}
+
 	reqQueue.Add(&h.trigger)
 }
 

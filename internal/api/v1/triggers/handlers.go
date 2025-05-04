@@ -98,7 +98,7 @@ func updateTrigger(c *gin.Context) {
 	}
 
 	h.setUpdateInfo()
-	h.delegateTriggerReq()
+	h.updateClusterWiseTrigger()
 	api.SetStatusAccepted(
 		c,
 		"trigger update request received",

@@ -48,11 +48,11 @@ type Toggle struct {
 
 type ApiOptions struct {
 	Name                     string      `json:"name" yaml:"name" bson:"name"`
-	Description              string      `json:"description" yaml:"description"`
+	Description              string      `json:"description" yaml:"description" bson:"description"`
 	Match                    string      `json:"-" yaml:"match"`
-	Attributes               []Attribute `json:"attributes" bson:"-" yaml:"-"`
-	Response                 `json:"response" yaml:"response"`
-	Enabled                  bool            `json:"enabled" yaml:"enabled"`
+	Attributes               []Attribute `json:"attributes" bson:"attributes" yaml:"-"`
+	Response                 `json:"response" yaml:"response" bson:"response"`
+	Enabled                  bool            `json:"enabled" yaml:"enabled" bson:"enabled"`
 	Status                   *status.Trigger `json:"status" yaml:"-" bson:"status"`
 	ShouldReportToController bool            `json:"-" yaml:"-"`
 }
@@ -73,7 +73,9 @@ func (a *ApiOptions) ConvertToCosOptions() CosOptions {
 func (a *ApiOptions) GenEmailList() []string {
 	emails := []string{}
 	for _, email := range a.Response.Emails {
-		emails = append(emails, email.Address)
+		if email.Enabled {
+			emails = append(emails, email.Address)
+		}
 	}
 
 	return emails
@@ -82,7 +84,9 @@ func (a *ApiOptions) GenEmailList() []string {
 func (a *ApiOptions) GenSlackList() []string {
 	slacks := []string{}
 	for _, slack := range a.Response.Slacks {
-		slacks = append(slacks, slack.URL)
+		if slack.Enabled {
+			slacks = append(slacks, slack.URL)
+		}
 	}
 
 	return slacks
@@ -225,9 +229,9 @@ func (a *ApiOptions) SetCompleted() {
 }
 
 type Response struct {
-	Types  []string           `json:"types" yaml:"-"`
-	Slacks []slack.ApiChannel `json:"slacks" yaml:"slacks"`
-	Emails []email.Recipient  `json:"emails" yaml:"emails"`
+	Types  []string           `json:"types" yaml:"-" bson:"types"`
+	Slacks []slack.ApiChannel `json:"slacks" yaml:"slacks" bson:"slacks"`
+	Emails []email.Recipient  `json:"emails" yaml:"emails" bson:"emails"`
 }
 
 type Attribute struct {

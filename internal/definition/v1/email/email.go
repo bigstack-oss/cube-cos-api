@@ -98,7 +98,7 @@ func (s *Sender) InitUpdateStatus() {
 type Recipient struct {
 	Address string          `json:"address" bson:"address"`
 	Note    string          `json:"note" bson:"note"`
-	Enabled bool            `json:"enabled,omitempty" bson:"-"`
+	Enabled bool            `json:"enabled,omitempty" bson:"enabled"`
 	Status  status.Settings `json:"status" bson:"status" yaml:"-"`
 }
 
