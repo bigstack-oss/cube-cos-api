@@ -291,7 +291,7 @@ func (o *Operator) setUptimeToNode(node *v1.Node) {
 }
 
 func getOsBlockDevices() ([]v1.RawBlockDevice, error) {
-	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS", "-e", v1.NetBlockDeviceCode).Output()
+	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "TYPE,NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS", "-e", v1.NetBlockDeviceCode).Output()
 	if err != nil {
 		log.Errorf("nodes: failed to get block device info: %s", err.Error())
 		return nil, err
@@ -314,7 +314,22 @@ func getOsBlockDevices() ([]v1.RawBlockDevice, error) {
 		return nil, errors.New("no block device found")
 	}
 
-	return rawBlockDevs, nil
+	return getBlockOrPartitionOnly(rawBlockDevs), nil
+}
+
+func getBlockOrPartitionOnly(rawBlockDevs []v1.RawBlockDevice) []v1.RawBlockDevice {
+	blockDevs := []v1.RawBlockDevice{}
+	for _, rawBlockDev := range rawBlockDevs {
+		if rawBlockDev.IsBlock() {
+			blockDevs = append(blockDevs, rawBlockDev)
+		}
+
+		if rawBlockDev.IsPartition() {
+			blockDevs = append(blockDevs, rawBlockDev)
+		}
+	}
+
+	return blockDevs
 }
 
 func convertToBlockDevice(rawBlockDev v1.RawBlockDevice) v1.BlockDevice {
@@ -372,30 +387,34 @@ func addBlockDevicesStatus(node *v1.Node) {
 }
 
 func getBlockDeviceStatus(blockDev v1.BlockDevice) status.BlockDevice {
-	out, err := exec.Command("smartctl", "-a", fmt.Sprintf("/dev/%s", blockDev.Name), "--json").CombinedOutput()
+	out, err := exec.Command("hex_sdk", "-f", "json", "ceph_osd_list", fmt.Sprintf("/dev/%s", blockDev.Name)).CombinedOutput()
 	if err != nil {
 		log.Errorf("nodes: failed to get block device(%s) status: %s", blockDev.Name, err.Error())
 		return status.BlockDevice{Current: "failed"}
 	}
 
-	smartCtl := v1.SmartCtl{}
-	err = json.Unmarshal(out, &smartCtl)
+	statuses := []v1.BlockDeviceStatus{}
+	err = json.Unmarshal(out, &statuses)
 	if err != nil {
 		log.Errorf("nodes: failed to unmarshal block device(%s) status: %s", blockDev.Name, err.Error())
 		return status.BlockDevice{Current: "failed"}
 	}
 
-	return status.BlockDevice{
-		Current: parseSmartCtlStatus(smartCtl),
-	}
+	return convergeBlockStatuses(statuses)
 }
 
-func parseSmartCtlStatus(smartCtl v1.SmartCtl) string {
-	if smartCtl.SmartStatus.Passed {
-		return "ok"
+func convergeBlockStatuses(statuses []v1.BlockDeviceStatus) status.BlockDevice {
+	status := status.BlockDevice{Current: "ok"}
+
+	for _, s := range statuses {
+		if s.State != "ok" {
+			status.Current = s.State
+			status.Description = s.Remark
+			return status
+		}
 	}
 
-	return "failed"
+	return status
 }
 
 func genPartitionAvailability(partitions map[string][]string) map[string]string {

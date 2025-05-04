@@ -98,6 +98,7 @@ type BlockDevice struct {
 }
 
 type RawBlockDevice struct {
+	Type        string   `json:"type"`
 	Serial      string   `json:"serial"`
 	Name        string   `json:"name"`
 	Size        string   `json:"size"`
@@ -106,7 +107,11 @@ type RawBlockDevice struct {
 }
 
 func (r *RawBlockDevice) IsPartition() bool {
-	return r.Serial == ""
+	return r.Type == "part"
+}
+
+func (r *RawBlockDevice) IsBlock() bool {
+	return r.Type == "disk"
 }
 
 func (r *RawBlockDevice) NoMountPoints() bool {
