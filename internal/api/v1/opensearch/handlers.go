@@ -14,7 +14,7 @@ var (
 		{
 			Version: api.V1,
 			Method:  http.MethodGet,
-			Path:    "/opensearch/request/:requestId",
+			Path:    "/opensearch/requests/:requestId",
 			Func:    forwardRequestLink,
 		},
 	}
