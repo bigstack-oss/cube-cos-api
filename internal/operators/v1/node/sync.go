@@ -239,9 +239,13 @@ func setPartitionMounts(blockDev v1.RawBlockDevice, partitionMounts map[string][
 }
 
 func (o *Operator) setMetricToNode(node *v1.Node) {
+	if node.IsDown() {
+		return
+	}
+
 	cpu, err := cubecos.GetCpuSummaryOfHost(node.Hostname)
 	if err != nil {
-		log.Errorf("nodes: failed to get cpu summary of host: %s", err.Error())
+		log.Errorf("nodes: failed to set cpu summary of host: %s", err.Error())
 	}
 	if cpu == nil {
 		cpu = &v1.ComputeStatistic{}

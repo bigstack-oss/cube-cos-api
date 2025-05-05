@@ -123,9 +123,15 @@ func newAuthIdentities() error {
 		return err
 	}
 
-	v1.NodeMetadata, err = genNodeMetadata()
+	err = newNodeMetadata()
 	if err != nil {
 		log.Errorf("runtime: failed to generate node metadata: %s", err.Error())
+		return err
+	}
+
+	err = newServiceDiscoveryIdentity()
+	if err != nil {
+		log.Errorf("runtime: failed to parse service discovery identify: %s", err.Error())
 		return err
 	}
 

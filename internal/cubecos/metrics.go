@@ -322,6 +322,10 @@ func GetHostSummary() (*HostSummary, error) {
 }
 
 func GetHostUsage(node v1.Node) (*v1.HostUsage, error) {
+	if node.IsDown() {
+		return nil, fmt.Errorf("host %s is down", node.Hostname)
+	}
+
 	cpuStat, err := GetCpuSummaryOfHost(node.Hostname)
 	if err != nil {
 		log.Errorf("metrics: failed to get cpu summary of host %s: %v", node.Hostname, err)

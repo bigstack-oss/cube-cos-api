@@ -3,6 +3,7 @@ package runtime
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
@@ -11,23 +12,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func parseServiceDiscoveryIdentity() (string, error) {
+func newServiceDiscoveryIdentity() error {
 	if v1.DataCenterName == "" {
-		return "", errors.InvalidDataCenterName
+		return errors.InvalidDataCenterName
 	}
 
 	if v1.DataCenterVip == "" {
-		return "", errors.InvalidListenAddress
+		return errors.InvalidListenAddress
 	}
 
-	return fmt.Sprintf(
-		"%s-%s",
+	v1.ServiceDiscoveryIdentity = fmt.Sprintf(
+		"%s-%s-%s",
 		v1.DataCenterName,
 		v1.DataCenterVip,
-	), nil
+		strings.ToLower(v1.DefaultOidcClientSecret[:8]),
+	)
+
+	return nil
 }
 
 func parseLocalListenAddr() (string, error) {
+	if conf.Opts.Spec.Listen.Local == "" {
+		conf.Opts.Spec.Listen.Local = v1.ManagementIp
+	}
+
 	if conf.Opts.Spec.Listen.Local == "" {
 		return "", errors.InvalidListenAddress
 	}
@@ -93,24 +101,24 @@ func getHostname() (string, error) {
 	return os.Hostname()
 }
 
-func genNodeMetadata() (map[string]string, error) {
+func newNodeMetadata() error {
 	if v1.CurrentRole == "" {
-		return nil, errors.InvalidNodeRole
+		return errors.InvalidNodeRole
 	}
 
 	if v1.Hostname == "" {
-		return nil, errors.InvalidHostname
+		return errors.InvalidHostname
 	}
 
 	if v1.DataCenterName == "" {
-		return nil, errors.InvalidDataCenterName
+		return errors.InvalidDataCenterName
 	}
 
 	if v1.ManagementIp == "" {
-		return nil, errors.InvalidManagementIp
+		return errors.InvalidManagementIp
 	}
 
-	return map[string]string{
+	v1.NodeMetadata = map[string]string{
 		"role":         v1.CurrentRole,
 		"hostname":     v1.Hostname,
 		"dataCenter":   v1.DataCenterName,
@@ -119,7 +127,8 @@ func genNodeMetadata() (map[string]string, error) {
 		"protocol":     conf.Opts.Kind,
 		"ip":           v1.ManagementIp,
 		"isGpuEnabled": fmt.Sprintf("%t", v1.IsGpuEnabled),
-	}, nil
+	}
+	return nil
 }
 
 func genLocalAddr() (string, error) {

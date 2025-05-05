@@ -69,12 +69,6 @@ func initIdentities() error {
 		return err
 	}
 
-	v1.ServiceDiscoveryIdentity, err = parseServiceDiscoveryIdentity()
-	if err != nil {
-		log.Errorf("runtime: failed to parse service discovery identify: %s", err.Error())
-		return err
-	}
-
 	v1.DataCenterVersion, err = cubecos.GetDataCenterVersion()
 	if err != nil {
 		log.Errorf("runtime: failed to get data center version: %s", err.Error())
