@@ -2,6 +2,7 @@ package events
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
@@ -79,12 +80,8 @@ func (h *helper) genSystemRankStmt() string {
 		Measurement("system").
 		Filter(`fn: (r) => r._field == "message"`)
 
-	if h.category != "" {
-		query.Filter(h.genFilter("category", h.category))
-	}
-	if h.severity != "" {
-		query.Filter(h.genFilter("severity", h.severity))
-	}
+	h.setCategoriesFilter(&query)
+	h.setSeveritiesFilter(&query)
 
 	return query.
 		Group(`columns: ["key", "category", "severity"]`).
@@ -105,12 +102,8 @@ func (h *helper) genHostRankStmt() string {
 		Measurement("host").
 		Filter(`fn: (r) => r._field == "message"`)
 
-	if h.category != "" {
-		query.Filter(h.genFilter("category", h.category))
-	}
-	if h.host != "" {
-		query.Filter(h.genFilter("host", h.host))
-	}
+	h.setCategoriesFilter(&query)
+	h.setHostsFilter(&query)
 
 	return query.
 		Group(`columns: ["key", "category", "host"]`).
@@ -131,12 +124,8 @@ func (h *helper) genInstanceRankStmt() string {
 		Measurement("instance").
 		Filter(`fn: (r) => r._field == "message"`)
 
-	if h.category != "" {
-		query.Filter(h.genFilter("category", h.category))
-	}
-	if h.instance != "" {
-		query.Filter(h.genFilter("instance", h.instance))
-	}
+	h.setCategoriesFilter(&query)
+	h.setInstancesFilter(&query)
 
 	return query.
 		Group(`columns: ["key", "category", "instance", "vm_name"]`).
@@ -159,4 +148,65 @@ func (h *helper) genTimeDuration() string {
 		h.Period.Start,
 		h.Period.Stop,
 	)
+}
+
+func (h *helper) setCategoriesFilter(query *influx.Query) {
+	if len(h.categories) != 0 {
+		query.Filter(h.genMutlipleFilters("category", h.categories))
+		return
+	}
+
+	if h.category != "" {
+		query.Filter(h.genFilter("category", h.category))
+	}
+}
+
+func (h *helper) setSeveritiesFilter(query *influx.Query) {
+	if len(h.severities) != 0 {
+		query.Filter(h.genMutlipleFilters("severity", h.severities))
+		return
+	}
+
+	if h.severity != "" {
+		query.Filter(h.genFilter("severity", h.severity))
+	}
+}
+
+func (h *helper) genMutlipleFilters(key string, values []string) string {
+	if len(values) == 0 {
+		return ""
+	}
+
+	filters := []string{}
+	for _, value := range values {
+		filters = append(filters, fmt.Sprintf(`r.%s == "%s"`, key, value))
+	}
+
+	orCondition := strings.Join(filters, " or ")
+	return fmt.Sprintf(
+		`fn: (r) => %s`,
+		orCondition,
+	)
+}
+
+func (h *helper) setHostsFilter(query *influx.Query) {
+	if len(h.hosts) != 0 {
+		query.Filter(h.genMutlipleFilters("host", h.hosts))
+		return
+	}
+
+	if h.host != "" {
+		query.Filter(h.genFilter("host", h.host))
+	}
+}
+
+func (h *helper) setInstancesFilter(query *influx.Query) {
+	if len(h.instances) != 0 {
+		query.Filter(h.genMutlipleFilters("instance", h.instances))
+		return
+	}
+
+	if h.instance != "" {
+		query.Filter(h.genFuzzyFilter("instance", h.instance))
+	}
 }

@@ -260,7 +260,7 @@ func setHostnameToEvent(event *event.Options, metaObj map[string]any) {
 func parseSeverity(record *query.FluxRecord) string {
 	severity, ok := record.ValueByKey("severity").(string)
 	if !ok {
-		log.Warnf("events: failed to parse severity from record: %v", record)
+		log.Debugf("events: failed to parse severity from record: %v", record)
 		return ""
 	}
 
@@ -270,7 +270,7 @@ func parseSeverity(record *query.FluxRecord) string {
 func parseCategory(record *query.FluxRecord) string {
 	category, ok := record.ValueByKey("category").(string)
 	if !ok {
-		log.Warnf("events: failed to parse category from record: %v", record)
+		log.Debugf("events: failed to parse category from record: %v", record)
 		return ""
 	}
 
@@ -280,7 +280,7 @@ func parseCategory(record *query.FluxRecord) string {
 func parseInstanceId(record *query.FluxRecord) string {
 	instanceId, ok := record.ValueByKey("instance").(string)
 	if !ok {
-		log.Warnf("events: failed to parse instance from record: %v", record)
+		log.Debugf("events: failed to parse instance from record: %v", record)
 		return ""
 	}
 
@@ -290,7 +290,7 @@ func parseInstanceId(record *query.FluxRecord) string {
 func parseInstanceName(record *query.FluxRecord) string {
 	instanceName, ok := record.ValueByKey("vm_name").(string)
 	if !ok {
-		log.Warnf("events: failed to parse instance name from record: %v", record)
+		log.Debugf("events: failed to parse instance name from record: %v", record)
 		return ""
 	}
 

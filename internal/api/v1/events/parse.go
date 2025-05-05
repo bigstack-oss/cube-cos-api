@@ -141,12 +141,20 @@ func (h *helper) parseFilterConditions() error {
 			h.eventId = value[0]
 		case "category":
 			h.category = strings.ToUpper(value[0])
+		case "categories":
+			h.categories = h.c.QueryArray("categories")
 		case "severity":
 			h.severity = event.GetSeverityShortName(value[0])
+		case "severities":
+			h.severities = event.GetSeverityFullNames(h.c.QueryArray("severities"))
 		case "host":
 			h.host = value[0]
+		case "hosts":
+			h.hosts = h.c.QueryArray("hosts")
 		case "instance":
 			h.instance = value[0]
+		case "instances":
+			h.instances = h.c.QueryArray("instances")
 		case "keyword":
 			h.keyword = value[0]
 		}

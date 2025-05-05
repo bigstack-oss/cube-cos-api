@@ -15,13 +15,17 @@ type helper struct {
 	c       *gin.Context
 	handler string
 
-	eventType string
-	eventId   string
-	category  string
-	severity  string
-	host      string
-	instance  string
-	keyword   string
+	eventType  string
+	eventId    string
+	category   string
+	categories []string
+	severity   string
+	severities []string
+	host       string
+	hosts      []string
+	instance   string
+	instances  []string
+	keyword    string
 
 	*v1.Period
 	past string

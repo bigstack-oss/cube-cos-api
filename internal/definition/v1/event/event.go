@@ -25,9 +25,13 @@ var (
 	filterConditions = []string{
 		"id",
 		"category",
+		"categories",
 		"severity",
+		"severities",
 		"host",
+		"hosts",
 		"instance",
+		"instances",
 		"keyword",
 	}
 )
@@ -113,6 +117,18 @@ func GetSeverityShortName(severity string) string {
 	}
 
 	return severity
+}
+
+func GetSeverityFullNames(severities []string) []string {
+	names := []string{}
+	for _, severity := range severities {
+		names = append(
+			names,
+			GetSeverityShortName(severity),
+		)
+	}
+
+	return names
 }
 
 func (o *Options) GetSeverityFullName() string {

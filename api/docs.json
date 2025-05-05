@@ -1290,12 +1290,38 @@
                     },
                     {
                         "in": "query",
+                        "name": "categories",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "description": "The categories of the event to query.",
+                        "example": "CPU"
+                    },
+                    {
+                        "in": "query",
                         "name": "severity",
                         "required": false,
                         "schema": {
                             "type": "string"
                         },
                         "description": "The severity of the event to query, the value can be only 'Info', 'Warning', and 'Error'.",
+                        "example": "Info"
+                    },
+                    {
+                        "in": "query",
+                        "name": "severities",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "description": "The severities of the event to query.",
                         "example": "Info"
                     },
                     {
@@ -1310,12 +1336,38 @@
                     },
                     {
                         "in": "query",
+                        "name": "hosts",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "description": "The hosts of the event to query.",
+                        "example": "example-node-0"
+                    },
+                    {
+                        "in": "query",
                         "name": "instance",
                         "required": false,
                         "schema": {
                             "type": "string"
                         },
                         "description": "The instance of the event to query.",
+                        "example": "ccc449e4-a26c-47ac-afc1-c792ab1ed20a"
+                    },
+                    {
+                        "in": "query",
+                        "name": "instances",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "description": "The instances of the event to query.",
                         "example": "ccc449e4-a26c-47ac-afc1-c792ab1ed20a"
                     },
                     {
