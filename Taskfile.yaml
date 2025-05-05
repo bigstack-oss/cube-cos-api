@@ -11,6 +11,7 @@ vars:
   devCosIp: "<REPLACE_WITH_YOUR_DEV_COS_IP>"
   devE2EIp: "10.32.200.12"
   devE2EContainer: "3c_3p_5s"
+  devE2ENode: "10.1.0.1"
   mongoVersion: "6.0.19"
 
 tasks:
@@ -59,6 +60,7 @@ tasks:
       - task: buildLocalBinary
       - task: moveLocalBinaryToRemoteE2E
       - task: moveLocalConfigToRemoteE2E
+      - task: restartRemoteE2ESystemdService
   deployRemoteDevMongo:
     cmds:
       - task: initRemoteCosDevEnv
@@ -96,20 +98,28 @@ tasks:
       - ssh {{.devCosUser}}@{{.devCosIp}} "chown -R {{.apiService}}:{{.apiService}} /usr/local/bin/{{.apiService}}"
   moveLocalBinaryToRemoteE2E:
     cmds:
-      - ssh {{.devCosUser}}@{{.devE2EIp}} "rm /tmp/{{.apiService}}"
-      - scp bin/{{.apiService}} {{.devCosUser}}@{{.devE2EIp}}:/tmp/{{.apiService}}
-      - ssh {{.devCosUser}}@{{.devE2EIp}} "docker cp /tmp/{{.apiService}} {{.devE2EContainer}}:/tmp/{{.apiService}}"
+      - ssh {{.devCosUser}}@{{.devE2EIp}} "rm /opt/{{.apiService}}"
+      - scp bin/{{.apiService}} {{.devCosUser}}@{{.devE2EIp}}:/opt/{{.apiService}}
+      - ssh {{.devCosUser}}@{{.devE2EIp}} "docker cp /opt/{{.apiService}} {{.devE2EContainer}}:/opt/{{.apiService}}"
+      - ssh {{.devCosUser}}@{{.devE2EIp}} "docker exec -i {{.devE2EContainer}} ssh root@{{.devE2ENode}} rm /usr/local/bin/{{.apiService}}"
+      - ssh {{.devCosUser}}@{{.devE2EIp}} "docker exec -i {{.devE2EContainer}} scp /opt/{{.apiService}} root@{{.devE2ENode}}:/usr/local/bin/{{.apiService}}"
+      - ssh {{.devCosUser}}@{{.devE2EIp}} "docker exec -i {{.devE2EContainer}} ssh root@{{.devE2ENode}} chown -R {{.apiService}}:{{.apiService}} /usr/local/bin/{{.apiService}}"
+    ignore_error: true
   moveLocalConfigToRemoteCos:
     cmds:
       - scp configs/{{.apiService}}.yaml.template {{.devCosUser}}@{{.devCosIp}}:/etc/cube/api/cube-cos-api.yaml
       - scp init/cube-cos-api.service {{.devCosUser}}@{{.devCosIp}}:/lib/systemd/system
   moveLocalConfigToRemoteE2E:
     cmds:
-      - scp configs/{{.apiService}}.yaml.template {{.devCosUser}}@{{.devE2EIp}}:/tmp/cube-cos-api.yaml
-      - ssh {{.devCosUser}}@{{.devE2EIp}} "docker cp /tmp/cube-cos-api.yaml {{.devE2EContainer}}:/tmp/cube-cos-api.yaml"
-
+      - scp configs/{{.apiService}}.yaml.template {{.devCosUser}}@{{.devE2EIp}}:/opt/cube-cos-api.yaml
+      - ssh {{.devCosUser}}@{{.devE2EIp}} "docker cp /opt/cube-cos-api.yaml {{.devE2EContainer}}:/opt/cube-cos-api.yaml"
+      - ssh {{.devCosUser}}@{{.devE2EIp}} "docker exec -i {{.devE2EContainer}} ssh root@{{.devE2ENode}} rm /etc/cube/api/cube-cos-api.yaml"
+      - ssh {{.devCosUser}}@{{.devE2EIp}} "docker exec -i {{.devE2EContainer}} scp /opt/cube-cos-api.yaml root@{{.devE2ENode}}:/etc/cube/api/cube-cos-api.yaml"
   activateSystemdService:
     cmds:
       - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl daemon-reload"
       - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl enable cube-cos-api.service"
       - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl restart cube-cos-api.service"
+  restartRemoteE2ESystemdService:
+    cmds:
+      - ssh {{.devCosUser}}@{{.devE2EIp}} "docker exec -i {{.devE2EContainer}} ssh root@{{.devE2ENode}} systemctl restart cube-cos-api.service"
