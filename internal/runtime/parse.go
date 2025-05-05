@@ -12,6 +12,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func isControlNode() (bool, error) {
+	switch v1.CurrentRole {
+	case v1.RoleControl, v1.RoleControlConverged, v1.RoleModerator:
+		return true, nil
+	case v1.RoleCompute, v1.RoleStorage, v1.RoleEdgeCore:
+		return false, nil
+	}
+
+	return false, errors.InvalidNodeRole
+}
+
 func newServiceDiscoveryIdentity() error {
 	if v1.DataCenterName == "" {
 		return errors.InvalidDataCenterName

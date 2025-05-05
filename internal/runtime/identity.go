@@ -27,6 +27,12 @@ func initIdentities() error {
 		return err
 	}
 
+	v1.IsControlNode, err = isControlNode()
+	if err != nil {
+		log.Errorf("runtime: failed to check if control node: %s", err.Error())
+		return err
+	}
+
 	v1.IsHaEnabled, err = cubecos.IsHaEnabled()
 	if err != nil {
 		log.Errorf("runtime: failed to get ha enabled: %s", err.Error())

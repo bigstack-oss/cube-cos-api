@@ -39,6 +39,7 @@ var (
 	ManagementIp             string
 	StorageNet               string
 	StorageIP                string
+	IsControlNode            bool
 	IsHaEnabled              bool
 	IsGpuEnabled             bool
 	NodeMetadata             map[string]string
@@ -244,7 +245,7 @@ func (n *Node) PatchSettingTaskUrl(setting setting.Options) string {
 }
 
 func (n *Node) IsLocal() bool {
-	return n.Address == AdvertiseAddr && n.Role == CurrentRole
+	return n.Address == AdvertiseAddr && n.Hostname == Hostname
 }
 
 func (n *Node) IsDown() bool {

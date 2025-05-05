@@ -153,19 +153,32 @@ func (o *Operator) getLicenseByHostname(hostname string) v1.License {
 }
 
 func (o *Operator) setNodeInfraSpec(node *v1.Node) {
-	h := openstack.GetGlobalHelper()
-	hypervisor, err := h.GetHypervisorByHostname(node.Hostname)
-	if err != nil {
-		log.Debugf("nodes: failed to add hypervisor info to the node: %s", err.Error())
-		return
-	}
-
-	node.ManagementIP = node.Ip
-	node.StorageIP = node.Ip
-	node.Status = hypervisor.State
+	node.ManagementIP = v1.ManagementIp
+	node.StorageIP = v1.StorageIP
+	o.setNodeStatus(node)
 	o.setHardwareInfoToNode(node)
 	o.setMetricToNode(node)
 	o.setUptimeToNode(node)
+}
+
+func (o *Operator) setNodeStatus(node *v1.Node) {
+	switch v1.CurrentRole {
+	case v1.RoleControl, v1.RoleControlConverged, v1.RoleModerator, v1.RoleStorage:
+		node.Status = status.Up
+	case v1.RoleCompute, v1.RoleEdgeCore:
+		o.setComputeNodeStatus(node)
+	}
+}
+
+func (o *Operator) setComputeNodeStatus(node *v1.Node) {
+	h := openstack.GetGlobalHelper()
+	hypervisor, err := h.GetHypervisorByHostname(node.Hostname)
+	if err != nil {
+		log.Errorf("nodes: failed to add hypervisor info to the node: %s", err.Error())
+		return
+	}
+
+	node.Status = hypervisor.State
 }
 
 func (o *Operator) setHardwareInfoToNode(node *v1.Node) {
