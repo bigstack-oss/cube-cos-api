@@ -126,9 +126,6 @@ func (h *helper) backfillTuningInfoByHandler(tuning v1.Tuning) {
 }
 
 func (h *helper) delegateToOtherNode(node *v1.Node) error {
-	b, _ := json.Marshal(genTuningUpdate(h.tuning, node))
-	log.Infof("tunings: delegate %s to %s: %s", h.tuning.Name, node.Hostname, string(b))
-
 	http := cubeHttp.GetGlobalHelper()
 	resp, err := http.R().
 		SetHeaders(v1.GenNodeAuthHeaders()).

@@ -1,7 +1,6 @@
 package tunings
 
 import (
-	"encoding/json"
 	"errors"
 	"sort"
 
@@ -109,19 +108,11 @@ func (h *helper) parseTuningEnablement() error {
 }
 
 func (h *helper) isTuningModified() bool {
-	log.Infof("----------------")
-	log.Infof("h.tuning.Name: %s", h.tuning.Name)
-	log.Infof("h.hosts: %v", h.toggle.Hosts)
-	log.Infof("h.value: %v", h.toggle.Enable)
-
 	tuning, err := h.getTuningByNameAndHosts(h.tuning.Name, h.toggle.Hosts)
 	if err != nil {
 		log.Errorf("tunings(%s): failed to get tuning: %s", api.GetReqId(h.c), err.Error())
 		return false
 	}
-
-	b, _ := json.Marshal(tuning)
-	log.Infof(string(b))
 
 	return tuning.IsModified
 }

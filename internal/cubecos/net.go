@@ -9,16 +9,34 @@ import (
 const ()
 
 func GetControllerVirtualIp(mgmtNet string) (string, error) {
-	if v1.IsHaEnabled {
-		return GetTuningValue(CubeSysControllerVip)
+	if !v1.IsHaEnabled {
+		return GetStandaloneVirtualIp(mgmtNet)
 	}
 
+	return GetClusterVirtualIp()
+}
+
+func GetStandaloneVirtualIp(mgmtNet string) (string, error) {
 	if mgmtNet == "" {
 		return "", fmt.Errorf("management network is empty")
 	}
 
 	netIfAddrMgmtIp := fmt.Sprintf("%s%s", CubeNetIfAddrPrefix, mgmtNet)
 	return GetTuningValue(netIfAddrMgmtIp)
+}
+
+func GetClusterVirtualIp() (string, error) {
+	switch v1.CurrentRole {
+	case v1.RoleControl, v1.RoleControlConverged, v1.RoleModerator:
+		return GetTuningValue(CubeSysControllerVip)
+	case v1.RoleCompute, v1.RoleStorage, v1.RoleEdgeCore:
+		return GetTuningValue(CubeSysControllerIp)
+	}
+
+	return "", fmt.Errorf(
+		"unsupported role for reading cluster virtual ip: %s",
+		v1.CurrentRole,
+	)
 }
 
 func GetManagementNet() (string, error) {

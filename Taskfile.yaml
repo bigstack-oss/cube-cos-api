@@ -9,6 +9,8 @@ vars:
   dbReplicaSet: "cube-cos-rs"
   devCosUser: "root"
   devCosIp: "<REPLACE_WITH_YOUR_DEV_COS_IP>"
+  devE2EIp: "10.32.200.12"
+  devE2EContainer: "3c_3p_5s"
   mongoVersion: "6.0.19"
 
 tasks:
@@ -52,6 +54,11 @@ tasks:
       - task: moveLocalBinaryToRemoteCos
       - task: moveLocalConfigToRemoteCos
       - task: activateSystemdService
+  deployRemoteE2EApi:
+    cmds:
+      - task: buildLocalBinary
+      - task: moveLocalBinaryToRemoteE2E
+      - task: moveLocalConfigToRemoteE2E
   deployRemoteDevMongo:
     cmds:
       - task: initRemoteCosDevEnv
@@ -87,10 +94,20 @@ tasks:
       - ssh {{.devCosUser}}@{{.devCosIp}} "rm /usr/local/bin/{{.apiService}}"
       - scp bin/{{.apiService}} {{.devCosUser}}@{{.devCosIp}}:/usr/local/bin/{{.apiService}}
       - ssh {{.devCosUser}}@{{.devCosIp}} "chown -R {{.apiService}}:{{.apiService}} /usr/local/bin/{{.apiService}}"
+  moveLocalBinaryToRemoteE2E:
+    cmds:
+      - ssh {{.devCosUser}}@{{.devE2EIp}} "rm /tmp/{{.apiService}}"
+      - scp bin/{{.apiService}} {{.devCosUser}}@{{.devE2EIp}}:/tmp/{{.apiService}}
+      - ssh {{.devCosUser}}@{{.devE2EIp}} "docker cp /tmp/{{.apiService}} {{.devE2EContainer}}:/tmp/{{.apiService}}"
   moveLocalConfigToRemoteCos:
     cmds:
       - scp configs/{{.apiService}}.yaml.template {{.devCosUser}}@{{.devCosIp}}:/etc/cube/api/cube-cos-api.yaml
       - scp init/cube-cos-api.service {{.devCosUser}}@{{.devCosIp}}:/lib/systemd/system
+  moveLocalConfigToRemoteE2E:
+    cmds:
+      - scp configs/{{.apiService}}.yaml.template {{.devCosUser}}@{{.devE2EIp}}:/tmp/cube-cos-api.yaml
+      - ssh {{.devCosUser}}@{{.devE2EIp}} "docker cp /tmp/cube-cos-api.yaml {{.devE2EContainer}}:/tmp/cube-cos-api.yaml"
+
   activateSystemdService:
     cmds:
       - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl daemon-reload"
