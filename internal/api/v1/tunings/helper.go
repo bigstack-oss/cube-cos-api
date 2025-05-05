@@ -1,6 +1,7 @@
 package tunings
 
 import (
+	"encoding/json"
 	"errors"
 	"sort"
 
@@ -70,7 +71,7 @@ func (h *helper) parseTuningReset() error {
 	}
 
 	h.tuning.Name = name
-	if !h.hasTuningModified() {
+	if !h.isTuningModified() {
 		return errors.New("can't reset unmodified tuning")
 	}
 
@@ -90,27 +91,44 @@ func (h *helper) parseTuningEnablement() error {
 	}
 
 	h.tuning.Name = h.c.Param("parameterName")
-	if !h.hasTuningModified() {
+	if !h.isTuningModified() {
 		return errors.New("can't enable/disable unmodified tuning")
 	}
 
+	tuning, err := h.getTuningByNameAndHosts(h.tuning.Name, h.toggle.Hosts)
+	if err != nil {
+		log.Errorf("tunings(%s): failed to get tuning: %s", api.GetReqId(h.c), err.Error())
+		return err
+	}
+
+	h.tuning = *tuning
 	h.tuning.Enabled = h.toggle.Enable
 	h.tuning.InitUpdateStatus()
 	h.tuning.InitHosts(h.toggle.Hosts)
 	return nil
 }
 
-func (h *helper) hasTuningModified() bool {
-	tuning, err := h.getTuningByNameAndHosts(h.tuning.Name, h.hosts)
+func (h *helper) isTuningModified() bool {
+	log.Infof("----------------")
+	log.Infof("h.tuning.Name: %s", h.tuning.Name)
+	log.Infof("h.hosts: %v", h.toggle.Hosts)
+	log.Infof("h.value: %v", h.toggle.Enable)
+
+	tuning, err := h.getTuningByNameAndHosts(h.tuning.Name, h.toggle.Hosts)
 	if err != nil {
+		log.Errorf("tunings(%s): failed to get tuning: %s", api.GetReqId(h.c), err.Error())
 		return false
 	}
+
+	b, _ := json.Marshal(tuning)
+	log.Infof(string(b))
 
 	return tuning.IsModified
 }
 
 func (h *helper) convertUpdateToTuning() {
 	h.tuning.Name = h.c.Param("parameterName")
+	h.tuning.Enabled = h.update.Enabled
 	h.tuning.Value = h.update.Value
 	h.tuning.InitUpdateStatus()
 	h.tuning.InitHosts(h.update.Hosts)

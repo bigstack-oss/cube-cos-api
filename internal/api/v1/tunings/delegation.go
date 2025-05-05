@@ -1,6 +1,7 @@
 package tunings
 
 import (
+	"encoding/json"
 	"errors"
 
 	cubeHttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
@@ -12,19 +13,41 @@ import (
 
 func (h *helper) delegateTuningReq() {
 	for _, host := range h.tuning.Hosts {
-		tuning, err := h.getTuningByNameAndHost(h.tuning.Name, host.Name)
-		if err != nil {
-			log.Errorf("failed to get tuning %s for host %s: %s", h.tuning.Name, host.Name, err.Error())
-			continue
-		}
-
 		node := host.GetNode()
 		if node == nil {
-			log.Errorf("failed to get node by hostname(%s)", host.Name)
+			log.Errorf("tuning: failed to get node by hostname(%s)", host.Name)
 			continue
 		}
 
-		h.backfillTuningInfoByHandler(*tuning)
+		h.backfillTuningInfoByHandler(h.tuning)
+		if node.IsLocal() {
+			b, _ := json.Marshal(h.tuning)
+			log.Infof("tuning %s: node %s is local: %s", h.tuning.Name, node.Hostname, string(b))
+			delegateToLocal(h.tuning)
+			continue
+		}
+
+		if node.IsDown() {
+			log.Errorf("tuning %s: node %s is down, cannot delegate", h.tuning.Name, node.Hostname)
+			continue
+		}
+
+		err := h.delegateToOtherNode(node)
+		if err != nil {
+			log.Errorf("tuning: failed to delegate %s to %s: %s", h.tuning.Name, node.Hostname, err.Error())
+		}
+	}
+}
+
+func (h *helper) delegateTuningToggleReq() {
+	for _, host := range h.tuning.Hosts {
+		node := host.GetNode()
+		if node == nil {
+			log.Errorf("tuning: failed to get node by hostname(%s)", host.Name)
+			continue
+		}
+
+		h.backfillTuningInfoByHandler(h.tuning)
 		if node.IsLocal() {
 			delegateToLocal(h.tuning)
 			continue
@@ -35,9 +58,9 @@ func (h *helper) delegateTuningReq() {
 			continue
 		}
 
-		err = h.delegateToOtherNode(node)
+		err := h.delegateToOtherNode(node)
 		if err != nil {
-			log.Errorf("failed to delegate %s to %s: %s", h.tuning.Name, node.Hostname, err.Error())
+			log.Errorf("tuning: failed to delegate %s to %s: %s", h.tuning.Name, node.Hostname, err.Error())
 		}
 	}
 }
@@ -103,6 +126,9 @@ func (h *helper) backfillTuningInfoByHandler(tuning v1.Tuning) {
 }
 
 func (h *helper) delegateToOtherNode(node *v1.Node) error {
+	b, _ := json.Marshal(genTuningUpdate(h.tuning, node))
+	log.Infof("tunings: delegate %s to %s: %s", h.tuning.Name, node.Hostname, string(b))
+
 	http := cubeHttp.GetGlobalHelper()
 	resp, err := http.R().
 		SetHeaders(v1.GenNodeAuthHeaders()).
@@ -123,7 +149,8 @@ func (h *helper) delegateToOtherNode(node *v1.Node) error {
 
 func genTuningUpdate(tuning v1.Tuning, node *v1.Node) *v1.TuningUpdate {
 	return &v1.TuningUpdate{
-		Value: tuning.Value,
-		Hosts: []string{node.Hostname},
+		Value:   tuning.Value,
+		Enabled: tuning.Enabled,
+		Hosts:   []string{node.Hostname},
 	}
 }

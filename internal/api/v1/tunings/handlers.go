@@ -213,7 +213,7 @@ func enableOrDisableTuning(c *gin.Context) {
 		return
 	}
 
-	h.delegateTuningReq()
+	h.delegateTuningToggleReq()
 	api.SetStatusAccepted(
 		c,
 		"tuning enable or disable request received",

@@ -88,8 +88,9 @@ type TuningReset struct {
 }
 
 type TuningUpdate struct {
-	Value any      `json:"value"`
-	Hosts []string `json:"hosts"`
+	Value   any      `json:"value"`
+	Enabled bool     `json:"enabled"`
+	Hosts   []string `json:"hosts"`
 }
 
 type TuningToggle struct {
@@ -130,8 +131,13 @@ func (t *Tuning) IncludeHost(hostname string) bool {
 }
 
 func (t *Tuning) IncludeHosts(hosts []string) bool {
+	hostSlice := []string{}
+	for _, host := range t.Hosts {
+		hostSlice = append(hostSlice, host.Name)
+	}
+
 	for _, host := range hosts {
-		if !t.IncludeHost(host) {
+		if !slices.Contains(hostSlice, host) {
 			return false
 		}
 	}
@@ -140,6 +146,7 @@ func (t *Tuning) IncludeHosts(hosts []string) bool {
 }
 
 func (t *Tuning) InitHosts(hosts []string) {
+	t.Hosts = []Host{}
 	for _, host := range hosts {
 		t.Hosts = append(t.Hosts, Host{Name: host})
 	}
