@@ -19,7 +19,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
@@ -168,11 +167,6 @@ func UploadSupportFileToObjectStore(supportFile support.File) error {
 	}
 
 	defer file.Close()
-	err = SyncBucketSecret()
-	if err != nil {
-		return err
-	}
-
 	err = SyncBucketStore()
 	if err != nil {
 		return err
@@ -208,31 +202,6 @@ func SyncBucketStore() error {
 
 	var isBucketAlreadyExists *types.BucketAlreadyExists
 	if !errors.As(err, &isBucketAlreadyExists) {
-		return err
-	}
-
-	return nil
-}
-
-func SyncBucketSecret() error {
-	h := openstack.GetGlobalHelper()
-	accessKey := config.Opts.Spec.Aws.AccessKey
-	secretKey := config.Opts.Spec.Aws.SecretKey
-	userId, err := h.GetUserIdByName(accessKey)
-	if err != nil {
-		return err
-	}
-
-	projectId, err := h.GetProjectIdByName(secretKey)
-	if err != nil {
-		return err
-	}
-
-	_, err = h.CreateEc2Credential(userId, projectId, accessKey, secretKey)
-	if err == nil {
-		return nil
-	}
-	if !strings.Contains(err.Error(), "Conflict") {
 		return err
 	}
 

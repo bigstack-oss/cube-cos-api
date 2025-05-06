@@ -12,6 +12,7 @@ import (
 	bslog "github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
+	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
@@ -19,6 +20,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
+	"github.com/gophercloud/gophercloud/v2"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -90,16 +92,7 @@ func newGlobalHelpers() error {
 		return err
 	}
 
-	err = newGlobalAwsHelper()
-	if err != nil {
-		log.Warnf("runtime: failed to init aws helper: %s", err.Error())
-	}
-
-	return nil
-}
-
-func newAuthIdentities() error {
-	err := newKeycloakOidcAuth()
+	err = newKeycloakOidcAuth()
 	if err != nil {
 		log.Errorf("runtime: failed to init oidc auth in keycloak: %s", err.Error())
 		return err
@@ -111,7 +104,16 @@ func newAuthIdentities() error {
 		return err
 	}
 
-	err = newDefaultNodeToken()
+	err = newGlobalAwsHelper()
+	if err != nil {
+		log.Warnf("runtime: failed to init aws helper: %s", err.Error())
+	}
+
+	return nil
+}
+
+func newAuthIdentities() error {
+	err := newDefaultNodeToken()
 	if err != nil {
 		log.Errorf("runtime: failed to init node token: %s", err.Error())
 		return err
@@ -120,6 +122,12 @@ func newAuthIdentities() error {
 	err = newKeycloakSamlMapper()
 	if err != nil {
 		log.Errorf("runtime: failed to init saml mapper in keycloak: %s", err.Error())
+		return err
+	}
+
+	err = newBucketSecret()
+	if err != nil {
+		log.Errorf("runtime: failed to init bucket secret: %s", err.Error())
 		return err
 	}
 
@@ -204,7 +212,7 @@ func newGlobalLogHelper() error {
 }
 
 func newGlobalMongoHelper() error {
-	opts := conf.Opts.Spec.Store.MongoDB
+	opts := parseMongoOpts()
 	return mongo.NewGlobalHelper(
 		mongo.Uri(opts.Uri),
 		mongo.AuthEnable(opts.Auth.Enable),
@@ -216,7 +224,7 @@ func newGlobalMongoHelper() error {
 }
 
 func newGlobalInfluxHelper() error {
-	opts := conf.Opts.Spec.Store.InfluxDB
+	opts := parseInfluxOpts()
 	return influx.NewGlobalHelper(
 		influx.Url(opts.Url),
 	)
@@ -245,6 +253,11 @@ func newGlobalOpenstackHelper() error {
 
 func newGlobalAwsHelper() error {
 	opts := conf.Opts.Spec.Aws
+	if opts.SecretKey == "" {
+		conf.Opts.Spec.Aws.SecretKey = v1.DefaultOidcClientSecret
+		opts.SecretKey = v1.DefaultOidcClientSecret
+	}
+
 	return aws.NewGlobalHelper(
 		aws.Region(opts.Region),
 		aws.EnableStaticCreds(opts.EnableStaticCreds),
@@ -358,6 +371,35 @@ func newKeycloakSamlMapper() error {
 		*client.ID,
 		genSamlMapper(),
 	)
+}
+
+func newBucketSecret() error {
+	h := openstack.GetGlobalHelper()
+	accessKey := config.Opts.Spec.Aws.AccessKey
+	secretKey := config.Opts.Spec.Aws.SecretKey
+	if secretKey == "" {
+		secretKey = v1.DefaultOidcClientSecret
+	}
+
+	userId, err := h.GetUserIdByName(accessKey)
+	if err != nil {
+		return err
+	}
+
+	projectId, err := h.GetProjectIdByName(v1.DefaultAdminProject)
+	if err != nil {
+		return err
+	}
+
+	_, err = h.CreateEc2Credential(userId, projectId, accessKey, secretKey)
+	if err == nil {
+		return nil
+	}
+	if gophercloud.ResponseCodeIs(err, http.StatusConflict) {
+		return nil
+	}
+
+	return err
 }
 
 func genSamlMapper() gocloak.ProtocolMapperRepresentation {

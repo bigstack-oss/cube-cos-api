@@ -21,7 +21,8 @@ var (
 	DefaultApiServerCert       = "/var/www/certs/server.cert"
 	DefaultIdentifierFormat    = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
 
-	DefaultOidcClientId     = "token-connect"
+	DefaultAdminProject     = "admin"
+	DefaultOidcClientId     = "cube-cos-api"
 	DefaultOidcClientSecret = ""
 	DefaultOidcClientOpts   = gocloak.Client{
 		ClientID:                  gocloak.StringP(DefaultOidcClientId),

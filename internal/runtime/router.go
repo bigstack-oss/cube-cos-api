@@ -253,14 +253,13 @@ func timeTracker(c *gin.Context) {
 	}
 
 	log.Infof(
-		"request(%s): %s %s%s (%s)",
+		"req(%s): %s %s%s (%s)",
 		reqId,
 		c.Request.Method,
 		c.Request.URL.Path,
 		parseParams(c),
 		elapsed,
 	)
-
 }
 
 func initReqInfo(c *gin.Context) {
