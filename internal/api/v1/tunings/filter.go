@@ -1,6 +1,8 @@
 package tunings
 
 import (
+	"slices"
+
 	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
@@ -125,7 +127,7 @@ func (h *helper) filteredByHosts(tunings []v1.Tuning) []v1.Tuning {
 func (h *helper) filteredByModified(tunings []v1.Tuning) []v1.Tuning {
 	filtered := []v1.Tuning{}
 	for _, tuning := range tunings {
-		if tuning.IsModified == h.modified {
+		if slices.Contains(h.modified, tuning.IsModified) {
 			filtered = append(filtered, tuning)
 		}
 	}

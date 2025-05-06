@@ -14,12 +14,30 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func sendTrialEmail(sender emailv1.Sender, recipient string) error {
+func sendTrialEmail(sender *emailv1.Sender, recipient string) error {
 	err := email.Send(
 		sender.Address(),
 		sender.UserAuth(),
 		sender.From,
 		[]string{recipient},
+		[]byte("Subject: Test Email\n\nHi, \nThis is a test email to verify that our email delivery system is working correctly. If you received this message, it means the email route is functioning as expected. No further action is required.\nBest."),
+	)
+	if err != nil {
+		log.Errorf("settings: failed to send trial email (%s)", err.Error())
+		return fmt.Errorf(
+			"failed to send trial email, please make sure the email sender setting is correct",
+		)
+	}
+
+	return nil
+}
+
+func (h *helper) sendTrialEmail(sender *emailv1.Sender) error {
+	err := email.Send(
+		sender.Address(),
+		sender.UserAuth(),
+		sender.From,
+		[]string{h.recipientEmail},
 		[]byte("Subject: Test Email\n\nHi, \nThis is a test email to verify that our email delivery system is working correctly. If you received this message, it means the email route is functioning as expected. No further action is required.\nBest."),
 	)
 	if err != nil {

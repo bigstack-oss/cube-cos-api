@@ -13,6 +13,24 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+func (h *helper) updateEmailSenderRecord() error {
+	return h.mongo.UpdateOne(
+		setting.DB,
+		email.SenderCollection,
+		bson.M{"host": h.emailSender},
+		bson.M{
+			"$set": bson.M{
+				"host":           h.task.Sender.Host,
+				"port":           h.task.Sender.Port,
+				"username":       h.task.Sender.Username,
+				"password":       h.task.Sender.Password,
+				"from":           h.task.Sender.From,
+				"accessVerified": h.task.Sender.AccessVerified,
+			},
+		},
+	)
+}
+
 func (h *helper) eraseSenderPassword(senders *[]email.Sender) {
 	for i := range *senders {
 		(*senders)[i].ErasePassword()

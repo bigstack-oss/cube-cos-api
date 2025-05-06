@@ -6477,9 +6477,12 @@ const docTemplate = `{
                         "name": "modified",
                         "required": false,
                         "schema": {
-                            "type": "boolean"
+                            "type": "array",
+                            "items": {
+                                "type": "boolean"
+                            }
                         },
-                        "description": "The flag to filter the modified tunings",
+                        "description": "The flag to filter the modified or unmodified tunings",
                         "example": true
                     }
                 ],

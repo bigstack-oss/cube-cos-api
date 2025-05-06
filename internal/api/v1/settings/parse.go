@@ -53,8 +53,8 @@ func (h *helper) initEmailSenderCreateParams() error {
 }
 
 func (h *helper) initEmailSenderPatchParams() error {
-	host := h.c.Param("senderHost")
-	if host == "" {
+	h.emailSender = h.c.Param("senderHost")
+	if h.emailSender == "" {
 		return errors.New("email sender host is empty")
 	}
 
@@ -65,7 +65,7 @@ func (h *helper) initEmailSenderPatchParams() error {
 	}
 
 	if h.task.Sender.Host == "" {
-		h.task.Sender.Host = host
+		h.task.Sender.Host = h.emailSender
 	}
 
 	h.task.Key = h.task.Sender.Host
@@ -108,6 +108,15 @@ func (h *helper) initEmailRecipientCreateParams() error {
 	h.task.Key = h.task.Recipient.Address
 	h.task.InitCreateStatus()
 	h.task.ShouldReportToController = h.isClusterWiseRequired
+
+	return nil
+}
+
+func (h *helper) initEmailRecipientTrialParams() error {
+	h.recipientEmail = h.c.Param("recipientEmail")
+	if !isRecipientExist(h.recipientEmail) {
+		return errors.New("recipient not found")
+	}
 
 	return nil
 }

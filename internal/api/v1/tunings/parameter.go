@@ -57,7 +57,13 @@ func (h *helper) parseHosts() {
 }
 
 func (h *helper) parseModified() {
-	h.modified = h.c.DefaultQuery("modified", "false") == "true"
+	modifies := h.c.QueryArray("modified")
+	for _, m := range modifies {
+		h.modified = append(
+			h.modified,
+			strings.ToLower(m) == "true",
+		)
+	}
 }
 
 func (h *helper) parseWatch() {

@@ -2,6 +2,7 @@ package settings
 
 import (
 	"context"
+	"errors"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	cubemongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
@@ -25,11 +26,13 @@ type helper struct {
 
 	handler               string
 	task                  *setting.Options
+	emailSender           string
+	recipientEmail        string
 	rawBody               []byte
 	isClusterWiseRequired bool
 }
 
-func initReqHelper(c *gin.Context, handler string) (*helper, error) {
+func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{
 		c:                     c,
 		handler:               handler,
@@ -51,6 +54,8 @@ func initReqHelper(c *gin.Context, handler string) (*helper, error) {
 		err = h.initEmailSenderDeleteParams()
 	case "createEmailRecipient":
 		err = h.initEmailRecipientCreateParams()
+	case "tryEmailRecipient":
+		err = h.initEmailRecipientTrialParams()
 	case "patchEmailRecipient":
 		err = h.initEmailRecipientPatchParams()
 	case "deleteEmailRecipient":
@@ -461,4 +466,31 @@ func (h *helper) parseTitlePrefixUpdateValue(c *mongo.Cursor, titlePrefix *setti
 		titlePrefix.Value = req.Value.(string)
 		break
 	}
+}
+
+func (h *helper) getVerifiedEmailSender() (*email.Sender, error) {
+	senders, err := cubecos.GetEmailSenders()
+	if err != nil {
+		return nil, err
+	}
+	if len(senders) == 0 {
+		return nil, errors.New("no email sender found")
+	}
+
+	sender := senders[0]
+	mongo := cubemongo.GetGlobalHelper()
+	count, err := mongo.GetCount(
+		setting.DB,
+		email.SenderCollection,
+		bson.M{"host": sender.Host, "accessVerified": true},
+	)
+	if err != nil {
+		log.Errorf("settings: failed to check email sender verification (%s)", err.Error())
+		return nil, err
+	}
+	if count == 0 {
+		return nil, errors.New("email sender not verified")
+	}
+
+	return &sender, nil
 }

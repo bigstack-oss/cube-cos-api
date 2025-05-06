@@ -23,7 +23,7 @@ type helper struct {
 	allNodes bool
 	hosts    []string
 	keyword  string
-	modified bool
+	modified []bool
 
 	v1.Page
 	watch bool
