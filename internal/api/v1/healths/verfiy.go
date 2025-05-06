@@ -5,7 +5,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/errors"
 )
 
-func checkEnvCondition() error {
+func (h *helper) checkEnvCondition() error {
 	if cubecos.IsRepairing() {
 		return errors.DataCenterIsRepairing
 	}

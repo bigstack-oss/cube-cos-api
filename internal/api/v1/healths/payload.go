@@ -8,12 +8,12 @@ import (
 )
 
 func (h *helper) genServiceHealthHistory() []cubecos.HealthStatus {
-	return cubecos.GetServiceHealthHistory(h.service, h.past)
+	return cubecos.GetServiceHealthHistory(h.serviceType, h.past)
 }
 
 func (h *helper) genModuleHealthHistory() cubecos.HealthStatus {
-	service := cubecos.ModuleToService[h.module]
-	history, err := cubecos.GetModuleHealthHistory(h.module, h.past, v1.AscSort, false)
+	service := cubecos.ModuleToService[h.moduleType]
+	history, err := cubecos.GetModuleHealthHistory(h.moduleType, h.past, v1.AscSort, false)
 	if err != nil {
 		log.Errorf("healths(%s): %v", api.GetReqId(h.c), err)
 	}
@@ -21,8 +21,8 @@ func (h *helper) genModuleHealthHistory() cubecos.HealthStatus {
 	return cubecos.HealthStatus{
 		Category:     cubecos.ServiceToCategory[service],
 		Name:         service,
-		Module:       h.module,
-		IsRepairable: cubecos.IsRepairableModule(h.module),
+		Module:       h.moduleType,
+		IsRepairable: cubecos.IsRepairableModule(h.moduleType),
 		History:      history,
 	}
 }
@@ -46,5 +46,6 @@ func genForceRepairReq(module v1.Module) *cubecos.Health {
 			Modules:  []v1.Module{module},
 		},
 	}
+
 	return h
 }

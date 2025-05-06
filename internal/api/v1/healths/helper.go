@@ -2,69 +2,41 @@ package healths
 
 import (
 	"fmt"
-	"time"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
-	duration "github.com/xhit/go-str2duration"
 )
 
 type helper struct {
-	c *gin.Context
-
-	service string
-	module  string
+	c       *gin.Context
 	handler string
 
-	period
-	past string
+	serviceType string
+	moduleType  string
+	module      *v1.Module
 
-	v1.Page
+	period *v1.Period
+	past   string
+
 	watch bool
-}
-
-type period struct {
-	start string
-	stop  string
-}
-
-func (p period) StartTime() time.Time {
-	t, err := time.Parse(time.RFC3339, p.start)
-	if err != nil {
-		return time.Now().Add(-time.Hour)
-	}
-
-	return t
-}
-
-func (p period) StopTime() time.Time {
-	t, err := time.Parse(time.RFC3339, p.stop)
-	if err != nil {
-		return time.Now()
-	}
-
-	return t
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{c: c, handler: handler}
+	var err error
+
 	switch h.handler {
 	case "getHealthSummary":
-		return h.parseSummaryParams()
+		err = h.parseSummaryParams()
 	case "genServiceHealthHistory":
-		return h.parseServiceHealthParams()
+		err = h.parseServiceHealthParams()
 	case "getModuleHealthHistory":
-		return h.parseModuleHealthParams()
+		err = h.parseModuleHealthParams()
+	case "forceRepairModule":
+		err = h.parseModuleRepairParams()
 	}
-
-	return h, nil
-}
-
-func (h *helper) parseSummaryParams() (*helper, error) {
-	h.parseWatch()
-
-	err := h.parsePast()
 	if err != nil {
 		return nil, err
 	}
@@ -72,108 +44,82 @@ func (h *helper) parseSummaryParams() (*helper, error) {
 	return h, nil
 }
 
-func (h *helper) parseServiceHealthParams() (*helper, error) {
-	h.parseWatch()
-
-	err := h.parsePast()
+func (h *helper) parseSummaryParams() error {
+	var err error
+	h.watch, err = query.GetWatch(h.c)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	err = h.parsePeriod()
+	h.past, err = query.GetPast(h.c)
 	if err != nil {
-		return nil, err
-	}
-
-	h.service = h.c.Param("serviceType")
-	if !cubecos.IsValidService(h.service) {
-		return nil, fmt.Errorf("invalid serviceType: %s", h.service)
-	}
-
-	return h, nil
-}
-
-func (h *helper) parseModuleHealthParams() (*helper, error) {
-	h.parseWatch()
-
-	err := h.parsePast()
-	if err != nil {
-		return nil, err
-	}
-
-	err = h.parsePeriod()
-	if err != nil {
-		return nil, err
-	}
-
-	h.service = h.c.Param("serviceType")
-	if !cubecos.IsValidService(h.service) {
-		return nil, fmt.Errorf("invalid serviceType: %s", h.service)
-	}
-
-	h.module = h.c.Param("moduleType")
-	if !cubecos.IsValidServiceAndModule(h.service, h.module) {
-		return nil, fmt.Errorf("invalid serviceType' %s' or module '%s'", h.service, h.module)
-	}
-
-	return h, nil
-}
-
-func (h *helper) parsePeriod() error {
-	if h.arePeriodAndPastRequired() {
-		return fmt.Errorf("'past' and 'start'/'stop' cannot be used together")
-	}
-
-	qStart := h.c.DefaultQuery("start", v1.TimeRFC3339(-time.Hour))
-	start, err := time.Parse(time.RFC3339, qStart)
-	if err != nil {
-		return fmt.Errorf("'start' time format should be aligned with RFC3339: %s", qStart)
-	}
-
-	qStop := h.c.DefaultQuery("stop", v1.TimeNowRFC3339())
-	stop, err := time.Parse(time.RFC3339, qStop)
-	if err != nil {
-		return fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", qStop)
-	}
-
-	if stop.Before(start) {
-		return fmt.Errorf("'stop' time should be after 'start' time(start: %s, stop: %s)", start, stop)
-	}
-
-	h.period = period{
-		start: v1.TimeUTC(start),
-		stop:  v1.TimeUTC(stop),
-	}
-	return nil
-}
-
-func (h *helper) parseWatch() {
-	h.watch = h.c.DefaultQuery("watch", "false") == "true"
-}
-
-func (h *helper) parsePast() error {
-	h.past = h.c.DefaultQuery("past", "")
-	if h.past == "" {
-		h.past = defaultPastOneHour
-	}
-
-	_, err := duration.Str2Duration(h.past)
-	if err != nil {
-		return fmt.Errorf("invalid 'past' duration: %s", h.past)
+		return err
 	}
 
 	return nil
 }
 
-func (h *helper) arePeriodAndPastRequired() bool {
-	return h.isPeriodRequired() && h.isPastRequired()
+func (h *helper) parseServiceHealthParams() error {
+	var err error
+	h.watch, err = query.GetWatch(h.c)
+	if err != nil {
+		return err
+	}
+
+	h.past, err = query.GetPast(h.c)
+	if err != nil {
+		return err
+	}
+
+	h.period, err = query.GetPeriod(h.c)
+	if err != nil {
+		return err
+	}
+
+	h.serviceType = h.c.Param("serviceType")
+	if !cubecos.IsValidService(h.serviceType) {
+		return fmt.Errorf("invalid serviceType: %s", h.serviceType)
+	}
+
+	return nil
 }
 
-func (h *helper) isPeriodRequired() bool {
-	return h.c.DefaultQuery("stop", "") != "" || h.c.DefaultQuery("start", "") != ""
+func (h *helper) parseModuleHealthParams() error {
+	var err error
+	h.watch, err = query.GetWatch(h.c)
+	if err != nil {
+		return err
+	}
+
+	h.past, err = query.GetPast(h.c)
+	if err != nil {
+		return err
+	}
+
+	h.period, err = query.GetPeriod(h.c)
+	if err != nil {
+		return err
+	}
+
+	h.serviceType = h.c.Param("serviceType")
+	if !cubecos.IsValidService(h.serviceType) {
+		return fmt.Errorf("invalid serviceType: %s", h.serviceType)
+	}
+
+	h.moduleType = h.c.Param("moduleType")
+	if !cubecos.IsValidServiceAndModule(h.serviceType, h.moduleType) {
+		return fmt.Errorf("invalid serviceType' %s' or module '%s'", h.serviceType, h.moduleType)
+	}
+
+	return nil
 }
 
-func (h *helper) isPastRequired() bool {
-	_, found := h.c.GetQuery("past")
-	return found
+func (h *helper) parseModuleRepairParams() error {
+	var err error
+	h.module, err = h.parseModule()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

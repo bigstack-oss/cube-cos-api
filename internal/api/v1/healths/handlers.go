@@ -58,7 +58,7 @@ func getHealthSummary(c *gin.Context) {
 		return
 	}
 
-	summary := cubecos.GetHealthSummary(h.past)
+	summary := cubecos.GetHealthSummary()
 	if h.watch {
 		watchHealth(h, &summary)
 		return
@@ -72,15 +72,21 @@ func getHealthSummary(c *gin.Context) {
 }
 
 func checkAndRepairAllModules(c *gin.Context) {
-	err := checkEnvCondition()
+	h, err := initHelper(c, "checkAndRepairAllModules")
+	if err != nil {
+		log.Errorf("healths(%s): %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.checkEnvCondition()
 	if err != nil {
 		log.Errorf("healths(%s): %v", api.GetReqId(c), err)
 		api.SetStatusConflict(c, err)
 		return
 	}
 
-	req := genCheckRepairReq()
-	reqQueue.Add(req)
+	h.requestCheckRepair()
 	api.SetStatusAccepted(
 		c,
 		"the request of unhealthy module repair is accepted and repairing",
@@ -88,22 +94,21 @@ func checkAndRepairAllModules(c *gin.Context) {
 }
 
 func forceRepairModule(c *gin.Context) {
-	err := checkEnvCondition()
-	if err != nil {
-		log.Errorf("healths(%s): %v", api.GetReqId(c), err)
-		api.SetStatusConflict(c, err)
-		return
-	}
-
-	module, err := parseModule(c)
+	h, err := initHelper(c, "forceRepairModule")
 	if err != nil {
 		log.Errorf("healths(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}
 
-	req := genForceRepairReq(*module)
-	reqQueue.Add(req)
+	err = h.checkEnvCondition()
+	if err != nil {
+		log.Errorf("healths(%s): %v", api.GetReqId(c), err)
+		api.SetStatusConflict(c, err)
+		return
+	}
+
+	h.requestForceRepair()
 	api.SetStatusAccepted(
 		c,
 		"the request of unhealthy module repair is accepted and repairing",

@@ -56,7 +56,7 @@ func streamingWatcher() {
 func streamHealthByHandlerType(h *helper) (any, error) {
 	switch h.handler {
 	case "getHealthSummary":
-		return cubecos.GetHealthSummary(h.past), nil
+		return cubecos.GetHealthSummary(), nil
 	case "genServiceHealthHistory":
 		return h.genServiceHealthHistory(), nil
 	case "getModuleHealthHistory":

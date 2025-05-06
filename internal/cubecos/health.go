@@ -207,7 +207,7 @@ func SyncHealthHistory() {
 	healthSummary = genHealthSummary(services)
 }
 
-func GetHealthSummary(duration string) Health {
+func GetHealthSummary() Health {
 	return healthSummary
 }
 
