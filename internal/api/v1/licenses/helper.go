@@ -17,32 +17,26 @@ type helper struct {
 	c       *gin.Context
 	handler string
 
-	Types    []string
-	Product  string
-	Products []string
-	Statuses []string
-	Roles    []string
-	Keyword  string
+	types    []string
+	product  string
+	products []string
+	statuses []string
+	roles    []string
+	keyword  string
 
-	Watch bool
-	v1.Page
+	watch bool
+	page  *v1.Page
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{c: c, handler: handler}
-	err := h.parseByHandler()
-	if err != nil {
-		log.Errorf("licenses(%s): failed to init request helper: %s", api.GetReqId(h.c), err.Error())
-		return nil, err
-	}
-
-	return h, nil
+	return h, h.parseParamsByHandler()
 }
 
 func (h *helper) listLicenses() (*data, error) {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
-		log.Warnf("request(%s): failed to list the cluster license: %s", api.GetReqId(h.c), err.Error())
+		log.Warnf("license(%s): failed to list the cluster license: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
@@ -99,7 +93,7 @@ func (h *helper) listLicenseAttachmentsByProduct() ([]v1.LicenseAttachment, erro
 			SerialNumber: node.SerialNumber,
 			Hostname:     node.Hostname,
 			Role:         node.Role,
-			Product:      h.normalizeProductName(h.Product),
+			Product:      h.normalizeProductName(h.product),
 			Status:       status.Unlicense,
 		}
 
@@ -131,7 +125,7 @@ func (h *helper) normalizeProductName(product string) string {
 
 func (h *helper) getProductStatusOfNode(node v1.Node, licenses []v1.License) (string, bool) {
 	for _, license := range licenses {
-		if !strings.EqualFold(h.Product, license.Product.Name) {
+		if !strings.EqualFold(h.product, license.Product.Name) {
 			continue
 		}
 

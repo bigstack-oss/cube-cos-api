@@ -1,13 +1,10 @@
 package licenses
 
 import (
-	"fmt"
-	"strconv"
-
 	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
 )
 
-func (h *helper) parseByHandler() error {
+func (h *helper) parseParamsByHandler() error {
 	switch h.handler {
 	case "listLicenses":
 		return h.parseListLicenseParams()
@@ -23,8 +20,18 @@ func (h *helper) parseListLicenseParams() error {
 	h.parseProducts()
 	h.parseStatuses()
 	h.parseKeyword()
-	h.parseWatch()
-	return h.parsePage()
+
+	err := h.parseWatch()
+	if err != nil {
+		return err
+	}
+
+	err = h.parsePage()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (h *helper) parseListAttachmentParams() error {
@@ -36,66 +43,37 @@ func (h *helper) parseListAttachmentParams() error {
 }
 
 func (h *helper) parseType() {
-	h.Types = h.c.QueryArray("types")
+	h.types = h.c.QueryArray("types")
 }
 
 func (h *helper) parseProduct() {
-	h.Product = h.c.DefaultQuery("product", "")
+	h.product = h.c.DefaultQuery("product", "")
 }
 
 func (h *helper) parseProducts() {
-	h.Products = h.c.QueryArray("products")
+	h.products = h.c.QueryArray("products")
 }
 
 func (h *helper) parseRoles() {
-	h.Roles = h.c.QueryArray("roles")
+	h.roles = h.c.QueryArray("roles")
 }
 
 func (h *helper) parseStatuses() {
-	h.Statuses = h.c.QueryArray("statuses")
+	h.statuses = h.c.QueryArray("statuses")
 }
 
 func (h *helper) parsePage() error {
-	if !query.IsPageRequired(h.c) {
-		return nil
-	}
-
-	num := h.c.DefaultQuery("pageNum", "")
-	if num == "" {
-		return fmt.Errorf("pageNum should be provided if pageSize is provided")
-	}
-
-	size := h.c.DefaultQuery("pageSize", "")
-	if size == "" {
-		return fmt.Errorf("pageSize should be provided if pageNum is provided")
-	}
-
 	var err error
-	h.Page.Number, err = strconv.Atoi(num)
-	if err != nil {
-		return fmt.Errorf("pageNum should be an integer: %s", num)
-	}
-
-	h.Page.Size, err = strconv.Atoi(size)
-	if err != nil {
-		return fmt.Errorf("pageSize should be an integer: %s", size)
-	}
-
-	if h.Page.Number <= 0 {
-		return fmt.Errorf("pageNum should be greater than 0 if pageSize is provided")
-	}
-
-	if h.Page.Size <= 0 {
-		return fmt.Errorf("pageSize should be greater than 0 if pageNum is provided")
-	}
-
-	return nil
+	h.page, err = query.GetPage(h.c)
+	return err
 }
 
 func (h *helper) parseKeyword() {
-	h.Keyword = h.c.DefaultQuery("keyword", "")
+	h.keyword = h.c.DefaultQuery("keyword", "")
 }
 
-func (h *helper) parseWatch() {
-	h.Watch = h.c.DefaultQuery("watch", "false") == "true"
+func (h *helper) parseWatch() error {
+	var err error
+	h.watch, err = query.GetWatch(h.c)
+	return err
 }

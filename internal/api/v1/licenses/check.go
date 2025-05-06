@@ -8,19 +8,19 @@ func (h *helper) isFilterRequired() bool {
 }
 
 func (h *helper) isTypeRequired() bool {
-	return len(h.Types) > 0
+	return len(h.types) > 0
 }
 
 func (h *helper) isProductRequired() bool {
-	return len(h.Products) > 0
+	return len(h.products) > 0
 }
 
 func (h *helper) isStatusRequired() bool {
-	return len(h.Statuses) > 0
+	return len(h.statuses) > 0
 }
 
 func (h *helper) isKeywordRequired() bool {
-	return h.Keyword != ""
+	return h.keyword != ""
 }
 
 func (h *helper) isAttachmentFilterRequired() bool {
@@ -28,13 +28,13 @@ func (h *helper) isAttachmentFilterRequired() bool {
 }
 
 func (h *helper) isAttachmentProductRequired() bool {
-	return h.Product != ""
+	return h.product != ""
 }
 
 func (h *helper) isAttachmentRolesRequired() bool {
-	return len(h.Roles) > 0
+	return len(h.roles) > 0
 }
 
 func (h *helper) isAttachmenStatusRequired() bool {
-	return len(h.Statuses) > 0
+	return len(h.statuses) > 0
 }

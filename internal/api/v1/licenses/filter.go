@@ -10,10 +10,6 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-const (
-	maxSearchResults = 10000
-)
-
 func (h *helper) filterLicenses(licenses []v1.License) []v1.License {
 	if !h.isFilterRequired() {
 		return licenses
@@ -77,7 +73,7 @@ func (h *helper) filteredByKeyword(licenses []v1.License) []v1.License {
 func (h *helper) filteredByStatus(licenses []v1.License) []v1.License {
 	filtered := []v1.License{}
 	for _, license := range licenses {
-		if slices.Contains(h.Statuses, license.Status.Current) {
+		if slices.Contains(h.statuses, license.Status.Current) {
 			filtered = append(filtered, license)
 		}
 	}
@@ -88,7 +84,7 @@ func (h *helper) filteredByStatus(licenses []v1.License) []v1.License {
 func (h *helper) filteredByType(licenses []v1.License) []v1.License {
 	filtered := []v1.License{}
 	for _, license := range licenses {
-		if slices.Contains(h.Types, license.Type) {
+		if slices.Contains(h.types, license.Type) {
 			filtered = append(filtered, license)
 		}
 	}
@@ -97,10 +93,10 @@ func (h *helper) filteredByType(licenses []v1.License) []v1.License {
 }
 
 func (h *helper) filteredByProduct(licenses []v1.License) []v1.License {
-	v1.ToLowerInPlace(h.Products)
+	v1.ToLowerInPlace(h.products)
 	filtered := []v1.License{}
 	for _, license := range licenses {
-		if slices.Contains(h.Products, strings.ToLower(license.Product.Name)) {
+		if slices.Contains(h.products, strings.ToLower(license.Product.Name)) {
 			filtered = append(filtered, license)
 		}
 	}
@@ -123,7 +119,7 @@ func (h *helper) searchLicenses(licenses []v1.License) (*bleve.SearchResult, err
 	}
 
 	defer searcher.Close()
-	return searcher.Search(search.WildcardQuery(h.Keyword))
+	return searcher.Search(search.WildcardQuery(h.keyword))
 }
 
 func genLicenseMap(licenses []v1.License) map[string]v1.License {
@@ -166,7 +162,7 @@ func (h *helper) searchLicenseAttachments(attachments []v1.LicenseAttachment) (*
 	}
 
 	defer searcher.Close()
-	return searcher.Search(search.WildcardQuery(h.Keyword))
+	return searcher.Search(search.WildcardQuery(h.keyword))
 }
 
 func genAttachmentMap(attachments []v1.LicenseAttachment) map[string]v1.LicenseAttachment {
@@ -181,7 +177,7 @@ func genAttachmentMap(attachments []v1.LicenseAttachment) map[string]v1.LicenseA
 func (h *helper) filteredAttachmentsByRoles(attachments []v1.LicenseAttachment) []v1.LicenseAttachment {
 	filtered := []v1.LicenseAttachment{}
 	for _, attachment := range attachments {
-		if slices.Contains(h.Roles, attachment.Role) {
+		if slices.Contains(h.roles, attachment.Role) {
 			filtered = append(filtered, attachment)
 		}
 	}
@@ -192,7 +188,7 @@ func (h *helper) filteredAttachmentsByRoles(attachments []v1.LicenseAttachment) 
 func (h *helper) filteredAttachmentsByStatuses(attachments []v1.LicenseAttachment) []v1.LicenseAttachment {
 	filtered := []v1.LicenseAttachment{}
 	for _, attachment := range attachments {
-		if slices.Contains(h.Statuses, attachment.Status) {
+		if slices.Contains(h.statuses, attachment.Status) {
 			filtered = append(filtered, attachment)
 		}
 	}
