@@ -12,6 +12,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func isLiveCheck(c *gin.Context) bool {
+	return c.Request.Method == "GET" && c.Request.URL.Path == "/live"
+}
+
 func isControlNode() (bool, error) {
 	switch v1.CurrentRole {
 	case v1.RoleControl, v1.RoleControlConverged, v1.RoleModerator:
@@ -184,4 +188,8 @@ func genLogoutRedirectUrl() (string, error) {
 		v1.DataCenterVip,
 		conf.Opts.Spec.Identity.LogoutRedirect,
 	), nil
+}
+
+func genRequestMsg(c *gin.Context) string {
+	return fmt.Sprintf("%s %s%s", c.Request.Method, c.Request.URL.Path, parseParams(c))
 }

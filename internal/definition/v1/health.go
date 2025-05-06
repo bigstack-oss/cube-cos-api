@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	Healths = "healths"
-	repair  = "repair"
+	Healths                   = "healths"
+	HealthRepairingCollection = "repairing"
+	repair                    = "repair"
 
 	AscSort  = `columns: ["_time"], desc: false`
 	DescSort = `columns: ["_time"], desc: true`
@@ -17,10 +18,6 @@ type Health struct {
 	Service  string         `json:"service"`
 	Status   status.Details `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
 	Modules  []Module       `json:"modules"`
-}
-
-func HealthDB() string {
-	return Healths
 }
 
 func RepairCollection() string {

@@ -1,12 +1,14 @@
 package healths
 
 import (
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type helper struct {
@@ -26,6 +28,12 @@ type helper struct {
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{c: c, handler: handler}
 	return h, h.parseParamsByHandler()
+}
+
+func (h *helper) getHealthSummary() (cubecos.Health, error) {
+	summary := cubecos.GetHealthSummary()
+	h.syncRepairingStatus(&summary)
+	return summary, nil
 }
 
 func (h *helper) genServiceHealthHistory() []cubecos.HealthStatus {
@@ -81,10 +89,23 @@ func (h *helper) genForceRepairReq() cubecos.Health {
 
 func (h *helper) requestForceRepair() {
 	req := h.genForceRepairReq()
-	reqQueue.Add(req)
+	reqQueue.Add(&req)
 }
 
 func (h *helper) requestCheckRepair() {
 	req := h.genCheckRepairReq()
-	reqQueue.Add(req)
+	reqQueue.Add(&req)
+	err := h.setRepairingRecord()
+	if err != nil {
+		log.Errorf("healths(%s): failed to set repairing record: %v", api.GetReqId(h.c), err)
+	}
+}
+
+func (h *helper) deleteCheckRepairTask() error {
+	mongo := mongo.GetGlobalHelper()
+	return mongo.DeleteAll(
+		v1.Healths,
+		v1.HealthRepairingCollection,
+		bson.M{"isRepairing": true},
+	)
 }

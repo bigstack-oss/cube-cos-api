@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/healths"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -43,6 +42,12 @@ var (
 			Path:    "/healths/services/:serviceType/modules/:moduleType",
 			Func:    forceRepairModule,
 		},
+		{
+			Version: api.V1,
+			Method:  http.MethodDelete,
+			Path:    "/healths/tasks/repairing",
+			Func:    deleteCheckRepairTask,
+		},
 	}
 )
 
@@ -58,7 +63,13 @@ func getHealthSummary(c *gin.Context) {
 		return
 	}
 
-	summary := cubecos.GetHealthSummary()
+	summary, err := h.getHealthSummary()
+	if err != nil {
+		log.Errorf("healths(%s): failed to get health summary: %v", api.GetReqId(c), err)
+		api.SetInternalServerError(c, err)
+		return
+	}
+
 	if h.watch {
 		watchHealth(h, &summary)
 		return
@@ -154,5 +165,27 @@ func getModuleHealthHistory(c *gin.Context) {
 		c,
 		"fetch module health history successfully",
 		health,
+	)
+}
+
+func deleteCheckRepairTask(c *gin.Context) {
+	h, err := initHelper(c, "deleteCheckRepairTask")
+	if err != nil {
+		log.Errorf("healths(%s): %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.deleteCheckRepairTask()
+	if err != nil {
+		log.Errorf("healths(%s): failed to delete check repair task: %v", api.GetReqId(c), err)
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"delete check repair task successfully",
+		nil,
 	)
 }

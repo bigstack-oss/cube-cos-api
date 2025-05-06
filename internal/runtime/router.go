@@ -10,7 +10,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/healths"
-
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/integrations"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/logout"
@@ -253,11 +252,9 @@ func timeTracker(c *gin.Context) {
 	}
 
 	log.Infof(
-		"req(%s): %s %s%s (%s)",
+		"req(%s): %s (%s)",
 		reqId,
-		c.Request.Method,
-		c.Request.URL.Path,
-		parseParams(c),
+		genRequestMsg(c),
 		elapsed,
 	)
 }

@@ -3,8 +3,10 @@ package healths
 import (
 	"fmt"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
 )
@@ -41,6 +43,7 @@ func checkAndRepairServices(health cubecos.Health) {
 	}
 
 	repairServices(health)
+	reportToController()
 }
 
 func repairServices(health cubecos.Health) {
@@ -58,5 +61,27 @@ func repairServices(health cubecos.Health) {
 		if err != nil {
 			log.Warnf(healthVerifyFailed, err.Error())
 		}
+	}
+}
+
+func reportToController() {
+	node, err := v1.GetOneOfControllerNode()
+	if err != nil {
+		log.Errorf("healths: failed to get controller nodes: %s", err.Error())
+		return
+	}
+
+	h := http.GetGlobalHelper()
+	resp, err := h.R().
+		SetHeaders(v1.GenNodeAuthHeaders()).
+		Delete(node.DeleteRepairingTaskUrl())
+	if err != nil {
+		log.Errorf("healths: failed to send repairing task to controller: %s", err.Error())
+		return
+	}
+
+	if resp.IsError() {
+		log.Errorf("healths: has error response from controller: %s", resp.String())
+		return
 	}
 }

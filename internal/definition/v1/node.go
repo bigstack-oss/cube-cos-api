@@ -244,6 +244,14 @@ func (n *Node) PatchSettingTaskUrl(setting setting.Options) string {
 	return u.String()
 }
 
+func (n *Node) DeleteRepairingTaskUrl() string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/healths/tasks/repairing", DataCenterName)
+	return u.String()
+}
+
 func (n *Node) IsLocal() bool {
 	return n.Address == AdvertiseAddr && n.Hostname == Hostname
 }
