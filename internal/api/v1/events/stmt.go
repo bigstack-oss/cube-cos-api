@@ -145,8 +145,8 @@ func (h *helper) genTimeDuration() string {
 
 	return fmt.Sprintf(
 		"start: %s, stop: %s",
-		h.Period.Start,
-		h.Period.Stop,
+		h.period.Start,
+		h.period.Stop,
 	)
 }
 

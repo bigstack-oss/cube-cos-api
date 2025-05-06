@@ -1,12 +1,12 @@
 package healths
 
 import (
-	"fmt"
-
-	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/gin-gonic/gin"
+	log "go-micro.dev/v5/logger"
 )
 
 type helper struct {
@@ -25,101 +25,66 @@ type helper struct {
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{c: c, handler: handler}
-	var err error
-
-	switch h.handler {
-	case "getHealthSummary":
-		err = h.parseSummaryParams()
-	case "genServiceHealthHistory":
-		err = h.parseServiceHealthParams()
-	case "getModuleHealthHistory":
-		err = h.parseModuleHealthParams()
-	case "forceRepairModule":
-		err = h.parseModuleRepairParams()
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	return h, nil
+	return h, h.parseParamsByHandler()
 }
 
-func (h *helper) parseSummaryParams() error {
-	var err error
-	h.watch, err = query.GetWatch(h.c)
-	if err != nil {
-		return err
-	}
-
-	h.past, err = query.GetPast(h.c)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (h *helper) genServiceHealthHistory() []cubecos.HealthStatus {
+	return cubecos.GetServiceHealthHistory(h.serviceType, h.past)
 }
 
-func (h *helper) parseServiceHealthParams() error {
-	var err error
-	h.watch, err = query.GetWatch(h.c)
+func (h *helper) genModuleHealthHistory() cubecos.HealthStatus {
+	service := cubecos.ModuleToService[h.moduleType]
+	history, err := cubecos.GetModuleHealthHistory(h.moduleType, h.past, v1.AscSort, false)
 	if err != nil {
-		return err
+		log.Errorf("healths(%s): %v", api.GetReqId(h.c), err)
 	}
 
-	h.past, err = query.GetPast(h.c)
-	if err != nil {
-		return err
+	return cubecos.HealthStatus{
+		Category:     cubecos.ServiceToCategory[service],
+		Name:         service,
+		Module:       h.moduleType,
+		IsRepairable: cubecos.IsRepairableModule(h.moduleType),
+		History:      history,
 	}
-
-	h.period, err = query.GetPeriod(h.c)
-	if err != nil {
-		return err
-	}
-
-	h.serviceType = h.c.Param("serviceType")
-	if !cubecos.IsValidService(h.serviceType) {
-		return fmt.Errorf("invalid serviceType: %s", h.serviceType)
-	}
-
-	return nil
 }
 
-func (h *helper) parseModuleHealthParams() error {
-	var err error
-	h.watch, err = query.GetWatch(h.c)
-	if err != nil {
-		return err
+func (h *helper) genCheckRepairReq() cubecos.Health {
+	health := &cubecos.Health{}
+	health.Overall = &cubecos.Overall{}
+	health.Overall.Status.SetDesiredToCheckingAndRepairing()
+	return cubecos.Health{
+		Overall: &cubecos.Overall{
+			Status: status.Health{
+				Desired: status.CheckingAndRepairing,
+			},
+		},
 	}
-
-	h.past, err = query.GetPast(h.c)
-	if err != nil {
-		return err
-	}
-
-	h.period, err = query.GetPeriod(h.c)
-	if err != nil {
-		return err
-	}
-
-	h.serviceType = h.c.Param("serviceType")
-	if !cubecos.IsValidService(h.serviceType) {
-		return fmt.Errorf("invalid serviceType: %s", h.serviceType)
-	}
-
-	h.moduleType = h.c.Param("moduleType")
-	if !cubecos.IsValidServiceAndModule(h.serviceType, h.moduleType) {
-		return fmt.Errorf("invalid serviceType' %s' or module '%s'", h.serviceType, h.moduleType)
-	}
-
-	return nil
 }
 
-func (h *helper) parseModuleRepairParams() error {
-	var err error
-	h.module, err = h.parseModule()
-	if err != nil {
-		return err
+func (h *helper) genForceRepairReq() cubecos.Health {
+	svc := cubecos.ModuleToService[h.module.Name]
+	return cubecos.Health{
+		Overall: &cubecos.Overall{
+			Status: status.Health{
+				Desired: status.Repairing,
+			},
+		},
+		Services: []v1.Service{
+			{
+				Name:     svc,
+				Category: cubecos.ServiceToCategory[svc],
+				Modules:  []v1.Module{*h.module},
+			},
+		},
 	}
+}
 
-	return nil
+func (h *helper) requestForceRepair() {
+	req := h.genForceRepairReq()
+	reqQueue.Add(req)
+}
+
+func (h *helper) requestCheckRepair() {
+	req := h.genCheckRepairReq()
+	reqQueue.Add(req)
 }

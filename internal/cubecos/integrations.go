@@ -7,11 +7,11 @@ import (
 )
 
 // note:
-// the description of the integration is from https://www.bigstack.co/products/cubecos/feature
-// currently, cos has no the source text for it, but UI needs it, so we only can place it below for the time being.
+// the description of each integration is from https://www.bigstack.co/products/cubecos/feature
+// currently, cos has no the source text for it, but UI needs it, so we can only place it below for the time being.
 //
 // also, cos is a bit hard to have a solid convention to fetch the port or path for the services,
-// so we just hardcode the info here, but in the M2, can discuss with team for such support from cos.
+// so we just hardcode the info here, but in the M2, can consider to discuss with team to support such features from cos.
 func ListBuiltInIntegrations() []v1.Integration {
 	return []v1.Integration{
 		{

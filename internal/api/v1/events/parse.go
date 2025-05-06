@@ -8,6 +8,21 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 )
 
+func (h *helper) parseParamsByHandler() error {
+	switch h.handler {
+	case "listEvents":
+		return h.parseEventListingParams()
+	case "listEventAbstract":
+		return h.parseEventAbstractParams()
+	case "getEventRank":
+		return h.parseEventRankParams()
+	case "getEventFilterConditions":
+		return h.parseEventFilterConditions()
+	}
+
+	return nil
+}
+
 func (h *helper) parseEventListingParams() error {
 	err := h.parseType()
 	if err != nil {
@@ -19,12 +34,12 @@ func (h *helper) parseEventListingParams() error {
 		return err
 	}
 
-	h.Period, err = query.GetPeriod(h.c)
+	h.period, err = query.GetPeriod(h.c)
 	if err != nil {
 		return err
 	}
 
-	h.Page, err = query.GetPage(h.c)
+	h.page, err = query.GetPage(h.c)
 	if err != nil {
 		return err
 	}
@@ -72,7 +87,7 @@ func (h *helper) parseEventRankParams() error {
 		return err
 	}
 
-	h.Period, err = query.GetPeriod(h.c)
+	h.period, err = query.GetPeriod(h.c)
 	if err != nil {
 		return err
 	}
@@ -102,7 +117,7 @@ func (h *helper) parseEventFilterConditions() error {
 		return err
 	}
 
-	h.Period, err = query.GetPeriod(h.c)
+	h.period, err = query.GetPeriod(h.c)
 	if err != nil {
 		return err
 	}

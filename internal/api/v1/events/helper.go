@@ -27,10 +27,10 @@ type helper struct {
 	instances  []string
 	keyword    string
 
-	*v1.Period
-	past string
+	period *v1.Period
+	past   string
 
-	*v1.Page
+	page  *v1.Page
 	limit int
 
 	watch bool
@@ -38,23 +38,7 @@ type helper struct {
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{c: c, handler: handler}
-
-	var err error
-	switch handler {
-	case "listEvents":
-		err = h.parseEventListingParams()
-	case "listEventAbstract":
-		err = h.parseEventAbstractParams()
-	case "getEventRank":
-		err = h.parseEventRankParams()
-	case "getEventFilterConditions":
-		err = h.parseEventFilterConditions()
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	return h, nil
+	return h, h.parseParamsByHandler()
 }
 
 func (h *helper) listEvents() (*data, error) {

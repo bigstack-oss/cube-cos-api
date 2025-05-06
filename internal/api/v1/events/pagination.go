@@ -32,17 +32,17 @@ func (h *helper) isInstanceRequired() bool {
 }
 
 func (h *helper) paginateEvents(events []event.Options) ([]event.Options, error) {
-	if !h.Page.IsRequired() {
+	if !h.page.IsRequired() {
 		return events, nil
 	}
 
-	left := min((h.Page.Number-1)*h.Page.Size, len(events))
-	right := min(left+h.Page.Size, len(events))
+	left := min((h.page.Number-1)*h.page.Size, len(events))
+	right := min(left+h.page.Size, len(events))
 	return events[left:right], nil
 }
 
 func (h *helper) genPageInfo(events []event.Options) (v1.Page, error) {
-	if !h.Page.IsRequired() {
+	if !h.page.IsRequired() {
 		return v1.Page{
 			Total:          1,
 			Number:         1,
@@ -54,8 +54,8 @@ func (h *helper) genPageInfo(events []event.Options) (v1.Page, error) {
 	totalCounts, totalPages := h.getAmountDetails(events)
 	return v1.Page{
 		Total:          totalPages,
-		Number:         h.Page.Number,
-		Size:           h.Page.Size,
+		Number:         h.page.Number,
+		Size:           h.page.Size,
 		TotalItemCount: totalCounts,
 	}, nil
 }
@@ -63,5 +63,5 @@ func (h *helper) genPageInfo(events []event.Options) (v1.Page, error) {
 func (h *helper) getAmountDetails(events []event.Options) (int64, int64) {
 	count := len(events)
 	return int64(count),
-		int64(math.Ceil(float64(count) / float64(h.Page.Size)))
+		int64(math.Ceil(float64(count) / float64(h.page.Size)))
 }
