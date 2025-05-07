@@ -132,17 +132,17 @@ func (o *Options) IsValid() bool {
 // we've tried a few different init settings, but the result is not as expected as always
 // currenlty, the only way we found is to convert all the string to lower case and inject to searcher
 func (o *Options) GenSearchableObject() Options {
-	o.Type = search.NormalizedSerachKeyword(o.Type)
-	o.Name = search.NormalizedSerachKeyword(o.Name)
-	o.Product.Name = search.NormalizedSerachKeyword(o.Product.Name)
-	o.Product.Feature = search.NormalizedSerachKeyword(o.Product.Feature)
-	o.Serial = search.NormalizedSerachKeyword(o.Serial)
-	o.SupportPlan = search.NormalizedSerachKeyword(o.SupportPlan)
-	o.Issue.By = search.NormalizedSerachKeyword(o.Issue.By)
-	o.Issue.To = search.NormalizedSerachKeyword(o.Issue.To)
-	o.Issue.Hardware = search.NormalizedSerachKeyword(o.Issue.Hardware)
+	o.Type = search.NormalizedKeyword(o.Type)
+	o.Name = search.NormalizedKeyword(o.Name)
+	o.Product.Name = search.NormalizedKeyword(o.Product.Name)
+	o.Product.Feature = search.NormalizedKeyword(o.Product.Feature)
+	o.Serial = search.NormalizedKeyword(o.Serial)
+	o.SupportPlan = search.NormalizedKeyword(o.SupportPlan)
+	o.Issue.By = search.NormalizedKeyword(o.Issue.By)
+	o.Issue.To = search.NormalizedKeyword(o.Issue.To)
+	o.Issue.Hardware = search.NormalizedKeyword(o.Issue.Hardware)
 	for i := range o.Hosts {
-		o.Hosts[i] = search.NormalizedSerachKeyword(o.Hosts[i])
+		o.Hosts[i] = search.NormalizedKeyword(o.Hosts[i])
 	}
 
 	return *o
@@ -150,11 +150,11 @@ func (o *Options) GenSearchableObject() Options {
 
 func (o *Attachment) GenSearchableObject() Attachment {
 	return Attachment{
-		SerialNumber: search.NormalizedSerachKeyword(o.SerialNumber),
-		Hostname:     search.NormalizedSerachKeyword(o.Hostname),
-		Role:         search.NormalizedSerachKeyword(o.Role),
-		Product:      search.NormalizedSerachKeyword(o.Product),
-		Status:       search.NormalizedSerachKeyword(o.Status),
+		SerialNumber: search.NormalizedKeyword(o.SerialNumber),
+		Hostname:     search.NormalizedKeyword(o.Hostname),
+		Role:         search.NormalizedKeyword(o.Role),
+		Product:      search.NormalizedKeyword(o.Product),
+		Status:       search.NormalizedKeyword(o.Status),
 	}
 }
 

@@ -27,9 +27,9 @@ func GetStandaloneVirtualIp(mgmtNet string) (string, error) {
 
 func GetClusterVirtualIp() (string, error) {
 	switch v1.CurrentRole {
-	case v1.RoleControl, v1.RoleControlConverged, v1.RoleModerator:
+	case v1.RoleControl, v1.RoleControlConverged, v1.RoleEdgeCore, v1.RoleModerator:
 		return GetTuningValue(CubeSysControllerVip)
-	case v1.RoleCompute, v1.RoleStorage, v1.RoleEdgeCore:
+	case v1.RoleCompute, v1.RoleStorage:
 		return GetTuningValue(CubeSysControllerIp)
 	}
 

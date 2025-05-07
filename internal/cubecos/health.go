@@ -152,7 +152,7 @@ func IsModuleHealthy(moduleName string) bool {
 		return true
 	}
 
-	log.Errorf("found unhealthy module %s: %s", moduleName, string(out))
+	log.Errorf("healths: found unhealthy module %s(%s)", moduleName, string(out))
 	return false
 }
 
@@ -192,7 +192,7 @@ func RepairModule(moduleName string) error {
 	}
 
 	return fmt.Errorf(
-		"failed to repair module %s: %s",
+		"healths: failed to repair module %s: %s",
 		moduleName,
 		string(out),
 	)
@@ -276,7 +276,6 @@ func SetUnhealthLogUrl(history *[]v1.HealthCheck) {
 }
 
 func setPresignedUrl(check *v1.HealthCheck) {
-	// SyncBucketSecret()
 	h := aws.GetGlobalHelper()
 	url, err := h.GenPresignedUrl("log", genHealthLogKey(check.Error.Log), v1.Day*7)
 	if err != nil {

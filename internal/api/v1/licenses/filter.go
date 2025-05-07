@@ -163,7 +163,7 @@ func (h *helper) searchAttachments(attachments []license.Attachment) (*bleve.Sea
 	}
 
 	defer searcher.Close()
-	key := search.NormalizedSerachKeyword(h.keyword)
+	key := search.NormalizedKeyword(h.keyword)
 	return searcher.Search(search.WildcardQuery(key))
 }
 
