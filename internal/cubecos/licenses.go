@@ -13,6 +13,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/zip"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	json "github.com/json-iterator/go"
@@ -46,20 +47,20 @@ func SyncSourceLicense() {
 	}
 
 	licenses := parseLicenses(raws)
-	v1.SetLicenses(licenses)
+	license.SetList(licenses)
 }
 
-func VerifyLicense(license string) (*v1.VerificationDetails, error) {
-	defer os.Remove(license)
-	checkInfo := checkImportLicense(license)
-	dat, err := parseLicenseDat(license, checkInfo)
+func VerifyLicense(file string) (*license.Verification, error) {
+	defer os.Remove(file)
+	checkInfo := checkImportLicense(file)
+	dat, err := parseLicenseDat(file, checkInfo)
 	if err != nil {
 		log.Errorf("licenses: failed to parse license: %v", err)
 		return nil, err
 	}
 
-	return &v1.VerificationDetails{
-		License:     *dat,
+	return &license.Verification{
+		Options:     *dat,
 		EffectNodes: getLicenseEffectNodes(dat.Issue.Hardware),
 	}, nil
 }
@@ -91,8 +92,8 @@ func ImportNodeLicense(licensePath string) error {
 	return nil
 }
 
-func ListLicenses() ([]v1.License, error) {
-	licenses := v1.GetLicenses()
+func ListLicenses() ([]license.Options, error) {
+	licenses := license.GetList()
 	if len(licenses) == 0 {
 		return nil, errors.New("no license found")
 	}
@@ -100,8 +101,8 @@ func ListLicenses() ([]v1.License, error) {
 	return licenses, nil
 }
 
-func parseRawLicenses(b []byte) ([]v1.RawLicense, error) {
-	raws := []v1.RawLicense{}
+func parseRawLicenses(b []byte) ([]license.Raw, error) {
+	raws := []license.Raw{}
 	err := json.Unmarshal(b, &raws)
 	if err != nil {
 		return nil, err
@@ -113,13 +114,13 @@ func parseRawLicenses(b []byte) ([]v1.RawLicense, error) {
 	return raws, nil
 }
 
-func parseLicenses(raws []v1.RawLicense) []v1.License {
+func parseLicenses(raws []license.Raw) []license.Options {
 	licenses := convertToLicenses(raws)
 	return aggregateLicenses(licenses)
 }
 
-func convertToLicenses(raws []v1.RawLicense) []v1.License {
-	licenses := []v1.License{}
+func convertToLicenses(raws []license.Raw) []license.Options {
+	licenses := []license.Options{}
 	for _, raw := range raws {
 		if raw.IsUnlicense() {
 			continue
@@ -134,8 +135,8 @@ func convertToLicenses(raws []v1.RawLicense) []v1.License {
 	return licenses
 }
 
-func aggregateLicenses(licenses []v1.License) []v1.License {
-	mergedLicenses := []v1.License{}
+func aggregateLicenses(licenses []license.Options) []license.Options {
+	mergedLicenses := []license.Options{}
 	for _, license := range genLicenseMap(licenses) {
 		mergedLicenses = append(mergedLicenses, license)
 	}
@@ -143,8 +144,8 @@ func aggregateLicenses(licenses []v1.License) []v1.License {
 	return mergedLicenses
 }
 
-func genLicenseMap(licenses []v1.License) map[string]v1.License {
-	licenseMap := map[string]v1.License{}
+func genLicenseMap(licenses []license.Options) map[string]license.Options {
+	licenseMap := map[string]license.Options{}
 	for _, license := range licenses {
 		key := license.Key()
 		mappedLicense, found := licenseMap[key]
@@ -160,8 +161,8 @@ func genLicenseMap(licenses []v1.License) map[string]v1.License {
 	return licenseMap
 }
 
-func parseLicense(raw v1.RawLicense) v1.License {
-	return v1.License{
+func parseLicense(raw license.Raw) license.Options {
+	return license.Options{
 		Name:        raw.Name,
 		Type:        raw.Type,
 		Hosts:       []string{raw.Hostname},
@@ -174,21 +175,21 @@ func parseLicense(raw v1.RawLicense) v1.License {
 	}
 }
 
-func parseProduct(raw v1.RawLicense) v1.Product {
-	return v1.Product{
+func parseProduct(raw license.Raw) license.Product {
+	return license.Product{
 		Name:    raw.Product,
 		Feature: raw.Feature,
 	}
 }
 
-func parseIssue(raw v1.RawLicense) v1.Issue {
+func parseIssue(raw license.Raw) license.Issue {
 	date := ""
 	issue, err := time.Parse("2006-01-02 15:04:05 MST", raw.Date)
 	if err == nil {
 		date = issue.In(v1.LocalTimeFixedZone).Format(time.RFC3339)
 	}
 
-	return v1.Issue{
+	return license.Issue{
 		By:       raw.IssueBy,
 		To:       raw.IssueTo,
 		Hardware: raw.Hardware,
@@ -196,14 +197,14 @@ func parseIssue(raw v1.RawLicense) v1.Issue {
 	}
 }
 
-func parseExpiry(raw v1.RawLicense) v1.Expiry {
+func parseExpiry(raw license.Raw) license.Expiry {
 	date := ""
 	expiry, err := time.Parse("2006-01-02 15:04:05 MST", raw.Expiry)
 	if err == nil {
 		date = expiry.In(v1.LocalTimeFixedZone).Format(time.RFC3339)
 	}
 
-	return v1.Expiry{
+	return license.Expiry{
 		Date: date,
 		Days: raw.Days,
 	}
@@ -213,7 +214,7 @@ func parseExpiry(raw v1.RawLicense) v1.Expiry {
 // the reason to assign time.Now().Local() to expiry if expiry is that
 // the expiry field shouldn't be invalid in whatever case, if it's invalid, then there must be something wrong
 // during signing process, we should raise the unexpected symptom and block the further process.
-func parseStatus(raw v1.RawLicense) status.License {
+func parseStatus(raw license.Raw) status.License {
 	if raw.Expiry == "" {
 		return status.License{
 			Current: status.Unlicense,
@@ -286,15 +287,15 @@ func checkImportLicense(license string) error {
 	return checkLicenseErr(err)
 }
 
-func parseLicenseDat(license string, checkInfo error) (*v1.License, error) {
-	dir, file := getDirAndLicenseName(license)
-	datFile, err := os.Open(filepath.Join(dir, fmt.Sprintf("%s.dat", file)))
+func parseLicenseDat(file string, checkInfo error) (*license.Options, error) {
+	dir, name := getDirAndLicenseName(file)
+	datFile, err := os.Open(filepath.Join(dir, fmt.Sprintf("%s.dat", name)))
 	if err != nil {
 		return nil, err
 	}
 
 	defer datFile.Close()
-	licenseDat := &v1.License{}
+	licenseDat := &license.Options{}
 	setLicenseDat(datFile, licenseDat)
 	setLicenseDatStatus(licenseDat, checkInfo)
 	return licenseDat, nil
@@ -304,7 +305,7 @@ func getDirAndLicenseName(license string) (string, string) {
 	return filepath.Dir(license), strings.TrimSuffix(filepath.Base(license), filepath.Ext(license))
 }
 
-func setLicenseDat(datFile *os.File, licenseDat *v1.License) {
+func setLicenseDat(datFile *os.File, licenseDat *license.Options) {
 	scanner := bufio.NewScanner(datFile)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
@@ -327,7 +328,7 @@ func setLicenseDat(datFile *os.File, licenseDat *v1.License) {
 	}
 }
 
-func setLicenseDatStatus(licenseDat *v1.License, checkInfo error) {
+func setLicenseDatStatus(licenseDat *license.Options, checkInfo error) {
 	if checkInfo == nil {
 		licenseDat.InitValidStatus()
 		return
@@ -359,7 +360,7 @@ func setLicenseDatStatus(licenseDat *v1.License, checkInfo error) {
 	}
 }
 
-func getLicenseEffectNodes(hardwareInfo string) []v1.LicenseNode {
+func getLicenseEffectNodes(hardwareInfo string) []license.Node {
 	nodes := v1.ListNodes()
 	if isLicenseForAllNodes(hardwareInfo) {
 		return convertToLicenseNodes(nodes)
@@ -380,21 +381,21 @@ func isLicenseForAllNodes(hardwareInfo string) bool {
 	return strings.Contains(hardwareInfo, "*")
 }
 
-func convertToLicenseNodes(nodes []v1.Node) []v1.LicenseNode {
-	licenseNodes := []v1.LicenseNode{}
+func convertToLicenseNodes(nodes []v1.Node) []license.Node {
+	licenseNodes := []license.Node{}
 	for _, node := range nodes {
-		license := getLicenseByNodeName(node.Hostname)
-		if !license.IsValid() {
-			license.Status.Current = "unlicense"
+		l := getLicenseByNodeName(node.Hostname)
+		if !l.IsValid() {
+			l.Status.Current = "unlicense"
 		}
 
 		licenseNodes = append(
 			licenseNodes,
-			v1.LicenseNode{
+			license.Node{
 				Name:   node.Hostname,
 				Role:   node.Role,
-				Expiry: license.Expiry,
-				Status: license.Status,
+				Expiry: l.Expiry,
+				Status: l.Status,
 			},
 		)
 	}
@@ -402,11 +403,11 @@ func convertToLicenseNodes(nodes []v1.Node) []v1.LicenseNode {
 	return licenseNodes
 }
 
-func getLicenseByNodeName(nodeName string) v1.License {
+func getLicenseByNodeName(nodeName string) license.Options {
 	licenses, err := ListLicenses()
 	if err != nil {
 		log.Errorf("licenses: failed to get license by node name: %v", err)
-		return v1.License{}
+		return license.Options{}
 	}
 
 	for _, license := range licenses {
@@ -415,10 +416,10 @@ func getLicenseByNodeName(nodeName string) v1.License {
 		}
 	}
 
-	return v1.License{}
+	return license.Options{}
 }
 
-func setValueToLicenseDat(licenseDat *v1.License, parts []string) {
+func setValueToLicenseDat(licenseDat *license.Options, parts []string) {
 	key := parts[0]
 	value := strings.TrimSpace(parts[1])
 
@@ -459,10 +460,10 @@ func parseLicenseDatIssueDate(value string) string {
 	return issue.In(v1.LocalTimeFixedZone).Format(time.RFC3339)
 }
 
-func ParseLicenseExpiryAndStatus(value string) (v1.Expiry, status.License) {
+func ParseLicenseExpiryAndStatus(value string) (license.Expiry, status.License) {
 	expiry, err := time.Parse("2006-01-02 15:04:05 MST", value)
 	if err != nil {
-		return v1.Expiry{
+		return license.Expiry{
 				Date: "unknown expiry date",
 				Days: 0,
 			}, status.License{
@@ -470,7 +471,7 @@ func ParseLicenseExpiryAndStatus(value string) (v1.Expiry, status.License) {
 			}
 	}
 
-	licenseExpiry := v1.Expiry{
+	licenseExpiry := license.Expiry{
 		Date: expiry.In(v1.LocalTimeFixedZone).Format(time.RFC3339),
 		Days: int(expiry.Sub(time.Now().Local()).Hours() / 24),
 	}

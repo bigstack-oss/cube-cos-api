@@ -25,6 +25,7 @@ import (
 	apitunings "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/oidc"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
@@ -191,7 +192,7 @@ func prepareApisHandlerByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.Licenses,
+		license.Module,
 		licenses.Handlers,
 		v1.RoleControl,
 		v1.RoleControlConverged,

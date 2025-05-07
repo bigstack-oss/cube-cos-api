@@ -8,7 +8,7 @@ func (h *helper) parseParamsByHandler() error {
 	switch h.handler {
 	case "listLicenses":
 		return h.parseListLicenseParams()
-	case "listLicenseAttachments":
+	case "listAttachments":
 		return h.parseListAttachmentParams()
 	}
 

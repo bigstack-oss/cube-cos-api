@@ -264,7 +264,7 @@ func parseSeverity(record *query.FluxRecord) string {
 		return ""
 	}
 
-	return severity
+	return event.GetSeverityFullName(severity)
 }
 
 func parseCategory(record *query.FluxRecord) string {

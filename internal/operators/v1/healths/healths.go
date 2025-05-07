@@ -32,6 +32,7 @@ func (o *Operator) Name() string {
 
 func (o *Operator) Init() error {
 	o.ctx, o.cancel = context.WithCancel(context.Background())
+	cubecos.RemovePendingReq(v1.Healths, v1.HealthRepairingCollection)
 	go o.initHealthHistoryResync()
 	return nil
 }

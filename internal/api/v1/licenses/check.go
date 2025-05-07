@@ -2,8 +2,8 @@ package licenses
 
 func (h *helper) isFilterRequired() bool {
 	return h.isTypeRequired() ||
-		h.isProductRequired() ||
-		h.isStatusRequired() ||
+		h.areProductsRequired() ||
+		h.areStatusesRequired() ||
 		h.isKeywordRequired()
 }
 
@@ -11,11 +11,11 @@ func (h *helper) isTypeRequired() bool {
 	return len(h.types) > 0
 }
 
-func (h *helper) isProductRequired() bool {
+func (h *helper) areProductsRequired() bool {
 	return len(h.products) > 0
 }
 
-func (h *helper) isStatusRequired() bool {
+func (h *helper) areStatusesRequired() bool {
 	return len(h.statuses) > 0
 }
 
@@ -24,17 +24,16 @@ func (h *helper) isKeywordRequired() bool {
 }
 
 func (h *helper) isAttachmentFilterRequired() bool {
-	return h.isAttachmentProductRequired() || h.isKeywordRequired() || h.isAttachmentRolesRequired() || h.isAttachmenStatusRequired()
+	return h.isProductRequired() ||
+		h.isKeywordRequired() ||
+		h.areRolesRequired() ||
+		h.areStatusesRequired()
 }
 
-func (h *helper) isAttachmentProductRequired() bool {
+func (h *helper) isProductRequired() bool {
 	return h.product != ""
 }
 
-func (h *helper) isAttachmentRolesRequired() bool {
+func (h *helper) areRolesRequired() bool {
 	return len(h.roles) > 0
-}
-
-func (h *helper) isAttachmenStatusRequired() bool {
-	return len(h.statuses) > 0
 }

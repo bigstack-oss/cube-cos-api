@@ -4,9 +4,10 @@ import (
 	"math"
 
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 )
 
-func (h *helper) paginateLicenses(licenses []v1.License) []v1.License {
+func (h *helper) paginateLicenses(licenses []license.Options) []license.Options {
 	if !h.page.IsRequired() {
 		return licenses
 	}
@@ -16,7 +17,7 @@ func (h *helper) paginateLicenses(licenses []v1.License) []v1.License {
 	return licenses[left:right]
 }
 
-func (h *helper) genPageInfo(licenses []v1.License) v1.Page {
+func (h *helper) genPageInfo(licenses []license.Options) v1.Page {
 	if !h.page.IsRequired() {
 		return v1.Page{
 			Total:          1,

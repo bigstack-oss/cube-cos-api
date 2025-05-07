@@ -16,6 +16,7 @@ import (
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
@@ -424,7 +425,7 @@ func newSupportFileSearchIndex() error {
 }
 
 func newLicenseSearchIndex() error {
-	return v1.InitLicenseSearchIndex()
+	return license.InitSearchIndex()
 }
 
 func newNodeSearchIndex() error {

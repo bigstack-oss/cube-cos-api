@@ -8,6 +8,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -69,17 +70,17 @@ func (h *helper) saveLicense() (string, error) {
 	return filePath, nil
 }
 
-func (h *helper) listLicenseAttachments() ([]v1.LicenseAttachment, error) {
-	attachments, err := h.listLicenseAttachmentsByProduct()
+func (h *helper) listAttachments() ([]license.Attachment, error) {
+	attachments, err := h.listAttachmentsByProduct()
 	if err != nil {
 		log.Warnf("licenses(%s): failed to list the license attachments: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
-	return h.filterLicenseAttachments(attachments), nil
+	return h.filterAttachments(attachments), nil
 }
 
-func (h *helper) listLicenseAttachmentsByProduct() ([]v1.LicenseAttachment, error) {
+func (h *helper) listAttachmentsByProduct() ([]license.Attachment, error) {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
 		log.Warnf("request(%s): failed to list the licenses: %s", api.GetReqId(h.c), err.Error())
@@ -87,9 +88,9 @@ func (h *helper) listLicenseAttachmentsByProduct() ([]v1.LicenseAttachment, erro
 	}
 
 	nodes := v1.ListNodes()
-	attachments := []v1.LicenseAttachment{}
+	attachments := []license.Attachment{}
 	for _, node := range nodes {
-		attachment := v1.LicenseAttachment{
+		attachment := license.Attachment{
 			SerialNumber: node.SerialNumber,
 			Hostname:     node.Hostname,
 			Role:         node.Role,
@@ -123,7 +124,7 @@ func (h *helper) normalizeProductName(product string) string {
 	)
 }
 
-func (h *helper) getProductStatusOfNode(node v1.Node, licenses []v1.License) (string, bool) {
+func (h *helper) getProductStatusOfNode(node v1.Node, licenses []license.Options) (string, bool) {
 	for _, license := range licenses {
 		if !strings.EqualFold(h.product, license.Product.Name) {
 			continue

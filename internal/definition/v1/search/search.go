@@ -15,6 +15,21 @@ func New() (bleve.Index, error) {
 	return bleve.NewMemOnly(mapping)
 }
 
+func NormalizedSerachKeyword(keyword string) string {
+	keyword = strings.ToLower(keyword)
+	return strings.NewReplacer(
+		" ", "",
+		"-", "",
+		"_", "",
+		":", "",
+		".", "",
+		",", "",
+		"@", "",
+		"!", "",
+		"#", "",
+	).Replace(keyword)
+}
+
 func WrapWilcard(keyword string) string {
 	return "*" + strings.ToLower(keyword) + "*"
 }

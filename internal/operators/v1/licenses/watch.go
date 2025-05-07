@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
 	"github.com/fsnotify/fsnotify"
 )
@@ -17,8 +17,8 @@ func (o *Operator) initWatcher() error {
 		return err
 	}
 
-	os.MkdirAll(v1.LicenseDir, os.ModeDir)
-	return o.watcher.Add(v1.LicenseDir)
+	os.MkdirAll(license.Dir, os.ModeDir)
+	return o.watcher.Add(license.Dir)
 }
 
 func syncLicense(event fsnotify.Event) {

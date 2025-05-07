@@ -40,7 +40,7 @@ var (
 			Version: api.V1,
 			Method:  http.MethodGet,
 			Path:    "/licenses/attachments",
-			Func:    listLicenseAttachments,
+			Func:    listAttachments,
 		},
 	}
 )
@@ -121,7 +121,8 @@ func importClusterLicense(c *gin.Context) {
 }
 
 func importHostLicense(c *gin.Context) {
-	if err := importOrDelegateLicense(c, c.Param("node")); err != nil {
+	err := importOrDelegateLicense(c, c.Param("node"))
+	if err != nil {
 		log.Errorf("license(%s): failed to import license: %s", api.GetReqId(c), err.Error())
 		api.SetInternalServerError(c, err)
 		return
@@ -130,13 +131,13 @@ func importHostLicense(c *gin.Context) {
 	api.SetStatusOk(c, "update licenses successfully", nil)
 }
 
-func listLicenseAttachments(c *gin.Context) {
-	h, err := initHelper(c, "listLicenseAttachments")
+func listAttachments(c *gin.Context) {
+	h, err := initHelper(c, "listAttachments")
 	if err != nil {
 		return
 	}
 
-	attachments, err := h.listLicenseAttachments()
+	attachments, err := h.listAttachments()
 	if err != nil {
 		return
 	}

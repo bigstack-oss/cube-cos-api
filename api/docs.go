@@ -1428,14 +1428,14 @@ const docTemplate = `{
                                                     {
                                                         "id": "NET00003I",
                                                         "category": "NET",
-                                                        "severity": "I",
+                                                        "severity": "Info",
                                                         "percent": 98.2142,
                                                         "number": 440
                                                     },
                                                     {
                                                         "id": "NET00001I",
                                                         "category": "NET",
-                                                        "severity": "I",
+                                                        "severity": "Info",
                                                         "percent": 1.7857,
                                                         "number": 8
                                                     }
@@ -8668,19 +8668,19 @@ const docTemplate = `{
                                                         {
                                                             "name": "severity",
                                                             "type": "string",
-                                                            "value": "W",
+                                                            "value": "Warning",
                                                             "enabled": false
                                                         },
                                                         {
                                                             "name": "severity",
                                                             "type": "string",
-                                                            "value": "E",
+                                                            "value": "Error",
                                                             "enabled": false
                                                         },
                                                         {
                                                             "name": "severity",
                                                             "type": "string",
-                                                            "value": "C",
+                                                            "value": "Critical",
                                                             "enabled": false
                                                         },
                                                         {
@@ -8765,19 +8765,19 @@ const docTemplate = `{
                                                         {
                                                             "name": "severity",
                                                             "type": "string",
-                                                            "value": "W",
+                                                            "value": "Warning",
                                                             "enabled": false
                                                         },
                                                         {
                                                             "name": "severity",
                                                             "type": "string",
-                                                            "value": "E",
+                                                            "value": "Error",
                                                             "enabled": false
                                                         },
                                                         {
                                                             "name": "severity",
                                                             "type": "string",
-                                                            "value": "C",
+                                                            "value": "Critical",
                                                             "enabled": false
                                                         },
                                                         {
@@ -8957,19 +8957,19 @@ const docTemplate = `{
                                                     {
                                                         "name": "severity",
                                                         "type": "string",
-                                                        "value": "W",
+                                                        "value": "Warning",
                                                         "enabled": false
                                                     },
                                                     {
                                                         "name": "severity",
                                                         "type": "string",
-                                                        "value": "E",
+                                                        "value": "Error",
                                                         "enabled": false
                                                     },
                                                     {
                                                         "name": "severity",
                                                         "type": "string",
-                                                        "value": "C",
+                                                        "value": "Critical",
                                                         "enabled": false
                                                     },
                                                     {
@@ -9138,19 +9138,19 @@ const docTemplate = `{
                                             {
                                                 "name": "severity",
                                                 "type": "string",
-                                                "value": "W",
+                                                "value": "Warning",
                                                 "enabled": true
                                             },
                                             {
                                                 "name": "severity",
                                                 "type": "string",
-                                                "value": "E",
+                                                "value": "Error",
                                                 "enabled": true
                                             },
                                             {
                                                 "name": "severity",
                                                 "type": "string",
-                                                "value": "C",
+                                                "value": "Critical",
                                                 "enabled": true
                                             },
                                             {

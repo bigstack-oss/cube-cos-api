@@ -8,6 +8,7 @@ import (
 	"slices"
 	"sync"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
@@ -51,17 +52,17 @@ var (
 )
 
 type Node struct {
-	Id                string `json:"id" yaml:"id"`
-	SerialNumber      string `json:"serialNumber" yaml:"serialNumber"`
-	DataCenter        string `json:"dataCenter" yaml:"dataCenter"`
-	Hostname          string `json:"hostname" yaml:"hostname"`
-	Role              string `json:"role" yaml:"role"`
-	Protocol          string `json:"protocol,omitempty" yaml:"protocol,omitempty" bson:"protocol,omitempty"`
-	Address           string `json:"address" yaml:"address"`
-	Ip                string `json:"ip" yaml:"ip"`
-	ManagementIP      string `json:"managementIP" yaml:"managementIP"`
-	StorageIP         string `json:"storageIP" yaml:"storageIP"`
-	License           `json:"license" yaml:"license,omitempty" bson:"license,omitempty"`
+	Id                string             `json:"id" yaml:"id"`
+	SerialNumber      string             `json:"serialNumber" yaml:"serialNumber"`
+	DataCenter        string             `json:"dataCenter" yaml:"dataCenter"`
+	Hostname          string             `json:"hostname" yaml:"hostname"`
+	Role              string             `json:"role" yaml:"role"`
+	Protocol          string             `json:"protocol,omitempty" yaml:"protocol,omitempty" bson:"protocol,omitempty"`
+	Address           string             `json:"address" yaml:"address"`
+	Ip                string             `json:"ip" yaml:"ip"`
+	ManagementIP      string             `json:"managementIP" yaml:"managementIP"`
+	StorageIP         string             `json:"storageIP" yaml:"storageIP"`
+	License           license.Options    `json:"license" yaml:"license,omitempty" bson:"license,omitempty"`
 	Status            string             `json:"status" yaml:"status"`
 	CpuSpec           string             `json:"cpuSpec" yaml:"cpuSpec" bson:"cpuSpec"`
 	NetworkInterfaces []NetworkInterface `json:"networkInterfaces" yaml:"networkInterfaces" bson:"networkInterfaces"`

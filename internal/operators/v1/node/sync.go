@@ -17,6 +17,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/dustin/go-humanize"
 	json "github.com/json-iterator/go"
@@ -135,11 +136,11 @@ func (o *Operator) setNodeLicense(node *v1.Node) {
 	node.License = o.getLicenseByHostname(node.Hostname)
 }
 
-func (o *Operator) getLicenseByHostname(hostname string) v1.License {
+func (o *Operator) getLicenseByHostname(hostname string) license.Options {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
 		log.Warnf("nodes: failed to add license info to the nodes: %s", err.Error())
-		return v1.License{}
+		return license.Options{}
 	}
 
 	for _, license := range licenses {
@@ -149,7 +150,7 @@ func (o *Operator) getLicenseByHostname(hostname string) v1.License {
 		}
 	}
 
-	return v1.License{}
+	return license.Options{}
 }
 
 func (o *Operator) setNodeInfraSpec(node *v1.Node) {

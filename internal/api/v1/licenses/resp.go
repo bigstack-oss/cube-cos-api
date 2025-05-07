@@ -1,8 +1,11 @@
 package licenses
 
-import v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+import (
+	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
+)
 
 type data struct {
-	Licenses []v1.License `json:"licenses"`
+	Licenses []license.Options `json:"licenses"`
 	v1.Page  `json:"page"`
 }
