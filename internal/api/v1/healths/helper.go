@@ -36,23 +36,24 @@ func (h *helper) getHealthSummary() (cubecos.Health, error) {
 	return summary, nil
 }
 
-func (h *helper) genServiceHealthHistory() []cubecos.HealthStatus {
+func (h *helper) genServiceHealthHistory() []cubecos.ModuleHealth {
 	return cubecos.GetServiceHealthHistory(h.serviceType, h.past)
 }
 
-func (h *helper) genModuleHealthHistory() cubecos.HealthStatus {
+func (h *helper) genModuleHealthHistory() cubecos.ModuleHealth {
 	service := cubecos.ModuleToService[h.moduleType]
 	history, err := cubecos.GetModuleHealthHistory(h.moduleType, h.past, v1.AscSort, false)
 	if err != nil {
 		log.Errorf("healths(%s): %v", api.GetReqId(h.c), err)
 	}
 
-	return cubecos.HealthStatus{
+	return cubecos.ModuleHealth{
 		Category:     cubecos.ServiceToCategory[service],
 		Name:         service,
 		Module:       h.moduleType,
 		IsRepairable: cubecos.IsRepairableModule(h.moduleType),
 		History:      history,
+		Status:       h.getModuleStatus(),
 	}
 }
 
@@ -90,6 +91,10 @@ func (h *helper) genForceRepairReq() cubecos.Health {
 func (h *helper) requestForceRepair() {
 	req := h.genForceRepairReq()
 	reqQueue.Add(&req)
+	err := h.setRepairingRecord()
+	if err != nil {
+		log.Errorf("healths(%s): failed to set module repairing record: %v", api.GetReqId(h.c), err)
+	}
 }
 
 func (h *helper) requestCheckRepair() {

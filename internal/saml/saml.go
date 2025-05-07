@@ -189,7 +189,6 @@ func ServeAcs() gin.HandlerFunc {
 			api.SetRedirect(
 				c,
 				"/home",
-				// SpAuth.ServiceProvider.DefaultRedirectURI,
 			)
 			return
 		}
@@ -201,7 +200,6 @@ func ServeAcs() gin.HandlerFunc {
 			api.SetRedirect(
 				c,
 				"/home",
-				// SpAuth.ServiceProvider.DefaultRedirectURI,
 			)
 			return
 		}

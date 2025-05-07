@@ -34,6 +34,7 @@ const (
 var (
 	updateHealthSummary sync.Mutex
 	healthSummary       Health
+	healthCheck         = "health: check module %s"
 )
 
 type Health struct {
@@ -42,21 +43,18 @@ type Health struct {
 	Services       []v1.Service `json:"services" bson:"services"`
 }
 
-type HealthStatus struct {
+type Overall struct {
+	Status status.Health `json:"status" bson:"status"`
+}
+
+type ModuleHealth struct {
 	Category     string           `json:"category"`
 	Name         string           `json:"name"`
 	Module       string           `json:"module"`
 	IsRepairable bool             `json:"isRepairable"`
 	History      []v1.HealthCheck `json:"history"`
+	Status       status.Health    `json:"status"`
 }
-
-type Overall struct {
-	Status status.Health `json:"status" bson:"status"`
-}
-
-var (
-	healthCheck = "health: check module %s"
-)
 
 func (h *Health) HasUnhealthyService() bool {
 	for _, svc := range h.Services {
@@ -211,9 +209,9 @@ func GetHealthSummary() Health {
 	return healthSummary
 }
 
-func GetServiceHealthHistory(serviceName, duration string) []HealthStatus {
+func GetServiceHealthHistory(serviceName, duration string) []ModuleHealth {
 	modules := ServiceToModules[serviceName]
-	statuses := []HealthStatus{}
+	statuses := []ModuleHealth{}
 
 	for _, module := range modules {
 		history, err := GetModuleHealthHistory(module.Name, duration, v1.AscSort, false)
@@ -221,7 +219,7 @@ func GetServiceHealthHistory(serviceName, duration string) []HealthStatus {
 			continue
 		}
 
-		statuses = append(statuses, HealthStatus{
+		statuses = append(statuses, ModuleHealth{
 			Category:     ServiceToCategory[serviceName],
 			Name:         serviceName,
 			Module:       module.Name,

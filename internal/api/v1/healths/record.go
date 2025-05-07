@@ -44,3 +44,29 @@ func (h *helper) hasCheckingAndRepairingRecord() bool {
 
 	return count > 0
 }
+
+func (h *helper) getModuleStatus() status.Health {
+	s := status.Health{Current: status.Ok, IsFixing: false}
+	if h.isModuleRepairing() {
+		s.Current = status.Repairing
+		s.IsFixing = true
+		s.Description = "Repairing in progress"
+	}
+
+	return s
+}
+
+func (h *helper) isModuleRepairing() bool {
+	mongo := mongo.GetGlobalHelper()
+	count, err := mongo.GetCount(
+		v1.Healths,
+		v1.HealthRepairingCollection,
+		bson.M{"module": h.moduleType, "isRepairing": true},
+	)
+	if err != nil {
+		log.Errorf("healths(%s): failed to get count of repairing records: %v", api.GetReqId(h.c), err)
+		return false
+	}
+
+	return count > 0
+}

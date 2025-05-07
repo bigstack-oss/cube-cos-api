@@ -62,6 +62,8 @@ func repairServices(health cubecos.Health) {
 			log.Warnf(healthVerifyFailed, err.Error())
 		}
 	}
+
+	reportToController()
 }
 
 func reportToController() {
