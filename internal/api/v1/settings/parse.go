@@ -69,11 +69,28 @@ func (h *helper) initEmailSenderPatchParams() error {
 	}
 
 	h.task.Key = h.task.Sender.Host
+	h.task.Sender.Password = h.parsePassword()
 	h.task.Sender.ResetAccessVerification()
 	h.task.InitUpdateStatus()
 	h.task.ShouldReportToController = h.isClusterWiseRequired
 
 	return nil
+}
+
+func (h *helper) parsePassword() *string {
+	if h.task.Sender.Password != nil {
+		return h.task.Sender.Password
+	}
+
+	senders, err := cubecos.GetEmailSenders()
+	if err != nil {
+		return nil
+	}
+	if len(senders) == 0 {
+		return nil
+	}
+
+	return senders[0].Password
 }
 
 func (h *helper) initEmailSenderDeleteParams() error {

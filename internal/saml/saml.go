@@ -55,13 +55,13 @@ func NewGlobalAuth(opts Options) error {
 		opts.ServiceProvider.Host.Auth.Key,
 	)
 	if err != nil {
-		log.Errorf("failed to generate api server cert key pair: %v", err)
+		log.Errorf("auth: failed to generate api server cert key pair: %v", err)
 		return err
 	}
 
 	idpMetadata, err := GenIdentityProviderMetadata(opts)
 	if err != nil {
-		log.Errorf("failed to generate idp metadata: %v", err)
+		log.Errorf("auth: failed to generate idp metadata: %v", err)
 		return err
 	}
 
@@ -76,7 +76,7 @@ func NewGlobalAuth(opts Options) error {
 		SignRequest:        true,
 	})
 	if err != nil {
-		log.Errorf("failed to create saml auth: %v", err)
+		log.Errorf("auth: failed to create saml auth: %v", err)
 		return err
 	}
 
@@ -174,34 +174,47 @@ func GenServiceProviderMetadataUrl(opts Options) url.URL {
 
 func ServeAcs() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log.Info("---------------------------")
+		log.Info(1)
 		err := c.Request.ParseForm()
 		if err != nil {
 			SpAuth.OnError(c.Writer, c.Request, err)
 			return
 		}
 
+		log.Info(2)
 		err = checkTrackedRequest(c)
 		if err != nil {
-			SpAuth.OnError(c.Writer, c.Request, err)
+			// SpAuth.OnError(c.Writer, c.Request, err)
+			api.SetRedirect(
+				c,
+				"/home",
+				// SpAuth.ServiceProvider.DefaultRedirectURI,
+			)
 			return
 		}
 
+		log.Info(3)
 		assertion, err := getAssertion(c)
 		if err != nil {
-			SpAuth.OnError(c.Writer, c.Request, err)
+			// SpAuth.OnError(c.Writer, c.Request, err)
+			api.SetRedirect(
+				c,
+				"/home",
+				// SpAuth.ServiceProvider.DefaultRedirectURI,
+			)
 			return
 		}
 
+		log.Info(4)
 		err = createSession(c, assertion)
 		if err != nil {
 			SpAuth.OnError(c.Writer, c.Request, err)
 			return
 		}
 
-		api.SetRedirect(
-			c,
-			SpAuth.ServiceProvider.DefaultRedirectURI,
-		)
+		log.Info(5)
+		api.SetRedirect(c, "/home")
 	}
 }
 

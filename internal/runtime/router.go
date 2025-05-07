@@ -274,6 +274,14 @@ func checkLive() gin.HandlerFunc {
 
 func verifyAuthToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if isAuthFreeReq(c) {
+			c.Set("isTokenValid", true)
+			c.Set("authType", "none")
+			c.Set("authUser", c.ClientIP())
+			c.Next()
+			return
+		}
+
 		internalToken := parseInternalToken(c)
 		if isValidInternalToken(c, internalToken) {
 			c.Set("isTokenValid", true)
@@ -293,6 +301,10 @@ func verifyAuthToken() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func isAuthFreeReq(c *gin.Context) bool {
+	return c.Request.Method == "GET" && c.Request.URL.Path == "/api/v1/datacenters"
 }
 
 func parseInternalToken(c *gin.Context) string {

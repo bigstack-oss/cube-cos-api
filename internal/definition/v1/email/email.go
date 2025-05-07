@@ -37,7 +37,7 @@ func (c *CosSender) ConvertToApiSchema() Sender {
 		Host:     c.Host,
 		Port:     port,
 		Username: c.Username,
-		Password: c.Password,
+		Password: &c.Password,
 		From:     c.From,
 	}
 }
@@ -46,7 +46,7 @@ type Sender struct {
 	Host           string           `json:"host,omitempty" bson:"host" yaml:"host,omitempty"`
 	Port           int              `json:"port,omitempty" bson:"port" yaml:"port,omitempty"`
 	Username       string           `json:"username,omitempty" bson:"username" yaml:"username,omitempty"`
-	Password       string           `json:"password,omitzero" bson:"password" yaml:"password,omitempty"`
+	Password       *string          `json:"password,omitzero" bson:"password" yaml:"password,omitempty"`
 	From           string           `json:"from,omitempty" bson:"from" yaml:"from,omitempty"`
 	AccessVerified bool             `json:"accessVerified" bson:"accessVerified" yaml:"-"`
 	Status         *status.Settings `json:"status,omitempty" bson:"status" yaml:"-"`
@@ -61,7 +61,7 @@ func (s *Sender) IsPortEmpty() bool {
 }
 
 func (s *Sender) RequirePasswordChange() bool {
-	return s.Password != ""
+	return s.Password != nil
 }
 
 func (s *Sender) Address() string {
@@ -69,7 +69,7 @@ func (s *Sender) Address() string {
 }
 
 func (s *Sender) UserAuth() smtp.Auth {
-	return smtp.PlainAuth("", s.Username, s.Password, s.Host)
+	return smtp.PlainAuth("", s.Username, *s.Password, s.Host)
 }
 
 func (s *Sender) ResetAccessVerification() {
@@ -77,7 +77,7 @@ func (s *Sender) ResetAccessVerification() {
 }
 
 func (s *Sender) ErasePassword() {
-	s.Password = ""
+	s.Password = nil
 }
 
 func (s *Sender) InitOkStatus() {
