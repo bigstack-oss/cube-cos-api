@@ -48,7 +48,7 @@ func genLicenseVerifyPath(filename string) (string, error) {
 func importOrDelegateLicense(c *gin.Context, nodeName string) error {
 	licenseFile, err := c.FormFile("license")
 	if err != nil {
-		log.Errorf("failed to get license file: %s", api.GetReqId(c), err.Error())
+		log.Errorf("licenses(%s): failed to get license file: %s", api.GetReqId(c), err.Error())
 		return err
 	}
 
@@ -62,12 +62,12 @@ func importOrDelegateLicense(c *gin.Context, nodeName string) error {
 func importLicenseToNode(c *gin.Context, licenseFile *multipart.FileHeader) error {
 	filePath, err := genLicenseStorePath(licenseFile.Filename)
 	if err != nil {
-		log.Errorf("failed to generate license store path: %s", err.Error())
+		log.Errorf("licenses(%s): failed to generate license store path: %s", api.GetReqId(c), err.Error())
 		return err
 	}
 
 	if err := c.SaveUploadedFile(licenseFile, filePath); err != nil {
-		log.Errorf("failed to save license file: %s", err.Error())
+		log.Errorf("licenses(%s): failed to save license file: %s", api.GetReqId(c), err.Error())
 		return err
 	}
 

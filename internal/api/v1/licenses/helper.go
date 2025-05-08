@@ -34,36 +34,36 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 	return h, h.parseParamsByHandler()
 }
 
-func (h *helper) listLicenses() (*data, error) {
+func (h *helper) listLicenses() (*licensePages, error) {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
-		log.Warnf("license(%s): failed to list the cluster license: %s", api.GetReqId(h.c), err.Error())
+		log.Warnf("licenses(%s): failed to list the cluster license: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
 	licenses = h.filterLicenses(licenses)
-	return &data{
+	return &licensePages{
 		Licenses: h.paginateLicenses(licenses),
 		Page:     h.genPageInfo(licenses),
 	}, nil
 }
 
 func (h *helper) saveLicense() (string, error) {
-	licenseFile, err := h.c.FormFile("license")
+	license, err := h.c.FormFile("license")
 	if err != nil {
-		log.Errorf("license(%s): %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): %s", api.GetReqId(h.c), err.Error())
 		return "", err
 	}
 
-	filePath, err := genLicenseVerifyPath(licenseFile.Filename)
+	filePath, err := genLicenseVerifyPath(license.Filename)
 	if err != nil {
-		log.Errorf("license(%s): failed to generate license store path: %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to generate license store path: %s", api.GetReqId(h.c), err.Error())
 		return "", err
 	}
 
-	err = h.c.SaveUploadedFile(licenseFile, filePath)
+	err = h.c.SaveUploadedFile(license, filePath)
 	if err != nil {
-		log.Errorf("license(%s): failed to save license file: %s", api.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to save license file: %s", api.GetReqId(h.c), err.Error())
 		return "", err
 	}
 
@@ -83,7 +83,7 @@ func (h *helper) listAttachments() ([]license.Attachment, error) {
 func (h *helper) listAttachmentsByProduct() ([]license.Attachment, error) {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
-		log.Warnf("request(%s): failed to list the licenses: %s", api.GetReqId(h.c), err.Error())
+		log.Warnf("licenses(%s): failed to list the licenses: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
