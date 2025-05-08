@@ -2302,7 +2302,11 @@ const docTemplate = `{
                                                         "time": "2025-02-01T02:45:00+00:00",
                                                         "status": "ok"
                                                     }
-                                                ]
+                                                ],
+                                                "status": {
+                                                    "current": "ok",
+                                                    "isFixing": false
+                                                }
                                             },
                                             "msg": "retrieve health history of module successfully",
                                             "status": "ok"
@@ -11813,7 +11817,8 @@ const docTemplate = `{
                             "name",
                             "module",
                             "isRepairable",
-                            "history"
+                            "history",
+                            "status"
                         ],
                         "properties": {
                             "category": {
@@ -11872,6 +11877,25 @@ const docTemplate = `{
                                                 }
                                             }
                                         }
+                                    }
+                                }
+                            },
+                            "status": {
+                                "type": "object",
+                                "required": [
+                                    "current",
+                                    "isFixing"
+                                ],
+                                "properties": {
+                                    "current": {
+                                        "type": "string",
+                                        "enum": [
+                                            "ok",
+                                            "ng"
+                                        ]
+                                    },
+                                    "isFixing": {
+                                        "type": "boolean"
                                     }
                                 }
                             }
