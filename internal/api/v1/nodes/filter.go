@@ -39,7 +39,10 @@ func (h *helper) filterNodes(nodes []v1.Node) []v1.Node {
 }
 
 func (h *helper) isFilterRequired() bool {
-	return h.isProductRequired() || h.isKeywordRequired() || h.isRolesRequired() || h.isLicenseStatusRequired()
+	return h.isProductRequired() ||
+		h.isKeywordRequired() ||
+		h.isRolesRequired() ||
+		h.isLicenseStatusRequired()
 }
 
 func (h *helper) isRolesRequired() bool {

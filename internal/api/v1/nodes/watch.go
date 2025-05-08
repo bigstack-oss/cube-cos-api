@@ -37,7 +37,7 @@ func streamingWatcher() {
 
 		stream.Lock()
 		for _, w := range stream.Watchers {
-			resp, err := streamNodeByHandlerType(&w.helper)
+			resp, err := streamNodeByHandler(&w.helper)
 			if err != nil {
 				continue
 			}
@@ -52,7 +52,7 @@ func streamingWatcher() {
 	}
 }
 
-func streamNodeByHandlerType(h *helper) (any, error) {
+func streamNodeByHandler(h *helper) (any, error) {
 	switch h.handler {
 	case "listNodes":
 		return h.listNodes()

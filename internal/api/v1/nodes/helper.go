@@ -21,7 +21,7 @@ type helper struct {
 	licenseStatuses []string
 	roles           []string
 
-	v1.Page
+	*v1.Page
 	watch bool
 }
 
@@ -61,15 +61,14 @@ func (h *helper) parseGetOptions() error {
 	return h.parseWatch()
 }
 
-func (h *helper) listNodes() (*data, error) {
-	nodes := v1.ListNodes()
-	nodes = h.filterNodes(nodes)
+func (h *helper) listNodes() (*nodePage, error) {
+	nodes := h.filterNodes(v1.ListNodes())
 	nodesPerPage := h.paginateNodes(nodes)
 	h.sortNodes(&nodesPerPage)
 
-	return &data{
+	return &nodePage{
 		Nodes: nodesPerPage,
-		Page:  genPageInfo(nodes, h.Page),
+		Page:  h.genPageInfo(nodes),
 	}, nil
 }
 
@@ -80,10 +79,6 @@ func (h *helper) sortNodes(node *[]v1.Node) {
 			return (*node)[i].Hostname < (*node)[j].Hostname
 		},
 	)
-}
-
-func isPageReceived(num, size string) bool {
-	return num != "" || size != ""
 }
 
 func (h *helper) getNode() (*v1.Node, error) {

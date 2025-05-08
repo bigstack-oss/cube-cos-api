@@ -16,8 +16,8 @@ func (h *helper) paginateNodes(nodes []v1.Node) []v1.Node {
 	return nodes[left:right]
 }
 
-func genPageInfo(nodes []v1.Node, page v1.Page) v1.Page {
-	if !page.IsRequired() {
+func (h *helper) genPageInfo(nodes []v1.Node) v1.Page {
+	if !h.Page.IsRequired() {
 		return v1.Page{
 			Total:          1,
 			Number:         1,
@@ -27,9 +27,9 @@ func genPageInfo(nodes []v1.Node, page v1.Page) v1.Page {
 	}
 
 	return v1.Page{
-		Total:          int64(math.Ceil(float64(len(nodes)) / float64(page.Size))),
-		Number:         page.Number,
-		Size:           page.Size,
+		Total:          int64(math.Ceil(float64(len(nodes)) / float64(h.Page.Size))),
+		Number:         h.Page.Number,
+		Size:           h.Page.Size,
 		TotalItemCount: int64(len(nodes)),
 	}
 }

@@ -1,8 +1,6 @@
 package nodes
 
 import (
-	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
@@ -26,40 +24,9 @@ func (h *helper) parseLicenseStatus() {
 }
 
 func (h *helper) parsePage() error {
-	num := h.c.DefaultQuery("pageNum", "")
-	size := h.c.DefaultQuery("pageSize", "")
-	if !isPageReceived(num, size) {
-		return nil
-	}
-
-	if num == "" {
-		return fmt.Errorf("pageNum should be provided if pageSize is provided")
-	}
-
-	if size == "" {
-		return fmt.Errorf("pageSize should be provided if pageNum is provided")
-	}
-
 	var err error
-	h.Page.Number, err = strconv.Atoi(num)
-	if err != nil {
-		return fmt.Errorf("pageNum should be an integer: %s", num)
-	}
-
-	h.Page.Size, err = strconv.Atoi(size)
-	if err != nil {
-		return fmt.Errorf("pageSize should be an integer: %s", size)
-	}
-
-	if h.Page.Number <= 0 {
-		return fmt.Errorf("pageNum should be greater than 0 if pageSize is provided")
-	}
-
-	if h.Page.Size <= 0 {
-		return fmt.Errorf("pageSize should be greater than 0 if pageNum is provided")
-	}
-
-	return nil
+	h.Page, err = query.GetPage(h.c)
+	return err
 }
 
 func (h *helper) parseWatch() error {

@@ -9,19 +9,19 @@ import (
 )
 
 func parseUserBody(c *gin.Context) (*v1.User, error) {
-	u := &v1.User{}
-	err := json.NewDecoder(c.Request.Body).Decode(&u)
+	user := &v1.User{}
+	err := json.NewDecoder(c.Request.Body).Decode(&user)
 	if err != nil {
 		return nil, err
 	}
 
-	if u.IsNameEmpty() {
+	if user.IsNameEmpty() {
 		return nil, errors.New("user name is empty")
 	}
 
-	if u.IsPasswordEmpty() {
+	if user.IsPasswordEmpty() {
 		return nil, errors.New("user password is empty")
 	}
 
-	return u, nil
+	return user, nil
 }
