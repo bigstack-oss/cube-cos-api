@@ -1,8 +1,7 @@
 package me
 
 import (
-	"errors"
-
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/crewjam/saml/samlsp"
 	"github.com/gin-gonic/gin"
 )
@@ -10,7 +9,7 @@ import (
 func getUsername(c *gin.Context) (string, error) {
 	authType, found := c.Get("authType")
 	if !found {
-		return "", errors.New("the authed method is not support to fetch personal info")
+		return "", errors.ErrAuthMethodCannotGetUserInfo
 	}
 
 	username := ""

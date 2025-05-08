@@ -22,13 +22,13 @@ var (
 func getMe(c *gin.Context) {
 	username, err := getUsername(c)
 	if err != nil {
-		log.Errorf("request(%s): %v", api.GetReqId(c), err)
+		log.Errorf("me(%s): %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 	}
 
 	api.SetStatusOk(
 		c,
-		"fetch own user info successfully",
+		"fetch user info successfully",
 		gin.H{"name": username},
 	)
 }
