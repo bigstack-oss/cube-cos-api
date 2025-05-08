@@ -43,6 +43,7 @@ var (
 	ErrEmailRecipientNotFound       = errors.New("email recipient not found")
 	ErrEmailRecipientIsEmpty        = errors.New("email recipient is empty")
 	ErrSlackChannelNameIsEmpty      = errors.New("slack channel name is empty")
+	ErrSessionIndexNotFound         = errors.New("session index not found in jwt session")
 )
 
 type Template struct {

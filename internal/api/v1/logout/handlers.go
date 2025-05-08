@@ -4,9 +4,7 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/gin-gonic/gin"
-	log "go-micro.dev/v5/logger"
 )
 
 var (
@@ -22,14 +20,14 @@ var (
 )
 
 func logout(c *gin.Context) {
-	session, err := saml.SpAuth.Session.GetSession(c.Request)
+	h := initHelper(c)
+	session, err := h.getSession()
 	if err != nil {
-		log.Errorf("failed to get session for logout: %s", err.Error())
 		api.SetInternalServerError(c, err)
 		return
 	}
 
-	err = cleanSession(c, session)
+	err = h.cleanSession(session)
 	if err != nil {
 		api.SetInternalServerError(c, err)
 		return

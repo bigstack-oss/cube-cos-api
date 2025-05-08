@@ -5,11 +5,12 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
+	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/crewjam/saml/samlsp"
-	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -22,65 +23,64 @@ func genRedirectUrl() string {
 	)
 }
 
-func cleanSession(c *gin.Context, session samlsp.Session) error {
-	jwtSession := session.(samlsp.JWTSessionClaims)
-	err := deleteSessionInSamlAuth(c, jwtSession)
+func (h *helper) cleanSession(session *samlsp.Session) error {
+	claims := (*session).(samlsp.JWTSessionClaims)
+	err := h.deleteSamlSession(claims)
 	if err != nil {
-		log.Errorf("failed to delete session in saml auth: %s", err.Error())
+		log.Errorf("logout(%s): failed to delete saml session: %s", api.GetReqId(h.c), err.Error())
 		return err
 	}
 
-	err = deleteSessionInKeycloak(jwtSession)
+	err = h.deleteKeycloakSession(claims)
 	if err != nil {
-		log.Errorf("failed to delete session in keycloak: %s", err.Error())
+		log.Errorf("logout(%s): failed to delete keycloak session: %s", api.GetReqId(h.c), err.Error())
 		return err
 	}
 
 	return nil
 }
 
-func deleteSessionInSamlAuth(c *gin.Context, jwtSession samlsp.JWTSessionClaims) error {
+func (h *helper) deleteSamlSession(jwtSession samlsp.JWTSessionClaims) error {
 	_, err := saml.SpAuth.ServiceProvider.MakeRedirectLogoutRequest(jwtSession.Subject, "")
 	if err != nil {
-		log.Errorf("failed to get signout url: %s", err.Error())
+		log.Errorf("logout(%s): failed to get signout url: %s", api.GetReqId(h.c), err.Error())
 		return err
 	}
 
-	err = saml.SpAuth.Session.DeleteSession(c.Writer, c.Request)
+	err = saml.SpAuth.Session.DeleteSession(h.c.Writer, h.c.Request)
 	if err != nil {
-		log.Errorf("failed to delete session for logout: %s", err.Error())
+		log.Errorf("logout(%s): failed to delete saml session: %s", api.GetReqId(h.c), err.Error())
 		return err
 	}
 
 	return nil
 }
 
-func deleteSessionInKeycloak(jwtSession samlsp.JWTSessionClaims) error {
-	h := keycloak.GetGlobalHelper()
-	err := h.LoginAdmin()
+func (h *helper) deleteKeycloakSession(claims samlsp.JWTSessionClaims) error {
+	keycloak := keycloak.GetGlobalHelper()
+	err := keycloak.LoginAdmin()
 	if err != nil {
-		log.Errorf("failed to login admin: %s", err.Error())
+		log.Errorf("logout(%s): failed to login admin: %s", err.Error())
 		return err
 	}
 
-	activeSpSessions, found := jwtSession.Attributes["SessionIndex"]
+	sessions, found := claims.Attributes["SessionIndex"]
 	if !found {
-		err := fmt.Errorf("session index not found in jwt session")
-		log.Errorf(err.Error())
-		return err
+		log.Errorf("logout(%s): session index not found in jwt session", api.GetReqId(h.c))
+		return errors.ErrSessionIndexNotFound
 	}
 
-	for _, activeSpSession := range activeSpSessions {
-		spSessionInfo := strings.Split(activeSpSession, "::")
-		if len(spSessionInfo) < 2 {
-			log.Warnf("invalid alive session index to logout: %s", spSessionInfo)
+	for _, session := range sessions {
+		fragments := strings.Split(session, "::")
+		if len(fragments) < 2 {
+			log.Warnf("logout(%s): invalid alive session index to logout: %s", api.GetReqId(h.c), fragments)
 			continue
 		}
 
-		sessionId := spSessionInfo[0]
-		err := h.LogoutUserSession(conf.Opts.Spec.Identity.Keycloak.Realm, sessionId)
+		sessionId := fragments[0]
+		err := keycloak.LogoutUserSession(conf.Opts.Spec.Identity.Keycloak.Realm, sessionId)
 		if err != nil {
-			log.Errorf("failed to logout user session(%s): %s", sessionId, err.Error())
+			log.Errorf("logout(%s): failed to logout user session(%s): %s", api.GetReqId(h.c), sessionId, err.Error())
 		}
 	}
 

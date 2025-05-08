@@ -9,11 +9,11 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
@@ -33,7 +33,7 @@ func (o *Operator) traceNodeDetails() {
 			return
 		default:
 			o.syncNodeDetails()
-			time.Sleep(time.Second * 30)
+			wait.Seconds(30)
 		}
 	}
 }

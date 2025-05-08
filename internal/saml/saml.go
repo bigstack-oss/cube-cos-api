@@ -9,10 +9,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/crewjam/saml"
@@ -104,7 +104,7 @@ func GenIdentityProviderMetadata(opts Options) (*saml.EntityDescriptor, error) {
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
 	defer cancel()
 	return samlsp.FetchMetadata(
 		ctx,
