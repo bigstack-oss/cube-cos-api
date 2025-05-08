@@ -3,7 +3,6 @@ package metrics
 import (
 	"fmt"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +16,7 @@ type helper struct {
 	entityType string
 	entityId   string
 
-	v1.Period
+	*v1.Period
 	past            string
 	aggregateWindow string
 
@@ -33,44 +32,35 @@ type rank struct {
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{c: c, handler: handler}
-	switch handler {
-	case "getDataCenterSummary":
-		return h, h.parseWatch()
-	}
-
-	return h, h.parseParams()
-}
-
-func (h *helper) getDataCenterSummary() any {
-	return cubecos.GetMetricsSummary()
+	return h, h.parseParamsByHandler()
 }
 
 func (h *helper) getMetrics() (any, error) {
 	switch h.metricType {
 	case "cpuUsage":
-		return h.getCpuUsageMetrics()
+		return h.getCpuUsage()
 	case "memoryUsage":
-		return h.getMemoryUsageMetrics()
+		return h.getMemoryUsage()
 	case "diskUsage":
-		return h.getDiskUsageMetrics()
+		return h.getDiskUsage()
 	case "diskBandwidth":
-		return h.getDiskBandwidthMetrics()
+		return h.getDiskBandwidth()
 	case "diskIops":
-		return h.getDiskIopsMetrics()
+		return h.getDiskIops()
 	case "diskReadIops":
-		return h.getDiskReadIopsMetrics()
+		return h.getDiskReadIops()
 	case "diskWriteIops":
-		return h.getDiskWriteIopsMetrics()
+		return h.getDiskWriteIops()
 	case "diskLatency":
-		return h.getDiskLatencyMetrics()
+		return h.getDiskLatency()
 	case "networkTrafficIn":
-		return h.getNetworkTrafficInMetrics()
+		return h.getNetworkIngressTraffic()
 	case "networkTrafficOut":
-		return h.getNetworkTrafficOutMetrics()
+		return h.getNetworkEgressTraffic()
+	default:
+		return nil, fmt.Errorf(
+			"invalid metric type(%s) to get metrics",
+			h.metricType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid metric type(%s) to get metrics",
-		h.metricType,
-	)
 }

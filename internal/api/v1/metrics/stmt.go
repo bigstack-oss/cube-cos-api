@@ -17,6 +17,8 @@ func (h *helper) genHostCpuUsageStmt() string {
 		String()
 }
 
+// note:
+// will be supported in the M2
 func (h *helper) genHostMemoryUsageStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
@@ -146,6 +148,8 @@ func (h *helper) genHostStorageUsageRankStmt() string {
 		String()
 }
 
+// note:
+// will be supported in the M2
 func (h *helper) genHostNetworkIngressRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
@@ -160,6 +164,8 @@ func (h *helper) genHostNetworkIngressRankStmt() string {
 		String()
 }
 
+// note:
+// will be supported in the M2
 func (h *helper) genHostNetworkEgressRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
@@ -196,6 +202,8 @@ func (h *helper) genHostMemorySizeHistoryStmt() string {
 		String()
 }
 
+// note:
+// will be supported in the M2
 func (h *helper) genHostDiskUsageHistoryStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
@@ -206,6 +214,8 @@ func (h *helper) genHostDiskUsageHistoryStmt() string {
 		String()
 }
 
+// note:
+// will be supported in the M2
 func (h *helper) genHostNetworkIngressHistoryStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
@@ -218,6 +228,8 @@ func (h *helper) genHostNetworkIngressHistoryStmt() string {
 		String()
 }
 
+// note:
+// will be supported in the M2
 func (h *helper) genHostNetworkEgressHistoryStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").

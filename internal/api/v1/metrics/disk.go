@@ -6,7 +6,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 )
 
-func (h *helper) getDiskBandwidthMetrics() (any, error) {
+func (h *helper) getDiskBandwidth() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for disk bandwidth metrics")
@@ -39,7 +39,7 @@ func (h *helper) getDiskBandwidthHistory() (any, error) {
 	)
 }
 
-func (h *helper) getDiskUsageMetrics() (any, error) {
+func (h *helper) getDiskUsage() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for disk usage metrics")
@@ -69,7 +69,7 @@ func (h *helper) getDiskUsageRank() (any, error) {
 	)
 }
 
-func (h *helper) getDiskIopsMetrics() (any, error) {
+func (h *helper) getDiskIops() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for disk iops metrics")
@@ -102,7 +102,7 @@ func (h *helper) getDiskIopsHistory() (any, error) {
 	)
 }
 
-func (h *helper) getDiskReadIopsMetrics() (any, error) {
+func (h *helper) getDiskReadIops() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for disk read iops metrics")
@@ -132,7 +132,7 @@ func (h *helper) getDiskReadIopsRank() (any, error) {
 	)
 }
 
-func (h *helper) getDiskWriteIopsMetrics() (any, error) {
+func (h *helper) getDiskWriteIops() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for disk write iops metrics")
@@ -162,7 +162,7 @@ func (h *helper) getDiskWriteIopsRank() (any, error) {
 	)
 }
 
-func (h *helper) getDiskLatencyMetrics() (any, error) {
+func (h *helper) getDiskLatency() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return nil, fmt.Errorf("summary is not supported yet for disk latency metrics")

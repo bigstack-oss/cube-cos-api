@@ -1,20 +1,28 @@
 package metrics
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"time"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/trick"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	duration "github.com/xhit/go-str2duration"
 )
 
+func (h *helper) parseParamsByHandler() error {
+	switch h.handler {
+	case "getDataCenterSummary":
+		return h.parseWatch()
+	default:
+		return h.parseParams()
+	}
+}
+
 func (h *helper) parseParams() error {
 	parsers := []func() error{
-		h.parseView, h.parseMetric, h.parseEntity, h.parseEntityId,
+		h.parseView, h.parseMetric, h.parseEntityType, h.parseEntityId,
 		h.parsePast, h.parseAggregateWindow, h.parsePeriod,
 		h.parseRank, h.parseLimit, h.parseWatch,
 	}
@@ -32,7 +40,7 @@ func (h *helper) parseParams() error {
 func (h *helper) parseView() error {
 	h.viewType = h.c.Param("viewType")
 	if !cubecos.IsMetricReportTypeValid(h.viewType) {
-		return errors.New("viewType should be summary, history, or rank")
+		return errors.ErrViewTypeInvalid
 	}
 
 	return nil
@@ -40,19 +48,17 @@ func (h *helper) parseView() error {
 
 func (h *helper) parseMetric() error {
 	h.metricType = h.c.Param("metricType")
-	if !cubecos.IsMetricTypeValid(h.metricType) {
-		return errors.New(
-			"metricType should be cpuUsage, memoryUsage, diskUsage, diskBandwidth, diskIops, diskLatency, diskReadIops, diskWriteIops, networkTrafficIn, or networkTrafficOut",
-		)
+	if !cubecos.IsValidMetricType(h.metricType) {
+		return errors.ErrMetricTypeInvalid
 	}
 
 	return nil
 }
 
-func (h *helper) parseEntity() error {
+func (h *helper) parseEntityType() error {
 	h.entityType = h.c.Param("entityType")
 	if !cubecos.IsEntityTypeValid(h.entityType) {
-		return errors.New("entityType should be hosts or vms")
+		return errors.ErrEntityTypeInvalid
 	}
 
 	return nil
@@ -80,21 +86,21 @@ func (h *helper) parseLimit() error {
 	}
 
 	var err error
-	h.limit, err = strconv.Atoi(h.c.DefaultQuery("limit", "10"))
-	if err != nil || h.limit <= 0 {
-		return errors.New("limit should be an integer and greater than 0")
-	}
-
-	return nil
+	h.limit, err = query.GetLimit(h.c)
+	return err
 }
 
 func (h *helper) parsePast() error {
-	h.past = h.c.DefaultQuery("past", "")
+	var err error
+	h.past, err = query.GetPast(h.c)
+	if err != nil {
+		return err
+	}
 	if h.past == "" {
 		h.past = "1h"
 	}
 
-	_, err := duration.Str2Duration(h.past)
+	_, err = duration.Str2Duration(h.past)
 	if err != nil {
 		return fmt.Errorf("invalid 'past' duration: %s", h.past)
 	}
@@ -107,7 +113,6 @@ func (h *helper) parseAggregateWindow() error {
 	if h.aggregateWindow == "" {
 		h.aggregateWindow = "1m"
 	}
-
 	_, err := duration.Str2Duration(h.aggregateWindow)
 	if err != nil {
 		return fmt.Errorf("invalid 'aggregateWindow' duration: %s", h.aggregateWindow)
@@ -117,11 +122,9 @@ func (h *helper) parseAggregateWindow() error {
 	if err != nil {
 		return fmt.Errorf("invalid 'past' duration: %s", h.past)
 	}
-
 	if past > 12*time.Hour {
 		h.aggregateWindow = "30m"
 	}
-
 	if past > 24*time.Hour {
 		h.aggregateWindow = "1h"
 	}
@@ -134,28 +137,9 @@ func (h *helper) parsePeriod() error {
 		return nil
 	}
 
-	if h.arePeriodAndPastRequired() {
-		return fmt.Errorf("'past' and 'start'/'stop' cannot be used together")
-	}
-
-	qStart := h.c.DefaultQuery("start", v1.TimeRFC3339(-24*time.Hour))
-	start, err := time.Parse(time.RFC3339, qStart)
-	if err != nil {
-		return fmt.Errorf("'start' time format should be aligned with RFC3339: %s", qStart)
-	}
-
-	qStop := h.c.DefaultQuery("stop", v1.TimeNowRFC3339())
-	stop, err := time.Parse(time.RFC3339, qStop)
-	if err != nil {
-		return fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", qStop)
-	}
-
-	h.Period = v1.Period{
-		Start: v1.TimeUTC(trick.Minus2MinsOnMetricStart(start)),
-		Stop:  v1.TimeUTC(stop),
-	}
-
-	return nil
+	var err error
+	h.Period, err = query.GetPeriod(h.c)
+	return err
 }
 
 func (h *helper) parseRank() error {
@@ -181,21 +165,8 @@ func (h *helper) parseRank() error {
 
 func (h *helper) parseWatch() error {
 	var err error
-	rawParam := h.c.DefaultQuery("watch", "false")
-	h.watch, err = strconv.ParseBool(rawParam)
-	if err != nil {
-		return errors.New("watch parameter is invalid, it should be true or false if provided")
-	}
-
-	return nil
-}
-
-func (h *helper) arePeriodAndPastRequired() bool {
-	return h.isPeriodRequired() && h.isPastRequired()
-}
-
-func (h *helper) isPeriodRequired() bool {
-	return h.c.DefaultQuery("stop", "") != "" || h.c.DefaultQuery("start", "") != ""
+	h.watch, err = query.GetWatch(h.c)
+	return err
 }
 
 func (h *helper) isPastRequired() bool {

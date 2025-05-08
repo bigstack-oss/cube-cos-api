@@ -10,6 +10,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/gin-gonic/gin"
 	json "github.com/json-iterator/go"
 )
@@ -37,7 +38,7 @@ func streamingWatcher() {
 
 		stream.Lock()
 		for _, w := range stream.Watchers {
-			resp, err := streamMetricsByHandlerType(&w.helper)
+			resp, err := streamMetricsByHandler(&w.helper)
 			if err != nil {
 				continue
 			}
@@ -52,15 +53,15 @@ func streamingWatcher() {
 	}
 }
 
-func streamMetricsByHandlerType(h *helper) (any, error) {
+func streamMetricsByHandler(h *helper) (any, error) {
 	switch h.handler {
 	case "getDataCenterSummary":
-		return h.getDataCenterSummary(), nil
+		return cubecos.GetMetricsSummary(), nil
 	case "getMetrics":
 		return h.getMetrics()
+	default:
+		return nil, errors.New("no internal function supported")
 	}
-
-	return nil, errors.New("no internal function supported")
 }
 
 func watchHealth(h *helper, health any) {

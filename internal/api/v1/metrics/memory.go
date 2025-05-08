@@ -6,20 +6,20 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 )
 
-func (h *helper) getMemoryUsageMetrics() (any, error) {
+func (h *helper) getMemoryUsage() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return h.getMemoryUsageSummary()
 	case "history":
-		return h.getMemoryHistory()
+		return h.getMemoryUsageHistory()
 	case "rank":
 		return h.getMemoryUsageRank()
+	default:
+		return nil, fmt.Errorf(
+			"invalid view type(%s) to get memory metrics",
+			h.viewType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid view type(%s) to get memory metrics",
-		h.viewType,
-	)
 }
 
 func (h *helper) getMemoryUsageSummary() (any, error) {
@@ -32,27 +32,27 @@ func (h *helper) getMemoryUsageSummary() (any, error) {
 		return nil, fmt.Errorf("vm is not supported yet for memory summary")
 	case "vms":
 		return nil, fmt.Errorf("vms is not supported yet for memory summary")
+	default:
+		return nil, fmt.Errorf(
+			"invalid entity type(%s) to get memory summary",
+			h.entityType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid entity type(%s) to get memory summary",
-		h.entityType,
-	)
 }
 
-func (h *helper) getMemoryHistory() (any, error) {
+func (h *helper) getMemoryUsageHistory() (any, error) {
 	switch h.entityType {
 	case "host":
 		stmt := h.genHostMemorySizeHistoryStmt()
 		return cubecos.GetMemorySizeHistoryOfHost(stmt)
 	case "vm":
 		return nil, fmt.Errorf("vm is not supported yet for memory history")
+	default:
+		return nil, fmt.Errorf(
+			"invalid entity type(%s) to get memory history",
+			h.entityType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid entity type(%s) to get memory history",
-		h.entityType,
-	)
 }
 
 func (h *helper) getMemoryUsageRank() (any, error) {
@@ -61,10 +61,10 @@ func (h *helper) getMemoryUsageRank() (any, error) {
 		return cubecos.GetMemoryUsageRankOfHosts(h.genHostMemoryUsageRankStmt())
 	case "vms":
 		return cubecos.GetMemoryUsageRankOfVms(h.genVmMemoryRankStmt())
+	default:
+		return nil, fmt.Errorf(
+			"invalid entity type(%s) to get memory rank",
+			h.entityType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid entity type(%s) to get memory rank",
-		h.entityType,
-	)
 }

@@ -201,7 +201,7 @@ var (
 	`
 )
 
-func IsMetricTypeValid(t string) bool {
+func IsValidMetricType(t string) bool {
 	return isMetricTypeValid[t]
 }
 

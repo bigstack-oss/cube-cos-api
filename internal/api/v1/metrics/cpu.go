@@ -6,20 +6,20 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 )
 
-func (h *helper) getCpuUsageMetrics() (any, error) {
+func (h *helper) getCpuUsage() (any, error) {
 	switch h.viewType {
 	case "summary":
 		return h.getCpuUsageSummary()
 	case "history":
-		return h.getCpuHistory()
+		return h.getCpuUsageHistory()
 	case "rank":
 		return h.getCpuUsageRank()
+	default:
+		return nil, fmt.Errorf(
+			"invalid view type(%s) to get cpu metrics",
+			h.viewType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid view type(%s) to get cpu metrics",
-		h.viewType,
-	)
 }
 
 func (h *helper) getCpuUsageSummary() (any, error) {
@@ -40,7 +40,7 @@ func (h *helper) getCpuUsageSummary() (any, error) {
 	)
 }
 
-func (h *helper) getCpuHistory() (any, error) {
+func (h *helper) getCpuUsageHistory() (any, error) {
 	switch h.entityType {
 	case "host":
 		stmt := h.genHostCpuUsageHistoryStmt()
