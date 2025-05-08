@@ -9,7 +9,7 @@ spec:
     os:
       policy: /etc/settings.txt
       system: /etc/settings.sys
-    logoutRedirect: "/api/v1/datacenters"
+    redirect: "/home"
     keycloak:
       host:
         scheme: "https"

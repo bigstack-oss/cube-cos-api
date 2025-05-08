@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
-	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 )
 
@@ -34,7 +34,7 @@ func (o *Operator) createSetting(setting setting.Options) error {
 		return cubecos.ApplySlackChannel(setting.Slack.ConvertToCosSchema())
 	}
 
-	return cuberr.UnknownSettingType
+	return errors.ErrUnknownSettingType
 }
 
 func (o *Operator) updateSetting(setting setting.Options) error {
@@ -49,7 +49,7 @@ func (o *Operator) updateSetting(setting setting.Options) error {
 		return cubecos.DeleteAndCreateSlackChannel(setting)
 	}
 
-	return cuberr.UnknownSettingType
+	return errors.ErrUnknownSettingType
 }
 
 func (o *Operator) deleteSetting(setting setting.Options) error {
@@ -62,5 +62,5 @@ func (o *Operator) deleteSetting(setting setting.Options) error {
 		return cubecos.DeleteSlackChannel(setting.Slack.URL)
 	}
 
-	return cuberr.UnknownSettingType
+	return errors.ErrUnknownSettingType
 }

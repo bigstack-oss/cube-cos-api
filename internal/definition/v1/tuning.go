@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	json "github.com/json-iterator/go"
 	"github.com/shirou/gopsutil/v4/host"
@@ -248,11 +248,11 @@ func (t *Tuning) SearchKey() string {
 func CheckTuningSpec(tuning Tuning) error {
 	spec, loaded := tuningSpecs.Load(tuning.Name)
 	if !loaded {
-		return cuberr.TuningNotFound
+		return errors.ErrTuningNotFound
 	}
 
 	if !isTuningValueValid(tuning, spec.(*TuningSpec)) {
-		return cuberr.TuningValueInvalid
+		return errors.ErrTuningValueInvalid
 	}
 
 	return nil
@@ -311,7 +311,7 @@ func GetRolesToHandleTuning(tuningName string) ([]*Role, bool) {
 func GetTuningSpec(name string) (*TuningSpec, error) {
 	val, loaded := tuningSpecs.Load(name)
 	if !loaded {
-		return nil, cuberr.TuningNotFound
+		return nil, errors.ErrTuningNotFound
 	}
 
 	return val.(*TuningSpec), nil

@@ -40,19 +40,6 @@ func VerifyToken(token string) (*claims, error) {
 	return c, nil
 }
 
-func genRealmUrl() string {
-	keycloak := &config.Opts.Spec.Identity.Keycloak
-	if keycloak.Ip == "" {
-		keycloak.Ip = v1.DataCenterVip
-	}
-
-	u := url.URL{}
-	u.Scheme = keycloak.Scheme
-	u.Host = fmt.Sprintf("%s:%d", keycloak.Ip, keycloak.Port)
-	u.Path = fmt.Sprintf("%s/realms/%s", keycloak.Path, keycloak.Realm)
-	return u.String()
-}
-
 func newProvider() (*oidc.Provider, context.CancelFunc) {
 	http.DefaultClient = &http.Client{
 		Transport: &http.Transport{
@@ -81,4 +68,17 @@ func newToken(provider *oidc.Provider, token string) (*oidc.IDToken, context.Can
 	}
 
 	return nil, cancel
+}
+
+func genRealmUrl() string {
+	keycloak := &config.Opts.Spec.Identity.Keycloak
+	if keycloak.Ip == "" {
+		keycloak.Ip = v1.DataCenterVip
+	}
+
+	u := url.URL{}
+	u.Scheme = keycloak.Scheme
+	u.Host = fmt.Sprintf("%s:%d", keycloak.Ip, keycloak.Port)
+	u.Path = fmt.Sprintf("%s/realms/%s", keycloak.Path, keycloak.Realm)
+	return u.String()
 }

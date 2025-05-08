@@ -6,9 +6,9 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
-	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 	"gopkg.in/yaml.v3"
@@ -31,7 +31,7 @@ func GetSourceAlertSetting() (*setting.CosAlert, error) {
 	out, err := exec.Command("hex_sdk", "alert_get_setting").CombinedOutput()
 	if err != nil {
 		log.Errorf("settings: failed to get cos alert settings: %s(%s)", string(out), err.Error())
-		return nil, cuberr.SdkExecutionError
+		return nil, errors.ErrSdkExecutionFailure
 	}
 
 	settings := &setting.CosAlert{}
@@ -56,7 +56,7 @@ func GetAlertSetting() (*setting.CosAlert, error) {
 		SyncAlertSettings()
 	}
 
-	return nil, cuberr.AlertSettingNotInited
+	return nil, errors.ErrAlertSettingNotInited
 }
 
 func GetEmailSenders() ([]email.Sender, error) {
@@ -115,13 +115,13 @@ func ApplyTitlePrefix(titlePrefix string) error {
 	out, err := exec.Command("hex_sdk", "alert_set_setting_title_prefix", string(bytes)).CombinedOutput()
 	if err != nil {
 		log.Errorf("settings: failed to set title prefix (%s)", err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	err = checkSettingReturnError(err)
 	if err != nil {
 		log.Errorf("settings: failed to set title prefix: %s (%s)", string(out), err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	return nil
@@ -131,13 +131,13 @@ func DeleteEmailSender() error {
 	out, err := exec.Command("hex_sdk", "alert_delete_setting_sender_email").CombinedOutput()
 	if err != nil {
 		log.Errorf("settings: failed to delete email sender (%s)", err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	err = checkSettingReturnError(err)
 	if err != nil {
 		log.Errorf("settings: failed to delete email sender: %s (%s)", string(out), err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	return nil
@@ -153,13 +153,13 @@ func ApplyEmailSender(sender email.Sender) error {
 	out, err := exec.Command("hex_sdk", "alert_set_setting_sender_email", string(bytes)).CombinedOutput()
 	if err != nil {
 		log.Errorf("settings: failed to set email sender (%s)", err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	err = checkSettingReturnError(err)
 	if err != nil {
 		log.Errorf("settings: failed to set email sender: %s (%s)", string(out), err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	return nil
@@ -184,13 +184,13 @@ func ApplyEmailRecipient(recipient email.Recipient) error {
 	out, err := exec.Command("hex_sdk", "alert_put_setting_receiver_email", string(bytes)).CombinedOutput()
 	if err != nil {
 		log.Errorf("settings: failed to set email recipient (%s)", err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	err = checkSettingReturnError(err)
 	if err != nil {
 		log.Errorf("settings: failed to set email recipient: %s (%s)", string(out), err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	return nil
@@ -207,13 +207,13 @@ func DeleteEmailRecipient(address string) error {
 	out, err := exec.Command("hex_sdk", "alert_delete_setting_receiver_email", string(bytes)).CombinedOutput()
 	if err != nil {
 		log.Errorf("settings: failed to delete email recipient (%s)", err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	err = checkSettingReturnError(err)
 	if err != nil {
 		log.Errorf("settings: failed to delete email recipient: %s (%s)", string(out), err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	return nil
@@ -238,13 +238,13 @@ func ApplySlackChannel(channel slack.CosChannel) error {
 	out, err := exec.Command("hex_sdk", "alert_put_setting_receiver_slack", string(bytes)).CombinedOutput()
 	if err != nil {
 		log.Errorf("settings: failed to set slack channel (%s)", err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	err = checkSettingReturnError(err)
 	if err != nil {
 		log.Errorf("settings: failed to set slack channel: %s (%s)", string(out), err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	return nil
@@ -261,13 +261,13 @@ func DeleteSlackChannel(url string) error {
 	out, err := exec.Command("hex_sdk", "alert_delete_setting_receiver_slack", string(bytes)).CombinedOutput()
 	if err != nil {
 		log.Errorf("settings: failed to delete slack channel (%s)", err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	err = checkSettingReturnError(err)
 	if err != nil {
 		log.Errorf("settings: failed to delete slack channel: %s (%s)", string(out), err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	return nil
@@ -317,12 +317,12 @@ func checkSettingReturnError(err error) error {
 	exitErr, ok := err.(*exec.ExitError)
 	if !ok {
 		log.Errorf("settings: failed to get setting exit error (%s)", err.Error())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	if exitErr.ExitCode() != 0 {
 		log.Errorf("settings: failed to get setting exit code (%d)", exitErr.ExitCode())
-		return cuberr.SdkExecutionError
+		return errors.ErrSdkExecutionFailure
 	}
 
 	return nil

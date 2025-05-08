@@ -1,7 +1,6 @@
 package cubecos
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -14,7 +13,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/google/uuid"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
@@ -331,7 +330,7 @@ func GetTuningValue(name string) (string, error) {
 
 	keyValue := strings.Split(string(out), "'")
 	if len(keyValue) < 2 {
-		return "", cuberr.TuningNotFound
+		return "", errors.ErrTuningNotFound
 	}
 
 	return keyValue[1], nil
@@ -349,7 +348,7 @@ func GetSourceTuning(name string) (*v1.Tuning, error) {
 		}
 	}
 
-	return nil, cuberr.TuningNotFound
+	return nil, errors.ErrTuningNotFound
 }
 
 func ApplyTuning(isolatedDir string) error {
@@ -402,7 +401,7 @@ func isValueApplied(tuning v1.Tuning) bool {
 }
 
 func noValueInSettings(err error) bool {
-	return errors.Is(err, cuberr.TuningNotFound)
+	return errors.Is(err, errors.ErrTuningNotFound)
 }
 
 func ApplyTunings(tunings []v1.Tuning) error {
@@ -603,7 +602,7 @@ func SyncTunings() {
 			checkAndUpdateTuning(spec.Name, *srcTuning)
 		}
 
-		if errors.Is(err, cuberr.TuningNotFound) {
+		if errors.Is(err, errors.ErrTuningNotFound) {
 			setDefaultTuning(spec)
 		}
 	}

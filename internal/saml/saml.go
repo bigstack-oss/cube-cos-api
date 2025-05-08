@@ -139,7 +139,10 @@ func GetSamlClient(id string) (*gocloak.Client, error) {
 	}
 
 	if len(clients) == 0 {
-		return nil, fmt.Errorf("saml client not found")
+		return nil, fmt.Errorf(
+			"%s saml client not found",
+			v1.DefaultKeycloakRealm,
+		)
 	}
 
 	return clients[0], nil

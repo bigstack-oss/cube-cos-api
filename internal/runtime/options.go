@@ -10,30 +10,21 @@ import (
 )
 
 func parseMongoOpts() mongo.Options {
-	if conf.Opts.Spec.Store.MongoDB.Host == "" {
-		conf.Opts.Spec.Store.MongoDB.Host = v1.DataCenterVip
+	mongo := conf.Opts.Spec.Store.MongoDB
+	if mongo.Host == "" {
+		mongo.Host = v1.DataCenterVip
 	}
 
-	conf.Opts.Spec.Store.MongoDB.Uri = fmt.Sprintf(
-		"mongodb://%s:%d",
-		conf.Opts.Spec.Store.MongoDB.Host,
-		conf.Opts.Spec.Store.MongoDB.Port,
-	)
-
-	return conf.Opts.Spec.Store.MongoDB
+	mongo.Uri = fmt.Sprintf("mongodb://%s:%d", mongo.Host, mongo.Port)
+	return mongo
 }
 
 func parseInfluxOpts() influx.Options {
-	if conf.Opts.Spec.Store.InfluxDB.Host == "" {
-		conf.Opts.Spec.Store.InfluxDB.Host = v1.DataCenterVip
+	influx := conf.Opts.Spec.Store.InfluxDB
+	if influx.Host == "" {
+		influx.Host = v1.DataCenterVip
 	}
 
-	conf.Opts.Spec.Store.InfluxDB.Url = fmt.Sprintf(
-		"%s://%s:%d",
-		conf.Opts.Spec.Store.InfluxDB.Protocol,
-		conf.Opts.Spec.Store.InfluxDB.Host,
-		conf.Opts.Spec.Store.InfluxDB.Port,
-	)
-
-	return conf.Opts.Spec.Store.InfluxDB
+	influx.Url = fmt.Sprintf("%s://%s:%d", influx.Protocol, influx.Host, influx.Port)
+	return influx
 }

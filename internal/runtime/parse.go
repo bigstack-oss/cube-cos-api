@@ -8,17 +8,17 @@ import (
 
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/errors"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/gin-gonic/gin"
 )
 
 func newServiceDiscoveryIdentity() error {
 	if v1.DataCenterName == "" {
-		return errors.InvalidDataCenterName
+		return errors.ErrInvalidDataCenterName
 	}
 
 	if v1.DataCenterVip == "" {
-		return errors.InvalidListenAddress
+		return errors.ErrInvalidListenAddress
 	}
 
 	v1.ServiceDiscoveryIdentity = fmt.Sprintf(
@@ -37,7 +37,7 @@ func parseLocalListenAddr() (string, error) {
 	}
 
 	if conf.Opts.Spec.Listen.Local == "" {
-		return "", errors.InvalidListenAddress
+		return "", errors.ErrInvalidListenAddress
 	}
 
 	return conf.Opts.Spec.Listen.Local, nil
@@ -45,7 +45,7 @@ func parseLocalListenAddr() (string, error) {
 
 func parseLocalListenPort() (int, error) {
 	if conf.Opts.Spec.Listen.Port == 0 {
-		return 0, errors.InvalidListenPort
+		return 0, errors.ErrInvalidListenPort
 	}
 
 	return conf.Opts.Spec.Listen.Port, nil
@@ -53,7 +53,7 @@ func parseLocalListenPort() (int, error) {
 
 func parseAdvertisePort() (int, error) {
 	if conf.Opts.Spec.Listen.Port == 0 {
-		return 0, errors.InvalidListenPort
+		return 0, errors.ErrInvalidListenPort
 	}
 
 	return conf.Opts.Spec.Listen.Port, nil
@@ -103,19 +103,19 @@ func getHostname() (string, error) {
 
 func newNodeMetadata() error {
 	if v1.CurrentRole == "" {
-		return errors.InvalidNodeRole
+		return errors.ErrInvalidNodeRole
 	}
 
 	if v1.Hostname == "" {
-		return errors.InvalidHostname
+		return errors.ErrInvalidHostname
 	}
 
 	if v1.DataCenterName == "" {
-		return errors.InvalidDataCenterName
+		return errors.ErrInvalidDataCenterName
 	}
 
 	if v1.ManagementIp == "" {
-		return errors.InvalidManagementIp
+		return errors.ErrInvalidManagementIp
 	}
 
 	v1.NodeMetadata = map[string]string{
@@ -134,11 +134,11 @@ func newNodeMetadata() error {
 
 func genLocalAddr() (string, error) {
 	if v1.ListenIp == "" {
-		return "", errors.InvalidListenAddress
+		return "", errors.ErrInvalidListenAddress
 	}
 
 	if v1.ListenPort == 0 {
-		return "", errors.InvalidListenPort
+		return "", errors.ErrInvalidListenPort
 	}
 
 	return fmt.Sprintf(
@@ -150,11 +150,11 @@ func genLocalAddr() (string, error) {
 
 func genServiceDiscoveryAddr() (string, error) {
 	if v1.ManagementIp == "" {
-		return "", errors.InvalidListenAddress
+		return "", errors.ErrInvalidListenAddress
 	}
 
 	if v1.ListenPort == 0 {
-		return "", errors.InvalidListenPort
+		return "", errors.ErrInvalidListenPort
 	}
 
 	return fmt.Sprintf(
@@ -166,7 +166,7 @@ func genServiceDiscoveryAddr() (string, error) {
 
 func genLogoutRedirectUrl() (string, error) {
 	if v1.DataCenterVip == "" {
-		return "", errors.InvalidListenAddress
+		return "", errors.ErrInvalidListenAddress
 	}
 
 	return fmt.Sprintf(
@@ -189,5 +189,5 @@ func parseRedirectPath() (string, error) {
 		return v1.DefaultRedirectPath, nil
 	}
 
-	return "", errors.NoRedirectPathFound
+	return "", errors.ErrNoRedirectPathFound
 }

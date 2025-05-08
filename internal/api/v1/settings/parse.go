@@ -1,14 +1,12 @@
 package settings
 
 import (
-	"errors"
-
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
-	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -36,13 +34,13 @@ func (h *helper) initEmailSenderCreateParams() error {
 	}
 
 	if h.task.Sender.IsHostEmpty() {
-		log.Errorf("settings(%s): %v", api.GetReqId(h.c), cuberr.EmailSenderHostInvalid)
-		return cuberr.EmailSenderHostInvalid
+		log.Errorf("settings(%s): %v", api.GetReqId(h.c), errors.ErrEmailSenderHostInvalid)
+		return errors.ErrEmailSenderHostInvalid
 	}
 
 	if h.task.Sender.IsPortEmpty() {
-		log.Errorf("settings(%s): %v", api.GetReqId(h.c), cuberr.EmailSenderPortInvalid)
-		return cuberr.EmailSenderPortInvalid
+		log.Errorf("settings(%s): %v", api.GetReqId(h.c), errors.ErrEmailSenderPortInvalid)
+		return errors.ErrEmailSenderPortInvalid
 	}
 
 	h.task.Key = h.task.Sender.Host
@@ -55,7 +53,7 @@ func (h *helper) initEmailSenderCreateParams() error {
 func (h *helper) initEmailSenderPatchParams() error {
 	h.emailSender = h.c.Param("senderHost")
 	if h.emailSender == "" {
-		return errors.New("email sender host is empty")
+		return errors.ErrEmailSenderHostIsEmpty
 	}
 
 	h.task = &setting.Options{Type: "emailSender"}
@@ -96,7 +94,7 @@ func (h *helper) parsePassword() *string {
 func (h *helper) initEmailSenderDeleteParams() error {
 	host := h.c.Param("senderHost")
 	if host == "" {
-		return errors.New("email sender host is empty")
+		return errors.ErrEmailSenderHostIsEmpty
 	}
 
 	h.task = &setting.Options{Type: "emailSender", Key: host}
@@ -132,7 +130,7 @@ func (h *helper) initEmailRecipientCreateParams() error {
 func (h *helper) initEmailRecipientTrialParams() error {
 	h.recipientEmail = h.c.Param("recipientEmail")
 	if !isRecipientExist(h.recipientEmail) {
-		return errors.New("recipient not found")
+		return errors.ErrEmailRecipientNotFound
 	}
 
 	return nil
@@ -141,7 +139,7 @@ func (h *helper) initEmailRecipientTrialParams() error {
 func (h *helper) initEmailRecipientPatchParams() error {
 	recipientEmail := h.c.Param("recipientEmail")
 	if recipientEmail == "" {
-		return errors.New("email recipient email is empty")
+		return errors.ErrEmailRecipientIsEmpty
 	}
 
 	h.task = &setting.Options{Type: "emailRecipient", Key: recipientEmail}
@@ -163,7 +161,7 @@ func (h *helper) initEmailRecipientPatchParams() error {
 func (h *helper) initEmailRecipientDeleteParams() error {
 	recipientEmail := h.c.Param("recipientEmail")
 	if recipientEmail == "" {
-		return errors.New("email recipient email is empty")
+		return errors.ErrEmailRecipientIsEmpty
 	}
 
 	h.task = &setting.Options{Type: "emailRecipient", Key: recipientEmail}
@@ -177,7 +175,7 @@ func (h *helper) initEmailRecipientDeleteParams() error {
 func (h *helper) initSlackChannelDeleteParams() error {
 	channelName := h.c.Param("channelName")
 	if channelName == "" {
-		return errors.New("slack channel name is empty")
+		return errors.ErrSlackChannelNameIsEmpty
 	}
 
 	policy, err := cubecos.GetAlertSetting()
@@ -212,7 +210,7 @@ func (h *helper) initSlackChannelCreateParams() error {
 func (h *helper) initSlackChannelPatchParams() error {
 	channelName := h.c.Param("channelName")
 	if channelName == "" {
-		return errors.New("slack channel name is empty")
+		return errors.ErrSlackChannelNameIsEmpty
 	}
 
 	policy, err := cubecos.GetAlertSetting()
@@ -245,8 +243,7 @@ func (h *helper) parseTaskUpdate() error {
 	}
 
 	if h.task.Type == "" {
-		err := errors.New("task type is empty")
-		log.Errorf("settings(%s): %v", api.GetReqId(h.c), err)
+		log.Errorf("settings(%s): %v", api.GetReqId(h.c), errors.ErrAlertSettingTaskTypeIsEmpty)
 		return err
 	}
 

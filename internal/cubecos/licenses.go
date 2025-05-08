@@ -2,7 +2,6 @@ package cubecos
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -13,8 +12,8 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/zip"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
-	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
@@ -95,7 +94,7 @@ func ImportNodeLicense(licensePath string) error {
 func ListLicenses() ([]license.Options, error) {
 	licenses := license.GetList()
 	if len(licenses) == 0 {
-		return nil, errors.New("no license found")
+		return nil, errors.ErrLicensesNotFound
 	}
 
 	return licenses, nil
@@ -252,7 +251,7 @@ func checkLicenseErr(err error) error {
 
 	result, ok := err.(*exec.ExitError)
 	if !ok {
-		return errors.New("internal license system error")
+		return errors.ErrLicenseInternalSystemFailure
 	}
 
 	if result.ExitCode() == LicenseValid {
@@ -261,18 +260,18 @@ func checkLicenseErr(err error) error {
 
 	switch result.ExitCode() {
 	case LicenseExpired:
-		return cuberr.LicenseAlreadyExpired
+		return errors.ErrLicenseAlreadyExpired
 	case LicenseNotInstalled:
-		return cuberr.LicenseNotInstalled
+		return errors.ErrLicenseNotInstalled
 	case LicenseInvalidHardware:
-		return cuberr.LicenseInvalidHardware
+		return errors.ErrLicenseInvalidHardware
 	case LicenseInvalidSignature:
-		return cuberr.LicenseInvalidSignature
+		return errors.ErrLicenseInvalidSignature
 	case LicenseSysytemCompromised:
-		return cuberr.LicenseSysytemCompromised
+		return errors.ErrLicenseSysytemCompromised
 	}
 
-	return errors.New("unknown license status")
+	return errors.ErrLicenseUnknownStatus
 }
 
 func checkImportLicense(license string) error {
@@ -334,27 +333,27 @@ func setLicenseDatStatus(licenseDat *license.Options, checkInfo error) {
 		return
 	}
 
-	if errors.Is(checkInfo, cuberr.LicenseNotInstalled) {
+	if errors.Is(checkInfo, errors.ErrLicenseNotInstalled) {
 		licenseDat.InitValidStatus()
 		return
 	}
 
-	if errors.Is(checkInfo, cuberr.LicenseAlreadyExpired) {
+	if errors.Is(checkInfo, errors.ErrLicenseAlreadyExpired) {
 		licenseDat.InitExpiredStatus()
 		return
 	}
 
-	if errors.Is(checkInfo, cuberr.LicenseInvalidHardware) {
+	if errors.Is(checkInfo, errors.ErrLicenseInvalidHardware) {
 		licenseDat.InitInvalidHardwareStatus()
 		return
 	}
 
-	if errors.Is(checkInfo, cuberr.LicenseInvalidSignature) {
+	if errors.Is(checkInfo, errors.ErrLicenseInvalidSignature) {
 		licenseDat.InitInvalidSignatureStatus()
 		return
 	}
 
-	if errors.Is(checkInfo, cuberr.LicenseSysytemCompromised) {
+	if errors.Is(checkInfo, errors.ErrLicenseSysytemCompromised) {
 		licenseDat.InitCompromisedStatus()
 		return
 	}
