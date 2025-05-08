@@ -48,6 +48,12 @@ var (
 			Path:    "/healths/tasks/repairing",
 			Func:    deleteCheckRepairTask,
 		},
+		{
+			Version: api.V1,
+			Method:  http.MethodDelete,
+			Path:    "/healths/tasks/repairing/:moduleType",
+			Func:    deleteModuleRepairTask,
+		},
 	}
 )
 
@@ -186,6 +192,28 @@ func deleteCheckRepairTask(c *gin.Context) {
 	api.SetStatusOk(
 		c,
 		"delete check repair task successfully",
+		nil,
+	)
+}
+
+func deleteModuleRepairTask(c *gin.Context) {
+	h, err := initHelper(c, "deleteModuleRepairTask")
+	if err != nil {
+		log.Errorf("healths(%s): %v", api.GetReqId(c), err)
+		api.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.deleteModuleCheckRepairTask()
+	if err != nil {
+		log.Errorf("healths(%s): failed to delete module repair task: %v", api.GetReqId(c), err)
+		api.SetInternalServerError(c, err)
+		return
+	}
+
+	api.SetStatusOk(
+		c,
+		"delete module repair task successfully",
 		nil,
 	)
 }

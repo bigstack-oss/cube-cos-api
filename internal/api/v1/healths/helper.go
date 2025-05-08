@@ -91,7 +91,7 @@ func (h *helper) genForceRepairReq() cubecos.Health {
 func (h *helper) requestForceRepair() {
 	req := h.genForceRepairReq()
 	reqQueue.Add(&req)
-	err := h.setRepairingRecord()
+	err := h.setMoudleRepairingRecord()
 	if err != nil {
 		log.Errorf("healths(%s): failed to set module repairing record: %v", api.GetReqId(h.c), err)
 	}
@@ -112,5 +112,14 @@ func (h *helper) deleteCheckRepairTask() error {
 		v1.Healths,
 		v1.HealthRepairingCollection,
 		bson.M{"isRepairing": true},
+	)
+}
+
+func (h *helper) deleteModuleCheckRepairTask() error {
+	mongo := mongo.GetGlobalHelper()
+	return mongo.DeleteAll(
+		v1.Healths,
+		v1.HealthRepairingCollection,
+		bson.M{"type": "forceRepair", "module": h.moduleType, "isRepairing": true},
 	)
 }

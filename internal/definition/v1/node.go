@@ -253,6 +253,14 @@ func (n *Node) DeleteRepairingTaskUrl() string {
 	return u.String()
 }
 
+func (n *Node) DeleteModuleRepairingTaskUrl(module string) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/healths/tasks/repairing/%s", DataCenterName, module)
+	return u.String()
+}
+
 func (n *Node) IsLocal() bool {
 	return n.Address == AdvertiseAddr && n.Hostname == Hostname
 }

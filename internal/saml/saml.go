@@ -174,44 +174,30 @@ func GenServiceProviderMetadataUrl(opts Options) url.URL {
 
 func ServeAcs() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		log.Info("---------------------------")
-		log.Info(1)
 		err := c.Request.ParseForm()
 		if err != nil {
 			SpAuth.OnError(c.Writer, c.Request, err)
 			return
 		}
 
-		log.Info(2)
 		err = checkTrackedRequest(c)
 		if err != nil {
-			// SpAuth.OnError(c.Writer, c.Request, err)
-			api.SetRedirect(
-				c,
-				"/home",
-			)
+			api.SetRedirect(c, "/home")
 			return
 		}
 
-		log.Info(3)
 		assertion, err := getAssertion(c)
 		if err != nil {
-			// SpAuth.OnError(c.Writer, c.Request, err)
-			api.SetRedirect(
-				c,
-				"/home",
-			)
+			api.SetRedirect(c, "/home")
 			return
 		}
 
-		log.Info(4)
 		err = createSession(c, assertion)
 		if err != nil {
 			SpAuth.OnError(c.Writer, c.Request, err)
 			return
 		}
 
-		log.Info(5)
 		api.SetRedirect(c, "/home")
 	}
 }

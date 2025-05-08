@@ -18,6 +18,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseModuleHealthParams()
 	case "forceRepairModule":
 		return h.parseModuleRepairParams()
+	case "deleteModuleRepairTask":
+		return h.parseForceRepairTaskParams()
 	}
 
 	return nil
@@ -95,6 +97,7 @@ func (h *helper) parseModuleHealthParams() error {
 
 func (h *helper) parseModuleRepairParams() error {
 	var err error
+	h.moduleType = h.c.Param("moduleType")
 	h.module, err = h.parseModule()
 	if err != nil {
 		return err
@@ -111,4 +114,13 @@ func (h *helper) parseModule() (*v1.Module, error) {
 	}
 
 	return &module, nil
+}
+
+func (h *helper) parseForceRepairTaskParams() error {
+	h.moduleType = h.c.Param("moduleType")
+	if h.moduleType == "" {
+		return fmt.Errorf("moduleType is required")
+	}
+
+	return nil
 }

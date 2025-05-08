@@ -11,13 +11,24 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+func (h *helper) setMoudleRepairingRecord() error {
+	mongo := mongo.GetGlobalHelper()
+	return mongo.UpdateOne(
+		v1.Healths,
+		v1.HealthRepairingCollection,
+		bson.M{"isRepairing": true},
+		bson.M{"$set": bson.M{"type": "forceRepair", "module": h.moduleType, "isRepairing": true}},
+		options.Update().SetUpsert(true),
+	)
+}
+
 func (h *helper) setRepairingRecord() error {
 	mongo := mongo.GetGlobalHelper()
 	return mongo.UpdateOne(
 		v1.Healths,
 		v1.HealthRepairingCollection,
 		bson.M{"isRepairing": true},
-		bson.M{"$set": bson.M{"isRepairing": true}},
+		bson.M{"$set": bson.M{"type": "checkRepair", "isRepairing": true}},
 		options.Update().SetUpsert(true),
 	)
 }

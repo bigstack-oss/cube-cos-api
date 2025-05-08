@@ -5,8 +5,6 @@ metadata:
 spec:
   listen:
     port: 8082
-    address:
-      local: 0.0.0.0
   identity:
     os:
       policy: /etc/settings.txt
@@ -15,7 +13,6 @@ spec:
     keycloak:
       host:
         scheme: "https"
-        ip: ""
         port: 10443
         path: "auth"
         tlsInsecureSkipVerify: true
@@ -48,14 +45,12 @@ spec:
         enableAutoRenew: true
     aws:
       region: auto
-      accessKey: ""
-      secretKey: ""
       enableStaticCreds: true
       enableCustomURL: true
       insecureSkipVerify: true
   store:
     mongodb:
-      uri: mongodb://0.0.0.0:27017
+      port: 27017
       database: cube-cos
       replicaSet: cube-cos-rs
       auth:
@@ -63,7 +58,7 @@ spec:
         username: admin
         password: admin
     influxdb:
-      url: http://0.0.0.0:8086
+      port: 8086
   observability:
     log:
       file: /var/log/cube-cos-api/cube-cos-api.log

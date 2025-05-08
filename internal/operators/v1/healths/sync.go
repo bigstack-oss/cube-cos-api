@@ -43,7 +43,7 @@ func checkAndRepairServices(health cubecos.Health) {
 	}
 
 	repairServices(health)
-	reportToController()
+	reportToController(health)
 }
 
 func repairServices(health cubecos.Health) {
@@ -63,10 +63,10 @@ func repairServices(health cubecos.Health) {
 		}
 	}
 
-	reportToController()
+	reportToController(health)
 }
 
-func reportToController() {
+func reportToController(health cubecos.Health) {
 	node, err := v1.GetOneOfControllerNode()
 	if err != nil {
 		log.Errorf("healths: failed to get controller nodes: %s", err.Error())
@@ -76,7 +76,7 @@ func reportToController() {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetHeaders(v1.GenNodeAuthHeaders()).
-		Delete(node.DeleteRepairingTaskUrl())
+		Delete(genRepairTaskURL(health, node))
 	if err != nil {
 		log.Errorf("healths: failed to send repairing task to controller: %s", err.Error())
 		return
@@ -86,4 +86,12 @@ func reportToController() {
 		log.Errorf("healths: has error response from controller: %s", resp.String())
 		return
 	}
+}
+
+func genRepairTaskURL(health cubecos.Health, node *v1.Node) string {
+	if health.Overall.Status.Desired == status.CheckingAndRepairing {
+		return node.DeleteRepairingTaskUrl()
+	}
+
+	return node.DeleteModuleRepairingTaskUrl(health.Services[0].Modules[0].Name)
 }
