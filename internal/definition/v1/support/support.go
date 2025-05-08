@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
-	"github.com/blevesearch/bleve/v2"
 	json "github.com/json-iterator/go"
 )
 
@@ -21,8 +20,7 @@ const (
 )
 
 var (
-	localFiles   = sync.Map{}
-	fileSearcher bleve.Index
+	localFiles = sync.Map{}
 )
 
 type ListFileOptions struct {
@@ -137,19 +135,4 @@ func ListLocalFiles() []File {
 	})
 
 	return files
-}
-
-func InitFileSearchIndex() error {
-	if fileSearcher != nil {
-		return nil
-	}
-
-	var err error
-	mapping := bleve.NewIndexMapping()
-	fileSearcher, err = bleve.NewMemOnly(mapping)
-	return err
-}
-
-func GetFileSetSearcher() bleve.Index {
-	return fileSearcher
 }

@@ -4,7 +4,6 @@ import (
 	"maps"
 	"strings"
 
-	"github.com/blevesearch/bleve/v2"
 	"github.com/google/uuid"
 )
 
@@ -14,8 +13,6 @@ const (
 )
 
 var (
-	eventSearcher bleve.Index
-
 	supportEventTypes = map[string]bool{
 		"system":   true,
 		"host":     true,
@@ -156,24 +153,4 @@ func (o *Options) GenSearchableObject() Options {
 		Metadata:    maps.Clone(o.Metadata),
 		Time:        o.Time,
 	}
-}
-
-func InitEventSearchIndex() error {
-	if eventSearcher != nil {
-		return nil
-	}
-
-	var err error
-	mapping := bleve.NewIndexMapping()
-	eventSearcher, err = bleve.NewMemOnly(mapping)
-	return err
-}
-
-func NewSearchIndex() (bleve.Index, error) {
-	mapping := bleve.NewIndexMapping()
-	return bleve.NewMemOnly(mapping)
-}
-
-func GetSearcher() bleve.Index {
-	return eventSearcher
 }

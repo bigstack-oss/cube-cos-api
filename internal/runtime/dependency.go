@@ -12,18 +12,11 @@ import (
 	bslog "github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
-	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/gophercloud/gophercloud/v2"
 	log "go-micro.dev/v5/logger"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 func initDependencies() error {
@@ -33,16 +26,6 @@ func initDependencies() error {
 	}
 
 	err = newAuthIdentities()
-	if err != nil {
-		return err
-	}
-
-	err = newSearchIndexers()
-	if err != nil {
-		return err
-	}
-
-	err = newReqPendingTTLs()
 	if err != nil {
 		return err
 	}
@@ -132,69 +115,16 @@ func newAuthIdentities() error {
 		return err
 	}
 
-	err = newNodeMetadata()
-	if err != nil {
-		log.Errorf("runtime: failed to generate node metadata: %s", err.Error())
-		return err
-	}
-
 	err = newServiceDiscoveryIdentity()
 	if err != nil {
 		log.Errorf("runtime: failed to parse service discovery identify: %s", err.Error())
 		return err
 	}
 
-	return nil
-}
-
-func newSearchIndexers() error {
-	err := newTuningSearchIndex()
+	err = newNodeMetadata()
 	if err != nil {
-		log.Warnf("runtime: failed to init tuning search index: %s", err.Error())
-	}
-
-	err = newSupportFileSearchIndex()
-	if err != nil {
-		log.Warnf("runtime: failed to init support file search index: %s", err.Error())
-	}
-
-	err = newLicenseSearchIndex()
-	if err != nil {
-		log.Warnf("runtime: failed to init license search index: %s", err.Error())
-	}
-
-	err = newNodeSearchIndex()
-	if err != nil {
-		log.Warnf("runtime: failed to init node search index: %s", err.Error())
-	}
-
-	err = newEventSearchIndex()
-	if err != nil {
-		log.Warnf("runtime: failed to init event search index: %s", err.Error())
-	}
-
-	return nil
-}
-
-func newReqPendingTTLs() error {
-	err := newTuningRecordTTL()
-	if err != nil {
-		log.Warnf("runtime: failed to init tuning record ttl: %s", err.Error())
-	}
-
-	err = newSupportFileRecordTTL()
-	if err != nil {
-		log.Warnf("runtime: failed to init support file record ttl: %s", err.Error())
-	}
-
-	err = newSettingRecordTTL()
-	if err != nil {
-		log.Warnf("runtime: failed to init setting record ttl: %s", err.Error())
-	}
-
-	err = newTriggerRecordTTL()
-	if err != nil {
-		log.Warnf("runtime: failed to init trigger record ttl: %s", err.Error())
+		log.Errorf("runtime: failed to generate node metadata: %s", err.Error())
+		return err
 	}
 
 	return nil
@@ -376,8 +306,8 @@ func newKeycloakSamlMapper() error {
 
 func newBucketSecret() error {
 	h := openstack.GetGlobalHelper()
-	accessKey := config.Opts.Spec.Aws.AccessKey
-	secretKey := config.Opts.Spec.Aws.SecretKey
+	accessKey := conf.Opts.Spec.Aws.AccessKey
+	secretKey := conf.Opts.Spec.Aws.SecretKey
 	if secretKey == "" {
 		secretKey = v1.DefaultOidcClientSecret
 	}
@@ -414,64 +344,4 @@ func genSamlMapper() gocloak.ProtocolMapperRepresentation {
 			"attribute.nameformat": "Basic",
 		},
 	}
-}
-
-func newTuningSearchIndex() error {
-	return v1.InitTuningSearchIndex()
-}
-
-func newSupportFileSearchIndex() error {
-	return support.InitFileSearchIndex()
-}
-
-func newLicenseSearchIndex() error {
-	return license.InitSearchIndex()
-}
-
-func newNodeSearchIndex() error {
-	return v1.InitNodeSearchIndex()
-}
-
-func newEventSearchIndex() error {
-	return event.InitEventSearchIndex()
-}
-
-func newTuningRecordTTL() error {
-	mongo := mongo.GetGlobalHelper()
-	return mongo.CreateExpirationIndex(
-		v1.TuningDB(),
-		v1.TuningReqCollection(),
-		bson.D{{Key: "status.createdAt", Value: 1}},
-		v1.TuningRecordTTL,
-	)
-}
-
-func newSupportFileRecordTTL() error {
-	mongo := mongo.GetGlobalHelper()
-	return mongo.CreateExpirationIndex(
-		support.FileDB,
-		support.FileReqCollection,
-		bson.D{{Key: "createdAt", Value: 1}},
-		support.ReqTTL,
-	)
-}
-
-func newSettingRecordTTL() error {
-	mongo := mongo.GetGlobalHelper()
-	return mongo.CreateExpirationIndex(
-		setting.DB,
-		setting.ReqCollection,
-		bson.D{{Key: "createdAt", Value: 1}},
-		setting.ReqTTL,
-	)
-}
-
-func newTriggerRecordTTL() error {
-	mongo := mongo.GetGlobalHelper()
-	return mongo.CreateExpirationIndex(
-		trigger.DB,
-		trigger.ReqCollection,
-		bson.D{{Key: "createdAt", Value: 1}},
-		trigger.ReqTTL,
-	)
 }

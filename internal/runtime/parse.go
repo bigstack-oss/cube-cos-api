@@ -12,21 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func isLiveCheck(c *gin.Context) bool {
-	return c.Request.Method == "GET" && c.Request.URL.Path == "/live"
-}
-
-func isControlNode() (bool, error) {
-	switch v1.CurrentRole {
-	case v1.RoleControl, v1.RoleControlConverged, v1.RoleModerator:
-		return true, nil
-	case v1.RoleCompute, v1.RoleStorage, v1.RoleEdgeCore:
-		return false, nil
-	}
-
-	return false, errors.InvalidNodeRole
-}
-
 func newServiceDiscoveryIdentity() error {
 	if v1.DataCenterName == "" {
 		return errors.InvalidDataCenterName
@@ -143,6 +128,7 @@ func newNodeMetadata() error {
 		"ip":           v1.ManagementIp,
 		"isGpuEnabled": fmt.Sprintf("%t", v1.IsGpuEnabled),
 	}
+
 	return nil
 }
 
@@ -186,10 +172,22 @@ func genLogoutRedirectUrl() (string, error) {
 	return fmt.Sprintf(
 		"https://%s:4443%s",
 		v1.DataCenterVip,
-		conf.Opts.Spec.Identity.LogoutRedirect,
+		conf.Opts.Spec.Identity.Redirect,
 	), nil
 }
 
 func genRequestMsg(c *gin.Context) string {
 	return fmt.Sprintf("%s %s%s", c.Request.Method, c.Request.URL.Path, parseParams(c))
+}
+
+func parseRedirectPath() (string, error) {
+	if conf.Opts.Spec.Identity.Redirect != "" {
+		return conf.Opts.Spec.Identity.Redirect, nil
+	}
+
+	if v1.DefaultRedirectPath != "" {
+		return v1.DefaultRedirectPath, nil
+	}
+
+	return "", errors.NoRedirectPathFound
 }

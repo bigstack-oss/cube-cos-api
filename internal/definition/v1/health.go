@@ -14,10 +14,10 @@ const (
 )
 
 type Health struct {
-	Category string         `json:"category"`
-	Service  string         `json:"service"`
-	Status   status.Details `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
-	Modules  []Module       `json:"modules"`
+	Category string        `json:"category"`
+	Service  string        `json:"service"`
+	Status   status.Health `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
+	Modules  []Module      `json:"modules"`
 }
 
 func RepairCollection() string {

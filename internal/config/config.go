@@ -32,7 +32,7 @@ func init() {
 	flag.StringVar(&Opts.Spec.Identity.Os.Policy, "identity.os.policy", Opts.Spec.Identity.Os.Policy, "")
 	flag.StringVar(&Opts.Spec.Identity.Os.System, "identity.os.system", Opts.Spec.Identity.Os.System, "")
 	flag.StringVar(&Opts.Spec.Identity.Os.Hostname, "identity.os.hostname", Opts.Spec.Identity.Os.Hostname, "")
-	flag.StringVar(&Opts.Spec.Identity.LogoutRedirect, "identity.logoutRedirect", Opts.Spec.Identity.LogoutRedirect, "")
+	flag.StringVar(&Opts.Spec.Identity.Redirect, "identity.redirect", Opts.Spec.Identity.Redirect, "")
 	flag.StringVar(&Opts.Spec.Identity.Keycloak.Host.Scheme, "identity.keycloak.host.scheme", Opts.Spec.Identity.Keycloak.Host.Scheme, "")
 	flag.StringVar(&Opts.Spec.Identity.Keycloak.Ip, "identity.keycloak.host.ip", Opts.Spec.Identity.Keycloak.Ip, "")
 	flag.IntVar(&Opts.Spec.Identity.Keycloak.Port, "identity.keycloak.host.port", Opts.Spec.Identity.Keycloak.Port, "")
@@ -115,10 +115,10 @@ type Address struct {
 }
 
 type Identity struct {
-	Os             `json:"os" yaml:"os"`
-	LogoutRedirect string           `json:"logoutRedirect" yaml:"logoutRedirect"`
-	Keycloak       keycloak.Options `json:"keycloak" yaml:"keycloak"`
-	Saml           saml.Options     `json:"saml" yaml:"saml"`
+	Os       `json:"os" yaml:"os"`
+	Redirect string           `json:"redirect" yaml:"redirect"`
+	Keycloak keycloak.Options `json:"keycloak" yaml:"keycloak"`
+	Saml     saml.Options     `json:"saml" yaml:"saml"`
 }
 
 type Os struct {

@@ -6,7 +6,6 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
-	"github.com/blevesearch/bleve/v2"
 )
 
 const (
@@ -15,9 +14,8 @@ const (
 )
 
 var (
-	licenseSearcher bleve.Index
-	license         = []Options{}
-	updateLicense   sync.Mutex
+	license       = []Options{}
+	updateLicense sync.Mutex
 )
 
 type Raw struct {
@@ -160,17 +158,6 @@ func (o *Attachment) GenSearchableObject() Attachment {
 
 func (r *Raw) IsUnlicense() bool {
 	return r.Date == ""
-}
-
-func InitSearchIndex() error {
-	if licenseSearcher != nil {
-		return nil
-	}
-
-	var err error
-	mapping := bleve.NewIndexMapping()
-	licenseSearcher, err = bleve.NewMemOnly(mapping)
-	return err
 }
 
 func SetList(licenses []Options) {

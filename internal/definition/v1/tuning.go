@@ -11,7 +11,6 @@ import (
 
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
-	"github.com/blevesearch/bleve/v2"
 	json "github.com/json-iterator/go"
 	"github.com/shirou/gopsutil/v4/host"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -25,8 +24,6 @@ const (
 var (
 	tuningSpecs  = sync.Map{}
 	localTunings = sync.Map{}
-
-	tuningSearcher bleve.Index
 
 	CreateRecordIfNotExist = options.Update().SetUpsert(true)
 )
@@ -483,19 +480,4 @@ func TuningReqCollection() string {
 
 func TuningCollection(name string) string {
 	return strings.Split(name, ".")[0]
-}
-
-func InitTuningSearchIndex() error {
-	if tuningSearcher != nil {
-		return nil
-	}
-
-	var err error
-	mapping := bleve.NewIndexMapping()
-	tuningSearcher, err = bleve.NewMemOnly(mapping)
-	return err
-}
-
-func GetTuningSearcher() bleve.Index {
-	return tuningSearcher
 }

@@ -27,12 +27,6 @@ func initIdentities() error {
 		return err
 	}
 
-	v1.IsControlNode, err = isControlNode()
-	if err != nil {
-		log.Errorf("runtime: failed to check if control node: %s", err.Error())
-		return err
-	}
-
 	v1.IsHaEnabled, err = cubecos.IsHaEnabled()
 	if err != nil {
 		log.Errorf("runtime: failed to get ha enabled: %s", err.Error())
@@ -127,7 +121,12 @@ func initIdentities() error {
 		log.Warnf("runtime: failed to get gpu enablement: %s", err.Error())
 	}
 
-	v1.LogoutRedirectUrl, err = genLogoutRedirectUrl()
+	v1.RedirectPath, err = parseRedirectPath()
+	if err != nil {
+		log.Errorf("runtime: failed to parse redirect path: %s", err.Error())
+	}
+
+	v1.RedirectUrl, err = genLogoutRedirectUrl()
 	if err != nil {
 		log.Errorf("runtime: failed to generate logout redirect url: %s", err.Error())
 		return err

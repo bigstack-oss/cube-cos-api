@@ -18,7 +18,7 @@ func genRedirectUrl() string {
 		"https://%s:%d%s",
 		v1.DataCenterVip,
 		conf.Opts.Spec.Saml.ServiceProvider.Host.Port,
-		conf.Opts.Spec.Identity.LogoutRedirect,
+		conf.Opts.Spec.Identity.Redirect,
 	)
 }
 

@@ -36,8 +36,10 @@ var (
 		},
 	}
 
-	DefaultNodeToken  = ""
-	LogoutRedirectUrl = ""
+	DefaultNodeToken    = ""
+	RedirectUrl         = ""
+	RedirectPath        = ""
+	DefaultRedirectPath = "/home"
 )
 
 func GenNodeToken(hostname string) string {

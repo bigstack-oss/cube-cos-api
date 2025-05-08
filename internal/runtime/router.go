@@ -38,7 +38,7 @@ import (
 
 func newHttpServer() (*server.Server, error) {
 	router := newGinRouter()
-	prepareApisHandlerByRole()
+	prepareApiHandleraByRole()
 	err := registerHandlersByCurrentRole(router)
 	if err != nil {
 		log.Errorf("runtime: failed to register handlers: %s", err.Error())
@@ -92,7 +92,7 @@ func getUrlParentPath(h api.Handler) string {
 	return fmt.Sprintf("%s/datacenters/:DataCenter", h.Version)
 }
 
-func prepareApisHandlerByRole() {
+func prepareApiHandleraByRole() {
 	api.RegisterHandlersToRoles(
 		v1.DataCenters,
 		datacenters.Handlers,

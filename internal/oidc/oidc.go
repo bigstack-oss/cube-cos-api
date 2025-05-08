@@ -11,6 +11,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/coreos/go-oidc"
+	log "go-micro.dev/v5/logger"
 )
 
 type claims struct {
@@ -18,31 +19,20 @@ type claims struct {
 }
 
 func VerifyToken(token string) (*claims, error) {
-	http.DefaultClient = &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+	provider, cancel := newProvider()
+	defer cancel()
+	if provider == nil {
+		return nil, fmt.Errorf("oidc: failed to create oidc provider")
 	}
 
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
-	client := oidc.ClientContext(ctx, http.DefaultClient)
+	oidcToken, cancel := newToken(provider, token)
 	defer cancel()
-	provider, err := oidc.NewProvider(client, genRealmUrl())
-	if err != nil {
-		return nil, err
-	}
-
-	ctx, cancel = context.WithTimeout(wait.CtxSeconds(10))
-	oidcConf := &oidc.Config{SkipClientIDCheck: true}
-	defer cancel()
-	verifier := provider.Verifier(oidcConf)
-	oidcToken, err := verifier.Verify(ctx, token)
-	if err != nil {
-		return nil, err
+	if oidcToken == nil {
+		return nil, fmt.Errorf("oidc: failed to create oidc token")
 	}
 
 	c := &claims{}
-	err = oidcToken.Claims(c)
+	err := oidcToken.Claims(c)
 	if err != nil {
 		return nil, err
 	}
@@ -51,13 +41,44 @@ func VerifyToken(token string) (*claims, error) {
 }
 
 func genRealmUrl() string {
-	if config.Opts.Spec.Identity.Keycloak.Ip == "" {
-		config.Opts.Spec.Identity.Keycloak.Ip = v1.DataCenterVip
+	keycloak := &config.Opts.Spec.Identity.Keycloak
+	if keycloak.Ip == "" {
+		keycloak.Ip = v1.DataCenterVip
 	}
 
 	u := url.URL{}
-	u.Scheme = config.Opts.Spec.Identity.Keycloak.Scheme
-	u.Host = fmt.Sprintf("%s:%d", config.Opts.Spec.Identity.Keycloak.Ip, config.Opts.Spec.Identity.Keycloak.Port)
-	u.Path = fmt.Sprintf("%s/realms/%s", config.Opts.Spec.Identity.Keycloak.Path, config.Opts.Spec.Identity.Keycloak.Realm)
+	u.Scheme = keycloak.Scheme
+	u.Host = fmt.Sprintf("%s:%d", keycloak.Ip, keycloak.Port)
+	u.Path = fmt.Sprintf("%s/realms/%s", keycloak.Path, keycloak.Realm)
 	return u.String()
+}
+
+func newProvider() (*oidc.Provider, context.CancelFunc) {
+	http.DefaultClient = &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
+	client := oidc.ClientContext(ctx, http.DefaultClient)
+	provider, err := oidc.NewProvider(client, genRealmUrl())
+	if err == nil {
+		return provider, cancel
+	}
+
+	log.Errorf("oidc: failed to create oidc provider: %s", err.Error())
+	return nil, cancel
+}
+
+func newToken(provider *oidc.Provider, token string) (*oidc.IDToken, context.CancelFunc) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
+	conf := &oidc.Config{SkipClientIDCheck: true}
+	verifier := provider.Verifier(conf)
+	oidcToken, err := verifier.Verify(ctx, token)
+	if err == nil {
+		return oidcToken, cancel
+	}
+
+	return nil, cancel
 }

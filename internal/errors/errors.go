@@ -40,6 +40,8 @@ var (
 	InvalidDataCenterName = errors.New("invalid data center name")
 	InvalidManagementIp   = errors.New("invalid management ip")
 
+	NoRedirectPathFound = errors.New("no redirect path found")
+
 	AlertSettingNotInited = errors.New("alert setting is not initialized")
 )
 

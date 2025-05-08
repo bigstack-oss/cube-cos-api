@@ -182,13 +182,13 @@ func ServeAcs() gin.HandlerFunc {
 
 		err = checkTrackedRequest(c)
 		if err != nil {
-			api.SetRedirect(c, "/home")
+			api.SetRedirect(c, v1.RedirectPath)
 			return
 		}
 
 		assertion, err := getAssertion(c)
 		if err != nil {
-			api.SetRedirect(c, "/home")
+			api.SetRedirect(c, v1.RedirectPath)
 			return
 		}
 
@@ -198,7 +198,7 @@ func ServeAcs() gin.HandlerFunc {
 			return
 		}
 
-		api.SetRedirect(c, "/home")
+		api.SetRedirect(c, v1.RedirectPath)
 	}
 }
 
