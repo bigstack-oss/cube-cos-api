@@ -25,13 +25,9 @@ func (h *helper) getMemoryUsage() (any, error) {
 func (h *helper) getMemoryUsageSummary() (any, error) {
 	switch h.entityType {
 	case "host":
-		return cubecos.GetMemoryUsageSummaryOfHost(h.entityId)
+		return cubecos.GetHostMemoryUsageSummary(h.entityId)
 	case "hosts":
-		return cubecos.GetMemoryUsageSummaryOfHosts()
-	case "vm":
-		return nil, fmt.Errorf("vm is not supported yet for memory summary")
-	case "vms":
-		return nil, fmt.Errorf("vms is not supported yet for memory summary")
+		return cubecos.GetHostsMemoryUsageSummary()
 	default:
 		return nil, fmt.Errorf(
 			"invalid entity type(%s) to get memory summary",
@@ -44,9 +40,7 @@ func (h *helper) getMemoryUsageHistory() (any, error) {
 	switch h.entityType {
 	case "host":
 		stmt := h.genHostMemorySizeHistoryStmt()
-		return cubecos.GetMemorySizeHistoryOfHost(stmt)
-	case "vm":
-		return nil, fmt.Errorf("vm is not supported yet for memory history")
+		return cubecos.GetHostMemorySizeHistory(stmt)
 	default:
 		return nil, fmt.Errorf(
 			"invalid entity type(%s) to get memory history",
@@ -58,9 +52,9 @@ func (h *helper) getMemoryUsageHistory() (any, error) {
 func (h *helper) getMemoryUsageRank() (any, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GetMemoryUsageRankOfHosts(h.genHostMemoryUsageRankStmt())
+		return cubecos.GetHostsMemoryUsageRank(h.genHostsMemoryUsageRankStmt())
 	case "vms":
-		return cubecos.GetMemoryUsageRankOfVms(h.genVmMemoryRankStmt())
+		return cubecos.GetVmsMemoryUsageRank(h.genVmsMemoryRankStmt())
 	default:
 		return nil, fmt.Errorf(
 			"invalid entity type(%s) to get memory rank",

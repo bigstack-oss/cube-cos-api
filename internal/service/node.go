@@ -38,7 +38,7 @@ func isLocalNode(node *registry.Node) bool {
 }
 
 func GetNodesByRole(roleName string) ([]v1.Node, error) {
-	svcs, err := v1.GetRegisteredServices()
+	svcs, err := v1.GetDiscoveredServices()
 	if err != nil {
 		return nil, err
 	}

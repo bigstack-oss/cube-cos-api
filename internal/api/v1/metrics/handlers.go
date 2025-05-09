@@ -51,13 +51,17 @@ func getDataCenterSummary(c *gin.Context) {
 		return
 	}
 
-	api.SetStatusOk(c, "fetch summary successfully", summary)
+	api.SetStatusOk(
+		c,
+		"fetch summary successfully",
+		summary,
+	)
 }
 
 func getMetrics(c *gin.Context) {
 	h, err := initHelper(c, "getMetrics")
 	if err != nil {
-		log.Errorf("metrics(%s): %v", api.GetReqId(c), err)
+		log.Errorf("metrics(%s): failed to init helper: %v", api.GetReqId(c), err)
 		api.SetBadRequest(c, err)
 		return
 	}

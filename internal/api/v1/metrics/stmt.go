@@ -31,7 +31,7 @@ func (h *helper) genHostMemoryUsageStmt() string {
 		String()
 }
 
-func (h *helper) genHostMemoryUsageRankStmt() string {
+func (h *helper) genHostsMemoryUsageRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
 		Range("start: -1h").
@@ -42,7 +42,7 @@ func (h *helper) genHostMemoryUsageRankStmt() string {
 		String()
 }
 
-func (h *helper) genHostCpuUsageRankStmt() string {
+func (h *helper) genHostsCpuUsageRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
 		Range("start: -1h").
@@ -82,7 +82,7 @@ func (h *helper) genHostsDiskWriteBandwidthStmt() string {
 		String()
 }
 
-func (h *helper) genHostStorageReadIopsStmt() string {
+func (h *helper) genHostsStorageReadIopsStmt() string {
 	query := influx.Query{}
 	return query.Bucket("ceph").
 		Range(h.genTimeDuration()).
@@ -95,7 +95,7 @@ func (h *helper) genHostStorageReadIopsStmt() string {
 		String()
 }
 
-func (h *helper) genHostStorageWriteIopsStmt() string {
+func (h *helper) genHostsStorageWriteIopsStmt() string {
 	query := influx.Query{}
 	return query.Bucket("ceph").
 		Range(h.genTimeDuration()).
@@ -108,7 +108,7 @@ func (h *helper) genHostStorageWriteIopsStmt() string {
 		String()
 }
 
-func (h *helper) genHostStorageReadLatencyStmt() string {
+func (h *helper) genHostsStorageReadLatencyStmt() string {
 	query := influx.Query{}
 	return query.Bucket("ceph").
 		Range(h.genTimeDuration()).
@@ -122,7 +122,7 @@ func (h *helper) genHostStorageReadLatencyStmt() string {
 		String()
 }
 
-func (h *helper) genHostStorageWriteLatencyStmt() string {
+func (h *helper) genHostsStorageWriteLatencyStmt() string {
 	query := influx.Query{}
 	return query.Bucket("ceph").
 		Range(h.genTimeDuration()).
@@ -136,7 +136,7 @@ func (h *helper) genHostStorageWriteLatencyStmt() string {
 		String()
 }
 
-func (h *helper) genHostStorageUsageRankStmt() string {
+func (h *helper) genHostsStorageUsageRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
 		Range("start: -1h").
@@ -242,7 +242,7 @@ func (h *helper) genHostNetworkEgressHistoryStmt() string {
 		String()
 }
 
-func (h *helper) genVmCpuUsageRankStmt() string {
+func (h *helper) genVmsCpuUsageRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("monasca").
 		Range("start: -5m").
@@ -256,7 +256,7 @@ func (h *helper) genVmCpuUsageRankStmt() string {
 		String()
 }
 
-func (h *helper) genVmMemoryRankStmt() string {
+func (h *helper) genVmsMemoryRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("monasca").
 		Range("start: -5m").
@@ -271,7 +271,7 @@ func (h *helper) genVmMemoryRankStmt() string {
 		String()
 }
 
-func (h *helper) genVmStorageIopsReadRankStmt() string {
+func (h *helper) genVmsStorageIopsReadRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("monasca").
 		Range("start: -5m").
@@ -286,7 +286,7 @@ func (h *helper) genVmStorageIopsReadRankStmt() string {
 		String()
 }
 
-func (h *helper) genVmStorageIopsWriteRankStmt() string {
+func (h *helper) genVmsStorageIopsWriteRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("monasca").
 		Range("start: -5m").
@@ -301,7 +301,7 @@ func (h *helper) genVmStorageIopsWriteRankStmt() string {
 		String()
 }
 
-func (h *helper) genVmNetworkIngressRankStmt() string {
+func (h *helper) genVmsNetworkIngressRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("monasca").
 		Range("start: -5m").
@@ -314,7 +314,7 @@ func (h *helper) genVmNetworkIngressRankStmt() string {
 		String()
 }
 
-func (h *helper) genVmNetworkEgressRankStmt() string {
+func (h *helper) genVmsNetworkEgressRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("monasca").
 		Range("start: -5m").

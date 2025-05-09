@@ -8,12 +8,8 @@ import (
 
 func (h *helper) getNetworkIngressTraffic() (any, error) {
 	switch h.viewType {
-	case "summary":
-		return nil, fmt.Errorf("summary is not supported yet for network traffic in metrics")
-	case "history":
-		return nil, fmt.Errorf("history is not supported yet for network traffic in metrics")
 	case "rank":
-		return h.getNetworkTrafficInRank()
+		return h.getNetworkIngressRank()
 	default:
 		return nil, fmt.Errorf(
 			"invalid view type(%s) to get network traffic in metrics",
@@ -22,12 +18,12 @@ func (h *helper) getNetworkIngressTraffic() (any, error) {
 	}
 }
 
-func (h *helper) getNetworkTrafficInRank() (any, error) {
+func (h *helper) getNetworkIngressRank() (any, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GetNetworkTrafficInRankOfHosts()
+		return cubecos.GetHostsNetworkIngressRank()
 	case "vms":
-		return cubecos.GetNetworkTrafficInRankOfVms(h.genVmNetworkIngressRankStmt())
+		return cubecos.GetVmsNetworkIngressRank(h.genVmsNetworkIngressRankStmt())
 	default:
 		return nil, fmt.Errorf(
 			"invalid entity type(%s) to get network traffic in rank",
@@ -38,12 +34,8 @@ func (h *helper) getNetworkTrafficInRank() (any, error) {
 
 func (h *helper) getNetworkEgressTraffic() (any, error) {
 	switch h.viewType {
-	case "summary":
-		return nil, fmt.Errorf("summary is not supported yet for network traffic out metrics")
-	case "history":
-		return nil, fmt.Errorf("history is not supported yet for network traffic out metrics")
 	case "rank":
-		return h.getNetworkTrafficOutRank()
+		return h.getNetworkEgressRank()
 	default:
 		return nil, fmt.Errorf(
 			"invalid view type(%s) to get network traffic out metrics",
@@ -52,12 +44,12 @@ func (h *helper) getNetworkEgressTraffic() (any, error) {
 	}
 }
 
-func (h *helper) getNetworkTrafficOutRank() (any, error) {
+func (h *helper) getNetworkEgressRank() (any, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GetNetworkTrafficOutRankOfHosts()
+		return cubecos.GetHostsNetworkEgressRank()
 	case "vms":
-		return cubecos.GetNetworkTrafficOutRankOfVms(h.genVmNetworkEgressRankStmt())
+		return cubecos.GetVmsNetworkEgressRank(h.genVmsNetworkEgressRankStmt())
 	default:
 		return nil, fmt.Errorf(
 			"invalid entity type(%s) to get network traffic out rank",

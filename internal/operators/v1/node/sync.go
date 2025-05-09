@@ -265,7 +265,7 @@ func (o *Operator) setMetricToNode(node *v1.Node) {
 		cpu = &v1.ComputeStatistic{}
 	}
 
-	memory, err := cubecos.GetMemoryUsageSummaryOfHost(node.Hostname)
+	memory, err := cubecos.GetHostMemoryUsageSummary(node.Hostname)
 	if err != nil {
 		log.Errorf("nodes: failed to get memory summary of host: %s", err.Error())
 	}

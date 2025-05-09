@@ -4,17 +4,12 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 )
 
 func (h *helper) getDiskBandwidth() (any, error) {
 	switch h.viewType {
-	case "summary":
-		return nil, fmt.Errorf("summary is not supported yet for disk bandwidth metrics")
 	case "history":
 		return h.getDiskBandwidthHistory()
-	case "rank":
-		return nil, fmt.Errorf("rank is not supported yet for disk bandwidth metrics")
 	}
 
 	return nil, fmt.Errorf(
@@ -30,168 +25,136 @@ func (h *helper) getDiskBandwidthHistory() (any, error) {
 			h.genHostsDiskReadBandwidthStmt(),
 			h.genHostsDiskWriteBandwidthStmt(),
 		)
-	case "vms":
-		return nil, metric.ErrVmNotSupportDiskBandwidthHistory
+	default:
+		return nil, fmt.Errorf(
+			"invalid entity type(%s) to get disk bandwidth history",
+			h.entityType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid entity type(%s) to get disk bandwidth history",
-		h.entityType,
-	)
 }
 
 func (h *helper) getDiskUsage() (any, error) {
 	switch h.viewType {
-	case "summary":
-		return nil, fmt.Errorf("summary is not supported yet for disk usage metrics")
-	case "history":
-		return nil, fmt.Errorf("history is not supported yet for disk usage metrics")
 	case "rank":
 		return h.getDiskUsageRank()
+	default:
+		return nil, fmt.Errorf(
+			"invalid view type(%s) to get disk usage metrics",
+			h.viewType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid view type(%s) to get disk usage metrics",
-		h.viewType,
-	)
 }
 
 func (h *helper) getDiskUsageRank() (any, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GetDiskUsageRankOfHosts(h.genHostStorageUsageRankStmt())
-	case "vms":
-		return nil, fmt.Errorf("vms is not supported yet for disk usage rank")
+		return cubecos.GetHostsDiskUsageRank(h.genHostsStorageUsageRankStmt())
+	default:
+		return nil, fmt.Errorf(
+			"invalid entity type(%s) to get disk usage rank",
+			h.entityType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid entity type(%s) to get disk usage rank",
-		h.entityType,
-	)
 }
 
 func (h *helper) getDiskIops() (any, error) {
 	switch h.viewType {
-	case "summary":
-		return nil, fmt.Errorf("summary is not supported yet for disk iops metrics")
 	case "history":
 		return h.getDiskIopsHistory()
-	case "rank":
-		return nil, fmt.Errorf("rank is not supported yet for disk iops metrics")
+	default:
+		return nil, fmt.Errorf(
+			"invalid view type(%s) to get disk iops metrics",
+			h.viewType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid view type(%s) to get disk iops metrics",
-		h.viewType,
-	)
 }
 
 func (h *helper) getDiskIopsHistory() (any, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GetDiskIopsHistoryOfHosts(
-			h.genHostStorageReadIopsStmt(),
-			h.genHostStorageWriteIopsStmt(),
+		return cubecos.GetHostsDiskIopsHistory(
+			h.genHostsStorageReadIopsStmt(),
+			h.genHostsStorageWriteIopsStmt(),
 		)
-	case "vms":
-		return nil, fmt.Errorf("vms is not supported yet for disk iops")
+	default:
+		return nil, fmt.Errorf(
+			"invalid entity type(%s) to get disk iops",
+			h.entityType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid entity type(%s) to get disk iops",
-		h.entityType,
-	)
 }
 
 func (h *helper) getDiskReadIops() (any, error) {
 	switch h.viewType {
-	case "summary":
-		return nil, fmt.Errorf("summary is not supported yet for disk read iops metrics")
-	case "history":
-		return nil, fmt.Errorf("history is not supported yet for disk read iops metrics")
 	case "rank":
 		return h.getDiskReadIopsRank()
+	default:
+		return nil, fmt.Errorf(
+			"invalid view type(%s) to get disk read iops metrics",
+			h.viewType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid view type(%s) to get disk read iops metrics",
-		h.viewType,
-	)
 }
 
 func (h *helper) getDiskReadIopsRank() (any, error) {
 	switch h.entityType {
-	case "hosts":
-		return nil, fmt.Errorf("hosts is not supported yet for disk read iops rank")
 	case "vms":
-		return cubecos.GetDiskReadIopsRankOfVms(h.genVmStorageIopsReadRankStmt())
+		return cubecos.GetVmsDiskReadIopsRank(h.genVmsStorageIopsReadRankStmt())
+	default:
+		return nil, fmt.Errorf(
+			"invalid entity type(%s) to get disk read iops rank",
+			h.entityType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid entity type(%s) to get disk read iops rank",
-		h.entityType,
-	)
 }
 
 func (h *helper) getDiskWriteIops() (any, error) {
 	switch h.viewType {
-	case "summary":
-		return nil, fmt.Errorf("summary is not supported yet for disk write iops metrics")
-	case "history":
-		return nil, fmt.Errorf("history is not supported yet for disk write iops metrics")
 	case "rank":
 		return h.getDiskWriteIopsRank()
+	default:
+		return nil, fmt.Errorf(
+			"invalid view type(%s) to get disk write iops metrics",
+			h.viewType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid view type(%s) to get disk write iops metrics",
-		h.viewType,
-	)
 }
 
 func (h *helper) getDiskWriteIopsRank() (any, error) {
 	switch h.entityType {
-	case "hosts":
-		return nil, fmt.Errorf("hosts is not supported yet for disk write iops rank")
 	case "vms":
-		return cubecos.GetDiskWriteIopsRankOfVms(h.genVmStorageIopsWriteRankStmt())
+		return cubecos.GetVmsDiskWriteIopsRank(h.genVmsStorageIopsWriteRankStmt())
+	default:
+		return nil, fmt.Errorf(
+			"invalid entity type(%s) to get disk write iops rank",
+			h.entityType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid entity type(%s) to get disk write iops rank",
-		h.entityType,
-	)
 }
 
 func (h *helper) getDiskLatency() (any, error) {
 	switch h.viewType {
-	case "summary":
-		return nil, fmt.Errorf("summary is not supported yet for disk latency metrics")
 	case "history":
 		return h.getDiskLatencyHistory()
-	case "rank":
-		return nil, fmt.Errorf("rank is not supported yet for disk latency metrics")
+	default:
+		return nil, fmt.Errorf(
+			"invalid view type(%s) to get disk latency metrics",
+			h.viewType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid view type(%s) to get disk latency metrics",
-		h.viewType,
-	)
 }
 
 func (h *helper) getDiskLatencyHistory() (any, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GeDiskLatencyHistoryOfHosts(
-			h.genHostStorageReadLatencyStmt(),
-			h.genHostStorageWriteLatencyStmt(),
+		return cubecos.GeHostsDiskLatencyHistory(
+			h.genHostsStorageReadLatencyStmt(),
+			h.genHostsStorageWriteLatencyStmt(),
 		)
-	case "vms":
-		return nil, fmt.Errorf("vms is not supported yet for disk latency")
+	default:
+		return nil, fmt.Errorf(
+			"invalid entity type(%s) to get disk latency",
+			h.entityType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid entity type(%s) to get disk latency",
-		h.entityType,
-	)
 }

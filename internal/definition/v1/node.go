@@ -43,9 +43,9 @@ var (
 	IsGpuEnabled             bool
 	NodeMetadata             map[string]string
 
-	getRegisteredServices = sync.Mutex{}
-	UpdateNodes           = sync.Mutex{}
-	nodes                 = []Node{}
+	updateServices = sync.Mutex{}
+	UpdateNodes    = sync.Mutex{}
+	nodes          = []Node{}
 )
 
 type Node struct {
@@ -293,7 +293,7 @@ func GenerateNodeHashByMacAddr() (string, error) {
 }
 
 func GetNodesByRole(roleName string) ([]Node, error) {
-	svcs, err := GetRegisteredServices()
+	svcs, err := GetDiscoveredServices()
 	if err != nil {
 		return nil, err
 	}
@@ -308,22 +308,16 @@ func GetNodesByRole(roleName string) ([]Node, error) {
 		nodes = append(nodes, roleNodes...)
 	}
 
-	log.Infof("-----------------------")
-
-	for _, node := range nodes {
-		log.Infof(node.Hostname)
-	}
-
 	return nodes, nil
 }
 
-func GetRegisteredServices() ([]*registry.Service, error) {
-	getRegisteredServices.Lock()
-	defer getRegisteredServices.Unlock()
+func GetDiscoveredServices() ([]*registry.Service, error) {
+	updateServices.Lock()
+	defer updateServices.Unlock()
 
 	svcs, err := registry.GetService(ServiceDiscoveryIdentity)
 	if err != nil {
-		log.Errorf("failed to get service from %s (%s)", ServiceDiscoveryIdentity, err.Error())
+		log.Errorf("nodes: failed to get service from %s (%s)", ServiceDiscoveryIdentity, err.Error())
 		return nil, err
 	}
 
@@ -337,7 +331,7 @@ func GetRegisteredServices() ([]*registry.Service, error) {
 }
 
 func HostnameNodeMap() (map[string]Node, error) {
-	svcs, err := GetRegisteredServices()
+	svcs, err := GetDiscoveredServices()
 	if err != nil {
 		return nil, err
 	}

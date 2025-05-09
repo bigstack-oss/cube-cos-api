@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 )
 
 func (h *helper) getCpuUsage() (any, error) {
@@ -29,10 +28,6 @@ func (h *helper) getCpuUsageSummary() (any, error) {
 		return cubecos.GetHostCpuSummary(h.entityId)
 	case "hosts":
 		return cubecos.GetHostsCpuSummary(h.genHostsCpuSummaryStmt())
-	case "vm":
-		return nil, metric.ErrVmNotSupportCpuSummary
-	case "vms":
-		return nil, metric.ErrVmNotSupportCpuSummary
 	default:
 		return nil, fmt.Errorf(
 			"invalid entity type(%s) to get cpu summary",
@@ -46,8 +41,6 @@ func (h *helper) getCpuUsageHistory() (any, error) {
 	case "host":
 		stmt := h.genHostCpuUsageHistoryStmt()
 		return cubecos.GetHostCpuHistory(stmt)
-	case "vm":
-		return nil, metric.ErrVmNotSupportCpuHistory
 	default:
 		return nil, fmt.Errorf(
 			"invalid entity type(%s) to get cpu history",
@@ -59,10 +52,10 @@ func (h *helper) getCpuUsageHistory() (any, error) {
 func (h *helper) getCpuUsageRank() (any, error) {
 	switch h.entityType {
 	case "hosts":
-		stmt := h.genHostCpuUsageRankStmt()
+		stmt := h.genHostsCpuUsageRankStmt()
 		return cubecos.GetHostsCpuUsageRank(stmt)
 	case "vms":
-		stmt := h.genVmCpuUsageRankStmt()
+		stmt := h.genVmsCpuUsageRankStmt()
 		return cubecos.GetVmsCpuUsageRank(stmt)
 	default:
 		return nil, fmt.Errorf(

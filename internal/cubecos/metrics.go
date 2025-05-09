@@ -332,7 +332,7 @@ func GetHostUsage(node v1.Node) (*v1.HostUsage, error) {
 		return nil, err
 	}
 
-	memoryStat, err := GetMemoryUsageSummaryOfHost(node.Hostname)
+	memoryStat, err := GetHostMemoryUsageSummary(node.Hostname)
 	if err != nil {
 		log.Errorf("metrics: failed to get memory summary of host %s: %v", node.Hostname, err)
 		return nil, err
@@ -502,10 +502,10 @@ func appendHistoryToCpuUsageRank(rank []v1.RankPoint) {
 	}
 }
 
-func GetMemoryUsageSummaryOfHosts() (*v1.SpaceStatistic, error) {
+func GetHostsMemoryUsageSummary() (*v1.SpaceStatistic, error) {
 	usages := []v1.SpaceStatistic{}
 	for _, node := range v1.ListNodes() {
-		usage, err := GetMemoryUsageSummaryOfHost(node.Hostname)
+		usage, err := GetHostMemoryUsageSummary(node.Hostname)
 		if err != nil {
 			continue
 		}
@@ -517,7 +517,7 @@ func GetMemoryUsageSummaryOfHosts() (*v1.SpaceStatistic, error) {
 	return &stat, nil
 }
 
-func GetMemoryUsageSummaryOfHost(hostname string) (*v1.SpaceStatistic, error) {
+func GetHostMemoryUsageSummary(hostname string) (*v1.SpaceStatistic, error) {
 	if !v1.IsLocalNode(hostname) {
 		return askTheHostForMemorySummary(hostname)
 	}
@@ -565,7 +565,7 @@ func askTheHostForMemorySummary(hostname string) (*v1.SpaceStatistic, error) {
 	return &spaceStatistic, nil
 }
 
-func GetMemoryUsageRankOfHosts(stmt string) (*v1.MetricRank, error) {
+func GetHostsMemoryUsageRank(stmt string) (*v1.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -609,7 +609,7 @@ func GetMemoryHistoryOfHost(stmt string) ([]v1.TimeValue, error) {
 	return parseMemoryUsageHistory(c)
 }
 
-func GetMemorySizeHistoryOfHost(stmt string) (*v1.MetricHistory, error) {
+func GetHostMemorySizeHistory(stmt string) (*v1.MetricHistory, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -714,7 +714,7 @@ func GetHostsDiskBandwidthHistory(readStmt, writeStmt string) (*v1.StorageTimeSe
 	}, nil
 }
 
-func GetDiskIopsHistoryOfHosts(readStmt, writeStmt string) (*v1.StorageTimeSeries, error) {
+func GetHostsDiskIopsHistory(readStmt, writeStmt string) (*v1.StorageTimeSeries, error) {
 	readSeries, err := getDiskIopsHistoryOfHosts(readStmt)
 	if err != nil {
 		return nil, err
@@ -732,7 +732,7 @@ func GetDiskIopsHistoryOfHosts(readStmt, writeStmt string) (*v1.StorageTimeSerie
 	}, nil
 }
 
-func GeDiskLatencyHistoryOfHosts(readStmt, writeStmt string) (*v1.StorageTimeSeries, error) {
+func GeHostsDiskLatencyHistory(readStmt, writeStmt string) (*v1.StorageTimeSeries, error) {
 	readSeries, err := geDiskLatencyHistoryOfHosts(readStmt)
 	if err != nil {
 		return nil, err
@@ -772,7 +772,7 @@ func geDiskLatencyHistoryOfHosts(stmt string) ([]v1.TimeValue, error) {
 	return parseDiskLatencyHistory(c)
 }
 
-func GetDiskUsageRankOfHosts(stmt string) (*v1.MetricRank, error) {
+func GetHostsDiskUsageRank(stmt string) (*v1.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -836,7 +836,7 @@ func parseDiskUsageHistory(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 	return points, nil
 }
 
-func GetNetworkTrafficInRankOfHosts() (*v1.MetricRank, error) {
+func GetHostsNetworkIngressRank() (*v1.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(hostNetworkIngressRankStmt)
 	if err != nil {
 		return nil, err
@@ -900,7 +900,7 @@ func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]v1.TimeValue, error)
 	return points, nil
 }
 
-func GetNetworkTrafficOutRankOfHosts() (*v1.MetricRank, error) {
+func GetHostsNetworkEgressRank() (*v1.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(hostNetworkEgressRankStmt)
 	if err != nil {
 		return nil, err
@@ -1008,7 +1008,7 @@ func parseCpuUsageHistoryOfVm(c *api.QueryTableResult) ([]v1.TimeValue, error) {
 	return points, nil
 }
 
-func GetMemoryUsageRankOfVms(stmt string) (*v1.MetricRank, error) {
+func GetVmsMemoryUsageRank(stmt string) (*v1.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1072,7 +1072,7 @@ func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]v1.TimeValue, error
 	return points, nil
 }
 
-func GetDiskReadIopsRankOfVms(stmt string) (*v1.MetricRank, error) {
+func GetVmsDiskReadIopsRank(stmt string) (*v1.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1116,7 +1116,7 @@ func GetDiskReadIopsHistoryOfVm(entityId, device string) ([]v1.TimeValue, error)
 	return parseDiskOpsHistory(c)
 }
 
-func GetDiskWriteIopsRankOfVms(stmt string) (*v1.MetricRank, error) {
+func GetVmsDiskWriteIopsRank(stmt string) (*v1.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1160,7 +1160,7 @@ func GetDiskWriteIopsHistoryOfVm(entityId, device string) ([]v1.TimeValue, error
 	return parseDiskOpsHistory(c)
 }
 
-func GetNetworkTrafficInRankOfVms(stmt string) (*v1.MetricRank, error) {
+func GetVmsNetworkIngressRank(stmt string) (*v1.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1204,7 +1204,7 @@ func GetNetworkTrafficInHistoryOfVm(entityId, device string) ([]v1.TimeValue, er
 	return parseNetworkTrafficHistory(c)
 }
 
-func GetNetworkTrafficOutRankOfVms(stmt string) (*v1.MetricRank, error) {
+func GetVmsNetworkEgressRank(stmt string) (*v1.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
