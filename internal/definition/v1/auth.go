@@ -47,7 +47,7 @@ func GenNodeToken(hostname string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func GenNodeAuthHeaders() map[string]string {
+func GenNodeAuth() map[string]string {
 	return map[string]string{
 		"Node":          Hostname,
 		"Authorization": fmt.Sprintf("Bearer %s", DefaultNodeToken),

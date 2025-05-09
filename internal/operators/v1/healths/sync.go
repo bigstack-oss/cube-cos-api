@@ -75,7 +75,7 @@ func reportToController(health cubecos.Health) {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetHeaders(v1.GenNodeAuthHeaders()).
+		SetHeaders(v1.GenNodeAuth()).
 		Delete(genRepairTaskURL(health, node))
 	if err != nil {
 		log.Errorf("healths: failed to send repairing task to controller: %s", err.Error())

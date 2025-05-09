@@ -37,7 +37,7 @@ func sendLicenseToOtherNodes(nodeName string, licenseFile *multipart.FileHeader)
 	http := cubeHttp.GetGlobalHelper()
 	resp, err := http.R().
 		SetFileReader("license", licenseFile.Filename, reader).
-		SetHeaders(v1.GenNodeAuthHeaders()).
+		SetHeaders(v1.GenNodeAuth()).
 		Post(genUrl(node))
 	if resp.IsError() || err != nil {
 		log.Errorf(

@@ -128,7 +128,7 @@ func (h *helper) backfillTuningInfoByHandler(tuning v1.Tuning) {
 func (h *helper) delegateToOtherNode(node *v1.Node) error {
 	http := cubeHttp.GetGlobalHelper()
 	resp, err := http.R().
-		SetHeaders(v1.GenNodeAuthHeaders()).
+		SetHeaders(v1.GenNodeAuth()).
 		SetBody(genTuningUpdate(h.tuning, node)).
 		Patch(node.PatchTuningUrl(h.tuning))
 	if err != nil {

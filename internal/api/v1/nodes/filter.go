@@ -10,10 +10,6 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-const (
-	maxSearchResults = 10000
-)
-
 func (h *helper) filterNodes(nodes []v1.Node) []v1.Node {
 	if !h.isFilterRequired() {
 		return nodes
@@ -115,7 +111,8 @@ func (h *helper) searchNodes(nodes []v1.Node) (*bleve.SearchResult, error) {
 	}
 
 	defer searcher.Close()
-	return searcher.Search(search.WildcardQuery(h.keyword))
+	key := search.NormalizedKeyword(h.keyword)
+	return searcher.Search(search.WildcardQuery(key))
 }
 
 func genNodeMap(nodes []v1.Node) map[string]v1.Node {

@@ -546,7 +546,7 @@ func getNodeTunings(node v1.Node) ([]v1.Tuning, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&api.TuningList{}).
-		SetHeaders(v1.GenNodeAuthHeaders()).
+		SetHeaders(v1.GenNodeAuth()).
 		Get(node.GetTuningUrl())
 	if err != nil {
 		return nil, err

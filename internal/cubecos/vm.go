@@ -5,7 +5,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	openstack "github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/hypervisors"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	log "go-micro.dev/v5/logger"
@@ -22,7 +22,7 @@ func GetVmStatus() (*VmStatus, error) {
 	return genVmStatusOverview(servers), nil
 }
 
-func GetVmUsage() (*v1.VmUsage, error) {
+func GetVmUsage() (*metric.VmUsage, error) {
 	h := openstack.GetGlobalHelper()
 	stats, err := h.GetHypervisorStatistics()
 	if err != nil {
@@ -53,23 +53,23 @@ func genVmStatusOverview(servers []servers.Server) *VmStatus {
 	return vm
 }
 
-func genHypervisorUsage(stats *hypervisors.Statistics) *v1.VmUsage {
-	return &v1.VmUsage{
-		Vcpu: v1.ComputeStatistic{
+func genHypervisorUsage(stats *hypervisors.Statistics) *metric.VmUsage {
+	return &metric.VmUsage{
+		Vcpu: metric.Compute{
 			TotalCores:  float64(stats.VCPUs),
 			UsedCores:   float64(stats.VCPUsUsed),
 			FreeCores:   float64(stats.VCPUs - stats.VCPUsUsed),
 			UsedPercent: math.RoundDown(float64(stats.VCPUsUsed)/float64(stats.VCPUs), 4),
 			FreePercent: math.RoundDown(float64(stats.VCPUs-stats.VCPUsUsed)/float64(stats.VCPUs), 4),
 		},
-		Memory: v1.SpaceStatistic{
+		Memory: metric.Space{
 			TotalMiB:    float64(stats.MemoryMB),
 			UsedMiB:     float64(stats.MemoryMBUsed),
 			FreeMiB:     float64(stats.MemoryMB - stats.MemoryMBUsed),
 			UsedPercent: math.RoundDown(float64(stats.MemoryMBUsed)/float64(stats.MemoryMB), 4),
 			FreePercent: math.RoundDown(float64(stats.MemoryMB-stats.MemoryMBUsed)/float64(stats.MemoryMB), 4),
 		},
-		Storage: v1.SpaceStatistic{
+		Storage: metric.Space{
 			TotalMiB:    float64(stats.LocalGB) * 1024,
 			UsedMiB:     float64(stats.LocalGBUsed) * 1024,
 			FreeMiB:     float64(stats.LocalGB-stats.LocalGBUsed) * 1024,

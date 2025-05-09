@@ -18,6 +18,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/dustin/go-humanize"
 	json "github.com/json-iterator/go"
@@ -117,8 +118,8 @@ func (o *Operator) askPeerNode(node v1.Node) (*v1.Node, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&api.Node{}).
-		SetHeaders(v1.GenNodeAuthHeaders()).
-		Get(node.GetNodeDetailsUrl())
+		SetHeaders(v1.GenNodeAuth()).
+		Get(node.GetNodeUrl())
 	if err != nil {
 		log.Errorf("nodes: failed to get node details %s: %s", node.Hostname, err.Error())
 		return nil, err
@@ -262,7 +263,7 @@ func (o *Operator) setMetricToNode(node *v1.Node) {
 		log.Errorf("nodes: failed to set cpu summary of host: %s", err.Error())
 	}
 	if cpu == nil {
-		cpu = &v1.ComputeStatistic{}
+		cpu = &metric.Compute{}
 	}
 
 	memory, err := cubecos.GetHostMemoryUsageSummary(node.Hostname)
@@ -270,7 +271,7 @@ func (o *Operator) setMetricToNode(node *v1.Node) {
 		log.Errorf("nodes: failed to get memory summary of host: %s", err.Error())
 	}
 	if memory == nil {
-		memory = &v1.SpaceStatistic{}
+		memory = &metric.Space{}
 	}
 
 	storage, err := cubecos.GetDiskStorageSummaryOfHost()
@@ -278,7 +279,7 @@ func (o *Operator) setMetricToNode(node *v1.Node) {
 		log.Errorf("nodes: failed to get disk summary of host: %s", err.Error())
 	}
 	if storage == nil {
-		storage = &v1.SpaceStatistic{}
+		storage = &metric.Space{}
 	}
 
 	node.Vcpu = *cpu

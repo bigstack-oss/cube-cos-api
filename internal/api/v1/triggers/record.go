@@ -120,7 +120,7 @@ func (h *helper) updateTriggerToPeerNode(node v1.Node) {
 }
 
 func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
-	mapHeaderMap := v1.GenNodeAuthHeaders()
+	mapHeaderMap := v1.GenNodeAuth()
 
 	headerMap := map[string]string{}
 	for key, values := range headers {

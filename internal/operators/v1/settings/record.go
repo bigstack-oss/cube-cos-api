@@ -30,7 +30,7 @@ func (o *Operator) reportToController(setting setting.Options) {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetHeaders(v1.GenNodeAuthHeaders()).
+		SetHeaders(v1.GenNodeAuth()).
 		SetBody(setting.GenTaskUpdate()).
 		Patch(node.PatchSettingTaskUrl(setting))
 	if err != nil {

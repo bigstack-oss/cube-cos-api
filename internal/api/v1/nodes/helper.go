@@ -21,21 +21,13 @@ type helper struct {
 	licenseStatuses []string
 	roles           []string
 
-	*v1.Page
+	page  *v1.Page
 	watch bool
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{c: c, handler: handler}
-
-	switch handler {
-	case "listNodes":
-		return h, h.parseListOptions()
-	case "getNode":
-		return h, h.parseGetOptions()
-	}
-
-	return h, nil
+	return h, h.parseParamsByHandler()
 }
 
 func (h *helper) parseListOptions() error {
@@ -100,24 +92,21 @@ func (h *helper) getNode() (*v1.Node, error) {
 }
 
 func (h *helper) askPeerNode(node *v1.Node) (*v1.Node, error) {
-	helper := http.GetGlobalHelper()
-	resp, err := helper.R().
-		SetResult(&api.Node{}).
-		SetHeaders(v1.GenNodeAuthHeaders()).
-		Get(node.GetNodeDetailsUrl())
+	http := http.GetGlobalHelper()
+	resp, err := http.R().SetResult(&api.Node{}).SetHeaders(v1.GenNodeAuth()).Get(node.GetNodeUrl())
 	if err != nil {
 		return nil, err
 	}
-	if resp.IsError() {
-		return nil, fmt.Errorf(
-			"nodes(%s): failed to get node details %s: %d %s",
-			api.GetReqId(h.c),
-			node.Hostname,
-			resp.StatusCode(),
-			string(resp.Body()),
-		)
+
+	if !resp.IsError() {
+		return &resp.Result().(*api.Node).Data, nil
 	}
 
-	nodeDetails := &resp.Result().(*api.Node).Data
-	return nodeDetails, nil
+	return nil, fmt.Errorf(
+		"nodes(%s): failed to get node details %s: %d %s",
+		api.GetReqId(h.c),
+		node.Hostname,
+		resp.StatusCode(),
+		string(resp.Body()),
+	)
 }

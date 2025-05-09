@@ -1,10 +1,25 @@
 package nodes
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api/query"
 )
+
+func (h *helper) parseParamsByHandler() error {
+	switch h.handler {
+	case "listNodes":
+		return h.parseListOptions()
+	case "getNode":
+		return h.parseGetOptions()
+	default:
+		return fmt.Errorf(
+			"unknown node handler: %s",
+			h.handler,
+		)
+	}
+}
 
 func (h *helper) parseKeyword() {
 	keyword := h.c.DefaultQuery("keyword", "")
@@ -25,7 +40,7 @@ func (h *helper) parseLicenseStatus() {
 
 func (h *helper) parsePage() error {
 	var err error
-	h.Page, err = query.GetPage(h.c)
+	h.page, err = query.GetPage(h.c)
 	return err
 }
 

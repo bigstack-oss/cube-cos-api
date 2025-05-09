@@ -7,17 +7,17 @@ import (
 )
 
 func (h *helper) paginateNodes(nodes []v1.Node) []v1.Node {
-	if !h.Page.IsRequired() {
+	if !h.page.IsRequired() {
 		return nodes
 	}
 
-	left := min((h.Page.Number-1)*h.Page.Size, len(nodes))
-	right := min(left+h.Page.Size, len(nodes))
+	left := min((h.page.Number-1)*h.page.Size, len(nodes))
+	right := min(left+h.page.Size, len(nodes))
 	return nodes[left:right]
 }
 
 func (h *helper) genPageInfo(nodes []v1.Node) v1.Page {
-	if !h.Page.IsRequired() {
+	if !h.page.IsRequired() {
 		return v1.Page{
 			Total:          1,
 			Number:         1,
@@ -27,9 +27,9 @@ func (h *helper) genPageInfo(nodes []v1.Node) v1.Page {
 	}
 
 	return v1.Page{
-		Total:          int64(math.Ceil(float64(len(nodes)) / float64(h.Page.Size))),
-		Number:         h.Page.Number,
-		Size:           h.Page.Size,
+		Total:          int64(math.Ceil(float64(len(nodes)) / float64(h.page.Size))),
+		Number:         h.page.Number,
+		Size:           h.page.Size,
 		TotalItemCount: int64(len(nodes)),
 	}
 }

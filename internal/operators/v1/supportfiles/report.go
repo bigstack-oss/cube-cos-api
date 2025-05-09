@@ -35,7 +35,7 @@ func (o *Operator) reportToController(file support.File) error {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetHeaders(v1.GenNodeAuthHeaders()).
+		SetHeaders(v1.GenNodeAuth()).
 		SetBody(file.GenTaskUpdate()).
 		Patch(node.PatchSupportFileTaskUrl(file))
 	if err != nil {

@@ -3,6 +3,7 @@ package cubecos
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	json "github.com/json-iterator/go"
 )
 
@@ -13,7 +14,7 @@ type Summary struct {
 }
 
 type DataCenterSummary struct {
-	Usage v1.DataCenterUsage `json:"usage"`
+	Usage metric.DataCenterUsage `json:"usage"`
 }
 
 type HostSummary struct {
@@ -21,8 +22,8 @@ type HostSummary struct {
 	Usages []HostUsage `json:"usages"`
 }
 
-func (h *HostSummary) ListCpuUsages() []v1.ComputeStatistic {
-	var list []v1.ComputeStatistic
+func (h *HostSummary) ListCpuUsages() []metric.Compute {
+	var list []metric.Compute
 	for _, u := range h.Usages {
 		list = append(list, u.Cpu)
 	}
@@ -30,8 +31,8 @@ func (h *HostSummary) ListCpuUsages() []v1.ComputeStatistic {
 	return list
 }
 
-func (h *HostSummary) ListMemoryUsages() []v1.SpaceStatistic {
-	var list []v1.SpaceStatistic
+func (h *HostSummary) ListMemoryUsages() []metric.Space {
+	var list []metric.Space
 	for _, u := range h.Usages {
 		list = append(list, u.Memory)
 	}
@@ -116,11 +117,11 @@ func (h *HostSummary) setRoleUsage(roleMap map[string]RoleUsage) {
 }
 
 type HostUsage struct {
-	Role    string              `json:"role"`
-	Name    string              `json:"name"`
-	Address string              `json:"address"`
-	Cpu     v1.ComputeStatistic `json:"cpu"`
-	Memory  v1.SpaceStatistic   `json:"memory"`
+	Role    string         `json:"role"`
+	Name    string         `json:"name"`
+	Address string         `json:"address"`
+	Cpu     metric.Compute `json:"cpu"`
+	Memory  metric.Space   `json:"memory"`
 }
 
 type Role struct {
@@ -133,14 +134,14 @@ type Role struct {
 }
 
 type RoleUsage struct {
-	Count  int                 `json:"count"`
-	Cpu    v1.ComputeStatistic `json:"cpu"`
-	Memory v1.SpaceStatistic   `json:"memory"`
+	Count  int            `json:"count"`
+	Cpu    metric.Compute `json:"cpu"`
+	Memory metric.Space   `json:"memory"`
 }
 
 type VmSummary struct {
-	Status     VmStatus `json:"status"`
-	v1.VmUsage `json:"usage"`
+	Status         VmStatus `json:"status"`
+	metric.VmUsage `json:"usage"`
 }
 
 type VmStatus struct {

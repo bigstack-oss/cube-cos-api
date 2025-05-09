@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/gin-gonic/gin"
 )
@@ -27,17 +28,17 @@ type tuning struct {
 }
 
 type ComputeStatistic struct {
-	Code   int                 `json:"code"`
-	Status string              `json:"status"`
-	Msg    string              `json:"msg"`
-	Data   v1.ComputeStatistic `json:"data"`
+	Code   int            `json:"code"`
+	Status string         `json:"status"`
+	Msg    string         `json:"msg"`
+	Data   metric.Compute `json:"data"`
 }
 
 type SpaceStatistic struct {
-	Code   int               `json:"code"`
-	Status string            `json:"status"`
-	Msg    string            `json:"msg"`
-	Data   v1.SpaceStatistic `json:"data"`
+	Code   int          `json:"code"`
+	Status string       `json:"status"`
+	Msg    string       `json:"msg"`
+	Data   metric.Space `json:"data"`
 }
 
 type SupportFileList struct {

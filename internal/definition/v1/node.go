@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
@@ -64,9 +65,9 @@ type Node struct {
 	CpuSpec           string             `json:"cpuSpec" yaml:"cpuSpec" bson:"cpuSpec"`
 	NetworkInterfaces []NetworkInterface `json:"networkInterfaces" yaml:"networkInterfaces" bson:"networkInterfaces"`
 	BlockDevices      []BlockDevice      `json:"blockDevices" yaml:"blockDevices" bson:"blockDevices"`
-	Vcpu              ComputeStatistic   `json:"vcpu" yaml:"vcpu" bson:"vcpu"`
-	Memory            SpaceStatistic     `json:"memory" yaml:"memory" bson:"memory"`
-	Storage           SpaceStatistic     `json:"storage" yaml:"storage" bson:"storage"`
+	Vcpu              metric.Compute     `json:"vcpu" yaml:"vcpu" bson:"vcpu"`
+	Memory            metric.Space       `json:"memory" yaml:"memory" bson:"memory"`
+	Storage           metric.Space       `json:"storage" yaml:"storage" bson:"storage"`
 	UptimeSeconds     float64            `json:"uptimeSeconds" yaml:"uptimeSeconds" bson:"uptimeSeconds"`
 	Labels            map[string]string  `json:"labels,omitempty" yaml:"labels,omitempty" bson:"labels,omitempty"`
 }
@@ -138,7 +139,7 @@ func (n *Node) GetMetricUrl(metric, view string) string {
 	return u.String()
 }
 
-func (n *Node) GetNodeDetailsUrl() string {
+func (n *Node) GetNodeUrl() string {
 	u := url.URL{
 		Scheme: n.Protocol,
 		Host:   n.Address,
