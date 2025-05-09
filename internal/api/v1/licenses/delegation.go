@@ -6,16 +6,18 @@ import (
 	"net/url"
 
 	cubeHttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 )
 
-func genUrl(node v1.Node) string {
+func genUrl(node nodes.Node) string {
 	u := url.URL{
 		Scheme: "http",
 		Host:   node.Address,
-		Path:   fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/licenses", v1.DataCenterName, node.Role),
+		Path:   fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/licenses", base.DataCenterName, node.Role),
 	}
 	return u.String()
 }
@@ -37,7 +39,7 @@ func sendLicenseToOtherNodes(nodeName string, licenseFile *multipart.FileHeader)
 	http := cubeHttp.GetGlobalHelper()
 	resp, err := http.R().
 		SetFileReader("license", licenseFile.Filename, reader).
-		SetHeaders(v1.GenNodeAuth()).
+		SetHeaders(auth.GetNodeSecret()).
 		Post(genUrl(node))
 	if resp.IsError() || err != nil {
 		log.Errorf(

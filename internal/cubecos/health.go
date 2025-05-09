@@ -14,6 +14,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -90,7 +91,7 @@ func IsRepairable() bool {
 		return false
 	}
 
-	if v1.CurrentRole == "" {
+	if base.CurrentRole == "" {
 		log.Errorf("role is not set for repairing")
 		return false
 	}

@@ -5,7 +5,7 @@ import (
 
 	"maps"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/gin-gonic/gin"
 )
 
@@ -44,15 +44,15 @@ func (h Handler) IsUnderDataCenter() bool {
 func RegisterHandlersToRoles(module string, handlers []Handler, rolesToRegister ...string) {
 	for _, role := range rolesToRegister {
 		switch role {
-		case v1.RoleControl:
+		case nodes.RoleControl:
 			ControlHandlers[module] = handlers
-		case v1.RoleCompute:
+		case nodes.RoleCompute:
 			ComputeHandlers[module] = handlers
-		case v1.RoleStorage:
+		case nodes.RoleStorage:
 			StorageHandlers[module] = handlers
-		case v1.RoleModerator:
+		case nodes.RoleModerator:
 			ModeratorHandlers[module] = handlers
-		case v1.RoleEdgeCore:
+		case nodes.RoleEdgeCore:
 			EdgeCoreHandlers[module] = handlers
 		}
 	}
@@ -74,17 +74,17 @@ func appendGroupHandlers(dstGroupHandlers, srcGroupHandlers map[string][]Handler
 
 func GetRoleHandlers(role string) map[string][]Handler {
 	switch role {
-	case v1.RoleControl:
+	case nodes.RoleControl:
 		return ControlHandlers
-	case v1.RoleCompute:
+	case nodes.RoleCompute:
 		return ComputeHandlers
-	case v1.RoleStorage:
+	case nodes.RoleStorage:
 		return StorageHandlers
-	case v1.RoleControlConverged:
+	case nodes.RoleControlConverged:
 		return GenControlConvergedHandlers()
-	case v1.RoleModerator:
+	case nodes.RoleModerator:
 		return ModeratorHandlers
-	case v1.RoleEdgeCore:
+	case nodes.RoleEdgeCore:
 		return EdgeCoreHandlers
 	default:
 		return nil

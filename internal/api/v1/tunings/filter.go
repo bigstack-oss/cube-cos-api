@@ -5,6 +5,7 @@ import (
 
 	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
@@ -15,12 +16,12 @@ const (
 	maxSearchResults = 10000
 )
 
-func selectRolesUsingActivityAndLabels(tuningSpec *v1.TuningSpec) []*v1.Role {
+func selectRolesUsingActivityAndLabels(tuningSpec *v1.TuningSpec) []*nodes.Role {
 	for i, role := range tuningSpec.Roles {
 		tuningSpec.Roles[i].Nodes = getNodesBySelector(role.Nodes, tuningSpec.Selector)
 	}
 
-	roles := []*v1.Role{}
+	roles := []*nodes.Role{}
 	for _, role := range tuningSpec.Roles {
 		if !role.IsNodeEmpty() {
 			roles = append(roles, role)
@@ -30,13 +31,13 @@ func selectRolesUsingActivityAndLabels(tuningSpec *v1.TuningSpec) []*v1.Role {
 	return roles
 }
 
-func getNodesBySelector(nodes []v1.Node, selector v1.Selector) []v1.Node {
+func getNodesBySelector(nodesToFilter []nodes.Node, selector v1.Selector) []nodes.Node {
 	if !selector.Enabled {
-		return nodes
+		return nodesToFilter
 	}
 
-	filtered := []v1.Node{}
-	for _, node := range nodes {
+	filtered := []nodes.Node{}
+	for _, node := range nodesToFilter {
 		for key, value := range selector.Labels {
 			if node.Labels[key] == value {
 				filtered = append(filtered, node)
@@ -135,7 +136,7 @@ func (h *helper) filteredByModified(tunings []v1.Tuning) []v1.Tuning {
 	return filtered
 }
 
-func (h *helper) containsHosts(hosts []v1.Host) bool {
+func (h *helper) containsHosts(hosts []nodes.Host) bool {
 	hostSet := make(map[string]struct{}, len(hosts))
 	for _, h := range hosts {
 		hostSet[h.Name] = struct{}{}

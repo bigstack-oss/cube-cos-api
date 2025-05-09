@@ -6,7 +6,8 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
 )
@@ -67,7 +68,7 @@ func repairServices(health cubecos.Health) {
 }
 
 func reportToController(health cubecos.Health) {
-	node, err := v1.GetOneOfControllerNode()
+	node, err := nodes.GetController()
 	if err != nil {
 		log.Errorf("healths: failed to get controller nodes: %s", err.Error())
 		return
@@ -75,7 +76,7 @@ func reportToController(health cubecos.Health) {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetHeaders(v1.GenNodeAuth()).
+		SetHeaders(auth.GetNodeSecret()).
 		Delete(genRepairTaskURL(health, node))
 	if err != nil {
 		log.Errorf("healths: failed to send repairing task to controller: %s", err.Error())
@@ -88,7 +89,7 @@ func reportToController(health cubecos.Health) {
 	}
 }
 
-func genRepairTaskURL(health cubecos.Health, node *v1.Node) string {
+func genRepairTaskURL(health cubecos.Health, node *nodes.Node) string {
 	if health.Overall.Status.Desired == status.CheckingAndRepairing {
 		return node.DeleteRepairingTaskUrl()
 	}

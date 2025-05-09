@@ -6,6 +6,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 )
@@ -42,7 +43,7 @@ func (h *helper) checkTuningResetReq() error {
 
 func (h *helper) checkHostsAreValid() error {
 	for _, host := range h.tuning.Hosts {
-		_, err := v1.GetNodeByHostname(host.Name)
+		_, err := nodes.Get(host.Name)
 		if err != nil {
 			return fmt.Errorf("host(%s) not found", host.Name)
 		}

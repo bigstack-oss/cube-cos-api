@@ -4,7 +4,8 @@ import (
 	"errors"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	log "go-micro.dev/v5/logger"
 )
@@ -24,7 +25,7 @@ func (o *Operator) handleExit(trigger trigger.ApiOptions, err error) {
 }
 
 func (o *Operator) reportToController(trigger trigger.ApiOptions) error {
-	node, err := v1.GetOneOfControllerNode()
+	node, err := nodes.GetController()
 	if err != nil {
 		log.Errorf("triggers: failed to get controller nodes: %s", err.Error())
 		return err
@@ -32,7 +33,7 @@ func (o *Operator) reportToController(trigger trigger.ApiOptions) error {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetHeaders(v1.GenNodeAuth()).
+		SetHeaders(auth.GetNodeSecret()).
 		SetBody(trigger.GenTaskUpdate()).
 		Patch(node.PatchTriggerTaskUrl(trigger))
 	if err != nil {

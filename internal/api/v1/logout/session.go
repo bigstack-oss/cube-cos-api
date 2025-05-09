@@ -7,7 +7,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/crewjam/saml/samlsp"
@@ -17,7 +17,7 @@ import (
 func genRedirectUrl() string {
 	return fmt.Sprintf(
 		"https://%s:%d%s",
-		v1.DataCenterVip,
+		base.DataCenterVip,
 		conf.Opts.Spec.Saml.ServiceProvider.Host.Port,
 		conf.Opts.Spec.Identity.Redirect,
 	)

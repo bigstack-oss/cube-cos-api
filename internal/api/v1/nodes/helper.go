@@ -7,6 +7,8 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -54,7 +56,7 @@ func (h *helper) parseGetOptions() error {
 }
 
 func (h *helper) listNodes() (*nodePage, error) {
-	nodes := h.filterNodes(v1.ListNodes())
+	nodes := h.filterNodes(nodes.List())
 	nodesPerPage := h.paginateNodes(nodes)
 	h.sortNodes(&nodesPerPage)
 
@@ -64,7 +66,7 @@ func (h *helper) listNodes() (*nodePage, error) {
 	}, nil
 }
 
-func (h *helper) sortNodes(node *[]v1.Node) {
+func (h *helper) sortNodes(node *[]nodes.Node) {
 	sort.SliceStable(
 		*node,
 		func(i, j int) bool {
@@ -73,8 +75,8 @@ func (h *helper) sortNodes(node *[]v1.Node) {
 	)
 }
 
-func (h *helper) getNode() (*v1.Node, error) {
-	node, err := v1.GetNodeByHostname(h.nodeName)
+func (h *helper) getNode() (*nodes.Node, error) {
+	node, err := nodes.Get(h.nodeName)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to get node: %s", api.GetReqId(h.c), err.Error())
 		return nil, err
@@ -91,9 +93,9 @@ func (h *helper) getNode() (*v1.Node, error) {
 	return h.askPeerNode(node)
 }
 
-func (h *helper) askPeerNode(node *v1.Node) (*v1.Node, error) {
+func (h *helper) askPeerNode(node *nodes.Node) (*nodes.Node, error) {
 	http := http.GetGlobalHelper()
-	resp, err := http.R().SetResult(&api.Node{}).SetHeaders(v1.GenNodeAuth()).Get(node.GetNodeUrl())
+	resp, err := http.R().SetResult(&api.Node{}).SetHeaders(auth.GetNodeSecret()).Get(node.GetNodeUrl())
 	if err != nil {
 		return nil, err
 	}

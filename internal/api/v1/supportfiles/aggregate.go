@@ -3,7 +3,7 @@ package supportfiles
 import (
 	"fmt"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 )
 
@@ -41,7 +41,7 @@ func (h *helper) aggregateToFileSets(files []support.File) []support.FileSet {
 
 func (h *helper) genSupportFileSet(file support.File) *support.FileSet {
 	return &support.FileSet{
-		Name:        fmt.Sprintf("%s Support File Set %s", v1.DataCenterVersion, file.Status.CreatedAt),
+		Name:        fmt.Sprintf("%s Support File Set %s", base.DataCenterVersion, file.Status.CreatedAt),
 		Description: file.Description,
 		SizeMiB:     0,
 		Files:       []support.File{},

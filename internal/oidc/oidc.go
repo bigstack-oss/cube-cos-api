@@ -9,7 +9,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/coreos/go-oidc"
 	log "go-micro.dev/v5/logger"
 )
@@ -73,7 +73,7 @@ func newToken(provider *oidc.Provider, token string) (*oidc.IDToken, context.Can
 func genRealmUrl() string {
 	keycloak := &config.Opts.Spec.Identity.Keycloak
 	if keycloak.Ip == "" {
-		keycloak.Ip = v1.DataCenterVip
+		keycloak.Ip = base.DataCenterVip
 	}
 
 	u := url.URL{}

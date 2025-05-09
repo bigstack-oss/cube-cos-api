@@ -1,7 +1,7 @@
 package node
 
 import (
-	"errors"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -11,85 +11,89 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
-	"github.com/dustin/go-humanize"
-	json "github.com/json-iterator/go"
 	"github.com/shirou/gopsutil/v4/cpu"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )
 
-func (o *Operator) traceNodeDetails() {
+func (o *Operator) periodicSyncNodes() {
 	for {
 		select {
 		case <-o.ctx.Done():
 			return
 		default:
-			o.syncNodeDetails()
+			o.syncNodes()
 			wait.Seconds(30)
 		}
 	}
 }
 
-func (o *Operator) syncNodeDetails() {
+func (o *Operator) syncNodes() {
 	o.sync.Lock()
 	defer o.sync.Unlock()
 
-	v1.SyncRoleNodes()
-	activeNodes := v1.GetActiveNodeMap()
-	sourceNodes, err := cubecos.GetSourceNodeMap()
+	nodes.Sync()
+	allNodes, err := o.syncNodesUpAndDown()
 	if err != nil {
-		log.Errorf("nodes: failed to get source node map: %s", err.Error())
+		log.Errorf("nodes: failed to sync nodes: %s", err.Error())
 		return
 	}
 
-	nodes := o.syncNodeStatus(sourceNodes, activeNodes)
-	o.setNodeDetails(&nodes)
-	v1.SetNodeDetails(nodes)
+	o.syncDetails(&allNodes)
+	nodes.SetList(allNodes)
 }
 
-func (o *Operator) syncNodeStatus(sourceNodes, activeNodes map[string]v1.Node) []v1.Node {
-	nodes := []v1.Node{}
+func (o *Operator) syncNodesUpAndDown() ([]nodes.Node, error) {
+	ups := nodes.GetMap()
+	upsAndDowns, err := cubecos.GetSourceNodeMap()
+	if err != nil {
+		log.Errorf("nodes: failed to get source node map: %s", err.Error())
+		return nil, err
+	}
 
-	for _, srcNode := range sourceNodes {
-		node, found := activeNodes[srcNode.Hostname]
+	nodes := []nodes.Node{}
+	for _, node := range upsAndDowns {
+		up, found := ups[node.Hostname]
 		if found {
-			nodes = append(nodes, node)
+			nodes = append(nodes, up)
 			continue
 		}
 
-		o.setNodeOfflineInfo(&srcNode)
-		nodes = append(nodes, srcNode)
+		o.setNodeDown(&node)
+		nodes = append(nodes, node)
 	}
 
-	return nodes
+	return nodes, nil
 }
 
-func (o *Operator) setNodeOfflineInfo(node *v1.Node) {
-	node.DataCenter = v1.DataCenterName
-	node.BlockDevices = []v1.BlockDevice{}
-	node.NetworkInterfaces = []v1.NetworkInterface{}
+func (o *Operator) setNodeDown(node *nodes.Node) {
+	node.DataCenter = base.DataCenterName
+	node.BlockDevices = []nodes.BlockDevice{}
+	node.NetworkInterfaces = []nodes.NetworkInterface{}
 	node.License = o.getLicenseByHostname(node.Hostname)
-	node.Status = "down"
+	node.Status = status.Down
 }
 
-func (o *Operator) setNodeDetails(nodes *[]v1.Node) {
+func (o *Operator) syncDetails(nodes *[]nodes.Node) {
 	if len(*nodes) == 0 {
 		return
 	}
 
 	for i, node := range *nodes {
 		if node.IsLocal() {
-			o.setNodeLicense(&(*nodes)[i])
-			o.setNodeInfraSpec(&(*nodes)[i])
+			o.setLicense(&(*nodes)[i])
+			o.setInfraSpec(&(*nodes)[i])
 			continue
 		}
 
@@ -114,26 +118,27 @@ func (o *Operator) setNodeDetails(nodes *[]v1.Node) {
 	}
 }
 
-func (o *Operator) askPeerNode(node v1.Node) (*v1.Node, error) {
+func (o *Operator) askPeerNode(node nodes.Node) (*nodes.Node, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&api.Node{}).
-		SetHeaders(v1.GenNodeAuth()).
+		SetHeaders(auth.GetNodeSecret()).
 		Get(node.GetNodeUrl())
 	if err != nil {
 		log.Errorf("nodes: failed to get node details %s: %s", node.Hostname, err.Error())
 		return nil, err
 	}
-	if resp.IsError() {
-		err := fmt.Errorf("get error for node details %s: %d(%s)", node.Hostname, resp.StatusCode(), string(resp.Body()))
-		log.Errorf("nodes: %v", err)
-		return nil, err
+
+	if !resp.IsError() {
+		return &resp.Result().(*api.Node).Data, nil
 	}
 
-	return &resp.Result().(*api.Node).Data, nil
+	err = fmt.Errorf("resp error for node details %s: %s", node.Hostname, string(resp.Body()))
+	log.Errorf("nodes: %v", err)
+	return nil, err
 }
 
-func (o *Operator) setNodeLicense(node *v1.Node) {
+func (o *Operator) setLicense(node *nodes.Node) {
 	node.License = o.getLicenseByHostname(node.Hostname)
 }
 
@@ -154,25 +159,29 @@ func (o *Operator) getLicenseByHostname(hostname string) license.Options {
 	return license.Options{}
 }
 
-func (o *Operator) setNodeInfraSpec(node *v1.Node) {
-	node.ManagementIP = v1.ManagementIp
-	node.StorageIP = v1.StorageIP
-	o.setNodeStatus(node)
-	o.setHardwareInfoToNode(node)
-	o.setMetricToNode(node)
-	o.setUptimeToNode(node)
+func (o *Operator) setInfraSpec(node *nodes.Node) {
+	o.setIps(node)
+	o.setStatus(node)
+	o.setHardwareSpec(node)
+	o.setMetric(node)
+	o.setUptime(node)
 }
 
-func (o *Operator) setNodeStatus(node *v1.Node) {
-	switch v1.CurrentRole {
-	case v1.RoleControl, v1.RoleControlConverged, v1.RoleModerator, v1.RoleStorage:
-		node.Status = status.Up
-	case v1.RoleCompute, v1.RoleEdgeCore:
-		o.setComputeNodeStatus(node)
+func (o *Operator) setIps(node *nodes.Node) {
+	node.ManagementIP = base.ManagementIp
+	node.StorageIP = base.StorageIP
+}
+
+func (o *Operator) setStatus(n *nodes.Node) {
+	switch base.CurrentRole {
+	case nodes.RoleControl, nodes.RoleControlConverged, nodes.RoleModerator, nodes.RoleStorage:
+		n.Status = status.Up
+	case nodes.RoleCompute, nodes.RoleEdgeCore:
+		o.setComputeStatus(n)
 	}
 }
 
-func (o *Operator) setComputeNodeStatus(node *v1.Node) {
+func (o *Operator) setComputeStatus(node *nodes.Node) {
 	h := openstack.GetGlobalHelper()
 	hypervisor, err := h.GetHypervisorByHostname(node.Hostname)
 	if err != nil {
@@ -183,13 +192,13 @@ func (o *Operator) setComputeNodeStatus(node *v1.Node) {
 	node.Status = hypervisor.State
 }
 
-func (o *Operator) setHardwareInfoToNode(node *v1.Node) {
-	o.setCpuSpecToNode(node)
-	o.setNetworkSpecToNode(node)
-	o.setBlockDeviceSpecToNode(node)
+func (o *Operator) setHardwareSpec(node *nodes.Node) {
+	o.setCpuSpec(node)
+	o.setNetworkSpec(node)
+	o.setStorageSpec(node)
 }
 
-func (o *Operator) setCpuSpecToNode(node *v1.Node) {
+func (o *Operator) setCpuSpec(node *nodes.Node) {
 	info, err := cpu.Info()
 	if err != nil {
 		log.Errorf("nodes: failed to get cpu info: %s", err.Error())
@@ -199,61 +208,67 @@ func (o *Operator) setCpuSpecToNode(node *v1.Node) {
 	node.CpuSpec = info[0].ModelName
 }
 
-func (o *Operator) setNetworkSpecToNode(node *v1.Node) {
-	out, err := exec.Command("hex_sdk", "-f", "json", "DumpInterface").CombinedOutput()
+func (o *Operator) setNetworkSpec(n *nodes.Node) {
+	interfaces, err := cubecos.DumpInterfaces()
 	if err != nil {
-		log.Errorf("nodes: failed to get network info: %s", err.Error())
 		return
 	}
 
-	raws := []v1.RawNetworkInterface{}
-	err = json.Unmarshal(out, &raws)
-	if err != nil {
-		log.Errorf("nodes: failed to unmarshal network info: %s", err.Error())
-		return
-	}
-
-	for _, raw := range raws {
-		node.NetworkInterfaces = append(
-			node.NetworkInterfaces,
-			v1.NetworkInterface(raw),
+	for _, net := range interfaces {
+		n.NetworkInterfaces = append(
+			n.NetworkInterfaces,
+			nodes.NetworkInterface(net),
 		)
 	}
 }
 
-func (o *Operator) setBlockDeviceSpecToNode(node *v1.Node) {
-	rawBlockDevs, err := getOsBlockDevices()
+func (o *Operator) setStorageSpec(n *nodes.Node) {
+	raws, err := cubecos.GetRawBlockDevices()
 	if err != nil {
 		return
 	}
 
-	node.BlockDevices = []v1.BlockDevice{}
+	n.BlockDevices = []nodes.BlockDevice{}
 	partitionMounts := map[string][]string{}
-	for _, raw := range rawBlockDevs {
+	for _, raw := range raws {
 		if raw.IsPartition() {
-			setPartitionMounts(raw, partitionMounts)
+			o.setPartitionMounts(raw, partitionMounts)
 			continue
 		}
 
-		node.BlockDevices = append(
-			node.BlockDevices,
-			convertToBlockDevice(raw),
+		n.BlockDevices = append(
+			n.BlockDevices,
+			cubecos.ConvertToBlockDevice(raw),
 		)
 	}
 
-	addBlockDevicesAvailability(node, partitionMounts)
-	addBlockDevicesStatus(node)
+	o.setBlockDevicesAvailability(n, partitionMounts)
+	o.setBlockDevicesStatus(n)
 }
 
-func setPartitionMounts(blockDev v1.RawBlockDevice, partitionMounts map[string][]string) {
-	if blockDev.NoMountPoints() {
+func (o *Operator) setPartitionMounts(partition nodes.RawBlockDevice, mounts map[string][]string) {
+	if partition.NoMountPoints() {
 		return
 	}
 
-	partitionMounts[blockDev.Name] = blockDev.MountPoints
+	mounts[partition.Name] = partition.MountPoints
 }
 
-func (o *Operator) setMetricToNode(node *v1.Node) {
+func (o *Operator) setBlockDevicesAvailability(node *nodes.Node, partitions map[string][]string) {
+	partitionStatuses := genPartitionAvailability(partitions)
+	mainBlockDevStatus := genMainBlockDevStatus(partitionStatuses)
+	for i, blockDev := range node.BlockDevices {
+		node.BlockDevices[i].Availability = mainBlockDevStatus[blockDev.Name]
+	}
+}
+
+func (o *Operator) setBlockDevicesStatus(node *nodes.Node) {
+	for i, blockDev := range node.BlockDevices {
+		node.BlockDevices[i].Status = getBlockDeviceStatus(blockDev)
+	}
+}
+
+func (o *Operator) setMetric(node *nodes.Node) {
 	if node.IsDown() {
 		return
 	}
@@ -274,7 +289,7 @@ func (o *Operator) setMetricToNode(node *v1.Node) {
 		memory = &metric.Space{}
 	}
 
-	storage, err := cubecos.GetDiskStorageSummaryOfHost()
+	storage, err := cubecos.GetHostDiskStorageSummary()
 	if err != nil {
 		log.Errorf("nodes: failed to get disk summary of host: %s", err.Error())
 	}
@@ -287,7 +302,7 @@ func (o *Operator) setMetricToNode(node *v1.Node) {
 	node.Storage = *storage
 }
 
-func (o *Operator) setUptimeToNode(node *v1.Node) {
+func (o *Operator) setUptime(node *nodes.Node) {
 	data, err := os.ReadFile("/proc/uptime")
 	if err != nil {
 		log.Errorf("nodes: failed to read uptime file: %s", err.Error())
@@ -309,77 +324,6 @@ func (o *Operator) setUptimeToNode(node *v1.Node) {
 	node.UptimeSeconds = uptimeSeconds
 }
 
-func getOsBlockDevices() ([]v1.RawBlockDevice, error) {
-	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "TYPE,NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS", "-e", v1.NetBlockDeviceCode).Output()
-	if err != nil {
-		log.Errorf("nodes: failed to get block device info: %s", err.Error())
-		return nil, err
-	}
-
-	blockDevMap := map[string][]v1.RawBlockDevice{}
-	err = json.Unmarshal(b, &blockDevMap)
-	if err != nil {
-		log.Errorf("nodes: failed to unmarshal block device info: %s", err.Error())
-		return nil, err
-	}
-
-	rawBlockDevs, found := blockDevMap["blockdevices"]
-	if !found {
-		log.Errorf("nodes: failed to find block devices in the output")
-		return nil, err
-	}
-	if len(rawBlockDevs) <= 0 {
-		log.Errorf("nodes: no block device found")
-		return nil, errors.New("no block device found")
-	}
-
-	return getBlockOrPartitionOnly(rawBlockDevs), nil
-}
-
-func getBlockOrPartitionOnly(rawBlockDevs []v1.RawBlockDevice) []v1.RawBlockDevice {
-	blockDevs := []v1.RawBlockDevice{}
-	for _, rawBlockDev := range rawBlockDevs {
-		if rawBlockDev.IsBlock() {
-			blockDevs = append(blockDevs, rawBlockDev)
-		}
-
-		if rawBlockDev.IsPartition() {
-			blockDevs = append(blockDevs, rawBlockDev)
-		}
-	}
-
-	return blockDevs
-}
-
-func convertToBlockDevice(rawBlockDev v1.RawBlockDevice) v1.BlockDevice {
-	return v1.BlockDevice{
-		Serial:  rawBlockDev.Serial,
-		Name:    rawBlockDev.Name,
-		Type:    convertBlockDeviceType(rawBlockDev.Rota),
-		SizeMiB: convertBlockDeviceSize(rawBlockDev.Size),
-		Status:  status.BlockDevice{Current: "can be added"},
-	}
-}
-
-func convertBlockDeviceType(rota bool) string {
-	if rota {
-		return "HDD"
-	}
-
-	return "SSD"
-}
-
-func convertBlockDeviceSize(sizeStr string) float64 {
-	bytes, err := humanize.ParseBytes(sizeStr)
-	if err != nil {
-		log.Errorf("nodes: failed to convert block device size: %s", err.Error())
-		return 0
-	}
-
-	sizeMiB := float64(bytes) / (1024.0 * 1024.0)
-	return math.RoundDown(sizeMiB, 4)
-}
-
 func parentDeviceSysfs(device string) (string, error) {
 	link := "/sys/class/block/" + device
 	target, err := filepath.EvalSymlinks(link)
@@ -391,21 +335,7 @@ func parentDeviceSysfs(device string) (string, error) {
 	return filepath.Base(filepath.Dir(target)), nil
 }
 
-func addBlockDevicesAvailability(node *v1.Node, partitions map[string][]string) {
-	partitionStatuses := genPartitionAvailability(partitions)
-	mainBlockDevStatus := genMainBlockDevStatus(partitionStatuses)
-	for i, blockDev := range node.BlockDevices {
-		node.BlockDevices[i].Availability = mainBlockDevStatus[blockDev.Name]
-	}
-}
-
-func addBlockDevicesStatus(node *v1.Node) {
-	for i, blockDev := range node.BlockDevices {
-		node.BlockDevices[i].Status = getBlockDeviceStatus(blockDev)
-	}
-}
-
-func getBlockDeviceStatus(blockDev v1.BlockDevice) status.BlockDevice {
+func getBlockDeviceStatus(blockDev nodes.BlockDevice) status.BlockDevice {
 	out, err := exec.Command("hex_sdk", "-f", "json", "ceph_osd_list", fmt.Sprintf("/dev/%s", blockDev.Name)).CombinedOutput()
 	if err != nil {
 		log.Errorf("nodes: failed to get block device(%s) status: %s", blockDev.Name, err.Error())

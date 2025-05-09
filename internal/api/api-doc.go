@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	ginFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -27,7 +28,7 @@ func init() {
 	RegisterHandlersToRoles(
 		apiDoc,
 		handlers,
-		v1.RoleControl,
-		v1.RoleCompute,
+		nodes.RoleControl,
+		nodes.RoleCompute,
 	)
 }

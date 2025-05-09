@@ -10,6 +10,9 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	log "go-micro.dev/v5/logger"
@@ -17,7 +20,7 @@ import (
 
 func (h *helper) delegateSupportFileReq() {
 	for _, host := range h.fileReq.Hosts {
-		node, err := v1.GetNodeByHostname(host)
+		node, err := nodes.Get(host)
 		if err != nil {
 			continue
 		}
@@ -49,8 +52,8 @@ func (h *helper) setSupportFile() {
 		Group:       h.genFilSetGroup(),
 		Description: h.fileReq.Description,
 		Source: support.Source{
-			Role: v1.CurrentRole,
-			Host: v1.Hostname,
+			Role: base.CurrentRole,
+			Host: base.Hostname,
 		},
 		Status: status.SupportFile{
 			Current:    status.Creating,
@@ -64,7 +67,7 @@ func (h *helper) setSupportFile() {
 func (h *helper) genFilSetGroup() string {
 	return fmt.Sprintf(
 		"%s Support File Set %s",
-		v1.DataCenterVersion,
+		base.DataCenterVersion,
 		h.fileReq.CreatedAt,
 	)
 }
@@ -74,11 +77,11 @@ func (h *helper) delegateToLocal() {
 	reqQueue.Add(&h.file)
 }
 
-func (h *helper) delegateToNode(node *v1.Node) error {
+func (h *helper) delegateToNode(node *nodes.Node) error {
 	url := node.CreateSupportFileUrl(h.file)
 	body := h.genFileReqBody(*node)
 	http := http.GetGlobalHelper()
-	resp, err := http.R().SetHeaders(v1.GenNodeAuth()).SetBody(body).Post(url)
+	resp, err := http.R().SetHeaders(auth.GetNodeSecret()).SetBody(body).Post(url)
 	if err != nil {
 		log.Errorf("failed to create support file %s to %s: %s", h.file.Name, node.Id, err.Error())
 		return err
@@ -92,7 +95,7 @@ func (h *helper) delegateToNode(node *v1.Node) error {
 	return nil
 }
 
-func (h *helper) genFileReqBody(node v1.Node) support.FileRequest {
+func (h *helper) genFileReqBody(node nodes.Node) support.FileRequest {
 	return support.FileRequest{
 		Name:        h.fileReq.Name,
 		Description: h.fileReq.Description,
@@ -116,7 +119,7 @@ func (h *helper) downloadSupportFile() error {
 			continue
 		}
 
-		if file.Source.Host == v1.Hostname {
+		if file.Source.Host == base.Hostname {
 			h.streamFileDownload(file.Name)
 			break
 		}
@@ -163,7 +166,7 @@ func (h *helper) streamFileDownload(filename string) {
 }
 
 func (h *helper) streamFromPeerNode(set support.FileSet, file support.File) {
-	node, err := v1.GetNodeByHostname(file.Source.Host)
+	node, err := nodes.Get(file.Source.Host)
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to get node by hostname %s: %s", api.GetReqId(h.c), file.Source.Host, err.Error())
 		return
@@ -171,7 +174,7 @@ func (h *helper) streamFromPeerNode(set support.FileSet, file support.File) {
 
 	url := node.DownloadSupportFileUrl(set.Name, file.Name)
 	http := http.GetGlobalHelper()
-	resp, err := http.R().SetHeaders(v1.GenNodeAuth()).Get(url)
+	resp, err := http.R().SetHeaders(auth.GetNodeSecret()).Get(url)
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to download support file %s from %s: %s", api.GetReqId(h.c), file.Name, node.Hostname, err.Error())
 		return

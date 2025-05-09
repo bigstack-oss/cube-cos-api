@@ -20,10 +20,9 @@ func init() {
 }
 
 type Operator struct {
-	ctx             context.Context
-	cancel          context.CancelFunc
-	isFirstTimeSync bool
-	sync            sync.Mutex
+	ctx    context.Context
+	cancel context.CancelFunc
+	sync   sync.Mutex
 }
 
 func (o *Operator) Name() string {
@@ -31,12 +30,9 @@ func (o *Operator) Name() string {
 }
 
 func (o *Operator) Init() error {
-	ctx, cancel := context.WithCancel(context.Background())
-	o.ctx = ctx
-	o.cancel = cancel
-	o.isFirstTimeSync = true
+	o.ctx, o.cancel = context.WithCancel(context.Background())
 	o.sync = sync.Mutex{}
-	go o.traceNodeDetails()
+	go o.periodicSyncNodes()
 	return nil
 }
 
@@ -54,7 +50,7 @@ func (o *Operator) Run() {
 		case <-o.ctx.Done():
 			return
 		default:
-			o.watchAndSyncNodes(&watcher)
+			o.checkAndSyncNodes(&watcher)
 		}
 	}
 }
@@ -63,7 +59,7 @@ func (o *Operator) Stop() {
 	o.cancel()
 }
 
-func (o *Operator) watchAndSyncNodes(watcher *registry.Watcher) {
+func (o *Operator) checkAndSyncNodes(watcher *registry.Watcher) {
 	defer (*watcher).Stop()
 	event, err := (*watcher).Next()
 	if err != nil {
@@ -71,6 +67,6 @@ func (o *Operator) watchAndSyncNodes(watcher *registry.Watcher) {
 		return
 	}
 
-	o.syncNodeDetails()
+	o.syncNodes()
 	cubelog.Throttle("node", genDiscoveryMsg(event))
 }

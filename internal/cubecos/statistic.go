@@ -2,8 +2,8 @@ package cubecos
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	json "github.com/json-iterator/go"
 )
 
@@ -40,7 +40,7 @@ func (h *HostSummary) ListMemoryUsages() []metric.Space {
 	return list
 }
 
-func (h *HostSummary) SetHostUsageByNodes(nodes []v1.Node) {
+func (h *HostSummary) SetHostUsageByNodes(nodes []nodes.Node) {
 	for _, node := range nodes {
 		usage, err := GetHostUsage(node)
 		if err != nil {
@@ -107,13 +107,13 @@ func (h *HostSummary) summarizeRoleUsage(roleMap map[string]RoleUsage) {
 	}
 }
 
-func (h *HostSummary) setRoleUsage(roleMap map[string]RoleUsage) {
-	h.Role.ControlConverged = roleMap[v1.RoleControlConverged]
-	h.Role.Control = roleMap[v1.RoleControl]
-	h.Role.Compute = roleMap[v1.RoleCompute]
-	h.Role.Storage = roleMap[v1.RoleStorage]
-	h.Role.EdgeCore = roleMap[v1.RoleEdgeCore]
-	h.Role.Moderator = roleMap[v1.RoleModerator]
+func (h *HostSummary) setRoleUsage(role map[string]RoleUsage) {
+	h.Role.ControlConverged = role[nodes.RoleControlConverged]
+	h.Role.Control = role[nodes.RoleControl]
+	h.Role.Compute = role[nodes.RoleCompute]
+	h.Role.Storage = role[nodes.RoleStorage]
+	h.Role.EdgeCore = role[nodes.RoleEdgeCore]
+	h.Role.Moderator = role[nodes.RoleModerator]
 }
 
 type HostUsage struct {

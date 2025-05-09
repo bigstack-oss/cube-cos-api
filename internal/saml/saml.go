@@ -14,7 +14,8 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/crewjam/saml"
 	"github.com/crewjam/saml/samlsp"
 	"github.com/gin-gonic/gin"
@@ -116,7 +117,7 @@ func GenIdentityProviderMetadata(opts Options) (*saml.EntityDescriptor, error) {
 func GenIdentityProviderMetadataUrl(opts Options) url.URL {
 	return url.URL{
 		Scheme: opts.IdentityProvider.Host.Scheme,
-		Host:   fmt.Sprintf("%s:%d", v1.DataCenterVip, opts.IdentityProvider.Host.Port),
+		Host:   fmt.Sprintf("%s:%d", base.DataCenterVip, opts.IdentityProvider.Host.Port),
 		Path:   opts.IdentityProvider.MetadataPath,
 	}
 }
@@ -130,7 +131,7 @@ func GetSamlClient(id string) (*gocloak.Client, error) {
 	}
 
 	clients, err := h.GetClients(
-		v1.DefaultKeycloakRealm,
+		auth.DefaultKeycloakRealm,
 		gocloak.GetClientsParams{ClientID: gocloak.StringP(id)},
 	)
 	if err != nil {
@@ -141,7 +142,7 @@ func GetSamlClient(id string) (*gocloak.Client, error) {
 	if len(clients) == 0 {
 		return nil, fmt.Errorf(
 			"%s saml client not found",
-			v1.DefaultKeycloakRealm,
+			auth.DefaultKeycloakRealm,
 		)
 	}
 
@@ -156,7 +157,7 @@ func CreateSamlMapper(id string, mapper gocloak.ProtocolMapperRepresentation) er
 		return err
 	}
 
-	_, err = h.CreateClientProtocolMapper(v1.DefaultKeycloakRealm, id, mapper)
+	_, err = h.CreateClientProtocolMapper(auth.DefaultKeycloakRealm, id, mapper)
 	if err == nil {
 		return nil
 	}
@@ -170,7 +171,7 @@ func CreateSamlMapper(id string, mapper gocloak.ProtocolMapperRepresentation) er
 func GenServiceProviderMetadataUrl(opts Options) url.URL {
 	return url.URL{
 		Scheme: opts.ServiceProvider.Scheme,
-		Host:   fmt.Sprintf("%s:%d", v1.DataCenterVip, opts.ServiceProvider.Host.Port),
+		Host:   fmt.Sprintf("%s:%d", base.DataCenterVip, opts.ServiceProvider.Host.Port),
 		Path:   opts.ServiceProvider.MetadataPath,
 	}
 }
@@ -185,13 +186,13 @@ func ServeAcs() gin.HandlerFunc {
 
 		err = checkTrackedRequest(c)
 		if err != nil {
-			api.SetRedirect(c, v1.RedirectPath)
+			api.SetRedirect(c, auth.RedirectPath)
 			return
 		}
 
 		assertion, err := getAssertion(c)
 		if err != nil {
-			api.SetRedirect(c, v1.RedirectPath)
+			api.SetRedirect(c, auth.RedirectPath)
 			return
 		}
 
@@ -201,7 +202,7 @@ func ServeAcs() gin.HandlerFunc {
 			return
 		}
 
-		api.SetRedirect(c, v1.RedirectPath)
+		api.SetRedirect(c, auth.RedirectPath)
 	}
 }
 
@@ -255,7 +256,7 @@ func AuthRequest(c *gin.Context) {
 func genRootUrl(opts Options) url.URL {
 	return url.URL{
 		Scheme: opts.ServiceProvider.Host.Scheme,
-		Host:   fmt.Sprintf("%s:%d", v1.DataCenterVip, opts.ServiceProvider.Host.Port),
+		Host:   fmt.Sprintf("%s:%d", base.DataCenterVip, opts.ServiceProvider.Host.Port),
 	}
 }
 

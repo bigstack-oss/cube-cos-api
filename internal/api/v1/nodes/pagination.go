@@ -4,9 +4,10 @@ import (
 	"math"
 
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 )
 
-func (h *helper) paginateNodes(nodes []v1.Node) []v1.Node {
+func (h *helper) paginateNodes(nodes []nodes.Node) []nodes.Node {
 	if !h.page.IsRequired() {
 		return nodes
 	}
@@ -16,7 +17,7 @@ func (h *helper) paginateNodes(nodes []v1.Node) []v1.Node {
 	return nodes[left:right]
 }
 
-func (h *helper) genPageInfo(nodes []v1.Node) v1.Page {
+func (h *helper) genPageInfo(nodes []nodes.Node) v1.Page {
 	if !h.page.IsRequired() {
 		return v1.Page{
 			Total:          1,

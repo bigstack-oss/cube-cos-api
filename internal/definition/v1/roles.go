@@ -1,220 +1,214 @@
 package v1
 
-import (
-	"sync"
+// const (
+// 	RoleControl          = "control"
+// 	RoleCompute          = "compute"
+// 	RoleStorage          = "storage"
+// 	RoleControlConverged = "control-converged"
+// 	RoleModerator        = "moderator"
+// 	RoleEdgeCore         = "edge-core"
+// )
 
-	"go-micro.dev/v5/registry"
-)
+// var (
+// 	CurrentRole     string
+// 	Roles           = []string{RoleControlConverged, RoleControl, RoleCompute, RoleStorage, RoleModerator, RoleEdgeCore}
+// 	updateRoleNodes = sync.Mutex{}
 
-const (
-	RoleControl          = "control"
-	RoleCompute          = "compute"
-	RoleStorage          = "storage"
-	RoleControlConverged = "control-converged"
-	RoleModerator        = "moderator"
-	RoleEdgeCore         = "edge-core"
-)
+// 	ControlRole          = newControlRole()
+// 	ComputeRole          = newComputeRole()
+// 	StorageRole          = newStorageRole()
+// 	ControlConvergedRole = newControlConvergedRole()
+// 	ModeratorRole        = newModeratorRole()
+// 	EdgeCoreRole         = newEdgeCoreRole()
 
-var (
-	CurrentRole     string
-	Roles           = []string{RoleControlConverged, RoleControl, RoleCompute, RoleStorage, RoleModerator, RoleEdgeCore}
-	updateRoleNodes = sync.Mutex{}
+// 	AllRoles = []*Role{
+// 		ControlRole,
+// 		ComputeRole,
+// 		StorageRole,
+// 		ControlConvergedRole,
+// 		ModeratorRole,
+// 		EdgeCoreRole,
+// 	}
 
-	ControlRole          = newControlRole()
-	ComputeRole          = newComputeRole()
-	StorageRole          = newStorageRole()
-	ControlConvergedRole = newControlConvergedRole()
-	ModeratorRole        = newModeratorRole()
-	EdgeCoreRole         = newEdgeCoreRole()
+// 	AllGeneralRoles = []*Role{
+// 		ControlRole,
+// 		ComputeRole,
+// 		StorageRole,
+// 		ControlConvergedRole,
+// 	}
 
-	AllRoles = []*Role{
-		ControlRole,
-		ComputeRole,
-		StorageRole,
-		ControlConvergedRole,
-		ModeratorRole,
-		EdgeCoreRole,
-	}
+// 	ControlRoles = []*Role{
+// 		ControlRole,
+// 		ControlConvergedRole,
+// 	}
 
-	AllGeneralRoles = []*Role{
-		ControlRole,
-		ComputeRole,
-		StorageRole,
-		ControlConvergedRole,
-	}
+// 	ComputeRoles = []*Role{
+// 		ComputeRole,
+// 		ControlConvergedRole,
+// 		EdgeCoreRole,
+// 	}
+// )
 
-	ControlRoles = []*Role{
-		ControlRole,
-		ControlConvergedRole,
-	}
+// type Role struct {
+// 	Name  string `json:"name" bson:"name"`
+// 	Hosts []Host `json:"hosts" bson:"hosts"`
+// 	Nodes []Node `json:"-"`
+// }
 
-	ComputeRoles = []*Role{
-		ComputeRole,
-		ControlConvergedRole,
-		EdgeCoreRole,
-	}
-)
+// type Host struct {
+// 	Role string `json:"role,omitzero"`
+// 	Name string `json:"name"`
+// 	Ip   string `json:"ip,omitzero"`
+// }
 
-type Role struct {
-	Name  string `json:"name" bson:"name"`
-	Hosts []Host `json:"hosts" bson:"hosts"`
-	Nodes []Node `json:"-"`
-}
+// func (h *Host) GetNode() *Node {
+// 	node, err := GetNodeByHostname(h.Name)
+// 	if err != nil {
+// 		return nil
+// 	}
 
-type Host struct {
-	Role string `json:"role,omitzero"`
-	Name string `json:"name"`
-	Ip   string `json:"ip,omitzero"`
-}
+// 	return node
+// }
 
-func (h *Host) GetNode() *Node {
-	node, err := GetNodeByHostname(h.Name)
-	if err != nil {
-		return nil
-	}
+// func newControlRole() *Role {
+// 	return &Role{Name: RoleControl}
+// }
 
-	return node
-}
+// func newComputeRole() *Role {
+// 	return &Role{Name: RoleCompute}
+// }
 
-func newControlRole() *Role {
-	return &Role{Name: RoleControl}
-}
+// func newStorageRole() *Role {
+// 	return &Role{Name: RoleStorage}
+// }
 
-func newComputeRole() *Role {
-	return &Role{Name: RoleCompute}
-}
+// func newControlConvergedRole() *Role {
+// 	return &Role{Name: RoleControlConverged}
+// }
 
-func newStorageRole() *Role {
-	return &Role{Name: RoleStorage}
-}
+// func newModeratorRole() *Role {
+// 	return &Role{Name: RoleModerator}
+// }
 
-func newControlConvergedRole() *Role {
-	return &Role{Name: RoleControlConverged}
-}
+// func newEdgeCoreRole() *Role {
+// 	return &Role{Name: RoleEdgeCore}
+// }
 
-func newModeratorRole() *Role {
-	return &Role{Name: RoleModerator}
-}
+// func GetControlRole() *Role {
+// 	return ControlRole
+// }
 
-func newEdgeCoreRole() *Role {
-	return &Role{Name: RoleEdgeCore}
-}
+// func GetControlRoles() []*Role {
+// 	return ControlRoles
+// }
 
-func GetControlRole() *Role {
-	return ControlRole
-}
+// func GetComputeRole() *Role {
+// 	return ComputeRole
+// }
 
-func GetControlRoles() []*Role {
-	return ControlRoles
-}
+// func GetStorageRole() *Role {
+// 	return StorageRole
+// }
 
-func GetComputeRole() *Role {
-	return ComputeRole
-}
+// func GetControlConvergeRole() *Role {
+// 	return ControlConvergedRole
+// }
 
-func GetStorageRole() *Role {
-	return StorageRole
-}
+// func GetModeratorRole() *Role {
+// 	return ModeratorRole
+// }
 
-func GetControlConvergeRole() *Role {
-	return ControlConvergedRole
-}
+// func GetEdgeCoreRole() *Role {
+// 	return EdgeCoreRole
+// }
 
-func GetModeratorRole() *Role {
-	return ModeratorRole
-}
+// func SyncRoleNodes() {
+// 	updateRoleNodes.Lock()
+// 	defer updateRoleNodes.Unlock()
 
-func GetEdgeCoreRole() *Role {
-	return EdgeCoreRole
-}
+// 	for _, role := range Roles {
+// 		nodes, err := GetNodesByRole(role)
+// 		if err != nil {
+// 			return
+// 		}
 
-func SyncRoleNodes() {
-	updateRoleNodes.Lock()
-	defer updateRoleNodes.Unlock()
+// 		role := GetRole(role)
+// 		if role != nil {
+// 			role.Nodes = nodes
+// 			role.Hosts = convertNodesToHosts(nodes)
+// 		}
+// 	}
+// }
 
-	for _, role := range Roles {
-		nodes, err := GetNodesByRole(role)
-		if err != nil {
-			return
-		}
+// func convertNodesToHosts(nodes []Node) []Host {
+// 	hosts := []Host{}
+// 	for _, node := range nodes {
+// 		hosts = append(hosts, Host{
+// 			Name: node.Hostname,
+// 			Ip:   nodes.Ip,
+// 		})
+// 	}
 
-		role := GetRole(role)
-		if role != nil {
-			role.Nodes = nodes
-			role.Hosts = convertNodesToHosts(nodes)
-		}
-	}
-}
+// 	return hosts
+// }
 
-func convertNodesToHosts(nodes []Node) []Host {
-	hosts := []Host{}
-	for _, node := range nodes {
-		hosts = append(hosts, Host{
-			Name: node.Hostname,
-			Ip:   node.Ip,
-		})
-	}
+// func parseNodes(svc *registry.Service) []Node {
+// 	nodes := []Node{}
+// 	for _, node := range svc.Nodes {
+// 		nodes = append(nodes, newNode(node))
+// 	}
 
-	return hosts
-}
+// 	return nodes
+// }
 
-func parseNodes(svc *registry.Service) []Node {
-	nodes := []Node{}
-	for _, node := range svc.Nodes {
-		nodes = append(nodes, newNode(node))
-	}
+// func parseNodesByRole(svc *registry.Service, roleName string) []Node {
+// 	nodes := []Node{}
+// 	for _, node := range svc.Nodes {
+// 		if nodes.Metadata["role"] != roleName {
+// 			continue
+// 		}
 
-	return nodes
-}
+// 		nodes = append(nodes, newNode(node))
+// 	}
 
-func parseNodesByRole(svc *registry.Service, roleName string) []Node {
-	nodes := []Node{}
-	for _, node := range svc.Nodes {
-		if node.Metadata["role"] != roleName {
-			continue
-		}
+// 	return nodes
+// }
 
-		nodes = append(nodes, newNode(node))
-	}
+// func newNode(node *registry.Node) Node {
+// 	return Node{
+// 		Role:         nodes.Metadata["role"],
+// 		Id:           nodes.Metadata["nodeID"],
+// 		SerialNumber: nodes.Metadata["serialNumber"],
+// 		DataCenter:   nodes.Metadata["dataCenter"],
+// 		Protocol:     nodes.Metadata["protocol"],
+// 		Hostname:     nodes.Metadata["hostname"],
+// 		Ip:           nodes.Metadata["ip"],
+// 		Address:      nodes.Address,
+// 		Labels: map[string]string{
+// 			"isGpuEnabled": nodes.Metadata["isGpuEnabled"],
+// 		},
+// 	}
+// }
 
-	return nodes
-}
+// func GetRole(name string) *Role {
+// 	switch name {
+// 	case RoleControl:
+// 		return ControlRole
+// 	case RoleCompute:
+// 		return ComputeRole
+// 	case RoleStorage:
+// 		return StorageRole
+// 	case RoleControlConverged:
+// 		return ControlConvergedRole
+// 	case RoleModerator:
+// 		return ModeratorRole
+// 	case RoleEdgeCore:
+// 		return EdgeCoreRole
+// 	}
 
-func newNode(node *registry.Node) Node {
-	return Node{
-		Role:         node.Metadata["role"],
-		Id:           node.Metadata["nodeID"],
-		SerialNumber: node.Metadata["serialNumber"],
-		DataCenter:   node.Metadata["dataCenter"],
-		Protocol:     node.Metadata["protocol"],
-		Hostname:     node.Metadata["hostname"],
-		Ip:           node.Metadata["ip"],
-		Address:      node.Address,
-		Labels: map[string]string{
-			"isGpuEnabled": node.Metadata["isGpuEnabled"],
-		},
-	}
-}
+// 	return nil
+// }
 
-func GetRole(name string) *Role {
-	switch name {
-	case RoleControl:
-		return ControlRole
-	case RoleCompute:
-		return ComputeRole
-	case RoleStorage:
-		return StorageRole
-	case RoleControlConverged:
-		return ControlConvergedRole
-	case RoleModerator:
-		return ModeratorRole
-	case RoleEdgeCore:
-		return EdgeCoreRole
-	}
-
-	return nil
-}
-
-func (r *Role) IsNodeEmpty() bool {
-	return len(r.Nodes) == 0
-}
+// func (r *Role) IsNodeEmpty() bool {
+// 	return len(r.Nodes) == 0
+// }

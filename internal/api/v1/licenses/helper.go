@@ -9,6 +9,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -87,9 +88,8 @@ func (h *helper) listAttachmentsByProduct() ([]license.Attachment, error) {
 		return nil, err
 	}
 
-	nodes := v1.ListNodes()
 	attachments := []license.Attachment{}
-	for _, node := range nodes {
+	for _, node := range nodes.List() {
 		attachment := license.Attachment{
 			SerialNumber: node.SerialNumber,
 			Hostname:     node.Hostname,
@@ -124,7 +124,7 @@ func (h *helper) normalizeProductName(product string) string {
 	)
 }
 
-func (h *helper) getProductStatusOfNode(node v1.Node, licenses []license.Options) (string, bool) {
+func (h *helper) getProductStatusOfNode(node nodes.Node, licenses []license.Options) (string, bool) {
 	for _, license := range licenses {
 		if !strings.EqualFold(h.product, license.Product.Name) {
 			continue

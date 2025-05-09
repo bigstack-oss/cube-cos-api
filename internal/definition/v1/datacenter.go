@@ -1,6 +1,10 @@
 package v1
 
-import "slices"
+import (
+	"slices"
+
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+)
 
 const (
 	DataCenters = "datacenters"
@@ -9,14 +13,14 @@ const (
 var (
 	ServiceDiscoveryIdentity = ""
 	cloudRoles               = []string{
-		RoleControlConverged,
-		RoleControl,
-		RoleCompute,
-		RoleStorage,
+		nodes.RoleControlConverged,
+		nodes.RoleControl,
+		nodes.RoleCompute,
+		nodes.RoleStorage,
 	}
 	edgeRoles = []string{
-		RoleEdgeCore,
-		RoleModerator,
+		nodes.RoleEdgeCore,
+		nodes.RoleModerator,
 	}
 )
 

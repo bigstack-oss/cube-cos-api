@@ -7,25 +7,26 @@ import (
 	"time"
 
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/gin-gonic/gin"
 )
 
 func newServiceDiscoveryIdentity() error {
-	if v1.DataCenterName == "" {
+	if base.DataCenterName == "" {
 		return errors.ErrInvalidDataCenterName
 	}
 
-	if v1.DataCenterVip == "" {
+	if base.DataCenterVip == "" {
 		return errors.ErrInvalidListenAddress
 	}
 
-	v1.ServiceDiscoveryIdentity = fmt.Sprintf(
+	base.ServiceDiscoveryIdentity = fmt.Sprintf(
 		"%s-%s-%s",
-		v1.DataCenterName,
-		v1.DataCenterVip,
-		strings.ToLower(v1.DefaultOidcClientSecret[:8]),
+		base.DataCenterName,
+		base.DataCenterVip,
+		strings.ToLower(auth.DefaultOidcClientSecret[:8]),
 	)
 
 	return nil
@@ -33,7 +34,7 @@ func newServiceDiscoveryIdentity() error {
 
 func parseLocalListenAddr() (string, error) {
 	if conf.Opts.Spec.Listen.Local == "" {
-		conf.Opts.Spec.Listen.Local = v1.ManagementIp
+		conf.Opts.Spec.Listen.Local = base.ManagementIp
 	}
 
 	if conf.Opts.Spec.Listen.Local == "" {
@@ -102,76 +103,76 @@ func getHostname() (string, error) {
 }
 
 func newNodeMetadata() error {
-	if v1.CurrentRole == "" {
+	if base.CurrentRole == "" {
 		return errors.ErrInvalidNodeRole
 	}
 
-	if v1.Hostname == "" {
+	if base.Hostname == "" {
 		return errors.ErrInvalidHostname
 	}
 
-	if v1.DataCenterName == "" {
+	if base.DataCenterName == "" {
 		return errors.ErrInvalidDataCenterName
 	}
 
-	if v1.ManagementIp == "" {
+	if base.ManagementIp == "" {
 		return errors.ErrInvalidManagementIp
 	}
 
-	v1.NodeMetadata = map[string]string{
-		"role":         v1.CurrentRole,
-		"hostname":     v1.Hostname,
-		"dataCenter":   v1.DataCenterName,
-		"nodeID":       v1.HostID,
-		"serialNumber": v1.SerialNumber,
+	base.NodeMetadata = map[string]string{
+		"role":         base.CurrentRole,
+		"hostname":     base.Hostname,
+		"dataCenter":   base.DataCenterName,
+		"nodeID":       base.HostID,
+		"serialNumber": base.SerialNumber,
 		"protocol":     conf.Opts.Kind,
-		"ip":           v1.ManagementIp,
-		"isGpuEnabled": fmt.Sprintf("%t", v1.IsGpuEnabled),
+		"ip":           base.ManagementIp,
+		"isGpuEnabled": fmt.Sprintf("%t", base.IsGpuEnabled),
 	}
 
 	return nil
 }
 
 func genLocalAddr() (string, error) {
-	if v1.ListenIp == "" {
+	if base.ListenIp == "" {
 		return "", errors.ErrInvalidListenAddress
 	}
 
-	if v1.ListenPort == 0 {
+	if base.ListenPort == 0 {
 		return "", errors.ErrInvalidListenPort
 	}
 
 	return fmt.Sprintf(
 		"%s:%d",
-		v1.ListenIp,
-		v1.ListenPort,
+		base.ListenIp,
+		base.ListenPort,
 	), nil
 }
 
 func genServiceDiscoveryAddr() (string, error) {
-	if v1.ManagementIp == "" {
+	if base.ManagementIp == "" {
 		return "", errors.ErrInvalidListenAddress
 	}
 
-	if v1.ListenPort == 0 {
+	if base.ListenPort == 0 {
 		return "", errors.ErrInvalidListenPort
 	}
 
 	return fmt.Sprintf(
 		"%s:%d",
-		v1.ManagementIp,
-		v1.ListenPort,
+		base.ManagementIp,
+		base.ListenPort,
 	), nil
 }
 
 func genLogoutRedirectUrl() (string, error) {
-	if v1.DataCenterVip == "" {
+	if base.DataCenterVip == "" {
 		return "", errors.ErrInvalidListenAddress
 	}
 
 	return fmt.Sprintf(
 		"https://%s:4443%s",
-		v1.DataCenterVip,
+		base.DataCenterVip,
 		conf.Opts.Spec.Identity.Redirect,
 	), nil
 }
@@ -185,8 +186,8 @@ func parseRedirectPath() (string, error) {
 		return conf.Opts.Spec.Identity.Redirect, nil
 	}
 
-	if v1.DefaultRedirectPath != "" {
-		return v1.DefaultRedirectPath, nil
+	if auth.DefaultRedirectPath != "" {
+		return auth.DefaultRedirectPath, nil
 	}
 
 	return "", errors.ErrNoRedirectPathFound

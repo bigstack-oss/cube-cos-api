@@ -2,7 +2,8 @@ package settings
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	log "go-micro.dev/v5/logger"
 )
@@ -22,7 +23,7 @@ func (o *Operator) handleExit(setting setting.Options, err error) {
 }
 
 func (o *Operator) reportToController(setting setting.Options) {
-	node, err := v1.GetOneOfControllerNode()
+	node, err := nodes.GetController()
 	if err != nil {
 		log.Errorf("settings: failed to get controller nodes: %s", err.Error())
 		return
@@ -30,7 +31,7 @@ func (o *Operator) reportToController(setting setting.Options) {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetHeaders(v1.GenNodeAuth()).
+		SetHeaders(auth.GetNodeSecret()).
 		SetBody(setting.GenTaskUpdate()).
 		Patch(node.PatchSettingTaskUrl(setting))
 	if err != nil {

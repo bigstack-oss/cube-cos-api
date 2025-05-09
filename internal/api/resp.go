@@ -5,15 +5,16 @@ import (
 
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/gin-gonic/gin"
 )
 
 type Node struct {
-	Code   int     `json:"code"`
-	Status string  `json:"status"`
-	Msg    string  `json:"msg"`
-	Data   v1.Node `json:"data"`
+	Code   int        `json:"code"`
+	Status string     `json:"status"`
+	Msg    string     `json:"msg"`
+	Data   nodes.Node `json:"data"`
 }
 
 type TuningList struct {

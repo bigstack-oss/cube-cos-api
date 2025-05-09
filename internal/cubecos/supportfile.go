@@ -21,7 +21,9 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
@@ -46,7 +48,7 @@ func ListSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
 }
 
 func ListHostSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
-	node, err := v1.GetNodeByHostname(opts.Host)
+	node, err := nodes.Get(opts.Host)
 	if err != nil {
 		log.Errorf("failed to get node by hostname: %s", err.Error())
 		return nil, err
@@ -66,7 +68,7 @@ func ListHostSupportFiles(opts support.ListFileOptions) ([]support.File, error) 
 
 func ListSupportFilesFromOtherNodes() ([]support.File, error) {
 	files := []support.File{}
-	for _, node := range v1.ListNodes() {
+	for _, node := range nodes.List() {
 		if node.IsLocal() {
 			continue
 		}
@@ -181,10 +183,10 @@ func UploadSupportFileToObjectStore(supportFile support.File) error {
 func GetSupportFileUrl(file support.File) string {
 	u := url.URL{}
 	u.Scheme = "https"
-	u.Host = fmt.Sprintf("%s:%d", v1.DataCenterVip, config.Opts.Saml.ServiceProvider.Host.Port)
+	u.Host = fmt.Sprintf("%s:%d", base.DataCenterVip, config.Opts.Saml.ServiceProvider.Host.Port)
 	u.Path = fmt.Sprintf(
 		"/api/v1/datacenters/%s/supportFiles/%s/%s",
-		v1.DataCenterName,
+		base.DataCenterName,
 		url.PathEscape(file.Group),
 		url.PathEscape(file.Name),
 	)
@@ -258,16 +260,16 @@ func GetSupportFileComment(file string) (*support.File, error) {
 }
 
 func IsSupportFile(file string) bool {
-	prefix := fmt.Sprintf("CUBE_%s", v1.DataCenterNumericVersion)
-	suffix := fmt.Sprintf("%s.support", v1.Hostname)
+	prefix := fmt.Sprintf("CUBE_%s", base.DataCenterNumericVersion)
+	suffix := fmt.Sprintf("%s.support", base.Hostname)
 	return strings.HasPrefix(file, prefix) && strings.HasSuffix(file, suffix)
 }
 
-func getNodeSupportFiles(node v1.Node) ([]support.File, error) {
+func getNodeSupportFiles(node nodes.Node) ([]support.File, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&api.SupportFileList{}).
-		SetHeaders(v1.GenNodeAuth()).
+		SetHeaders(auth.GetNodeSecret()).
 		Get(node.GetSupportFileUrl())
 	if err != nil {
 		return nil, err

@@ -1,0 +1,103 @@
+package base
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+	"net"
+	"os"
+	"runtime"
+	"strings"
+
+	log "go-micro.dev/v5/logger"
+)
+
+const (
+	NetMajorInterface = "eth0"
+
+	DataCenterHelpUrl = "https://www.bigstack.co/contact-us"
+	defaultSerialPath = "/sys/class/dmi/id/product_serial"
+)
+
+var (
+	ServiceDiscoveryIdentity string
+	DataCenterName           string
+	DataCenterVersion        string
+	DataCenterNumericVersion string
+	DataCenterVip            string
+	HostID                   string
+	Hostname                 string
+	SerialNumber             string
+	CurrentRole              string
+	ListenIp                 string
+	ListenAddr               string
+	ListenPort               int
+	AdvertiseIp              string
+	AdvertiseAddr            string
+	AdvertisePort            int
+	ManagementNet            string
+	ManagementIp             string
+	StorageNet               string
+	StorageIP                string
+	IsHaEnabled              bool
+	IsGpuEnabled             bool
+	NodeMetadata             map[string]string
+
+	RedirectPath string
+	RedirectUrl  string
+)
+
+func GetMacAddr(interfaceName string) (string, error) {
+	nets, err := net.Interfaces()
+	if err != nil {
+		return "", err
+	}
+
+	macAddr := ""
+	for _, net := range nets {
+		if net.Name == interfaceName {
+			macAddr = net.HardwareAddr.String()
+			break
+		}
+	}
+	if macAddr == "" {
+		return "", fmt.Errorf("mac address not found from interface: %s", interfaceName)
+	}
+
+	return macAddr, nil
+}
+
+var ()
+
+func CapturePanic() {
+	recovery := recover()
+	if recovery != nil {
+		buf := make([]byte, 1<<16)
+		stackSize := runtime.Stack(buf, true)
+		log.Errorf("panic: captured %v\n stack trace:\n%s", recovery, buf[:stackSize])
+	}
+}
+
+func GetSystemSerial(file string) (string, error) {
+	if file == "" {
+		file = defaultSerialPath
+	}
+
+	data, err := os.ReadFile(file)
+	if err != nil {
+		return "no serial number found", err
+	}
+
+	serial := strings.TrimSpace(string(data))
+	return serial, nil
+}
+
+func GenerateNodeHashByMacAddr() (string, error) {
+	macAddr, err := GetMacAddr(NetMajorInterface)
+	if err != nil {
+		return "", err
+	}
+
+	hash := sha256.Sum256([]byte(macAddr))
+	return hex.EncodeToString(hash[:])[:8], nil
+}

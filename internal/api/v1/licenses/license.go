@@ -8,7 +8,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -52,7 +52,7 @@ func importOrDelegateLicense(c *gin.Context, nodeName string) error {
 		return err
 	}
 
-	if nodeName != v1.Hostname {
+	if nodeName != base.Hostname {
 		return sendLicenseToOtherNodes(nodeName, licenseFile)
 	}
 

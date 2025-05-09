@@ -8,6 +8,8 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -125,12 +127,12 @@ func (h *helper) backfillTuningInfoByHandler(tuning v1.Tuning) {
 	h.tuning.Id = h.tuning.GenerateId()
 }
 
-func (h *helper) delegateToOtherNode(node *v1.Node) error {
+func (h *helper) delegateToOtherNode(node *nodes.Node) error {
 	http := cubeHttp.GetGlobalHelper()
 	resp, err := http.R().
-		SetHeaders(v1.GenNodeAuth()).
+		SetHeaders(auth.GetNodeSecret()).
 		SetBody(genTuningUpdate(h.tuning, node)).
-		Patch(node.PatchTuningUrl(h.tuning))
+		Patch(node.PatchTuningUrl(h.tuning.Name))
 	if err != nil {
 		log.Errorf("tunings: failed to send tuning %s to %s: %s", h.tuning.Name, node.Id, err.Error())
 		return err
@@ -144,7 +146,7 @@ func (h *helper) delegateToOtherNode(node *v1.Node) error {
 	return nil
 }
 
-func genTuningUpdate(tuning v1.Tuning, node *v1.Node) *v1.TuningUpdate {
+func genTuningUpdate(tuning v1.Tuning, node *nodes.Node) *v1.TuningUpdate {
 	return &v1.TuningUpdate{
 		Value:   tuning.Value,
 		Enabled: tuning.Enabled,

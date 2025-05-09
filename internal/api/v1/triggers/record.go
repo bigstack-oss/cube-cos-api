@@ -5,7 +5,8 @@ import (
 	"net/http"
 
 	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -89,7 +90,7 @@ func (h *helper) delegateToLocal() {
 }
 
 func (h *helper) delegateToPeerControlNodes() {
-	peerNodes, err := v1.GetPeerControlNodes()
+	peerNodes, err := nodes.GetPeerControls()
 	if err != nil {
 		log.Errorf("triggers: failed to get peer controller nodes: %v", err)
 		return
@@ -100,7 +101,7 @@ func (h *helper) delegateToPeerControlNodes() {
 	}
 }
 
-func (h *helper) updateTriggerToPeerNode(node v1.Node) {
+func (h *helper) updateTriggerToPeerNode(node nodes.Node) {
 	req := h.http.R().
 		SetHeaders(h.convertHeadersToMap(h.c.Request.Header)).
 		SetQueryParam("clusterWise", "false").
@@ -120,8 +121,6 @@ func (h *helper) updateTriggerToPeerNode(node v1.Node) {
 }
 
 func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
-	mapHeaderMap := v1.GenNodeAuth()
-
 	headerMap := map[string]string{}
 	for key, values := range headers {
 		if len(values) > 0 {
@@ -129,6 +128,6 @@ func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
 		}
 	}
 
-	maps.Copy(headerMap, mapHeaderMap)
+	maps.Copy(headerMap, auth.GetNodeSecret())
 	return headerMap
 }

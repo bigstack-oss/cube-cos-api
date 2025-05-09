@@ -14,6 +14,7 @@ import (
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
@@ -398,14 +399,14 @@ func setLicenseDatStatus(licenseDat *license.Options, checkInfo error) {
 }
 
 func getLicenseEffectNodes(hardwareInfo string) []license.Node {
-	nodes := v1.ListNodes()
+	list := nodes.List()
 	if isLicenseForAllNodes(hardwareInfo) {
-		return convertToLicenseNodes(nodes)
+		return convertToLicenseNodes(list)
 	}
 
 	hardwareSerials := strings.Split(hardwareInfo, ",")
-	effectNodes := []v1.Node{}
-	for _, node := range nodes {
+	effectNodes := []nodes.Node{}
+	for _, node := range list {
 		if node.MatchHardwareSerial(hardwareSerials) {
 			effectNodes = append(effectNodes, node)
 		}
@@ -418,7 +419,7 @@ func isLicenseForAllNodes(hardwareInfo string) bool {
 	return strings.Contains(hardwareInfo, "*")
 }
 
-func convertToLicenseNodes(nodes []v1.Node) []license.Node {
+func convertToLicenseNodes(nodes []nodes.Node) []license.Node {
 	licenseNodes := []license.Node{}
 	for _, node := range nodes {
 		l := getLicenseByNodeName(node.Hostname)

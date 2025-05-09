@@ -15,18 +15,21 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/logout"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/me"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/metrics"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/nodes"
+	nodeapi "github.com/bigstack-oss/cube-cos-api/internal/api/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/opensearch"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/supportfiles"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/tokens"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/triggers"
-	apitunings "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
+	tuningapi "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/oidc"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
@@ -48,10 +51,10 @@ func newHttpServer() (*server.Server, error) {
 
 	srv := http.NewServer(
 		server.Name(v1.ServiceDiscoveryIdentity),
-		server.Metadata(v1.NodeMetadata),
+		server.Metadata(base.NodeMetadata),
 		server.WithLogger(log.DefaultLogger),
-		server.Address(v1.ListenAddr),
-		server.Advertise(v1.AdvertiseAddr),
+		server.Address(base.ListenAddr),
+		server.Advertise(base.AdvertiseAddr),
 	)
 
 	return &srv,
@@ -97,150 +100,150 @@ func prepareApiHandleraByRole() {
 	api.RegisterHandlersToRoles(
 		v1.DataCenters,
 		datacenters.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleModerator,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Services,
 		services.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleModerator,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Me,
 		me.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleModerator,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Integrations,
 		integrations.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleModerator,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Healths,
 		healths.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleCompute,
-		v1.RoleStorage,
-		v1.RoleModerator,
-		v1.RoleEdgeCore,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleCompute,
+		nodes.RoleStorage,
+		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
 		event.Module,
 		events.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleModerator,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.Nodes,
-		nodes.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleCompute,
-		v1.RoleStorage,
-		v1.RoleModerator,
-		v1.RoleEdgeCore,
+		nodes.Module,
+		nodeapi.Handlers,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleCompute,
+		nodes.RoleStorage,
+		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Tunings,
-		apitunings.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleCompute,
-		v1.RoleStorage,
-		v1.RoleModerator,
-		v1.RoleEdgeCore,
+		tuningapi.Handlers,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleCompute,
+		nodes.RoleStorage,
+		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
 		metric.Module,
 		metrics.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleCompute,
-		v1.RoleStorage,
-		v1.RoleModerator,
-		v1.RoleEdgeCore,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleCompute,
+		nodes.RoleStorage,
+		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.Tokens,
+		auth.Tokens,
 		tokens.Handlers,
-		v1.RoleControl,
+		nodes.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.Logout,
+		auth.Logout,
 		logout.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleModerator,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		license.Module,
 		licenses.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleModerator,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Triggers,
 		triggers.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleModerator,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		support.Files,
 		supportfiles.Handlers,
-		v1.RoleControlConverged,
-		v1.RoleControl,
-		v1.RoleCompute,
-		v1.RoleStorage,
-		v1.RoleEdgeCore,
-		v1.RoleModerator,
+		nodes.RoleControlConverged,
+		nodes.RoleControl,
+		nodes.RoleCompute,
+		nodes.RoleStorage,
+		nodes.RoleEdgeCore,
+		nodes.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Grafana,
 		grafana.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleModerator,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.OpenSearch,
 		opensearch.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleModerator,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		v1.Settings,
 		settings.Handlers,
-		v1.RoleControl,
-		v1.RoleControlConverged,
-		v1.RoleModerator,
+		nodes.RoleControl,
+		nodes.RoleControlConverged,
+		nodes.RoleModerator,
 	)
 }
 
@@ -343,7 +346,7 @@ func parseOidcToken(c *gin.Context) string {
 
 func isValidInternalToken(c *gin.Context, token string) bool {
 	node := c.GetHeader("Node")
-	return token == v1.GenNodeToken(node)
+	return token == auth.GenToken(node)
 }
 
 func conditionalSaml() gin.HandlerFunc {
@@ -369,9 +372,9 @@ func isTokenRequest(c *gin.Context) bool {
 }
 
 func registerHandlersByCurrentRole(router *gin.Engine) error {
-	roleHandlers := api.GetRoleHandlers(v1.CurrentRole)
+	roleHandlers := api.GetRoleHandlers(base.CurrentRole)
 	if len(roleHandlers) == 0 {
-		return fmt.Errorf("no handlers found for role(%s)", v1.CurrentRole)
+		return fmt.Errorf("no handlers found for role(%s)", base.CurrentRole)
 	}
 
 	for _, handlers := range roleHandlers {

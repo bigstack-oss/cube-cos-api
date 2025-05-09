@@ -7,6 +7,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 )
 
 func CreateToken(user *v1.User) (*gocloak.JWT, error) {
@@ -15,9 +16,9 @@ func CreateToken(user *v1.User) (*gocloak.JWT, error) {
 	defer cancel()
 	return h.Login(
 		ctx,
-		v1.DefaultOidcClientId,
-		v1.DefaultOidcClientSecret,
-		v1.DefaultKeycloakRealm,
+		auth.DefaultOidcClientId,
+		auth.DefaultOidcClientSecret,
+		auth.DefaultKeycloakRealm,
 		user.Name,
 		user.Password,
 	)

@@ -9,7 +9,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 	json "github.com/json-iterator/go"
 	"github.com/shirou/gopsutil/v4/host"
@@ -53,7 +55,7 @@ type TuningSpec struct {
 	Name        string           `json:"name"`
 	Description string           `json:"description"`
 	Limitation  TuningLimitation `json:"limitation"`
-	Roles       []*Role          `json:"roles"`
+	Roles       []*nodes.Role    `json:"roles"`
 	Selector    `json:"-"`
 }
 
@@ -74,9 +76,9 @@ type Tuning struct {
 	IsModified  bool             `json:"isModified" yaml:"-" bson:"-"`
 	Limitation  TuningLimitation `json:"limitation" yaml:"-" bson:"-"`
 
-	*Node  `json:"node,omitempty" yaml:"-" bson:"-"`
-	Hosts  []Host         `json:"hosts" yaml:"-" bson:"-"`
-	Roles  []Role         `json:"roles,omitempty" yaml:"-" bson:"-"`
+	Node   *nodes.Node    `json:"node,omitempty" yaml:"-" bson:"-"`
+	Hosts  []nodes.Host   `json:"hosts" yaml:"-" bson:"-"`
+	Roles  []nodes.Role   `json:"roles,omitempty" yaml:"-" bson:"-"`
 	Status *status.Tuning `json:"status,omitempty" yaml:"-" bson:"status,omitempty"`
 }
 
@@ -143,9 +145,9 @@ func (t *Tuning) IncludeHosts(hosts []string) bool {
 }
 
 func (t *Tuning) InitHosts(hosts []string) {
-	t.Hosts = []Host{}
+	t.Hosts = []nodes.Host{}
 	for _, host := range hosts {
-		t.Hosts = append(t.Hosts, Host{Name: host})
+		t.Hosts = append(t.Hosts, nodes.Host{Name: host})
 	}
 }
 
@@ -220,7 +222,7 @@ func (t *Tuning) SetCompleted() {
 	t.Status.IsUpdating = false
 }
 
-func (t *Tuning) CopyAndOverrideHost(node Node) Tuning {
+func (t *Tuning) CopyAndOverrideHost(n nodes.Node) Tuning {
 	return Tuning{
 		Name:        t.Name,
 		Value:       t.Value,
@@ -228,7 +230,7 @@ func (t *Tuning) CopyAndOverrideHost(node Node) Tuning {
 		Enabled:     t.Enabled,
 		IsModified:  t.IsModified,
 		Limitation:  t.Limitation,
-		Hosts:       []Host{{Name: node.Hostname, Ip: node.Ip}},
+		Hosts:       []nodes.Host{{Name: n.Hostname, Ip: n.Ip}},
 	}
 }
 
@@ -299,7 +301,7 @@ func SetTuningSpec(name string, spec *TuningSpec) {
 	tuningSpecs.Store(name, spec)
 }
 
-func GetRolesToHandleTuning(tuningName string) ([]*Role, bool) {
+func GetRolesToHandleTuning(tuningName string) ([]*nodes.Role, bool) {
 	val, loaded := tuningSpecs.Load(tuningName)
 	if !loaded {
 		return nil, false
@@ -360,7 +362,7 @@ func ListLocalTunings() []Tuning {
 }
 
 func setRoleAndIpToTunings(tunings []Tuning) []Tuning {
-	nodeMap, err := HostnameNodeMap()
+	nodeMap, err := nodes.HostnameMap()
 	if err != nil {
 		return tunings
 	}
@@ -386,8 +388,8 @@ func ShouldIHandleTheTuning(name string) bool {
 		return false
 	}
 
-	for _, r := range spec.([]*Role) {
-		if r.Name == CurrentRole {
+	for _, r := range spec.([]*nodes.Role) {
+		if r.Name == base.CurrentRole {
 			return true
 		}
 	}
@@ -405,10 +407,10 @@ func (t *Tuning) Bytes() ([]byte, error) {
 }
 
 func (t *Tuning) SetNodeInfo(role, address string) {
-	t.Node = &Node{
+	t.Node = &nodes.Node{
 		Role:     role,
-		Id:       HostID,
-		Hostname: Hostname,
+		Id:       base.HostID,
+		Hostname: base.Hostname,
 		Address:  address,
 	}
 }

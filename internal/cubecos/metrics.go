@@ -13,8 +13,11 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	cubeapi "github.com/bigstack-oss/cube-cos-api/internal/api"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
 	"github.com/shirou/gopsutil/v4/cpu"
@@ -316,13 +319,13 @@ func GetHostsMemoryAverage(spaceStats []metric.Space) metric.Space {
 
 func GetHostSummary() (*HostSummary, error) {
 	s := &HostSummary{}
-	nodes := v1.ListNodes()
+	nodes := nodes.List()
 	s.SetHostUsageByNodes(nodes)
 	s.SetRoleUsageByHosts()
 	return s, nil
 }
 
-func GetHostUsage(node v1.Node) (*metric.HostUsage, error) {
+func GetHostUsage(node nodes.Node) (*metric.HostUsage, error) {
 	if node.IsDown() {
 		return nil, fmt.Errorf("host %s is down", node.Hostname)
 	}
@@ -374,7 +377,7 @@ func GetHostsCpuSummary(stmt string) (*metric.Compute, error) {
 }
 
 func GetHostCpuSummary(hostname string) (*metric.Compute, error) {
-	if !v1.IsLocalNode(hostname) {
+	if !nodes.IsLocal(hostname) {
 		return askPeerNodeCpuSummary(hostname)
 	}
 
@@ -445,7 +448,7 @@ func parseCpuUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 }
 
 func askPeerNodeCpuSummary(hostname string) (*metric.Compute, error) {
-	node, err := v1.GetNodeByHostname(hostname)
+	node, err := nodes.Get(hostname)
 	if err != nil {
 		return nil, err
 	}
@@ -453,7 +456,7 @@ func askPeerNodeCpuSummary(hostname string) (*metric.Compute, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&cubeapi.ComputeStatistic{}).
-		SetHeaders(v1.GenNodeAuth()).
+		SetHeaders(auth.GetNodeSecret()).
 		Get(node.GetMetricUrl("cpuUsage", "summary"))
 	if err != nil {
 		return nil, err
@@ -505,7 +508,7 @@ func appendHistoryToCpuUsageRank(rank []metric.RankPoint) {
 
 func GetHostsMemoryUsageSummary() (*metric.Space, error) {
 	usages := []metric.Space{}
-	for _, node := range v1.ListNodes() {
+	for _, node := range nodes.List() {
 		usage, err := GetHostMemoryUsageSummary(node.Hostname)
 		if err != nil {
 			continue
@@ -519,7 +522,7 @@ func GetHostsMemoryUsageSummary() (*metric.Space, error) {
 }
 
 func GetHostMemoryUsageSummary(hostname string) (*metric.Space, error) {
-	if !v1.IsLocalNode(hostname) {
+	if !nodes.IsLocal(hostname) {
 		return askPeerNodeForMemorySummary(hostname)
 	}
 
@@ -540,7 +543,7 @@ func GetHostMemoryUsageSummary(hostname string) (*metric.Space, error) {
 }
 
 func askPeerNodeForMemorySummary(hostname string) (*metric.Space, error) {
-	node, err := v1.GetNodeByHostname(hostname)
+	node, err := nodes.Get(hostname)
 	if err != nil {
 		return nil, err
 	}
@@ -548,7 +551,7 @@ func askPeerNodeForMemorySummary(hostname string) (*metric.Space, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&cubeapi.SpaceStatistic{}).
-		SetHeaders(v1.GenNodeAuth()).
+		SetHeaders(auth.GetNodeSecret()).
 		Get(node.GetMetricUrl("memoryUsage", "summary"))
 	if err != nil {
 		return nil, err
@@ -671,7 +674,7 @@ func parseMemorySizeHistory(c *api.QueryTableResult) ([]metric.TimeValue, error)
 	return points, nil
 }
 
-func GetDiskStorageSummaryOfHost() (*metric.Space, error) {
+func GetHostDiskStorageSummary() (*metric.Space, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
 	stmt := genHostDiskStorageSummaryStmt()
@@ -1242,7 +1245,7 @@ func genHostDiskStorageSummaryStmt() string {
 	return query.Bucket("telegraf").
 		Range(`start: -1h`).
 		Filter(`fn: (r) => r._measurement == "disk"`).
-		Filter(fmt.Sprintf(`fn: (r) => r.host == "%s"`, v1.Hostname)).
+		Filter(fmt.Sprintf(`fn: (r) => r.host == "%s"`, base.Hostname)).
 		Sort(`columns: ["_time"], desc: true`).
 		Pivot(`rowKey: ["_time","host"], columnKey: ["_field"], valueColumn: "_value"`).
 		Limit(`n: 1`).

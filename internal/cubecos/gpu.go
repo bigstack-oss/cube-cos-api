@@ -4,7 +4,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v1"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v1/accelerators/devices"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -26,7 +26,7 @@ func IsGpuEnabled() (bool, error) {
 
 	devices, err := devices.List(
 		accelerator,
-		devices.ListOpts{Hostname: v1.Hostname},
+		devices.ListOpts{Hostname: base.Hostname},
 	)
 	if err != nil {
 		log.Errorf("cos: failed to list accelerator devices: %s", err.Error())

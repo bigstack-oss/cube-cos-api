@@ -13,7 +13,10 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/google/uuid"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
@@ -114,7 +117,7 @@ const (
 )
 
 var (
-	tuningToRoles     = map[string][]*v1.Role{}
+	tuningToRoles     = map[string][]*nodes.Role{}
 	tuningToSelectors = map[string]v1.Selector{}
 )
 
@@ -125,79 +128,79 @@ func init() {
 }
 
 func setTuningToRoles() {
-	tuningToRoles[BarbicanDebugEnabled] = v1.AllGeneralRoles
-	tuningToRoles[CephDebugEnabled] = v1.AllGeneralRoles
-	tuningToRoles[CephMirrorMetaSync] = v1.ControlRoles
-	tuningToRoles[CinderBackupAccount] = v1.AllGeneralRoles
-	tuningToRoles[CinderBackupEndpoint] = v1.AllRoles
-	tuningToRoles[CinderBackupOverride] = v1.AllRoles
-	tuningToRoles[CinderBackupPool] = v1.AllRoles
-	tuningToRoles[CinderBackupSecret] = v1.AllRoles
-	tuningToRoles[CinderBackupType] = v1.AllRoles
-	tuningToRoles[CinderDebugEnabled] = v1.AllRoles
-	tuningToRoles[CinderExternalAccount] = v1.AllRoles
-	tuningToRoles[CinderExternalDriver] = v1.AllRoles
-	tuningToRoles[CinderExternalEndpoint] = v1.AllRoles
-	tuningToRoles[CinderExternalName] = v1.AllRoles
-	tuningToRoles[CinderExternalPool] = v1.AllRoles
-	tuningToRoles[CinderExternalSecret] = v1.AllRoles
-	tuningToRoles[CubesysAlertLevel] = v1.AllRoles
-	tuningToRoles[CubesysAlertLevelS] = v1.AllRoles
-	tuningToRoles[CubesysConntableMax] = v1.AllRoles
-	tuningToRoles[CubesysLogDefaultRetention] = v1.AllRoles
-	tuningToRoles[CubesysProviderExtra] = v1.AllRoles
-	tuningToRoles[CyborgDebugEnabled] = v1.AllRoles
-	tuningToRoles[DebugEnableCoreDumpS] = v1.AllRoles
-	tuningToRoles[DebugEnableKdump] = v1.AllRoles
-	tuningToRoles[DebugLevelS] = v1.AllRoles
-	tuningToRoles[DebugMaxCoreDump] = v1.AllRoles
-	tuningToRoles[DesignateDebugEnabled] = v1.AllRoles
-	tuningToRoles[GlanceDebugEnabled] = v1.AllRoles
-	tuningToRoles[GlanceExportRp] = v1.AllRoles
-	tuningToRoles[HeatDebugEnabled] = v1.AllRoles
-	tuningToRoles[InfluxdbCuratorRp] = v1.AllRoles
-	tuningToRoles[IronicDebugEnabled] = v1.AllGeneralRoles
-	tuningToRoles[IronicDeployServer] = v1.AllGeneralRoles
-	tuningToRoles[KapacitorAlertCheckEnabled] = v1.ControlRoles
-	tuningToRoles[KapacitorAlertCheckEventId] = v1.ControlRoles
-	tuningToRoles[KapacitorAlertCheckInterval] = v1.ControlRoles
-	tuningToRoles[KapacitorAlertExtraPrefix] = v1.ControlRoles
-	tuningToRoles[KapacitorAlertFlowBase] = v1.ControlRoles
-	tuningToRoles[KapacitorAlertFlowThreshold] = v1.ControlRoles
-	tuningToRoles[KapacitorAlertFlowUnit] = v1.ControlRoles
-	tuningToRoles[KeystoneDebugEnabled] = v1.AllRoles
-	tuningToRoles[ManilaDebugEnabled] = v1.AllRoles
-	tuningToRoles[ManilaVolumeType] = v1.AllRoles
-	tuningToRoles[MasakariHostEvacuateAll] = v1.AllRoles
-	tuningToRoles[MasakariWaitPeriod] = v1.ControlRoles
-	tuningToRoles[MonascaDebugEnabled] = v1.AllRoles
-	tuningToRoles[MysqlBackupCuratorRp] = v1.AllRoles
-	tuningToRoles[NetIfMtuName] = v1.AllRoles
-	tuningToRoles[NetIpv4TcpSyncookies] = v1.AllRoles
-	tuningToRoles[NetLacpDefaultRate] = v1.AllRoles
-	tuningToRoles[NetLacpDefaultXmit] = v1.AllRoles
-	tuningToRoles[NeutronDebugEnabled] = v1.AllRoles
-	tuningToRoles[NovaControlHostMemory] = v1.ComputeRoles
-	tuningToRoles[NovaControlHostVcpu] = []*v1.Role{v1.GetControlConvergeRole(), v1.GetEdgeCoreRole()}
-	tuningToRoles[NovaDebugEnabled] = v1.AllRoles
-	tuningToRoles[NovaGpuType] = v1.ComputeRoles
-	tuningToRoles[NovaOvercommitCpuRatio] = v1.AllRoles
-	tuningToRoles[NovaOvercommitDiskRatio] = v1.AllRoles
-	tuningToRoles[NovaOvercommitRamRatio] = v1.AllRoles
-	tuningToRoles[NtpDebugEnabled] = v1.AllRoles
-	tuningToRoles[OctaviaDebugEnabled] = v1.AllRoles
-	tuningToRoles[OctaviaHa] = v1.AllRoles
-	tuningToRoles[OpensearchCuratorRp] = v1.AllRoles
-	tuningToRoles[OpensearchHeapSize] = v1.AllRoles
-	tuningToRoles[SenlinDebugEnabled] = v1.AllRoles
-	tuningToRoles[SkylineDebugEnabled] = v1.AllRoles
-	tuningToRoles[SnapshotApplyAction] = v1.AllRoles
-	tuningToRoles[SnapshotApplyPolicyIgnore] = v1.AllRoles
-	tuningToRoles[SshdBindToAllInterfaces] = v1.AllRoles
-	tuningToRoles[SshdSessionInactivity] = v1.AllRoles
-	tuningToRoles[TimeTimezone] = v1.AllRoles
-	tuningToRoles[UpdateSecurityAutoUpdate] = v1.AllRoles
-	tuningToRoles[WatcherDebugEnabled] = v1.AllRoles
+	tuningToRoles[BarbicanDebugEnabled] = nodes.AllGeneralRoles
+	tuningToRoles[CephDebugEnabled] = nodes.AllGeneralRoles
+	tuningToRoles[CephMirrorMetaSync] = nodes.ControlRoles
+	tuningToRoles[CinderBackupAccount] = nodes.AllGeneralRoles
+	tuningToRoles[CinderBackupEndpoint] = nodes.AllRoles
+	tuningToRoles[CinderBackupOverride] = nodes.AllRoles
+	tuningToRoles[CinderBackupPool] = nodes.AllRoles
+	tuningToRoles[CinderBackupSecret] = nodes.AllRoles
+	tuningToRoles[CinderBackupType] = nodes.AllRoles
+	tuningToRoles[CinderDebugEnabled] = nodes.AllRoles
+	tuningToRoles[CinderExternalAccount] = nodes.AllRoles
+	tuningToRoles[CinderExternalDriver] = nodes.AllRoles
+	tuningToRoles[CinderExternalEndpoint] = nodes.AllRoles
+	tuningToRoles[CinderExternalName] = nodes.AllRoles
+	tuningToRoles[CinderExternalPool] = nodes.AllRoles
+	tuningToRoles[CinderExternalSecret] = nodes.AllRoles
+	tuningToRoles[CubesysAlertLevel] = nodes.AllRoles
+	tuningToRoles[CubesysAlertLevelS] = nodes.AllRoles
+	tuningToRoles[CubesysConntableMax] = nodes.AllRoles
+	tuningToRoles[CubesysLogDefaultRetention] = nodes.AllRoles
+	tuningToRoles[CubesysProviderExtra] = nodes.AllRoles
+	tuningToRoles[CyborgDebugEnabled] = nodes.AllRoles
+	tuningToRoles[DebugEnableCoreDumpS] = nodes.AllRoles
+	tuningToRoles[DebugEnableKdump] = nodes.AllRoles
+	tuningToRoles[DebugLevelS] = nodes.AllRoles
+	tuningToRoles[DebugMaxCoreDump] = nodes.AllRoles
+	tuningToRoles[DesignateDebugEnabled] = nodes.AllRoles
+	tuningToRoles[GlanceDebugEnabled] = nodes.AllRoles
+	tuningToRoles[GlanceExportRp] = nodes.AllRoles
+	tuningToRoles[HeatDebugEnabled] = nodes.AllRoles
+	tuningToRoles[InfluxdbCuratorRp] = nodes.AllRoles
+	tuningToRoles[IronicDebugEnabled] = nodes.AllGeneralRoles
+	tuningToRoles[IronicDeployServer] = nodes.AllGeneralRoles
+	tuningToRoles[KapacitorAlertCheckEnabled] = nodes.ControlRoles
+	tuningToRoles[KapacitorAlertCheckEventId] = nodes.ControlRoles
+	tuningToRoles[KapacitorAlertCheckInterval] = nodes.ControlRoles
+	tuningToRoles[KapacitorAlertExtraPrefix] = nodes.ControlRoles
+	tuningToRoles[KapacitorAlertFlowBase] = nodes.ControlRoles
+	tuningToRoles[KapacitorAlertFlowThreshold] = nodes.ControlRoles
+	tuningToRoles[KapacitorAlertFlowUnit] = nodes.ControlRoles
+	tuningToRoles[KeystoneDebugEnabled] = nodes.AllRoles
+	tuningToRoles[ManilaDebugEnabled] = nodes.AllRoles
+	tuningToRoles[ManilaVolumeType] = nodes.AllRoles
+	tuningToRoles[MasakariHostEvacuateAll] = nodes.AllRoles
+	tuningToRoles[MasakariWaitPeriod] = nodes.ControlRoles
+	tuningToRoles[MonascaDebugEnabled] = nodes.AllRoles
+	tuningToRoles[MysqlBackupCuratorRp] = nodes.AllRoles
+	tuningToRoles[NetIfMtuName] = nodes.AllRoles
+	tuningToRoles[NetIpv4TcpSyncookies] = nodes.AllRoles
+	tuningToRoles[NetLacpDefaultRate] = nodes.AllRoles
+	tuningToRoles[NetLacpDefaultXmit] = nodes.AllRoles
+	tuningToRoles[NeutronDebugEnabled] = nodes.AllRoles
+	tuningToRoles[NovaControlHostMemory] = nodes.ComputeRoles
+	tuningToRoles[NovaControlHostVcpu] = []*nodes.Role{nodes.GetControlConvergeRole(), nodes.GetEdgeCoreRole()}
+	tuningToRoles[NovaDebugEnabled] = nodes.AllRoles
+	tuningToRoles[NovaGpuType] = nodes.ComputeRoles
+	tuningToRoles[NovaOvercommitCpuRatio] = nodes.AllRoles
+	tuningToRoles[NovaOvercommitDiskRatio] = nodes.AllRoles
+	tuningToRoles[NovaOvercommitRamRatio] = nodes.AllRoles
+	tuningToRoles[NtpDebugEnabled] = nodes.AllRoles
+	tuningToRoles[OctaviaDebugEnabled] = nodes.AllRoles
+	tuningToRoles[OctaviaHa] = nodes.AllRoles
+	tuningToRoles[OpensearchCuratorRp] = nodes.AllRoles
+	tuningToRoles[OpensearchHeapSize] = nodes.AllRoles
+	tuningToRoles[SenlinDebugEnabled] = nodes.AllRoles
+	tuningToRoles[SkylineDebugEnabled] = nodes.AllRoles
+	tuningToRoles[SnapshotApplyAction] = nodes.AllRoles
+	tuningToRoles[SnapshotApplyPolicyIgnore] = nodes.AllRoles
+	tuningToRoles[SshdBindToAllInterfaces] = nodes.AllRoles
+	tuningToRoles[SshdSessionInactivity] = nodes.AllRoles
+	tuningToRoles[TimeTimezone] = nodes.AllRoles
+	tuningToRoles[UpdateSecurityAutoUpdate] = nodes.AllRoles
+	tuningToRoles[WatcherDebugEnabled] = nodes.AllRoles
 }
 
 func setTuningToSelectors() {
@@ -254,13 +257,13 @@ func convertLimit(raw v1.RawTuningSpec) v1.TuningLimitation {
 	}
 }
 
-func getTuningRoles(tuningName string) []*v1.Role {
+func getTuningRoles(tuningName string) []*nodes.Role {
 	roles, found := tuningToRoles[tuningName]
 	if found {
 		return roles
 	}
 
-	return v1.AllRoles
+	return nodes.AllRoles
 }
 
 func getTuningSelectors(tuningName string) v1.Selector {
@@ -515,13 +518,13 @@ func ListTunings(opts v1.ListTuningOptions) ([]v1.Tuning, error) {
 		return nil, err
 	}
 
-	allTunings[v1.Hostname] = localTunings
+	allTunings[base.Hostname] = localTunings
 	return aggregateTunings(allTunings), nil
 }
 
 func ListTuningsFromOtherNodes() (map[string][]v1.Tuning, error) {
 	nodeTunings := map[string][]v1.Tuning{}
-	for _, node := range v1.ListNodes() {
+	for _, node := range nodes.List() {
 		if node.IsLocal() {
 			continue
 		}
@@ -542,11 +545,11 @@ func ListTuningsFromOtherNodes() (map[string][]v1.Tuning, error) {
 	return nodeTunings, nil
 }
 
-func getNodeTunings(node v1.Node) ([]v1.Tuning, error) {
+func getNodeTunings(node nodes.Node) ([]v1.Tuning, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&api.TuningList{}).
-		SetHeaders(v1.GenNodeAuth()).
+		SetHeaders(auth.GetNodeSecret()).
 		Get(node.GetTuningUrl())
 	if err != nil {
 		return nil, err
@@ -598,7 +601,7 @@ func SyncTunings() {
 			srcTuning.IsModified = true
 			srcTuning.Description = spec.Description
 			srcTuning.Limitation = spec.Limitation
-			srcTuning.Hosts = []v1.Host{{Name: v1.Hostname, Ip: v1.AdvertiseIp}}
+			srcTuning.Hosts = []nodes.Host{{Name: base.Hostname, Ip: base.AdvertiseIp}}
 			checkAndUpdateTuning(spec.Name, *srcTuning)
 		}
 
@@ -634,7 +637,7 @@ func setDefaultTuning(tuning v1.TuningSpec) {
 		Enabled:     true,
 		Name:        tuning.Name,
 		Value:       tuning.Limitation.Default,
-		Hosts:       []v1.Host{{Name: v1.Hostname, Ip: v1.AdvertiseIp}},
+		Hosts:       []nodes.Host{{Name: base.Hostname, Ip: base.AdvertiseIp}},
 		Description: tuning.Description,
 		Limitation:  tuning.Limitation,
 		IsModified:  false,

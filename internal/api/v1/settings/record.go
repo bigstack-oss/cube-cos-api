@@ -5,8 +5,9 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	log "go-micro.dev/v5/logger"
@@ -50,7 +51,7 @@ func (h *helper) delegateToLocal() {
 }
 
 func (h *helper) delegateToPeerControlNodes() {
-	peerNodes, err := v1.GetPeerControlNodes()
+	peerNodes, err := nodes.GetPeerControls()
 	if err != nil {
 		log.Errorf("settings: failed to get peer controller nodes: %v", err)
 		return
@@ -61,7 +62,7 @@ func (h *helper) delegateToPeerControlNodes() {
 	}
 }
 
-func (h *helper) updateSettingToPeerNode(node v1.Node) {
+func (h *helper) updateSettingToPeerNode(node nodes.Node) {
 	req := h.http.R().
 		SetHeaders(h.convertHeadersToMap(h.c.Request.Header)).
 		SetQueryParam("clusterWise", "false").
@@ -81,8 +82,6 @@ func (h *helper) updateSettingToPeerNode(node v1.Node) {
 }
 
 func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
-	mapHeaderMap := v1.GenNodeAuth()
-
 	headerMap := map[string]string{}
 	for key, values := range headers {
 		if len(values) > 0 {
@@ -90,7 +89,7 @@ func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
 		}
 	}
 
-	maps.Copy(headerMap, mapHeaderMap)
+	maps.Copy(headerMap, auth.GetNodeSecret())
 	return headerMap
 }
 

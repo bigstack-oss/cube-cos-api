@@ -3,7 +3,7 @@ package cubecos
 import (
 	"fmt"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 )
 
 const (
@@ -25,19 +25,19 @@ func GetNodeRole() (string, error) {
 
 func GetRoleStatus() (*Role, error) {
 	role := &Role{}
-	for _, node := range v1.ListNodes() {
-		switch node.Role {
-		case v1.RoleControl:
+	for _, n := range nodes.List() {
+		switch n.Role {
+		case nodes.RoleControl:
 			role.Control.Count++
-		case v1.RoleCompute:
+		case nodes.RoleCompute:
 			role.Compute.Count++
-		case v1.RoleStorage:
+		case nodes.RoleStorage:
 			role.Storage.Count++
-		case v1.RoleControlConverged:
+		case nodes.RoleControlConverged:
 			role.ControlConverged.Count++
-		case v1.RoleEdgeCore:
+		case nodes.RoleEdgeCore:
 			role.EdgeCore.Count++
-		case v1.RoleModerator:
+		case nodes.RoleModerator:
 			role.Moderator.Count++
 		}
 	}

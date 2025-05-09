@@ -3,47 +3,48 @@ package service
 import (
 	"fmt"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"go-micro.dev/v5/registry"
 )
 
-func parseNodes(svc *registry.Service) []v1.Node {
-	nodes := []v1.Node{}
+func parseNodes(svc *registry.Service) []nodes.Node {
+	nodes := []nodes.Node{}
 
 	for _, node := range svc.Nodes {
 		if isLocalNode(node) {
 			continue
 		}
 
-		nodes = append(nodes, newNode(node))
+		nodes = append(nodes, new(node))
 	}
 
 	return nodes
 }
 
-func newNode(node *registry.Node) v1.Node {
-	return v1.Node{
-		Role:       node.Metadata["role"],
-		Id:         v1.HostID,
-		DataCenter: node.Metadata["dataCenter"],
-		Protocol:   node.Metadata["protocol"],
-		Ip:         node.Metadata["ip"],
-		Hostname:   v1.Hostname,
-		Address:    node.Address,
+func new(n *registry.Node) nodes.Node {
+	return nodes.Node{
+		Role:       n.Metadata["role"],
+		Id:         base.HostID,
+		DataCenter: n.Metadata["dataCenter"],
+		Protocol:   n.Metadata["protocol"],
+		Ip:         n.Metadata["ip"],
+		Hostname:   base.Hostname,
+		Address:    n.Address,
 	}
 }
 
 func isLocalNode(node *registry.Node) bool {
-	return node.Address == v1.AdvertiseAddr
+	return node.Address == base.AdvertiseAddr
 }
 
-func GetNodesByRole(roleName string) ([]v1.Node, error) {
-	svcs, err := v1.GetDiscoveredServices()
+func GetNodesByRole(roleName string) ([]nodes.Node, error) {
+	svcs, err := nodes.GetDiscoveredServices()
 	if err != nil {
 		return nil, err
 	}
 
-	nodes := []v1.Node{}
+	nodes := []nodes.Node{}
 	for _, svc := range svcs {
 		roleNodes := parseNodes(svc)
 		setNodesIfRoleMatched(&nodes, roleNodes, roleName)
@@ -56,7 +57,7 @@ func GetNodesByRole(roleName string) ([]v1.Node, error) {
 	return nodes, nil
 }
 
-func setNodesIfRoleMatched(nodes *[]v1.Node, roleNodes []v1.Node, roleName string) {
+func setNodesIfRoleMatched(nodes *[]nodes.Node, roleNodes []nodes.Node, roleName string) {
 	for _, node := range roleNodes {
 		if node.Role == roleName {
 			*nodes = append(*nodes, node)
