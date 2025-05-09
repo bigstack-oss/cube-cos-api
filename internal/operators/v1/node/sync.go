@@ -116,7 +116,7 @@ func (o *Operator) setNodeDetails(nodes *[]v1.Node) {
 func (o *Operator) askPeerNode(node v1.Node) (*v1.Node, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetResult(&api.NodeData{}).
+		SetResult(&api.Node{}).
 		SetHeaders(v1.GenNodeAuthHeaders()).
 		Get(node.GetNodeDetailsUrl())
 	if err != nil {
@@ -129,7 +129,7 @@ func (o *Operator) askPeerNode(node v1.Node) (*v1.Node, error) {
 		return nil, err
 	}
 
-	return &resp.Result().(*api.NodeData).Data, nil
+	return &resp.Result().(*api.Node).Data, nil
 }
 
 func (o *Operator) setNodeLicense(node *v1.Node) {
@@ -257,7 +257,7 @@ func (o *Operator) setMetricToNode(node *v1.Node) {
 		return
 	}
 
-	cpu, err := cubecos.GetCpuSummaryOfHost(node.Hostname)
+	cpu, err := cubecos.GetHostCpuSummary(node.Hostname)
 	if err != nil {
 		log.Errorf("nodes: failed to set cpu summary of host: %s", err.Error())
 	}

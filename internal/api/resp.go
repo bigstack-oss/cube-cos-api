@@ -8,39 +8,39 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type NodeData struct {
+type Node struct {
 	Code   int     `json:"code"`
 	Status string  `json:"status"`
 	Msg    string  `json:"msg"`
 	Data   v1.Node `json:"data"`
 }
 
-type TuningListData struct {
-	Code   int        `json:"code"`
-	Status string     `json:"status"`
-	Msg    string     `json:"msg"`
-	Data   tuningData `json:"data"`
+type TuningList struct {
+	Code   int    `json:"code"`
+	Status string `json:"status"`
+	Msg    string `json:"msg"`
+	Data   tuning `json:"data"`
 }
 
-type tuningData struct {
+type tuning struct {
 	Tunings []v1.Tuning `json:"tunings"`
 }
 
-type ComputeStatisticData struct {
+type ComputeStatistic struct {
 	Code   int                 `json:"code"`
 	Status string              `json:"status"`
 	Msg    string              `json:"msg"`
 	Data   v1.ComputeStatistic `json:"data"`
 }
 
-type SpaceStatisticData struct {
+type SpaceStatistic struct {
 	Code   int               `json:"code"`
 	Status string            `json:"status"`
 	Msg    string            `json:"msg"`
 	Data   v1.SpaceStatistic `json:"data"`
 }
 
-type SupportFileListData struct {
+type SupportFileList struct {
 	Code   int            `json:"code"`
 	Status string         `json:"status"`
 	Msg    string         `json:"msg"`
@@ -139,17 +139,6 @@ func SetInternalServerError(c *gin.Context, err error) {
 		gin.H{
 			Code:   http.StatusInternalServerError,
 			Status: "internal server error",
-			Msg:    err.Error(),
-		},
-	)
-}
-
-func SetErrVariantAlsoNegotiates(c *gin.Context, err error) {
-	c.JSON(
-		http.StatusVariantAlsoNegotiates,
-		gin.H{
-			Code:   http.StatusVariantAlsoNegotiates,
-			Status: "variant also negotiates",
 			Msg:    err.Error(),
 		},
 	)

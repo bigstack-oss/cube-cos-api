@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 )
 
 func (h *helper) getDiskBandwidth() (any, error) {
@@ -25,12 +26,12 @@ func (h *helper) getDiskBandwidth() (any, error) {
 func (h *helper) getDiskBandwidthHistory() (any, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GetDiskStorageBandwidthHistory(
-			h.genHostStorageReadBandwidthStmt(),
-			h.genHostStorageWriteBandwidthStmt(),
+		return cubecos.GetHostsDiskBandwidthHistory(
+			h.genHostsDiskReadBandwidthStmt(),
+			h.genHostsDiskWriteBandwidthStmt(),
 		)
 	case "vms":
-		return nil, fmt.Errorf("vms is not supported yet for disk bandwidth history")
+		return nil, metric.ErrVmNotSupportDiskBandwidthHistory
 	}
 
 	return nil, fmt.Errorf(

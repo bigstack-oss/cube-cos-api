@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 )
 
 func (h *helper) getCpuUsage() (any, error) {
@@ -25,48 +26,48 @@ func (h *helper) getCpuUsage() (any, error) {
 func (h *helper) getCpuUsageSummary() (any, error) {
 	switch h.entityType {
 	case "host":
-		return cubecos.GetCpuSummaryOfHost(h.entityId)
+		return cubecos.GetHostCpuSummary(h.entityId)
 	case "hosts":
-		return cubecos.GetCpuSummaryOfHosts(h.genHostCpuUsageStmt())
+		return cubecos.GetHostsCpuSummary(h.genHostsCpuSummaryStmt())
 	case "vm":
-		return nil, fmt.Errorf("vm is not supported yet for cpu summary")
+		return nil, metric.ErrVmNotSupportCpuSummary
 	case "vms":
-		return nil, fmt.Errorf("vms is not supported yet for cpu summary")
+		return nil, metric.ErrVmNotSupportCpuSummary
+	default:
+		return nil, fmt.Errorf(
+			"invalid entity type(%s) to get cpu summary",
+			h.entityType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid entity type(%s) to get cpu summary",
-		h.entityType,
-	)
 }
 
 func (h *helper) getCpuUsageHistory() (any, error) {
 	switch h.entityType {
 	case "host":
 		stmt := h.genHostCpuUsageHistoryStmt()
-		return cubecos.GetCpuHistoryOfHost(stmt)
+		return cubecos.GetHostCpuHistory(stmt)
 	case "vm":
-		return nil, fmt.Errorf("vm is not supported yet for cpu history")
+		return nil, metric.ErrVmNotSupportCpuHistory
+	default:
+		return nil, fmt.Errorf(
+			"invalid entity type(%s) to get cpu history",
+			h.entityType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid entity type(%s) to get cpu history",
-		h.entityType,
-	)
 }
 
 func (h *helper) getCpuUsageRank() (any, error) {
 	switch h.entityType {
 	case "hosts":
 		stmt := h.genHostCpuUsageRankStmt()
-		return cubecos.GetCpuUsageRankOfHosts(stmt)
+		return cubecos.GetHostsCpuUsageRank(stmt)
 	case "vms":
 		stmt := h.genVmCpuUsageRankStmt()
-		return cubecos.GetCpuUsageRankOfVms(stmt)
+		return cubecos.GetVmsCpuUsageRank(stmt)
+	default:
+		return nil, fmt.Errorf(
+			"invalid entity type(%s) to get cpu rank",
+			h.entityType,
+		)
 	}
-
-	return nil, fmt.Errorf(
-		"invalid entity type(%s) to get cpu rank",
-		h.entityType,
-	)
 }

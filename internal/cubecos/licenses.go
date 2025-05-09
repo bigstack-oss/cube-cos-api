@@ -92,7 +92,7 @@ func ImportNodeLicense(licensePath string) error {
 }
 
 func ListLicenses() ([]license.Options, error) {
-	licenses := license.GetList()
+	licenses := license.List()
 	if len(licenses) == 0 {
 		return nil, errors.ErrLicensesNotFound
 	}
@@ -162,23 +162,61 @@ func genLicenseMap(licenses []license.Options) map[string]license.Options {
 
 func parseLicense(raw license.Raw) license.Options {
 	return license.Options{
-		Name:        raw.Name,
+		Name:        parseName(raw),
 		Type:        raw.Type,
 		Hosts:       []string{raw.Hostname},
 		Product:     parseProduct(raw),
 		Serial:      raw.Serial,
-		SupportPlan: raw.SLA,
+		Quantity:    parseQuantity(raw),
+		SupportPlan: parseSupportPlan(raw),
 		Issue:       parseIssue(raw),
 		Expiry:      parseExpiry(raw),
 		Status:      parseStatus(raw),
 	}
 }
 
-func parseProduct(raw license.Raw) license.Product {
-	return license.Product{
-		Name:    raw.Product,
-		Feature: raw.Feature,
+func parseName(raw license.Raw) string {
+	name := "CubeOS License"
+	if raw.Name != "" {
+		name = raw.Name
 	}
+
+	return name
+}
+
+func parseProduct(raw license.Raw) license.Product {
+	name := "CubeCOS"
+	if raw.Product != "" {
+		name = raw.Product
+	}
+
+	feature := "N/A"
+	if raw.Feature != "" {
+		feature = raw.Feature
+	}
+
+	return license.Product{
+		Name:    name,
+		Feature: feature,
+	}
+}
+
+func parseQuantity(raw license.Raw) string {
+	quantity := "N/A"
+	if raw.Quantity != "" {
+		quantity = raw.Quantity
+	}
+
+	return quantity
+}
+
+func parseSupportPlan(raw license.Raw) string {
+	supportPlan := "N/A"
+	if raw.SLA != "" {
+		supportPlan = raw.SLA
+	}
+
+	return supportPlan
 }
 
 func parseIssue(raw license.Raw) license.Issue {

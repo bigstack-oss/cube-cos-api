@@ -71,7 +71,7 @@ func (h *helper) initTaskHelper() (*helper, error) {
 
 func (h *helper) listTriggers() ([]trigger.ApiOptions, error) {
 	triggers := []trigger.ApiOptions{}
-	for _, trigger := range trigger.GetList() {
+	for _, trigger := range trigger.List() {
 		h.syncUpdatingInfo(&trigger)
 		triggers = append(triggers, trigger)
 	}
@@ -109,7 +109,7 @@ func (h *helper) syncUpdatingStatus(trigger *trigger.ApiOptions, record *trigger
 }
 
 func (h *helper) getTrigger(name string) (*trigger.ApiOptions, error) {
-	for _, trigger := range trigger.GetList() {
+	for _, trigger := range trigger.List() {
 		if trigger.Name == name {
 			return &trigger, nil
 		}

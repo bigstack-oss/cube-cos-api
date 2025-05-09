@@ -545,7 +545,7 @@ func ListTuningsFromOtherNodes() (map[string][]v1.Tuning, error) {
 func getNodeTunings(node v1.Node) ([]v1.Tuning, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetResult(&api.TuningListData{}).
+		SetResult(&api.TuningList{}).
 		SetHeaders(v1.GenNodeAuthHeaders()).
 		Get(node.GetTuningUrl())
 	if err != nil {
@@ -560,7 +560,7 @@ func getNodeTunings(node v1.Node) ([]v1.Tuning, error) {
 		)
 	}
 
-	tuningList := resp.Result().(*api.TuningListData)
+	tuningList := resp.Result().(*api.TuningList)
 	return tuningList.Data.Tunings, nil
 }
 

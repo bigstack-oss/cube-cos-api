@@ -308,6 +308,12 @@ func GetNodesByRole(roleName string) ([]Node, error) {
 		nodes = append(nodes, roleNodes...)
 	}
 
+	log.Infof("-----------------------")
+
+	for _, node := range nodes {
+		log.Infof(node.Hostname)
+	}
+
 	return nodes, nil
 }
 
@@ -425,7 +431,7 @@ func GetNodeByHostname(hostname string) (*Node, error) {
 func GetNodesFromRoles() []Node {
 	roleNodes := []Node{}
 	for _, role := range Roles {
-		role := getRole(role)
+		role := GetRole(role)
 		if role == nil {
 			continue
 		}

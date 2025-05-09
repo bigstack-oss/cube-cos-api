@@ -326,7 +326,7 @@ func GetHostUsage(node v1.Node) (*v1.HostUsage, error) {
 		return nil, fmt.Errorf("host %s is down", node.Hostname)
 	}
 
-	cpuStat, err := GetCpuSummaryOfHost(node.Hostname)
+	cpuStat, err := GetHostCpuSummary(node.Hostname)
 	if err != nil {
 		log.Errorf("metrics: failed to get cpu summary of host %s: %v", node.Hostname, err)
 		return nil, err
@@ -361,7 +361,7 @@ func GetVmSummary() (*VmSummary, error) {
 	}, nil
 }
 
-func GetCpuSummaryOfHosts(stmt string) (*v1.ComputeStatistic, error) {
+func GetHostsCpuSummary(stmt string) (*v1.ComputeStatistic, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -372,7 +372,7 @@ func GetCpuSummaryOfHosts(stmt string) (*v1.ComputeStatistic, error) {
 	return parseCpuUsageOfHost(c)
 }
 
-func GetCpuSummaryOfHost(hostname string) (*v1.ComputeStatistic, error) {
+func GetHostCpuSummary(hostname string) (*v1.ComputeStatistic, error) {
 	if !v1.IsLocalNode(hostname) {
 		return askPeerNodeCpuSummary(hostname)
 	}
@@ -403,7 +403,7 @@ func GetCpuSummaryOfHost(hostname string) (*v1.ComputeStatistic, error) {
 	}, nil
 }
 
-func GetCpuHistoryOfHost(stmt string) (*v1.MetricHistory, error) {
+func GetHostCpuHistory(stmt string) (*v1.MetricHistory, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -451,7 +451,7 @@ func askPeerNodeCpuSummary(hostname string) (*v1.ComputeStatistic, error) {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetResult(&cubeapi.ComputeStatisticData{}).
+		SetResult(&cubeapi.ComputeStatistic{}).
 		SetHeaders(v1.GenNodeAuthHeaders()).
 		Get(node.GetMetricUrl("cpuUsage", "summary"))
 	if err != nil {
@@ -466,11 +466,11 @@ func askPeerNodeCpuSummary(hostname string) (*v1.ComputeStatistic, error) {
 		)
 	}
 
-	computeStatistic := resp.Result().(*cubeapi.ComputeStatisticData).Data
+	computeStatistic := resp.Result().(*cubeapi.ComputeStatistic).Data
 	return &computeStatistic, nil
 }
 
-func GetCpuUsageRankOfHosts(stmt string) (*v1.MetricRank, error) {
+func GetHostsCpuUsageRank(stmt string) (*v1.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -492,7 +492,7 @@ func GetCpuUsageRankOfHosts(stmt string) (*v1.MetricRank, error) {
 
 func appendHistoryToCpuUsageRank(rank []v1.RankPoint) {
 	for i, host := range rank {
-		data, err := GetCpuHistoryOfHost(genHostCpuUsageHistoryStmt(host.Id))
+		data, err := GetHostCpuHistory(genHostCpuUsageHistoryStmt(host.Id))
 		if err != nil {
 			log.Errorf("metrics: failed to get cpu history of host %s: %v", host.Id, err)
 			continue
@@ -546,7 +546,7 @@ func askTheHostForMemorySummary(hostname string) (*v1.SpaceStatistic, error) {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetResult(&cubeapi.SpaceStatisticData{}).
+		SetResult(&cubeapi.SpaceStatistic{}).
 		SetHeaders(v1.GenNodeAuthHeaders()).
 		Get(node.GetMetricUrl("memoryUsage", "summary"))
 	if err != nil {
@@ -561,7 +561,7 @@ func askTheHostForMemorySummary(hostname string) (*v1.SpaceStatistic, error) {
 		)
 	}
 
-	spaceStatistic := resp.Result().(*cubeapi.SpaceStatisticData).Data
+	spaceStatistic := resp.Result().(*cubeapi.SpaceStatistic).Data
 	return &spaceStatistic, nil
 }
 
@@ -694,7 +694,7 @@ func GetDiskStorageSummaryOfHost() (*v1.SpaceStatistic, error) {
 	return spaceStatistic, nil
 }
 
-func GetDiskStorageBandwidthHistory(readStmt, writeStmt string) (*v1.StorageTimeSeries, error) {
+func GetHostsDiskBandwidthHistory(readStmt, writeStmt string) (*v1.StorageTimeSeries, error) {
 	read, err := getDiskBandwidthHistory(readStmt)
 	if err != nil {
 		log.Errorf("metrics: failed to get host storage read bandwidth series: %v", err)
@@ -944,7 +944,7 @@ func GetNetworkTrafficOutHistoryOfHost(entityId string, period v1.Period) ([]v1.
 	return parseNetworkTrafficHistory(c)
 }
 
-func GetCpuUsageRankOfVms(stmt string) (*v1.MetricRank, error) {
+func GetVmsCpuUsageRank(stmt string) (*v1.MetricRank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err

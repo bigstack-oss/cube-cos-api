@@ -12,6 +12,6 @@ func SyncList(triggers []ApiOptions) {
 	list = triggers
 }
 
-func GetList() []ApiOptions {
+func List() []ApiOptions {
 	return list
 }

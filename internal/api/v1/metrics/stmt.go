@@ -6,7 +6,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 )
 
-func (h *helper) genHostCpuUsageStmt() string {
+func (h *helper) genHostsCpuSummaryStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").
 		Range("start: -1h").
@@ -56,7 +56,7 @@ func (h *helper) genHostCpuUsageRankStmt() string {
 		String()
 }
 
-func (h *helper) genHostStorageReadBandwidthStmt() string {
+func (h *helper) genHostsDiskReadBandwidthStmt() string {
 	query := influx.Query{}
 	return query.Bucket("ceph").
 		Range(h.genTimeDuration()).
@@ -69,7 +69,7 @@ func (h *helper) genHostStorageReadBandwidthStmt() string {
 		String()
 }
 
-func (h *helper) genHostStorageWriteBandwidthStmt() string {
+func (h *helper) genHostsDiskWriteBandwidthStmt() string {
 	query := influx.Query{}
 	return query.Bucket("ceph").
 		Range(h.genTimeDuration()).

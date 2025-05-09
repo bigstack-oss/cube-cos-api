@@ -102,7 +102,7 @@ func (h *helper) getNode() (*v1.Node, error) {
 func (h *helper) askPeerNode(node *v1.Node) (*v1.Node, error) {
 	helper := http.GetGlobalHelper()
 	resp, err := helper.R().
-		SetResult(&api.NodeData{}).
+		SetResult(&api.Node{}).
 		SetHeaders(v1.GenNodeAuthHeaders()).
 		Get(node.GetNodeDetailsUrl())
 	if err != nil {
@@ -118,6 +118,6 @@ func (h *helper) askPeerNode(node *v1.Node) (*v1.Node, error) {
 		)
 	}
 
-	nodeDetails := &resp.Result().(*api.NodeData).Data
+	nodeDetails := &resp.Result().(*api.Node).Data
 	return nodeDetails, nil
 }

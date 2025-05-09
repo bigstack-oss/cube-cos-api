@@ -160,12 +160,12 @@ func (r *Raw) IsUnlicense() bool {
 	return r.Date == ""
 }
 
+func List() []Options {
+	return license
+}
+
 func SetList(licenses []Options) {
 	updateLicense.Lock()
 	defer updateLicense.Unlock()
 	license = licenses
-}
-
-func GetList() []Options {
-	return license
 }

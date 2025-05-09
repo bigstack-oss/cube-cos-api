@@ -266,7 +266,7 @@ func IsSupportFile(file string) bool {
 func getNodeSupportFiles(node v1.Node) ([]support.File, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetResult(&api.SupportFileListData{}).
+		SetResult(&api.SupportFileList{}).
 		SetHeaders(v1.GenNodeAuthHeaders()).
 		Get(node.GetSupportFileUrl())
 	if err != nil {
@@ -281,7 +281,7 @@ func getNodeSupportFiles(node v1.Node) ([]support.File, error) {
 		)
 	}
 
-	supportFileList := resp.Result().(*api.SupportFileListData)
+	supportFileList := resp.Result().(*api.SupportFileList)
 	return supportFileList.Data, nil
 }
 

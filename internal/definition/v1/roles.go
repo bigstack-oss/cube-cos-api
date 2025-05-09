@@ -23,7 +23,7 @@ var (
 	ControlRole          = newControlRole()
 	ComputeRole          = newComputeRole()
 	StorageRole          = newStorageRole()
-	ControlConvergedRole = newControlConvergeRole()
+	ControlConvergedRole = newControlConvergedRole()
 	ModeratorRole        = newModeratorRole()
 	EdgeCoreRole         = newEdgeCoreRole()
 
@@ -88,7 +88,7 @@ func newStorageRole() *Role {
 	return &Role{Name: RoleStorage}
 }
 
-func newControlConvergeRole() *Role {
+func newControlConvergedRole() *Role {
 	return &Role{Name: RoleControlConverged}
 }
 
@@ -138,7 +138,7 @@ func SyncRoleNodes() {
 			return
 		}
 
-		role := getRole(role)
+		role := GetRole(role)
 		if role != nil {
 			role.Nodes = nodes
 			role.Hosts = convertNodesToHosts(nodes)
@@ -196,7 +196,7 @@ func newNode(node *registry.Node) Node {
 	}
 }
 
-func getRole(name string) *Role {
+func GetRole(name string) *Role {
 	switch name {
 	case RoleControl:
 		return ControlRole
