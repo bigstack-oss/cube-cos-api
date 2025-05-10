@@ -7,9 +7,9 @@ import (
 	cubeHttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -67,8 +67,8 @@ func (h *helper) delegateTuningToggleReq() {
 	}
 }
 
-func (h *helper) getTuningByNameAndHost(name, host string) (*v1.Tuning, error) {
-	tunings, err := cubecos.ListTunings(v1.ListTuningOptions{AllNodes: h.allNodes})
+func (h *helper) getTuningByNameAndHost(name, host string) (*tunings.Tuning, error) {
+	tunings, err := cubecos.ListTunings(tunings.ListOptions{AllNodes: h.allNodes})
 	if err != nil {
 		log.Errorf("tunings(%s): failed to get tunings: %s", queries.GetReqId(h.c), err.Error())
 		return nil, err
@@ -89,8 +89,8 @@ func (h *helper) getTuningByNameAndHost(name, host string) (*v1.Tuning, error) {
 	return nil, errors.New("tuning not found")
 }
 
-func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*v1.Tuning, error) {
-	tunings, err := cubecos.ListTunings(v1.ListTuningOptions{AllNodes: h.allNodes})
+func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*tunings.Tuning, error) {
+	tunings, err := cubecos.ListTunings(tunings.ListOptions{AllNodes: h.allNodes})
 	if err != nil {
 		log.Errorf("tunings(%s): failed to get tuning: %s", queries.GetReqId(h.c), err.Error())
 		return nil, err
@@ -111,12 +111,12 @@ func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*v1.Tunin
 	return nil, errors.New("tuning not found")
 }
 
-func delegateToLocal(tuning v1.Tuning) {
+func delegateToLocal(tuning tunings.Tuning) {
 	addReqRecord(tuning)
 	reqQueue.Add(&tuning)
 }
 
-func (h *helper) backfillTuningInfoByHandler(tuning v1.Tuning) {
+func (h *helper) backfillTuningInfoByHandler(tuning tunings.Tuning) {
 	switch h.handler {
 	case "updateTuning":
 		h.tuning.Enabled = tuning.Enabled
@@ -146,8 +146,8 @@ func (h *helper) delegateToOtherNode(node *nodes.Node) error {
 	return nil
 }
 
-func genTuningUpdate(tuning v1.Tuning, node *nodes.Node) *v1.TuningUpdate {
-	return &v1.TuningUpdate{
+func genTuningUpdate(tuning tunings.Tuning, node *nodes.Node) *tunings.Update {
+	return &tunings.Update{
 		Value:   tuning.Value,
 		Enabled: tuning.Enabled,
 		Hosts:   []string{node.Hostname},

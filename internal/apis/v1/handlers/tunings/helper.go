@@ -6,8 +6,8 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	"github.com/gin-gonic/gin"
 	"github.com/mohae/deepcopy"
 	log "go-micro.dev/v5/logger"
@@ -16,10 +16,10 @@ import (
 type helper struct {
 	c       *gin.Context
 	handler string
-	tuning  v1.Tuning
-	toggle  v1.TuningToggle
-	update  v1.TuningUpdate
-	reset   v1.TuningReset
+	tuning  tunings.Tuning
+	toggle  tunings.Toggle
+	update  tunings.Update
+	reset   tunings.Reset
 
 	allNodes bool
 	hosts    []string
@@ -65,7 +65,7 @@ func (h *helper) parseTuningReset() error {
 	}
 
 	name := h.c.Param("parameterName")
-	spec, err := v1.GetTuningSpec(name)
+	spec, err := tunings.GetSpec(name)
 	if err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func (h *helper) convertUpdateToTuning() {
 }
 
 func (h *helper) ListTunings() (*data, error) {
-	tunings, err := cubecos.ListTunings(v1.ListTuningOptions{AllNodes: h.allNodes})
+	tunings, err := cubecos.ListTunings(tunings.ListOptions{AllNodes: h.allNodes})
 	if err != nil {
 		log.Errorf("tunings(%s): failed to get tunings: %s", queries.GetReqId(h.c), err.Error())
 		return nil, err
@@ -154,10 +154,10 @@ func (h *helper) ListTunings() (*data, error) {
 	}, nil
 }
 
-func (h *helper) ListTuningSpecs() ([]v1.TuningSpec, error) {
-	specs := []v1.TuningSpec{}
-	v1.GetTuningSpecs().Range(func(key, value any) bool {
-		spec := deepcopy.Copy(value).(*v1.TuningSpec)
+func (h *helper) ListTuningSpecs() ([]tunings.Spec, error) {
+	specs := []tunings.Spec{}
+	tunings.GetSpecs().Range(func(key, value any) bool {
+		spec := deepcopy.Copy(value).(*tunings.Spec)
 		spec.Roles = selectRolesUsingActivityAndLabels(spec)
 		specs = append(specs, *spec)
 		return true
@@ -167,7 +167,7 @@ func (h *helper) ListTuningSpecs() ([]v1.TuningSpec, error) {
 	return specs, nil
 }
 
-func (h *helper) sortTuningSpecs(specs *[]v1.TuningSpec) {
+func (h *helper) sortTuningSpecs(specs *[]tunings.Spec) {
 	sort.Slice(*specs, func(i, j int) bool {
 		return (*specs)[i].Name < (*specs)[j].Name
 	})

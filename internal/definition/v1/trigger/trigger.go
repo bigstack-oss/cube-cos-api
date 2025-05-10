@@ -2,6 +2,10 @@ package trigger
 
 import "sync"
 
+const (
+	Module = "triggers"
+)
+
 var (
 	updateList = sync.Mutex{}
 )

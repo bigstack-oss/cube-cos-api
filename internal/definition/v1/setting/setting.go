@@ -11,6 +11,7 @@ import (
 )
 
 const (
+	Module        = "settings"
 	DB            = "settings"
 	ReqCollection = "requests"
 	ReqTTL        = 3600

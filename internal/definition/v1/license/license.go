@@ -2,6 +2,7 @@ package license
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
@@ -168,4 +169,10 @@ func SetList(licenses []Options) {
 	updateLicense.Lock()
 	defer updateLicense.Unlock()
 	license = licenses
+}
+
+func LowerProductsInPlace(products []string) {
+	for i, product := range products {
+		products[i] = strings.ToLower(product)
+	}
 }

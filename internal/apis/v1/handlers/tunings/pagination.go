@@ -4,11 +4,11 @@ import (
 	"math"
 	"sort"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 )
 
-func (h *helper) paginateTunings(tunings []v1.Tuning) ([]v1.Tuning, error) {
+func (h *helper) paginateTunings(tunings []tunings.Tuning) ([]tunings.Tuning, error) {
 	if !h.Page.IsRequired() {
 		return tunings, nil
 	}
@@ -18,13 +18,13 @@ func (h *helper) paginateTunings(tunings []v1.Tuning) ([]v1.Tuning, error) {
 	return tunings[left:right], nil
 }
 
-func (h *helper) sortTunings(tunings *[]v1.Tuning) {
+func (h *helper) sortTunings(tunings *[]tunings.Tuning) {
 	sort.Slice(*tunings, func(i, j int) bool {
 		return (*tunings)[i].Name < (*tunings)[j].Name
 	})
 }
 
-func (h *helper) genPageInfo(tunings []v1.Tuning) (pages.Page, error) {
+func (h *helper) genPageInfo(tunings []tunings.Tuning) (pages.Page, error) {
 	if !h.Page.IsRequired() {
 		return pages.Page{
 			Total:          1,

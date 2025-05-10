@@ -4,7 +4,6 @@ import (
 	"slices"
 	"strings"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/blevesearch/bleve/v2"
@@ -94,7 +93,7 @@ func (h *helper) filteredByType(licenses []license.Options) []license.Options {
 }
 
 func (h *helper) filteredByProduct(licenses []license.Options) []license.Options {
-	v1.ToLowerInPlace(h.products)
+	license.LowerProductsInPlace(h.products)
 	filtered := []license.Options{}
 	for _, license := range licenses {
 		if slices.Contains(h.products, strings.ToLower(license.Product.Name)) {

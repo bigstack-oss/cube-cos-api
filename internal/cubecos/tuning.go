@@ -12,11 +12,11 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	"github.com/google/uuid"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
@@ -217,7 +217,7 @@ func setTuningSpecs() {
 		return
 	}
 
-	rawSpecs := []v1.RawTuningSpec{}
+	rawSpecs := []tunings.RawSpec{}
 	err = json.Unmarshal(out, &rawSpecs)
 	if err != nil {
 		log.Errorf("tunings: failed to unmarshal tuning specs: %s", err.Error())
@@ -225,12 +225,12 @@ func setTuningSpecs() {
 	}
 
 	for _, rawtuningSpec := range rawSpecs {
-		v1.SetTuningSpec(rawtuningSpec.Name, convertToTuningSpec(rawtuningSpec))
+		tunings.SetSpec(rawtuningSpec.Name, convertToTuningSpec(rawtuningSpec))
 	}
 }
 
-func convertToTuningSpec(rawSpec v1.RawTuningSpec) *v1.TuningSpec {
-	spec := &v1.TuningSpec{
+func convertToTuningSpec(rawSpec tunings.RawSpec) *tunings.Spec {
+	spec := &tunings.Spec{
 		Name:        rawSpec.Name,
 		Description: rawSpec.Description,
 		Limitation:  convertLimit(rawSpec),
@@ -241,7 +241,7 @@ func convertToTuningSpec(rawSpec v1.RawTuningSpec) *v1.TuningSpec {
 	return spec
 }
 
-func convertLimit(raw v1.RawTuningSpec) v1.TuningLimitation {
+func convertLimit(raw tunings.RawSpec) tunings.Limitation {
 	switch raw.Limitation.Type {
 	case "int", "uint":
 		return convertIntLimit(raw.Limitation)
@@ -251,7 +251,7 @@ func convertLimit(raw v1.RawTuningSpec) v1.TuningLimitation {
 		return convertStringLimit(raw.Limitation)
 	}
 
-	return v1.TuningLimitation{
+	return tunings.Limitation{
 		Type:    fmt.Sprintf("invalid tuning spec from cos(%s)", raw.Limitation.Type),
 		Default: raw.Limitation.Default,
 	}
@@ -275,7 +275,7 @@ func getTuningSelectors(tuningName string) nodes.Selector {
 	return nodes.Selector{}
 }
 
-func convertIntLimit(raw v1.RawTuningLimitation) v1.TuningLimitation {
+func convertIntLimit(raw tunings.RawLimitation) tunings.Limitation {
 	defaultVal, err := strconv.Atoi(raw.Default)
 	if err != nil {
 		log.Errorf("tunings: failed to convert default value %s to int: %v", raw.Default, err)
@@ -293,7 +293,7 @@ func convertIntLimit(raw v1.RawTuningLimitation) v1.TuningLimitation {
 		max = 0
 	}
 
-	return v1.TuningLimitation{
+	return tunings.Limitation{
 		Type:    raw.Type,
 		Default: defaultVal,
 		Min:     &min,
@@ -302,22 +302,22 @@ func convertIntLimit(raw v1.RawTuningLimitation) v1.TuningLimitation {
 	}
 }
 
-func convertBoolLimit(raw v1.RawTuningLimitation) v1.TuningLimitation {
+func convertBoolLimit(raw tunings.RawLimitation) tunings.Limitation {
 	defaultVal, err := strconv.ParseBool(strings.ToLower(raw.Default))
 	if err != nil {
 		log.Errorf("tunings: failed to convert default value %s to bool: %v", raw.Default, err)
 		defaultVal = false
 	}
 
-	return v1.TuningLimitation{
+	return tunings.Limitation{
 		Type:    raw.Type,
 		Default: defaultVal,
 		Regex:   raw.Regex,
 	}
 }
 
-func convertStringLimit(raw v1.RawTuningLimitation) v1.TuningLimitation {
-	return v1.TuningLimitation{
+func convertStringLimit(raw tunings.RawLimitation) tunings.Limitation {
+	return tunings.Limitation{
 		Type:    raw.Type,
 		Default: raw.Default,
 		Regex:   raw.Regex,
@@ -339,7 +339,7 @@ func GetTuningValue(name string) (string, error) {
 	return keyValue[1], nil
 }
 
-func GetSourceTuning(name string) (*v1.Tuning, error) {
+func GetSourceTuning(name string) (*tunings.Tuning, error) {
 	policy, err := GetTuningPolicy(TuningPolicyFile)
 	if err != nil {
 		return nil, err
@@ -364,7 +364,7 @@ func ApplyTuning(isolatedDir string) error {
 	return nil
 }
 
-func IsTuningApplied(tuning v1.Tuning) error {
+func IsTuningApplied(tuning tunings.Tuning) error {
 	maxTries := 10
 	for range maxTries {
 		if isValueApplied(tuning) {
@@ -381,7 +381,7 @@ func IsTuningApplied(tuning v1.Tuning) error {
 	)
 }
 
-func isValueApplied(tuning v1.Tuning) bool {
+func isValueApplied(tuning tunings.Tuning) bool {
 	value, err := GetTuningValue(tuning.Name)
 	if tuning.Enabled {
 		return tuning.StrValue() == value
@@ -407,7 +407,7 @@ func noValueInSettings(err error) bool {
 	return errors.Is(err, errors.ErrTuningNotFound)
 }
 
-func ApplyTunings(tunings []v1.Tuning) error {
+func ApplyTunings(tunings []tunings.Tuning) error {
 	newTunings, err := genTuningsAsYaml(tunings)
 	if err != nil {
 		return err
@@ -427,12 +427,12 @@ func ApplyTunings(tunings []v1.Tuning) error {
 	return nil
 }
 
-func genTuningsAsYaml(tunings []v1.Tuning) ([]byte, error) {
-	tuningTemplate := v1.TuningPolicy{
+func genTuningsAsYaml(list []tunings.Tuning) ([]byte, error) {
+	tuningTemplate := tunings.Policy{
 		Name:    "tuning",
 		Version: "1.0",
 		Enabled: true,
-		Tunings: tunings,
+		Tunings: list,
 	}
 
 	yml, err := yaml.Marshal(&tuningTemplate)
@@ -481,13 +481,13 @@ func ReleaseTuningLock() error {
 	return nil
 }
 
-func GetTuningPolicy(filePath string) (*v1.TuningPolicy, error) {
+func GetTuningPolicy(filePath string) (*tunings.Policy, error) {
 	b, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	policy := &v1.TuningPolicy{}
+	policy := &tunings.Policy{}
 	err = yaml.Unmarshal(b, policy)
 	if err != nil {
 		return nil, err
@@ -496,7 +496,7 @@ func GetTuningPolicy(filePath string) (*v1.TuningPolicy, error) {
 	return policy, nil
 }
 
-func IsTuningDeleted(tuning v1.Tuning) bool {
+func IsTuningDeleted(tuning tunings.Tuning) bool {
 	_, valueErr := GetTuningValue(tuning.Name)
 	policy, policyErr := GetTuningPolicy(TuningPolicyFile)
 	if policyErr != nil {
@@ -507,8 +507,8 @@ func IsTuningDeleted(tuning v1.Tuning) bool {
 		noValueInSettings(valueErr)
 }
 
-func ListTunings(opts v1.ListTuningOptions) ([]v1.Tuning, error) {
-	localTunings := v1.ListLocalTunings()
+func ListTunings(opts tunings.ListOptions) ([]tunings.Tuning, error) {
+	localTunings := tunings.ListLocal()
 	if !opts.AllNodes {
 		return localTunings, nil
 	}
@@ -522,8 +522,8 @@ func ListTunings(opts v1.ListTuningOptions) ([]v1.Tuning, error) {
 	return aggregateTunings(allTunings), nil
 }
 
-func ListTuningsFromOtherNodes() (map[string][]v1.Tuning, error) {
-	nodeTunings := map[string][]v1.Tuning{}
+func ListTuningsFromOtherNodes() (map[string][]tunings.Tuning, error) {
+	nodeTunings := map[string][]tunings.Tuning{}
 	for _, node := range nodes.List() {
 		if node.IsLocal() {
 			continue
@@ -545,7 +545,7 @@ func ListTuningsFromOtherNodes() (map[string][]v1.Tuning, error) {
 	return nodeTunings, nil
 }
 
-func getNodeTunings(node nodes.Node) ([]v1.Tuning, error) {
+func getNodeTunings(node nodes.Node) ([]tunings.Tuning, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&bodies.TuningList{}).
@@ -567,13 +567,13 @@ func getNodeTunings(node nodes.Node) ([]v1.Tuning, error) {
 	return tuningList.Data.Tunings, nil
 }
 
-func aggregateTunings(nodeToTuning map[string][]v1.Tuning) []v1.Tuning {
-	mergedMap := make(map[string]v1.Tuning)
+func aggregateTunings(nodeToTuning map[string][]tunings.Tuning) []tunings.Tuning {
+	mergedMap := make(map[string]tunings.Tuning)
 	for _, tunings := range nodeToTuning {
 		setTunings(mergedMap, tunings)
 	}
 
-	tunings := []v1.Tuning{}
+	tunings := []tunings.Tuning{}
 	for _, item := range mergedMap {
 		tunings = append(tunings, item)
 	}
@@ -581,7 +581,7 @@ func aggregateTunings(nodeToTuning map[string][]v1.Tuning) []v1.Tuning {
 	return tunings
 }
 
-func setTunings(mergedMap map[string]v1.Tuning, tunings []v1.Tuning) {
+func setTunings(mergedMap map[string]tunings.Tuning, tunings []tunings.Tuning) {
 	for _, tuning := range tunings {
 		key := tuning.SearchKey()
 		existing, found := mergedMap[key]
@@ -595,7 +595,7 @@ func setTunings(mergedMap map[string]v1.Tuning, tunings []v1.Tuning) {
 }
 
 func SyncTunings() {
-	for _, spec := range v1.ListTuningSpecs() {
+	for _, spec := range tunings.ListSpecs() {
 		srcTuning, err := GetSourceTuning(spec.Name)
 		if err == nil {
 			srcTuning.IsModified = true
@@ -611,16 +611,16 @@ func SyncTunings() {
 	}
 }
 
-func checkAndUpdateTuning(key string, sourceTuning v1.Tuning) {
-	tuning := v1.GetLocalTuning(key)
+func checkAndUpdateTuning(key string, sourceTuning tunings.Tuning) {
+	tuning := tunings.Get(key)
 	if !isTuningChanged(tuning, sourceTuning) {
 		return
 	}
 
-	v1.SetLocalTuning(sourceTuning)
+	tunings.SetLocal(sourceTuning)
 }
 
-func isTuningChanged(tuning, fileTuning v1.Tuning) bool {
+func isTuningChanged(tuning, fileTuning tunings.Tuning) bool {
 	if tuning.Value != fileTuning.Value {
 		return true
 	}
@@ -632,8 +632,8 @@ func isTuningChanged(tuning, fileTuning v1.Tuning) bool {
 	return false
 }
 
-func setDefaultTuning(tuning v1.TuningSpec) {
-	v1.SetLocalTuning(v1.Tuning{
+func setDefaultTuning(tuning tunings.Spec) {
+	tunings.SetLocal(tunings.Tuning{
 		Enabled:     true,
 		Name:        tuning.Name,
 		Value:       tuning.Limitation.Default,

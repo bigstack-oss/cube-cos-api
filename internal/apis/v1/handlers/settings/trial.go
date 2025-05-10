@@ -6,8 +6,8 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/email"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/slack"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	emailv1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	slackv1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -66,7 +66,7 @@ func sendTrialSlackMessage(channel slackv1.CosChannel) error {
 func setSenderAsVerified(sender emailv1.Sender) error {
 	mongo := mongo.GetGlobalHelper()
 	return mongo.UpdateOne(
-		v1.SettingsDB(),
+		setting.DB,
 		emailv1.SenderCollection,
 		bson.M{"host": sender.Host},
 		bson.M{"$set": bson.M{"accessVerified": true}},

@@ -3,10 +3,10 @@ package bodies
 import (
 	"net/http"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,7 +32,7 @@ type TuningList struct {
 }
 
 type tuning struct {
-	Tunings []v1.Tuning `json:"tunings"`
+	Tunings []tunings.Tuning `json:"tunings"`
 }
 
 type ComputeStatistic struct {

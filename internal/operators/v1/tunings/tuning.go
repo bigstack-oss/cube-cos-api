@@ -3,7 +3,7 @@ package tunings
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"github.com/fsnotify/fsnotify"
 	"k8s.io/client-go/util/workqueue"
@@ -37,7 +37,7 @@ func (o *Operator) Init() error {
 		return err
 	}
 
-	cubecos.RemovePendingReq(v1.TuningDB(), v1.TuningReqCollection())
+	cubecos.RemovePendingReq(tunings.DB(), tunings.ReqCollection())
 	cubecos.SyncTunings()
 	return nil
 }
@@ -49,7 +49,7 @@ func (o *Operator) Run() {
 			return
 		}
 
-		tuning := req.(*v1.Tuning)
+		tuning := req.(*tunings.Tuning)
 		err := o.operateReq(*tuning)
 		o.handleExit(*tuning, err)
 

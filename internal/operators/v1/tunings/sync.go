@@ -4,12 +4,12 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	log "go-micro.dev/v5/logger"
 )
 
-func (o *Operator) operateReq(tuning v1.Tuning) error {
+func (o *Operator) operateReq(tuning tunings.Tuning) error {
 	switch tuning.Status.Desired {
 	case status.Updated:
 		return o.updateTuning(tuning)
@@ -24,7 +24,7 @@ func (o *Operator) operateReq(tuning v1.Tuning) error {
 	)
 }
 
-func (o *Operator) resetTuning(tuning v1.Tuning) error {
+func (o *Operator) resetTuning(tuning tunings.Tuning) error {
 	policy, err := cubecos.GetTuningPolicy(cubecos.TuningPolicyFile)
 	if err != nil {
 		log.Errorf("tuning: failed to get all tunings: %s", err.Error())
@@ -47,7 +47,7 @@ func (o *Operator) resetTuning(tuning v1.Tuning) error {
 	return nil
 }
 
-func (o *Operator) updateTuning(tuning v1.Tuning) error {
+func (o *Operator) updateTuning(tuning tunings.Tuning) error {
 	policy, err := cubecos.GetTuningPolicy(cubecos.TuningPolicyFile)
 	if err != nil {
 		return err

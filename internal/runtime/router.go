@@ -24,7 +24,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tokens"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/triggers"
 	tuningapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tunings"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
@@ -37,7 +36,10 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/opensearch"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	"github.com/bigstack-oss/cube-cos-api/internal/oidc"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/gin-gonic/gin"
@@ -167,7 +169,7 @@ func prepareApiHandleraByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.Tunings,
+		tunings.Module,
 		tuningapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleControlConverged,
@@ -211,7 +213,7 @@ func prepareApiHandleraByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.Triggers,
+		trigger.Module,
 		triggers.Handlers,
 		nodes.RoleControl,
 		nodes.RoleControlConverged,
@@ -246,7 +248,7 @@ func prepareApiHandleraByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.Settings,
+		setting.Module,
 		settings.Handlers,
 		nodes.RoleControl,
 		nodes.RoleControlConverged,

@@ -4,9 +4,9 @@ import (
 	"slices"
 
 	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -16,7 +16,7 @@ const (
 	maxSearchResults = 10000
 )
 
-func selectRolesUsingActivityAndLabels(tuningSpec *v1.TuningSpec) []*nodes.Role {
+func selectRolesUsingActivityAndLabels(tuningSpec *tunings.Spec) []*nodes.Role {
 	for i, role := range tuningSpec.Roles {
 		tuningSpec.Roles[i].Nodes = getNodesBySelector(role.Nodes, tuningSpec.Selector)
 	}
@@ -49,7 +49,7 @@ func getNodesBySelector(nodesToFilter []nodes.Node, selector nodes.Selector) []n
 	return filtered
 }
 
-func (h *helper) filterTunings(tunings []v1.Tuning) []v1.Tuning {
+func (h *helper) filterTunings(tunings []tunings.Tuning) []tunings.Tuning {
 	tunings = h.filterUnexpectedTunings(tunings)
 	if !h.isFilterRequired() {
 		return tunings
@@ -70,9 +70,9 @@ func (h *helper) filterTunings(tunings []v1.Tuning) []v1.Tuning {
 	return tunings
 }
 
-func (h *helper) filterUnexpectedTunings(tunings []v1.Tuning) []v1.Tuning {
-	filtered := []v1.Tuning{}
-	for _, tuning := range tunings {
+func (h *helper) filterUnexpectedTunings(list []tunings.Tuning) []tunings.Tuning {
+	filtered := []tunings.Tuning{}
+	for _, tuning := range list {
 		if tuning.Name != "" {
 			filtered = append(filtered, tuning)
 		}
@@ -80,15 +80,15 @@ func (h *helper) filterUnexpectedTunings(tunings []v1.Tuning) []v1.Tuning {
 
 	return filtered
 }
-func (h *helper) filteredByKeyword(tunings []v1.Tuning) []v1.Tuning {
-	result, err := h.searchTunings(tunings)
+func (h *helper) filteredByKeyword(list []tunings.Tuning) []tunings.Tuning {
+	result, err := h.searchTunings(list)
 	if err != nil {
 		log.Errorf("failed to search tunings: %s", err.Error())
-		return tunings
+		return list
 	}
 
-	tuningMap := genTuningMap(tunings)
-	filtered := []v1.Tuning{}
+	tuningMap := genTuningMap(list)
+	filtered := []tunings.Tuning{}
 	for _, hit := range result.Hits {
 		filtered = append(filtered, tuningMap[hit.ID])
 	}
@@ -96,7 +96,7 @@ func (h *helper) filteredByKeyword(tunings []v1.Tuning) []v1.Tuning {
 	return filtered
 }
 
-func (h *helper) searchTunings(tunings []v1.Tuning) (*bleve.SearchResult, error) {
+func (h *helper) searchTunings(tunings []tunings.Tuning) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
 		log.Errorf("tunings: failed to create tuning searcher: %s", err.Error())
@@ -114,9 +114,9 @@ func (h *helper) searchTunings(tunings []v1.Tuning) (*bleve.SearchResult, error)
 	return searcher.Search(search.WildcardQuery(h.keyword))
 }
 
-func (h *helper) filteredByHosts(tunings []v1.Tuning) []v1.Tuning {
-	filtered := []v1.Tuning{}
-	for _, tuning := range tunings {
+func (h *helper) filteredByHosts(list []tunings.Tuning) []tunings.Tuning {
+	filtered := []tunings.Tuning{}
+	for _, tuning := range list {
 		if h.containsHosts(tuning.Hosts) {
 			filtered = append(filtered, tuning)
 		}
@@ -125,9 +125,9 @@ func (h *helper) filteredByHosts(tunings []v1.Tuning) []v1.Tuning {
 	return filtered
 }
 
-func (h *helper) filteredByModified(tunings []v1.Tuning) []v1.Tuning {
-	filtered := []v1.Tuning{}
-	for _, tuning := range tunings {
+func (h *helper) filteredByModified(list []tunings.Tuning) []tunings.Tuning {
+	filtered := []tunings.Tuning{}
+	for _, tuning := range list {
 		if slices.Contains(h.modified, tuning.IsModified) {
 			filtered = append(filtered, tuning)
 		}
@@ -152,27 +152,27 @@ func (h *helper) containsHosts(hosts []nodes.Host) bool {
 	return false
 }
 
-func genTuningMap(tunings []v1.Tuning) map[string]v1.Tuning {
-	tuningMap := map[string]v1.Tuning{}
-	for _, tuning := range tunings {
+func genTuningMap(list []tunings.Tuning) map[string]tunings.Tuning {
+	tuningMap := map[string]tunings.Tuning{}
+	for _, tuning := range list {
 		tuningMap[tuning.SearchKey()] = tuning
 	}
 
 	return tuningMap
 }
 
-func (h *helper) enrichTuningPayload(tunings *[]v1.Tuning) {
+func (h *helper) enrichTuningPayload(tunings *[]tunings.Tuning) {
 	h.syncUpdates(tunings)
 	h.sortTunings(tunings)
 }
 
-func (h *helper) syncUpdates(tunings *[]v1.Tuning) {
+func (h *helper) syncUpdates(tunings *[]tunings.Tuning) {
 	for i, tuning := range *tunings {
 		(*tunings)[i] = h.syncUpdateStatus(tuning)
 	}
 }
 
-func (h *helper) syncUpdateStatus(tuning v1.Tuning) v1.Tuning {
+func (h *helper) syncUpdateStatus(tuning tunings.Tuning) tunings.Tuning {
 	tuning.InitOkStatus()
 	if !h.hasUpdateHistory(tuning) {
 		return tuning
@@ -189,11 +189,11 @@ func (h *helper) syncUpdateStatus(tuning v1.Tuning) v1.Tuning {
 	return tuning
 }
 
-func (h *helper) hasUpdateHistory(tuning v1.Tuning) bool {
+func (h *helper) hasUpdateHistory(tuning tunings.Tuning) bool {
 	mongo := cubeMongo.GetGlobalHelper()
 	count, err := mongo.GetCount(
-		v1.TuningDB(),
-		v1.TuningReqCollection(),
+		tunings.Module,
+		tunings.ReqCollection(),
 		bson.M{"id": tuning.GenerateId()},
 	)
 	if err != nil {
@@ -203,18 +203,18 @@ func (h *helper) hasUpdateHistory(tuning v1.Tuning) bool {
 	return count > 0
 }
 
-func (h *helper) getUpdateRecord(tuning v1.Tuning) (v1.Tuning, error) {
+func (h *helper) getUpdateRecord(tuning tunings.Tuning) (tunings.Tuning, error) {
 	mongo := cubeMongo.GetGlobalHelper()
 	pending, err := mongo.Get(
-		v1.TuningDB(),
-		v1.TuningReqCollection(),
+		tunings.Module,
+		tunings.ReqCollection(),
 		bson.M{"id": tuning.GenerateId()},
 	)
 	if err != nil {
 		return tuning, err
 	}
 
-	record := v1.Tuning{}
+	record := tunings.Tuning{}
 	err = pending.Decode(&record)
 	if err != nil {
 		return tuning, err

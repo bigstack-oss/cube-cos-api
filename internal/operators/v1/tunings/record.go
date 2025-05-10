@@ -4,13 +4,13 @@ import (
 	"errors"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	log "go-micro.dev/v5/logger"
 )
 
-func (o *Operator) handleExit(tuning v1.Tuning, err error) {
+func (o *Operator) handleExit(tuning tunings.Tuning, err error) {
 	if err != nil {
 		log.Errorf("tunings: failed to %s %s to %v(%v)", tuning.Status.Desired, tuning.Name, tuning.Value, err)
 		tuning.SetError()
@@ -25,7 +25,7 @@ func (o *Operator) handleExit(tuning v1.Tuning, err error) {
 	}
 }
 
-func (o *Operator) reportToController(tuning v1.Tuning) error {
+func (o *Operator) reportToController(tuning tunings.Tuning) error {
 	node, err := nodes.GetController()
 	if err != nil {
 		log.Errorf("tunings: failed to get controller nodes: %s", err.Error())
