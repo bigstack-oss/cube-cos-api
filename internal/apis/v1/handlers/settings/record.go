@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
@@ -89,7 +88,7 @@ func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
 		}
 	}
 
-	maps.Copy(headerMap, auth.GetNodeSecret())
+	maps.Copy(headerMap, nodes.GetSecretHeaders())
 	return headerMap
 }
 

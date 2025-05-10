@@ -9,7 +9,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
-	"github.com/bigstack-oss/cube-cos-api/internal/saml"
+	"github.com/bigstack-oss/cube-cos-api/internal/auths/saml"
 	yaml "github.com/go-micro/plugins/v5/config/encoder/yaml"
 	jsonitor "github.com/json-iterator/go"
 	"go-micro.dev/v5/config"
@@ -39,8 +39,8 @@ func init() {
 	flag.StringVar(&Opts.Spec.Identity.Keycloak.Path, "identity.keycloak.host.path", Opts.Spec.Identity.Keycloak.Path, "")
 	flag.BoolVar(&Opts.Spec.Identity.Keycloak.TlsInsecureSkipVerify, "identity.keycloak.host.tlsInsecureSkipVerify", Opts.Spec.Identity.Keycloak.TlsInsecureSkipVerify, "")
 	flag.StringVar(&Opts.Spec.Identity.Keycloak.Realm, "identity.keycloak.realm", Opts.Spec.Identity.Keycloak.Realm, "")
-	flag.StringVar(&Opts.Spec.Identity.Keycloak.Auth.Username, "identity.keycloak.auth.username", Opts.Spec.Identity.Keycloak.Auth.Username, "")
-	flag.StringVar(&Opts.Spec.Identity.Keycloak.Auth.Password, "identity.keycloak.auth.password", Opts.Spec.Identity.Keycloak.Auth.Password, "")
+	flag.StringVar(&Opts.Spec.Identity.Keycloak.Auth.Username, "identity.keycloak.auths.username", Opts.Spec.Identity.Keycloak.Auth.Username, "")
+	flag.StringVar(&Opts.Spec.Identity.Keycloak.Auth.Password, "identity.keycloak.auths.password", Opts.Spec.Identity.Keycloak.Auth.Password, "")
 	flag.BoolVar(&Opts.Spec.Identity.Keycloak.TlsInsecureSkipVerify, "identity.keycloak.tlsInsecureSkipVerify", Opts.Spec.Identity.Keycloak.TlsInsecureSkipVerify, "")
 	flag.StringVar(&Opts.Spec.Identity.Saml.IdentityProvider.MetadataPath, "identity.saml.identityProvider.metadataPath", Opts.Spec.Identity.Saml.IdentityProvider.MetadataPath, "")
 	flag.StringVar(&Opts.Spec.Identity.Saml.IdentityProvider.Host.Scheme, "identity.saml.identityProvider.host.scheme", Opts.Spec.Identity.Saml.IdentityProvider.Host.Scheme, "")
@@ -52,15 +52,15 @@ func init() {
 	flag.BoolVar(&Opts.Spec.Identity.Saml.ServiceProvider.TlsInsecureSkipVerify, "identity.saml.serviceProvider.tlsInsecureSkipVerify", Opts.Spec.Identity.Saml.ServiceProvider.TlsInsecureSkipVerify, "")
 	flag.StringVar(&Opts.Spec.ResourceControl.K3s.Auth, "resourceControl.k3s.auth", Opts.Spec.ResourceControl.K3s.Auth, "")
 	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.ConfFile, "resourceControl.openstack.confFile", Opts.Spec.ResourceControl.Openstack.ConfFile, "")
-	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Source, "resourceControl.openstack.auth.source", Opts.Spec.ResourceControl.Openstack.Auth.Source, "")
-	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.File, "resourceControl.openstack.auth.file", Opts.Spec.ResourceControl.Openstack.Auth.File, "")
-	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Type, "resourceControl.openstack.auth.type", Opts.Spec.ResourceControl.Openstack.Auth.Type, "")
-	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Url, "resourceControl.openstack.auth.url", Opts.Spec.ResourceControl.Openstack.Auth.Url, "")
-	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Username, "resourceControl.openstack.auth.username", Opts.Spec.ResourceControl.Openstack.Auth.Username, "")
-	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Password, "resourceControl.openstack.auth.password", Opts.Spec.ResourceControl.Openstack.Auth.Password, "")
-	flag.BoolVar(&Opts.Spec.ResourceControl.Openstack.Auth.EnableAutoRenew, "resourceControl.openstack.auth.enableAutoRenew", Opts.Spec.ResourceControl.Openstack.Auth.EnableAutoRenew, "")
-	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Project.Name, "resourceControl.openstack.auth.project.name", Opts.Spec.ResourceControl.Openstack.Auth.Project.Name, "")
-	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Project.Domain.Name, "resourceControl.openstack.auth.project.domain.name", Opts.Spec.ResourceControl.Openstack.Auth.Project.Domain.Name, "")
+	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Source, "resourceControl.openstack.auths.source", Opts.Spec.ResourceControl.Openstack.Auth.Source, "")
+	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.File, "resourceControl.openstack.auths.file", Opts.Spec.ResourceControl.Openstack.Auth.File, "")
+	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Type, "resourceControl.openstack.auths.type", Opts.Spec.ResourceControl.Openstack.Auth.Type, "")
+	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Url, "resourceControl.openstack.auths.url", Opts.Spec.ResourceControl.Openstack.Auth.Url, "")
+	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Username, "resourceControl.openstack.auths.username", Opts.Spec.ResourceControl.Openstack.Auth.Username, "")
+	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Password, "resourceControl.openstack.auths.password", Opts.Spec.ResourceControl.Openstack.Auth.Password, "")
+	flag.BoolVar(&Opts.Spec.ResourceControl.Openstack.Auth.EnableAutoRenew, "resourceControl.openstack.auths.enableAutoRenew", Opts.Spec.ResourceControl.Openstack.Auth.EnableAutoRenew, "")
+	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Project.Name, "resourceControl.openstack.auths.project.name", Opts.Spec.ResourceControl.Openstack.Auth.Project.Name, "")
+	flag.StringVar(&Opts.Spec.ResourceControl.Openstack.Auth.Project.Domain.Name, "resourceControl.openstack.auths.project.domain.name", Opts.Spec.ResourceControl.Openstack.Auth.Project.Domain.Name, "")
 	flag.StringVar(&Opts.Spec.ResourceControl.Aws.AccessKey, "resourceControl.aws.accessKey", "admin", "")
 	flag.StringVar(&Opts.Spec.ResourceControl.Aws.SecretKey, "resourceControl.aws.secretKey", Opts.Spec.ResourceControl.Aws.SecretKey, "")
 	flag.StringVar(&Opts.Spec.Store.InfluxDB.Url, "store.influxdb.url", Opts.Spec.Store.InfluxDB.Url, "")
@@ -72,9 +72,9 @@ func init() {
 	flag.IntVar(&Opts.Spec.Store.InfluxDB.Port, "store.influxdb.port", 8086, "")
 	flag.StringVar(&Opts.Spec.Store.MongoDB.Database, "store.mongodb.database", Opts.Spec.Store.MongoDB.Database, "")
 	flag.StringVar(&Opts.Spec.Store.MongoDB.ReplicaSet, "store.mongodb.replicaSet", Opts.Spec.Store.MongoDB.ReplicaSet, "")
-	flag.BoolVar(&Opts.Spec.Store.MongoDB.Auth.Enable, "store.mongodb.auth.enable", Opts.Spec.Store.MongoDB.Auth.Enable, "")
-	flag.StringVar(&Opts.Spec.Store.MongoDB.Auth.Username, "store.mongodb.auth.username", Opts.Spec.Store.MongoDB.Auth.Username, "")
-	flag.StringVar(&Opts.Spec.Store.MongoDB.Auth.Password, "store.mongodb.auth.password", Opts.Spec.Store.MongoDB.Auth.Password, "")
+	flag.BoolVar(&Opts.Spec.Store.MongoDB.Auth.Enable, "store.mongodb.auths.enable", Opts.Spec.Store.MongoDB.Auth.Enable, "")
+	flag.StringVar(&Opts.Spec.Store.MongoDB.Auth.Username, "store.mongodb.auths.username", Opts.Spec.Store.MongoDB.Auth.Username, "")
+	flag.StringVar(&Opts.Spec.Store.MongoDB.Auth.Password, "store.mongodb.auths.password", Opts.Spec.Store.MongoDB.Auth.Password, "")
 	flag.IntVar(&Opts.Spec.Observability.Log.Level, "observability.log.level", Opts.Spec.Observability.Log.Level, "")
 	flag.StringVar(&Opts.Spec.Observability.Log.File, "observability.log.file", Opts.Spec.Observability.Log.File, "")
 	flag.IntVar(&Opts.Spec.Observability.Log.Rotation.Backups, "observability.log.rotation.backups", Opts.Spec.Observability.Log.Rotation.Backups, "")

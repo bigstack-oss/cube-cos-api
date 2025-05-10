@@ -3,13 +3,13 @@ package tokens
 import (
 	"errors"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/gin-gonic/gin"
 	json "github.com/json-iterator/go"
 )
 
-func parseUserBody(c *gin.Context) (*auth.User, error) {
-	user := &auth.User{}
+func parseUserBody(c *gin.Context) (*auths.User, error) {
+	user := &auths.User{}
 	err := json.NewDecoder(c.Request.Body).Decode(&user)
 	if err != nil {
 		return nil, err

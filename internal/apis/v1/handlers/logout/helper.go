@@ -2,7 +2,7 @@ package logout
 
 import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	"github.com/bigstack-oss/cube-cos-api/internal/saml"
+	"github.com/bigstack-oss/cube-cos-api/internal/auths/saml"
 	"github.com/crewjam/saml/samlsp"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"

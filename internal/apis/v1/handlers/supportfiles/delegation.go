@@ -9,7 +9,6 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -81,7 +80,7 @@ func (h *helper) delegateToNode(node *nodes.Node) error {
 	url := node.CreateSupportFileUrl(h.file)
 	body := h.genFileReqBody(*node)
 	http := http.GetGlobalHelper()
-	resp, err := http.R().SetHeaders(auth.GetNodeSecret()).SetBody(body).Post(url)
+	resp, err := http.R().SetHeaders(nodes.GetSecretHeaders()).SetBody(body).Post(url)
 	if err != nil {
 		log.Errorf("failed to create support file %s to %s: %s", h.file.Name, node.Id, err.Error())
 		return err
@@ -174,7 +173,7 @@ func (h *helper) streamFromPeerNode(set support.FileSet, file support.File) {
 
 	url := node.DownloadSupportFileUrl(set.Name, file.Name)
 	http := http.GetGlobalHelper()
-	resp, err := http.R().SetHeaders(auth.GetNodeSecret()).Get(url)
+	resp, err := http.R().SetHeaders(nodes.GetSecretHeaders()).Get(url)
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to download support file %s from %s: %s", queries.GetReqId(h.c), file.Name, node.Hostname, err.Error())
 		return

@@ -15,7 +15,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
@@ -123,7 +122,7 @@ func (o *Operator) askPeerNode(node nodes.Node) (*nodes.Node, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&bodies.Node{}).
-		SetHeaders(auth.GetNodeSecret()).
+		SetHeaders(nodes.GetSecretHeaders()).
 		Get(node.GetNodeUrl())
 	if err != nil {
 		log.Errorf("nodes: failed to get node details %s: %s", node.Hostname, err.Error())

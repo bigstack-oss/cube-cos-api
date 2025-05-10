@@ -1,12 +1,9 @@
-package auth
+package auths
 
 import (
-	"crypto/sha512"
-	"encoding/hex"
 	"fmt"
 
 	"github.com/Nerzal/gocloak/v13"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 )
 
 const (
@@ -42,15 +39,3 @@ var (
 	RedirectPath        = ""
 	DefaultRedirectPath = "/home"
 )
-
-func GenToken(hostname string) string {
-	hash := sha512.Sum512([]byte(hostname + DefaultOidcClientSecret))
-	return hex.EncodeToString(hash[:])
-}
-
-func GetNodeSecret() map[string]string {
-	return map[string]string{
-		"Node":          base.Hostname,
-		"Authorization": fmt.Sprintf("Bearer %s", DefaultNodeToken),
-	}
-}

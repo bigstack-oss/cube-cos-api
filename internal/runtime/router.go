@@ -24,7 +24,9 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tokens"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/triggers"
 	tuningapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tunings"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/auths/oidc"
+	"github.com/bigstack-oss/cube-cos-api/internal/auths/saml"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/grafana"
@@ -40,8 +42,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
-	"github.com/bigstack-oss/cube-cos-api/internal/oidc"
-	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/micro/plugins/v5/server/http"
@@ -191,13 +191,13 @@ func prepareApiHandleraByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		auth.Tokens,
+		auths.Tokens,
 		tokens.Handlers,
 		nodes.RoleControl,
 	)
 
 	api.RegisterHandlersToRoles(
-		auth.Logout,
+		auths.Logout,
 		logout.Handlers,
 		nodes.RoleControl,
 		nodes.RoleControlConverged,
@@ -355,7 +355,7 @@ func parseOidcToken(c *gin.Context) string {
 
 func isValidInternalToken(c *gin.Context, token string) bool {
 	node := c.GetHeader("Node")
-	return token == auth.GenToken(node)
+	return token == nodes.GenToken(node)
 }
 
 func conditionalSaml() gin.HandlerFunc {

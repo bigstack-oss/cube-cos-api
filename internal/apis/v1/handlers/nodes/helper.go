@@ -7,7 +7,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
@@ -96,7 +95,7 @@ func (h *helper) getNode() (*nodes.Node, error) {
 
 func (h *helper) askPeerNode(node *nodes.Node) (*nodes.Node, error) {
 	http := http.GetGlobalHelper()
-	resp, err := http.R().SetResult(&bodies.Node{}).SetHeaders(auth.GetNodeSecret()).Get(node.GetNodeUrl())
+	resp, err := http.R().SetResult(&bodies.Node{}).SetHeaders(nodes.GetSecretHeaders()).Get(node.GetNodeUrl())
 	if err != nil {
 		return nil, err
 	}

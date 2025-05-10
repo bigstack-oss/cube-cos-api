@@ -7,7 +7,6 @@ import (
 	cubeHttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	log "go-micro.dev/v5/logger"
@@ -130,7 +129,7 @@ func (h *helper) backfillTuningInfoByHandler(tuning tunings.Tuning) {
 func (h *helper) delegateToOtherNode(node *nodes.Node) error {
 	http := cubeHttp.GetGlobalHelper()
 	resp, err := http.R().
-		SetHeaders(auth.GetNodeSecret()).
+		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(genTuningUpdate(h.tuning, node)).
 		Patch(node.PatchTuningUrl(h.tuning.Name))
 	if err != nil {

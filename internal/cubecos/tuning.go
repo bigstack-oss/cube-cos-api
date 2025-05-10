@@ -12,7 +12,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -549,7 +548,7 @@ func getNodeTunings(node nodes.Node) ([]tunings.Tuning, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&bodies.TuningList{}).
-		SetHeaders(auth.GetNodeSecret()).
+		SetHeaders(nodes.GetSecretHeaders()).
 		Get(node.GetTuningUrl())
 	if err != nil {
 		return nil, err

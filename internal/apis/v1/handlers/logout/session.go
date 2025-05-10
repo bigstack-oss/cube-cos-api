@@ -6,10 +6,10 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	"github.com/bigstack-oss/cube-cos-api/internal/auths/saml"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
-	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/crewjam/saml/samlsp"
 	log "go-micro.dev/v5/logger"
 )

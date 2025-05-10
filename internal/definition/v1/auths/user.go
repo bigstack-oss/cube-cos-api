@@ -1,4 +1,4 @@
-package auth
+package auths
 
 type User struct {
 	Name     string `json:"name"`

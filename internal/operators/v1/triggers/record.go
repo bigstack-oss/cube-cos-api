@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	log "go-micro.dev/v5/logger"
@@ -33,7 +32,7 @@ func (o *Operator) reportToController(trigger trigger.ApiOptions) error {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetHeaders(auth.GetNodeSecret()).
+		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(trigger.GenTaskUpdate()).
 		Patch(node.PatchTriggerTaskUrl(trigger))
 	if err != nil {

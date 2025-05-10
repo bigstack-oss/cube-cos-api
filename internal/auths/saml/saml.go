@@ -14,7 +14,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/crewjam/saml"
 	"github.com/crewjam/saml/samlsp"
@@ -131,7 +131,7 @@ func GetSamlClient(id string) (*gocloak.Client, error) {
 	}
 
 	clients, err := h.GetClients(
-		auth.DefaultKeycloakRealm,
+		auths.DefaultKeycloakRealm,
 		gocloak.GetClientsParams{ClientID: gocloak.StringP(id)},
 	)
 	if err != nil {
@@ -142,7 +142,7 @@ func GetSamlClient(id string) (*gocloak.Client, error) {
 	if len(clients) == 0 {
 		return nil, fmt.Errorf(
 			"%s saml client not found",
-			auth.DefaultKeycloakRealm,
+			auths.DefaultKeycloakRealm,
 		)
 	}
 
@@ -157,7 +157,7 @@ func CreateSamlMapper(id string, mapper gocloak.ProtocolMapperRepresentation) er
 		return err
 	}
 
-	_, err = h.CreateClientProtocolMapper(auth.DefaultKeycloakRealm, id, mapper)
+	_, err = h.CreateClientProtocolMapper(auths.DefaultKeycloakRealm, id, mapper)
 	if err == nil {
 		return nil
 	}
@@ -186,13 +186,13 @@ func ServeAcs() gin.HandlerFunc {
 
 		err = checkTrackedRequest(c)
 		if err != nil {
-			bodies.SetRedirect(c, auth.RedirectPath)
+			bodies.SetRedirect(c, auths.RedirectPath)
 			return
 		}
 
 		assertion, err := getAssertion(c)
 		if err != nil {
-			bodies.SetRedirect(c, auth.RedirectPath)
+			bodies.SetRedirect(c, auths.RedirectPath)
 			return
 		}
 
@@ -202,7 +202,7 @@ func ServeAcs() gin.HandlerFunc {
 			return
 		}
 
-		bodies.SetRedirect(c, auth.RedirectPath)
+		bodies.SetRedirect(c, auths.RedirectPath)
 	}
 }
 

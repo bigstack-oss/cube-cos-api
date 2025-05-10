@@ -7,9 +7,10 @@ import (
 	"time"
 
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,7 +27,7 @@ func newServiceDiscoveryIdentity() error {
 		"%s-%s-%s",
 		base.DataCenterName,
 		base.DataCenterVip,
-		strings.ToLower(auth.DefaultOidcClientSecret[:8]),
+		strings.ToLower(auths.DefaultOidcClientSecret[:8]),
 	)
 
 	return nil
@@ -186,8 +187,8 @@ func parseRedirectPath() (string, error) {
 		return conf.Opts.Spec.Identity.Redirect, nil
 	}
 
-	if auth.DefaultRedirectPath != "" {
-		return auth.DefaultRedirectPath, nil
+	if auths.DefaultRedirectPath != "" {
+		return auths.DefaultRedirectPath, nil
 	}
 
 	return "", errors.ErrNoRedirectPathFound

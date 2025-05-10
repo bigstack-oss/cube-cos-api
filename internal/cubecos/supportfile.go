@@ -21,7 +21,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
@@ -269,7 +268,7 @@ func getNodeSupportFiles(node nodes.Node) ([]support.File, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetResult(&bodies.SupportFileList{}).
-		SetHeaders(auth.GetNodeSecret()).
+		SetHeaders(nodes.GetSecretHeaders()).
 		Get(node.GetSupportFileUrl())
 	if err != nil {
 		return nil, err

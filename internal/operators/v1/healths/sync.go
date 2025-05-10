@@ -6,7 +6,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
@@ -76,7 +75,7 @@ func reportToController(health cubecos.Health) {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetHeaders(auth.GetNodeSecret()).
+		SetHeaders(nodes.GetSecretHeaders()).
 		Delete(genRepairTaskURL(health, node))
 	if err != nil {
 		log.Errorf("healths: failed to send repairing task to controller: %s", err.Error())

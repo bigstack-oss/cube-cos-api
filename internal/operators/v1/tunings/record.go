@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	log "go-micro.dev/v5/logger"
@@ -34,7 +33,7 @@ func (o *Operator) reportToController(tuning tunings.Tuning) error {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetHeaders(auth.GetNodeSecret()).
+		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(tuning.GenTaskUpdate()).
 		Patch(node.PatchTuningTaskUrl(tuning.Id))
 	if err != nil {

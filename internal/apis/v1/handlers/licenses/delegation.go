@@ -5,11 +5,9 @@ import (
 	"mime/multipart"
 	"net/url"
 
-	cubeHttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -23,7 +21,7 @@ func genUrl(node nodes.Node) string {
 }
 
 func sendLicenseToOtherNodes(nodeName string, licenseFile *multipart.FileHeader) error {
-	nodes, err := service.GetNodesByRole(nodeName)
+	node, err := nodes.GetController()
 	if err != nil {
 		log.Errorf("failed to get nodes by role %s: %s", nodeName, err.Error())
 		return err
@@ -35,12 +33,11 @@ func sendLicenseToOtherNodes(nodeName string, licenseFile *multipart.FileHeader)
 		return err
 	}
 
-	node := nodes[0]
-	http := cubeHttp.GetGlobalHelper()
-	resp, err := http.R().
+	h := http.GetGlobalHelper()
+	resp, err := h.R().
 		SetFileReader("license", licenseFile.Filename, reader).
-		SetHeaders(auth.GetNodeSecret()).
-		Post(genUrl(node))
+		SetHeaders(nodes.GetSecretHeaders()).
+		Post(genUrl(*node))
 	if resp.IsError() || err != nil {
 		log.Errorf(
 			"failed to send license to node %s: %d %s",

@@ -263,6 +263,10 @@ func IsLocal(hostname string) bool {
 	return base.Hostname == hostname
 }
 
+func IsLocalAddress(address string) bool {
+	return base.AdvertiseAddr == address
+}
+
 func GenerateNodeHashByMacAddr() (string, error) {
 	macAddr, err := base.GetMacAddr(base.NetMajorInterface)
 	if err != nil {
@@ -297,7 +301,7 @@ func parseNodesByRole(svc *registry.Service, role string) []Node {
 			continue
 		}
 
-		nodes = append(nodes, new(node))
+		nodes = append(nodes, New(node))
 	}
 
 	return nodes
@@ -347,13 +351,13 @@ func parseNodes(svc *registry.Service) []Node {
 			continue
 		}
 
-		nodes = append(nodes, new(node))
+		nodes = append(nodes, New(node))
 	}
 
 	return nodes
 }
 
-func new(node *registry.Node) Node {
+func New(node *registry.Node) Node {
 	return Node{
 		Role:         node.Metadata["role"],
 		Id:           node.Id,

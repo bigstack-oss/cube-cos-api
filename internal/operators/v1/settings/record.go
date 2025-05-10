@@ -2,7 +2,6 @@ package settings
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
 	log "go-micro.dev/v5/logger"
@@ -31,7 +30,7 @@ func (o *Operator) reportToController(setting setting.Options) {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetHeaders(auth.GetNodeSecret()).
+		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(setting.GenTaskUpdate()).
 		Patch(node.PatchSettingTaskUrl(setting))
 	if err != nil {

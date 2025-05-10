@@ -12,11 +12,12 @@ import (
 	bslog "github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
+	"github.com/bigstack-oss/cube-cos-api/internal/auths/saml"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
-	"github.com/bigstack-oss/cube-cos-api/internal/saml"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/gophercloud/gophercloud/v2"
 	log "go-micro.dev/v5/logger"
 )
@@ -187,8 +188,8 @@ func newGlobalOpenstackHelper() error {
 func newGlobalAwsHelper() error {
 	opts := conf.Opts.Spec.Aws
 	if opts.SecretKey == "" {
-		conf.Opts.Spec.Aws.SecretKey = auth.DefaultOidcClientSecret
-		opts.SecretKey = auth.DefaultOidcClientSecret
+		conf.Opts.Spec.Aws.SecretKey = auths.DefaultOidcClientSecret
+		opts.SecretKey = auths.DefaultOidcClientSecret
 	}
 
 	return aws.NewGlobalHelper(
@@ -237,8 +238,8 @@ func newKeycloakOidcAuth() error {
 	}
 
 	_, err = h.CreateClient(
-		auth.DefaultKeycloakRealm,
-		auth.DefaultOidcClientOpts,
+		auths.DefaultKeycloakRealm,
+		auths.DefaultOidcClientOpts,
 	)
 	if err == nil {
 		return nil
@@ -259,8 +260,8 @@ func newDefaultOidcSecret() error {
 	}
 
 	clients, err := h.GetClients(
-		auth.DefaultKeycloakRealm,
-		gocloak.GetClientsParams{ClientID: gocloak.StringP(auth.DefaultOidcClientId)},
+		auths.DefaultKeycloakRealm,
+		gocloak.GetClientsParams{ClientID: gocloak.StringP(auths.DefaultOidcClientId)},
 	)
 	if err != nil {
 		log.Errorf("runtime: failed to get clients: %s", err.Error())
@@ -271,7 +272,7 @@ func newDefaultOidcSecret() error {
 	}
 
 	secret, err := h.GetClientSecret(
-		auth.DefaultKeycloakRealm,
+		auths.DefaultKeycloakRealm,
 		*clients[0].ID,
 	)
 	if err != nil {
@@ -279,13 +280,13 @@ func newDefaultOidcSecret() error {
 		return err
 	}
 
-	auth.DefaultOidcClientSecret = *secret.Value
+	auths.DefaultOidcClientSecret = *secret.Value
 	return nil
 }
 
 func newDefaultNodeToken() error {
-	auth.DefaultNodeToken = auth.GenToken(base.Hostname)
-	if auth.DefaultNodeToken == "" {
+	auths.DefaultNodeToken = nodes.GenToken(base.Hostname)
+	if auths.DefaultNodeToken == "" {
 		return fmt.Errorf("failed to generate node token")
 	}
 
@@ -311,7 +312,7 @@ func newBucketSecret() error {
 	accessKey := conf.Opts.Spec.Aws.AccessKey
 	secretKey := conf.Opts.Spec.Aws.SecretKey
 	if secretKey == "" {
-		secretKey = auth.DefaultOidcClientSecret
+		secretKey = auths.DefaultOidcClientSecret
 	}
 
 	userId, err := h.GetUserIdByName(accessKey)
@@ -319,7 +320,7 @@ func newBucketSecret() error {
 		return err
 	}
 
-	projectId, err := h.GetProjectIdByName(auth.DefaultAdminProject)
+	projectId, err := h.GetProjectIdByName(auths.DefaultAdminProject)
 	if err != nil {
 		return err
 	}

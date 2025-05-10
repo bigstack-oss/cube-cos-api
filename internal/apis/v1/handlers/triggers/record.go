@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	log "go-micro.dev/v5/logger"
@@ -128,6 +127,6 @@ func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
 		}
 	}
 
-	maps.Copy(headerMap, auth.GetNodeSecret())
+	maps.Copy(headerMap, nodes.GetSecretHeaders())
 	return headerMap
 }

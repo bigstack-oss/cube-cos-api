@@ -3,7 +3,7 @@ package runtime
 import (
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	log "go-micro.dev/v5/logger"
 )
@@ -122,12 +122,12 @@ func initIdentities() error {
 		log.Warnf("runtime: failed to get gpu enablement: %s", err.Error())
 	}
 
-	auth.RedirectPath, err = parseRedirectPath()
+	auths.RedirectPath, err = parseRedirectPath()
 	if err != nil {
 		log.Errorf("runtime: failed to parse redirect path: %s", err.Error())
 	}
 
-	auth.RedirectUrl, err = genLogoutRedirectUrl()
+	auths.RedirectUrl, err = genLogoutRedirectUrl()
 	if err != nil {
 		log.Errorf("runtime: failed to generate logout redirect url: %s", err.Error())
 		return err
