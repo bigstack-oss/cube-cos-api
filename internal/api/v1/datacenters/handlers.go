@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/datacenters"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,7 +33,7 @@ func listDataCenters(c *gin.Context) {
 	api.SetStatusOk(
 		c,
 		"fetch data center list successfully",
-		[]v1.DataCenter{
+		[]datacenters.DataCenter{
 			getLocalDataCenter(),
 		},
 	)

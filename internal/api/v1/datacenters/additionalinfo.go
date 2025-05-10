@@ -1,13 +1,13 @@
 package datacenters
 
 import (
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/datacenters"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
 )
 
-func getNodeLicenseStatus() v1.NodeLicenseStatus {
-	nodeStatus := v1.NodeLicenseStatus{}
+func getNodeLicenseStatus() datacenters.NodeLicenseStatus {
+	nodeStatus := datacenters.NodeLicenseStatus{}
 	for _, node := range nodes.List() {
 		switch node.License.Status.Current {
 		case status.Valid:

@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
@@ -39,7 +39,7 @@ func (o *Operator) Init() error {
 func (o *Operator) Run() {
 	for {
 		watcher, err := registry.Watch(
-			registry.WatchService(v1.ServiceDiscoveryIdentity),
+			registry.WatchService(base.ServiceDiscoveryIdentity),
 		)
 		if err != nil {
 			log.Errorf("nodes: failed to create watcher (%s)", err.Error())

@@ -290,10 +290,10 @@ func GetNodesByRole(role string) ([]Node, error) {
 	return list, nil
 }
 
-func parseNodesByRole(svc *registry.Service, roleName string) []Node {
+func parseNodesByRole(svc *registry.Service, role string) []Node {
 	nodes := []Node{}
 	for _, node := range svc.Nodes {
-		if node.Metadata["role"] != roleName {
+		if node.Metadata["role"] != role {
 			continue
 		}
 
@@ -356,12 +356,15 @@ func parseNodes(svc *registry.Service) []Node {
 func new(node *registry.Node) Node {
 	return Node{
 		Role:       node.Metadata["role"],
-		Id:         base.HostID,
+		Id:         node.Id,
 		DataCenter: node.Metadata["dataCenter"],
 		Protocol:   node.Metadata["protocol"],
 		Ip:         node.Metadata["ip"],
-		Hostname:   base.Hostname,
+		Hostname:   node.Metadata["hostname"],
 		Address:    node.Address,
+		Labels: map[string]string{
+			"isGpuEnabled": node.Metadata["isGpuEnabled"],
+		},
 	}
 }
 

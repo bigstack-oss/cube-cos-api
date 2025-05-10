@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/datacenters"
+	datacenterapi "github.com/bigstack-oss/cube-cos-api/internal/api/v1/datacenters"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/healths"
@@ -26,6 +26,7 @@ import (
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/datacenters"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
@@ -50,7 +51,7 @@ func newHttpServer() (*server.Server, error) {
 	}
 
 	srv := http.NewServer(
-		server.Name(v1.ServiceDiscoveryIdentity),
+		server.Name(base.ServiceDiscoveryIdentity),
 		server.Metadata(base.NodeMetadata),
 		server.WithLogger(log.DefaultLogger),
 		server.Address(base.ListenAddr),
@@ -98,8 +99,8 @@ func getUrlParentPath(h api.Handler) string {
 
 func prepareApiHandleraByRole() {
 	api.RegisterHandlersToRoles(
-		v1.DataCenters,
-		datacenters.Handlers,
+		datacenters.Module,
+		datacenterapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleControlConverged,
 		nodes.RoleModerator,

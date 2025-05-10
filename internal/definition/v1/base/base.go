@@ -42,9 +42,6 @@ var (
 	IsHaEnabled              bool
 	IsGpuEnabled             bool
 	NodeMetadata             map[string]string
-
-	RedirectPath string
-	RedirectUrl  string
 )
 
 func GetMacAddr(interfaceName string) (string, error) {

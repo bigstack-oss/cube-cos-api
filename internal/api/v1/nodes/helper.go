@@ -105,10 +105,9 @@ func (h *helper) askPeerNode(node *nodes.Node) (*nodes.Node, error) {
 	}
 
 	return nil, fmt.Errorf(
-		"nodes(%s): failed to get node details %s: %d %s",
+		"nodes(%s): has err resp for node details %s: %s",
 		api.GetReqId(h.c),
 		node.Hostname,
-		resp.StatusCode(),
 		string(resp.Body()),
 	)
 }

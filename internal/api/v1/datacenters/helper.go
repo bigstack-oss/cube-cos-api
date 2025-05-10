@@ -3,11 +3,12 @@ package datacenters
 import (
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/datacenters"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 )
 
-func getLocalDataCenter() v1.DataCenter {
-	return v1.DataCenter{
+func getLocalDataCenter() datacenters.DataCenter {
+	return datacenters.DataCenter{
 		Type:        getDataCenterType(),
 		Roles:       getDataCenterAllowRoles(),
 		Name:        base.DataCenterName,
@@ -16,7 +17,7 @@ func getLocalDataCenter() v1.DataCenter {
 		IsLocal:     true,
 		IsHaEnabled: base.IsHaEnabled,
 		UtcTimeZone: v1.LocalTimeZone,
-		Additional: v1.Additional{
+		Additional: datacenters.Additional{
 			HelpUrl:           base.DataCenterHelpUrl,
 			NodeLicenseStatus: getNodeLicenseStatus(),
 		},
@@ -25,11 +26,11 @@ func getLocalDataCenter() v1.DataCenter {
 
 func getDataCenterType() string {
 	for _, node := range nodes.List() {
-		if v1.IsCloudRole(node.Role) {
+		if datacenters.IsCloudRole(node.Role) {
 			return "cloud"
 		}
 
-		if v1.IsEdgeRole(node.Role) {
+		if datacenters.IsEdgeRole(node.Role) {
 			return "edge"
 		}
 	}
@@ -40,9 +41,9 @@ func getDataCenterType() string {
 func getDataCenterAllowRoles() []string {
 	switch getDataCenterType() {
 	case "edge":
-		return v1.GetEdgeRoles()
+		return datacenters.GetEdgeRoles()
 	case "cloud":
-		return v1.GetCloudRoles()
+		return datacenters.GetCloudRoles()
 	}
 
 	return []string{}

@@ -1,66 +1,60 @@
 package v1
 
-import (
-	"slices"
+// const (
+// 	DataCenters = "datacenters"
+// )
 
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-)
+// var (
+// 	ServiceDiscoveryIdentity = ""
+// 	cloudRoles               = []string{
+// 		nodes.RoleControlConverged,
+// 		nodes.RoleControl,
+// 		nodes.RoleCompute,
+// 		nodes.RoleStorage,
+// 	}
+// 	edgeRoles = []string{
+// 		nodes.RoleEdgeCore,
+// 		nodes.RoleModerator,
+// 	}
+// )
 
-const (
-	DataCenters = "datacenters"
-)
+// type DataCenter struct {
+// 	Type        string   `json:"type" bson:"type"`
+// 	Id          string   `json:"id,omitempty" bson:"id"`
+// 	Name        string   `json:"name" bson:"name"`
+// 	Roles       []string `json:"roles" bson:"roles"`
+// 	Version     string   `json:"version" bson:"version"`
+// 	VirtualIp   string   `json:"virtualIp" bson:"virtualIp"`
+// 	IsLocal     bool     `json:"isLocal" bson:"isLocal"`
+// 	IsHaEnabled bool     `json:"isHaEnabled" bson:"isHaEnabled"`
+// 	UtcTimeZone string   `json:"utcTimeZone,omitempty" bson:"utcTimeZone"`
+// 	Additional  `json:"additional" bson:"additional"`
+// }
 
-var (
-	ServiceDiscoveryIdentity = ""
-	cloudRoles               = []string{
-		nodes.RoleControlConverged,
-		nodes.RoleControl,
-		nodes.RoleCompute,
-		nodes.RoleStorage,
-	}
-	edgeRoles = []string{
-		nodes.RoleEdgeCore,
-		nodes.RoleModerator,
-	}
-)
+// type Additional struct {
+// 	HelpUrl           string `json:"helpUrl,omitempty" bson:"helpUrl"`
+// 	V1ApiDocUrl       string `json:"v1ApiDoc,omitempty" bson:"v1ApiDoc"`
+// 	NodeLicenseStatus `json:"nodeLicenseStatus" bson:"nodeLicenseStatus"`
+// }
 
-type DataCenter struct {
-	Type        string   `json:"type" bson:"type"`
-	Id          string   `json:"id,omitempty" bson:"id"`
-	Name        string   `json:"name" bson:"name"`
-	Roles       []string `json:"roles" bson:"roles"`
-	Version     string   `json:"version" bson:"version"`
-	VirtualIp   string   `json:"virtualIp" bson:"virtualIp"`
-	IsLocal     bool     `json:"isLocal" bson:"isLocal"`
-	IsHaEnabled bool     `json:"isHaEnabled" bson:"isHaEnabled"`
-	UtcTimeZone string   `json:"utcTimeZone,omitempty" bson:"utcTimeZone"`
-	Additional  `json:"additional" bson:"additional"`
-}
+// type NodeLicenseStatus struct {
+// 	Valid     int `json:"valid" bson:"valid"`
+// 	Expired   int `json:"expired" bson:"expired"`
+// 	Unlicense int `json:"unlicense" bson:"unlicense"`
+// }
 
-type Additional struct {
-	HelpUrl           string `json:"helpUrl,omitempty" bson:"helpUrl"`
-	V1ApiDocUrl       string `json:"v1ApiDoc,omitempty" bson:"v1ApiDoc"`
-	NodeLicenseStatus `json:"nodeLicenseStatus" bson:"nodeLicenseStatus"`
-}
+// func GetCloudRoles() []string {
+// 	return cloudRoles
+// }
 
-type NodeLicenseStatus struct {
-	Valid     int `json:"valid" bson:"valid"`
-	Expired   int `json:"expired" bson:"expired"`
-	Unlicense int `json:"unlicense" bson:"unlicense"`
-}
+// func GetEdgeRoles() []string {
+// 	return edgeRoles
+// }
 
-func GetCloudRoles() []string {
-	return cloudRoles
-}
+// func IsCloudRole(role string) bool {
+// 	return slices.Contains(cloudRoles, role)
+// }
 
-func GetEdgeRoles() []string {
-	return edgeRoles
-}
-
-func IsCloudRole(role string) bool {
-	return slices.Contains(cloudRoles, role)
-}
-
-func IsEdgeRole(role string) bool {
-	return slices.Contains(edgeRoles, role)
-}
+// func IsEdgeRole(role string) bool {
+// 	return slices.Contains(edgeRoles, role)
+// }
