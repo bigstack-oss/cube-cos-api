@@ -355,13 +355,14 @@ func parseNodes(svc *registry.Service) []Node {
 
 func new(node *registry.Node) Node {
 	return Node{
-		Role:       node.Metadata["role"],
-		Id:         node.Id,
-		DataCenter: node.Metadata["dataCenter"],
-		Protocol:   node.Metadata["protocol"],
-		Ip:         node.Metadata["ip"],
-		Hostname:   node.Metadata["hostname"],
-		Address:    node.Address,
+		Role:         node.Metadata["role"],
+		Id:           node.Id,
+		SerialNumber: node.Metadata["serialNumber"],
+		DataCenter:   node.Metadata["dataCenter"],
+		Protocol:     node.Metadata["protocol"],
+		Ip:           node.Metadata["ip"],
+		Hostname:     node.Metadata["hostname"],
+		Address:      node.Address,
 		Labels: map[string]string{
 			"isGpuEnabled": node.Metadata["isGpuEnabled"],
 		},

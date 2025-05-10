@@ -11,7 +11,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
@@ -548,7 +548,7 @@ func ListTuningsFromOtherNodes() (map[string][]v1.Tuning, error) {
 func getNodeTunings(node nodes.Node) ([]v1.Tuning, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetResult(&api.TuningList{}).
+		SetResult(&bodies.TuningList{}).
 		SetHeaders(auth.GetNodeSecret()).
 		Get(node.GetTuningUrl())
 	if err != nil {
@@ -563,7 +563,7 @@ func getNodeTunings(node nodes.Node) ([]v1.Tuning, error) {
 		)
 	}
 
-	tuningList := resp.Result().(*api.TuningList)
+	tuningList := resp.Result().(*bodies.TuningList)
 	return tuningList.Data.Tunings, nil
 }
 

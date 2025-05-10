@@ -1,6 +1,9 @@
 package nodes
 
-import "sync"
+import (
+	"slices"
+	"sync"
+)
 
 const (
 	RoleControl          = "control"
@@ -55,6 +58,17 @@ var (
 		Compute,
 		ControlConverged,
 		EdgeCore,
+	}
+
+	cloudRoles = []string{
+		RoleControlConverged,
+		RoleControl,
+		RoleCompute,
+		RoleStorage,
+	}
+	edgeRoles = []string{
+		RoleEdgeCore,
+		RoleModerator,
 	}
 )
 
@@ -152,4 +166,20 @@ func GetModeratorRole() *Role {
 
 func GetEdgeCoreRole() *Role {
 	return EdgeCore
+}
+
+func GetCloudRoles() []string {
+	return cloudRoles
+}
+
+func GetEdgeRoles() []string {
+	return edgeRoles
+}
+
+func IsCloudRole(role string) bool {
+	return slices.Contains(cloudRoles, role)
+}
+
+func IsEdgeRole(role string) bool {
+	return slices.Contains(edgeRoles, role)
 }

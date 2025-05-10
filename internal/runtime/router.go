@@ -5,28 +5,28 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/api"
-	datacenterapi "github.com/bigstack-oss/cube-cos-api/internal/api/v1/datacenters"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/events"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/grafana"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/healths"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/integrations"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/licenses"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/logout"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/me"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/metrics"
-	nodeapi "github.com/bigstack-oss/cube-cos-api/internal/api/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/opensearch"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/services"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/settings"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/supportfiles"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/tokens"
-	"github.com/bigstack-oss/cube-cos-api/internal/api/v1/triggers"
-	tuningapi "github.com/bigstack-oss/cube-cos-api/internal/api/v1/tunings"
+	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
+	datacenterapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/datacenters"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/grafana"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/healths"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/integrations"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/licenses"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/logout"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/me"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/metrics"
+	nodeapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/opensearch"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/services"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/settings"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/supportfiles"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tokens"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/triggers"
+	tuningapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tunings"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/datacenters"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
@@ -99,7 +99,7 @@ func getUrlParentPath(h api.Handler) string {
 
 func prepareApiHandleraByRole() {
 	api.RegisterHandlersToRoles(
-		datacenters.Module,
+		base.DataCenters,
 		datacenterapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleControlConverged,
@@ -273,7 +273,7 @@ func initReqInfo(c *gin.Context) {
 
 func checkLive() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		api.SetStatusOk(c, "api is alive", nil)
+		bodies.SetOk(c, "api is alive", nil)
 	}
 }
 

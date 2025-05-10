@@ -13,7 +13,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
@@ -104,6 +104,7 @@ func (o *Operator) syncDetails(nodes *[]nodes.Node) {
 		n, err := o.askPeerNode(node)
 		if err == nil {
 			(*nodes)[i].ManagementIP = n.ManagementIP
+			(*nodes)[i].SerialNumber = n.SerialNumber
 			(*nodes)[i].StorageIP = n.StorageIP
 			(*nodes)[i].Vcpu = n.Vcpu
 			(*nodes)[i].Memory = n.Memory
@@ -121,7 +122,7 @@ func (o *Operator) syncDetails(nodes *[]nodes.Node) {
 func (o *Operator) askPeerNode(node nodes.Node) (*nodes.Node, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetResult(&api.Node{}).
+		SetResult(&bodies.Node{}).
 		SetHeaders(auth.GetNodeSecret()).
 		Get(node.GetNodeUrl())
 	if err != nil {
@@ -130,7 +131,7 @@ func (o *Operator) askPeerNode(node nodes.Node) (*nodes.Node, error) {
 	}
 
 	if !resp.IsError() {
-		return &resp.Result().(*api.Node).Data, nil
+		return &resp.Result().(*bodies.Node).Data, nil
 	}
 
 	err = fmt.Errorf("resp error for node details %s: %s", node.Hostname, string(resp.Body()))

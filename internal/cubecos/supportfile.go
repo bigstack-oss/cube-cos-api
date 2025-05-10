@@ -19,7 +19,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
-	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
@@ -268,7 +268,7 @@ func IsSupportFile(file string) bool {
 func getNodeSupportFiles(node nodes.Node) ([]support.File, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetResult(&api.SupportFileList{}).
+		SetResult(&bodies.SupportFileList{}).
 		SetHeaders(auth.GetNodeSecret()).
 		Get(node.GetSupportFileUrl())
 	if err != nil {
@@ -283,7 +283,7 @@ func getNodeSupportFiles(node nodes.Node) ([]support.File, error) {
 		)
 	}
 
-	supportFileList := resp.Result().(*api.SupportFileList)
+	supportFileList := resp.Result().(*bodies.SupportFileList)
 	return supportFileList.Data, nil
 }
 

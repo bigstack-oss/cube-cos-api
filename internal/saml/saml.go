@@ -13,7 +13,7 @@ import (
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	"github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/crewjam/saml"
@@ -186,13 +186,13 @@ func ServeAcs() gin.HandlerFunc {
 
 		err = checkTrackedRequest(c)
 		if err != nil {
-			api.SetRedirect(c, auth.RedirectPath)
+			bodies.SetRedirect(c, auth.RedirectPath)
 			return
 		}
 
 		assertion, err := getAssertion(c)
 		if err != nil {
-			api.SetRedirect(c, auth.RedirectPath)
+			bodies.SetRedirect(c, auth.RedirectPath)
 			return
 		}
 
@@ -202,7 +202,7 @@ func ServeAcs() gin.HandlerFunc {
 			return
 		}
 
-		api.SetRedirect(c, auth.RedirectPath)
+		bodies.SetRedirect(c, auth.RedirectPath)
 	}
 }
 
@@ -223,33 +223,33 @@ func AuthRequest(c *gin.Context) {
 	// if we try to redirect when the original request is the ACS URL
 	// we'll end up in a loop.
 	if isAcsPath(c.Request.URL.Path) {
-		api.SetInternalServerError(c, errors.New("this path should not come here (SAML ACS)"))
+		bodies.SetInternalServerError(c, errors.New("this path should not come here (SAML ACS)"))
 		c.Abort()
 		return
 	}
 
 	authReq, err := genAuthRequest()
 	if err != nil {
-		api.SetInternalServerError(c, err)
+		bodies.SetInternalServerError(c, err)
 		c.Abort()
 		return
 	}
 
 	relayState, err := genRelayState(c, authReq)
 	if err != nil {
-		api.SetInternalServerError(c, err)
+		bodies.SetInternalServerError(c, err)
 		c.Abort()
 		return
 	}
 
 	redirectURL, err := genRedirectUrl(authReq, relayState)
 	if err != nil {
-		api.SetInternalServerError(c, err)
+		bodies.SetInternalServerError(c, err)
 		c.Abort()
 		return
 	}
 
-	api.SetUnauthorized(c, errors.New(redirectURL.String()))
+	bodies.SetUnauthorized(c, errors.New(redirectURL.String()))
 	c.Abort()
 }
 

@@ -38,8 +38,6 @@ func (o *Operator) Init() error {
 }
 
 func (o *Operator) Run() {
-	defer v1.CapturePanic()
-
 	for {
 		req, shutdown := ReqQueue.Get()
 		if shutdown {

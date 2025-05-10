@@ -11,7 +11,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	cubeapi "github.com/bigstack-oss/cube-cos-api/internal/api"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
@@ -455,7 +455,7 @@ func askPeerNodeCpuSummary(hostname string) (*metric.Compute, error) {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetResult(&cubeapi.ComputeStatistic{}).
+		SetResult(&bodies.ComputeStatistic{}).
 		SetHeaders(auth.GetNodeSecret()).
 		Get(node.GetMetricUrl("cpuUsage", "summary"))
 	if err != nil {
@@ -463,7 +463,7 @@ func askPeerNodeCpuSummary(hostname string) (*metric.Compute, error) {
 	}
 
 	if !resp.IsError() {
-		return &resp.Result().(*cubeapi.ComputeStatistic).Data, nil
+		return &resp.Result().(*bodies.ComputeStatistic).Data, nil
 	}
 
 	return nil, fmt.Errorf(
@@ -550,7 +550,7 @@ func askPeerNodeForMemorySummary(hostname string) (*metric.Space, error) {
 
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
-		SetResult(&cubeapi.SpaceStatistic{}).
+		SetResult(&bodies.SpaceStatistic{}).
 		SetHeaders(auth.GetNodeSecret()).
 		Get(node.GetMetricUrl("memoryUsage", "summary"))
 	if err != nil {
@@ -558,7 +558,7 @@ func askPeerNodeForMemorySummary(hostname string) (*metric.Space, error) {
 	}
 
 	if !resp.IsError() {
-		return &resp.Result().(*cubeapi.SpaceStatistic).Data, nil
+		return &resp.Result().(*bodies.SpaceStatistic).Data, nil
 	}
 
 	return nil, fmt.Errorf(

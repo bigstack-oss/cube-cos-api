@@ -15,7 +15,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/datacenters"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/status"
@@ -40,9 +39,9 @@ var (
 )
 
 type Health struct {
-	*datacenters.DataCenter `json:"dataCenter,omitempty" bson:"dataCenter,omitempty"`
-	*Overall                `json:"overall,omitempty" bson:"overall"`
-	Services                []v1.Service `json:"services" bson:"services"`
+	*base.DataCenter `json:"dataCenter,omitempty" bson:"dataCenter,omitempty"`
+	*Overall         `json:"overall,omitempty" bson:"overall"`
+	Services         []v1.Service `json:"services" bson:"services"`
 }
 
 type Overall struct {
