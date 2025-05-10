@@ -9,7 +9,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	datacenterapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/datacenters"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/events"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/grafana"
+	grafanapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/healths"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/integrations"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/licenses"
@@ -28,6 +28,8 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/grafana"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -123,7 +125,7 @@ func prepareApiHandleraByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.Integrations,
+		integration.Module,
 		integrations.Handlers,
 		nodes.RoleControl,
 		nodes.RoleControlConverged,
@@ -224,8 +226,8 @@ func prepareApiHandleraByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.Grafana,
-		grafana.Handlers,
+		grafana.Module,
+		grafanapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleControlConverged,
 		nodes.RoleModerator,

@@ -6,7 +6,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
-	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
 func (o *Operator) operateReq(setting setting.Options) error {

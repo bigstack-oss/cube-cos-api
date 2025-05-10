@@ -5,7 +5,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
-	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"

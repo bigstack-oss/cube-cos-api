@@ -6,7 +6,7 @@ import (
 	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/grafana"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,7 +32,7 @@ func forwardRequestLink(c *gin.Context) {
 	bodies.SetOk(
 		c,
 		"fetch request link successfully",
-		v1.Dashboard{
+		grafana.Dashboard{
 			Link:    link,
 			Enabled: true,
 		},

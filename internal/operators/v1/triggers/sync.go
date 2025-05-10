@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
-	"github.com/bigstack-oss/cube-cos-api/internal/status"
 )
 
 func (o *Operator) operateReq(trigger trigger.ApiOptions) error {

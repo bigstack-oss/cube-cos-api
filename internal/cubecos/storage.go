@@ -6,16 +6,16 @@ import (
 	"path/filepath"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/dustin/go-humanize"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 )
 
 func GetRawBlockDevices() ([]nodes.RawBlockDevice, error) {
-	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "TYPE,NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS", "-e", v1.NetBlockDeviceCode).Output()
+	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "TYPE,NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS", "-e", blockdevice.NetCode).Output()
 	if err != nil {
 		log.Errorf("nodes: failed to get block device info: %s", err.Error())
 		return nil, err

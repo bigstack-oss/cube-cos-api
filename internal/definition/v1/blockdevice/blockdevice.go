@@ -1,10 +1,10 @@
-package v1
+package blockdevice
 
 const (
-	NetBlockDeviceCode = "43"
+	NetCode = "43"
 )
 
-type BlockDeviceStatus struct {
+type SmartCtl struct {
 	State  string `json:"state" bson:"state"`
 	Remark string `json:"remark" bson:"remark"`
 }

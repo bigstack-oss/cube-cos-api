@@ -15,13 +15,13 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/shirou/gopsutil/v4/cpu"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
@@ -343,17 +343,17 @@ func getBlockDeviceStatus(blockDev nodes.BlockDevice) status.BlockDevice {
 		return status.BlockDevice{Current: "failed"}
 	}
 
-	statuses := []v1.BlockDeviceStatus{}
-	err = json.Unmarshal(out, &statuses)
+	smartCtl := []blockdevice.SmartCtl{}
+	err = json.Unmarshal(out, &smartCtl)
 	if err != nil {
 		log.Errorf("nodes: failed to unmarshal block device(%s) status: %s", blockDev.Name, err.Error())
 		return status.BlockDevice{Current: "failed"}
 	}
 
-	return convergeBlockStatuses(statuses)
+	return convergeBlockStatuses(smartCtl)
 }
 
-func convergeBlockStatuses(statuses []v1.BlockDeviceStatus) status.BlockDevice {
+func convergeBlockStatuses(statuses []blockdevice.SmartCtl) status.BlockDevice {
 	status := status.BlockDevice{Current: "ok"}
 
 	for _, s := range statuses {

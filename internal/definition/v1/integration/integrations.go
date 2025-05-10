@@ -1,10 +1,10 @@
-package v1
+package integration
 
 const (
-	Integrations = "integrations"
+	Module = "integrations"
 )
 
-type Integration struct {
+type Service struct {
 	Name                    string `json:"name"`
 	IsHeaderShortcutEnabled bool   `json:"isHeaderShortcutEnabled"`
 	Description             string `json:"description"`

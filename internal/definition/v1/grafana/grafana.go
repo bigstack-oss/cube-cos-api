@@ -1,7 +1,7 @@
-package v1
+package grafana
 
 const (
-	Grafana = "grafana"
+	Module = "grafana"
 )
 
 type Dashboard struct {

@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
 const (

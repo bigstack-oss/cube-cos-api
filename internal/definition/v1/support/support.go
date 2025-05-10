@@ -5,7 +5,7 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	json "github.com/json-iterator/go"
 )
 

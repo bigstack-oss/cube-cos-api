@@ -12,7 +12,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	json "github.com/json-iterator/go"
 	"github.com/shirou/gopsutil/v4/host"
 	"go.mongodb.org/mongo-driver/mongo/options"

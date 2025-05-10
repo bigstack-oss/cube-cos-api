@@ -1,6 +1,6 @@
 package slack
 
-import "github.com/bigstack-oss/cube-cos-api/internal/status"
+import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 
 const (
 	ChannelCollection = "slackChannels"

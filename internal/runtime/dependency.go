@@ -13,9 +13,9 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
 	"github.com/gophercloud/gophercloud/v2"
 	log "go-micro.dev/v5/logger"
@@ -197,7 +197,7 @@ func newGlobalAwsHelper() error {
 		aws.AccessKey(opts.AccessKey),
 		aws.SecretKey(opts.SecretKey),
 		aws.EnableCustomURL(opts.EnableCustomURL),
-		aws.S3Url(v1.GetRadosGatewayUrl()),
+		aws.S3Url(ceph.GetRadosGatewayUrl()),
 		aws.InsecureSkipVerify(opts.InsecureSkipVerify),
 	)
 }

@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
-	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
 const (

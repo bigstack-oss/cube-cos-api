@@ -7,7 +7,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
-	"github.com/bigstack-oss/cube-cos-api/internal/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/shirou/gopsutil/v4/host"
 	log "go-micro.dev/v5/logger"
 )

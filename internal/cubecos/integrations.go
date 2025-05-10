@@ -3,8 +3,8 @@ package cubecos
 import (
 	"fmt"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
 )
 
 // note:
@@ -13,8 +13,8 @@ import (
 //
 // also, cos is a bit hard to have a solid convention to fetch the port or path for the services,
 // so we just hardcode the info here, but in the M2, can consider to discuss with team to support such features from cos.
-func ListBuiltInIntegrations() []v1.Integration {
-	return []v1.Integration{
+func ListBuiltInIntegrations() []integration.Service {
+	return []integration.Service{
 		{
 			Name:                    "keycloak",
 			IsHeaderShortcutEnabled: true,
