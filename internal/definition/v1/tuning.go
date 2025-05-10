@@ -7,12 +7,13 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
+	ostime "time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	json "github.com/json-iterator/go"
 	"github.com/shirou/gopsutil/v4/host"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -52,11 +53,11 @@ type RawTuningLimitation struct {
 }
 
 type TuningSpec struct {
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	Limitation  TuningLimitation `json:"limitation"`
-	Roles       []*nodes.Role    `json:"roles"`
-	Selector    `json:"-"`
+	Name           string           `json:"name"`
+	Description    string           `json:"description"`
+	Limitation     TuningLimitation `json:"limitation"`
+	Roles          []*nodes.Role    `json:"roles"`
+	nodes.Selector `json:"-"`
 }
 
 type TuningLimitation struct {
@@ -155,7 +156,7 @@ func (t *Tuning) InitStatus(current, desired string) {
 	t.Status = &status.Tuning{
 		Current:   current,
 		Desired:   desired,
-		CreatedAt: TimeLocalRFC3339(time.Now()),
+		CreatedAt: time.LocalRFC3339(ostime.Now()),
 	}
 }
 
@@ -163,8 +164,8 @@ func (t *Tuning) InitUpdateStatus() {
 	t.Status = &status.Tuning{
 		Current:    status.Updating,
 		Desired:    status.Updated,
-		CreatedAt:  TimeLocal(),
-		UpdatedAt:  TimeLocal(),
+		CreatedAt:  time.NowLocal(),
+		UpdatedAt:  time.NowLocal(),
 		IsUpdating: true,
 	}
 }
@@ -173,8 +174,8 @@ func (t *Tuning) InitResetStatus() {
 	t.Status = &status.Tuning{
 		Current:    status.Updating,
 		Desired:    status.Reset,
-		CreatedAt:  TimeLocal(),
-		UpdatedAt:  TimeLocal(),
+		CreatedAt:  time.NowLocal(),
+		UpdatedAt:  time.NowLocal(),
 		IsUpdating: true,
 	}
 }
@@ -187,12 +188,12 @@ func (t *Tuning) InitOkStatus() {
 
 	bootDuration, err := host.BootTime()
 	if err != nil {
-		t.Status.UpdatedAt = TimeISO8601Z(time.Now())
+		t.Status.UpdatedAt = time.ISO8601Z(ostime.Now())
 		return
 	}
 
-	bootTime := time.Unix(int64(bootDuration), 0)
-	t.Status.UpdatedAt = TimeISO8601Z(bootTime)
+	bootTime := ostime.Unix(int64(bootDuration), 0)
+	t.Status.UpdatedAt = time.ISO8601Z(bootTime)
 }
 
 func (t *Tuning) StrValue() string {

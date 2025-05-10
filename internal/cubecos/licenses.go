@@ -8,14 +8,14 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
-	"time"
+	ostime "time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/zip"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 )
@@ -222,9 +222,9 @@ func parseSupportPlan(raw license.Raw) string {
 
 func parseIssue(raw license.Raw) license.Issue {
 	date := ""
-	issue, err := time.Parse("2006-01-02 15:04:05 MST", raw.Date)
+	issue, err := ostime.Parse("2006-01-02 15:04:05 MST", raw.Date)
 	if err == nil {
-		date = issue.In(v1.LocalTimeFixedZone).Format(time.RFC3339)
+		date = issue.In(time.LocalFixedZone).Format(time.FormatRFC3339)
 	}
 
 	return license.Issue{
@@ -237,9 +237,9 @@ func parseIssue(raw license.Raw) license.Issue {
 
 func parseExpiry(raw license.Raw) license.Expiry {
 	date := ""
-	expiry, err := time.Parse("2006-01-02 15:04:05 MST", raw.Expiry)
+	expiry, err := ostime.Parse("2006-01-02 15:04:05 MST", raw.Expiry)
 	if err == nil {
-		date = expiry.In(v1.LocalTimeFixedZone).Format(time.RFC3339)
+		date = expiry.In(time.LocalFixedZone).Format(time.FormatRFC3339)
 	}
 
 	return license.Expiry{
@@ -259,18 +259,18 @@ func parseStatus(raw license.Raw) status.License {
 		}
 	}
 
-	expiry, err := time.Parse("2006-01-02 15:04:05 MST", raw.Expiry)
+	expiry, err := ostime.Parse("2006-01-02 15:04:05 MST", raw.Expiry)
 	if err != nil {
-		expiry = time.Now().Local()
+		expiry = ostime.Now().Local()
 	}
 
-	if time.Now().After(expiry) {
+	if ostime.Now().After(expiry) {
 		return status.License{
 			Current: status.Expired,
 		}
 	}
 
-	if time.Now().AddDate(0, 0, 30).After(expiry) {
+	if ostime.Now().AddDate(0, 0, 30).After(expiry) {
 		return status.License{
 			Current:    status.Valid,
 			IsExpiring: true,
@@ -490,16 +490,16 @@ func setValueToLicenseDat(licenseDat *license.Options, parts []string) {
 }
 
 func parseLicenseDatIssueDate(value string) string {
-	issue, err := time.Parse("2006-01-02 15:04:05 MST", value)
+	issue, err := ostime.Parse("2006-01-02 15:04:05 MST", value)
 	if err != nil {
 		return "unknown issue date"
 	}
 
-	return issue.In(v1.LocalTimeFixedZone).Format(time.RFC3339)
+	return issue.In(time.LocalFixedZone).Format(time.FormatRFC3339)
 }
 
 func ParseLicenseExpiryAndStatus(value string) (license.Expiry, status.License) {
-	expiry, err := time.Parse("2006-01-02 15:04:05 MST", value)
+	expiry, err := ostime.Parse("2006-01-02 15:04:05 MST", value)
 	if err != nil {
 		return license.Expiry{
 				Date: "unknown expiry date",
@@ -510,15 +510,15 @@ func ParseLicenseExpiryAndStatus(value string) (license.Expiry, status.License) 
 	}
 
 	licenseExpiry := license.Expiry{
-		Date: expiry.In(v1.LocalTimeFixedZone).Format(time.RFC3339),
-		Days: int(expiry.Sub(time.Now().Local()).Hours() / 24),
+		Date: expiry.In(time.LocalFixedZone).Format(time.FormatRFC3339),
+		Days: int(expiry.Sub(ostime.Now().Local()).Hours() / 24),
 	}
 
-	if time.Now().After(expiry) {
+	if ostime.Now().After(expiry) {
 		return licenseExpiry, status.License{Current: "expired"}
 	}
 
-	if time.Now().AddDate(0, 0, 30).After(expiry) {
+	if ostime.Now().AddDate(0, 0, 30).After(expiry) {
 		return licenseExpiry, status.License{Current: "expiring", IsExpiring: true}
 	}
 

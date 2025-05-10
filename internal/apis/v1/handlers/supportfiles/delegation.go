@@ -5,16 +5,16 @@ import (
 	"fmt"
 	nethttp "net/http"
 	"os"
-	"time"
+	ostime "time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -45,7 +45,7 @@ func (h *helper) delegateSupportFileReq() {
 
 func (h *helper) setSupportFile() {
 	if h.fileReq.CreatedAt == "" {
-		h.fileReq.CreatedAt = v1.TimeISO8601Z(time.Now())
+		h.fileReq.CreatedAt = time.ISO8601Z(ostime.Now())
 	}
 
 	h.file = support.File{

@@ -118,7 +118,7 @@ const (
 
 var (
 	tuningToRoles     = map[string][]*nodes.Role{}
-	tuningToSelectors = map[string]v1.Selector{}
+	tuningToSelectors = map[string]nodes.Selector{}
 )
 
 func init() {
@@ -204,7 +204,7 @@ func setTuningToRoles() {
 }
 
 func setTuningToSelectors() {
-	tuningToSelectors[NovaGpuType] = v1.Selector{
+	tuningToSelectors[NovaGpuType] = nodes.Selector{
 		Enabled: true,
 		Labels:  map[string]string{"isGpuEnabled": "true"},
 	}
@@ -266,13 +266,13 @@ func getTuningRoles(tuningName string) []*nodes.Role {
 	return nodes.AllRoles
 }
 
-func getTuningSelectors(tuningName string) v1.Selector {
+func getTuningSelectors(tuningName string) nodes.Selector {
 	selectors, found := tuningToSelectors[tuningName]
 	if found {
 		return selectors
 	}
 
-	return v1.Selector{}
+	return nodes.Selector{}
 }
 
 func convertIntLimit(raw v1.RawTuningLimitation) v1.TuningLimitation {

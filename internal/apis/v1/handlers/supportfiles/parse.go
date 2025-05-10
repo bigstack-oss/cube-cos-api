@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
+	ostime "time"
 
 	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	duration "github.com/xhit/go-str2duration"
 )
 
@@ -40,7 +40,7 @@ func (h *helper) parseHosts() error {
 		return err
 	}
 
-	h.fileReq.CreatedAt = v1.TimeISO8601Z(time.Now())
+	h.fileReq.CreatedAt = time.ISO8601Z(ostime.Now())
 	return nil
 }
 
@@ -63,21 +63,21 @@ func (h *helper) parsePeriod() error {
 		return fmt.Errorf("'past' and 'start'/'stop' cannot be used together")
 	}
 
-	qStart := h.c.DefaultQuery("start", v1.TimeRFC3339(-24*time.Hour))
-	start, err := time.Parse(v1.RFC3339, qStart)
+	qStart := h.c.DefaultQuery("start", time.RFC3339(-24*ostime.Hour))
+	start, err := ostime.Parse(time.FormatRFC3339, qStart)
 	if err != nil {
 		return fmt.Errorf("'start' time format should be aligned with RFC3339: %s", qStart)
 	}
 
-	qStop := h.c.DefaultQuery("stop", v1.TimeNowRFC3339())
-	stop, err := time.Parse(v1.RFC3339, qStop)
+	qStop := h.c.DefaultQuery("stop", time.NowRFC3339())
+	stop, err := ostime.Parse(time.FormatRFC3339, qStop)
 	if err != nil {
 		return fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", qStop)
 	}
 
-	h.Period = v1.Period{
-		Start: v1.TimeUTC(start),
-		Stop:  v1.TimeUTC(stop),
+	h.Period = time.Period{
+		Start: time.UTC(start),
+		Stop:  time.UTC(stop),
 	}
 
 	return nil

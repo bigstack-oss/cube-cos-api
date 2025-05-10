@@ -3,8 +3,8 @@ package events
 import (
 	"math"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 )
 
 func (h *helper) isKeywordRequired() bool {
@@ -41,9 +41,9 @@ func (h *helper) paginateEvents(events []event.Options) ([]event.Options, error)
 	return events[left:right], nil
 }
 
-func (h *helper) genPageInfo(events []event.Options) (v1.Page, error) {
+func (h *helper) genPageInfo(events []event.Options) (pages.Page, error) {
 	if !h.page.IsRequired() {
-		return v1.Page{
+		return pages.Page{
 			Total:          1,
 			Number:         1,
 			Size:           len(events),
@@ -52,7 +52,7 @@ func (h *helper) genPageInfo(events []event.Options) (v1.Page, error) {
 	}
 
 	totalCounts, totalPages := h.getAmountDetails(events)
-	return v1.Page{
+	return pages.Page{
 		Total:          totalPages,
 		Number:         h.page.Number,
 		Size:           h.page.Size,

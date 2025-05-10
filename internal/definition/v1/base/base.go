@@ -44,7 +44,7 @@ var (
 	NodeMetadata             map[string]string
 )
 
-func GetMacAddr(interfaceName string) (string, error) {
+func GetMacAddr(netInterface string) (string, error) {
 	nets, err := net.Interfaces()
 	if err != nil {
 		return "", err
@@ -52,13 +52,13 @@ func GetMacAddr(interfaceName string) (string, error) {
 
 	macAddr := ""
 	for _, net := range nets {
-		if net.Name == interfaceName {
+		if net.Name == netInterface {
 			macAddr = net.HardwareAddr.String()
 			break
 		}
 	}
 	if macAddr == "" {
-		return "", fmt.Errorf("mac address not found from interface: %s", interfaceName)
+		return "", fmt.Errorf("mac address not found from interface: %s", netInterface)
 	}
 
 	return macAddr, nil

@@ -8,18 +8,18 @@ import (
 	"sort"
 	"strings"
 	"sync"
-	"time"
+	ostime "time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/aws"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/health"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
 	json "github.com/json-iterator/go"
@@ -31,7 +31,7 @@ const (
 	healthMeasurement     = `fn: (r) => r._measurement == "health"`
 	convertValueToField   = `rowKey: ["_time","component","node","code"], columnKey: ["_field"], valueColumn: "_value"`
 	repairingCode         = 0
-	defaultAggreateWindow = 10 * time.Minute
+	defaultAggreateWindow = 10 * ostime.Minute
 )
 
 var (
@@ -278,7 +278,7 @@ func SetUnhealthLogUrl(history *[]health.Check) {
 
 func setPresignedUrl(check *health.Check) {
 	h := aws.GetGlobalHelper()
-	url, err := h.GenPresignedUrl("log", genHealthLogKey(check.Error.Log), v1.Day*7)
+	url, err := h.GenPresignedUrl("log", genHealthLogKey(check.Error.Log), time.Day*7)
 	if err != nil {
 		log.Errorf("healths: failed to generate presigned url: %v", err)
 		return
@@ -291,7 +291,7 @@ func genHealthLogKey(log string) string {
 	return strings.TrimPrefix(log, "s3://log/")
 }
 
-func aggregateHealthsByTime(checks []health.Check, duration time.Duration) []health.Check {
+func aggregateHealthsByTime(checks []health.Check, duration ostime.Duration) []health.Check {
 	if len(checks) == 0 {
 		return []health.Check{}
 	}
@@ -312,23 +312,23 @@ func aggregateHealthsByTime(checks []health.Check, duration time.Duration) []hea
 	return aggregated
 }
 
-func backfillFirstCheck(t time.Time) health.Check {
-	date, err := time.Parse(event.TimeLayout, t.Add(-defaultAggreateWindow).Local().String())
+func backfillFirstCheck(t ostime.Time) health.Check {
+	date, err := ostime.Parse(event.TimeLayout, t.Add(-defaultAggreateWindow).Local().String())
 	if err != nil {
 		return health.Check{}
 	}
 
 	return health.Check{
-		Time:   v1.TimeRFC3339Z(date),
+		Time:   time.RFC3339Z(date),
 		Status: status.Ok,
 	}
 }
 
-func groupHealthsByTime(checks []health.Check, duration time.Duration) map[time.Time][]health.Check {
-	grouped := make(map[time.Time][]health.Check)
+func groupHealthsByTime(checks []health.Check, duration ostime.Duration) map[ostime.Time][]health.Check {
+	grouped := make(map[ostime.Time][]health.Check)
 
 	for _, check := range checks {
-		t, err := time.Parse(time.RFC3339, check.Time)
+		t, err := ostime.Parse(time.FormatRFC3339, check.Time)
 		if err != nil {
 			continue
 		}
@@ -340,8 +340,8 @@ func groupHealthsByTime(checks []health.Check, duration time.Duration) map[time.
 	return grouped
 }
 
-func getSortedTimeKeys(grouped map[time.Time][]health.Check) []time.Time {
-	keys := make([]time.Time, 0, len(grouped))
+func getSortedTimeKeys(grouped map[ostime.Time][]health.Check) []ostime.Time {
+	keys := make([]ostime.Time, 0, len(grouped))
 	for key := range grouped {
 		keys = append(keys, key)
 	}
@@ -564,12 +564,12 @@ func parseDetails(record *query.FluxRecord) string {
 }
 
 func parseTime(record *query.FluxRecord) string {
-	date, err := time.Parse(event.TimeLayout, record.Time().Local().String())
+	date, err := ostime.Parse(event.TimeLayout, record.Time().Local().String())
 	if err != nil {
 		log.Debugf("failed to parse date from record: %v", record)
 	}
 
-	return v1.TimeRFC3339Z(date)
+	return time.RFC3339Z(date)
 }
 
 func parseNodes(record *query.FluxRecord) []string {

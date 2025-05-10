@@ -7,9 +7,9 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -27,7 +27,7 @@ type helper struct {
 	keyword  string
 
 	watch bool
-	page  *v1.Page
+	page  *pages.Page
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {

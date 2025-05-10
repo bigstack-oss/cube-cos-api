@@ -3,8 +3,8 @@ package licenses
 import (
 	"math"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 )
 
 func (h *helper) paginateLicenses(licenses []license.Options) []license.Options {
@@ -17,9 +17,9 @@ func (h *helper) paginateLicenses(licenses []license.Options) []license.Options 
 	return licenses[left:right]
 }
 
-func (h *helper) genPageInfo(licenses []license.Options) v1.Page {
+func (h *helper) genPageInfo(licenses []license.Options) pages.Page {
 	if !h.page.IsRequired() {
-		return v1.Page{
+		return pages.Page{
 			Total:          1,
 			Number:         1,
 			Size:           len(licenses),
@@ -27,7 +27,7 @@ func (h *helper) genPageInfo(licenses []license.Options) v1.Page {
 		}
 	}
 
-	return v1.Page{
+	return pages.Page{
 		Total:          int64(math.Ceil(float64(len(licenses)) / float64(h.page.Size))),
 		Number:         h.page.Number,
 		Size:           h.page.Size,

@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strconv"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
 )
 
-func GetPage(c *gin.Context) (*v1.Page, error) {
+func GetPage(c *gin.Context) (*pages.Page, error) {
 	if !IsPageRequired(c) {
-		return &v1.Page{}, nil
+		return &pages.Page{}, nil
 	}
 
 	num := c.DefaultQuery("pageNum", "")
@@ -24,7 +24,7 @@ func GetPage(c *gin.Context) (*v1.Page, error) {
 	}
 
 	var err error
-	page := &v1.Page{}
+	page := &pages.Page{}
 	page.Number, err = strconv.Atoi(num)
 	if err != nil {
 		return nil, fmt.Errorf("pageNum should be an integer: %s", num)

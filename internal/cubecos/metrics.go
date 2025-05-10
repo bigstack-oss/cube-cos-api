@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"runtime"
 	"sync"
-	"time"
+	ostime "time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auth"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
 	"github.com/shirou/gopsutil/v4/cpu"
@@ -381,7 +381,7 @@ func GetHostCpuSummary(hostname string) (*metric.Compute, error) {
 		return askPeerNodeCpuSummary(hostname)
 	}
 
-	usagePerCore, err := cpu.Percent(time.Second, true)
+	usagePerCore, err := cpu.Percent(ostime.Second, true)
 	if err != nil {
 		return nil, err
 	}
@@ -393,7 +393,7 @@ func GetHostCpuSummary(hostname string) (*metric.Compute, error) {
 	}
 
 	freeCores := totalCores - usedCores
-	cpuPercents, err := cpu.Percent(time.Second, false)
+	cpuPercents, err := cpu.Percent(ostime.Second, false)
 	if err != nil {
 		return nil, err
 	}
@@ -430,7 +430,7 @@ func GetHostCpuHistory(stmt string) (*metric.History, error) {
 func parseCpuUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -438,7 +438,7 @@ func parseCpuUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 		points = append(
 			points,
 			metric.TimeValue{
-				Time:  v1.TimeLocalRFC3339(date),
+				Time:  time.LocalRFC3339(date),
 				Value: parseHostUsed(c.Record()),
 			},
 		)
@@ -636,7 +636,7 @@ func GetHostMemorySizeHistory(stmt string) (*metric.History, error) {
 func parseMemoryUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -644,7 +644,7 @@ func parseMemoryUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error
 		points = append(
 			points,
 			metric.TimeValue{
-				Time:  v1.TimeLocalRFC3339(date),
+				Time:  time.LocalRFC3339(date),
 				Value: parseHostUsed(c.Record()),
 			},
 		)
@@ -656,7 +656,7 @@ func parseMemoryUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error
 func parseMemorySizeHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -665,7 +665,7 @@ func parseMemorySizeHistory(c *api.QueryTableResult) ([]metric.TimeValue, error)
 		points = append(
 			points,
 			metric.TimeValue{
-				Time:  v1.TimeLocalRFC3339(date),
+				Time:  time.LocalRFC3339(date),
 				Value: math.RoundDown(value, 4),
 			},
 		)
@@ -798,7 +798,7 @@ func GetHostsDiskUsageRank(stmt string) (*metric.Rank, error) {
 
 func appendHistoryToDiskUsageRank(rank []metric.RankPoint) {
 	for i, host := range rank {
-		history, err := GetHostDiskUsageHistory(host.Id, v1.Period{})
+		history, err := GetHostDiskUsageHistory(host.Id, time.Period{})
 		if err != nil {
 			log.Errorf("metrics: failed to get disk usage history of host %s: %v", host.Id, err)
 			continue
@@ -808,7 +808,7 @@ func appendHistoryToDiskUsageRank(rank []metric.RankPoint) {
 	}
 }
 
-func GetHostDiskUsageHistory(entityId string, period v1.Period) ([]metric.TimeValue, error) {
+func GetHostDiskUsageHistory(entityId string, period time.Period) ([]metric.TimeValue, error) {
 	stmt := fmt.Sprintf(hostDiskUsageHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -823,7 +823,7 @@ func GetHostDiskUsageHistory(entityId string, period v1.Period) ([]metric.TimeVa
 func parseDiskUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -831,7 +831,7 @@ func parseDiskUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) 
 		points = append(
 			points,
 			metric.TimeValue{
-				Time:  v1.TimeLocalRFC3339(date),
+				Time:  time.LocalRFC3339(date),
 				Value: parseHostUsed(c.Record()),
 			},
 		)
@@ -862,7 +862,7 @@ func GetHostsNetworkIngressRank() (*metric.Rank, error) {
 
 func appendHistoryToNetworkTrafficInRank(rank []metric.RankPoint) {
 	for i, host := range rank {
-		history, err := GetHostNetworkIngressHistory(host.Id, v1.Period{})
+		history, err := GetHostNetworkIngressHistory(host.Id, time.Period{})
 		if err != nil {
 			log.Errorf("metrics: failed to get network traffic in history of host %s: %v", host.Id, err)
 			continue
@@ -872,7 +872,7 @@ func appendHistoryToNetworkTrafficInRank(rank []metric.RankPoint) {
 	}
 }
 
-func GetHostNetworkIngressHistory(entityId string, period v1.Period) ([]metric.TimeValue, error) {
+func GetHostNetworkIngressHistory(entityId string, period time.Period) ([]metric.TimeValue, error) {
 	stmt := fmt.Sprintf(hostNetworkIngressHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -887,7 +887,7 @@ func GetHostNetworkIngressHistory(entityId string, period v1.Period) ([]metric.T
 func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -895,7 +895,7 @@ func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]metric.TimeValue, er
 		points = append(
 			points,
 			metric.TimeValue{
-				Time:  v1.TimeLocalRFC3339(date),
+				Time:  time.LocalRFC3339(date),
 				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
@@ -926,7 +926,7 @@ func GetHostsNetworkEgressRank() (*metric.Rank, error) {
 
 func appendHistoryToNetworkEgressRank(rank []metric.RankPoint) {
 	for i, host := range rank {
-		history, err := GetHostNetworkEgressHistory(host.Id, v1.Period{})
+		history, err := GetHostNetworkEgressHistory(host.Id, time.Period{})
 		if err != nil {
 			log.Errorf("metrics: failed to get network traffic out history of host %s: %v", host.Id, err)
 			continue
@@ -936,7 +936,7 @@ func appendHistoryToNetworkEgressRank(rank []metric.RankPoint) {
 	}
 }
 
-func GetHostNetworkEgressHistory(entityId string, period v1.Period) ([]metric.TimeValue, error) {
+func GetHostNetworkEgressHistory(entityId string, period time.Period) ([]metric.TimeValue, error) {
 	stmt := fmt.Sprintf(hostNetworkEgressHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -970,7 +970,7 @@ func GetVmsCpuUsageRank(stmt string) (*metric.Rank, error) {
 
 func appendHistoryToVmCpuUsageRank(rank []metric.RankPoint) {
 	for i, vm := range rank {
-		history, err := GetVmCpuHistory(vm.Id, v1.Period{})
+		history, err := GetVmCpuHistory(vm.Id, time.Period{})
 		if err != nil {
 			log.Errorf("metrics: failed to get cpu history of vm %s: %v", vm.Id, err)
 			continue
@@ -980,7 +980,7 @@ func appendHistoryToVmCpuUsageRank(rank []metric.RankPoint) {
 	}
 }
 
-func GetVmCpuHistory(entityId string, period v1.Period) ([]metric.TimeValue, error) {
+func GetVmCpuHistory(entityId string, period time.Period) ([]metric.TimeValue, error) {
 	stmt := fmt.Sprintf(vmCpuUsageHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -995,7 +995,7 @@ func GetVmCpuHistory(entityId string, period v1.Period) ([]metric.TimeValue, err
 func parseVmCpuUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1003,7 +1003,7 @@ func parseVmCpuUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error)
 		points = append(
 			points,
 			metric.TimeValue{
-				Time:  v1.TimeLocalRFC3339(date),
+				Time:  time.LocalRFC3339(date),
 				Value: parseUsed(c.Record()),
 			},
 		)
@@ -1034,7 +1034,7 @@ func GetVmsMemoryUsageRank(stmt string) (*metric.Rank, error) {
 
 func appendHistoryToVmMemoryUsageRank(rank []metric.RankPoint) {
 	for i, vm := range rank {
-		history, err := GetMemoryHistoryOfVm(vm.Id, v1.Period{})
+		history, err := GetMemoryHistoryOfVm(vm.Id, time.Period{})
 		if err != nil {
 			log.Errorf("metrics: failed to get memory history of vm %s: %v", vm.Id, err)
 			continue
@@ -1044,7 +1044,7 @@ func appendHistoryToVmMemoryUsageRank(rank []metric.RankPoint) {
 	}
 }
 
-func GetMemoryHistoryOfVm(entityId string, period v1.Period) ([]metric.TimeValue, error) {
+func GetMemoryHistoryOfVm(entityId string, period time.Period) ([]metric.TimeValue, error) {
 	stmt := fmt.Sprintf(vmMemoryUsageHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -1059,7 +1059,7 @@ func GetMemoryHistoryOfVm(entityId string, period v1.Period) ([]metric.TimeValue
 func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1067,7 +1067,7 @@ func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]metric.TimeValue, e
 		points = append(
 			points,
 			metric.TimeValue{
-				Time:  v1.TimeLocalRFC3339(date),
+				Time:  time.LocalRFC3339(date),
 				Value: parseUsed(c.Record()),
 			},
 		)
@@ -1406,7 +1406,7 @@ func parseHostStorageUsageRank(c *api.QueryTableResult) ([]metric.RankPoint, err
 func parseDiskOpsHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1414,7 +1414,7 @@ func parseDiskOpsHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 		points = append(
 			points,
 			metric.TimeValue{
-				Time:  v1.TimeLocalRFC3339(date),
+				Time:  time.LocalRFC3339(date),
 				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
@@ -1426,7 +1426,7 @@ func parseDiskOpsHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 func parseDiskLatencyHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1434,7 +1434,7 @@ func parseDiskLatencyHistory(c *api.QueryTableResult) ([]metric.TimeValue, error
 		points = append(
 			points,
 			metric.TimeValue{
-				Time:  v1.TimeLocalRFC3339(date),
+				Time:  time.LocalRFC3339(date),
 				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)
@@ -1477,7 +1477,7 @@ func getDiskBandwidthHistory(stmt string) ([]metric.TimeValue, error) {
 func parseDiskBandwidthHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := time.Parse(event.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(event.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1485,7 +1485,7 @@ func parseDiskBandwidthHistory(c *api.QueryTableResult) ([]metric.TimeValue, err
 		points = append(
 			points,
 			metric.TimeValue{
-				Time:  v1.TimeLocalRFC3339(date),
+				Time:  time.LocalRFC3339(date),
 				Value: math.RoundDown(c.Record().Value().(float64), 4),
 			},
 		)

@@ -5,8 +5,9 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -27,10 +28,10 @@ type helper struct {
 	instances  []string
 	keyword    string
 
-	period *v1.Period
+	period *time.Period
 	past   string
 
-	page  *v1.Page
+	page  *pages.Page
 	limit int
 
 	watch bool
@@ -78,7 +79,7 @@ func (h *helper) listEventAbstract() (*data, error) {
 
 	return &data{
 		Events: events,
-		Limit: &v1.Limit{
+		Limit: &pages.Limit{
 			Number:      h.limit,
 			Description: fmt.Sprintf("the top %d recent events", h.limit),
 		},
@@ -100,7 +101,7 @@ func (h *helper) getEventRank() (*data, error) {
 
 	return &data{
 		Events: rank,
-		Limit: &v1.Limit{
+		Limit: &pages.Limit{
 			Number:      h.limit,
 			Description: fmt.Sprintf("The top %d event IDs with the highest proportion", len(rank)),
 		},

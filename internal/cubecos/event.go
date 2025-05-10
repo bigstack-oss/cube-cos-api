@@ -2,13 +2,13 @@ package cubecos
 
 import (
 	"context"
-	"time"
+	ostime "time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
 	json "github.com/json-iterator/go"
@@ -175,7 +175,7 @@ func parseEvents(c *api.QueryTableResult, events *[]event.Options) error {
 }
 
 func parseEventByRecord(record *query.FluxRecord) event.Options {
-	date, err := time.Parse(event.TimeLayout, record.Time().Local().String())
+	date, err := ostime.Parse(event.TimeLayout, record.Time().Local().String())
 	if err != nil {
 		log.Debugf("failed to parse date from record: %v", record)
 	}
@@ -206,7 +206,7 @@ func parseEventByRecord(record *query.FluxRecord) event.Options {
 		Id:          eventId,
 		Description: msg,
 		Host:        host,
-		Time:        v1.TimeRFC3339Z(date),
+		Time:        time.RFC3339Z(date),
 	}
 }
 

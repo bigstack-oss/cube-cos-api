@@ -31,7 +31,7 @@ func selectRolesUsingActivityAndLabels(tuningSpec *v1.TuningSpec) []*nodes.Role 
 	return roles
 }
 
-func getNodesBySelector(nodesToFilter []nodes.Node, selector v1.Selector) []nodes.Node {
+func getNodesBySelector(nodesToFilter []nodes.Node, selector nodes.Selector) []nodes.Node {
 	if !selector.Enabled {
 		return nodesToFilter
 	}

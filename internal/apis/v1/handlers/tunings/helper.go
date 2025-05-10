@@ -7,6 +7,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
 	"github.com/mohae/deepcopy"
 	log "go-micro.dev/v5/logger"
@@ -25,7 +26,7 @@ type helper struct {
 	keyword  string
 	modified []bool
 
-	v1.Page
+	pages.Page
 	watch bool
 }
 

@@ -14,10 +14,10 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/integrations"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/logout"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/me"
+	meapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/me"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/metrics"
 	nodeapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/opensearch"
+	opensearchapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/opensearch"
 	servicesapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/supportfiles"
@@ -32,8 +32,10 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/health"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/me"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/opensearch"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/oidc"
@@ -119,8 +121,8 @@ func prepareApiHandleraByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.Me,
-		me.Handlers,
+		me.Module,
+		meapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleControlConverged,
 		nodes.RoleModerator,
@@ -236,8 +238,8 @@ func prepareApiHandleraByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.OpenSearch,
-		opensearch.Handlers,
+		opensearch.Module,
+		opensearchapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleControlConverged,
 		nodes.RoleModerator,

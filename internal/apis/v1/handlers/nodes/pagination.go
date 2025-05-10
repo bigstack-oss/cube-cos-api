@@ -3,8 +3,8 @@ package nodes
 import (
 	"math"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 )
 
 func (h *helper) paginateNodes(nodes []nodes.Node) []nodes.Node {
@@ -17,9 +17,9 @@ func (h *helper) paginateNodes(nodes []nodes.Node) []nodes.Node {
 	return nodes[left:right]
 }
 
-func (h *helper) genPageInfo(nodes []nodes.Node) v1.Page {
+func (h *helper) genPageInfo(nodes []nodes.Node) pages.Page {
 	if !h.page.IsRequired() {
-		return v1.Page{
+		return pages.Page{
 			Total:          1,
 			Number:         1,
 			Size:           len(nodes),
@@ -27,7 +27,7 @@ func (h *helper) genPageInfo(nodes []nodes.Node) v1.Page {
 		}
 	}
 
-	return v1.Page{
+	return pages.Page{
 		Total:          int64(math.Ceil(float64(len(nodes)) / float64(h.page.Size))),
 		Number:         h.page.Number,
 		Size:           h.page.Size,

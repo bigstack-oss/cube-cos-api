@@ -3,7 +3,7 @@ package metrics
 import (
 	"fmt"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,7 +16,7 @@ type helper struct {
 	entityType string
 	entityId   string
 
-	*v1.Period
+	*time.Period
 	past            string
 	aggregateWindow string
 

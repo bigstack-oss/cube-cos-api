@@ -4,7 +4,7 @@ import (
 	"math"
 	"sort"
 
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 )
 
@@ -24,9 +24,9 @@ func (h *helper) sortSupportFileSets(fileSets *[]support.FileSet) {
 	})
 }
 
-func (h *helper) genPageInfo(fileSets []support.FileSet) (v1.Page, error) {
+func (h *helper) genPageInfo(fileSets []support.FileSet) (pages.Page, error) {
 	if !h.Page.IsRequired() {
-		return v1.Page{
+		return pages.Page{
 			Total:          1,
 			Number:         1,
 			Size:           len(fileSets),
@@ -34,7 +34,7 @@ func (h *helper) genPageInfo(fileSets []support.FileSet) (v1.Page, error) {
 		}, nil
 	}
 
-	return v1.Page{
+	return pages.Page{
 		Total:          int64(math.Ceil(float64(len(fileSets)) / float64(h.Page.Size))),
 		Number:         h.Page.Number,
 		Size:           h.Page.Size,

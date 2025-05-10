@@ -1,9 +1,9 @@
 package datacenters
 
 import (
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 )
 
 func getLocalDataCenter() base.DataCenter {
@@ -15,7 +15,7 @@ func getLocalDataCenter() base.DataCenter {
 		VirtualIp:   base.DataCenterVip,
 		IsLocal:     true,
 		IsHaEnabled: base.IsHaEnabled,
-		UtcTimeZone: v1.LocalTimeZone,
+		UtcTimeZone: time.LocalZone,
 		Additional: base.Additional{
 			HelpUrl:           base.DataCenterHelpUrl,
 			NodeLicenseStatus: getNodeLicenseStatus(),
