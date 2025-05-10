@@ -6,7 +6,7 @@ import (
 	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,7 +23,7 @@ var (
 )
 
 func getServices(c *gin.Context) {
-	svcs := []v1.Service{}
+	svcs := []services.Service{}
 	for _, svc := range cubecos.OrderSensitiveServices {
 		if !svc.IsInternalViewOnly {
 			svcs = append(svcs, svc)

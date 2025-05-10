@@ -4,7 +4,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/health"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -14,8 +14,8 @@ import (
 func (h *helper) setMoudleRepairingRecord() error {
 	mongo := mongo.GetGlobalHelper()
 	return mongo.UpdateOne(
-		v1.Healths,
-		v1.HealthRepairingCollection,
+		health.Module,
+		health.RepairingCollection,
 		bson.M{"isRepairing": true},
 		bson.M{"$set": bson.M{"type": "forceRepair", "module": h.moduleType, "isRepairing": true}},
 		options.Update().SetUpsert(true),
@@ -25,8 +25,8 @@ func (h *helper) setMoudleRepairingRecord() error {
 func (h *helper) setRepairingRecord() error {
 	mongo := mongo.GetGlobalHelper()
 	return mongo.UpdateOne(
-		v1.Healths,
-		v1.HealthRepairingCollection,
+		health.Module,
+		health.RepairingCollection,
 		bson.M{"isRepairing": true},
 		bson.M{"$set": bson.M{"type": "checkRepair", "isRepairing": true}},
 		options.Update().SetUpsert(true),
@@ -44,8 +44,8 @@ func (h *helper) syncRepairingStatus(summary *cubecos.Health) {
 func (h *helper) hasCheckingAndRepairingRecord() bool {
 	mongo := mongo.GetGlobalHelper()
 	count, err := mongo.GetCount(
-		v1.Healths,
-		v1.HealthRepairingCollection,
+		health.Module,
+		health.RepairingCollection,
 		bson.M{"isRepairing": true},
 	)
 	if err != nil {
@@ -70,8 +70,8 @@ func (h *helper) getModuleStatus() status.Health {
 func (h *helper) isModuleRepairing() bool {
 	mongo := mongo.GetGlobalHelper()
 	count, err := mongo.GetCount(
-		v1.Healths,
-		v1.HealthRepairingCollection,
+		health.Module,
+		health.RepairingCollection,
 		bson.M{"module": h.moduleType, "isRepairing": true},
 	)
 	if err != nil {

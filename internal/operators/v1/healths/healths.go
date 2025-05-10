@@ -5,7 +5,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/health"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 	"k8s.io/client-go/util/workqueue"
@@ -32,7 +32,7 @@ func (o *Operator) Name() string {
 
 func (o *Operator) Init() error {
 	o.ctx, o.cancel = context.WithCancel(context.Background())
-	cubecos.RemovePendingReq(v1.Healths, v1.HealthRepairingCollection)
+	cubecos.RemovePendingReq(health.Module, health.RepairingCollection)
 	go o.initHealthHistoryResync()
 	return nil
 }

@@ -18,7 +18,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/metrics"
 	nodeapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/opensearch"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/services"
+	servicesapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/supportfiles"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tokens"
@@ -29,10 +29,12 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/grafana"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/health"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/oidc"
 	"github.com/bigstack-oss/cube-cos-api/internal/saml"
@@ -109,8 +111,8 @@ func prepareApiHandleraByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.Services,
-		services.Handlers,
+		services.ModuleName,
+		servicesapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleControlConverged,
 		nodes.RoleModerator,
@@ -133,7 +135,7 @@ func prepareApiHandleraByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		v1.Healths,
+		health.Module,
 		healths.Handlers,
 		nodes.RoleControl,
 		nodes.RoleControlConverged,

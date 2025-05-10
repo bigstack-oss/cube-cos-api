@@ -5,6 +5,8 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/health"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -17,7 +19,7 @@ type helper struct {
 
 	serviceType string
 	moduleType  string
-	module      *v1.Module
+	module      *services.Module
 
 	period *v1.Period
 	past   string
@@ -42,7 +44,7 @@ func (h *helper) genServiceHealthHistory() []cubecos.ModuleHealth {
 
 func (h *helper) genModuleHealthHistory() cubecos.ModuleHealth {
 	service := cubecos.ModuleToService[h.moduleType]
-	history, err := cubecos.GetModuleHealthHistory(h.moduleType, h.past, v1.AscSort, false)
+	history, err := cubecos.GetModuleHealthHistory(h.moduleType, h.past, health.AscSort, false)
 	if err != nil {
 		log.Errorf("healths(%s): %v", queries.GetReqId(h.c), err)
 	}
@@ -78,11 +80,11 @@ func (h *helper) genForceRepairReq() cubecos.Health {
 				Desired: status.Repairing,
 			},
 		},
-		Services: []v1.Service{
+		Services: []services.Service{
 			{
 				Name:     svc,
 				Category: cubecos.ServiceToCategory[svc],
-				Modules:  []v1.Module{*h.module},
+				Modules:  []services.Module{*h.module},
 			},
 		},
 	}
@@ -109,8 +111,8 @@ func (h *helper) requestCheckRepair() {
 func (h *helper) deleteCheckRepairTask() error {
 	mongo := mongo.GetGlobalHelper()
 	return mongo.DeleteAll(
-		v1.Healths,
-		v1.HealthRepairingCollection,
+		health.Module,
+		health.RepairingCollection,
 		bson.M{"isRepairing": true},
 	)
 }
@@ -118,8 +120,8 @@ func (h *helper) deleteCheckRepairTask() error {
 func (h *helper) deleteModuleCheckRepairTask() error {
 	mongo := mongo.GetGlobalHelper()
 	return mongo.DeleteAll(
-		v1.Healths,
-		v1.HealthRepairingCollection,
+		health.Module,
+		health.RepairingCollection,
 		bson.M{"type": "forceRepair", "module": h.moduleType, "isRepairing": true},
 	)
 }

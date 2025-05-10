@@ -1,30 +1,27 @@
-package v1
+package health
 
 import (
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
 const (
-	Healths                   = "healths"
-	HealthRepairingCollection = "repairing"
-	repair                    = "repair"
+	Module              = "healths"
+	RepairingCollection = "repairing"
+	repair              = "repair"
 
 	AscSort  = `columns: ["_time"], desc: false`
 	DescSort = `columns: ["_time"], desc: true`
 )
 
-type Health struct {
-	Category string        `json:"category"`
-	Service  string        `json:"service"`
-	Status   status.Health `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
-	Modules  []Module      `json:"modules"`
+type Report struct {
+	Category string            `json:"category"`
+	Service  string            `json:"service"`
+	Status   status.Health     `json:"status,omitempty" yaml:"status,omitempty" bson:"status,omitempty"`
+	Modules  []services.Module `json:"modules"`
 }
 
-func RepairCollection() string {
-	return repair
-}
-
-type HealthCheck struct {
+type Check struct {
 	Time   string `json:"time"`
 	Status string `json:"status"`
 	*Error `json:"error,omitempty"`
@@ -39,6 +36,10 @@ type Error struct {
 	Log         string   `json:"log"`
 }
 
-func (h *HealthCheck) IsNg() bool {
+func RepairCollection() string {
+	return repair
+}
+
+func (h *Check) IsNg() bool {
 	return h.Status == status.Ng
 }

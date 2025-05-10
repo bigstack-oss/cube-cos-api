@@ -5,7 +5,7 @@ import (
 
 	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	v1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 )
 
 func (h *helper) parseParamsByHandler() error {
@@ -106,7 +106,7 @@ func (h *helper) parseModuleRepairParams() error {
 	return nil
 }
 
-func (h *helper) parseModule() (*v1.Module, error) {
+func (h *helper) parseModule() (*services.Module, error) {
 	m := h.c.Param("moduleType")
 	module, found := cubecos.Modules[m]
 	if !found {

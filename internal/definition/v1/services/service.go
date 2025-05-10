@@ -1,4 +1,4 @@
-package v1
+package services
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	Services = "services"
+	ModuleName = "services"
 )
 
 type Service struct {

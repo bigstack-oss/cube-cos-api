@@ -17,6 +17,8 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/health"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/api/query"
@@ -41,7 +43,7 @@ var (
 type Health struct {
 	*base.DataCenter `json:"dataCenter,omitempty" bson:"dataCenter,omitempty"`
 	*Overall         `json:"overall,omitempty" bson:"overall"`
-	Services         []v1.Service `json:"services" bson:"services"`
+	Services         []services.Service `json:"services" bson:"services"`
 }
 
 type Overall struct {
@@ -49,12 +51,12 @@ type Overall struct {
 }
 
 type ModuleHealth struct {
-	Category     string           `json:"category"`
-	Name         string           `json:"name"`
-	Module       string           `json:"module"`
-	IsRepairable bool             `json:"isRepairable"`
-	History      []v1.HealthCheck `json:"history"`
-	Status       status.Health    `json:"status"`
+	Category     string         `json:"category"`
+	Name         string         `json:"name"`
+	Module       string         `json:"module"`
+	IsRepairable bool           `json:"isRepairable"`
+	History      []health.Check `json:"history"`
+	Status       status.Health  `json:"status"`
 }
 
 func (h *Health) HasUnhealthyService() bool {
@@ -74,7 +76,7 @@ func (h *Health) CopyEmptyServiceStruct() Health {
 	}
 }
 
-func (h *Health) SetRepairingStatus(service v1.Service) {
+func (h *Health) SetRepairingStatus(service services.Service) {
 	h.Status.Current = status.Repairing
 	h.Status.IsFixing = true
 	h.Status.Description = service.Status.Description
@@ -99,8 +101,8 @@ func IsRepairable() bool {
 	return true
 }
 
-func GetUnhealthyServices() ([]v1.Service, error) {
-	unhealthy := map[string]v1.Service{}
+func GetUnhealthyServices() ([]services.Service, error) {
+	unhealthy := map[string]services.Service{}
 
 	for _, service := range OrderSensitiveServices {
 		for _, module := range service.Modules {
@@ -120,7 +122,7 @@ func GetUnhealthyServices() ([]v1.Service, error) {
 	return convertToList(unhealthy), nil
 }
 
-func setUnhealthyModule(unhealthy map[string]v1.Service, service v1.Service, module v1.Module) {
+func setUnhealthyModule(unhealthy map[string]services.Service, service services.Service, module services.Module) {
 	_, found := unhealthy[service.Name]
 	if !found {
 		unhealthy[service.Name] = service.CopyModuleEmptyStruct()
@@ -131,8 +133,8 @@ func setUnhealthyModule(unhealthy map[string]v1.Service, service v1.Service, mod
 	unhealthy[service.Name] = svc
 }
 
-func convertToList(unhealthyMap map[string]v1.Service) []v1.Service {
-	unhealthySvcs := []v1.Service{}
+func convertToList(unhealthyMap map[string]services.Service) []services.Service {
+	unhealthySvcs := []services.Service{}
 	for _, svc := range unhealthyMap {
 		unhealthySvcs = append(unhealthySvcs, svc)
 	}
@@ -155,7 +157,7 @@ func IsModuleHealthy(moduleName string) bool {
 	return false
 }
 
-func RepairServiceHealth(service v1.Service) error {
+func RepairServiceHealth(service services.Service) error {
 	errs := []error{}
 
 	for _, module := range service.Modules {
@@ -168,7 +170,7 @@ func RepairServiceHealth(service v1.Service) error {
 	return cuberr.CombineErrors(errs)
 }
 
-func CheckServiceHealth(service v1.Service) error {
+func CheckServiceHealth(service services.Service) error {
 	errs := []error{}
 	for _, module := range service.Modules {
 		if !IsModuleHealthy(module.Name) {
@@ -215,7 +217,7 @@ func GetServiceHealthHistory(serviceName, duration string) []ModuleHealth {
 	statuses := []ModuleHealth{}
 
 	for _, module := range modules {
-		history, err := GetModuleHealthHistory(module.Name, duration, v1.AscSort, false)
+		history, err := GetModuleHealthHistory(module.Name, duration, health.AscSort, false)
 		if err != nil {
 			continue
 		}
@@ -232,7 +234,7 @@ func GetServiceHealthHistory(serviceName, duration string) []ModuleHealth {
 	return statuses
 }
 
-func GetModuleHealthHistory(moduleName, duration, order string, onlyLast bool) ([]v1.HealthCheck, error) {
+func GetModuleHealthHistory(moduleName, duration, order string, onlyLast bool) ([]health.Check, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
 	stmt := GenModuleHealthHistoryQuery(moduleName, duration, order, onlyLast)
@@ -244,7 +246,7 @@ func GetModuleHealthHistory(moduleName, duration, order string, onlyLast bool) (
 	}
 
 	defer c.Close()
-	checks := []v1.HealthCheck{}
+	checks := []health.Check{}
 	err = parseHealthCheck(c, &checks)
 	if err != nil {
 		log.Errorf("healths: failed to parse events from cursor: %v", err)
@@ -256,7 +258,7 @@ func GetModuleHealthHistory(moduleName, duration, order string, onlyLast bool) (
 	return checks, nil
 }
 
-func SetUnhealthLogUrl(history *[]v1.HealthCheck) {
+func SetUnhealthLogUrl(history *[]health.Check) {
 	for i, check := range *history {
 		if !check.IsNg() {
 			continue
@@ -274,7 +276,7 @@ func SetUnhealthLogUrl(history *[]v1.HealthCheck) {
 	}
 }
 
-func setPresignedUrl(check *v1.HealthCheck) {
+func setPresignedUrl(check *health.Check) {
 	h := aws.GetGlobalHelper()
 	url, err := h.GenPresignedUrl("log", genHealthLogKey(check.Error.Log), v1.Day*7)
 	if err != nil {
@@ -289,14 +291,14 @@ func genHealthLogKey(log string) string {
 	return strings.TrimPrefix(log, "s3://log/")
 }
 
-func aggregateHealthsByTime(checks []v1.HealthCheck, duration time.Duration) []v1.HealthCheck {
+func aggregateHealthsByTime(checks []health.Check, duration time.Duration) []health.Check {
 	if len(checks) == 0 {
-		return []v1.HealthCheck{}
+		return []health.Check{}
 	}
 
 	grouped := groupHealthsByTime(checks, duration)
 	keys := getSortedTimeKeys(grouped)
-	aggregated := []v1.HealthCheck{}
+	aggregated := []health.Check{}
 	for i, key := range keys {
 		if i == 0 {
 			firstCheck := backfillFirstCheck(key)
@@ -310,20 +312,20 @@ func aggregateHealthsByTime(checks []v1.HealthCheck, duration time.Duration) []v
 	return aggregated
 }
 
-func backfillFirstCheck(t time.Time) v1.HealthCheck {
+func backfillFirstCheck(t time.Time) health.Check {
 	date, err := time.Parse(event.TimeLayout, t.Add(-defaultAggreateWindow).Local().String())
 	if err != nil {
-		return v1.HealthCheck{}
+		return health.Check{}
 	}
 
-	return v1.HealthCheck{
+	return health.Check{
 		Time:   v1.TimeRFC3339Z(date),
 		Status: status.Ok,
 	}
 }
 
-func groupHealthsByTime(checks []v1.HealthCheck, duration time.Duration) map[time.Time][]v1.HealthCheck {
-	grouped := make(map[time.Time][]v1.HealthCheck)
+func groupHealthsByTime(checks []health.Check, duration time.Duration) map[time.Time][]health.Check {
+	grouped := make(map[time.Time][]health.Check)
 
 	for _, check := range checks {
 		t, err := time.Parse(time.RFC3339, check.Time)
@@ -338,7 +340,7 @@ func groupHealthsByTime(checks []v1.HealthCheck, duration time.Duration) map[tim
 	return grouped
 }
 
-func getSortedTimeKeys(grouped map[time.Time][]v1.HealthCheck) []time.Time {
+func getSortedTimeKeys(grouped map[time.Time][]health.Check) []time.Time {
 	keys := make([]time.Time, 0, len(grouped))
 	for key := range grouped {
 		keys = append(keys, key)
@@ -351,7 +353,7 @@ func getSortedTimeKeys(grouped map[time.Time][]v1.HealthCheck) []time.Time {
 	return keys
 }
 
-func pickHealthOrUnhealthy(group []v1.HealthCheck) v1.HealthCheck {
+func pickHealthOrUnhealthy(group []health.Check) health.Check {
 	for _, check := range group {
 		if check.IsNg() {
 			return check
@@ -386,7 +388,7 @@ func genTimeDuration(past string) string {
 	return fmt.Sprintf("start: -%s", past)
 }
 
-func parseHealthCheck(c *api.QueryTableResult, checks *[]v1.HealthCheck) error {
+func parseHealthCheck(c *api.QueryTableResult, checks *[]health.Check) error {
 	for c.Next() {
 		*checks = append(*checks, genHealthCheckByRecord(c.Record()))
 	}
@@ -397,13 +399,13 @@ func parseHealthCheck(c *api.QueryTableResult, checks *[]v1.HealthCheck) error {
 	return nil
 }
 
-func genHealthCheckByRecord(record *query.FluxRecord) v1.HealthCheck {
-	healthCheck := v1.HealthCheck{Time: parseTime(record)}
+func genHealthCheckByRecord(record *query.FluxRecord) health.Check {
+	healthCheck := health.Check{Time: parseTime(record)}
 	syncStatusDetails(record, &healthCheck)
 	return healthCheck
 }
 
-func syncStatusDetails(record *query.FluxRecord, check *v1.HealthCheck) {
+func syncStatusDetails(record *query.FluxRecord, check *health.Check) {
 	desc := parseHealthResult(record)
 	if desc == status.Ok {
 		check.Status = status.Ok
@@ -411,7 +413,7 @@ func syncStatusDetails(record *query.FluxRecord, check *v1.HealthCheck) {
 	}
 
 	check.Status = status.Ng
-	check.Error = &v1.Error{
+	check.Error = &health.Error{
 		Type:        fmt.Sprintf("%s failure", record.ValueByKey("component").(string)),
 		Reason:      record.ValueByKey("description").(string),
 		Description: fmt.Sprintf("there's a failure was detected from node %s, please see the detail or log to know more", record.ValueByKey("node").(string)),
@@ -442,8 +444,8 @@ func parseHealthResult(record *query.FluxRecord) string {
 	return status.Ok
 }
 
-func GetServicesToCheckHealth() []v1.Service {
-	services := deepcopy.Copy(OrderSensitiveServices).([]v1.Service)
+func GetServicesToCheckHealth() []services.Service {
+	services := deepcopy.Copy(OrderSensitiveServices).([]services.Service)
 	for i := range services {
 		if services[i].IsInternalViewOnly {
 			services = slices.Delete(services, i, i+1)
@@ -456,13 +458,13 @@ func GetServicesToCheckHealth() []v1.Service {
 	return services
 }
 
-func GetRepairingInfo() (*v1.ReairingInfo, error) {
+func GetRepairingInfo() (*services.ReairingInfo, error) {
 	b, err := exec.Command("hex_sdk", "-v", "is_repairing").Output()
 	if err != nil {
 		return nil, err
 	}
 
-	info := v1.ReairingInfo{}
+	info := services.ReairingInfo{}
 	err = json.Unmarshal(b, &info)
 	if err != nil {
 		log.Errorf("healths: failed to unmarshal repairing info: %s", err.Error())
@@ -472,12 +474,12 @@ func GetRepairingInfo() (*v1.ReairingInfo, error) {
 	return &info, nil
 }
 
-func syncServiceHealth(services *[]v1.Service, duration string) {
+func syncServiceHealth(services *[]services.Service, duration string) {
 	for s, service := range *services {
 		service.InitOkStatus()
 
 		for m, module := range service.Modules {
-			history, err := GetModuleHealthHistory(module.Name, duration, v1.DescSort, true)
+			history, err := GetModuleHealthHistory(module.Name, duration, health.DescSort, true)
 			if err != nil {
 				continue
 			}
@@ -495,7 +497,7 @@ func syncServiceHealth(services *[]v1.Service, duration string) {
 	}
 }
 
-func genHealthSummary(services []v1.Service) Health {
+func genHealthSummary(services []services.Service) Health {
 	health := Health{Services: services}
 	health.Overall = &Overall{Status: status.Health{Current: status.Ok}}
 	syncUnhealthStatus(&health, services)
@@ -503,7 +505,7 @@ func genHealthSummary(services []v1.Service) Health {
 	return health
 }
 
-func syncUnhealthStatus(health *Health, services []v1.Service) {
+func syncUnhealthStatus(health *Health, services []services.Service) {
 	for _, service := range services {
 		if !service.IsStatusOk() {
 			health.Status.Current = status.Ng
@@ -516,7 +518,7 @@ func syncUnhealthStatus(health *Health, services []v1.Service) {
 	}
 }
 
-func syncRepairingStatus(health *Health, services *[]v1.Service) {
+func syncRepairingStatus(health *Health, services *[]services.Service) {
 	if !IsRepairing() {
 		return
 	}
@@ -542,7 +544,7 @@ func syncRepairingStatus(health *Health, services *[]v1.Service) {
 	}
 }
 
-func isLastCheckUnhealthy(history []v1.HealthCheck) bool {
+func isLastCheckUnhealthy(history []health.Check) bool {
 	if len(history) == 0 {
 		return false
 	}
