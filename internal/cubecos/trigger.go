@@ -4,21 +4,21 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	log "go-micro.dev/v5/logger"
 	"gopkg.in/yaml.v3"
 )
 
 func IsTriggerExist(name string) bool {
-	triggers, err := GetTriggers()
+	list, err := GetTriggers()
 	if err != nil {
 		log.Errorf("triggers: failed to get trigger value: %s", err.Error())
 		return false
 	}
 
-	cosName := trigger.GetNameMap()
-	for _, t := range triggers {
-		if t.Name == cosName[name] {
+	cosName := triggers.GetNameMap()
+	for _, trigger := range list {
+		if trigger.Name == cosName[name] {
 			return true
 		}
 	}
@@ -26,14 +26,14 @@ func IsTriggerExist(name string) bool {
 	return false
 }
 
-func GetTriggers() ([]trigger.CosOptions, error) {
+func GetTriggers() ([]triggers.CosSchema, error) {
 	out, err := exec.Command("hex_sdk", "alert_get_trigger").CombinedOutput()
 	if err != nil {
 		log.Errorf("triggers: failed to get trigger value: %s", string(out))
 		return nil, err
 	}
 
-	triggers := []trigger.CosOptions{}
+	triggers := []triggers.CosSchema{}
 	err = yaml.Unmarshal(out, &triggers)
 	if err != nil {
 		log.Errorf("triggers: failed to unmarshal trigger value: %s", err.Error())
@@ -48,7 +48,7 @@ func GetTriggers() ([]trigger.CosOptions, error) {
 	return triggers, nil
 }
 
-func ApplyTrigger(trigger trigger.CosOptions) error {
+func ApplyTrigger(trigger triggers.CosSchema) error {
 	b, err := trigger.Bytes()
 	if err != nil {
 		log.Errorf("triggers: failed to get trigger bytes: %s", err.Error())

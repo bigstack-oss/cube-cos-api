@@ -6,7 +6,7 @@ import (
 
 	bsmongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -15,15 +15,16 @@ import (
 func (h *helper) addReqRecord() {
 	mongo := bsmongo.GetGlobalHelper()
 	err := mongo.UpdateOne(
-		trigger.DB,
-		trigger.ReqCollection,
+		triggers.DB,
+		triggers.ReqCollection,
 		bson.M{"name": h.trigger.Name},
 		bson.M{"$set": h.trigger},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
 		log.Errorf(
-			"triggers: failed to sync trigger record for %s (%s)",
+			"triggers(%s): failed to sync trigger record for %s (%s)",
+			h.reqId,
 			h.trigger.Name,
 			err.Error(),
 		)
@@ -33,17 +34,17 @@ func (h *helper) addReqRecord() {
 func (h *helper) updateTaskStatus() error {
 	mongo := bsmongo.GetGlobalHelper()
 	return mongo.DeleteOne(
-		trigger.DB,
-		trigger.ReqCollection,
+		triggers.DB,
+		triggers.ReqCollection,
 		bson.M{"name": h.trigger.Name},
 	)
 }
 
-func (h *helper) hasUpdateHistory(t trigger.ApiOptions) bool {
+func (h *helper) hasUpdateHistory(t triggers.ApiSchema) bool {
 	mongo := bsmongo.GetGlobalHelper()
 	count, err := mongo.GetCount(
-		trigger.DB,
-		trigger.ReqCollection,
+		triggers.DB,
+		triggers.ReqCollection,
 		bson.M{"name": t.Name},
 	)
 	if err != nil {
@@ -53,27 +54,27 @@ func (h *helper) hasUpdateHistory(t trigger.ApiOptions) bool {
 	return count > 0
 }
 
-func (h *helper) getUpdateRecord(t trigger.ApiOptions) (*trigger.ApiOptions, error) {
+func (h *helper) getUpdateRecord(trigger triggers.ApiSchema) (*triggers.ApiSchema, error) {
 	mongo := bsmongo.GetGlobalHelper()
-	pending, err := mongo.Get(
-		trigger.DB,
-		trigger.ReqCollection,
-		bson.M{"name": t.Name},
+	record, err := mongo.Get(
+		triggers.DB,
+		triggers.ReqCollection,
+		bson.M{"name": trigger.Name},
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	record := &trigger.ApiOptions{}
-	err = pending.Decode(record)
+	schema := &triggers.ApiSchema{}
+	err = record.Decode(schema)
 	if err != nil {
 		return nil, err
 	}
 
-	return record, nil
+	return schema, nil
 }
 
-func (h *helper) updateClusterWiseTrigger() {
+func (h *helper) updateToAllControllers() {
 	h.delegateToLocal()
 	if h.isClusterWiseRequired {
 		h.delegateToPeerControlNodes()
@@ -91,7 +92,7 @@ func (h *helper) delegateToLocal() {
 func (h *helper) delegateToPeerControlNodes() {
 	peerNodes, err := nodes.GetPeerControls()
 	if err != nil {
-		log.Errorf("triggers: failed to get peer controller nodes: %v", err)
+		log.Errorf("triggers(%s): failed to get peer controller nodes: %v", h.reqId, err)
 		return
 	}
 
@@ -109,12 +110,22 @@ func (h *helper) updateTriggerToPeerNode(node nodes.Node) {
 	url := node.GenUrl() + h.c.Request.RequestURI
 	resp, err := req.Execute(h.c.Request.Method, url)
 	if err != nil {
-		log.Errorf("triggers: failed to update trigger to peer node %s: %v", node.Hostname, err)
+		log.Errorf(
+			"triggers(%s): failed to update trigger to peer node %s: %s",
+			h.reqId,
+			node.Hostname,
+			err.Error(),
+		)
 		return
 	}
 
 	if resp.IsError() {
-		log.Errorf("triggers: has resp error during updating trigger to peer node %s: %s", node.Hostname, resp.String())
+		log.Errorf(
+			"triggers(%s): has resp error during updating trigger to peer node %s: %s",
+			h.reqId,
+			node.Hostname,
+			resp.String(),
+		)
 		return
 	}
 }

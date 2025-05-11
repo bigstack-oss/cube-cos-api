@@ -5,7 +5,6 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/triggers"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -50,14 +49,14 @@ var (
 func listTriggers(c *gin.Context) {
 	h, err := initHelper(c, "listTriggers")
 	if err != nil {
-		log.Errorf("triggers(%s): failed to initHelper: %v", queries.GetReqId(c), err)
+		log.Errorf("triggers(%s): failed to initHelper: %s", h.reqId, err.Error())
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	triggers, err := h.listTriggers()
 	if err != nil {
-		log.Errorf("triggers(%s): failed to listTriggers: %v", queries.GetReqId(c), err)
+		log.Errorf("triggers(%s): failed to listTriggers: %s", h.reqId, err.Error())
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -72,14 +71,14 @@ func listTriggers(c *gin.Context) {
 func getTrigger(c *gin.Context) {
 	h, err := initHelper(c, "getTrigger")
 	if err != nil {
-		log.Errorf("triggers(%s): failed to initHelper: %v", queries.GetReqId(c), err)
+		log.Errorf("triggers(%s): failed to initHelper: %s", h.reqId, err.Error())
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
-	trigger, err := h.getTrigger(h.getTriggerName())
+	trigger, err := h.getTrigger(h.parseTriggerName())
 	if err != nil {
-		log.Errorf("triggers(%s): failed to getTrigger: %v", queries.GetReqId(c), err)
+		log.Errorf("triggers(%s): failed to getTrigger: %s", h.reqId, err.Error())
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -94,13 +93,13 @@ func getTrigger(c *gin.Context) {
 func updateTrigger(c *gin.Context) {
 	h, err := initHelper(c, "updateTrigger")
 	if err != nil {
-		log.Errorf("triggers(%s): failed to initHelper: %v", queries.GetReqId(c), err)
+		log.Errorf("triggers(%s): failed to initHelper: %s", h.reqId, err.Error())
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	h.setUpdateInfo()
-	h.updateClusterWiseTrigger()
+	h.updateToAllControllers()
 	bodies.SetAccepted(
 		c,
 		"trigger update request received",
@@ -110,19 +109,19 @@ func updateTrigger(c *gin.Context) {
 func enableOrDisableTrigger(c *gin.Context) {
 	h, err := initHelper(c, "enableOrDisableTrigger")
 	if err != nil {
-		log.Errorf("tunings(%s): failed to init request helper: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("tunings(%s): failed to init request helper: %s", h.reqId, err.Error())
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.parseTriggerEnablement()
 	if err != nil {
-		log.Errorf("tunings(%s): failed to parse tuning req: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("tunings(%s): failed to parse tuning req: %s", h.reqId, err.Error())
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
-	h.updateClusterWiseTrigger()
+	h.updateToAllControllers()
 	bodies.SetAccepted(
 		c,
 		"tuning enable or disable request received",
@@ -132,21 +131,21 @@ func enableOrDisableTrigger(c *gin.Context) {
 func updateTriggerTask(c *gin.Context) {
 	h, err := initHelper(c, "updateTriggerTask")
 	if err != nil {
-		log.Errorf("triggers(%s): failed to init request helper: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("triggers(%s): failed to init request helper: %s", h.reqId, err.Error())
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.checkTaskUpdateReq()
 	if err != nil {
-		log.Errorf("triggers(%s): failed to check trigger: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("triggers(%s): failed to check trigger: %s", h.reqId, err.Error())
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.updateTaskStatus()
 	if err != nil {
-		log.Errorf("triggers(%s): failed to update trigger status: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("triggers(%s): failed to update trigger status: %s", h.reqId, err.Error())
 		bodies.SetInternalServerError(c, err)
 		return
 	}

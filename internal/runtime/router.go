@@ -23,7 +23,7 @@ import (
 	settingsapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/supportfiles"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tokens"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/triggers"
+	triggerapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/triggers"
 	tuningapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tunings"
 	"github.com/bigstack-oss/cube-cos-api/internal/auths/oidc"
 	"github.com/bigstack-oss/cube-cos-api/internal/auths/saml"
@@ -41,7 +41,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -203,8 +203,8 @@ func prepareApiHandlersByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		trigger.Module,
-		triggers.Handlers,
+		triggers.Module,
+		triggerapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
 	)

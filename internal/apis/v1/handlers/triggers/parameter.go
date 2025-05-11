@@ -4,10 +4,10 @@ import (
 	"errors"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 )
 
-func (h *helper) getTriggerName() string {
+func (h *helper) parseTriggerName() string {
 	return h.c.Param("triggerName")
 }
 
@@ -29,12 +29,13 @@ func (h *helper) parseTrigger() error {
 func (h *helper) setUpdateInfo() {
 	h.trigger.Name = h.c.Param("triggerName")
 	h.trigger.Match = h.trigger.GenMatchRule()
-	h.trigger.InitUpdateStatus()
+	h.trigger.SetUpdating()
 	h.trigger.IsReportRequired = h.isClusterWiseRequired
 	h.setResponseTypes()
-	srcTrigger, found := trigger.Get(h.trigger.Name)
+
+	trigger, found := triggers.Get(h.trigger.Name)
 	if found {
-		h.trigger.Enabled = srcTrigger.Enabled
+		h.trigger.Enabled = trigger.Enabled
 	}
 
 	for i := range h.trigger.Response.Emails {

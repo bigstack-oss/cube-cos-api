@@ -14,7 +14,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )
@@ -201,7 +201,7 @@ func (n *Node) PatchTuningTaskUrl(id string) string {
 	return u.String()
 }
 
-func (n *Node) PatchTriggerTaskUrl(trigger trigger.ApiOptions) string {
+func (n *Node) PatchTriggerTaskUrl(trigger triggers.ApiSchema) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address

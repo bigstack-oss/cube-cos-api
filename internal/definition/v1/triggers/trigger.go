@@ -1,4 +1,4 @@
-package trigger
+package triggers
 
 import "sync"
 
@@ -10,12 +10,12 @@ var (
 	updateList = sync.Mutex{}
 )
 
-func SyncList(triggers []ApiOptions) {
+func SyncList(triggers []ApiSchema) {
 	updateList.Lock()
 	defer updateList.Unlock()
 	list = triggers
 }
 
-func List() []ApiOptions {
+func List() []ApiSchema {
 	return list
 }

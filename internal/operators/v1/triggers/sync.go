@@ -5,10 +5,10 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 )
 
-func (o *Operator) operateReq(trigger trigger.ApiOptions) error {
+func (o *Operator) operateReq(trigger triggers.ApiSchema) error {
 	switch trigger.Status.Desired {
 	case status.Updated:
 		return o.updateTrigger(trigger)
@@ -21,7 +21,7 @@ func (o *Operator) operateReq(trigger trigger.ApiOptions) error {
 	)
 }
 
-func (o *Operator) updateTrigger(trigger trigger.ApiOptions) error {
-	cosTrigger := trigger.ConvertToCosOptions()
+func (o *Operator) updateTrigger(trigger triggers.ApiSchema) error {
+	cosTrigger := trigger.ToCosSchema()
 	return cubecos.ApplyTrigger(cosTrigger)
 }

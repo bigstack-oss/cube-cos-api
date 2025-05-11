@@ -7,7 +7,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
 	"github.com/fsnotify/fsnotify"
 	log "go-micro.dev/v5/logger"
@@ -61,36 +61,36 @@ func (o *Operator) checkTriggers(event fsnotify.Event) {
 }
 
 func (o *Operator) syncTriggers() {
-	triggers, err := cubecos.GetTriggers()
+	list, err := cubecos.GetTriggers()
 	if err != nil {
 		log.Errorf("triggers: failed to sync triggers: %s", err.Error())
 		return
 	}
 
-	apiTriggers := o.convertToApiTriggers(triggers)
+	apiTriggers := o.toApiSchemas(list)
 	for i := range apiTriggers {
 		syncTriggerDetails(&apiTriggers[i])
 		syncSelectableResponseItems(&apiTriggers[i])
 	}
 
-	trigger.SyncList(apiTriggers)
+	triggers.SyncList(apiTriggers)
 }
 
-func (o *Operator) convertToApiTriggers(triggers []trigger.CosOptions) []trigger.ApiOptions {
-	apiTriggers := []trigger.ApiOptions{}
+func (o *Operator) toApiSchemas(list []triggers.CosSchema) []triggers.ApiSchema {
+	apiTriggers := []triggers.ApiSchema{}
 
-	for _, trigger := range triggers {
+	for _, trigger := range list {
 		apiTriggers = append(
 			apiTriggers,
-			trigger.ConvertToApiOptions(),
+			trigger.ToApiSchema(),
 		)
 	}
 
 	return apiTriggers
 }
 
-func syncTriggerDetails(apiTrigger *trigger.ApiOptions) {
-	triggerMap := trigger.GetDetailsMap()
+func syncTriggerDetails(apiTrigger *triggers.ApiSchema) {
+	triggerMap := triggers.GetDetailsMap()
 	details, found := triggerMap[apiTrigger.Name]
 	if found {
 		apiTrigger.Name = details.Name
@@ -99,7 +99,7 @@ func syncTriggerDetails(apiTrigger *trigger.ApiOptions) {
 	convertAttributesToFullName(apiTrigger)
 }
 
-func convertAttributesToFullName(trigger *trigger.ApiOptions) {
+func convertAttributesToFullName(trigger *triggers.ApiSchema) {
 	for i, attribute := range trigger.Attributes {
 		if attribute.Name != "severity" {
 			continue
@@ -110,7 +110,7 @@ func convertAttributesToFullName(trigger *trigger.ApiOptions) {
 	}
 }
 
-func syncSelectableResponseItems(trigger *trigger.ApiOptions) {
+func syncSelectableResponseItems(trigger *triggers.ApiSchema) {
 	trigger.Response.Types = []string{}
 	setEmailRecipientsToTrigger(trigger)
 	if trigger.HasEmailRecipients() {
@@ -141,7 +141,7 @@ func syncSelectableResponseItems(trigger *trigger.ApiOptions) {
 	}
 }
 
-func setEmailRecipientsToTrigger(trigger *trigger.ApiOptions) {
+func setEmailRecipientsToTrigger(trigger *triggers.ApiSchema) {
 	recipients, err := cubecos.GetEmailRecipients()
 	if err != nil {
 		return
@@ -158,7 +158,7 @@ func setEmailRecipientsToTrigger(trigger *trigger.ApiOptions) {
 	}
 }
 
-func setSlackChannelsToTrigger(trigger *trigger.ApiOptions) {
+func setSlackChannelsToTrigger(trigger *triggers.ApiSchema) {
 	slacks, err := cubecos.GetSlackChannels()
 	if err != nil {
 		return

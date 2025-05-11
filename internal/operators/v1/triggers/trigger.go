@@ -3,7 +3,7 @@ package triggers
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"github.com/fsnotify/fsnotify"
 	"k8s.io/client-go/util/workqueue"
@@ -38,7 +38,7 @@ func (o *Operator) Init() error {
 	}
 
 	o.syncTriggers()
-	cubecos.RemovePendingReq(trigger.DB, trigger.ReqCollection)
+	cubecos.RemovePendingReq(triggers.DB, triggers.ReqCollection)
 	return nil
 }
 
@@ -49,7 +49,7 @@ func (o *Operator) Run() {
 			return
 		}
 
-		trigger := req.(*trigger.ApiOptions)
+		trigger := req.(*triggers.ApiSchema)
 		err := o.operateReq(*trigger)
 		o.handleExit(*trigger, err)
 

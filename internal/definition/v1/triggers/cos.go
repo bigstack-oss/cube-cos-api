@@ -1,4 +1,4 @@
-package trigger
+package triggers
 
 import (
 	"strings"
@@ -8,7 +8,7 @@ import (
 	json "github.com/json-iterator/go"
 )
 
-type CosOptions struct {
+type CosSchema struct {
 	Name           string             `json:"name"`
 	Enabled        bool               `json:"enabled"`
 	Topic          string             `json:"topic"`
@@ -31,12 +31,12 @@ type Execs struct {
 	Bins   []string `json:"bins"`
 }
 
-func (c *CosOptions) Bytes() ([]byte, error) {
+func (c *CosSchema) Bytes() ([]byte, error) {
 	return json.Marshal(c)
 }
 
-func (c *CosOptions) ConvertToApiOptions() ApiOptions {
-	return ApiOptions{
+func (c *CosSchema) ToApiSchema() ApiSchema {
+	return ApiSchema{
 		Name:        c.Name,
 		Description: c.Description,
 		Match:       c.Match,
@@ -49,7 +49,7 @@ func (c *CosOptions) ConvertToApiOptions() ApiOptions {
 	}
 }
 
-func (c *CosOptions) ConvertToApiAttributes() []Attribute {
+func (c *CosSchema) ConvertToApiAttributes() []Attribute {
 	enabledAttrs := []Attribute{}
 	matchRule := strings.ReplaceAll(c.Match, `"`, ``)
 	parts := strings.SplitSeq(matchRule, " OR ")
@@ -75,7 +75,7 @@ func isValidAttrPair(attrPair []string) bool {
 	return len(attrPair) == 2
 }
 
-func (c *CosOptions) ConvertToApiEmails() []email.Recipient {
+func (c *CosSchema) ConvertToApiEmails() []email.Recipient {
 	emails := []email.Recipient{}
 	for _, e := range c.Emails {
 		emails = append(
@@ -87,7 +87,7 @@ func (c *CosOptions) ConvertToApiEmails() []email.Recipient {
 	return emails
 }
 
-func (c *CosOptions) ConvertToApiSlacks() []slack.ApiChannel {
+func (c *CosSchema) ConvertToApiSlacks() []slack.ApiChannel {
 	slacks := []slack.ApiChannel{}
 	for _, s := range c.Slacks {
 		slacks = append(

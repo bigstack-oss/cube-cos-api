@@ -1,4 +1,4 @@
-package trigger
+package triggers
 
 import (
 	"fmt"
@@ -23,9 +23,9 @@ const (
 )
 
 var (
-	list = []ApiOptions{}
+	list = []ApiSchema{}
 
-	detailsMap = map[string]ApiOptions{
+	detailsMap = map[string]ApiSchema{
 		"admin-notify": {
 			Name:        "Administrative Level Notification",
 			Description: `Configure how you are going to be notified for system events and host alerts, including levels 'warning', 'error', and 'critical'.`,
@@ -46,7 +46,7 @@ type Toggle struct {
 	Enable bool `json:"enable" yaml:"enable"`
 }
 
-type ApiOptions struct {
+type ApiSchema struct {
 	Name             string      `json:"name" yaml:"name" bson:"name"`
 	Description      string      `json:"description" yaml:"description" bson:"description"`
 	Match            string      `json:"-" yaml:"match"`
@@ -57,8 +57,8 @@ type ApiOptions struct {
 	IsReportRequired bool            `json:"-" yaml:"-"`
 }
 
-func (a *ApiOptions) ConvertToCosOptions() CosOptions {
-	return CosOptions{
+func (a *ApiSchema) ToCosSchema() CosSchema {
+	return CosSchema{
 		Name:        nameMap[a.Name],
 		Description: a.Description,
 		Match:       a.GenMatchRule(),
@@ -70,7 +70,7 @@ func (a *ApiOptions) ConvertToCosOptions() CosOptions {
 	}
 }
 
-func (a *ApiOptions) GenEmailList() []string {
+func (a *ApiSchema) GenEmailList() []string {
 	emails := []string{}
 	for _, email := range a.Response.Emails {
 		if email.Enabled {
@@ -81,7 +81,7 @@ func (a *ApiOptions) GenEmailList() []string {
 	return emails
 }
 
-func (a *ApiOptions) GenSlackList() []string {
+func (a *ApiSchema) GenSlackList() []string {
 	slacks := []string{}
 	for _, slack := range a.Response.Slacks {
 		if slack.Enabled {
@@ -92,7 +92,7 @@ func (a *ApiOptions) GenSlackList() []string {
 	return slacks
 }
 
-func (a *ApiOptions) InitOkStatus() {
+func (a *ApiSchema) SetOk() {
 	a.Status = &status.Trigger{
 		Current:    status.Ok,
 		IsUpdating: false,
@@ -108,7 +108,7 @@ func (a *ApiOptions) InitOkStatus() {
 	a.Status.UpdatedAt = TimeISO8601Z(bootTime)
 }
 
-func (a *ApiOptions) InitUpdateStatus() {
+func (a *ApiSchema) SetUpdating() {
 	a.Status = &status.Trigger{
 		Current:    status.Updating,
 		Desired:    status.Updated,
@@ -118,7 +118,7 @@ func (a *ApiOptions) InitUpdateStatus() {
 	}
 }
 
-func (a *ApiOptions) GenMatchRule() string {
+func (a *ApiSchema) GenMatchRule() string {
 	rule := []string{}
 	for _, attr := range a.Attributes {
 		if !attr.Enabled {
@@ -134,11 +134,11 @@ func (a *ApiOptions) GenMatchRule() string {
 	return strings.Join(rule, " OR ")
 }
 
-func (a *ApiOptions) HasEmailRecipients() bool {
+func (a *ApiSchema) HasEmailRecipients() bool {
 	return len(a.Response.Emails) > 0
 }
 
-func (a *ApiOptions) HasEmail(email string) bool {
+func (a *ApiSchema) HasEmail(email string) bool {
 	for _, recipient := range a.Response.Emails {
 		if recipient.Address == email {
 			return true
@@ -148,7 +148,7 @@ func (a *ApiOptions) HasEmail(email string) bool {
 	return false
 }
 
-func (a *ApiOptions) SetEmailDetails(email email.Recipient) {
+func (a *ApiSchema) SetEmailDetails(email email.Recipient) {
 	for i, recipient := range a.Response.Emails {
 		if recipient.Address == email.Address {
 			a.Response.Emails[i].Enabled = email.Enabled
@@ -158,15 +158,15 @@ func (a *ApiOptions) SetEmailDetails(email email.Recipient) {
 	}
 }
 
-func (a *ApiOptions) AppendEmail(email email.Recipient) {
+func (a *ApiSchema) AppendEmail(email email.Recipient) {
 	a.Response.Emails = append(a.Response.Emails, email)
 }
 
-func (a *ApiOptions) HasSlackChannels() bool {
+func (a *ApiSchema) HasSlackChannels() bool {
 	return len(a.Response.Slacks) > 0
 }
 
-func (a *ApiOptions) HasSlack(channel string) bool {
+func (a *ApiSchema) HasSlack(channel string) bool {
 	for _, slack := range a.Response.Slacks {
 		if slack.URL == channel {
 			return true
@@ -176,7 +176,7 @@ func (a *ApiOptions) HasSlack(channel string) bool {
 	return false
 }
 
-func (a *ApiOptions) SetSlackDetails(slack slack.ApiChannel) {
+func (a *ApiSchema) SetSlackDetails(slack slack.ApiChannel) {
 	for i, channel := range a.Response.Slacks {
 		if channel.URL == slack.URL {
 			a.Response.Slacks[i].Name = slack.Name
@@ -188,19 +188,19 @@ func (a *ApiOptions) SetSlackDetails(slack slack.ApiChannel) {
 	}
 }
 
-func (a *ApiOptions) AppendSlack(slack slack.ApiChannel) {
+func (a *ApiSchema) AppendSlack(slack slack.ApiChannel) {
 	a.Response.Slacks = append(a.Response.Slacks, slack)
 }
 
-func (a *ApiOptions) GenTaskUpdate() ApiOptions {
+func (a *ApiSchema) GenTaskUpdate() ApiSchema {
 	details := detailsMap[a.Name]
-	return ApiOptions{
+	return ApiSchema{
 		Name:   details.Name,
 		Status: a.Status,
 	}
 }
 
-func (a *ApiOptions) IsSame(trigger ApiOptions) bool {
+func (a *ApiSchema) IsSame(trigger ApiSchema) bool {
 	if a.Name != trigger.Name {
 		log.Errorf("trigger name not same: %s != %s", a.Name, trigger.Name)
 		return false
@@ -219,11 +219,11 @@ func (a *ApiOptions) IsSame(trigger ApiOptions) bool {
 	return true
 }
 
-func (a *ApiOptions) SetError() {
+func (a *ApiSchema) SetError() {
 	a.Status.Current = status.Error
 }
 
-func (a *ApiOptions) SetCompleted() {
+func (a *ApiSchema) SetCompleted() {
 	a.Status.Current = status.Ok
 	a.Status.IsUpdating = false
 }
@@ -241,7 +241,7 @@ type Attribute struct {
 	Enabled bool   `json:"enabled"`
 }
 
-func Get(name string) (*ApiOptions, bool) {
+func Get(name string) (*ApiSchema, bool) {
 	for _, trigger := range list {
 		if trigger.Name == name {
 			return &trigger, true
@@ -251,7 +251,7 @@ func Get(name string) (*ApiOptions, bool) {
 	return nil, false
 }
 
-func GetDetailsMap() map[string]ApiOptions {
+func GetDetailsMap() map[string]ApiSchema {
 	return detailsMap
 }
 

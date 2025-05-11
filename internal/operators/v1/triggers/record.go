@@ -5,11 +5,11 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	log "go-micro.dev/v5/logger"
 )
 
-func (o *Operator) handleExit(trigger trigger.ApiOptions, err error) {
+func (o *Operator) handleExit(trigger triggers.ApiSchema, err error) {
 	if err != nil {
 		log.Errorf("triggers: failed to %s %s: %s", trigger.Status.Desired, trigger.Name, err.Error())
 		trigger.SetError()
@@ -23,7 +23,7 @@ func (o *Operator) handleExit(trigger trigger.ApiOptions, err error) {
 	}
 }
 
-func (o *Operator) reportToController(trigger trigger.ApiOptions) error {
+func (o *Operator) reportToController(trigger triggers.ApiSchema) error {
 	node, err := nodes.GetController()
 	if err != nil {
 		log.Errorf("triggers: failed to get controller nodes: %s", err.Error())
