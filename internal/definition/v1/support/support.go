@@ -41,6 +41,7 @@ type FileSet struct {
 	Description string             `json:"description" bson:"description"`
 	Files       []File             `json:"files" bson:"files"`
 	SizeMiB     float64            `json:"sizeMiB" bson:"sizeMiB"`
+	SizeMiBStr  string             `json:"-" bson:"-"`
 	Status      status.SupportFile `json:"status" bson:"status"`
 }
 
@@ -95,10 +96,6 @@ func (f *File) GenSearchableObject() File {
 		Group:       search.NormalizedKeyword(f.Group),
 		SizeMiB:     f.SizeMiB,
 		Status:      f.Status,
-		Source: Source{
-			Role: search.NormalizedKeyword(f.Source.Role),
-			Host: search.NormalizedKeyword(f.Source.Host),
-		},
 	}
 }
 
