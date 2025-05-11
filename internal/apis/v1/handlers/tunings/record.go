@@ -12,9 +12,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func addReqRecord(tuning tunings.Tuning) {
-	h := bsmongo.GetGlobalHelper()
-	err := h.UpdateOne(
+func (h *helper) addReqRecord(tuning tunings.Tuning) {
+	mongo := bsmongo.GetGlobalHelper()
+	err := mongo.UpdateOne(
 		tunings.DB(),
 		tunings.ReqCollection(),
 		bson.M{"id": tuning.Id},
@@ -23,7 +23,8 @@ func addReqRecord(tuning tunings.Tuning) {
 	)
 	if err != nil {
 		log.Errorf(
-			"failed to sync tuning record for %s (%s)",
+			"tunings(%s): failed to sync tuning record for %s (%s)",
+			h.reqId,
 			tuning.Name,
 			err.Error(),
 		)

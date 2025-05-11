@@ -1,46 +1,15 @@
 package tunings
 
 import (
-	"fmt"
-	"strconv"
 	"strings"
+
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 )
 
 func (h *helper) parsePage() error {
-	if !h.isPageReceived() {
-		return nil
-	}
-
-	num := h.c.DefaultQuery("pageNum", "")
-	if num == "" {
-		return fmt.Errorf("pageNum should be provided if pageSize is provided")
-	}
-
-	size := h.c.DefaultQuery("pageSize", "")
-	if size == "" {
-		return fmt.Errorf("pageSize should be provided if pageNum is provided")
-	}
-
 	var err error
-	h.Page.Number, err = strconv.Atoi(num)
-	if err != nil {
-		return fmt.Errorf("pageNum should be an integer: %s", num)
-	}
-
-	h.Page.Size, err = strconv.Atoi(size)
-	if err != nil {
-		return fmt.Errorf("pageSize should be an integer: %s", size)
-	}
-
-	if h.Page.Number <= 0 {
-		return fmt.Errorf("pageNum should be greater than 0 if pageSize is provided")
-	}
-
-	if h.Page.Size <= 0 {
-		return fmt.Errorf("pageSize should be greater than 0 if pageNum is provided")
-	}
-
-	return nil
+	h.Page, err = queries.GetPage(h.c)
+	return err
 }
 
 func (h *helper) parseScope() {
@@ -66,12 +35,10 @@ func (h *helper) parseModified() {
 	}
 }
 
-func (h *helper) parseWatch() {
-	h.watch = h.c.DefaultQuery("watch", "false") == "true"
-}
-
-func (h *helper) isPageReceived() bool {
-	return h.c.DefaultQuery("pageNum", "") != "" || h.c.DefaultQuery("pageSize", "") != ""
+func (h *helper) parseWatch() error {
+	var err error
+	h.watch, err = queries.GetWatch(h.c)
+	return err
 }
 
 func (h *helper) isFilterRequired() bool {

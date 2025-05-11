@@ -15,31 +15,42 @@ import (
 
 type helper struct {
 	c       *gin.Context
+	reqId   string
 	handler string
-	tuning  tunings.Tuning
-	toggle  tunings.Toggle
-	update  tunings.Update
-	reset   tunings.Reset
+
+	tuning tunings.Tuning
+	toggle tunings.Toggle
+	update tunings.Update
+	reset  tunings.Reset
 
 	allNodes bool
 	hosts    []string
 	keyword  string
 	modified []bool
 
-	pages.Page
+	*pages.Page
 	watch bool
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
-	h := &helper{c: c, handler: handler}
+	h := &helper{
+		c:       c,
+		reqId:   queries.GetReqId(c),
+		handler: handler,
+	}
+
 	err := h.parsePage()
+	if err != nil {
+		return nil, err
+	}
+
+	err = h.parseWatch()
 	if err != nil {
 		return nil, err
 	}
 
 	h.parseScope()
 	h.parseKeyword()
-	h.parseWatch()
 	h.parseHosts()
 	h.parseModified()
 

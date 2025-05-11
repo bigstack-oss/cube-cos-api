@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	json "github.com/json-iterator/go"
@@ -14,14 +13,14 @@ import (
 func (h *helper) decodeTuningReq(reqBody io.ReadCloser) (*tunings.Tuning, error) {
 	b, err := io.ReadAll(reqBody)
 	if err != nil {
-		log.Errorf("request(%s): failed to read request body: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("tunings(%s): failed to read request body: %s", h.reqId, err.Error())
 		return nil, err
 	}
 
 	tuning := &tunings.Tuning{}
 	err = json.Unmarshal(b, tuning)
 	if err != nil {
-		log.Errorf("request(%s): failed to decode tuning request: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("tunings(%s): failed to decode tuning request: %s", h.reqId, err.Error())
 		return nil, fmt.Errorf("the request body is brought or not valid")
 	}
 
@@ -45,7 +44,7 @@ func (h *helper) checkHostsAreValid() error {
 	for _, host := range h.tuning.Hosts {
 		_, err := nodes.Get(host.Name)
 		if err != nil {
-			return fmt.Errorf("host(%s) not found", host.Name)
+			return fmt.Errorf("host %s not found", host.Name)
 		}
 	}
 

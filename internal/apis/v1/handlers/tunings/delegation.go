@@ -1,11 +1,9 @@
 package tunings
 
 import (
-	"encoding/json"
 	"errors"
 
 	cubeHttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
@@ -16,26 +14,24 @@ func (h *helper) delegateTuningReq() {
 	for _, host := range h.tuning.Hosts {
 		node := host.GetNode()
 		if node == nil {
-			log.Errorf("tuning: failed to get node by hostname(%s)", host.Name)
+			log.Errorf("tunings(%s): failed to get node by hostname(%s)", h.reqId, host.Name)
 			continue
 		}
 
 		h.backfillTuningInfoByHandler(h.tuning)
 		if node.IsLocal() {
-			b, _ := json.Marshal(h.tuning)
-			log.Infof("tuning %s: node %s is local: %s", h.tuning.Name, node.Hostname, string(b))
-			delegateToLocal(h.tuning)
+			h.delegateToLocal(h.tuning)
 			continue
 		}
 
 		if node.IsDown() {
-			log.Errorf("tuning %s: node %s is down, cannot delegate", h.tuning.Name, node.Hostname)
+			log.Errorf("tunings(%s): node %s is down, cannot delegate %s", h.reqId, node.Hostname, h.tuning.Name)
 			continue
 		}
 
-		err := h.delegateToOtherNode(node)
+		err := h.delegateToPeerNode(node)
 		if err != nil {
-			log.Errorf("tuning: failed to delegate %s to %s: %s", h.tuning.Name, node.Hostname, err.Error())
+			log.Errorf("tunings(%s): failed to delegate %s to %s: %s", h.reqId, h.tuning.Name, node.Hostname, err.Error())
 		}
 	}
 }
@@ -44,54 +40,32 @@ func (h *helper) delegateTuningToggleReq() {
 	for _, host := range h.tuning.Hosts {
 		node := host.GetNode()
 		if node == nil {
-			log.Errorf("tuning: failed to get node by hostname(%s)", host.Name)
+			log.Errorf("tunings(%s): failed to get node by hostname(%s)", h.reqId, host.Name)
 			continue
 		}
 
 		h.backfillTuningInfoByHandler(h.tuning)
 		if node.IsLocal() {
-			delegateToLocal(h.tuning)
+			h.delegateToLocal(h.tuning)
 			continue
 		}
 
 		if node.IsDown() {
-			log.Errorf("tuning %s: node %s is down, cannot delegate", h.tuning.Name, node.Hostname)
+			log.Errorf("tunings(%s): node %s is down, cannot delegate %s", h.reqId, h.tuning.Name, node.Hostname)
 			continue
 		}
 
-		err := h.delegateToOtherNode(node)
+		err := h.delegateToPeerNode(node)
 		if err != nil {
-			log.Errorf("tuning: failed to delegate %s to %s: %s", h.tuning.Name, node.Hostname, err.Error())
+			log.Errorf("tunings(%s): failed to delegate %s to %s: %s", h.reqId, h.tuning.Name, node.Hostname, err.Error())
 		}
 	}
-}
-
-func (h *helper) getTuningByNameAndHost(name, host string) (*tunings.Tuning, error) {
-	tunings, err := cubecos.ListTunings(tunings.ListOptions{AllNodes: h.allNodes})
-	if err != nil {
-		log.Errorf("tunings(%s): failed to get tunings: %s", queries.GetReqId(h.c), err.Error())
-		return nil, err
-	}
-
-	for _, tuning := range tunings {
-		if tuning.Name != name {
-			continue
-		}
-
-		if !tuning.IncludeHost(host) {
-			continue
-		}
-
-		return &tuning, nil
-	}
-
-	return nil, errors.New("tuning not found")
 }
 
 func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*tunings.Tuning, error) {
 	tunings, err := cubecos.ListTunings(tunings.ListOptions{AllNodes: h.allNodes})
 	if err != nil {
-		log.Errorf("tunings(%s): failed to get tuning: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("tunings(%s): failed to get tuning: %s", h.reqId, err.Error())
 		return nil, err
 	}
 
@@ -110,8 +84,8 @@ func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*tunings.
 	return nil, errors.New("tuning not found")
 }
 
-func delegateToLocal(tuning tunings.Tuning) {
-	addReqRecord(tuning)
+func (h *helper) delegateToLocal(tuning tunings.Tuning) {
+	h.addReqRecord(tuning)
 	reqQueue.Add(&tuning)
 }
 
@@ -126,19 +100,19 @@ func (h *helper) backfillTuningInfoByHandler(tuning tunings.Tuning) {
 	h.tuning.Id = h.tuning.GenerateId()
 }
 
-func (h *helper) delegateToOtherNode(node *nodes.Node) error {
+func (h *helper) delegateToPeerNode(node *nodes.Node) error {
 	http := cubeHttp.GetGlobalHelper()
 	resp, err := http.R().
 		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(genTuningUpdate(h.tuning, node)).
 		Patch(node.PatchTuningUrl(h.tuning.Name))
 	if err != nil {
-		log.Errorf("tunings: failed to send tuning %s to %s: %s", h.tuning.Name, node.Id, err.Error())
+		log.Errorf("tunings(%s): failed to send tuning %s to %s: %s", h.reqId, h.tuning.Name, node.Id, err.Error())
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("tunings: failed to send tuning %s to %s: %s(%d)", h.tuning.Name, node.Hostname, string(resp.Body()), resp.StatusCode())
+		log.Errorf("tunings(%s): failed to send tuning %s to %s: %s", h.reqId, h.tuning.Name, node.Hostname, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 
