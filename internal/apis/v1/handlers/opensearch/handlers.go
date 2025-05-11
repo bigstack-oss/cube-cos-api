@@ -6,7 +6,7 @@ import (
 	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/grafana"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/opensearch"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,8 +22,8 @@ var (
 )
 
 func forwardRequestLink(c *gin.Context) {
-	requestId := c.Param("requestId")
-	link, err := cubecos.GetOpenSearchRequestLink(requestId)
+	id := c.Param("requestId")
+	link, err := cubecos.GetOpenSearchRequestLink(id)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
@@ -32,7 +32,7 @@ func forwardRequestLink(c *gin.Context) {
 	bodies.SetOk(
 		c,
 		"fetch request link successfully",
-		grafana.Dashboard{
+		opensearch.Dashboard{
 			Link:    link,
 			Enabled: true,
 		},

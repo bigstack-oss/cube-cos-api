@@ -34,5 +34,8 @@ func logout(c *gin.Context) {
 		return
 	}
 
-	bodies.SetRedirect(c, genRedirectUrl())
+	bodies.SetRedirect(
+		c,
+		genRedirectUrl(),
+	)
 }

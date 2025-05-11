@@ -9,6 +9,10 @@ import (
 const (
 	Tokens = "tokens"
 	Logout = "logout"
+
+	Saml = "saml"
+	Oidc = "oidc"
+	None = "none"
 )
 
 var (

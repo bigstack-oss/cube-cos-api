@@ -339,7 +339,7 @@ func newBucketSecret() error {
 func genSamlMapper() gocloak.ProtocolMapperRepresentation {
 	return gocloak.ProtocolMapperRepresentation{
 		Name:           gocloak.StringP("username"),
-		Protocol:       gocloak.StringP("saml"),
+		Protocol:       gocloak.StringP(auths.Saml),
 		ProtocolMapper: gocloak.StringP("saml-user-property-mapper"),
 		Config: &map[string]string{
 			"user.attribute":       "username",

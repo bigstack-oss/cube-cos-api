@@ -14,15 +14,6 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func genRedirectUrl() string {
-	return fmt.Sprintf(
-		"https://%s:%d%s",
-		base.DataCenterVip,
-		conf.Opts.Spec.Saml.ServiceProvider.Host.Port,
-		conf.Opts.Spec.Identity.Redirect,
-	)
-}
-
 func (h *helper) cleanSession(session *samlsp.Session) error {
 	claims := (*session).(samlsp.JWTSessionClaims)
 	err := h.deleteSamlSession(claims)
@@ -85,4 +76,13 @@ func (h *helper) deleteKeycloakSession(claims samlsp.JWTSessionClaims) error {
 	}
 
 	return nil
+}
+
+func genRedirectUrl() string {
+	return fmt.Sprintf(
+		"https://%s:%d%s",
+		base.DataCenterVip,
+		conf.Opts.Spec.Saml.ServiceProvider.Host.Port,
+		conf.Opts.Spec.Identity.Redirect,
+	)
 }

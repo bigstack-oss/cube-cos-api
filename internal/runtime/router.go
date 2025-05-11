@@ -289,7 +289,7 @@ func verifyAuthToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if isAuthFreeReq(c) {
 			c.Set("isTokenValid", true)
-			c.Set("authType", "none")
+			c.Set("authType", auths.None)
 			c.Set("authUser", c.ClientIP())
 			c.Next()
 			return
@@ -298,7 +298,7 @@ func verifyAuthToken() gin.HandlerFunc {
 		internalToken := parseInternalToken(c)
 		if isValidInternalToken(c, internalToken) {
 			c.Set("isTokenValid", true)
-			c.Set("authType", "oidc")
+			c.Set("authType", auths.Oidc)
 			c.Set("authUser", c.ClientIP())
 			c.Next()
 			return
@@ -308,7 +308,7 @@ func verifyAuthToken() gin.HandlerFunc {
 		claims, err := oidc.VerifyToken(oidcToken)
 		if err == nil {
 			c.Set("isTokenValid", true)
-			c.Set("authType", "oidc")
+			c.Set("authType", auths.Oidc)
 			c.Set("authUser", claims.PreferredUsername)
 		}
 
@@ -371,7 +371,7 @@ func conditionalSaml() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("authType", "saml")
+		c.Set("authType", auths.Saml)
 		saml.AuthRequest(c)
 	}
 }

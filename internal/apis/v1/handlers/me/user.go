@@ -1,6 +1,7 @@
 package me
 
 import (
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/crewjam/saml/samlsp"
 	"github.com/gin-gonic/gin"
@@ -14,9 +15,9 @@ func getUsername(c *gin.Context) (string, error) {
 
 	username := ""
 	switch authType.(string) {
-	case "saml":
+	case auths.Saml:
 		username = samlsp.AttributeFromContext(c.Request.Context(), "username")
-	case "oidc":
+	case auths.Oidc:
 		authUser, found := c.Get("authUser")
 		if found {
 			username = authUser.(string)

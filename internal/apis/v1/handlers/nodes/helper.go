@@ -17,7 +17,7 @@ type helper struct {
 	c       *gin.Context
 	handler string
 
-	nodeName        string
+	node            string
 	keyword         string
 	products        []string
 	licenseStatuses []string
@@ -47,8 +47,8 @@ func (h *helper) parseListOptions() error {
 }
 
 func (h *helper) parseGetOptions() error {
-	h.nodeName = h.c.Param("nodeName")
-	if h.nodeName == "" {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
 		return fmt.Errorf("nodeName should be provided")
 	}
 
@@ -76,7 +76,7 @@ func (h *helper) sortNodes(node *[]nodes.Node) {
 }
 
 func (h *helper) getNode() (*nodes.Node, error) {
-	node, err := nodes.Get(h.nodeName)
+	node, err := nodes.Get(h.node)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to get node: %s", queries.GetReqId(h.c), err.Error())
 		return nil, err

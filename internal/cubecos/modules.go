@@ -5,6 +5,9 @@ import (
 )
 
 var (
+	// note:
+	// the orderSensitiveServices is a list of services that are ordered by their dependencies.
+	// please do not change the order of the services in this list unless you know what you are doing.
 	OrderSensitiveServices = []services.Service{
 		{
 			Name:     "clusterLink",
