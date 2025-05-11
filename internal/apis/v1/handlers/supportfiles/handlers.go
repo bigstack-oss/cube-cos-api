@@ -3,7 +3,8 @@ package supportfiles
 import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/supportfiles"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -48,30 +49,30 @@ var (
 func listSupportFiles(c *gin.Context) {
 	h, err := initHepler(c, "listSupportFiles")
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to init req helper: %v", queries.GetReqId(c), err)
+		log.Errorf("supportFiles(%s): failed to init list helper: %s", h.reqId, err.Error())
 		return
 	}
 
-	supportFiles, err := h.listSupportFiles()
+	files, err := h.listSupportFiles()
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to list support files: %v", queries.GetReqId(c), err)
 		return
 	}
 
 	bodies.SetOk(
 		c,
 		"retrieved support files successfully",
-		supportFiles,
+		files,
 	)
 }
 
 func createSupportFile(c *gin.Context) {
 	h, err := initHepler(c, "createSupportFile")
 	if err != nil {
-		log.Infof("supportFiles(%s): failed to init req helper: %v", queries.GetReqId(c), err)
+		log.Infof("supportFiles(%s): failed to init req helper: %v", h.reqId, err)
 		return
 	}
 
+	h.setSupportFileReq()
 	h.delegateSupportFileReq()
 	bodies.SetAccepted(
 		c,
@@ -82,13 +83,13 @@ func createSupportFile(c *gin.Context) {
 func downloadSupportFile(c *gin.Context) {
 	h, err := initHepler(c, "downloadSupportFile")
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to init req helper: %v", queries.GetReqId(c), err)
+		log.Errorf("supportFiles(%s): failed to init req helper: %v", h.reqId, err)
 		return
 	}
 
 	err = h.downloadSupportFile()
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to download support file: %v", queries.GetReqId(c), err)
+		log.Errorf("supportFiles(%s): failed to download support file: %v", h.reqId, err)
 		return
 	}
 }
@@ -96,7 +97,7 @@ func downloadSupportFile(c *gin.Context) {
 func updateSupportFileTask(c *gin.Context) {
 	h, err := initHepler(c, "updateSupportFileTask")
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to init req helper: %v", queries.GetReqId(c), err)
+		log.Errorf("supportFiles(%s): failed to init req helper: %v", h.reqId, err)
 		return
 	}
 
@@ -110,20 +111,20 @@ func updateSupportFileTask(c *gin.Context) {
 func listHostSupportFiles(c *gin.Context) {
 	h, err := initHepler(c, "listHostSupportFiles")
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to init req helper: %v", queries.GetReqId(c), err)
+		log.Errorf("supportFiles(%s): failed to init req helper: %v", h.reqId, err)
 		return
 	}
 
-	hostSupportFiles, err := h.listHostSupportFiles()
+	files, err := cubecos.ListHostSupportFiles(support.ListFileOptions{Host: h.host})
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to list host support file: %v", queries.GetReqId(c), err)
+		log.Errorf("supportFiles(%s): failed to list host support file: %v", h.reqId, err)
 		return
 	}
 
 	bodies.SetOk(
 		c,
 		"retrieved host support files successfully",
-		hostSupportFiles,
+		files,
 	)
 
 }

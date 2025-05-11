@@ -7,41 +7,37 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-const (
-	maxSearchResults = 10000
-)
-
-func (h *helper) filterSupportFiles(fileSets []support.FileSet) []support.FileSet {
+func (h *helper) filterFiles(sets []support.FileSet) []support.FileSet {
 	if !h.isFilterRequired() {
-		return fileSets
+		return sets
 	}
 
 	if h.isKeywordRequired() {
-		fileSets = h.filteredByKeyword(fileSets)
+		sets = h.filteredByKeyword(sets)
 	}
 
 	if h.isRoleRequired() {
-		fileSets = h.filteredByRoles(fileSets)
+		sets = h.filteredByRoles(sets)
 	}
 
 	if h.isPeriodRequired() {
-		fileSets = h.filteredByPeriod(fileSets)
+		sets = h.filteredByPeriod(sets)
 	}
 
-	return fileSets
+	return sets
 }
 
-func (h *helper) filteredByKeyword(fileSets []support.FileSet) []support.FileSet {
-	result, err := h.searchSupportFileSets(fileSets)
+func (h *helper) filteredByKeyword(sets []support.FileSet) []support.FileSet {
+	result, err := h.searchFileSets(sets)
 	if err != nil {
-		log.Errorf("failed to search supportFiles: %s", err.Error())
-		return fileSets
+		log.Errorf("supportFiles(%s): failed to search supportFiles: %s", h.reqId, err.Error())
+		return sets
 	}
 
-	fileSetMap := genFileSetMap(fileSets)
+	setMap := h.genFileSetMap(sets)
 	filtered := []support.FileSet{}
 	for _, hit := range result.Hits {
-		filtered = append(filtered, fileSetMap[hit.ID])
+		filtered = append(filtered, setMap[hit.ID])
 	}
 
 	return filtered
@@ -69,29 +65,30 @@ func (h *helper) filteredByPeriod(fileSets []support.FileSet) []support.FileSet 
 	return filtered
 }
 
-func (h *helper) searchSupportFileSets(files []support.FileSet) (*bleve.SearchResult, error) {
+func (h *helper) searchFileSets(fileSets []support.FileSet) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
-		log.Errorf("supportfiles: failed to create searcher: %s", err.Error())
+		log.Errorf("supportFiles(%s): failed to create searcher: %s", h.reqId, err.Error())
 		return nil, err
 	}
 
-	for _, file := range files {
-		err := searcher.Index(file.Name, file)
+	for _, fileSet := range fileSets {
+		err := searcher.Index(fileSet.Name, fileSet.GenSearchableObject())
 		if err != nil {
 			continue
 		}
 	}
 
 	defer searcher.Close()
-	return searcher.Search(search.WildcardQuery(h.keyword))
+	keyword := search.NormalizedKeyword(h.keyword)
+	return searcher.Search(search.WildcardQuery(keyword))
 }
 
-func genFileSetMap(files []support.FileSet) map[string]support.FileSet {
-	fileMap := map[string]support.FileSet{}
+func (h *helper) genFileSetMap(files []support.FileSet) map[string]support.FileSet {
+	setMap := map[string]support.FileSet{}
 	for _, file := range files {
-		fileMap[file.Name] = file
+		setMap[file.Name] = file
 	}
 
-	return fileMap
+	return setMap
 }

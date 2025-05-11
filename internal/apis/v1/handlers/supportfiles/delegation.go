@@ -8,7 +8,6 @@ import (
 	ostime "time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -24,25 +23,35 @@ func (h *helper) delegateSupportFileReq() {
 			continue
 		}
 
-		h.setSupportFile()
 		if node.IsLocal() {
 			h.delegateToLocal()
 			continue
 		}
 
 		if node.IsDown() {
-			log.Errorf("supportFiles: node %s is down, cannot delegate %s", node.Hostname, h.file.Name)
+			log.Errorf(
+				"supportFiles(%s): node %s is down, cannot delegate %s",
+				h.reqId,
+				node.Hostname,
+				h.file.Name,
+			)
 			continue
 		}
 
-		err = h.delegateToNode(node)
+		err = h.delegateToPeerNode(node)
 		if err != nil {
-			log.Errorf("supportFiles: failed to delegate %s to %s: %s", h.file.Name, node.Hostname, err.Error())
+			log.Errorf(
+				"supportFiles(%s): failed to delegate %s to %s: %s",
+				h.reqId,
+				h.file.Name,
+				node.Hostname,
+				err.Error(),
+			)
 		}
 	}
 }
 
-func (h *helper) setSupportFile() {
+func (h *helper) setSupportFileReq() {
 	if h.fileReq.CreatedAt == "" {
 		h.fileReq.CreatedAt = time.ISO8601Z(ostime.Now())
 	}
@@ -76,18 +85,18 @@ func (h *helper) delegateToLocal() {
 	reqQueue.Add(&h.file)
 }
 
-func (h *helper) delegateToNode(node *nodes.Node) error {
+func (h *helper) delegateToPeerNode(node *nodes.Node) error {
 	url := node.CreateSupportFileUrl(h.file)
 	body := h.genFileReqBody(*node)
 	http := http.GetGlobalHelper()
 	resp, err := http.R().SetHeaders(nodes.GetSecretHeaders()).SetBody(body).Post(url)
 	if err != nil {
-		log.Errorf("failed to create support file %s to %s: %s", h.file.Name, node.Id, err.Error())
+		log.Errorf("supportFiles(%s): failed to create support file %s to %s: %s", h.reqId, h.file.Name, node.Id, err.Error())
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("failed to create support file %s to %s: %d %s", h.file.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("supportFiles(%s): failed to create support file %s to %s: %s", h.reqId, h.file.Name, node.Hostname, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 
@@ -104,15 +113,15 @@ func (h *helper) genFileReqBody(node nodes.Node) support.FileRequest {
 }
 
 func (h *helper) downloadSupportFile() error {
-	setList, err := h.listSupportFiles()
+	list, err := h.listSupportFiles()
 	if err != nil {
 		return err
 	}
-	if len(setList.SupportFileSet) == 0 {
+	if len(list.SupportFileSet) == 0 {
 		return errors.New("no support files found")
 	}
 
-	set := h.findFileSet(setList.SupportFileSet)
+	set := h.findFileSet(list.SupportFileSet)
 	for _, file := range set.Files {
 		if file.Name != h.file.Name {
 			continue
@@ -123,7 +132,7 @@ func (h *helper) downloadSupportFile() error {
 			break
 		}
 
-		h.streamFromPeerNode(set, file)
+		h.streamDownloadByPeerNode(set, file)
 		break
 	}
 
@@ -133,7 +142,6 @@ func (h *helper) downloadSupportFile() error {
 func (h *helper) findFileSet(sets []support.FileSet) support.FileSet {
 	for _, set := range sets {
 		if set.Name == h.group.Name {
-			log.Infof("found file set: %s", set.Name)
 			return set
 		}
 	}
@@ -164,10 +172,10 @@ func (h *helper) streamFileDownload(filename string) {
 	)
 }
 
-func (h *helper) streamFromPeerNode(set support.FileSet, file support.File) {
+func (h *helper) streamDownloadByPeerNode(set support.FileSet, file support.File) {
 	node, err := nodes.Get(file.Source.Host)
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to get node by hostname %s: %s", queries.GetReqId(h.c), file.Source.Host, err.Error())
+		log.Errorf("supportFiles(%s): failed to get node by hostname %s: %s", h.reqId, file.Source.Host, err.Error())
 		return
 	}
 
@@ -175,11 +183,11 @@ func (h *helper) streamFromPeerNode(set support.FileSet, file support.File) {
 	http := http.GetGlobalHelper()
 	resp, err := http.R().SetHeaders(nodes.GetSecretHeaders()).Get(url)
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to download support file %s from %s: %s", queries.GetReqId(h.c), file.Name, node.Hostname, err.Error())
+		log.Errorf("supportFiles(%s): failed to download support file %s from %s: %s", h.reqId, file.Name, node.Hostname, err.Error())
 		return
 	}
 	if resp.IsError() {
-		log.Errorf("supportFiles(%s): %s resp error from %s: %d %s", queries.GetReqId(h.c), file.Name, node.Hostname, resp.StatusCode(), string(resp.Body()))
+		log.Errorf("supportFiles(%s): %s resp error from %s: %s", h.reqId, file.Name, node.Hostname, string(resp.Body()))
 		return
 	}
 

@@ -3,7 +3,7 @@ package tunings
 import (
 	"slices"
 
-	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	bsmongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
@@ -190,7 +190,7 @@ func (h *helper) syncUpdateStatus(tuning tunings.Tuning) tunings.Tuning {
 }
 
 func (h *helper) hasUpdateHistory(tuning tunings.Tuning) bool {
-	mongo := cubeMongo.GetGlobalHelper()
+	mongo := bsmongo.GetGlobalHelper()
 	count, err := mongo.GetCount(
 		tunings.Module,
 		tunings.ReqCollection(),
@@ -204,7 +204,7 @@ func (h *helper) hasUpdateHistory(tuning tunings.Tuning) bool {
 }
 
 func (h *helper) getUpdateRecord(tuning tunings.Tuning) (tunings.Tuning, error) {
-	mongo := cubeMongo.GetGlobalHelper()
+	mongo := bsmongo.GetGlobalHelper()
 	pending, err := mongo.Get(
 		tunings.Module,
 		tunings.ReqCollection(),

@@ -7,36 +7,41 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 )
 
-func (h *helper) convertToFileSets(files []support.File) []support.FileSet {
-	fileSets := h.aggregateToFileSets(files)
-	fileSets = h.filterSupportFiles(fileSets)
-	h.sortSupportFileSets(&fileSets)
-	return fileSets
+func (h *helper) genFileSets(files []support.File) []support.FileSet {
+	sets := h.aggregateToFileSets(files)
+	sets = h.filterFiles(sets)
+	h.sortFileSets(&sets)
+	return sets
 }
 
 func (h *helper) aggregateToFileSets(files []support.File) []support.FileSet {
-	fileSetMap := map[string]*support.FileSet{}
+	setMap := h.groupFileSet(files)
+	sets := []support.FileSet{}
+	for _, set := range setMap {
+		sets = append(sets, *set)
+	}
+
+	return sets
+}
+
+func (h *helper) groupFileSet(files []support.File) map[string]*support.FileSet {
+	setMap := map[string]*support.FileSet{}
 
 	for _, file := range files {
 		key := file.Group
-		_, found := fileSetMap[key]
+		_, found := setMap[key]
 		if !found {
-			fileSetMap[key] = h.genSupportFileSet(file)
+			setMap[key] = h.genSupportFileSet(file)
 		}
 
-		fileSetMap[key].SizeMiB += file.SizeMiB
-		fileSetMap[key].Files = append(
-			fileSetMap[key].Files,
-			h.enrichSupportFileInfo(file),
+		setMap[key].SizeMiB += file.SizeMiB
+		setMap[key].Files = append(
+			setMap[key].Files,
+			h.enrichFileInfo(file),
 		)
 	}
 
-	fileSets := []support.FileSet{}
-	for _, fileSet := range fileSetMap {
-		fileSets = append(fileSets, *fileSet)
-	}
-
-	return fileSets
+	return setMap
 }
 
 func (h *helper) genSupportFileSet(file support.File) *support.FileSet {
@@ -49,8 +54,8 @@ func (h *helper) genSupportFileSet(file support.File) *support.FileSet {
 	}
 }
 
-func (h *helper) enrichSupportFileInfo(file support.File) support.File {
-	if file.Name == "" {
+func (h *helper) enrichFileInfo(file support.File) support.File {
+	if file.IsCreating() {
 		file.Name = "filename will be generated later once the file is created"
 		file.Url = "file url will be generated later once the file is created"
 		file.Status.IsCreating = true

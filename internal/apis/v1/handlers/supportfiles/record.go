@@ -1,7 +1,7 @@
 package supportfiles
 
 import (
-	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	bsmongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -9,7 +9,7 @@ import (
 )
 
 func (h *helper) addReqRecord(file support.File) {
-	mongo := cubeMongo.GetGlobalHelper()
+	mongo := bsmongo.GetGlobalHelper()
 	err := mongo.UpdateOne(
 		support.FileDB,
 		support.FileReqCollection,
@@ -19,7 +19,8 @@ func (h *helper) addReqRecord(file support.File) {
 	)
 	if err != nil {
 		log.Errorf(
-			"failed to sync tuning record for %s (%s)",
+			"supportFiles(%s): failed to sync tuning record for %s(%s)",
+			h.reqId,
 			file.Name,
 			err.Error(),
 		)
@@ -45,7 +46,7 @@ func genUpsertPayload(file support.File) bson.M {
 }
 
 func (h *helper) updateSupportFileTask() error {
-	mongo := cubeMongo.GetGlobalHelper()
+	mongo := bsmongo.GetGlobalHelper()
 	return mongo.DeleteOne(
 		support.FileDB,
 		support.FileReqCollection,

@@ -5,6 +5,7 @@ import (
 	"slices"
 	"sync"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	json "github.com/json-iterator/go"
 )
@@ -58,6 +59,49 @@ type Source struct {
 	Host string `json:"host" bson:"host"`
 }
 
+func (f *FileSet) GenSearchableObject() FileSet {
+	set := FileSet{
+		Name:        search.NormalizedKeyword(f.Name),
+		Description: search.NormalizedKeyword(f.Description),
+		SizeMiB:     f.SizeMiB,
+		Status:      f.Status,
+	}
+
+	for _, file := range f.Files {
+		set.Files = append(set.Files, file.GenSearchableObject())
+	}
+
+	return set
+}
+
+func (f *FileSet) IncludeRoles(roles []string) bool {
+	for _, file := range f.Files {
+		if slices.Contains(roles, file.Source.Role) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (f *File) IsCreating() bool {
+	return f.Name == ""
+}
+
+func (f *File) GenSearchableObject() File {
+	return File{
+		Name:        search.NormalizedKeyword(f.Name),
+		Description: search.NormalizedKeyword(f.Description),
+		Group:       search.NormalizedKeyword(f.Group),
+		SizeMiB:     f.SizeMiB,
+		Status:      f.Status,
+		Source: Source{
+			Role: search.NormalizedKeyword(f.Source.Role),
+			Host: search.NormalizedKeyword(f.Source.Host),
+		},
+	}
+}
+
 func (f *File) Bytes() []byte {
 	b, err := json.Marshal(f)
 	if err != nil {
@@ -98,16 +142,6 @@ func (f *File) GenTaskUpdate() File {
 
 func (f *File) ObjectKey() string {
 	return filepath.Base(f.Name)
-}
-
-func (f *FileSet) IncludeRoles(roles []string) bool {
-	for _, file := range f.Files {
-		if slices.Contains(roles, file.Source.Role) {
-			return true
-		}
-	}
-
-	return false
 }
 
 func GetLocalFiles() *sync.Map {

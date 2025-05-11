@@ -5,7 +5,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 )
 
-type fileSetList struct {
+type filePage struct {
 	SupportFileSet []support.FileSet `json:"supportFileSet"`
 	pages.Page     `json:"page"`
 }

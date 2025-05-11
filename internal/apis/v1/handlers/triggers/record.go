@@ -4,7 +4,7 @@ import (
 	"maps"
 	"net/http"
 
-	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	bsmongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	log "go-micro.dev/v5/logger"
@@ -13,7 +13,7 @@ import (
 )
 
 func (h *helper) addReqRecord() {
-	mongo := cubeMongo.GetGlobalHelper()
+	mongo := bsmongo.GetGlobalHelper()
 	err := mongo.UpdateOne(
 		trigger.DB,
 		trigger.ReqCollection,
@@ -31,7 +31,7 @@ func (h *helper) addReqRecord() {
 }
 
 func (h *helper) updateTaskStatus() error {
-	mongo := cubeMongo.GetGlobalHelper()
+	mongo := bsmongo.GetGlobalHelper()
 	return mongo.DeleteOne(
 		trigger.DB,
 		trigger.ReqCollection,
@@ -40,7 +40,7 @@ func (h *helper) updateTaskStatus() error {
 }
 
 func (h *helper) hasUpdateHistory(t trigger.ApiOptions) bool {
-	mongo := cubeMongo.GetGlobalHelper()
+	mongo := bsmongo.GetGlobalHelper()
 	count, err := mongo.GetCount(
 		trigger.DB,
 		trigger.ReqCollection,
@@ -54,7 +54,7 @@ func (h *helper) hasUpdateHistory(t trigger.ApiOptions) bool {
 }
 
 func (h *helper) getUpdateRecord(t trigger.ApiOptions) (*trigger.ApiOptions, error) {
-	mongo := cubeMongo.GetGlobalHelper()
+	mongo := bsmongo.GetGlobalHelper()
 	pending, err := mongo.Get(
 		trigger.DB,
 		trigger.ReqCollection,

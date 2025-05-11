@@ -3,7 +3,7 @@ package tunings
 import (
 	"context"
 
-	cubeMongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	bsmongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	log "go-micro.dev/v5/logger"
@@ -13,7 +13,7 @@ import (
 )
 
 func addReqRecord(tuning tunings.Tuning) {
-	h := cubeMongo.GetGlobalHelper()
+	h := bsmongo.GetGlobalHelper()
 	err := h.UpdateOne(
 		tunings.DB(),
 		tunings.ReqCollection(),
@@ -43,7 +43,7 @@ func genUpsertPayload(tuning tunings.Tuning) bson.M {
 }
 
 func updateTaskStatus(tuning *tunings.Tuning) error {
-	h := cubeMongo.GetGlobalHelper()
+	h := bsmongo.GetGlobalHelper()
 	return h.UpdateOne(
 		tunings.DB(),
 		tunings.ReqCollection(),
@@ -59,7 +59,7 @@ func updateTaskStatus(tuning *tunings.Tuning) error {
 }
 
 func getUpdatingTunings() ([]tunings.Tuning, error) {
-	mongo := cubeMongo.GetGlobalHelper()
+	mongo := bsmongo.GetGlobalHelper()
 	cursor, err := mongo.GetQueryCursor(
 		tunings.DB(),
 		tunings.ReqCollection(),

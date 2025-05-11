@@ -8,7 +8,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 )
 
-func (h *helper) paginateSupportFileSets(fileSets []support.FileSet) ([]support.FileSet, error) {
+func (h *helper) paginateFileSets(fileSets []support.FileSet) ([]support.FileSet, error) {
 	if !h.Page.IsRequired() {
 		return fileSets, nil
 	}
@@ -18,7 +18,7 @@ func (h *helper) paginateSupportFileSets(fileSets []support.FileSet) ([]support.
 	return fileSets[left:right], nil
 }
 
-func (h *helper) sortSupportFileSets(fileSets *[]support.FileSet) {
+func (h *helper) sortFileSets(fileSets *[]support.FileSet) {
 	sort.Slice(*fileSets, func(i, j int) bool {
 		return (*fileSets)[i].Status.CreatedAt < (*fileSets)[j].Status.CreatedAt
 	})
