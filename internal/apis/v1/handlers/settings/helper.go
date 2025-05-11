@@ -1,34 +1,30 @@
 package settings
 
 import (
-	"context"
-	"errors"
-
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	cubemongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
+	bsmongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type helper struct {
-	c     *gin.Context
-	mongo *cubemongo.Helper
+	c       *gin.Context
+	reqId   string
+	handler string
+
+	mongo *bsmongo.Helper
 	http  *http.Helper
 
-	handler               string
-	task                  *setting.Options
+	task                  *settings.Setting
+	trial                 *email.Trial
 	emailSender           string
 	recipientEmail        string
+	slackChannel          string
 	rawBody               []byte
 	isClusterWiseRequired bool
 }
@@ -36,462 +32,34 @@ type helper struct {
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{
 		c:                     c,
+		reqId:                 queries.GetReqId(c),
 		handler:               handler,
-		mongo:                 cubemongo.GetGlobalHelper(),
+		mongo:                 bsmongo.GetGlobalHelper(),
 		http:                  http.GetGlobalHelper(),
-		isClusterWiseRequired: query.ParseClusterWise(c),
+		isClusterWiseRequired: queries.ParseClusterWise(c),
 		rawBody:               bodies.ParseReq(c),
 	}
 
-	var err error
-	switch handler {
-	case "updateTitlePrefix":
-		err = h.initTitlePrefixUpdateParams()
-	case "createEmailSender":
-		err = h.initEmailSenderCreateParams()
-	case "patchEmailSender":
-		err = h.initEmailSenderPatchParams()
-	case "deleteEmailSender":
-		err = h.initEmailSenderDeleteParams()
-	case "createEmailRecipient":
-		err = h.initEmailRecipientCreateParams()
-	case "tryEmailRecipient":
-		err = h.initEmailRecipientTrialParams()
-	case "patchEmailRecipient":
-		err = h.initEmailRecipientPatchParams()
-	case "deleteEmailRecipient":
-		err = h.initEmailRecipientDeleteParams()
-	case "createSlackChannel":
-		err = h.initSlackChannelCreateParams()
-	case "putSlackChannel":
-		err = h.initSlackChannelPatchParams()
-	case "deleteSlackChannel":
-		err = h.initSlackChannelDeleteParams()
-	}
+	return h, h.parseParamsByHandler()
+}
+
+func (h *helper) listSettings() (*settings.Api, error) {
+	cosSchema, err := cubecos.GetAlertSetting()
 	if err != nil {
+		log.Infof("settings(%s): failed to get settings: %v", h.reqId, err)
 		return nil, err
 	}
 
-	return h, nil
+	setting := cosSchema.ToApiSchema()
+	h.syncUpdatingStatus(&setting)
+	h.hideSenderPassword(&setting.Email.Senders)
+	h.syncSenderVerification(&setting.Email.Senders)
+	return &setting, nil
 }
 
-func (h *helper) listSettings() (*setting.ApiAlert, error) {
-	setting, err := cubecos.GetAlertSetting()
-	if err != nil {
-		log.Infof("settings(%s): failed to get settings: %v", queries.GetReqId(h.c), err)
-		return nil, err
+func (h *helper) updateToAllControllers() {
+	h.updateLocal()
+	if h.isClusterWiseRequired {
+		h.updatePeerControllers()
 	}
-
-	apiAlert := setting.ConvertToApiSchema()
-	h.syncUpdateStatus(&apiAlert)
-	h.eraseSenderPassword(&apiAlert.Email.Senders)
-	h.syncEmailSenderVerification(&apiAlert.Email.Senders)
-
-	return &apiAlert, nil
-}
-
-func (h *helper) syncEmailSenderVerification(senders *[]email.Sender) {
-	for i, sender := range *senders {
-		if h.isEmailSenderVerified(&sender) {
-			(*senders)[i].AccessVerified = true
-		}
-	}
-}
-
-func (h *helper) isEmailSenderVerified(sender *email.Sender) bool {
-	count, err := h.mongo.GetCount(
-		setting.DB,
-		email.SenderCollection,
-		bson.M{"host": sender.Host, "accessVerified": true},
-	)
-	if err != nil {
-		log.Errorf("settings: failed to check email sender verification (%s)", err.Error())
-		return false
-	}
-
-	return count > 0
-}
-
-func (h *helper) syncUpdateStatus(alert *setting.ApiAlert) {
-	alert.InitOkStatus()
-	h.syncTitlePrefixUpdate(&alert.TitlePrefix)
-	h.syncEmailSenderUpdate(&alert.Email.Senders)
-	h.syncEmailRecipientUpdate(&alert.Email.Recipients)
-	h.syncSlackUpdate(&alert.Slack)
-}
-
-func (h *helper) syncTitlePrefixUpdate(titlePrefix *setting.TitlePrefix) {
-	if h.isTitlePrefixUpdating() {
-		h.syncTitlePrefixUpdateValue(titlePrefix)
-		titlePrefix.InitUpdateStatus()
-	}
-}
-
-func (h *helper) syncEmailSenderUpdate(senders *[]email.Sender) {
-	if len(*senders) == 0 {
-		h.syncUpdatingEmailSender(senders)
-	}
-
-	for i, sender := range *senders {
-		if h.isEmailSenderUpdating(&sender) {
-			(*senders)[i] = *h.syncEmailSenderUpdateValue(&sender)
-			(*senders)[i].InitUpdateStatus()
-		}
-	}
-}
-
-func (h *helper) syncUpdatingEmailSender(senders *[]email.Sender) {
-	c, err := h.mongo.GetQueryCursor(
-		setting.DB,
-		setting.ReqCollection,
-		bson.M{"type": "emailSender"},
-	)
-	if err != nil {
-		log.Errorf("settings: failed to update value from email sender cursor (%s)", err.Error())
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	defer c.Close(ctx)
-	h.parseUpdatingEmailSenders(c, senders)
-}
-
-func (h *helper) parseUpdatingEmailSenders(c *mongo.Cursor, senders *[]email.Sender) {
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	for c.Next(ctx) {
-		req := &setting.Options{}
-		err := c.Decode(req)
-		if err != nil {
-			log.Errorf("settings: failed to decode email sender cursor (%s)", err.Error())
-			continue
-		}
-
-		(*senders) = append(*senders, *req.Sender)
-	}
-}
-
-func (h *helper) syncEmailSenderUpdateValue(sender *email.Sender) *email.Sender {
-	c, err := h.mongo.GetQueryCursor(
-		setting.DB,
-		setting.ReqCollection,
-		bson.M{"type": "emailSender", "key": sender.Host},
-	)
-	if err != nil {
-		log.Errorf("settings: failed to update value from email sender cursor (%s)", err.Error())
-		return nil
-	}
-
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	defer c.Close(ctx)
-	return h.parseEmailSenderUpdateValue(c)
-}
-
-func (h *helper) parseEmailSenderUpdateValue(c *mongo.Cursor) *email.Sender {
-	req := &setting.Options{}
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	for c.Next(ctx) {
-		err := c.Decode(req)
-		if err != nil {
-			log.Errorf("settings: failed to decode email sender cursor (%s)", err.Error())
-			return nil
-		}
-	}
-
-	return req.Sender
-}
-
-func (h *helper) syncEmailRecipientUpdate(recipients *[]email.Recipient) {
-	h.syncUpdatingEmailRecipient(recipients)
-
-	for i, recipient := range *recipients {
-		if h.isEmailRecipientUpdating(&recipient) {
-			val := h.syncEmailRecipientUpdateValue(&recipient)
-			if val == nil {
-				continue
-			}
-
-			(*recipients)[i] = *val
-			(*recipients)[i].InitUpdateStatus()
-		}
-	}
-
-	dedupEmailRecipients(recipients)
-}
-
-func dedupEmailRecipients(recipients *[]email.Recipient) {
-	uniqueRecipients := map[string]email.Recipient{}
-	for _, recipient := range *recipients {
-		prev, found := uniqueRecipients[recipient.Address]
-		if !found {
-			uniqueRecipients[recipient.Address] = recipient
-			continue
-		}
-
-		if !prev.Status.IsUpdating {
-			uniqueRecipients[recipient.Address] = recipient
-		}
-	}
-
-	*recipients = []email.Recipient{}
-	for _, recipient := range uniqueRecipients {
-		*recipients = append(*recipients, recipient)
-	}
-}
-
-func (h *helper) syncUpdatingEmailRecipient(recipients *[]email.Recipient) {
-	c, err := h.mongo.GetQueryCursor(
-		setting.DB,
-		setting.ReqCollection,
-		bson.M{"type": "emailRecipient"},
-	)
-	if err != nil {
-		log.Errorf("settings: failed to update value from email recipient cursor (%s)", err.Error())
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	defer c.Close(ctx)
-	h.parseUpdatingEmailRecipients(c, recipients)
-	dedupUpdatingEmailRecipients(recipients)
-}
-
-func (h *helper) parseUpdatingEmailRecipients(c *mongo.Cursor, recipients *[]email.Recipient) {
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	for c.Next(ctx) {
-		req := &setting.Options{}
-		err := c.Decode(req)
-		if err != nil {
-			log.Errorf("settings: failed to decode email recipient cursor (%s)", err.Error())
-			continue
-		}
-
-		*recipients = append(*recipients, *req.Recipient)
-	}
-}
-
-func (h *helper) syncEmailRecipientUpdateValue(recipient *email.Recipient) *email.Recipient {
-	c, err := h.mongo.GetQueryCursor(
-		setting.DB,
-		setting.ReqCollection,
-		bson.M{"type": "emailRecipient", "key": recipient.Address},
-	)
-	if err != nil {
-		log.Errorf("settings: failed to update value from email recipient cursor (%s)", err.Error())
-		return nil
-	}
-
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	defer c.Close(ctx)
-	return h.parseEmailRecipientUpdateValue(c)
-}
-
-func (h *helper) parseEmailRecipientUpdateValue(c *mongo.Cursor) *email.Recipient {
-	req := &setting.Options{}
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	for c.Next(ctx) {
-		err := c.Decode(req)
-		if err != nil {
-			log.Errorf("settings: failed to decode email recipient cursor (%s)", err.Error())
-			return nil
-		}
-	}
-
-	return req.Recipient
-}
-
-func (h *helper) syncSlackUpdate(slackOpts *slack.Options) {
-	if len(slackOpts.Channels) == 0 {
-		slackOpts.Channels = []slack.ApiChannel{}
-	}
-
-	h.syncUpdateSlackChannels(&slackOpts.Channels)
-	for i, channel := range slackOpts.Channels {
-		if h.isSlackUpdating(&channel) {
-			val := h.syncSlackUpdateValue(&channel)
-			if val == nil {
-				continue
-			}
-
-			slackOpts.Channels[i] = *val
-			slackOpts.Channels[i].InitUpdateStatus()
-		}
-	}
-
-	dedupSlackChannels(slackOpts)
-}
-
-func dedupSlackChannels(slackOpts *slack.Options) {
-	channles := map[string]slack.ApiChannel{}
-	for _, channel := range slackOpts.Channels {
-		prev, found := channles[channel.URL]
-		if !found {
-			channles[channel.URL] = channel
-			continue
-		}
-
-		if !prev.Status.IsUpdating {
-			channles[channel.URL] = channel
-		}
-	}
-
-	slackOpts.Channels = []slack.ApiChannel{}
-	for _, channel := range channles {
-		slackOpts.Channels = append(slackOpts.Channels, channel)
-	}
-}
-
-func dedupUpdatingEmailRecipients(recipients *[]email.Recipient) {
-	uniqueRecipients := make(map[string]email.Recipient)
-	for _, recipient := range *recipients {
-		uniqueRecipients[recipient.Address] = recipient
-	}
-
-	*recipients = make([]email.Recipient, 0, len(uniqueRecipients))
-	for _, recipient := range uniqueRecipients {
-		*recipients = append(*recipients, recipient)
-	}
-}
-
-func (h *helper) syncSlackUpdateValue(channel *slack.ApiChannel) *slack.ApiChannel {
-	c, err := h.mongo.GetQueryCursor(
-		setting.DB,
-		setting.ReqCollection,
-		bson.M{"type": "slackChannel", "key": channel.URL},
-	)
-	if err != nil {
-		log.Errorf("settings: failed to update value from slack channel cursor (%s)", err.Error())
-		return nil
-	}
-
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	defer c.Close(ctx)
-	return h.parseSlackUpdateValue(c)
-}
-
-func (h *helper) parseSlackUpdateValue(c *mongo.Cursor) *slack.ApiChannel {
-	req := &setting.Options{}
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	for c.Next(ctx) {
-		err := c.Decode(req)
-		if err != nil {
-			log.Errorf("settings: failed to decode slack channel cursor (%s)", err.Error())
-			return nil
-		}
-	}
-
-	return req.Slack
-}
-
-func (h *helper) syncUpdateSlackChannels(channels *[]slack.ApiChannel) {
-	c, err := h.mongo.GetQueryCursor(
-		setting.DB,
-		setting.ReqCollection,
-		bson.M{"type": "slackChannel"},
-	)
-	if err != nil {
-		log.Errorf("settings: failed to update value from slack channel cursor (%s)", err.Error())
-		return
-	}
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	defer c.Close(ctx)
-	h.parseUpdatingSlackChannels(c, channels)
-	dedupUpdatingSlackChannels(channels)
-}
-
-func dedupUpdatingSlackChannels(channels *[]slack.ApiChannel) {
-	uniqueChannels := map[string]slack.ApiChannel{}
-	for _, channel := range *channels {
-		uniqueChannels[channel.URL] = channel
-	}
-
-	*channels = []slack.ApiChannel{}
-	for _, channel := range uniqueChannels {
-		*channels = append(*channels, channel)
-	}
-}
-
-func (h *helper) parseUpdatingSlackChannels(c *mongo.Cursor, slack *[]slack.ApiChannel) {
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	for c.Next(ctx) {
-		req := &setting.Options{}
-		err := c.Decode(req)
-		if err != nil {
-			log.Errorf("settings: failed to decode slack channel cursor (%s)", err.Error())
-			continue
-		}
-
-		*slack = append(*slack, *req.Slack)
-	}
-}
-
-func (h *helper) syncTitlePrefixUpdateValue(titlePrefix *setting.TitlePrefix) {
-	c, err := h.mongo.GetQueryCursor(
-		setting.DB,
-		setting.ReqCollection,
-		bson.M{"type": "titlePrefix"},
-	)
-	if err != nil {
-		log.Errorf("settings: failed to update value from title prefix cursor (%s)", err.Error())
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	defer c.Close(ctx)
-	h.parseTitlePrefixUpdateValue(c, titlePrefix)
-}
-
-func (h *helper) parseTitlePrefixUpdateValue(c *mongo.Cursor, titlePrefix *setting.TitlePrefix) {
-	req := &setting.Options{}
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(5))
-	defer cancel()
-	for c.Next(ctx) {
-		err := c.Decode(req)
-		if err != nil {
-			log.Errorf("settings: failed to decode title prefix cursor (%s)", err.Error())
-			continue
-		}
-
-		titlePrefix.Value = req.Value.(string)
-		break
-	}
-}
-
-func (h *helper) getVerifiedEmailSender() (*email.Sender, error) {
-	senders, err := cubecos.GetEmailSenders()
-	if err != nil {
-		return nil, err
-	}
-	if len(senders) == 0 {
-		return nil, errors.New("no email sender found")
-	}
-
-	sender := senders[0]
-	mongo := cubemongo.GetGlobalHelper()
-	count, err := mongo.GetCount(
-		setting.DB,
-		email.SenderCollection,
-		bson.M{"host": sender.Host, "accessVerified": true},
-	)
-	if err != nil {
-		log.Errorf("settings: failed to check email sender verification (%s)", err.Error())
-		return nil, err
-	}
-	if count == 0 {
-		return nil, errors.New("email sender not verified")
-	}
-
-	return &sender, nil
 }

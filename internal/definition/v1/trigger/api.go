@@ -47,14 +47,14 @@ type Toggle struct {
 }
 
 type ApiOptions struct {
-	Name                     string      `json:"name" yaml:"name" bson:"name"`
-	Description              string      `json:"description" yaml:"description" bson:"description"`
-	Match                    string      `json:"-" yaml:"match"`
-	Attributes               []Attribute `json:"attributes" bson:"attributes" yaml:"-"`
-	Response                 `json:"response" yaml:"response" bson:"response"`
-	Enabled                  bool            `json:"enabled" yaml:"enabled" bson:"enabled"`
-	Status                   *status.Trigger `json:"status" yaml:"-" bson:"status"`
-	ShouldReportToController bool            `json:"-" yaml:"-"`
+	Name             string      `json:"name" yaml:"name" bson:"name"`
+	Description      string      `json:"description" yaml:"description" bson:"description"`
+	Match            string      `json:"-" yaml:"match"`
+	Attributes       []Attribute `json:"attributes" bson:"attributes" yaml:"-"`
+	Response         `json:"response" yaml:"response" bson:"response"`
+	Enabled          bool            `json:"enabled" yaml:"enabled" bson:"enabled"`
+	Status           *status.Trigger `json:"status" yaml:"-" bson:"status"`
+	IsReportRequired bool            `json:"-" yaml:"-"`
 }
 
 func (a *ApiOptions) ConvertToCosOptions() CosOptions {

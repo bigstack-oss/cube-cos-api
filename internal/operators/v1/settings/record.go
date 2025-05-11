@@ -3,11 +3,11 @@ package settings
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	log "go-micro.dev/v5/logger"
 )
 
-func (o *Operator) handleExit(setting setting.Options, err error) {
+func (o *Operator) handleExit(setting settings.Setting, err error) {
 	if err != nil {
 		log.Errorf("settings: failed to %s %s: %s", setting.Status.Desired, setting.Type, err.Error())
 		setting.SetError()
@@ -16,12 +16,12 @@ func (o *Operator) handleExit(setting setting.Options, err error) {
 		setting.SetCompleted()
 	}
 
-	if setting.ShouldReportToController {
+	if setting.IsReportRequired {
 		o.reportToController(setting)
 	}
 }
 
-func (o *Operator) reportToController(setting setting.Options) {
+func (o *Operator) reportToController(setting settings.Setting) {
 	node, err := nodes.GetController()
 	if err != nil {
 		log.Errorf("settings: failed to get controller nodes: %s", err.Error())

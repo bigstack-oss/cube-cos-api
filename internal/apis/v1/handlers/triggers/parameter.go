@@ -30,7 +30,7 @@ func (h *helper) setUpdateInfo() {
 	h.trigger.Name = h.c.Param("triggerName")
 	h.trigger.Match = h.trigger.GenMatchRule()
 	h.trigger.InitUpdateStatus()
-	h.trigger.ShouldReportToController = h.isClusterWiseRequired
+	h.trigger.IsReportRequired = h.isClusterWiseRequired
 	h.setResponseTypes()
 	srcTrigger, found := trigger.Get(h.trigger.Name)
 	if found {

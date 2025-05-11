@@ -146,7 +146,7 @@ func (h *helper) parseTriggerEnablement() error {
 	}
 
 	h.trigger = *trigger
-	h.trigger.ShouldReportToController = h.isClusterWiseRequired
+	h.trigger.IsReportRequired = h.isClusterWiseRequired
 	h.trigger.Enabled = h.toggle.Enable
 	h.trigger.InitUpdateStatus()
 	return nil

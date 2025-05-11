@@ -2,17 +2,16 @@ package settings
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (h *helper) addReqRecord(req setting.Options) {
+func (h *helper) addReqRecord(req settings.Setting) {
 	err := mongo.GetGlobalHelper().UpdateOne(
-		setting.DB,
-		setting.ReqCollection,
+		settings.DB,
+		settings.ReqCollection,
 		bson.M{"type": req.Type},
 		h.genUpsertPayload(req),
 		options.Update().SetUpsert(true),
@@ -20,7 +19,7 @@ func (h *helper) addReqRecord(req setting.Options) {
 	if err != nil {
 		log.Errorf(
 			"settings(%s): failed to sync %s record for %s (%s)",
-			queries.GetReqId(h.c),
+			h.reqId,
 			req.Type,
 			req.Key,
 			err.Error(),
@@ -28,7 +27,7 @@ func (h *helper) addReqRecord(req setting.Options) {
 	}
 }
 
-func (h *helper) genUpsertPayload(setting setting.Options) bson.M {
+func (h *helper) genUpsertPayload(setting settings.Setting) bson.M {
 	switch setting.Type {
 	case "titlePrefix":
 		return genTitlePrefixUpdate(setting)
@@ -43,7 +42,7 @@ func (h *helper) genUpsertPayload(setting setting.Options) bson.M {
 	return bson.M{}
 }
 
-func genTitlePrefixUpdate(setting setting.Options) bson.M {
+func genTitlePrefixUpdate(setting settings.Setting) bson.M {
 	return bson.M{
 		"$set": bson.M{
 			"type":   setting.Type,
@@ -54,7 +53,7 @@ func genTitlePrefixUpdate(setting setting.Options) bson.M {
 	}
 }
 
-func genEmailSenderUpdate(setting setting.Options) bson.M {
+func genEmailSenderUpdate(setting settings.Setting) bson.M {
 	return bson.M{
 		"$set": bson.M{
 			"type":   setting.Type,
@@ -65,7 +64,7 @@ func genEmailSenderUpdate(setting setting.Options) bson.M {
 	}
 }
 
-func genEmailRecipientUpdate(setting setting.Options) bson.M {
+func genEmailRecipientUpdate(setting settings.Setting) bson.M {
 	return bson.M{
 		"$set": bson.M{
 			"type":      setting.Type,
@@ -76,7 +75,7 @@ func genEmailRecipientUpdate(setting setting.Options) bson.M {
 	}
 }
 
-func genSlackChannelUpdate(setting setting.Options) bson.M {
+func genSlackChannelUpdate(setting settings.Setting) bson.M {
 	return bson.M{
 		"$set": bson.M{
 			"type":   setting.Type,

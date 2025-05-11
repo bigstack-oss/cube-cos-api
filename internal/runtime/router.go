@@ -19,7 +19,7 @@ import (
 	nodeapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/nodes"
 	opensearchapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/opensearch"
 	servicesapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/services"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/settings"
+	settingsapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/supportfiles"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tokens"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/triggers"
@@ -38,7 +38,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/opensearch"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
@@ -248,8 +248,8 @@ func prepareApiHandleraByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		setting.Module,
-		settings.Handlers,
+		settings.Module,
+		settingsapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleControlConverged,
 		nodes.RoleModerator,

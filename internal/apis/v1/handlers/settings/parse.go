@@ -2,17 +2,49 @@ package settings
 
 import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	log "go-micro.dev/v5/logger"
 )
 
+func (h *helper) parseParamsByHandler() error {
+	switch h.handler {
+	case "updateTitlePrefix":
+		return h.initTitlePrefixUpdateParams()
+	case "createEmailSender":
+		return h.initEmailSenderCreateParams()
+	case "tryEmailSender":
+		return h.initEmailSenderTrialParams()
+	case "patchEmailSender":
+		return h.initEmailSenderPatchParams()
+	case "deleteEmailSender":
+		return h.initEmailSenderDeleteParams()
+	case "createEmailRecipient":
+		return h.initEmailRecipientCreateParams()
+	case "tryEmailRecipient":
+		return h.initEmailRecipientTrialParams()
+	case "patchEmailRecipient":
+		return h.initEmailRecipientPatchParams()
+	case "deleteEmailRecipient":
+		return h.initEmailRecipientDeleteParams()
+	case "createSlackChannel":
+		return h.initSlackChannelCreateParams()
+	case "trySlackChannel":
+		return h.initSlackChannelTrialParams()
+	case "putSlackChannel":
+		return h.initSlackChannelPatchParams()
+	case "deleteSlackChannel":
+		return h.initSlackChannelDeleteParams()
+	default:
+		return nil
+	}
+}
+
 func (h *helper) initTitlePrefixUpdateParams() error {
-	h.task = &setting.Options{Type: "titlePrefix"}
+	h.task = &settings.Setting{Type: "titlePrefix"}
 	err := h.c.ShouldBindJSON(&h.task.TitlePrefix)
 	if err != nil {
 		return err
@@ -20,33 +52,49 @@ func (h *helper) initTitlePrefixUpdateParams() error {
 
 	h.task.Key = h.task.TitlePrefix.Value
 	h.task.Value = h.task.TitlePrefix.Value
-	h.task.InitUpdateStatus()
-	h.task.ShouldReportToController = h.isClusterWiseRequired
+	h.task.SetUpdating()
+	h.task.IsReportRequired = h.isClusterWiseRequired
 
 	return nil
 }
 
 func (h *helper) initEmailSenderCreateParams() error {
-	h.task = &setting.Options{Type: "emailSender"}
+	h.task = &settings.Setting{Type: "emailSender"}
 	err := h.c.ShouldBindJSON(&h.task.Sender)
 	if err != nil {
-		log.Errorf("settings(%s): failed to decode email sender: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("settings(%s): failed to decode email sender: %s", h.reqId, err.Error())
 		return err
 	}
 
 	if h.task.Sender.IsHostEmpty() {
-		log.Errorf("settings(%s): %v", queries.GetReqId(h.c), errors.ErrEmailSenderHostInvalid)
+		log.Errorf("settings(%s): %v", h.reqId, errors.ErrEmailSenderHostInvalid)
 		return errors.ErrEmailSenderHostInvalid
 	}
 
 	if h.task.Sender.IsPortEmpty() {
-		log.Errorf("settings(%s): %v", queries.GetReqId(h.c), errors.ErrEmailSenderPortInvalid)
+		log.Errorf("settings(%s): %v", h.reqId, errors.ErrEmailSenderPortInvalid)
 		return errors.ErrEmailSenderPortInvalid
 	}
 
 	h.task.Key = h.task.Sender.Host
-	h.task.InitUpdateStatus()
-	h.task.ShouldReportToController = h.isClusterWiseRequired
+	h.task.SetUpdating()
+	h.task.IsReportRequired = h.isClusterWiseRequired
+
+	return nil
+}
+
+func (h *helper) initEmailSenderTrialParams() error {
+	err := h.c.ShouldBindJSON(&h.trial)
+	if err != nil {
+		log.Errorf("settings(%s): failed to decode email: %s", h.reqId, err.Error())
+		return err
+	}
+
+	err = email.CheckFormat(h.trial.Email)
+	if err != nil {
+		log.Errorf("settings(%s): invalid email format: %s", h.reqId, err.Error())
+		return err
+	}
 
 	return nil
 }
@@ -57,7 +105,7 @@ func (h *helper) initEmailSenderPatchParams() error {
 		return errors.ErrEmailSenderHostIsEmpty
 	}
 
-	h.task = &setting.Options{Type: "emailSender"}
+	h.task = &settings.Setting{Type: "emailSender"}
 	err := h.c.ShouldBindJSON(&h.task.Sender)
 	if err != nil {
 		return err
@@ -70,8 +118,8 @@ func (h *helper) initEmailSenderPatchParams() error {
 	h.task.Key = h.task.Sender.Host
 	h.task.Sender.Password = h.parsePassword()
 	h.task.Sender.ResetAccessVerification()
-	h.task.InitUpdateStatus()
-	h.task.ShouldReportToController = h.isClusterWiseRequired
+	h.task.SetUpdating()
+	h.task.IsReportRequired = h.isClusterWiseRequired
 
 	return nil
 }
@@ -98,39 +146,39 @@ func (h *helper) initEmailSenderDeleteParams() error {
 		return errors.ErrEmailSenderHostIsEmpty
 	}
 
-	h.task = &setting.Options{Type: "emailSender", Key: host}
+	h.task = &settings.Setting{Type: "emailSender", Key: host}
 	h.task.Sender = &email.Sender{Host: host}
-	h.task.InitDeleteStatus()
-	h.task.ShouldReportToController = h.isClusterWiseRequired
+	h.task.SetDeleting()
+	h.task.IsReportRequired = h.isClusterWiseRequired
 
 	return nil
 }
 
 func (h *helper) initEmailRecipientCreateParams() error {
-	h.task = &setting.Options{Type: "emailRecipient"}
+	h.task = &settings.Setting{Type: "emailRecipient"}
 	err := h.c.ShouldBindJSON(&h.task.Recipient)
 	if err != nil {
-		log.Errorf("settings(%s): failed to decode email recipient: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("settings(%s): failed to decode email recipient: %s", h.reqId, err.Error())
 		return err
 	}
 
 	err = email.CheckFormat(h.task.Recipient.Address)
 	if err != nil {
-		log.Errorf("settings(%s): invalid email format: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("settings(%s): invalid email format: %s", h.reqId, err.Error())
 		bodies.SetBadRequest(h.c, err)
 		return err
 	}
 
 	h.task.Key = h.task.Recipient.Address
-	h.task.InitCreateStatus()
-	h.task.ShouldReportToController = h.isClusterWiseRequired
+	h.task.SetCreating()
+	h.task.IsReportRequired = h.isClusterWiseRequired
 
 	return nil
 }
 
 func (h *helper) initEmailRecipientTrialParams() error {
 	h.recipientEmail = h.c.Param("recipientEmail")
-	if !isRecipientExist(h.recipientEmail) {
+	if !h.isRecipientExist(h.recipientEmail) {
 		return errors.ErrEmailRecipientNotFound
 	}
 
@@ -143,18 +191,17 @@ func (h *helper) initEmailRecipientPatchParams() error {
 		return errors.ErrEmailRecipientIsEmpty
 	}
 
-	h.task = &setting.Options{Type: "emailRecipient", Key: recipientEmail}
+	h.task = &settings.Setting{Type: "emailRecipient", Key: recipientEmail}
 	err := h.c.ShouldBindJSON(&h.task.Recipient)
 	if err != nil {
 		return err
 	}
 
+	h.task.SetUpdating()
+	h.task.IsReportRequired = h.isClusterWiseRequired
 	if h.task.Recipient.Address == "" {
 		h.task.Recipient.Address = recipientEmail
 	}
-
-	h.task.InitUpdateStatus()
-	h.task.ShouldReportToController = h.isClusterWiseRequired
 
 	return nil
 }
@@ -165,73 +212,84 @@ func (h *helper) initEmailRecipientDeleteParams() error {
 		return errors.ErrEmailRecipientIsEmpty
 	}
 
-	h.task = &setting.Options{Type: "emailRecipient", Key: recipientEmail}
+	h.task = &settings.Setting{Type: "emailRecipient", Key: recipientEmail}
 	h.task.Recipient = &email.Recipient{Address: recipientEmail}
-	h.task.InitDeleteStatus()
-	h.task.ShouldReportToController = h.isClusterWiseRequired
+	h.task.SetDeleting()
+	h.task.IsReportRequired = h.isClusterWiseRequired
 
 	return nil
 }
 
 func (h *helper) initSlackChannelDeleteParams() error {
-	channelName := h.c.Param("channelName")
-	if channelName == "" {
+	channel := h.c.Param("channelName")
+	if channel == "" {
 		return errors.ErrSlackChannelNameIsEmpty
 	}
 
 	policy, err := cubecos.GetAlertSetting()
 	if err != nil {
-		log.Errorf("settings(%s): failed to get alert setting: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("settings(%s): failed to get alert setting: %s", h.reqId, err.Error())
 		return err
 	}
 
-	h.task = &setting.Options{Type: "slackChannel", Key: channelName}
-	h.task.Slack = &slack.ApiChannel{Name: channelName, URL: policy.GetSlackUrlByName(channelName)}
-	h.task.InitDeleteStatus()
-	h.task.ShouldReportToController = h.isClusterWiseRequired
+	h.task = &settings.Setting{Type: "slackChannel", Key: channel}
+	h.task.SetDeleting()
+	h.task.IsReportRequired = h.isClusterWiseRequired
+	h.task.Slack = &slack.ApiChannel{
+		Name: channel,
+		URL:  policy.GetSlackUrlByName(channel),
+	}
 
 	return nil
 }
 
 func (h *helper) initSlackChannelCreateParams() error {
-	h.task = &setting.Options{Type: "slackChannel"}
+	h.task = &settings.Setting{Type: "slackChannel"}
 	err := h.c.ShouldBindJSON(&h.task.Slack)
 	if err != nil {
-		log.Errorf("settings(%s): failed to decode slack channel: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("settings(%s): failed to decode slack channel: %s", h.reqId, err.Error())
 		return err
 	}
 
 	h.task.Key = h.task.Slack.Name
-	h.task.InitCreateStatus()
-	h.task.ShouldReportToController = h.isClusterWiseRequired
+	h.task.SetCreating()
+	h.task.IsReportRequired = h.isClusterWiseRequired
 
 	return nil
 }
 
+func (h *helper) initSlackChannelTrialParams() error {
+	channel, err := cubecos.GetSlackChannel(h.c.Param("channelName"))
+	if err != nil {
+		return err
+	}
+
+	h.slackChannel = channel.URL
+	return nil
+}
+
 func (h *helper) initSlackChannelPatchParams() error {
-	channelName := h.c.Param("channelName")
-	if channelName == "" {
+	channel := h.c.Param("channelName")
+	if channel == "" {
 		return errors.ErrSlackChannelNameIsEmpty
 	}
 
 	policy, err := cubecos.GetAlertSetting()
 	if err != nil {
-		log.Errorf("settings(%s): failed to get alert setting: %s", queries.GetReqId(h.c), err.Error())
 		return err
 	}
 
-	h.task = &setting.Options{Type: "slackChannel", Key: policy.GetSlackUrlByName(channelName)}
+	h.task = &settings.Setting{Type: "slackChannel", Key: policy.GetSlackUrlByName(channel)}
 	err = h.c.ShouldBindJSON(&h.task.Slack)
 	if err != nil {
 		return err
 	}
 
+	h.task.SetUpdating()
+	h.task.IsReportRequired = h.isClusterWiseRequired
 	if h.task.Slack.Name == "" {
-		h.task.Slack.Name = channelName
+		h.task.Slack.Name = channel
 	}
-
-	h.task.InitUpdateStatus()
-	h.task.ShouldReportToController = h.isClusterWiseRequired
 
 	return nil
 }
@@ -239,12 +297,12 @@ func (h *helper) initSlackChannelPatchParams() error {
 func (h *helper) parseTaskUpdate() error {
 	err := h.c.ShouldBindJSON(&h.task)
 	if err != nil {
-		log.Errorf("settings(%s): failed to parse task: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("settings(%s): failed to parse task: %w", h.reqId, err)
 		return err
 	}
 
 	if h.task.Type == "" {
-		log.Errorf("settings(%s): %v", queries.GetReqId(h.c), errors.ErrAlertSettingTaskTypeIsEmpty)
+		log.Errorf("settings(%s): %w", h.reqId, errors.ErrAlertSettingTaskTypeIsEmpty)
 		return err
 	}
 

@@ -7,7 +7,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
@@ -15,7 +15,7 @@ import (
 )
 
 func IsAlertSetting(file string) bool {
-	return file == setting.PolicyV1
+	return file == settings.PolicyV1
 }
 
 func SyncAlertSettings() {
@@ -24,17 +24,17 @@ func SyncAlertSettings() {
 		return
 	}
 
-	setting.SetCosAlert(srcSetting)
+	settings.SetCosSchema(srcSetting)
 }
 
-func GetSourceAlertSetting() (*setting.CosAlert, error) {
+func GetSourceAlertSetting() (*settings.Cos, error) {
 	out, err := exec.Command("hex_sdk", "alert_get_setting").CombinedOutput()
 	if err != nil {
 		log.Errorf("settings: failed to get cos alert settings: %s(%s)", string(out), err.Error())
 		return nil, errors.ErrSdkExecutionFailure
 	}
 
-	settings := &setting.CosAlert{}
+	settings := &settings.Cos{}
 	err = json.Unmarshal(out, settings)
 	if err != nil {
 		log.Errorf("settings: failed to unmarshal cos alert settings: %s(%s)", string(out), err.Error())
@@ -44,10 +44,10 @@ func GetSourceAlertSetting() (*setting.CosAlert, error) {
 	return settings, nil
 }
 
-func GetAlertSetting() (*setting.CosAlert, error) {
+func GetAlertSetting() (*settings.Cos, error) {
 	maxTries := 10
 	for range maxTries {
-		alert := setting.GetCosAlert()
+		alert := settings.GetCosSchema()
 		if alert != nil {
 			return alert, nil
 		}
@@ -65,7 +65,7 @@ func GetEmailSenders() ([]email.Sender, error) {
 		return nil, err
 	}
 
-	sender := setting.Sender.Email.ConvertToApiSchema()
+	sender := setting.Sender.Email.ToApiSchema()
 	return []email.Sender{sender}, nil
 }
 
@@ -165,7 +165,7 @@ func ApplyEmailSender(sender email.Sender) error {
 	return nil
 }
 
-func DeleteAndCreateEmailRecipient(setting setting.Options) error {
+func DeleteAndCreateEmailRecipient(setting settings.Setting) error {
 	err := DeleteEmailRecipient(setting.Key)
 	if err != nil {
 		return err
@@ -219,13 +219,13 @@ func DeleteEmailRecipient(address string) error {
 	return nil
 }
 
-func DeleteAndCreateSlackChannel(setting setting.Options) error {
+func DeleteAndCreateSlackChannel(setting settings.Setting) error {
 	err := DeleteSlackChannel(setting.Key)
 	if err != nil {
 		return err
 	}
 
-	return ApplySlackChannel(setting.Slack.ConvertToCosSchema())
+	return ApplySlackChannel(setting.Slack.ToCosSchema())
 }
 
 func ApplySlackChannel(channel slack.CosChannel) error {
@@ -273,8 +273,8 @@ func DeleteSlackChannel(url string) error {
 	return nil
 }
 
-func WriteFakePolicyFile(policy *setting.CosAlert) {
-	policyFile, err := os.Create(setting.PolicyV1)
+func WriteFakePolicyFile(policy *settings.Cos) {
+	policyFile, err := os.Create(settings.PolicyV1)
 	if err != nil {
 		log.Errorf("settings: failed to create fake policy file: %s", err.Error())
 		return
@@ -289,7 +289,7 @@ func WriteFakePolicyFile(policy *setting.CosAlert) {
 	}
 }
 
-func IsSettingDeleted(setting setting.Options) bool {
+func IsSettingDeleted(setting settings.Setting) bool {
 	policy, err := GetAlertSetting()
 	if err != nil {
 		return false
@@ -302,8 +302,8 @@ func IsSettingDeleted(setting setting.Options) bool {
 	case "emailRecipient":
 		isDeleted = policy.HasRecipient(setting.Recipient.Address)
 	case "slackChannel":
-		channel := setting.Slack.ConvertToCosSchema()
-		isDeleted = policy.HasSlackChannel(channel)
+		channel := setting.Slack.ToCosSchema()
+		isDeleted = policy.HasSlack(channel)
 	}
 
 	return isDeleted

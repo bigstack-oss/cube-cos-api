@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
 	"github.com/fsnotify/fsnotify"
 	log "go-micro.dev/v5/logger"
@@ -17,7 +17,7 @@ func (o *Operator) initWatcher() error {
 		return err
 	}
 
-	err = o.watcher.Add(setting.PolicyDir)
+	err = o.watcher.Add(settings.PolicyDir)
 	if err != nil {
 		return err
 	}

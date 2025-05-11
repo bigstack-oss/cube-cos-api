@@ -11,7 +11,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/trigger"
@@ -225,7 +225,7 @@ func (n *Node) PatchSupportFileTaskUrl(file support.File) string {
 	return u.String()
 }
 
-func (n *Node) PatchSettingTaskUrl(setting setting.Options) string {
+func (n *Node) PatchSettingTaskUrl(setting settings.Setting) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address

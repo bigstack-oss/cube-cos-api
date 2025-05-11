@@ -5,11 +5,11 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/setting"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
-func (o *Operator) operateReq(setting setting.Options) error {
+func (o *Operator) operateReq(setting settings.Setting) error {
 	switch setting.Status.Desired {
 	case status.Created:
 		return o.createSetting(setting)
@@ -26,18 +26,18 @@ func (o *Operator) operateReq(setting setting.Options) error {
 	)
 }
 
-func (o *Operator) createSetting(setting setting.Options) error {
+func (o *Operator) createSetting(setting settings.Setting) error {
 	switch setting.Type {
 	case "emailRecipient":
 		return cubecos.ApplyEmailRecipient(*setting.Recipient)
 	case "slackChannel":
-		return cubecos.ApplySlackChannel(setting.Slack.ConvertToCosSchema())
+		return cubecos.ApplySlackChannel(setting.Slack.ToCosSchema())
 	}
 
 	return errors.ErrUnknownSettingType
 }
 
-func (o *Operator) updateSetting(setting setting.Options) error {
+func (o *Operator) updateSetting(setting settings.Setting) error {
 	switch setting.Type {
 	case "titlePrefix":
 		return cubecos.ApplyTitlePrefix(setting.TitlePrefix.Value)
@@ -52,7 +52,7 @@ func (o *Operator) updateSetting(setting setting.Options) error {
 	return errors.ErrUnknownSettingType
 }
 
-func (o *Operator) deleteSetting(setting setting.Options) error {
+func (o *Operator) deleteSetting(setting settings.Setting) error {
 	switch setting.Type {
 	case "emailSender":
 		return cubecos.DeleteEmailSender()

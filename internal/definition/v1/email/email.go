@@ -27,7 +27,7 @@ type CosSender struct {
 	From     string `json:"from,omitempty" bson:"from" yaml:"from,omitempty"`
 }
 
-func (c *CosSender) ConvertToApiSchema() Sender {
+func (c *CosSender) ToApiSchema() Sender {
 	port, err := strconv.Atoi(c.Port)
 	if err != nil {
 		port = 0
@@ -87,7 +87,7 @@ func (s *Sender) InitOkStatus() {
 	}
 }
 
-func (s *Sender) InitUpdateStatus() {
+func (s *Sender) SetUpdating() {
 	s.Status = &status.Settings{
 		Current:    status.Updating,
 		Desired:    status.Updated,
@@ -111,7 +111,7 @@ func CheckFormat(email string) error {
 	return err
 }
 
-func (r *Recipient) InitUpdateStatus() {
+func (r *Recipient) SetUpdating() {
 	r.Status = status.Settings{
 		Current:    status.Updating,
 		Desired:    status.Updated,

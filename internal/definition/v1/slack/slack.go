@@ -32,7 +32,7 @@ func (o *Options) InitOkStatus() {
 	}
 }
 
-func (c *ApiChannel) InitUpdateStatus() {
+func (c *ApiChannel) SetUpdating() {
 	c.Status = status.Settings{
 		Current:    status.Updating,
 		Desired:    status.Updated,
@@ -40,7 +40,7 @@ func (c *ApiChannel) InitUpdateStatus() {
 	}
 }
 
-func (c *ApiChannel) ConvertToCosSchema() CosChannel {
+func (c *ApiChannel) ToCosSchema() CosChannel {
 	return CosChannel{
 		Channel:     c.Name,
 		URL:         c.URL,
