@@ -83,7 +83,7 @@ func (h *helper) filterUnexpectedTunings(list []tunings.Tuning) []tunings.Tuning
 func (h *helper) filteredByKeyword(list []tunings.Tuning) []tunings.Tuning {
 	result, err := h.searchTunings(list)
 	if err != nil {
-		log.Errorf("failed to search tunings: %s", err.Error())
+		log.Errorf("tunings(%s): failed to search tunings: %s", h.reqId, err.Error())
 		return list
 	}
 
@@ -99,19 +99,20 @@ func (h *helper) filteredByKeyword(list []tunings.Tuning) []tunings.Tuning {
 func (h *helper) searchTunings(tunings []tunings.Tuning) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
-		log.Errorf("tunings: failed to create tuning searcher: %s", err.Error())
+		log.Errorf("tunings(%s): failed to create tuning searcher: %s", h.reqId, err.Error())
 		return nil, err
 	}
 
 	for _, tuning := range tunings {
-		err := searcher.Index(tuning.SearchKey(), tuning)
+		err := searcher.Index(tuning.SearchKey(), tuning.GenSearchableOject())
 		if err != nil {
 			continue
 		}
 	}
 
 	defer searcher.Close()
-	return searcher.Search(search.WildcardQuery(h.keyword))
+	keyword := search.NormalizedKeyword(h.keyword)
+	return searcher.Search(search.WildcardQuery(keyword))
 }
 
 func (h *helper) filteredByHosts(list []tunings.Tuning) []tunings.Tuning {
@@ -173,7 +174,7 @@ func (h *helper) syncUpdates(tunings *[]tunings.Tuning) {
 }
 
 func (h *helper) syncUpdateStatus(tuning tunings.Tuning) tunings.Tuning {
-	tuning.InitOkStatus()
+	tuning.SetOk()
 	if !h.hasUpdateHistory(tuning) {
 		return tuning
 	}
@@ -205,7 +206,7 @@ func (h *helper) hasUpdateHistory(tuning tunings.Tuning) bool {
 
 func (h *helper) getUpdateRecord(tuning tunings.Tuning) (tunings.Tuning, error) {
 	mongo := bsmongo.GetGlobalHelper()
-	pending, err := mongo.Get(
+	record, err := mongo.Get(
 		tunings.Module,
 		tunings.ReqCollection(),
 		bson.M{"id": tuning.GenerateId()},
@@ -214,11 +215,11 @@ func (h *helper) getUpdateRecord(tuning tunings.Tuning) (tunings.Tuning, error) 
 		return tuning, err
 	}
 
-	record := tunings.Tuning{}
-	err = pending.Decode(&record)
+	t := tunings.Tuning{}
+	err = record.Decode(&t)
 	if err != nil {
 		return tuning, err
 	}
 
-	return record, nil
+	return t, nil
 }

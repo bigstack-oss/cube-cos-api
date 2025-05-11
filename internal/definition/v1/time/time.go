@@ -2,6 +2,8 @@ package time
 
 import (
 	"time"
+
+	"github.com/shirou/gopsutil/v4/host"
 )
 
 const (
@@ -70,4 +72,14 @@ func LocalRFC3339(t time.Time) string {
 
 func ISO8601Z(t time.Time) string {
 	return t.Format(FormatISO8601Z)
+}
+
+func Boot() string {
+	bootDuration, err := host.BootTime()
+	if err != nil {
+		return ISO8601Z(time.Now())
+	}
+
+	bootTime := time.Unix(int64(bootDuration), 0)
+	return ISO8601Z(bootTime)
 }

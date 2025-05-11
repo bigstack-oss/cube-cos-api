@@ -146,7 +146,6 @@ func (h *helper) ListTunings() (*data, error) {
 
 	tunings = h.filterTunings(tunings)
 	h.enrichTuningPayload(&tunings)
-
 	pagedTunings, err := h.paginateTunings(tunings)
 	if err != nil {
 		log.Errorf("tunings(%s): failed to paginate tunings: %s", queries.GetReqId(h.c), err.Error())

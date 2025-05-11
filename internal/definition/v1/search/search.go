@@ -27,6 +27,7 @@ func NormalizedKeyword(keyword string) string {
 		"@", "",
 		"!", "",
 		"#", "",
+		"/", "",
 	).Replace(keyword)
 }
 

@@ -13,9 +13,9 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
-	"github.com/shirou/gopsutil/v4/host"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -109,6 +109,25 @@ func (t *Tuning) GenerateId() string {
 	return fmt.Sprintf("%s-%s", t.Name, t.JoinHosts())
 }
 
+func (t *Tuning) GenSearchableOject() Tuning {
+	tuning := Tuning{
+		Name:        search.NormalizedKeyword(t.Name),
+		Value:       search.NormalizedKeyword(fmt.Sprintf("%v", t.Value)),
+		Description: search.NormalizedKeyword(t.Description),
+		Enabled:     t.Enabled,
+		Status:      &status.Tuning{UpdatedAt: search.NormalizedKeyword(t.Status.UpdatedAt)},
+	}
+
+	for _, host := range t.Hosts {
+		tuning.Hosts = append(
+			tuning.Hosts,
+			nodes.Host{Name: search.NormalizedKeyword(host.Name)},
+		)
+	}
+
+	return tuning
+}
+
 func (t *Tuning) JoinHosts() string {
 	hosts := []string{}
 	for _, host := range t.Hosts {
@@ -179,20 +198,12 @@ func (t *Tuning) InitResetStatus() {
 	}
 }
 
-func (t *Tuning) InitOkStatus() {
+func (t *Tuning) SetOk() {
 	t.Status = &status.Tuning{
 		Current:    status.Ok,
 		IsUpdating: false,
+		UpdatedAt:  time.Boot(),
 	}
-
-	bootDuration, err := host.BootTime()
-	if err != nil {
-		t.Status.UpdatedAt = time.ISO8601Z(ostime.Now())
-		return
-	}
-
-	bootTime := ostime.Unix(int64(bootDuration), 0)
-	t.Status.UpdatedAt = time.ISO8601Z(bootTime)
 }
 
 func (t *Tuning) StrValue() string {
