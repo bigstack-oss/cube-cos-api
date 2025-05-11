@@ -67,7 +67,7 @@ func VerifyLicense(file string) (*license.Verification, error) {
 
 // note:
 // currently, the COS license import result is not clear by identifying the return code
-// because it will still return 0 even if the result is not ok.
+// because it will still return 0 even the result is not ok.
 // see ticket to know more https://github.com/bigstack-oss/cubecos/issues/29
 func ImportClusterLicense(licensePath string) error {
 	dir, base := getDirAndLicenseName(licensePath)

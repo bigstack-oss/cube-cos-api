@@ -1,6 +1,8 @@
 package licenses
 
 import (
+	"errors"
+
 	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 )
 
@@ -10,6 +12,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListLicenseParams()
 	case "listAttachments":
 		return h.parseListAttachmentParams()
+	case "importHostLicense":
+		return h.parseImportHostLicenseParams()
 	}
 
 	return nil
@@ -39,6 +43,15 @@ func (h *helper) parseListAttachmentParams() error {
 	h.parseKeyword()
 	h.parseRoles()
 	h.parseStatuses()
+	return nil
+}
+
+func (h *helper) parseImportHostLicenseParams() error {
+	h.node = h.c.Param("node")
+	if h.node == "" {
+		return errors.New("node name is empty")
+	}
+
 	return nil
 }
 

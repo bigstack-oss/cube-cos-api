@@ -4,6 +4,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/blevesearch/bleve/v2"
@@ -107,7 +108,7 @@ func (h *helper) filteredByProduct(licenses []license.Options) []license.Options
 func (h *helper) searchLicenses(licenses []license.Options) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
-		log.Errorf("licenses: failed to create license searcher: %s", err.Error())
+		log.Errorf("licenses(%s): failed to new searcher: %s", queries.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
@@ -119,7 +120,8 @@ func (h *helper) searchLicenses(licenses []license.Options) (*bleve.SearchResult
 	}
 
 	defer searcher.Close()
-	return searcher.Search(search.WildcardQuery(h.keyword))
+	keyword := search.NormalizedKeyword(h.keyword)
+	return searcher.Search(search.WildcardQuery(keyword))
 }
 
 func genLicenseMap(licenses []license.Options) map[string]license.Options {
@@ -150,7 +152,7 @@ func (h *helper) filteredAttachmentByKeyword(attachments []license.Attachment) [
 func (h *helper) searchAttachments(attachments []license.Attachment) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
-		log.Errorf("licenses: failed to create license searcher: %s", err.Error())
+		log.Errorf("licenses(%s): failed to new searcher: %s", queries.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 

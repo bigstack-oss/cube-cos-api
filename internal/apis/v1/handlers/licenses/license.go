@@ -8,8 +8,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
-	"github.com/gin-gonic/gin"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -45,29 +44,30 @@ func genLicenseVerifyPath(filename string) (string, error) {
 	return filePath, nil
 }
 
-func importOrDelegateLicense(c *gin.Context, nodeName string) error {
-	licenseFile, err := c.FormFile("license")
+func (h *helper) importOrDelegateLicense() error {
+	license, err := h.c.FormFile("license")
 	if err != nil {
-		log.Errorf("licenses(%s): failed to get license file: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("licenses(%s): failed to get license file: %s", queries.GetReqId(h.c), err.Error())
 		return err
 	}
 
-	if nodeName != base.Hostname {
-		return sendLicenseToOtherNodes(nodeName, licenseFile)
+	if !nodes.IsLocal(h.node) {
+		return h.importPeerNode(license)
 	}
 
-	return importLicenseToNode(c, licenseFile)
+	return h.importLocal(license)
 }
 
-func importLicenseToNode(c *gin.Context, licenseFile *multipart.FileHeader) error {
-	filePath, err := genLicenseStorePath(licenseFile.Filename)
+func (h *helper) importLocal(license *multipart.FileHeader) error {
+	filePath, err := genLicenseStorePath(license.Filename)
 	if err != nil {
-		log.Errorf("licenses(%s): failed to generate license store path: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("licenses(%s): failed to generate license store path: %s", queries.GetReqId(h.c), err.Error())
 		return err
 	}
 
-	if err := c.SaveUploadedFile(licenseFile, filePath); err != nil {
-		log.Errorf("licenses(%s): failed to save license file: %s", queries.GetReqId(c), err.Error())
+	err = h.c.SaveUploadedFile(license, filePath)
+	if err != nil {
+		log.Errorf("licenses(%s): failed to save license file: %s", queries.GetReqId(h.c), err.Error())
 		return err
 	}
 

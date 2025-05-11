@@ -25,6 +25,7 @@ type helper struct {
 	statuses []string
 	roles    []string
 	keyword  string
+	node     string
 
 	watch bool
 	page  *pages.Page
@@ -49,7 +50,7 @@ func (h *helper) listLicenses() (*licensePages, error) {
 	}, nil
 }
 
-func (h *helper) saveLicense() (string, error) {
+func (h *helper) storeVerifyLicense() (string, error) {
 	license, err := h.c.FormFile("license")
 	if err != nil {
 		log.Errorf("licenses(%s): %s", queries.GetReqId(h.c), err.Error())
@@ -57,6 +58,28 @@ func (h *helper) saveLicense() (string, error) {
 	}
 
 	filePath, err := genLicenseVerifyPath(license.Filename)
+	if err != nil {
+		log.Errorf("licenses(%s): failed to generate license store path: %s", queries.GetReqId(h.c), err.Error())
+		return "", err
+	}
+
+	err = h.c.SaveUploadedFile(license, filePath)
+	if err != nil {
+		log.Errorf("licenses(%s): failed to save license file: %s", queries.GetReqId(h.c), err.Error())
+		return "", err
+	}
+
+	return filePath, nil
+}
+
+func (h *helper) storeImportLicense() (string, error) {
+	license, err := h.c.FormFile("license")
+	if err != nil {
+		log.Errorf("licenses(%s): %s", queries.GetReqId(h.c), err.Error())
+		return "", err
+	}
+
+	filePath, err := genLicenseStorePath(license.Filename)
 	if err != nil {
 		log.Errorf("licenses(%s): failed to generate license store path: %s", queries.GetReqId(h.c), err.Error())
 		return "", err

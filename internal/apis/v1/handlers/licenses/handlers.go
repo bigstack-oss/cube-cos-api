@@ -71,7 +71,7 @@ func verifyLicense(c *gin.Context) {
 		return
 	}
 
-	license, err := h.saveLicense()
+	license, err := h.storeVerifyLicense()
 	if err != nil {
 		bodies.SetBadRequest(c, err)
 		return
@@ -91,46 +91,53 @@ func verifyLicense(c *gin.Context) {
 }
 
 func importClusterLicense(c *gin.Context) {
-	licenseFile, err := c.FormFile("license")
+	h, err := initHelper(c, "importClusterLicense")
 	if err != nil {
-		log.Errorf("license(%s): %s", queries.GetReqId(c), err.Error())
+		log.Errorf("license(%s): failed to init helper: %s", queries.GetReqId(c), err.Error())
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
-	filePath, err := genLicenseStorePath(licenseFile.Filename)
+	path, err := h.storeImportLicense()
 	if err != nil {
-		log.Errorf("license(%s): failed to generate license store path: %s", queries.GetReqId(c), err.Error())
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
-	err = c.SaveUploadedFile(licenseFile, filePath)
-	if err != nil {
-		log.Errorf("license(%s): failed to save license file: %s", queries.GetReqId(c), err.Error())
-		bodies.SetInternalServerError(c, err)
-		return
-	}
-
-	err = cubecos.ImportClusterLicense(filePath)
+	err = cubecos.ImportClusterLicense(path)
 	if err != nil {
 		log.Errorf("license(%s): failed to import cluster license: %s", queries.GetReqId(c), err.Error())
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 
-	bodies.SetOk(c, "update licenses successfully", nil)
+	bodies.SetOk(
+		c,
+		"import license successfully",
+		nil,
+	)
 }
 
 func importHostLicense(c *gin.Context) {
-	err := importOrDelegateLicense(c, c.Param("node"))
+	h, err := initHelper(c, "importHostLicense")
+	if err != nil {
+		log.Errorf("license(%s): failed to init helper: %s", queries.GetReqId(c), err.Error())
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.importOrDelegateLicense()
 	if err != nil {
 		log.Errorf("license(%s): failed to import license: %s", queries.GetReqId(c), err.Error())
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 
-	bodies.SetOk(c, "update licenses successfully", nil)
+	bodies.SetOk(
+		c,
+		"update licenses successfully",
+		nil,
+	)
 }
 
 func listAttachments(c *gin.Context) {
