@@ -97,7 +97,6 @@ func (h *helper) storeImportLicense() (string, error) {
 func (h *helper) listAttachments() ([]license.Attachment, error) {
 	attachments, err := h.listAttachmentsByProduct()
 	if err != nil {
-		log.Warnf("licenses(%s): failed to list the license attachments: %s", queries.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
@@ -107,21 +106,14 @@ func (h *helper) listAttachments() ([]license.Attachment, error) {
 func (h *helper) listAttachmentsByProduct() ([]license.Attachment, error) {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
-		log.Warnf("licenses(%s): failed to list the licenses: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to list the licenses: %s", queries.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
 	attachments := []license.Attachment{}
 	for _, node := range nodes.List() {
-		attachment := license.Attachment{
-			SerialNumber: node.SerialNumber,
-			Hostname:     node.Hostname,
-			Role:         node.Role,
-			Product:      h.normalizeProductName(h.product),
-			Status:       status.Unlicense,
-		}
-
-		status, found := h.getProductStatusOfNode(node, licenses)
+		attachment := h.genUnlicenseAttachment(node)
+		status, found := h.getNodeProductStatus(node, licenses)
 		if found {
 			attachment.Status = status
 		}
@@ -132,13 +124,23 @@ func (h *helper) listAttachmentsByProduct() ([]license.Attachment, error) {
 	return attachments, nil
 }
 
+func (h *helper) genUnlicenseAttachment(node nodes.Node) license.Attachment {
+	return license.Attachment{
+		SerialNumber: node.SerialNumber,
+		Hostname:     node.Hostname,
+		Role:         node.Role,
+		Product:      h.normalizeProductName(h.product),
+		Status:       status.Unlicense,
+	}
+}
+
 func (h *helper) normalizeProductName(product string) string {
-	if strings.EqualFold(product, "CubeCOS") {
-		return "CubeCOS"
+	if strings.EqualFold(product, license.CubeCOS) {
+		return license.CubeCOS
 	}
 
-	if strings.EqualFold(product, "CubeCMP") {
-		return "CubeCMP"
+	if strings.EqualFold(product, license.CubeCMP) {
+		return license.CubeCMP
 	}
 
 	return fmt.Sprintf(
@@ -147,7 +149,7 @@ func (h *helper) normalizeProductName(product string) string {
 	)
 }
 
-func (h *helper) getProductStatusOfNode(node nodes.Node, licenses []license.Options) (string, bool) {
+func (h *helper) getNodeProductStatus(node nodes.Node, licenses []license.Options) (string, bool) {
 	for _, license := range licenses {
 		if !strings.EqualFold(h.product, license.Product.Name) {
 			continue

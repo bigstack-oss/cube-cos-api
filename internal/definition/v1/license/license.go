@@ -12,6 +12,9 @@ import (
 const (
 	Module = "licenses"
 	Dir    = "/etc/update"
+
+	CubeCOS = "CubeCOS"
+	CubeCMP = "CubeCMP"
 )
 
 var (

@@ -186,7 +186,7 @@ func parseName(raw license.Raw) string {
 }
 
 func parseProduct(raw license.Raw) license.Product {
-	name := "CubeCOS"
+	name := license.CubeCOS
 	if raw.Product != "" {
 		name = raw.Product
 	}

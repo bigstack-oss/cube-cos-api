@@ -143,11 +143,14 @@ func importHostLicense(c *gin.Context) {
 func listAttachments(c *gin.Context) {
 	h, err := initHelper(c, "listAttachments")
 	if err != nil {
+		log.Errorf("license(%s): failed to init helper: %s", queries.GetReqId(c), err.Error())
+		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	attachments, err := h.listAttachments()
 	if err != nil {
+		bodies.SetInternalServerError(c, err)
 		return
 	}
 
