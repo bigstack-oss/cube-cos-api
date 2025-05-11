@@ -28,6 +28,6 @@ func init() {
 		apiDoc,
 		handlers,
 		nodes.RoleControl,
-		nodes.RoleCompute,
+		nodes.RoleModerator,
 	)
 }

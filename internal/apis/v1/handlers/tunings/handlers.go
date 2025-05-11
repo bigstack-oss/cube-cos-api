@@ -3,7 +3,7 @@ package tunings
 import (
 	"net/http"
 
-	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/tunings"
@@ -13,39 +13,39 @@ import (
 
 var (
 	reqQueue = tunings.ReqQueue
-	Handlers = []api.Handler{
+	Handlers = []apis.Handler{
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/tunings/specs",
 			Func:    getTuningSpecs,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/tunings/parameters",
 			Func:    listTunings,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/tunings/parameters/:parameterName",
 			Func:    updateTuning,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/tunings/parameters/:parameterName/enable",
 			Func:    enableOrDisableTuning,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/tunings/parameters/:parameterName/reset",
 			Func:    resetTuning,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/tunings/tasks/:taskId",
 			Func:    updateTuningTask,

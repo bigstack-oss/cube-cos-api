@@ -3,7 +3,7 @@ package tokens
 import (
 	"net/http"
 
-	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	Handlers = []api.Handler{
+	Handlers = []apis.Handler{
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/tokens",
 			Func:    createToken,

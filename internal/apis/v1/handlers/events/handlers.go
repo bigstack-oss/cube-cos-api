@@ -3,7 +3,7 @@ package events
 import (
 	"net/http"
 
-	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/gin-gonic/gin"
@@ -12,27 +12,27 @@ import (
 
 var (
 	Module   = "events"
-	Handlers = []api.Handler{
+	Handlers = []apis.Handler{
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/events",
 			Func:    listEvents,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/events/abstract",
 			Func:    listEventAbstract,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/events/rank",
 			Func:    getEventRank,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/events/filterConditions",
 			Func:    getEventFilterConditions,

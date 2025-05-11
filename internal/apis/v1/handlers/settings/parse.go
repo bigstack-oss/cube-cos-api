@@ -251,7 +251,7 @@ func (h *helper) initSlackChannelCreateParams() error {
 		return err
 	}
 
-	h.task.Key = h.task.Slack.Name
+	h.task.Key = h.task.Slack.URL
 	h.task.SetCreating()
 	h.task.IsReportRequired = h.isClusterWiseRequired
 
@@ -297,12 +297,12 @@ func (h *helper) initSlackChannelPatchParams() error {
 func (h *helper) parseTaskUpdate() error {
 	err := h.c.ShouldBindJSON(&h.task)
 	if err != nil {
-		log.Errorf("settings(%s): failed to parse task: %w", h.reqId, err)
+		log.Errorf("settings(%s): failed to parse task: %s", h.reqId, err.Error())
 		return err
 	}
 
 	if h.task.Type == "" {
-		log.Errorf("settings(%s): %w", h.reqId, errors.ErrAlertSettingTaskTypeIsEmpty)
+		log.Errorf("settings(%s): %s", h.reqId, errors.ErrAlertSettingTaskTypeIsEmpty.Error())
 		return err
 	}
 

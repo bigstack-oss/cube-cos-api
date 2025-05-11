@@ -3,23 +3,23 @@ package datacenters
 import (
 	"net/http"
 
-	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/gin-gonic/gin"
 )
 
 var (
-	Handlers = []api.Handler{
+	Handlers = []apis.Handler{
 		{
-			Version:              api.V1,
+			Version:              apis.V1,
 			Method:               http.MethodGet,
 			Path:                 "/datacenters",
 			Func:                 listDataCenters,
 			IsNotUnderDataCenter: true,
 		},
 		{
-			Version:              api.V1,
+			Version:              apis.V1,
 			Method:               http.MethodGet,
 			Path:                 "/datacenters/:DataCenter",
 			Func:                 getDataCenter,

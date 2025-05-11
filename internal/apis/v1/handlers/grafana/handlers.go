@@ -3,7 +3,7 @@ package grafana
 import (
 	"net/http"
 
-	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/grafana"
@@ -11,45 +11,45 @@ import (
 )
 
 var (
-	Handlers = []api.Handler{
+	Handlers = []apis.Handler{
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/grafana/hosts/:hostname",
 			Func:    forwardHostLink,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/grafana/instances/:instanceId",
 			Func:    forwardInstanceLink,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/grafana/topHosts",
 			Func:    forwardTopHostLink,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/grafana/topInstances",
 			Func:    forwardTopInstanceLink,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/grafana/networks",
 			Func:    forwardNetworksLink,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/grafana/networkDevices",
 			Func:    forwardNetworkDevicesLink,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/grafana/storages",
 			Func:    forwardStoragesLink,

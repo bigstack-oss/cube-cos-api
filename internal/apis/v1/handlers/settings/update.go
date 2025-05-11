@@ -247,18 +247,23 @@ func (h *helper) syncUpdatingSlack(opt *slack.Options) {
 
 	h.syncUpdatingSlacks(&opt.Channels)
 	for i, channel := range opt.Channels {
-		if h.isSlackUpdating(&channel) {
-			val := h.syncUpdatingSlackValue(&channel)
-			if val == nil {
-				continue
-			}
-
-			opt.Channels[i] = *val
-			opt.Channels[i].SetUpdating()
+		if !h.isSlackUpdating(&channel) {
+			continue
 		}
+
+		val := h.syncUpdatingSlackValue(&channel)
+		if val == nil {
+			continue
+		}
+
+		opt.Channels[i] = *val
+		opt.Channels[i].SetUpdating()
 	}
 
-	dedupSlacks(opt)
+	// note:
+	// in the M2, we might consider to let url or name either one to be uneditable
+	// otherwise, the tracking logic will be complicated
+	dedupNameOrUrlUpdatingSlacks(opt)
 }
 
 func (h *helper) syncUpdatingSlacks(channels *[]slack.ApiChannel) {
@@ -306,7 +311,7 @@ func (h *helper) dedupUpdatingSlacks(channels *[]slack.ApiChannel) {
 	}
 }
 
-func dedupSlacks(opts *slack.Options) {
+func dedupNameOrUrlUpdatingSlacks(opts *slack.Options) {
 	uniqs := map[string]slack.ApiChannel{}
 	for _, channel := range opts.Channels {
 		prev, found := uniqs[channel.URL]

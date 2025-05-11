@@ -3,7 +3,7 @@ package metrics
 import (
 	"net/http"
 
-	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
@@ -13,21 +13,21 @@ import (
 )
 
 var (
-	Handlers = []api.Handler{
+	Handlers = []apis.Handler{
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/metrics",
 			Func:    getDataCenterSummary,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/metrics/:metricType/:viewType/:entityType",
 			Func:    getMetrics,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/metrics/:metricType/:viewType/:entityType/:entityId",
 			Func:    getMetrics,

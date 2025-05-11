@@ -3,7 +3,7 @@ package triggers
 import (
 	"net/http"
 
-	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/triggers"
@@ -13,33 +13,33 @@ import (
 
 var (
 	reqQueue = triggers.ReqQueue
-	Handlers = []api.Handler{
+	Handlers = []apis.Handler{
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/triggers",
 			Func:    listTriggers,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/triggers/:triggerName",
 			Func:    getTrigger,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/triggers/:triggerName",
 			Func:    updateTrigger,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/triggers/:triggerName/enable",
 			Func:    enableOrDisableTrigger,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/triggers/tasks/:triggerName",
 			Func:    updateTriggerTask,

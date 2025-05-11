@@ -152,7 +152,7 @@ func (h *helper) isSlackUpdating(channel *slack.ApiChannel) bool {
 		},
 	)
 	if err != nil {
-		log.Errorf("settings(%s): failed to get slack channel count: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to get slack count: %s", h.reqId, err.Error())
 		return false
 	}
 

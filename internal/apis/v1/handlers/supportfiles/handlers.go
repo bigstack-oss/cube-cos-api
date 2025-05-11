@@ -1,7 +1,7 @@
 package supportfiles
 
 import (
-	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/supportfiles"
@@ -11,33 +11,33 @@ import (
 
 var (
 	reqQueue = supportfiles.ReqQueue
-	Handlers = []api.Handler{
+	Handlers = []apis.Handler{
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  "GET",
 			Path:    "/supportFiles",
 			Func:    listSupportFiles,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  "POST",
 			Path:    "/supportFiles",
 			Func:    createSupportFile,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  "GET",
 			Path:    "/supportFiles/:supportFileGroup/:supportFileName",
 			Func:    downloadSupportFile,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  "PATCH",
 			Path:    "/supportFiles/:supportFileGroup",
 			Func:    updateSupportFileTask,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  "GET",
 			Path:    "/supportFiles/hosts/:hostname",
 			Func:    listHostSupportFiles,

@@ -3,7 +3,7 @@ package healths
 import (
 	"net/http"
 
-	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/healths"
@@ -13,45 +13,45 @@ import (
 
 var (
 	reqQueue = healths.ReqQueue
-	Handlers = []api.Handler{
+	Handlers = []apis.Handler{
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/healths",
 			Func:    getHealthSummary,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/healths/services/:serviceType",
 			Func:    genServiceHealthHistory,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/healths/services/:serviceType/modules/:moduleType",
 			Func:    getModuleHealthHistory,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/healths",
 			Func:    checkAndRepairAllModules,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/healths/services/:serviceType/modules/:moduleType",
 			Func:    forceRepairModule,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodDelete,
 			Path:    "/healths/tasks/repairing",
 			Func:    deleteCheckRepairTask,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodDelete,
 			Path:    "/healths/tasks/repairing/:moduleType",
 			Func:    deleteModuleRepairTask,

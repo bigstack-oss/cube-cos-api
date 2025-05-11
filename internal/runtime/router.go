@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	datacenterapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/datacenters"
@@ -51,7 +52,7 @@ import (
 
 func newHttpServer() (*server.Server, error) {
 	router := newGinRouter()
-	prepareApiHandleraByRole()
+	prepareApiHandlersByRole()
 	err := registerHandlersByCurrentRole(router)
 	if err != nil {
 		log.Errorf("runtime: failed to register handlers: %s", err.Error())
@@ -83,7 +84,7 @@ func newGinRouter() *gin.Engine {
 	return router
 }
 
-func setRoleHandlersToRouter(router *gin.Engine, handlers []api.Handler) {
+func setRoleHandlersToRouter(router *gin.Engine, handlers []apis.Handler) {
 	for _, h := range handlers {
 		if h.Version == "" {
 			log.Warnf("runtime: skip invalid API registration: %s %s(no version provided)", h.Method, h.Path)
@@ -97,7 +98,7 @@ func setRoleHandlersToRouter(router *gin.Engine, handlers []api.Handler) {
 	}
 }
 
-func getUrlParentPath(h api.Handler) string {
+func getUrlParentPath(h apis.Handler) string {
 	if h.IsNotUnderDataCenter {
 		return h.Version
 	}
@@ -105,12 +106,11 @@ func getUrlParentPath(h api.Handler) string {
 	return fmt.Sprintf("%s/datacenters/:DataCenter", h.Version)
 }
 
-func prepareApiHandleraByRole() {
+func prepareApiHandlersByRole() {
 	api.RegisterHandlersToRoles(
 		base.DataCenters,
 		datacenterapi.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleModerator,
 	)
 
@@ -118,7 +118,6 @@ func prepareApiHandleraByRole() {
 		services.ModuleName,
 		servicesapi.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleModerator,
 	)
 
@@ -126,7 +125,6 @@ func prepareApiHandleraByRole() {
 		me.Module,
 		meapi.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleModerator,
 	)
 
@@ -134,7 +132,6 @@ func prepareApiHandleraByRole() {
 		integration.Module,
 		integrations.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleModerator,
 	)
 
@@ -142,7 +139,6 @@ func prepareApiHandleraByRole() {
 		health.Module,
 		healths.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleCompute,
 		nodes.RoleStorage,
 		nodes.RoleModerator,
@@ -153,7 +149,6 @@ func prepareApiHandleraByRole() {
 		event.Module,
 		events.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleModerator,
 	)
 
@@ -161,7 +156,6 @@ func prepareApiHandleraByRole() {
 		nodes.Module,
 		nodeapi.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleCompute,
 		nodes.RoleStorage,
 		nodes.RoleModerator,
@@ -172,7 +166,6 @@ func prepareApiHandleraByRole() {
 		tunings.Module,
 		tuningapi.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleCompute,
 		nodes.RoleStorage,
 		nodes.RoleModerator,
@@ -183,7 +176,6 @@ func prepareApiHandleraByRole() {
 		metric.Module,
 		metrics.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleCompute,
 		nodes.RoleStorage,
 		nodes.RoleModerator,
@@ -200,7 +192,6 @@ func prepareApiHandleraByRole() {
 		auths.Logout,
 		logout.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleModerator,
 	)
 
@@ -208,7 +199,6 @@ func prepareApiHandleraByRole() {
 		license.Module,
 		licenses.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleModerator,
 	)
 
@@ -216,14 +206,12 @@ func prepareApiHandleraByRole() {
 		trigger.Module,
 		triggers.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleModerator,
 	)
 
 	api.RegisterHandlersToRoles(
 		support.Files,
 		supportfiles.Handlers,
-		nodes.RoleControlConverged,
 		nodes.RoleControl,
 		nodes.RoleCompute,
 		nodes.RoleStorage,
@@ -235,7 +223,6 @@ func prepareApiHandleraByRole() {
 		grafana.Module,
 		grafanapi.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleModerator,
 	)
 
@@ -243,7 +230,6 @@ func prepareApiHandleraByRole() {
 		opensearch.Module,
 		opensearchapi.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleModerator,
 	)
 
@@ -251,7 +237,6 @@ func prepareApiHandleraByRole() {
 		settings.Module,
 		settingsapi.Handlers,
 		nodes.RoleControl,
-		nodes.RoleControlConverged,
 		nodes.RoleModerator,
 	)
 }

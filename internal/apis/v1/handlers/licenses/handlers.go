@@ -3,7 +3,7 @@ package licenses
 import (
 	"net/http"
 
-	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
@@ -13,33 +13,33 @@ import (
 )
 
 var (
-	Handlers = []api.Handler{
+	Handlers = []apis.Handler{
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/licenses",
 			Func:    listLicenses,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/licenses/verify",
 			Func:    verifyLicense,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/licenses",
 			Func:    importClusterLicense,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/licenses/hosts/:hostname",
 			Func:    importHostLicense,
 		},
 		{
-			Version: api.V1,
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/licenses/attachments",
 			Func:    listAttachments,
