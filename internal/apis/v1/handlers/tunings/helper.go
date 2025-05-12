@@ -144,7 +144,7 @@ func (h *helper) ListTunings() (*data, error) {
 		return nil, err
 	}
 
-	h.enrichTuningPayload(&tunings)
+	h.enrichTunings(&tunings)
 	tunings = h.filterTunings(tunings)
 	pagedTunings, err := h.paginateTunings(tunings)
 	if err != nil {

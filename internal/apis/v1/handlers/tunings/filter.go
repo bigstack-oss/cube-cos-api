@@ -100,7 +100,7 @@ func (h *helper) searchTunings(tunings []tunings.Tuning) (*bleve.SearchResult, e
 	}
 
 	for _, tuning := range tunings {
-		err := searcher.Index(tuning.SearchKey(), tuning.GenSearchableOject())
+		err := searcher.Index(tuning.IndexKey(), tuning.GenSearchableOject())
 		if err != nil {
 			continue
 		}
@@ -152,13 +152,13 @@ func (h *helper) containsHosts(hosts []nodes.Host) bool {
 func genTuningMap(list []tunings.Tuning) map[string]tunings.Tuning {
 	tuningMap := map[string]tunings.Tuning{}
 	for _, tuning := range list {
-		tuningMap[tuning.SearchKey()] = tuning
+		tuningMap[tuning.IndexKey()] = tuning
 	}
 
 	return tuningMap
 }
 
-func (h *helper) enrichTuningPayload(tunings *[]tunings.Tuning) {
+func (h *helper) enrichTunings(tunings *[]tunings.Tuning) {
 	h.syncUpdates(tunings)
 	h.sortTunings(tunings)
 }

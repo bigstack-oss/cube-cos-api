@@ -592,7 +592,7 @@ func aggregateTunings(nodeToTuning map[string][]tunings.Tuning) []tunings.Tuning
 
 func setTunings(mergedMap map[string]tunings.Tuning, tunings []tunings.Tuning) {
 	for _, tuning := range tunings {
-		key := tuning.SearchKey()
+		key := tuning.IndexKey()
 		existing, found := mergedMap[key]
 		if found {
 			existing.Hosts = slices.Concat(existing.Hosts, tuning.Hosts)

@@ -1,6 +1,8 @@
 package tunings
 
 import (
+	"crypto/sha512"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"regexp"
@@ -75,6 +77,7 @@ type Tuning struct {
 	Enabled     bool       `json:"enabled" yaml:"enabled" bson:"enabled"`
 	IsModified  bool       `json:"isModified" yaml:"-" bson:"-"`
 	Limitation  Limitation `json:"limitation" yaml:"-" bson:"-"`
+	SortIndex   string     `json:"-" yaml:"-" bson:"-"`
 
 	Node   *nodes.Node    `json:"node,omitempty" yaml:"-" bson:"-"`
 	Hosts  []nodes.Host   `json:"hosts" yaml:"-" bson:"-"`
@@ -254,8 +257,18 @@ func (t *Tuning) GenTaskUpdate() Tuning {
 	}
 }
 
-func (t *Tuning) SearchKey() string {
+func (t *Tuning) IndexKey() string {
 	return t.Name + "|" + fmt.Sprintf("%v", t.Value) + "|" + strconv.FormatBool(t.Enabled) + "|" + strconv.FormatBool(t.IsModified)
+}
+
+func (t *Tuning) GenSortIndex() string {
+	if len(t.Name) == 0 {
+		return ""
+	}
+
+	firstChar := fmt.Sprintf("%c", t.Name[0])
+	hash := sha512.Sum512([]byte(t.IndexKey()))
+	return fmt.Sprintf("%s%s", firstChar, hex.EncodeToString(hash[:]))
 }
 
 func CheckSpec(tuning Tuning) error {
