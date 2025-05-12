@@ -31,7 +31,7 @@ spec:
         metadataPath: "/saml/metadata"
         host:
           scheme: "https"
-          port: 4443
+          port: 443
           auth:
             key: "/var/www/certs/server.key"
             cert: "/var/www/certs/server.cert"

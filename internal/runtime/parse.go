@@ -172,7 +172,7 @@ func genLogoutRedirectUrl() (string, error) {
 	}
 
 	return fmt.Sprintf(
-		"https://%s:4443%s",
+		"https://%s:443%s",
 		base.DataCenterVip,
 		conf.Opts.Spec.Identity.Redirect,
 	), nil
