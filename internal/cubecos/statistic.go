@@ -40,7 +40,7 @@ func (h *HostSummary) ListMemoryUsages() []metric.Space {
 	return list
 }
 
-func (h *HostSummary) SetHostUsageByNodes(nodes []nodes.Node) {
+func (h *HostSummary) SetHostUsages(nodes []nodes.Node) {
 	for _, node := range nodes {
 		usage, err := GetHostUsage(node)
 		if err != nil {
@@ -60,7 +60,7 @@ func (h *HostSummary) SetHostUsageByNodes(nodes []nodes.Node) {
 	}
 }
 
-func (h *HostSummary) SetRoleUsageByHosts() {
+func (h *HostSummary) SetRoleUsages() {
 	roleMap := map[string]RoleUsage{}
 	h.sumRoleUsage(roleMap)
 	h.summarizeRoleUsage(roleMap)
@@ -89,6 +89,13 @@ func (h *HostSummary) sumRoleUsage(roleMap map[string]RoleUsage) {
 
 		roleMap[u.Role] = role
 	}
+
+	// list := nodes.List()
+	// for _, node := range list {
+	// 	role := roleMap[node.Role]
+	// 	role.Count++
+	// 	roleMap[node.Role] = role
+	// }
 }
 
 func (h *HostSummary) summarizeRoleUsage(roleMap map[string]RoleUsage) {

@@ -56,7 +56,7 @@ var (
 
 	hostNetworkIngressRankStmt = `
 		from(bucket: "telegraf")
-			|> range(start: -5m)
+			|> range(start: -6h)
 			|> filter(fn: (r) => 
 				r._measurement == "net" and
 				r.interface =~ /^eth[0-9]+$/ and
@@ -319,8 +319,8 @@ func GetHostsMemoryAverage(spaceStats []metric.Space) metric.Space {
 func GetHostSummary() (*HostSummary, error) {
 	s := &HostSummary{}
 	nodes := nodes.List()
-	s.SetHostUsageByNodes(nodes)
-	s.SetRoleUsageByHosts()
+	s.SetHostUsages(nodes)
+	s.SetRoleUsages()
 	return s, nil
 }
 
@@ -1359,28 +1359,6 @@ func parseVmMemoryRank(c *api.QueryTableResult) ([]metric.RankPoint, error) {
 	}
 
 	return rank, nil
-}
-
-func parseMemoryUsageSummaryOfHost(c *api.QueryTableResult) (*metric.Space, error) {
-	memoryUsage := metric.Space{}
-	for c.Next() {
-		record := c.Record()
-		memoryUsage = parseMemoryUsage(record)
-		break
-	}
-	if c.Err() != nil {
-		return nil, c.Err()
-	}
-
-	return &memoryUsage, nil
-}
-
-func parseMemoryUsage(record *query.FluxRecord) metric.Space {
-	usedPercent := record.Value().(float64)
-	return metric.Space{
-		UsedPercent: math.RoundDown(usedPercent, 4),
-		FreePercent: math.RoundDown(100-usedPercent, 4),
-	}
 }
 
 func parseHostStorageUsageRank(c *api.QueryTableResult) ([]metric.RankPoint, error) {

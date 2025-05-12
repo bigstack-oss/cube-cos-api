@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"slices"
 	"sync"
+	"sync/atomic"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
@@ -24,10 +25,14 @@ const (
 )
 
 var (
-	list           = []Node{}
+	list           = atomic.Pointer[[]Node]{}
 	updateServices = sync.Mutex{}
-	listNodes      = sync.Mutex{}
 )
+
+func init() {
+	empty := []Node{}
+	list.Store(&empty)
+}
 
 type Node struct {
 	Id                string             `json:"id" yaml:"id"`
@@ -445,8 +450,17 @@ func GetController() (*Node, error) {
 	return &nodes[0], nil
 }
 
+func List() []Node {
+	nodes := list.Load()
+	if nodes == nil {
+		return []Node{}
+	}
+
+	return *nodes
+}
+
 func Get(hostname string) (*Node, error) {
-	for _, node := range list {
+	for _, node := range List() {
 		if node.Hostname == hostname {
 			return &node, nil
 		}
@@ -459,13 +473,7 @@ func Get(hostname string) (*Node, error) {
 }
 
 func SetList(nodes []Node) {
-	listNodes.Lock()
-	defer listNodes.Unlock()
-	list = nodes
-}
-
-func List() []Node {
-	return list
+	list.Swap(&nodes)
 }
 
 func Sync() {
