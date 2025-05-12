@@ -16,14 +16,14 @@ import (
 func GetRawBlockDevices() ([]nodes.RawBlockDevice, error) {
 	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "TYPE,NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS", "-e", blockdevice.NetCode).Output()
 	if err != nil {
-		log.Errorf("nodes: failed to get block device info: %s", err.Error())
+		log.Errorf("nodes: failed to get block device info: %v", err)
 		return nil, err
 	}
 
 	blockDevMap := map[string][]nodes.RawBlockDevice{}
 	err = json.Unmarshal(b, &blockDevMap)
 	if err != nil {
-		log.Errorf("nodes: failed to unmarshal block device info: %s", err.Error())
+		log.Errorf("nodes: failed to unmarshal block device info: %v", err)
 		return nil, err
 	}
 
@@ -38,6 +38,16 @@ func GetRawBlockDevices() ([]nodes.RawBlockDevice, error) {
 	}
 
 	return getBlockOrPartitionOnly(rawBlockDevs), nil
+}
+
+func ConvertToBlockDevice(rawBlockDev nodes.RawBlockDevice) nodes.BlockDevice {
+	return nodes.BlockDevice{
+		Serial:  rawBlockDev.Serial,
+		Name:    rawBlockDev.Name,
+		Type:    convertBlockDeviceType(rawBlockDev.Rota),
+		SizeMiB: convertBlockDeviceSize(rawBlockDev.Size),
+		Status:  status.BlockDevice{Current: "can be added"},
+	}
 }
 
 func getBlockOrPartitionOnly(rawBlockDevs []nodes.RawBlockDevice) []nodes.RawBlockDevice {
@@ -55,28 +65,18 @@ func getBlockOrPartitionOnly(rawBlockDevs []nodes.RawBlockDevice) []nodes.RawBlo
 	return blockDevs
 }
 
-func ConvertToBlockDevice(rawBlockDev nodes.RawBlockDevice) nodes.BlockDevice {
-	return nodes.BlockDevice{
-		Serial:  rawBlockDev.Serial,
-		Name:    rawBlockDev.Name,
-		Type:    convertBlockDeviceType(rawBlockDev.Rota),
-		SizeMiB: convertBlockDeviceSize(rawBlockDev.Size),
-		Status:  status.BlockDevice{Current: "can be added"},
-	}
-}
-
-func convertBlockDeviceType(rota bool) string {
-	if rota {
-		return "HDD"
+func convertBlockDeviceType(rotation bool) string {
+	if rotation {
+		return blockdevice.HDD
 	}
 
-	return "SSD"
+	return blockdevice.SSD
 }
 
 func convertBlockDeviceSize(sizeStr string) float64 {
 	bytes, err := humanize.ParseBytes(sizeStr)
 	if err != nil {
-		log.Errorf("nodes: failed to convert block device size: %s", err.Error())
+		log.Errorf("nodes: failed to convert block device size: %v", err)
 		return 0
 	}
 

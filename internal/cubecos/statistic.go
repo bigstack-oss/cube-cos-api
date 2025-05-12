@@ -22,6 +22,43 @@ type HostSummary struct {
 	Usages []HostUsage `json:"usages"`
 }
 
+type HostUsage struct {
+	Role    string         `json:"role"`
+	Name    string         `json:"name"`
+	Address string         `json:"address"`
+	Cpu     metric.Compute `json:"cpu"`
+	Memory  metric.Space   `json:"memory"`
+}
+
+type Role struct {
+	ControlConverged RoleUsage `json:"controlConverged"`
+	Control          RoleUsage `json:"control"`
+	Compute          RoleUsage `json:"compute"`
+	Storage          RoleUsage `json:"storage"`
+	EdgeCore         RoleUsage `json:"edgeCore"`
+	Moderator        RoleUsage `json:"moderator"`
+}
+
+type RoleUsage struct {
+	Count  int            `json:"count"`
+	Cpu    metric.Compute `json:"cpu"`
+	Memory metric.Space   `json:"memory"`
+}
+
+type VmSummary struct {
+	Status         VmStatus `json:"status"`
+	metric.VmUsage `json:"usage"`
+}
+
+type VmStatus struct {
+	Total   int `json:"total"`
+	Running int `json:"running"`
+	Stopped int `json:"stopped"`
+	Suspend int `json:"suspend"`
+	Paused  int `json:"paused"`
+	Error   int `json:"error"`
+}
+
 func (h *HostSummary) ListCpuUsages() []metric.Compute {
 	var list []metric.Compute
 	for _, u := range h.Usages {
@@ -114,43 +151,6 @@ func (h *HostSummary) setRoleUsage(role map[string]RoleUsage) {
 	h.Role.Storage = role[nodes.RoleStorage]
 	h.Role.EdgeCore = role[nodes.RoleEdgeCore]
 	h.Role.Moderator = role[nodes.RoleModerator]
-}
-
-type HostUsage struct {
-	Role    string         `json:"role"`
-	Name    string         `json:"name"`
-	Address string         `json:"address"`
-	Cpu     metric.Compute `json:"cpu"`
-	Memory  metric.Space   `json:"memory"`
-}
-
-type Role struct {
-	ControlConverged RoleUsage `json:"controlConverged"`
-	Control          RoleUsage `json:"control"`
-	Compute          RoleUsage `json:"compute"`
-	Storage          RoleUsage `json:"storage"`
-	EdgeCore         RoleUsage `json:"edgeCore"`
-	Moderator        RoleUsage `json:"moderator"`
-}
-
-type RoleUsage struct {
-	Count  int            `json:"count"`
-	Cpu    metric.Compute `json:"cpu"`
-	Memory metric.Space   `json:"memory"`
-}
-
-type VmSummary struct {
-	Status         VmStatus `json:"status"`
-	metric.VmUsage `json:"usage"`
-}
-
-type VmStatus struct {
-	Total   int `json:"total"`
-	Running int `json:"running"`
-	Stopped int `json:"stopped"`
-	Suspend int `json:"suspend"`
-	Paused  int `json:"paused"`
-	Error   int `json:"error"`
 }
 
 func (s *Summary) Bytes() []byte {

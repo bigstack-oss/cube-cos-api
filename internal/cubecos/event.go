@@ -30,18 +30,6 @@ func CountEvents(stmt string) (int64, error) {
 	return countEvents(c)
 }
 
-func countEvents(c *api.QueryTableResult) (int64, error) {
-	count := int64(0)
-	for c.Next() {
-		count++
-	}
-	if c.Err() != nil {
-		return 0, c.Err()
-	}
-
-	return count, nil
-}
-
 func ListEvents(stmt string) ([]events.Event, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
@@ -107,6 +95,18 @@ func GetEventFilterConditions(stmt string) ([]string, error) {
 	}
 
 	return values, nil
+}
+
+func countEvents(c *api.QueryTableResult) (int64, error) {
+	count := int64(0)
+	for c.Next() {
+		count++
+	}
+	if c.Err() != nil {
+		return 0, c.Err()
+	}
+
+	return count, nil
 }
 
 func parseEventValues(c *api.QueryTableResult, values *[]string) error {

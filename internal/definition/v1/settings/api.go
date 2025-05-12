@@ -9,9 +9,9 @@ import (
 )
 
 func (a *Api) SetOkStatus() {
-	a.TitlePrefix.Status.InitOkStatus()
-	a.Email.InitOkStatus()
-	a.Slack.InitOkStatus()
+	a.TitlePrefix.Status.SetOk()
+	a.Email.SetOk()
+	a.Slack.SetOk()
 }
 
 type Api struct {

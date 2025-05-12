@@ -80,7 +80,7 @@ func (s *Sender) ErasePassword() {
 	s.Password = nil
 }
 
-func (s *Sender) InitOkStatus() {
+func (s *Sender) SetOk() {
 	s.Status = &status.Settings{
 		Current:    status.Ok,
 		IsUpdating: false,
@@ -119,12 +119,12 @@ func (r *Recipient) SetUpdating() {
 	}
 }
 
-func (o *Options) InitOkStatus() {
+func (o *Options) SetOk() {
 	for i := range o.Recipients {
-		o.Recipients[i].Status.InitOkStatus()
+		o.Recipients[i].Status.SetOk()
 	}
 
 	for i := range o.Senders {
-		o.Senders[i].InitOkStatus()
+		o.Senders[i].SetOk()
 	}
 }

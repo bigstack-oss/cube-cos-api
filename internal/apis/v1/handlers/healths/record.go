@@ -35,7 +35,6 @@ func (h *helper) setRepairingRecord() error {
 
 func (h *helper) syncRepairingStatus(summary *cubecos.Health) {
 	if h.hasCheckingAndRepairingRecord() {
-		summary.Status.Current = status.Ok
 		summary.Status.IsFixing = true
 		summary.Status.Description = "Checking and repairing in progress"
 	}

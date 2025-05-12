@@ -26,9 +26,9 @@ type CosChannel struct {
 	Description string `json:"description" bson:"description"`
 }
 
-func (o *Options) InitOkStatus() {
+func (o *Options) SetOk() {
 	for i := range o.Channels {
-		o.Channels[i].Status.InitOkStatus()
+		o.Channels[i].Status.SetOk()
 	}
 }
 

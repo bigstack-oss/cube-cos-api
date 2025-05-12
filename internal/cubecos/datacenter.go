@@ -9,6 +9,10 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 )
 
+func GetDataCenterNumericVersion() (string, error) {
+	return ReadSettingSys(SysProductVersion)
+}
+
 // M2 TODO: Check if the data center is local
 func IsLocalDataCenter(dataCenter string) bool {
 	return true
@@ -52,8 +56,4 @@ func GetDataCenterVersion() (string, error) {
 	}
 
 	return fmt.Sprintf("%s %s", desc, version), nil
-}
-
-func GetDataCenterNumericVersion() (string, error) {
-	return ReadSettingSys(SysProductVersion)
 }

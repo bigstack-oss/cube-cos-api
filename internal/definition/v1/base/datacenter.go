@@ -2,6 +2,9 @@ package base
 
 const (
 	DataCenters = "datacenters"
+
+	Cloud = "cloud"
+	Edge  = "edge"
 )
 
 type DataCenter struct {

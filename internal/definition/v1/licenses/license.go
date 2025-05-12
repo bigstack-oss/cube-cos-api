@@ -105,23 +105,23 @@ func (l *License) Key() string {
 	)
 }
 
-func (l *License) InitValidStatus() {
+func (l *License) SetValid() {
 	l.Status = status.License{Current: status.Valid}
 }
 
-func (l *License) InitExpiredStatus() {
+func (l *License) SetExpired() {
 	l.Status = status.License{Current: status.Expired}
 }
 
-func (l *License) InitInvalidHardwareStatus() {
+func (l *License) InitInvalidHardware() {
 	l.Status = status.License{Current: "unmatched hardware"}
 }
 
-func (l *License) InitInvalidSignatureStatus() {
+func (l *License) InitInvalidSignature() {
 	l.Status = status.License{Current: "invalid signature"}
 }
 
-func (l *License) InitCompromisedStatus() {
+func (l *License) SetCompromised() {
 	l.Status = status.License{Current: "system compromised"}
 }
 

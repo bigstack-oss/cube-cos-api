@@ -8,7 +8,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
 )
 
-func ReadSettingSys(settingName string) (string, error) {
+func ReadSettingSys(key string) (string, error) {
 	sys, err := os.Open(config.Opts.Spec.Os.System)
 	if err != nil {
 		return "", err
@@ -23,7 +23,7 @@ func ReadSettingSys(settingName string) (string, error) {
 			continue
 		}
 
-		if !strings.HasPrefix(line, settingName) {
+		if !strings.HasPrefix(line, key) {
 			continue
 		}
 

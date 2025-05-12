@@ -272,9 +272,8 @@ func getNodeSupportFiles(node nodes.Node) ([]support.File, error) {
 	}
 	if resp.IsError() {
 		return nil, fmt.Errorf(
-			"failed to get support file from %s: %d %s",
+			"failed to get support file from %s: %s",
 			node.Hostname,
-			resp.StatusCode(),
 			string(resp.Body()),
 		)
 	}

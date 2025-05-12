@@ -26,11 +26,11 @@ func getLocalDataCenter() base.DataCenter {
 func getDataCenterType() string {
 	for _, node := range nodes.List() {
 		if nodes.IsCloudRole(node.Role) {
-			return "cloud"
+			return base.Cloud
 		}
 
 		if nodes.IsEdgeRole(node.Role) {
-			return "edge"
+			return base.Edge
 		}
 	}
 
@@ -39,9 +39,9 @@ func getDataCenterType() string {
 
 func getDataCenterAllowRoles() []string {
 	switch getDataCenterType() {
-	case "edge":
+	case base.Edge:
 		return nodes.GetEdgeRoles()
-	case "cloud":
+	case base.Cloud:
 		return nodes.GetCloudRoles()
 	}
 

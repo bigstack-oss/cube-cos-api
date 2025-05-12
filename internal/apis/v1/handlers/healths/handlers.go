@@ -5,7 +5,6 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/healths"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -66,14 +65,14 @@ func init() {
 func getHealthSummary(c *gin.Context) {
 	h, err := initHelper(c, "getHealthSummary")
 	if err != nil {
-		log.Errorf("healths(%s): %v", queries.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	summary, err := h.getHealthSummary()
 	if err != nil {
-		log.Errorf("healths(%s): failed to get health summary: %v", queries.GetReqId(c), err)
+		log.Errorf("healths(%s): failed to get health summary: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -93,14 +92,14 @@ func getHealthSummary(c *gin.Context) {
 func checkAndRepairAllModules(c *gin.Context) {
 	h, err := initHelper(c, "checkAndRepairAllModules")
 	if err != nil {
-		log.Errorf("healths(%s): %v", queries.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.checkEnvCondition()
 	if err != nil {
-		log.Errorf("healths(%s): %v", queries.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", h.reqId, err)
 		bodies.SetConflict(c, err)
 		return
 	}
@@ -115,14 +114,14 @@ func checkAndRepairAllModules(c *gin.Context) {
 func forceRepairModule(c *gin.Context) {
 	h, err := initHelper(c, "forceRepairModule")
 	if err != nil {
-		log.Errorf("healths(%s): %v", queries.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.checkEnvCondition()
 	if err != nil {
-		log.Errorf("healths(%s): %v", queries.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", h.reqId, err)
 		bodies.SetConflict(c, err)
 		return
 	}
@@ -137,7 +136,7 @@ func forceRepairModule(c *gin.Context) {
 func genServiceHealthHistory(c *gin.Context) {
 	h, err := initHelper(c, "genServiceHealthHistory")
 	if err != nil {
-		log.Errorf("healths(%s): %v", queries.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -158,7 +157,7 @@ func genServiceHealthHistory(c *gin.Context) {
 func getModuleHealthHistory(c *gin.Context) {
 	h, err := initHelper(c, "getModuleHealthHistory")
 	if err != nil {
-		log.Errorf("healths(%s): %v", queries.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -179,14 +178,14 @@ func getModuleHealthHistory(c *gin.Context) {
 func deleteCheckRepairTask(c *gin.Context) {
 	h, err := initHelper(c, "deleteCheckRepairTask")
 	if err != nil {
-		log.Errorf("healths(%s): %v", queries.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.deleteCheckRepairTask()
 	if err != nil {
-		log.Errorf("healths(%s): failed to delete check repair task: %v", queries.GetReqId(c), err)
+		log.Errorf("healths(%s): failed to delete check repair task: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -201,14 +200,14 @@ func deleteCheckRepairTask(c *gin.Context) {
 func deleteModuleRepairTask(c *gin.Context) {
 	h, err := initHelper(c, "deleteModuleRepairTask")
 	if err != nil {
-		log.Errorf("healths(%s): %v", queries.GetReqId(c), err)
+		log.Errorf("healths(%s): %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.deleteModuleCheckRepairTask()
 	if err != nil {
-		log.Errorf("healths(%s): failed to delete module repair task: %v", queries.GetReqId(c), err)
+		log.Errorf("healths(%s): failed to delete module repair task: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}

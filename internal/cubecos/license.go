@@ -313,7 +313,7 @@ func checkLicenseErr(err error) error {
 	case LicenseInvalidSignature:
 		return errors.ErrLicenseInvalidSignature
 	case LicenseSysytemCompromised:
-		return errors.ErrLicenseSysytemCompromised
+		return errors.ErrLicenseSystemCompromised
 	}
 
 	return errors.ErrLicenseUnknownStatus
@@ -374,32 +374,32 @@ func setLicenseDat(datFile *os.File, licenseDat *licenses.License) {
 
 func setLicenseDatStatus(licenseDat *licenses.License, checkInfo error) {
 	if checkInfo == nil {
-		licenseDat.InitValidStatus()
+		licenseDat.SetValid()
 		return
 	}
 
 	if errors.Is(checkInfo, errors.ErrLicenseNotInstalled) {
-		licenseDat.InitValidStatus()
+		licenseDat.SetValid()
 		return
 	}
 
 	if errors.Is(checkInfo, errors.ErrLicenseAlreadyExpired) {
-		licenseDat.InitExpiredStatus()
+		licenseDat.SetExpired()
 		return
 	}
 
 	if errors.Is(checkInfo, errors.ErrLicenseInvalidHardware) {
-		licenseDat.InitInvalidHardwareStatus()
+		licenseDat.InitInvalidHardware()
 		return
 	}
 
 	if errors.Is(checkInfo, errors.ErrLicenseInvalidSignature) {
-		licenseDat.InitInvalidSignatureStatus()
+		licenseDat.InitInvalidSignature()
 		return
 	}
 
-	if errors.Is(checkInfo, errors.ErrLicenseSysytemCompromised) {
-		licenseDat.InitCompromisedStatus()
+	if errors.Is(checkInfo, errors.ErrLicenseSystemCompromised) {
+		licenseDat.SetCompromised()
 		return
 	}
 }
@@ -428,7 +428,7 @@ func isLicenseForAllNodes(hardwareInfo string) bool {
 func convertToLicenseNodes(list []nodes.Node) []licenses.Node {
 	nodes := []licenses.Node{}
 	for _, node := range list {
-		license := getLicenseByNodeName(node.Hostname)
+		license := getNodeLicense(node.Hostname)
 		if !license.IsValid() {
 			license.Status.Current = status.Unlicense
 		}
@@ -447,7 +447,7 @@ func convertToLicenseNodes(list []nodes.Node) []licenses.Node {
 	return nodes
 }
 
-func getLicenseByNodeName(nodeName string) licenses.License {
+func getNodeLicense(nodeName string) licenses.License {
 	list, err := ListLicenses()
 	if err != nil {
 		log.Errorf("licenses: failed to get license by node name: %v", err)

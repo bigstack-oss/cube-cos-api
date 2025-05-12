@@ -77,6 +77,8 @@ type BlockDevice struct {
 	Status       status.BlockDevice `json:"status" yaml:"status" bson:"status"`
 }
 
+// note:
+// rota is named by lsblk tool, it means rotational device like HDD
 type RawBlockDevice struct {
 	Type        string   `json:"type"`
 	Serial      string   `json:"serial"`

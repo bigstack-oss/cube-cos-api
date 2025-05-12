@@ -260,6 +260,53 @@ func GetModuleHealthHistory(module, duration, order string, onlyLast bool) ([]he
 	return checks, nil
 }
 
+func GenModuleHealthHistoryQuery(moduleName, past, order string, onlyLast bool) string {
+	query := influx.Query{}
+	query.Bucket("events").
+		Range(genTimeDuration(past)).
+		Filter(healthMeasurement).
+		Filter(genModuleFilter(moduleName)).
+		Pivot(convertValueToField).
+		Group("").
+		Sort(order)
+
+	if onlyLast {
+		query.Limit("n: 1")
+	}
+
+	return query.String()
+}
+
+func GetServicesToCheckHealth() []services.Service {
+	services := deepcopy.Copy(OrderSensitiveServices).([]services.Service)
+	for i := range services {
+		if services[i].IsInternalViewOnly {
+			services = slices.Delete(services, i, i+1)
+			continue
+		}
+
+		services[i].Status = status.NewHealthOk()
+	}
+
+	return services
+}
+
+func GetRepairingInfo() (*services.ReairingInfo, error) {
+	b, err := exec.Command("hex_sdk", "-v", "is_repairing").Output()
+	if err != nil {
+		return nil, err
+	}
+
+	info := services.ReairingInfo{}
+	err = json.Unmarshal(b, &info)
+	if err != nil {
+		log.Errorf("healths: failed to unmarshal repairing info: %s", err.Error())
+		return nil, err
+	}
+
+	return &info, nil
+}
+
 func setUnhealthLogUrl(history *[]health.Check) {
 	for i, check := range *history {
 		if !check.IsNg() {
@@ -307,7 +354,7 @@ func aggregateHealthsByTime(checks []health.Check, duration ostime.Duration) []h
 			aggregated = append(aggregated, firstCheck)
 		}
 
-		picked := pickHealthOrUnhealthy(grouped[key])
+		picked := pickHealthyOrUnhealthy(grouped[key])
 		aggregated = append(aggregated, picked)
 	}
 
@@ -355,7 +402,7 @@ func getSortedTimeKeys(grouped map[ostime.Time][]health.Check) []ostime.Time {
 	return keys
 }
 
-func pickHealthOrUnhealthy(group []health.Check) health.Check {
+func pickHealthyOrUnhealthy(group []health.Check) health.Check {
 	for _, check := range group {
 		if check.IsNg() {
 			return check
@@ -363,23 +410,6 @@ func pickHealthOrUnhealthy(group []health.Check) health.Check {
 	}
 
 	return group[0]
-}
-
-func GenModuleHealthHistoryQuery(moduleName, past, order string, onlyLast bool) string {
-	query := influx.Query{}
-	query.Bucket("events").
-		Range(genTimeDuration(past)).
-		Filter(healthMeasurement).
-		Filter(genModuleFilter(moduleName)).
-		Pivot(convertValueToField).
-		Group("").
-		Sort(order)
-
-	if onlyLast {
-		query.Limit("n: 1")
-	}
-
-	return query.String()
 }
 
 func genModuleFilter(modulName string) string {
@@ -449,39 +479,9 @@ func parseHealthResult(record *query.FluxRecord) string {
 	return status.Ok
 }
 
-func GetServicesToCheckHealth() []services.Service {
-	services := deepcopy.Copy(OrderSensitiveServices).([]services.Service)
-	for i := range services {
-		if services[i].IsInternalViewOnly {
-			services = slices.Delete(services, i, i+1)
-			continue
-		}
-
-		services[i].Status = status.NewHealthOk()
-	}
-
-	return services
-}
-
-func GetRepairingInfo() (*services.ReairingInfo, error) {
-	b, err := exec.Command("hex_sdk", "-v", "is_repairing").Output()
-	if err != nil {
-		return nil, err
-	}
-
-	info := services.ReairingInfo{}
-	err = json.Unmarshal(b, &info)
-	if err != nil {
-		log.Errorf("healths: failed to unmarshal repairing info: %s", err.Error())
-		return nil, err
-	}
-
-	return &info, nil
-}
-
 func syncServiceHealth(services *[]services.Service, duration string) {
 	for s, service := range *services {
-		service.InitOkStatus()
+		service.SetOk()
 
 		for m, module := range service.Modules {
 			history, err := GetModuleHealthHistory(module.Name, duration, health.DescSort, true)
@@ -489,7 +489,7 @@ func syncServiceHealth(services *[]services.Service, duration string) {
 				continue
 			}
 
-			module.InitOkStatus()
+			module.SetOk()
 			if isLastCheckUnhealthy(history) {
 				module.SetUnhealthyStatus()
 				service.ConvergeUnhealthyStatus(module.Name)
@@ -512,13 +512,15 @@ func genHealthSummary(services []services.Service) Health {
 
 func syncUnhealthStatus(health *Health, services []services.Service) {
 	for _, service := range services {
-		if !service.IsStatusOk() {
-			health.Status.Current = status.Ng
-			if health.Status.Description == "" {
-				health.Status.Description = fmt.Sprintf("%s %s", service.Name, service.Status.Description)
-			} else {
-				health.Status.Description += fmt.Sprintf(", %s %s", service.Name, service.Status.Description)
-			}
+		if service.IsStatusOk() {
+			continue
+		}
+
+		health.Status.Current = status.Ng
+		if health.Status.Description == "" {
+			health.Status.Description = fmt.Sprintf("%s %s", service.Name, service.Status.Description)
+		} else {
+			health.Status.Description += fmt.Sprintf(", %s %s", service.Name, service.Status.Description)
 		}
 	}
 }
@@ -562,7 +564,7 @@ func parseDetails(record *query.FluxRecord) string {
 	details := record.ValueByKey("detail")
 	val, ok := details.(string)
 	if !ok {
-		val = ""
+		return ""
 	}
 
 	return strings.ReplaceAll(val, `;`, "\n")
@@ -571,7 +573,7 @@ func parseDetails(record *query.FluxRecord) string {
 func parseTime(record *query.FluxRecord) string {
 	date, err := ostime.Parse(events.TimeLayout, record.Time().Local().String())
 	if err != nil {
-		log.Debugf("failed to parse date from record: %v", record)
+		log.Debugf("healths: failed to parse date from record: %v", err)
 	}
 
 	return time.RFC3339Z(date)
@@ -591,7 +593,7 @@ func parseLog(record *query.FluxRecord) string {
 	log := record.ValueByKey("log")
 	val, ok := log.(string)
 	if !ok {
-		val = ""
+		return ""
 	}
 
 	return val

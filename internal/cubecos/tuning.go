@@ -202,6 +202,164 @@ func setTuningToRoles() {
 	tuningToRoles[WatcherDebugEnabled] = nodes.AllRoles
 }
 
+func GetTuningValue(name string) (string, error) {
+	out, err := exec.Command("hex_tuning_helper", "/etc/settings.txt", "", name).Output()
+	if err != nil {
+		log.Errorf("tunings: failed to read hex tuning value: %s", err.Error())
+		return "", err
+	}
+
+	keyValue := strings.Split(string(out), "'")
+	if len(keyValue) < 2 {
+		return "", errors.ErrTuningNotFound
+	}
+
+	return keyValue[1], nil
+}
+
+func GetSourceTuning(name string) (*tunings.Tuning, error) {
+	policy, err := GetTuningPolicy(TuningPolicyFile)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, tuning := range policy.Tunings {
+		if tuning.Name == name {
+			return &tuning, nil
+		}
+	}
+
+	return nil, errors.ErrTuningNotFound
+}
+
+func ApplyTuning(isolatedDir string) error {
+	out, err := exec.Command("hex_config", "apply", isolatedDir).CombinedOutput()
+	if err != nil {
+		log.Errorf("tunings: failed to apply hex tuning value: %s", string(out))
+		return err
+	}
+
+	return nil
+}
+
+func IsTuningApplied(tuning tunings.Tuning) error {
+	maxTries := 10
+	for range maxTries {
+		if isValueApplied(tuning) {
+			return nil
+		}
+
+		wait.Seconds(2)
+	}
+
+	return fmt.Errorf(
+		"tuning: %s's value(%s) is not applied",
+		tuning.Name,
+		tuning.StrValue(),
+	)
+}
+
+func ApplyTunings(tunings []tunings.Tuning) error {
+	newTunings, err := genTuningsAsYaml(tunings)
+	if err != nil {
+		return err
+	}
+
+	tmpTuningDir := genTmpTuningDir()
+	err = writeTuningToFile(tmpTuningDir, newTunings)
+	if err != nil {
+		return err
+	}
+
+	err = ApplyTuning(tmpTuningDir)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetTuningPolicy(filePath string) (*tunings.Policy, error) {
+	b, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	policy := &tunings.Policy{}
+	err = yaml.Unmarshal(b, policy)
+	if err != nil {
+		return nil, err
+	}
+
+	return policy, nil
+}
+
+func IsTuningDeleted(tuning tunings.Tuning) bool {
+	_, valueErr := GetTuningValue(tuning.Name)
+	policy, policyErr := GetTuningPolicy(TuningPolicyFile)
+	if policyErr != nil {
+		return false
+	}
+
+	return !policy.HasMatchedTuning(tuning) &&
+		noValueInSettings(valueErr)
+}
+
+func ListTunings(opts tunings.ListOptions) ([]tunings.Tuning, error) {
+	localTunings := tunings.ListLocal()
+	if !opts.AllNodes {
+		return localTunings, nil
+	}
+
+	allTunings, err := ListTuningsFromOtherNodes()
+	if err != nil {
+		return nil, err
+	}
+
+	allTunings[base.Hostname] = localTunings
+	return aggregateTunings(allTunings), nil
+}
+
+func ListTuningsFromOtherNodes() (map[string][]tunings.Tuning, error) {
+	nodeTunings := map[string][]tunings.Tuning{}
+	for _, node := range nodes.List() {
+		if node.IsLocal() {
+			continue
+		}
+
+		if node.IsDown() {
+			continue
+		}
+
+		tunings, err := getNodeTunings(node)
+		if err != nil {
+			log.Errorf("tunings: failed to get tunings from node %s: %s", node.Hostname, err.Error())
+			continue
+		}
+
+		nodeTunings[node.Hostname] = tunings
+	}
+
+	return nodeTunings, nil
+}
+
+func SyncTunings() {
+	for _, spec := range tunings.ListSpecs() {
+		srcTuning, err := GetSourceTuning(spec.Name)
+		if err == nil {
+			srcTuning.IsModified = true
+			srcTuning.Description = spec.Description
+			srcTuning.Limitation = spec.Limitation
+			srcTuning.Hosts = []nodes.Host{{Name: base.Hostname, Ip: base.AdvertiseIp}}
+			checkAndUpdateTuning(spec.Name, *srcTuning)
+		}
+
+		if errors.Is(err, errors.ErrTuningNotFound) {
+			setDefaultTuning(spec)
+		}
+	}
+}
+
 func setTuningToSelectors() {
 	tuningToSelectors[NovaGpuType] = nodes.Selector{
 		Enabled: true,
@@ -323,63 +481,6 @@ func convertStringLimit(raw tunings.RawLimitation) tunings.Limitation {
 	}
 }
 
-func GetTuningValue(name string) (string, error) {
-	out, err := exec.Command("hex_tuning_helper", "/etc/settings.txt", "", name).Output()
-	if err != nil {
-		log.Errorf("tunings: failed to read hex tuning value: %s", err.Error())
-		return "", err
-	}
-
-	keyValue := strings.Split(string(out), "'")
-	if len(keyValue) < 2 {
-		return "", errors.ErrTuningNotFound
-	}
-
-	return keyValue[1], nil
-}
-
-func GetSourceTuning(name string) (*tunings.Tuning, error) {
-	policy, err := GetTuningPolicy(TuningPolicyFile)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, tuning := range policy.Tunings {
-		if tuning.Name == name {
-			return &tuning, nil
-		}
-	}
-
-	return nil, errors.ErrTuningNotFound
-}
-
-func ApplyTuning(isolatedDir string) error {
-	out, err := exec.Command("hex_config", "apply", isolatedDir).CombinedOutput()
-	if err != nil {
-		log.Errorf("tunings: failed to apply hex tuning value: %s", string(out))
-		return err
-	}
-
-	return nil
-}
-
-func IsTuningApplied(tuning tunings.Tuning) error {
-	maxTries := 10
-	for range maxTries {
-		if isValueApplied(tuning) {
-			return nil
-		}
-
-		wait.Seconds(2)
-	}
-
-	return fmt.Errorf(
-		"tuning: %s's value(%s) is not applied",
-		tuning.Name,
-		tuning.StrValue(),
-	)
-}
-
 func isValueApplied(tuning tunings.Tuning) bool {
 	value, err := GetTuningValue(tuning.Name)
 	if tuning.Enabled {
@@ -404,26 +505,6 @@ func isValueApplied(tuning tunings.Tuning) bool {
 
 func noValueInSettings(err error) bool {
 	return errors.Is(err, errors.ErrTuningNotFound)
-}
-
-func ApplyTunings(tunings []tunings.Tuning) error {
-	newTunings, err := genTuningsAsYaml(tunings)
-	if err != nil {
-		return err
-	}
-
-	tmpTuningDir := genTmpTuningDir()
-	err = writeTuningToFile(tmpTuningDir, newTunings)
-	if err != nil {
-		return err
-	}
-
-	err = ApplyTuning(tmpTuningDir)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func genTuningsAsYaml(list []tunings.Tuning) ([]byte, error) {
@@ -472,70 +553,6 @@ func genTmpTuningDir() string {
 	return fmt.Sprintf("/tmp/tuning-%s", hash)
 }
 
-func GetTuningPolicy(filePath string) (*tunings.Policy, error) {
-	b, err := os.ReadFile(filePath)
-	if err != nil {
-		return nil, err
-	}
-
-	policy := &tunings.Policy{}
-	err = yaml.Unmarshal(b, policy)
-	if err != nil {
-		return nil, err
-	}
-
-	return policy, nil
-}
-
-func IsTuningDeleted(tuning tunings.Tuning) bool {
-	_, valueErr := GetTuningValue(tuning.Name)
-	policy, policyErr := GetTuningPolicy(TuningPolicyFile)
-	if policyErr != nil {
-		return false
-	}
-
-	return !policy.HasMatchedTuning(tuning) &&
-		noValueInSettings(valueErr)
-}
-
-func ListTunings(opts tunings.ListOptions) ([]tunings.Tuning, error) {
-	localTunings := tunings.ListLocal()
-	if !opts.AllNodes {
-		return localTunings, nil
-	}
-
-	allTunings, err := ListTuningsFromOtherNodes()
-	if err != nil {
-		return nil, err
-	}
-
-	allTunings[base.Hostname] = localTunings
-	return aggregateTunings(allTunings), nil
-}
-
-func ListTuningsFromOtherNodes() (map[string][]tunings.Tuning, error) {
-	nodeTunings := map[string][]tunings.Tuning{}
-	for _, node := range nodes.List() {
-		if node.IsLocal() {
-			continue
-		}
-
-		if node.IsDown() {
-			continue
-		}
-
-		tunings, err := getNodeTunings(node)
-		if err != nil {
-			log.Errorf("tunings: failed to get tunings from node %s: %s", node.Hostname, err.Error())
-			continue
-		}
-
-		nodeTunings[node.Hostname] = tunings
-	}
-
-	return nodeTunings, nil
-}
-
 func getNodeTunings(node nodes.Node) ([]tunings.Tuning, error) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
@@ -545,17 +562,17 @@ func getNodeTunings(node nodes.Node) ([]tunings.Tuning, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if resp.IsError() {
 		return nil, fmt.Errorf(
-			"tunings: failed to get tunings from %s: %d %s",
+			"tunings: failed to get tunings from %s: %s",
 			node.Hostname,
-			resp.StatusCode(),
 			string(resp.Body()),
 		)
 	}
 
-	tuningList := resp.Result().(*bodies.TuningList)
-	return tuningList.Data.Tunings, nil
+	list := resp.Result().(*bodies.TuningList)
+	return list.Data.Tunings, nil
 }
 
 func aggregateTunings(nodeToTuning map[string][]tunings.Tuning) []tunings.Tuning {
@@ -581,23 +598,6 @@ func setTunings(mergedMap map[string]tunings.Tuning, tunings []tunings.Tuning) {
 			mergedMap[key] = existing
 		} else {
 			mergedMap[key] = tuning
-		}
-	}
-}
-
-func SyncTunings() {
-	for _, spec := range tunings.ListSpecs() {
-		srcTuning, err := GetSourceTuning(spec.Name)
-		if err == nil {
-			srcTuning.IsModified = true
-			srcTuning.Description = spec.Description
-			srcTuning.Limitation = spec.Limitation
-			srcTuning.Hosts = []nodes.Host{{Name: base.Hostname, Ip: base.AdvertiseIp}}
-			checkAndUpdateTuning(spec.Name, *srcTuning)
-		}
-
-		if errors.Is(err, errors.ErrTuningNotFound) {
-			setDefaultTuning(spec)
 		}
 	}
 }

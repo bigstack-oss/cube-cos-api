@@ -2,6 +2,9 @@ package blockdevice
 
 const (
 	NetCode = "43"
+
+	HDD = "HDD"
+	SSD = "SSD"
 )
 
 type SmartCtl struct {

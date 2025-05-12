@@ -33,7 +33,7 @@ type ReairingInfo struct {
 	Elaps   string `json:"elaps"`
 }
 
-func (s *Service) InitOkStatus() {
+func (s *Service) SetOk() {
 	s.Status = status.NewHealthOk()
 }
 
@@ -73,7 +73,7 @@ func (s *Service) ConvergeUnhealthyStatus(moduleName string) {
 	}
 }
 
-func (m *Module) InitOkStatus() {
+func (m *Module) SetOk() {
 	m.Status = status.NewHealthOk()
 }
 

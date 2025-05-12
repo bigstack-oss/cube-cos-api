@@ -115,7 +115,7 @@ func (h *Health) SetCurrentToError(err error) {
 	}
 }
 
-func (s *Settings) InitOkStatus() {
+func (s *Settings) SetOk() {
 	s.Current = Ok
 	s.IsUpdating = false
 }

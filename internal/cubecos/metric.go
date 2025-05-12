@@ -225,32 +225,6 @@ func SyncMetricsSummary() {
 	metricsSummary.Swap(&summary)
 }
 
-func syncDataCenterSummary() (*Summary, error) {
-	host, err := GetHostSummary()
-	if err != nil {
-		log.Errorf("metrics: failed to get host summary: %v", err)
-		return nil, err
-	}
-
-	dataCenter, err := GetDataCenterUsage(host)
-	if err != nil {
-		log.Errorf("metrics: failed to get data center usage: %v", err)
-		return nil, err
-	}
-
-	vm, err := GetVmSummary()
-	if err != nil {
-		log.Errorf("metrics: failed to get vm summary: %v", err)
-		return nil, err
-	}
-
-	return &Summary{
-		DataCenter: *dataCenter,
-		Host:       *host,
-		Vm:         *vm,
-	}, nil
-}
-
 func GetMetricsSummary() *Summary {
 	summary := metricsSummary.Load()
 	if summary == nil {
@@ -427,52 +401,6 @@ func GetHostCpuHistory(stmt string) (*metric.History, error) {
 	}, nil
 }
 
-func parseCpuUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
-	points := []metric.TimeValue{}
-	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
-		if err != nil {
-			continue
-		}
-
-		points = append(
-			points,
-			metric.TimeValue{
-				Time:  time.LocalRFC3339(date),
-				Value: parseHostUsed(c.Record()),
-			},
-		)
-	}
-
-	return points, nil
-}
-
-func askPeerNodeCpuSummary(hostname string) (*metric.Compute, error) {
-	node, err := nodes.Get(hostname)
-	if err != nil {
-		return nil, err
-	}
-
-	h := http.GetGlobalHelper()
-	resp, err := h.R().
-		SetResult(&bodies.ComputeStatistic{}).
-		SetHeaders(nodes.GetSecretHeaders()).
-		Get(node.GetMetricUrl("cpuUsage", "summary"))
-	if err != nil {
-		return nil, err
-	}
-
-	if !resp.IsError() {
-		return &resp.Result().(*bodies.ComputeStatistic).Data, nil
-	}
-
-	return nil, fmt.Errorf(
-		"failed to get cpu usage of host %s: %s",
-		hostname,
-		string(resp.Body()),
-	)
-}
-
 func GetHostsCpuUsageRank(stmt string) (*metric.Rank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -491,18 +419,6 @@ func GetHostsCpuUsageRank(stmt string) (*metric.Rank, error) {
 		Unit: "percentage",
 		Rank: rank,
 	}, nil
-}
-
-func appendHistoryToCpuUsageRank(rank []metric.RankPoint) {
-	for i, host := range rank {
-		data, err := GetHostCpuHistory(genHostCpuUsageHistoryStmt(host.Id))
-		if err != nil {
-			log.Errorf("metrics: failed to get cpu history of host %s: %v", host.Id, err)
-			continue
-		}
-
-		rank[i].History = data.History
-	}
 }
 
 func GetHostsMemoryUsageSummary() (*metric.Space, error) {
@@ -541,33 +457,6 @@ func GetHostMemoryUsageSummary(hostname string) (*metric.Space, error) {
 	}, nil
 }
 
-func askPeerNodeForMemorySummary(hostname string) (*metric.Space, error) {
-	node, err := nodes.Get(hostname)
-	if err != nil {
-		return nil, err
-	}
-
-	h := http.GetGlobalHelper()
-	resp, err := h.R().
-		SetResult(&bodies.SpaceStatistic{}).
-		SetHeaders(nodes.GetSecretHeaders()).
-		Get(node.GetMetricUrl("memoryUsage", "summary"))
-	if err != nil {
-		return nil, err
-	}
-
-	if !resp.IsError() {
-		return &resp.Result().(*bodies.SpaceStatistic).Data, nil
-	}
-
-	return nil, fmt.Errorf(
-		"failed to get memory usage of host %s: %d %s",
-		hostname,
-		resp.StatusCode(),
-		string(resp.Body()),
-	)
-}
-
 func GetHostsMemoryUsageRank(stmt string) (*metric.Rank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -586,19 +475,6 @@ func GetHostsMemoryUsageRank(stmt string) (*metric.Rank, error) {
 		Unit: "percentage",
 		Rank: rank,
 	}, nil
-}
-
-func appendHistoryToMemoryUsageRank(rank []metric.RankPoint) {
-	for i, host := range rank {
-		stmt := fmt.Sprintf(hostMemoryUsageHistoryStmt, host.Id)
-		history, err := GetHostMemoryHistory(stmt)
-		if err != nil {
-			log.Errorf("metrics: failed to get memory history of host %s: %v", host.Id, err)
-			continue
-		}
-
-		rank[i].History = history
-	}
 }
 
 func GetHostMemoryHistory(stmt string) ([]metric.TimeValue, error) {
@@ -630,47 +506,6 @@ func GetHostMemorySizeHistory(stmt string) (*metric.History, error) {
 		Unit:    "sizeMiB",
 		History: history,
 	}, nil
-}
-
-func parseMemoryUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
-	points := []metric.TimeValue{}
-	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
-		if err != nil {
-			continue
-		}
-
-		points = append(
-			points,
-			metric.TimeValue{
-				Time:  time.LocalRFC3339(date),
-				Value: parseHostUsed(c.Record()),
-			},
-		)
-	}
-
-	return points, nil
-}
-
-func parseMemorySizeHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
-	points := []metric.TimeValue{}
-	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
-		if err != nil {
-			continue
-		}
-
-		value := float64(parseSizeOfHost(c.Record())) / 1024.0 / 1024.0
-		points = append(
-			points,
-			metric.TimeValue{
-				Time:  time.LocalRFC3339(date),
-				Value: math.RoundDown(value, 4),
-			},
-		)
-	}
-
-	return points, nil
 }
 
 func GetHostDiskStorageSummary() (*metric.Space, error) {
@@ -753,28 +588,6 @@ func GeHostsDiskLatencyHistory(readStmt, writeStmt string) (*metric.StorageTimeS
 	}, nil
 }
 
-func getHostsDiskIopsHistory(stmt string) ([]metric.TimeValue, error) {
-	c, cancel, err := influx.GetQueryCursor(stmt)
-	if err != nil {
-		return nil, err
-	}
-
-	defer cancel()
-	defer c.Close()
-	return parseDiskOpsHistory(c)
-}
-
-func getHostsDiskLatencyHistory(stmt string) ([]metric.TimeValue, error) {
-	c, cancel, err := influx.GetQueryCursor(stmt)
-	if err != nil {
-		return nil, err
-	}
-
-	defer cancel()
-	defer c.Close()
-	return parseDiskLatencyHistory(c)
-}
-
 func GetHostsDiskUsageRank(stmt string) (*metric.Rank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -795,18 +608,6 @@ func GetHostsDiskUsageRank(stmt string) (*metric.Rank, error) {
 	}, nil
 }
 
-func appendHistoryToDiskUsageRank(rank []metric.RankPoint) {
-	for i, host := range rank {
-		history, err := GetHostDiskUsageHistory(host.Id, time.Period{})
-		if err != nil {
-			log.Errorf("metrics: failed to get disk usage history of host %s: %v", host.Id, err)
-			continue
-		}
-
-		rank[i].History = history
-	}
-}
-
 func GetHostDiskUsageHistory(entityId string, period time.Period) ([]metric.TimeValue, error) {
 	stmt := fmt.Sprintf(hostDiskUsageHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
@@ -817,26 +618,6 @@ func GetHostDiskUsageHistory(entityId string, period time.Period) ([]metric.Time
 	defer cancel()
 	defer c.Close()
 	return parseDiskUsageHistory(c)
-}
-
-func parseDiskUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
-	points := []metric.TimeValue{}
-	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
-		if err != nil {
-			continue
-		}
-
-		points = append(
-			points,
-			metric.TimeValue{
-				Time:  time.LocalRFC3339(date),
-				Value: parseHostUsed(c.Record()),
-			},
-		)
-	}
-
-	return points, nil
 }
 
 func GetHostsNetworkIngressRank() (*metric.Rank, error) {
@@ -859,18 +640,6 @@ func GetHostsNetworkIngressRank() (*metric.Rank, error) {
 	}, nil
 }
 
-func appendHistoryToNetworkTrafficInRank(rank []metric.RankPoint) {
-	for i, host := range rank {
-		history, err := GetHostNetworkIngressHistory(host.Id, time.Period{})
-		if err != nil {
-			log.Errorf("metrics: failed to get network traffic in history of host %s: %v", host.Id, err)
-			continue
-		}
-
-		rank[i].History = history
-	}
-}
-
 func GetHostNetworkIngressHistory(entityId string, period time.Period) ([]metric.TimeValue, error) {
 	stmt := fmt.Sprintf(hostNetworkIngressHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
@@ -881,26 +650,6 @@ func GetHostNetworkIngressHistory(entityId string, period time.Period) ([]metric
 	defer cancel()
 	defer c.Close()
 	return parseNetworkTrafficHistory(c)
-}
-
-func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
-	points := []metric.TimeValue{}
-	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
-		if err != nil {
-			continue
-		}
-
-		points = append(
-			points,
-			metric.TimeValue{
-				Time:  time.LocalRFC3339(date),
-				Value: math.RoundDown(c.Record().Value().(float64), 4),
-			},
-		)
-	}
-
-	return points, nil
 }
 
 func GetHostsNetworkEgressRank() (*metric.Rank, error) {
@@ -921,18 +670,6 @@ func GetHostsNetworkEgressRank() (*metric.Rank, error) {
 		Unit: "packets",
 		Rank: rank,
 	}, nil
-}
-
-func appendHistoryToNetworkEgressRank(rank []metric.RankPoint) {
-	for i, host := range rank {
-		history, err := GetHostNetworkEgressHistory(host.Id, time.Period{})
-		if err != nil {
-			log.Errorf("metrics: failed to get network traffic out history of host %s: %v", host.Id, err)
-			continue
-		}
-
-		rank[i].History = history
-	}
 }
 
 func GetHostNetworkEgressHistory(entityId string, period time.Period) ([]metric.TimeValue, error) {
@@ -967,18 +704,6 @@ func GetVmsCpuUsageRank(stmt string) (*metric.Rank, error) {
 	}, nil
 }
 
-func appendHistoryToVmCpuUsageRank(rank []metric.RankPoint) {
-	for i, vm := range rank {
-		history, err := GetVmCpuHistory(vm.Id, time.Period{})
-		if err != nil {
-			log.Errorf("metrics: failed to get cpu history of vm %s: %v", vm.Id, err)
-			continue
-		}
-
-		rank[i].History = history
-	}
-}
-
 func GetVmCpuHistory(entityId string, period time.Period) ([]metric.TimeValue, error) {
 	stmt := fmt.Sprintf(vmCpuUsageHistoryStmt, entityId)
 	c, cancel, err := influx.GetQueryCursor(stmt)
@@ -991,24 +716,16 @@ func GetVmCpuHistory(entityId string, period time.Period) ([]metric.TimeValue, e
 	return parseVmCpuUsageHistory(c)
 }
 
-func parseVmCpuUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
-	points := []metric.TimeValue{}
-	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
-		if err != nil {
-			continue
-		}
-
-		points = append(
-			points,
-			metric.TimeValue{
-				Time:  time.LocalRFC3339(date),
-				Value: parseUsed(c.Record()),
-			},
-		)
+func GetMemoryHistoryOfVm(entityId string, period time.Period) ([]metric.TimeValue, error) {
+	stmt := fmt.Sprintf(vmMemoryUsageHistoryStmt, entityId)
+	c, cancel, err := influx.GetQueryCursor(stmt)
+	if err != nil {
+		return nil, err
 	}
 
-	return points, nil
+	defer cancel()
+	defer c.Close()
+	return parseMemoryUsageHistoryOfVm(c)
 }
 
 func GetVmsMemoryUsageRank(stmt string) (*metric.Rank, error) {
@@ -1031,50 +748,6 @@ func GetVmsMemoryUsageRank(stmt string) (*metric.Rank, error) {
 	}, nil
 }
 
-func appendHistoryToVmMemoryUsageRank(rank []metric.RankPoint) {
-	for i, vm := range rank {
-		history, err := GetMemoryHistoryOfVm(vm.Id, time.Period{})
-		if err != nil {
-			log.Errorf("metrics: failed to get memory history of vm %s: %v", vm.Id, err)
-			continue
-		}
-
-		rank[i].History = history
-	}
-}
-
-func GetMemoryHistoryOfVm(entityId string, period time.Period) ([]metric.TimeValue, error) {
-	stmt := fmt.Sprintf(vmMemoryUsageHistoryStmt, entityId)
-	c, cancel, err := influx.GetQueryCursor(stmt)
-	if err != nil {
-		return nil, err
-	}
-
-	defer cancel()
-	defer c.Close()
-	return parseMemoryUsageHistoryOfVm(c)
-}
-
-func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]metric.TimeValue, error) {
-	points := []metric.TimeValue{}
-	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
-		if err != nil {
-			continue
-		}
-
-		points = append(
-			points,
-			metric.TimeValue{
-				Time:  time.LocalRFC3339(date),
-				Value: parseUsed(c.Record()),
-			},
-		)
-	}
-
-	return points, nil
-}
-
 func GetVmsDiskReadIopsRank(stmt string) (*metric.Rank, error) {
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
@@ -1093,18 +766,6 @@ func GetVmsDiskReadIopsRank(stmt string) (*metric.Rank, error) {
 		Unit: "ops",
 		Rank: rank,
 	}, nil
-}
-
-func appendHistoryToVmDiskReadIopsRank(rank []metric.RankPoint) {
-	for i, vm := range rank {
-		history, err := GetVmDiskReadIopsHistory(vm.Id, vm.Device)
-		if err != nil {
-			log.Errorf("metrics: failed to get disk iops history of vm %s: %v", vm.Id, err)
-			continue
-		}
-
-		rank[i].History = history
-	}
 }
 
 func GetVmDiskReadIopsHistory(entityId, device string) ([]metric.TimeValue, error) {
@@ -1132,67 +793,11 @@ func GetVmsDiskWriteIopsRank(stmt string) (*metric.Rank, error) {
 		return nil, err
 	}
 
-	appendHistoryToDiskWriteIopsRankOfVm(rank)
+	appendHistoryToVmDiskWriteIopsRank(rank)
 	return &metric.Rank{
 		Unit: "ops",
 		Rank: rank,
 	}, nil
-}
-
-func appendHistoryToDiskWriteIopsRankOfVm(rank []metric.RankPoint) {
-	for i, vm := range rank {
-		history, err := GetDiskWriteIopsHistoryOfVm(vm.Id, vm.Device)
-		if err != nil {
-			log.Errorf("metrics: failed to get disk iops history of vm %s: %v", vm.Id, err)
-			continue
-		}
-
-		rank[i].History = history
-	}
-}
-
-func GetDiskWriteIopsHistoryOfVm(entityId, device string) ([]metric.TimeValue, error) {
-	stmt := fmt.Sprintf(vmStorageIopsWriteHistoryStmt, entityId, device)
-	c, cancel, err := influx.GetQueryCursor(stmt)
-	if err != nil {
-		return nil, err
-	}
-
-	defer cancel()
-	defer c.Close()
-	return parseDiskOpsHistory(c)
-}
-
-func GetVmsNetworkIngressRank(stmt string) (*metric.Rank, error) {
-	c, cancel, err := influx.GetQueryCursor(stmt)
-	if err != nil {
-		return nil, err
-	}
-
-	defer cancel()
-	defer c.Close()
-	rank, err := parseVmNetworkPacketRank(c)
-	if err != nil {
-		return nil, err
-	}
-
-	appendHistoryToVmNetworkIngressRank(rank)
-	return &metric.Rank{
-		Unit: "packets",
-		Rank: rank,
-	}, nil
-}
-
-func appendHistoryToVmNetworkIngressRank(rank []metric.RankPoint) {
-	for i, vm := range rank {
-		history, err := GetVmNetworkTrafficInHistory(vm.Id, vm.Device)
-		if err != nil {
-			log.Errorf("metrics: failed to get network traffic in history of vm %s: %v", vm.Id, err)
-			continue
-		}
-
-		rank[i].History = history
-	}
 }
 
 func GetVmNetworkTrafficInHistory(entityId, device string) ([]metric.TimeValue, error) {
@@ -1237,6 +842,400 @@ func GetVmNetworkTrafficOutHistory(entityId, device string) ([]metric.TimeValue,
 	defer cancel()
 	defer c.Close()
 	return parseNetworkTrafficHistory(c)
+}
+
+func GetDiskWriteIopsHistoryOfVm(entityId, device string) ([]metric.TimeValue, error) {
+	stmt := fmt.Sprintf(vmStorageIopsWriteHistoryStmt, entityId, device)
+	c, cancel, err := influx.GetQueryCursor(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer cancel()
+	defer c.Close()
+	return parseDiskOpsHistory(c)
+}
+
+func GetVmsNetworkIngressRank(stmt string) (*metric.Rank, error) {
+	c, cancel, err := influx.GetQueryCursor(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer cancel()
+	defer c.Close()
+	rank, err := parseVmNetworkPacketRank(c)
+	if err != nil {
+		return nil, err
+	}
+
+	appendHistoryToVmNetworkIngressRank(rank)
+	return &metric.Rank{
+		Unit: "packets",
+		Rank: rank,
+	}, nil
+}
+
+func syncDataCenterSummary() (*Summary, error) {
+	host, err := GetHostSummary()
+	if err != nil {
+		log.Errorf("metrics: failed to get host summary: %v", err)
+		return nil, err
+	}
+
+	dataCenter, err := GetDataCenterUsage(host)
+	if err != nil {
+		log.Errorf("metrics: failed to get data center usage: %v", err)
+		return nil, err
+	}
+
+	vm, err := GetVmSummary()
+	if err != nil {
+		log.Errorf("metrics: failed to get vm summary: %v", err)
+		return nil, err
+	}
+
+	return &Summary{
+		DataCenter: *dataCenter,
+		Host:       *host,
+		Vm:         *vm,
+	}, nil
+}
+
+func parseCpuUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
+	points := []metric.TimeValue{}
+	for c.Next() {
+		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		if err != nil {
+			continue
+		}
+
+		points = append(
+			points,
+			metric.TimeValue{
+				Time:  time.LocalRFC3339(date),
+				Value: parseHostUsed(c.Record()),
+			},
+		)
+	}
+
+	return points, nil
+}
+
+func askPeerNodeCpuSummary(hostname string) (*metric.Compute, error) {
+	node, err := nodes.Get(hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	h := http.GetGlobalHelper()
+	resp, err := h.R().
+		SetResult(&bodies.ComputeStatistic{}).
+		SetHeaders(nodes.GetSecretHeaders()).
+		Get(node.GetMetricUrl("cpuUsage", "summary"))
+	if err != nil {
+		return nil, err
+	}
+
+	if !resp.IsError() {
+		return &resp.Result().(*bodies.ComputeStatistic).Data, nil
+	}
+
+	return nil, fmt.Errorf(
+		"failed to get cpu usage of host %s: %s",
+		hostname,
+		string(resp.Body()),
+	)
+}
+
+func appendHistoryToCpuUsageRank(rank []metric.RankPoint) {
+	for i, host := range rank {
+		data, err := GetHostCpuHistory(genHostCpuUsageHistoryStmt(host.Id))
+		if err != nil {
+			log.Errorf("metrics: failed to get cpu history of host %s: %v", host.Id, err)
+			continue
+		}
+
+		rank[i].History = data.History
+	}
+}
+
+func askPeerNodeForMemorySummary(hostname string) (*metric.Space, error) {
+	node, err := nodes.Get(hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	h := http.GetGlobalHelper()
+	resp, err := h.R().
+		SetResult(&bodies.SpaceStatistic{}).
+		SetHeaders(nodes.GetSecretHeaders()).
+		Get(node.GetMetricUrl("memoryUsage", "summary"))
+	if err != nil {
+		return nil, err
+	}
+
+	if !resp.IsError() {
+		return &resp.Result().(*bodies.SpaceStatistic).Data, nil
+	}
+
+	return nil, fmt.Errorf(
+		"failed to get memory usage of host %s: %s",
+		hostname,
+		string(resp.Body()),
+	)
+}
+
+func appendHistoryToMemoryUsageRank(rank []metric.RankPoint) {
+	for i, host := range rank {
+		stmt := fmt.Sprintf(hostMemoryUsageHistoryStmt, host.Id)
+		history, err := GetHostMemoryHistory(stmt)
+		if err != nil {
+			log.Errorf("metrics: failed to get memory history of host %s: %v", host.Id, err)
+			continue
+		}
+
+		rank[i].History = history
+	}
+}
+
+func parseMemoryUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
+	points := []metric.TimeValue{}
+	for c.Next() {
+		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		if err != nil {
+			continue
+		}
+
+		points = append(
+			points,
+			metric.TimeValue{
+				Time:  time.LocalRFC3339(date),
+				Value: parseHostUsed(c.Record()),
+			},
+		)
+	}
+
+	return points, nil
+}
+
+func parseMemorySizeHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
+	points := []metric.TimeValue{}
+	for c.Next() {
+		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		if err != nil {
+			continue
+		}
+
+		value := float64(parseSizeOfHost(c.Record())) / 1024.0 / 1024.0
+		points = append(
+			points,
+			metric.TimeValue{
+				Time:  time.LocalRFC3339(date),
+				Value: math.RoundDown(value, 4),
+			},
+		)
+	}
+
+	return points, nil
+}
+
+func getHostsDiskIopsHistory(stmt string) ([]metric.TimeValue, error) {
+	c, cancel, err := influx.GetQueryCursor(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer cancel()
+	defer c.Close()
+	return parseDiskOpsHistory(c)
+}
+
+func getHostsDiskLatencyHistory(stmt string) ([]metric.TimeValue, error) {
+	c, cancel, err := influx.GetQueryCursor(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer cancel()
+	defer c.Close()
+	return parseDiskLatencyHistory(c)
+}
+
+func appendHistoryToDiskUsageRank(rank []metric.RankPoint) {
+	for i, host := range rank {
+		history, err := GetHostDiskUsageHistory(host.Id, time.Period{})
+		if err != nil {
+			log.Errorf("metrics: failed to get disk usage history of host %s: %v", host.Id, err)
+			continue
+		}
+
+		rank[i].History = history
+	}
+}
+
+func parseDiskUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
+	points := []metric.TimeValue{}
+	for c.Next() {
+		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		if err != nil {
+			continue
+		}
+
+		points = append(
+			points,
+			metric.TimeValue{
+				Time:  time.LocalRFC3339(date),
+				Value: parseHostUsed(c.Record()),
+			},
+		)
+	}
+
+	return points, nil
+}
+
+func appendHistoryToNetworkTrafficInRank(rank []metric.RankPoint) {
+	for i, host := range rank {
+		history, err := GetHostNetworkIngressHistory(host.Id, time.Period{})
+		if err != nil {
+			log.Errorf("metrics: failed to get network traffic in history of host %s: %v", host.Id, err)
+			continue
+		}
+
+		rank[i].History = history
+	}
+}
+
+func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
+	points := []metric.TimeValue{}
+	for c.Next() {
+		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		if err != nil {
+			continue
+		}
+
+		points = append(
+			points,
+			metric.TimeValue{
+				Time:  time.LocalRFC3339(date),
+				Value: math.RoundDown(c.Record().Value().(float64), 4),
+			},
+		)
+	}
+
+	return points, nil
+}
+
+func appendHistoryToNetworkEgressRank(rank []metric.RankPoint) {
+	for i, host := range rank {
+		history, err := GetHostNetworkEgressHistory(host.Id, time.Period{})
+		if err != nil {
+			log.Errorf("metrics: failed to get network traffic out history of host %s: %v", host.Id, err)
+			continue
+		}
+
+		rank[i].History = history
+	}
+}
+
+func appendHistoryToVmCpuUsageRank(rank []metric.RankPoint) {
+	for i, vm := range rank {
+		history, err := GetVmCpuHistory(vm.Id, time.Period{})
+		if err != nil {
+			log.Errorf("metrics: failed to get cpu history of vm %s: %v", vm.Id, err)
+			continue
+		}
+
+		rank[i].History = history
+	}
+}
+
+func parseVmCpuUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
+	points := []metric.TimeValue{}
+	for c.Next() {
+		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		if err != nil {
+			continue
+		}
+
+		points = append(
+			points,
+			metric.TimeValue{
+				Time:  time.LocalRFC3339(date),
+				Value: parseUsed(c.Record()),
+			},
+		)
+	}
+
+	return points, nil
+}
+
+func appendHistoryToVmMemoryUsageRank(rank []metric.RankPoint) {
+	for i, vm := range rank {
+		history, err := GetMemoryHistoryOfVm(vm.Id, time.Period{})
+		if err != nil {
+			log.Errorf("metrics: failed to get memory history of vm %s: %v", vm.Id, err)
+			continue
+		}
+
+		rank[i].History = history
+	}
+}
+
+func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]metric.TimeValue, error) {
+	points := []metric.TimeValue{}
+	for c.Next() {
+		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		if err != nil {
+			continue
+		}
+
+		points = append(
+			points,
+			metric.TimeValue{
+				Time:  time.LocalRFC3339(date),
+				Value: parseUsed(c.Record()),
+			},
+		)
+	}
+
+	return points, nil
+}
+
+func appendHistoryToVmDiskReadIopsRank(rank []metric.RankPoint) {
+	for i, vm := range rank {
+		history, err := GetVmDiskReadIopsHistory(vm.Id, vm.Device)
+		if err != nil {
+			log.Errorf("metrics: failed to get disk iops history of vm %s: %v", vm.Id, err)
+			continue
+		}
+
+		rank[i].History = history
+	}
+}
+
+func appendHistoryToVmDiskWriteIopsRank(rank []metric.RankPoint) {
+	for i, vm := range rank {
+		history, err := GetDiskWriteIopsHistoryOfVm(vm.Id, vm.Device)
+		if err != nil {
+			log.Errorf("metrics: failed to get disk iops history of vm %s: %v", vm.Id, err)
+			continue
+		}
+
+		rank[i].History = history
+	}
+}
+
+func appendHistoryToVmNetworkIngressRank(rank []metric.RankPoint) {
+	for i, vm := range rank {
+		history, err := GetVmNetworkTrafficInHistory(vm.Id, vm.Device)
+		if err != nil {
+			log.Errorf("metrics: failed to get network traffic in history of vm %s: %v", vm.Id, err)
+			continue
+		}
+
+		rank[i].History = history
+	}
 }
 
 func genHostDiskStorageSummaryStmt() string {

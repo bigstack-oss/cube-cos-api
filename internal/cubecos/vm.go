@@ -15,7 +15,7 @@ func GetVmStatus() (*VmStatus, error) {
 	h := openstack.GetGlobalHelper()
 	servers, err := h.ListServers(servers.ListOpts{AllTenants: true})
 	if err != nil {
-		log.Errorf("failed to list servers: %v", err)
+		log.Errorf("openstack: failed to list servers: %v", err)
 		return nil, err
 	}
 
@@ -26,6 +26,7 @@ func GetVmUsage() (*metric.VmUsage, error) {
 	h := openstack.GetGlobalHelper()
 	stats, err := h.GetHypervisorStatistics()
 	if err != nil {
+		log.Errorf("openstack: failed to get hypervisor statistics: %v", err)
 		return nil, err
 	}
 

@@ -15,6 +15,7 @@ import (
 
 type helper struct {
 	c       *gin.Context
+	reqId   string
 	handler string
 
 	serviceType string
@@ -28,7 +29,7 @@ type helper struct {
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
-	h := &helper{c: c, handler: handler}
+	h := &helper{c: c, reqId: queries.GetReqId(c), handler: handler}
 	return h, h.parseParamsByHandler()
 }
 
