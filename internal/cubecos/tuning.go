@@ -472,14 +472,6 @@ func genTmpTuningDir() string {
 	return fmt.Sprintf("/tmp/tuning-%s", hash)
 }
 
-func AcquireTuningLock() error {
-	return nil
-}
-
-func ReleaseTuningLock() error {
-	return nil
-}
-
 func GetTuningPolicy(filePath string) (*tunings.Policy, error) {
 	b, err := os.ReadFile(filePath)
 	if err != nil {

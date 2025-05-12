@@ -17,7 +17,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -142,21 +142,21 @@ func (o *Operator) setLicense(node *nodes.Node) {
 	node.License = o.getLicenseByHostname(node.Hostname)
 }
 
-func (o *Operator) getLicenseByHostname(hostname string) license.Options {
-	licenses, err := cubecos.ListLicenses()
+func (o *Operator) getLicenseByHostname(hostname string) licenses.License {
+	list, err := cubecos.ListLicenses()
 	if err != nil {
 		log.Warnf("nodes: failed to add license info to the nodes: %s", err.Error())
-		return license.Options{}
+		return licenses.License{}
 	}
 
-	for _, license := range licenses {
+	for _, license := range list {
 		if slices.Contains(license.Hosts, hostname) {
 			license.Hosts = nil
 			return license
 		}
 	}
 
-	return license.Options{}
+	return licenses.License{}
 }
 
 func (o *Operator) setInfraSpec(node *nodes.Node) {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -95,7 +95,7 @@ func (h *helper) storeImportLicense() (string, error) {
 	return filePath, nil
 }
 
-func (h *helper) listAttachments() ([]license.Attachment, error) {
+func (h *helper) listAttachments() ([]licenses.Attachment, error) {
 	attachments, err := h.listAttachmentsByProduct()
 	if err != nil {
 		return nil, err
@@ -104,17 +104,17 @@ func (h *helper) listAttachments() ([]license.Attachment, error) {
 	return h.filterAttachments(attachments), nil
 }
 
-func (h *helper) listAttachmentsByProduct() ([]license.Attachment, error) {
-	licenses, err := cubecos.ListLicenses()
+func (h *helper) listAttachmentsByProduct() ([]licenses.Attachment, error) {
+	list, err := cubecos.ListLicenses()
 	if err != nil {
 		log.Errorf("licenses(%s): failed to list the licenses: %s", h.reqId, err.Error())
 		return nil, err
 	}
 
-	attachments := []license.Attachment{}
+	attachments := []licenses.Attachment{}
 	for _, node := range nodes.List() {
 		attachment := h.genUnlicenseAttachment(node)
-		status, found := h.getNodeProductStatus(node, licenses)
+		status, found := h.getNodeProductStatus(node, list)
 		if found {
 			attachment.Status = status
 		}
@@ -125,8 +125,8 @@ func (h *helper) listAttachmentsByProduct() ([]license.Attachment, error) {
 	return attachments, nil
 }
 
-func (h *helper) genUnlicenseAttachment(node nodes.Node) license.Attachment {
-	return license.Attachment{
+func (h *helper) genUnlicenseAttachment(node nodes.Node) licenses.Attachment {
+	return licenses.Attachment{
 		SerialNumber: node.SerialNumber,
 		Hostname:     node.Hostname,
 		Role:         node.Role,
@@ -136,12 +136,12 @@ func (h *helper) genUnlicenseAttachment(node nodes.Node) license.Attachment {
 }
 
 func (h *helper) normalizeProductName(product string) string {
-	if strings.EqualFold(product, license.CubeCOS) {
-		return license.CubeCOS
+	if strings.EqualFold(product, licenses.CubeCOS) {
+		return licenses.CubeCOS
 	}
 
-	if strings.EqualFold(product, license.CubeCMP) {
-		return license.CubeCMP
+	if strings.EqualFold(product, licenses.CubeCMP) {
+		return licenses.CubeCMP
 	}
 
 	return fmt.Sprintf(
@@ -150,7 +150,7 @@ func (h *helper) normalizeProductName(product string) string {
 	)
 }
 
-func (h *helper) getNodeProductStatus(node nodes.Node, licenses []license.Options) (string, bool) {
+func (h *helper) getNodeProductStatus(node nodes.Node, licenses []licenses.License) (string, bool) {
 	for _, license := range licenses {
 		if !strings.EqualFold(h.product, license.Product.Name) {
 			continue

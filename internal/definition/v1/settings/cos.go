@@ -2,15 +2,14 @@ package settings
 
 import (
 	"reflect"
-	"sync"
+	"sync/atomic"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 )
 
 var (
-	cosSchema *Cos
-	updateCos sync.Mutex
+	cosSchema = atomic.Pointer[*Cos]{}
 )
 
 type Cos struct {
@@ -92,11 +91,14 @@ func (c *Cos) ToApiSchema() Api {
 }
 
 func GetCosSchema() *Cos {
-	return cosSchema
+	schema := cosSchema.Load()
+	if schema == nil {
+		return &Cos{}
+	}
+
+	return *schema
 }
 
 func SetCosSchema(alert *Cos) {
-	updateCos.Lock()
-	defer updateCos.Unlock()
-	cosSchema = alert
+	cosSchema.Swap(&alert)
 }

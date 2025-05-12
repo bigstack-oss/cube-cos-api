@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -29,11 +29,6 @@ var (
 	updateServices = sync.Mutex{}
 )
 
-func init() {
-	empty := []Node{}
-	list.Store(&empty)
-}
-
 type Node struct {
 	Id                string             `json:"id" yaml:"id"`
 	SerialNumber      string             `json:"serialNumber" yaml:"serialNumber"`
@@ -45,7 +40,7 @@ type Node struct {
 	Ip                string             `json:"ip" yaml:"ip"`
 	ManagementIP      string             `json:"managementIP" yaml:"managementIP"`
 	StorageIP         string             `json:"storageIP" yaml:"storageIP"`
-	License           license.Options    `json:"license" yaml:"license,omitempty" bson:"license,omitempty"`
+	License           licenses.License   `json:"license" yaml:"license,omitempty" bson:"license,omitempty"`
 	Status            string             `json:"status" yaml:"status"`
 	CpuSpec           string             `json:"cpuSpec" yaml:"cpuSpec" bson:"cpuSpec"`
 	NetworkInterfaces []NetworkInterface `json:"networkInterfaces" yaml:"networkInterfaces" bson:"networkInterfaces"`
@@ -477,19 +472,26 @@ func SetList(nodes []Node) {
 }
 
 func Sync() {
-	syncNodes.Lock()
-	defer syncNodes.Unlock()
-
 	for _, role := range roles {
 		nodes, err := GetNodesByRole(role)
 		if err != nil {
 			return
 		}
 
-		role := GetRole(role)
-		if role != nil {
-			role.Nodes = nodes
-			role.Hosts = convertToHosts(nodes)
+		role := Role{Name: role, Nodes: nodes, Hosts: convertToHosts(nodes)}
+		switch role.Name {
+		case RoleControl:
+			Control.Swap(&role)
+		case RoleCompute:
+			Compute.Swap(&role)
+		case RoleStorage:
+			Storage.Swap(&role)
+		case RoleControlConverged:
+			ControlConverged.Swap(&role)
+		case RoleModerator:
+			Moderator.Swap(&role)
+		case RoleEdgeCore:
+			EdgeCore.Swap(&role)
 		}
 	}
 }
@@ -506,9 +508,19 @@ func GetMap() map[string]Node {
 func GetNodesByRoles() []Node {
 	nodes := []Node{}
 	for _, role := range roles {
-		role := GetRole(role)
-		if role != nil {
-			nodes = append(nodes, role.Nodes...)
+		switch role {
+		case RoleControl:
+			nodes = append(nodes, Control.Load().Nodes...)
+		case RoleCompute:
+			nodes = append(nodes, Compute.Load().Nodes...)
+		case RoleStorage:
+			nodes = append(nodes, Storage.Load().Nodes...)
+		case RoleControlConverged:
+			nodes = append(nodes, ControlConverged.Load().Nodes...)
+		case RoleModerator:
+			nodes = append(nodes, Moderator.Load().Nodes...)
+		case RoleEdgeCore:
+			nodes = append(nodes, EdgeCore.Load().Nodes...)
 		}
 	}
 

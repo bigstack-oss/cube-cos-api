@@ -13,7 +13,7 @@ import (
 	grafanapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/healths"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/integrations"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/licenses"
+	licenseapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/logout"
 	meapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/me"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/metrics"
@@ -33,7 +33,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/health"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/me"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -196,8 +196,8 @@ func prepareApiHandlersByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		license.Module,
-		licenses.Handlers,
+		licenses.Module,
+		licenseapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
 	)

@@ -1,21 +1,26 @@
 package triggers
 
-import "sync"
+import (
+	"sync/atomic"
+)
 
 const (
 	Module = "triggers"
 )
 
 var (
-	updateList = sync.Mutex{}
+	list = atomic.Pointer[[]ApiSchema]{}
 )
 
 func SyncList(triggers []ApiSchema) {
-	updateList.Lock()
-	defer updateList.Unlock()
-	list = triggers
+	list.Swap(&triggers)
 }
 
 func List() []ApiSchema {
-	return list
+	schema := list.Load()
+	if schema == nil {
+		return []ApiSchema{}
+	}
+
+	return *schema
 }

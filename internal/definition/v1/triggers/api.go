@@ -23,8 +23,6 @@ const (
 )
 
 var (
-	list = []ApiSchema{}
-
 	detailsMap = map[string]ApiSchema{
 		"admin-notify": {
 			Name:        "Administrative Level Notification",
@@ -242,7 +240,7 @@ type Attribute struct {
 }
 
 func Get(name string) (*ApiSchema, bool) {
-	for _, trigger := range list {
+	for _, trigger := range List() {
 		if trigger.Name == name {
 			return &trigger, true
 		}

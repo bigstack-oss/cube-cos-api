@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"runtime"
-	"sync"
+	"sync/atomic"
 	ostime "time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
@@ -25,8 +25,7 @@ import (
 )
 
 var (
-	summaryUpdate  = sync.Mutex{}
-	metricsSummary *Summary
+	metricsSummary = atomic.Pointer[*Summary]{}
 
 	isMetricTypeValid = map[string]bool{
 		"cpuUsage":          true,
@@ -217,16 +216,13 @@ func IsMetricReportTypeValid(t string) bool {
 }
 
 func SyncMetricsSummary() {
-	summaryUpdate.Lock()
-	defer summaryUpdate.Unlock()
-
 	summary, err := syncDataCenterSummary()
 	if err != nil {
 		log.Errorf("metrics: failed to sync data center summary: %v", err)
 		return
 	}
 
-	metricsSummary = summary
+	metricsSummary.Swap(&summary)
 }
 
 func syncDataCenterSummary() (*Summary, error) {
@@ -256,7 +252,12 @@ func syncDataCenterSummary() (*Summary, error) {
 }
 
 func GetMetricsSummary() *Summary {
-	return metricsSummary
+	summary := metricsSummary.Load()
+	if summary == nil {
+		return &Summary{}
+	}
+
+	return *metricsSummary.Load()
 }
 
 func GetDataCenterUsage(hostSummary *HostSummary) (*DataCenterSummary, error) {

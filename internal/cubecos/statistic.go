@@ -89,13 +89,6 @@ func (h *HostSummary) sumRoleUsage(roleMap map[string]RoleUsage) {
 
 		roleMap[u.Role] = role
 	}
-
-	// list := nodes.List()
-	// for _, node := range list {
-	// 	role := roleMap[node.Role]
-	// 	role.Count++
-	// 	roleMap[node.Role] = role
-	// }
 }
 
 func (h *HostSummary) summarizeRoleUsage(roleMap map[string]RoleUsage) {

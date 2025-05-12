@@ -2,7 +2,7 @@ package nodes
 
 import (
 	"slices"
-	"sync"
+	"sync/atomic"
 )
 
 const (
@@ -15,8 +15,6 @@ const (
 )
 
 var (
-	syncNodes sync.Mutex
-
 	roles = []string{
 		RoleControlConverged,
 		RoleControl,
@@ -26,38 +24,38 @@ var (
 		RoleEdgeCore,
 	}
 
-	Control          = newControlRole()
-	Compute          = newComputeRole()
-	Storage          = newStorageRole()
-	ControlConverged = newControlConvergedRole()
-	Moderator        = newModeratorRole()
-	EdgeCore         = newEdgeCoreRole()
+	Control          atomic.Pointer[Role]
+	Compute          atomic.Pointer[Role]
+	Storage          atomic.Pointer[Role]
+	ControlConverged atomic.Pointer[Role]
+	Moderator        atomic.Pointer[Role]
+	EdgeCore         atomic.Pointer[Role]
 
 	AllRoles = []*Role{
-		Control,
-		Compute,
-		Storage,
-		ControlConverged,
-		Moderator,
-		EdgeCore,
+		Control.Load(),
+		Compute.Load(),
+		Storage.Load(),
+		ControlConverged.Load(),
+		Moderator.Load(),
+		EdgeCore.Load(),
 	}
 
 	AllGeneralRoles = []*Role{
-		Control,
-		Compute,
-		Storage,
-		ControlConverged,
+		Control.Load(),
+		Compute.Load(),
+		Storage.Load(),
+		ControlConverged.Load(),
 	}
 
 	ControlRoles = []*Role{
-		Control,
-		ControlConverged,
+		Control.Load(),
+		ControlConverged.Load(),
 	}
 
 	ComputeRoles = []*Role{
-		Compute,
-		ControlConverged,
-		EdgeCore,
+		Compute.Load(),
+		ControlConverged.Load(),
+		EdgeCore.Load(),
 	}
 
 	cloudRoles = []string{
@@ -72,6 +70,15 @@ var (
 	}
 )
 
+func init() {
+	newControlRole()
+	newComputeRole()
+	newStorageRole()
+	newControlConvergedRole()
+	newModeratorRole()
+	newEdgeCoreRole()
+}
+
 type Role struct {
 	Name  string `json:"name" bson:"name"`
 	Hosts []Host `json:"hosts" bson:"hosts"`
@@ -82,25 +89,6 @@ type Host struct {
 	Role string `json:"role,omitzero"`
 	Name string `json:"name"`
 	Ip   string `json:"ip,omitzero"`
-}
-
-func GetRole(name string) *Role {
-	switch name {
-	case RoleControl:
-		return Control
-	case RoleCompute:
-		return Compute
-	case RoleStorage:
-		return Storage
-	case RoleControlConverged:
-		return ControlConverged
-	case RoleModerator:
-		return Moderator
-	case RoleEdgeCore:
-		return EdgeCore
-	default:
-		return nil
-	}
 }
 
 func (r *Role) IsNodeEmpty() bool {
@@ -116,56 +104,52 @@ func (h *Host) GetNode() *Node {
 	return node
 }
 
-func newControlRole() *Role {
-	return &Role{Name: RoleControl}
+func newControlRole() {
+	Control.Store(&Role{Name: RoleControl})
 }
 
-func newComputeRole() *Role {
-	return &Role{Name: RoleCompute}
+func newComputeRole() {
+	Compute.Store(&Role{Name: RoleCompute})
 }
 
-func newStorageRole() *Role {
-	return &Role{Name: RoleStorage}
+func newStorageRole() {
+	Storage.Store(&Role{Name: RoleStorage})
 }
 
-func newControlConvergedRole() *Role {
-	return &Role{Name: RoleControlConverged}
+func newControlConvergedRole() {
+	ControlConverged.Store(&Role{Name: RoleControlConverged})
 }
 
-func newModeratorRole() *Role {
-	return &Role{Name: RoleModerator}
+func newModeratorRole() {
+	Moderator.Store(&Role{Name: RoleModerator})
 }
 
-func newEdgeCoreRole() *Role {
-	return &Role{Name: RoleEdgeCore}
+func newEdgeCoreRole() {
+	EdgeCore.Store(&Role{Name: RoleEdgeCore})
 }
 
 func GetControlRole() *Role {
-	return Control
-}
-
-func GetControlRoles() []*Role {
-	return ControlRoles
+	return Control.Load()
 }
 
 func GetComputeRole() *Role {
-	return Compute
+	return Compute.Load()
 }
 
 func GetStorageRole() *Role {
-	return Storage
+	return Storage.Load()
 }
 
 func GetControlConvergeRole() *Role {
-	return ControlConverged
+	return ControlConverged.Load()
 }
 
 func GetModeratorRole() *Role {
-	return Moderator
+	return Moderator.Load()
 }
 
 func GetEdgeCoreRole() *Role {
-	return EdgeCore
+	return EdgeCore.Load()
 }
 
 func GetCloudRoles() []string {

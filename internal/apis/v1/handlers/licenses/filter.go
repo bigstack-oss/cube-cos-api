@@ -5,13 +5,13 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/license"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
 )
 
-func (h *helper) filterLicenses(licenses []license.Options) []license.Options {
+func (h *helper) filterLicenses(licenses []licenses.License) []licenses.License {
 	if !h.isFilterRequired() {
 		return licenses
 	}
@@ -35,7 +35,7 @@ func (h *helper) filterLicenses(licenses []license.Options) []license.Options {
 	return licenses
 }
 
-func (h *helper) filterAttachments(attachments []license.Attachment) []license.Attachment {
+func (h *helper) filterAttachments(attachments []licenses.Attachment) []licenses.Attachment {
 	if !h.isAttachmentFilterRequired() {
 		return attachments
 	}
@@ -55,15 +55,15 @@ func (h *helper) filterAttachments(attachments []license.Attachment) []license.A
 	return attachments
 }
 
-func (h *helper) filteredByKeyword(licenses []license.Options) []license.Options {
-	result, err := h.searchLicenses(licenses)
+func (h *helper) filteredByKeyword(list []licenses.License) []licenses.License {
+	result, err := h.searchLicenses(list)
 	if err != nil {
 		log.Errorf("failed to search licenses: %s", err.Error())
-		return licenses
+		return list
 	}
 
-	licenseMap := genLicenseMap(licenses)
-	filtered := []license.Options{}
+	licenseMap := genLicenseMap(list)
+	filtered := []licenses.License{}
 	for _, hit := range result.Hits {
 		filtered = append(filtered, licenseMap[hit.ID])
 	}
@@ -71,9 +71,9 @@ func (h *helper) filteredByKeyword(licenses []license.Options) []license.Options
 	return filtered
 }
 
-func (h *helper) filteredByStatus(licenses []license.Options) []license.Options {
-	filtered := []license.Options{}
-	for _, license := range licenses {
+func (h *helper) filteredByStatus(list []licenses.License) []licenses.License {
+	filtered := []licenses.License{}
+	for _, license := range list {
 		if slices.Contains(h.statuses, license.Status.Current) {
 			filtered = append(filtered, license)
 		}
@@ -82,9 +82,9 @@ func (h *helper) filteredByStatus(licenses []license.Options) []license.Options 
 	return filtered
 }
 
-func (h *helper) filteredByType(licenses []license.Options) []license.Options {
-	filtered := []license.Options{}
-	for _, license := range licenses {
+func (h *helper) filteredByType(list []licenses.License) []licenses.License {
+	filtered := []licenses.License{}
+	for _, license := range list {
 		if slices.Contains(h.types, license.Type) {
 			filtered = append(filtered, license)
 		}
@@ -93,10 +93,10 @@ func (h *helper) filteredByType(licenses []license.Options) []license.Options {
 	return filtered
 }
 
-func (h *helper) filteredByProduct(licenses []license.Options) []license.Options {
-	license.LowerProductsInPlace(h.products)
-	filtered := []license.Options{}
-	for _, license := range licenses {
+func (h *helper) filteredByProduct(list []licenses.License) []licenses.License {
+	licenses.LowerProductsInPlace(h.products)
+	filtered := []licenses.License{}
+	for _, license := range list {
 		if slices.Contains(h.products, strings.ToLower(license.Product.Name)) {
 			filtered = append(filtered, license)
 		}
@@ -105,14 +105,14 @@ func (h *helper) filteredByProduct(licenses []license.Options) []license.Options
 	return filtered
 }
 
-func (h *helper) searchLicenses(licenses []license.Options) (*bleve.SearchResult, error) {
+func (h *helper) searchLicenses(list []licenses.License) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
 		log.Errorf("licenses(%s): failed to new searcher: %s", queries.GetReqId(h.c), err.Error())
 		return nil, err
 	}
 
-	for _, license := range licenses {
+	for _, license := range list {
 		err := searcher.Index(license.Issue.Date, license.GenSearchableObject())
 		if err != nil {
 			continue
@@ -124,16 +124,16 @@ func (h *helper) searchLicenses(licenses []license.Options) (*bleve.SearchResult
 	return searcher.Search(search.WildcardQuery(keyword))
 }
 
-func genLicenseMap(licenses []license.Options) map[string]license.Options {
-	licenseMap := map[string]license.Options{}
-	for _, license := range licenses {
+func genLicenseMap(list []licenses.License) map[string]licenses.License {
+	licenseMap := map[string]licenses.License{}
+	for _, license := range list {
 		licenseMap[license.Issue.Date] = license
 	}
 
 	return licenseMap
 }
 
-func (h *helper) filteredAttachmentByKeyword(attachments []license.Attachment) []license.Attachment {
+func (h *helper) filteredAttachmentByKeyword(attachments []licenses.Attachment) []licenses.Attachment {
 	result, err := h.searchAttachments(attachments)
 	if err != nil {
 		log.Errorf("failed to search license attachments: %s", err.Error())
@@ -141,7 +141,7 @@ func (h *helper) filteredAttachmentByKeyword(attachments []license.Attachment) [
 	}
 
 	attachmentMap := genAttachmentMap(attachments)
-	filtered := []license.Attachment{}
+	filtered := []licenses.Attachment{}
 	for _, hit := range result.Hits {
 		filtered = append(filtered, attachmentMap[hit.ID])
 	}
@@ -149,7 +149,7 @@ func (h *helper) filteredAttachmentByKeyword(attachments []license.Attachment) [
 	return filtered
 }
 
-func (h *helper) searchAttachments(attachments []license.Attachment) (*bleve.SearchResult, error) {
+func (h *helper) searchAttachments(attachments []licenses.Attachment) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
 		log.Errorf("licenses(%s): failed to new searcher: %s", queries.GetReqId(h.c), err.Error())
@@ -168,8 +168,8 @@ func (h *helper) searchAttachments(attachments []license.Attachment) (*bleve.Sea
 	return searcher.Search(search.WildcardQuery(key))
 }
 
-func genAttachmentMap(attachments []license.Attachment) map[string]license.Attachment {
-	attachmentMap := map[string]license.Attachment{}
+func genAttachmentMap(attachments []licenses.Attachment) map[string]licenses.Attachment {
+	attachmentMap := map[string]licenses.Attachment{}
 	for _, attachment := range attachments {
 		attachmentMap[attachment.Hostname] = attachment
 	}
@@ -177,8 +177,8 @@ func genAttachmentMap(attachments []license.Attachment) map[string]license.Attac
 	return attachmentMap
 }
 
-func (h *helper) filteredAttachmentsByRoles(attachments []license.Attachment) []license.Attachment {
-	filtered := []license.Attachment{}
+func (h *helper) filteredAttachmentsByRoles(attachments []licenses.Attachment) []licenses.Attachment {
+	filtered := []licenses.Attachment{}
 	for _, attachment := range attachments {
 		if slices.Contains(h.roles, attachment.Role) {
 			filtered = append(filtered, attachment)
@@ -188,8 +188,8 @@ func (h *helper) filteredAttachmentsByRoles(attachments []license.Attachment) []
 	return filtered
 }
 
-func (h *helper) filteredAttachmentsByStatuses(attachments []license.Attachment) []license.Attachment {
-	filtered := []license.Attachment{}
+func (h *helper) filteredAttachmentsByStatuses(attachments []licenses.Attachment) []licenses.Attachment {
+	filtered := []licenses.Attachment{}
 	for _, attachment := range attachments {
 		if slices.Contains(h.statuses, attachment.Status) {
 			filtered = append(filtered, attachment)

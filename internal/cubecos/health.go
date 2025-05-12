@@ -7,7 +7,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
-	"sync"
+	"sync/atomic"
 	ostime "time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/aws"
@@ -35,9 +35,8 @@ const (
 )
 
 var (
-	updateHealthSummary sync.Mutex
-	healthSummary       Health
-	healthCheck         = "health: check module %s"
+	healthSummary = atomic.Pointer[Health]{}
+	healthCheck   = "health: check module %s"
 )
 
 type Health struct {
@@ -200,16 +199,19 @@ func RepairModule(moduleName string) error {
 }
 
 func SyncHealthHistory() {
-	updateHealthSummary.Lock()
-	defer updateHealthSummary.Unlock()
-
 	services := GetServicesToCheckHealth()
 	syncServiceHealth(&services, "24h")
-	healthSummary = genHealthSummary(services)
+	summary := genHealthSummary(services)
+	healthSummary.Swap(&summary)
 }
 
 func GetHealthSummary() Health {
-	return healthSummary
+	summary := healthSummary.Load()
+	if summary == nil {
+		return Health{}
+	}
+
+	return *summary
 }
 
 func GetServiceHealthHistory(serviceName, duration string) []ModuleHealth {

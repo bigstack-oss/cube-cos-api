@@ -1,9 +1,9 @@
-package license
+package licenses
 
 import (
 	"fmt"
 	"strings"
-	"sync"
+	"sync/atomic"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -18,8 +18,7 @@ const (
 )
 
 var (
-	license       = []Options{}
-	updateLicense sync.Mutex
+	licenses = atomic.Pointer[[]License]{}
 )
 
 type Raw struct {
@@ -40,7 +39,7 @@ type Raw struct {
 	Days     int    `json:"days" yaml:"days" bson:"days"`
 }
 
-type Options struct {
+type License struct {
 	Name        string   `json:"name" yaml:"name" bson:"name"`
 	Type        string   `json:"type" yaml:"type" bson:"type"`
 	Hostname    string   `json:"hostname,omitzero" yaml:"hostname" bson:"hostname"`
@@ -80,7 +79,7 @@ type Attachment struct {
 }
 
 type Verification struct {
-	Options     `json:"license" yaml:"license" bson:"license"`
+	License     `json:"license" yaml:"license" bson:"license"`
 	EffectNodes []Node `json:"effectNodes" yaml:"effectNodes" bson:"effectNodes"`
 }
 
@@ -91,63 +90,63 @@ type Node struct {
 	Status status.License `json:"status" yaml:"status" bson:"status"`
 }
 
-func (o *Options) Key() string {
+func (l *License) Key() string {
 	return fmt.Sprintf(
 		"%s-%s-%s-%s-%s-%s-%s-%d",
-		o.Type,
-		o.Product.Name,
-		o.Serial,
-		o.Issue.By,
-		o.Issue.To,
-		o.Hardware,
-		o.Expiry.Date,
-		o.Expiry.Days,
+		l.Type,
+		l.Product.Name,
+		l.Serial,
+		l.Issue.By,
+		l.Issue.To,
+		l.Hardware,
+		l.Expiry.Date,
+		l.Expiry.Days,
 	)
 }
 
-func (o *Options) InitValidStatus() {
-	o.Status = status.License{Current: status.Valid}
+func (l *License) InitValidStatus() {
+	l.Status = status.License{Current: status.Valid}
 }
 
-func (o *Options) InitExpiredStatus() {
-	o.Status = status.License{Current: status.Expired}
+func (l *License) InitExpiredStatus() {
+	l.Status = status.License{Current: status.Expired}
 }
 
-func (o *Options) InitInvalidHardwareStatus() {
-	o.Status = status.License{Current: "unmatched hardware"}
+func (l *License) InitInvalidHardwareStatus() {
+	l.Status = status.License{Current: "unmatched hardware"}
 }
 
-func (o *Options) InitInvalidSignatureStatus() {
-	o.Status = status.License{Current: "invalid signature"}
+func (l *License) InitInvalidSignatureStatus() {
+	l.Status = status.License{Current: "invalid signature"}
 }
 
-func (o *Options) InitCompromisedStatus() {
-	o.Status = status.License{Current: "system compromised"}
+func (l *License) InitCompromisedStatus() {
+	l.Status = status.License{Current: "system compromised"}
 }
 
-func (o *Options) IsValid() bool {
-	return o.Expiry.Date != ""
+func (l *License) IsValid() bool {
+	return l.Expiry.Date != ""
 }
 
 // note:
 // in the current search lib(bleve), the algo is not able to detect the string if it include uppercase
 // we've tried a few different init settings, but the result is not as expected as always
 // currenlty, the only way we found is to convert all the string to lower case and inject to searcher
-func (o *Options) GenSearchableObject() Options {
-	o.Type = search.NormalizedKeyword(o.Type)
-	o.Name = search.NormalizedKeyword(o.Name)
-	o.Product.Name = search.NormalizedKeyword(o.Product.Name)
-	o.Product.Feature = search.NormalizedKeyword(o.Product.Feature)
-	o.Serial = search.NormalizedKeyword(o.Serial)
-	o.SupportPlan = search.NormalizedKeyword(o.SupportPlan)
-	o.Issue.By = search.NormalizedKeyword(o.Issue.By)
-	o.Issue.To = search.NormalizedKeyword(o.Issue.To)
-	o.Issue.Hardware = search.NormalizedKeyword(o.Issue.Hardware)
-	for i := range o.Hosts {
-		o.Hosts[i] = search.NormalizedKeyword(o.Hosts[i])
+func (l *License) GenSearchableObject() License {
+	l.Type = search.NormalizedKeyword(l.Type)
+	l.Name = search.NormalizedKeyword(l.Name)
+	l.Product.Name = search.NormalizedKeyword(l.Product.Name)
+	l.Product.Feature = search.NormalizedKeyword(l.Product.Feature)
+	l.Serial = search.NormalizedKeyword(l.Serial)
+	l.SupportPlan = search.NormalizedKeyword(l.SupportPlan)
+	l.Issue.By = search.NormalizedKeyword(l.Issue.By)
+	l.Issue.To = search.NormalizedKeyword(l.Issue.To)
+	l.Issue.Hardware = search.NormalizedKeyword(l.Issue.Hardware)
+	for i := range l.Hosts {
+		l.Hosts[i] = search.NormalizedKeyword(l.Hosts[i])
 	}
 
-	return *o
+	return *l
 }
 
 func (o *Attachment) GenSearchableObject() Attachment {
@@ -164,14 +163,17 @@ func (r *Raw) IsUnlicense() bool {
 	return r.Date == ""
 }
 
-func List() []Options {
-	return license
+func List() []License {
+	list := licenses.Load()
+	if list == nil {
+		return []License{}
+	}
+
+	return *list
 }
 
-func SetList(licenses []Options) {
-	updateLicense.Lock()
-	defer updateLicense.Unlock()
-	license = licenses
+func SetList(list []License) {
+	licenses.Swap(&list)
 }
 
 func LowerProductsInPlace(products []string) {
