@@ -38,7 +38,7 @@ func (o *Operator) watchChanges() {
 				continue
 			}
 			if err != nil {
-				log.Errorf("settings: failed to fetch setting change event: %s", err.Error())
+				log.Errorf("settings: failed to fetch setting change event: %v", err)
 				continue
 			}
 		}

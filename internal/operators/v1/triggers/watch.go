@@ -42,7 +42,7 @@ func (o *Operator) watchChanges() {
 				continue
 			}
 			if err != nil {
-				log.Errorf("triggers: failed to fetch policy change event: %s", err.Error())
+				log.Errorf("triggers: failed to fetch policy change event: %v", err)
 				continue
 			}
 		}
@@ -63,7 +63,7 @@ func (o *Operator) checkTriggers(event fsnotify.Event) {
 func (o *Operator) syncTriggers() {
 	list, err := cubecos.GetTriggers()
 	if err != nil {
-		log.Errorf("triggers: failed to sync triggers: %s", err.Error())
+		log.Errorf("triggers: failed to sync triggers: %v", err)
 		return
 	}
 
@@ -114,29 +114,29 @@ func syncSelectableResponseItems(trigger *triggers.ApiSchema) {
 	trigger.Response.Types = []string{}
 	setEmailRecipientsToTrigger(trigger)
 	if trigger.HasEmailRecipients() {
-		for _, recipient := range trigger.Response.Emails {
-			if recipient.Enabled {
-				trigger.Response.Types = append(
-					trigger.Response.Types,
-					"email",
-				)
-
-				break
-			}
-		}
+		setEmailTypeIfAtLeastOneEmailEnabled(trigger)
 	}
 
 	setSlackChannelsToTrigger(trigger)
 	if trigger.HasSlackChannels() {
-		for _, channel := range trigger.Response.Slacks {
-			if channel.Enabled {
-				trigger.Response.Types = append(
-					trigger.Response.Types,
-					"slack",
-				)
+		setSlackTypeIfAtLeastOneChannelEnabled(trigger)
+	}
+}
 
-				break
-			}
+func setEmailTypeIfAtLeastOneEmailEnabled(trigger *triggers.ApiSchema) {
+	for _, recipient := range trigger.Response.Emails {
+		if recipient.Enabled {
+			trigger.Response.Types = append(trigger.Response.Types, "email")
+			break
+		}
+	}
+}
+
+func setSlackTypeIfAtLeastOneChannelEnabled(trigger *triggers.ApiSchema) {
+	for _, channel := range trigger.Response.Slacks {
+		if channel.Enabled {
+			trigger.Response.Types = append(trigger.Response.Types, "slack")
+			break
 		}
 	}
 }

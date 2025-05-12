@@ -27,7 +27,7 @@ func (o *Operator) handleExit(tuning tunings.Tuning, err error) {
 func (o *Operator) reportToController(tuning tunings.Tuning) error {
 	node, err := nodes.GetController()
 	if err != nil {
-		log.Errorf("tunings: failed to get controller nodes: %s", err.Error())
+		log.Errorf("tunings: failed to get controller nodes: %v", err)
 		return err
 	}
 
@@ -37,12 +37,12 @@ func (o *Operator) reportToController(tuning tunings.Tuning) error {
 		SetBody(tuning.GenTaskUpdate()).
 		Patch(node.PatchTuningTaskUrl(tuning.Id))
 	if err != nil {
-		log.Errorf("tunings: failed to send tuning %s to %s: %s", tuning.Name, node.Hostname, err.Error())
+		log.Errorf("tunings: failed to send tuning %s to %s: %v", tuning.Name, node.Hostname, err)
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("tunings: failed to send tuning %s to %s: %d %s", tuning.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("tunings: failed to send tuning %s to %s: %s", tuning.Name, node.Hostname, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 

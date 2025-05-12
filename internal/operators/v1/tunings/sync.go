@@ -27,14 +27,14 @@ func (o *Operator) operateReq(tuning tunings.Tuning) error {
 func (o *Operator) resetTuning(tuning tunings.Tuning) error {
 	policy, err := cubecos.GetTuningPolicy(cubecos.TuningPolicyFile)
 	if err != nil {
-		log.Errorf("tuning: failed to get all tunings: %s", err.Error())
+		log.Errorf("tuning: failed to get all tunings: %v", err)
 		return err
 	}
 
 	policy.DeleteTuning(tuning.Name)
 	err = cubecos.ApplyTunings(policy.Tunings)
 	if err != nil {
-		log.Errorf("tuning: failed to delete tunings: %s", err.Error())
+		log.Errorf("tuning: failed to delete tunings: %v", err)
 		return err
 	}
 
@@ -56,7 +56,7 @@ func (o *Operator) updateTuning(tuning tunings.Tuning) error {
 	policy.UpdateOrAppendTuning(tuning)
 	err = cubecos.ApplyTunings(policy.Tunings)
 	if err != nil {
-		log.Errorf("failed to apply tuning %s: %s", tuning.Name, err.Error())
+		log.Errorf("failed to apply tuning %s: %v", tuning.Name, err)
 		return err
 	}
 

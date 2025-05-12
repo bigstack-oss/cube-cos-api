@@ -11,7 +11,7 @@ import (
 
 func (o *Operator) handleExit(trigger triggers.ApiSchema, err error) {
 	if err != nil {
-		log.Errorf("triggers: failed to %s %s: %s", trigger.Status.Desired, trigger.Name, err.Error())
+		log.Errorf("triggers: failed to %s %s: %v", trigger.Status.Desired, trigger.Name, err)
 		trigger.SetError()
 	} else {
 		log.Infof("triggers: %s %s successfully", trigger.Status.Desired, trigger.Name)
@@ -26,7 +26,7 @@ func (o *Operator) handleExit(trigger triggers.ApiSchema, err error) {
 func (o *Operator) reportToController(trigger triggers.ApiSchema) error {
 	node, err := nodes.GetController()
 	if err != nil {
-		log.Errorf("triggers: failed to get controller nodes: %s", err.Error())
+		log.Errorf("triggers: failed to get controller nodes: %v", err)
 		return err
 	}
 
@@ -36,12 +36,12 @@ func (o *Operator) reportToController(trigger triggers.ApiSchema) error {
 		SetBody(trigger.GenTaskUpdate()).
 		Patch(node.PatchTriggerTaskUrl(trigger))
 	if err != nil {
-		log.Errorf("triggers: failed to send trigger %s to %s: %s", trigger.Name, node.Hostname, err.Error())
+		log.Errorf("triggers: failed to send trigger %s to %s: %v", trigger.Name, node.Hostname, err)
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("triggers: failed to send trigger %s to %s: %v", trigger.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("triggers: failed to send trigger %s to %s: %s", trigger.Name, node.Hostname, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 

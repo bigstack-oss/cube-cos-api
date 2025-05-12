@@ -29,7 +29,7 @@ func (o *Operator) handleExit(file *support.File, err error) {
 func (o *Operator) reportToController(file support.File) error {
 	node, err := nodes.GetController()
 	if err != nil {
-		log.Errorf("supportfiles: failed to get controller nodes: %s", err.Error())
+		log.Errorf("supportfiles: failed to get controller nodes: %v", err)
 		return err
 	}
 
@@ -39,7 +39,7 @@ func (o *Operator) reportToController(file support.File) error {
 		SetBody(file.GenTaskUpdate()).
 		Patch(node.PatchSupportFileTaskUrl(file))
 	if err != nil {
-		log.Errorf("supportfiles: failed to send support file %s to %s: %s", file.Group, node.Hostname, err.Error())
+		log.Errorf("supportfiles: failed to send support file %s to %s: %v", file.Group, node.Hostname, err)
 		return err
 	}
 

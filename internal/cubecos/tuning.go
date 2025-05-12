@@ -12,6 +12,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
+	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -203,9 +204,9 @@ func setTuningToRoles() {
 }
 
 func GetTuningValue(name string) (string, error) {
-	out, err := exec.Command("hex_tuning_helper", "/etc/settings.txt", "", name).Output()
+	out, err := exec.Command("hex_tuning_helper", conf.Opts.Spec.Identity.Policy, "", name).Output()
 	if err != nil {
-		log.Errorf("tunings: failed to read hex tuning value: %s", err.Error())
+		log.Errorf("tunings: failed to read hex tuning value: %v", err)
 		return "", err
 	}
 
@@ -333,7 +334,7 @@ func ListTuningsFromOtherNodes() (map[string][]tunings.Tuning, error) {
 
 		tunings, err := getNodeTunings(node)
 		if err != nil {
-			log.Errorf("tunings: failed to get tunings from node %s: %s", node.Hostname, err.Error())
+			log.Errorf("tunings: failed to get tunings from node %s: %v", node.Hostname, err)
 			continue
 		}
 
@@ -370,14 +371,14 @@ func setTuningToSelectors() {
 func setTuningSpecs() {
 	out, err := exec.Command("hex_sdk", "-f", "json", "tuning_dump").Output()
 	if err != nil {
-		log.Errorf("tunings: failed to get tuning specs: %s", err.Error())
+		log.Errorf("tunings: failed to get tuning specs: %v", err)
 		return
 	}
 
 	rawSpecs := []tunings.RawSpec{}
 	err = json.Unmarshal(out, &rawSpecs)
 	if err != nil {
-		log.Errorf("tunings: failed to unmarshal tuning specs: %s", err.Error())
+		log.Errorf("tunings: failed to unmarshal tuning specs: %v", err)
 		return
 	}
 
@@ -517,7 +518,7 @@ func genTuningsAsYaml(list []tunings.Tuning) ([]byte, error) {
 
 	yml, err := yaml.Marshal(&tuningTemplate)
 	if err != nil {
-		log.Errorf("tunings: failed to marshal batch tuning info: %s", err.Error())
+		log.Errorf("tunings: failed to marshal batch tuning info: %v", err)
 		return nil, err
 	}
 
@@ -528,20 +529,20 @@ func writeTuningToFile(tmpDir string, yml []byte) error {
 	fullDir := fmt.Sprintf("%s/tuning", tmpDir)
 	err := os.MkdirAll(fullDir, 0755)
 	if err != nil {
-		log.Errorf("tunings: failed to create isolated tuning directory: %s", err.Error())
+		log.Errorf("tunings: failed to create isolated tuning directory: %v", err)
 		return err
 	}
 
 	file, err := os.Create(fmt.Sprintf("%s/tuning1_0.yml", fullDir))
 	if err != nil {
-		log.Errorf("tunings: failed to create isolated tuning file: %s", err.Error())
+		log.Errorf("tunings: failed to create isolated tuning file: %v", err)
 		return err
 	}
 
 	defer file.Close()
 	_, err = io.Writer.Write(file, yml)
 	if err != nil {
-		log.Errorf("tunings: failed to write tuning info to isolated file: %s", err.Error())
+		log.Errorf("tunings: failed to write tuning info to isolated file: %v", err)
 		return err
 	}
 

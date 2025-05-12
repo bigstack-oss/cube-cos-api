@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	throttleCache = cache.NewCache(cache.Expiration(time.Second * 3))
+	logCache = cache.NewCache(cache.Expiration(time.Second * 3))
 )
 
 func Throttle(module, msg string) {
@@ -26,14 +26,14 @@ func Throttle(module, msg string) {
 func isLogThrottled(key string) bool {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
 	defer cancel()
-	_, _, err := throttleCache.Get(ctx, key)
+	_, _, err := logCache.Get(ctx, key)
 	return err == nil
 }
 
 func setThrottling(key string) error {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
 	defer cancel()
-	return throttleCache.Put(
+	return logCache.Put(
 		ctx,
 		key,
 		[]byte{},

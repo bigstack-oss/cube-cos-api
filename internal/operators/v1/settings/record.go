@@ -9,7 +9,7 @@ import (
 
 func (o *Operator) handleExit(setting settings.Setting, err error) {
 	if err != nil {
-		log.Errorf("settings: failed to %s %s: %s", setting.Status.Desired, setting.Type, err.Error())
+		log.Errorf("settings: failed to %s %s: %v", setting.Status.Desired, setting.Type, err)
 		setting.SetError()
 	} else {
 		log.Infof("settings: %s %s successfully", setting.Status.Desired, setting.Type)
@@ -24,7 +24,7 @@ func (o *Operator) handleExit(setting settings.Setting, err error) {
 func (o *Operator) reportToController(setting settings.Setting) {
 	node, err := nodes.GetController()
 	if err != nil {
-		log.Errorf("settings: failed to get controller nodes: %s", err.Error())
+		log.Errorf("settings: failed to get controller nodes: %v", err)
 		return
 	}
 
@@ -34,11 +34,16 @@ func (o *Operator) reportToController(setting settings.Setting) {
 		SetBody(setting.GenTaskUpdate()).
 		Patch(node.PatchSettingTaskUrl(setting))
 	if err != nil {
-		log.Errorf("settings: failed to send setting %s to %s: %s", setting.Type, node.Hostname, err.Error())
+		log.Errorf("settings: failed to send setting %s to %s: %v", setting.Type, node.Hostname, err)
 		return
 	}
 
 	if resp.IsError() {
-		log.Errorf("settings: error response from %s %s update: %v", node.Hostname, setting.Type, string(resp.Body()))
+		log.Errorf(
+			"settings: error response from %s %s update: %v",
+			node.Hostname,
+			setting.Type,
+			string(resp.Body()),
+		)
 	}
 }
