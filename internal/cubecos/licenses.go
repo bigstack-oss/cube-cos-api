@@ -242,9 +242,15 @@ func parseExpiry(raw license.Raw) license.Expiry {
 		date = expiry.In(time.LocalFixedZone).Format(time.FormatRFC3339)
 	}
 
+	days := raw.Days
+	s := parseStatus(raw)
+	if s.Current == status.Expired {
+		days = int(expiry.Sub(ostime.Now().Local()).Hours() / 24)
+	}
+
 	return license.Expiry{
 		Date: date,
-		Days: raw.Days,
+		Days: days,
 	}
 }
 

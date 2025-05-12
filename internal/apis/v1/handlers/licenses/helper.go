@@ -17,6 +17,7 @@ import (
 
 type helper struct {
 	c       *gin.Context
+	reqId   string
 	handler string
 
 	types    []string
@@ -32,19 +33,19 @@ type helper struct {
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
-	h := &helper{c: c, handler: handler}
+	h := &helper{c: c, reqId: queries.GetReqId(c), handler: handler}
 	return h, h.parseParamsByHandler()
 }
 
-func (h *helper) listLicenses() (*licensePages, error) {
+func (h *helper) listLicenses() (*licensePage, error) {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
-		log.Warnf("licenses(%s): failed to list the cluster license: %s", queries.GetReqId(h.c), err.Error())
+		log.Warnf("licenses(%s): failed to list the cluster license: %s", h.reqId, err.Error())
 		return nil, err
 	}
 
 	licenses = h.filterLicenses(licenses)
-	return &licensePages{
+	return &licensePage{
 		Licenses: h.paginateLicenses(licenses),
 		Page:     h.genPageInfo(licenses),
 	}, nil
@@ -53,19 +54,19 @@ func (h *helper) listLicenses() (*licensePages, error) {
 func (h *helper) storeVerifyLicense() (string, error) {
 	license, err := h.c.FormFile("license")
 	if err != nil {
-		log.Errorf("licenses(%s): %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): %s", h.reqId, err.Error())
 		return "", err
 	}
 
 	filePath, err := genLicenseVerifyPath(license.Filename)
 	if err != nil {
-		log.Errorf("licenses(%s): failed to generate license store path: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to generate license store path: %s", h.reqId, err.Error())
 		return "", err
 	}
 
 	err = h.c.SaveUploadedFile(license, filePath)
 	if err != nil {
-		log.Errorf("licenses(%s): failed to save license file: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to save license file: %s", h.reqId, err.Error())
 		return "", err
 	}
 
@@ -75,19 +76,19 @@ func (h *helper) storeVerifyLicense() (string, error) {
 func (h *helper) storeImportLicense() (string, error) {
 	license, err := h.c.FormFile("license")
 	if err != nil {
-		log.Errorf("licenses(%s): %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): %s", h.reqId, err.Error())
 		return "", err
 	}
 
 	filePath, err := genLicenseStorePath(license.Filename)
 	if err != nil {
-		log.Errorf("licenses(%s): failed to generate license store path: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to generate license store path: %s", h.reqId, err.Error())
 		return "", err
 	}
 
 	err = h.c.SaveUploadedFile(license, filePath)
 	if err != nil {
-		log.Errorf("licenses(%s): failed to save license file: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to save license file: %s", h.reqId, err.Error())
 		return "", err
 	}
 
@@ -106,7 +107,7 @@ func (h *helper) listAttachments() ([]license.Attachment, error) {
 func (h *helper) listAttachmentsByProduct() ([]license.Attachment, error) {
 	licenses, err := cubecos.ListLicenses()
 	if err != nil {
-		log.Errorf("licenses(%s): failed to list the licenses: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to list the licenses: %s", h.reqId, err.Error())
 		return nil, err
 	}
 

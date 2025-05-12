@@ -5,7 +5,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 )
 
-type licensePages struct {
+type licensePage struct {
 	Licenses   []license.Options `json:"licenses"`
 	pages.Page `json:"page"`
 }
