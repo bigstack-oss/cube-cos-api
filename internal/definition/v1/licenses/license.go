@@ -15,6 +15,7 @@ const (
 
 	CubeCOS = "CubeCOS"
 	CubeCMP = "CubeCMP"
+	NA      = "N/A"
 )
 
 var (

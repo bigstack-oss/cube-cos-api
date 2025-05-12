@@ -36,7 +36,8 @@ func genVmStatusOverview(servers []servers.Server) *VmStatus {
 	vm := &VmStatus{Total: len(servers)}
 
 	for _, server := range servers {
-		switch strings.ToLower(server.VmState) {
+		state := strings.ToLower(server.VmState)
+		switch state {
 		case "active":
 			vm.Running++
 		case "stopped":

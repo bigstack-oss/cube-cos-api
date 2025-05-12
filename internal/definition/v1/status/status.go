@@ -16,6 +16,8 @@ const (
 	Repairing            = "repairing"
 	CheckingAndRepairing = "checkingAndRepairing"
 	Deleting             = "deleting"
+	Expairing            = "expairing"
+	Fixing               = "fixing"
 
 	Completed = "completed"
 	Created   = "created"

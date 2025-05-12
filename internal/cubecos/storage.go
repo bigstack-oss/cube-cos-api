@@ -3,7 +3,6 @@ package cubecos
 import (
 	"errors"
 	"os/exec"
-	"path/filepath"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
@@ -83,15 +82,4 @@ func convertBlockDeviceSize(sizeStr string) float64 {
 
 	sizeMiB := float64(bytes) / (1024.0 * 1024.0)
 	return math.RoundDown(sizeMiB, 4)
-}
-
-func parentDeviceSysfs(device string) (string, error) {
-	link := "/sys/class/block/" + device
-	target, err := filepath.EvalSymlinks(link)
-	if err != nil {
-		log.Errorf("nodes: failed to get parent device for %s: %s", device, err.Error())
-		return "", err
-	}
-
-	return filepath.Base(filepath.Dir(target)), nil
 }

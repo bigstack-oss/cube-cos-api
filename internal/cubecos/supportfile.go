@@ -35,14 +35,14 @@ func ListSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
 		return localFiles, nil
 	}
 
-	otherNodeFiles, err := ListSupportFilesFromOtherNodes()
+	peerNodeFiles, err := ListSupportFilesFromPeerNodes()
 	if err != nil {
 		return nil, err
 	}
 
 	return append(
 		localFiles,
-		otherNodeFiles...,
+		peerNodeFiles...,
 	), nil
 }
 
@@ -65,7 +65,7 @@ func ListHostSupportFiles(opts support.ListFileOptions) ([]support.File, error) 
 	return getNodeSupportFiles(*node)
 }
 
-func ListSupportFilesFromOtherNodes() ([]support.File, error) {
+func ListSupportFilesFromPeerNodes() ([]support.File, error) {
 	files := []support.File{}
 	for _, node := range nodes.List() {
 		if node.IsLocal() {
@@ -78,7 +78,7 @@ func ListSupportFilesFromOtherNodes() ([]support.File, error) {
 
 		file, err := getNodeSupportFiles(node)
 		if err != nil {
-			log.Errorf("failed to get supportFiles from node %s: %s", node.Hostname, err.Error())
+			log.Errorf("supportFiles: failed to get supportFiles from node %s: %s", node.Hostname, err.Error())
 			continue
 		}
 
@@ -105,9 +105,6 @@ func CreateSupportFile(file support.File) error {
 }
 
 func SetSupportFileComment(file support.File) error {
-
-	log.Infof("create comment: %s", string(file.Bytes()))
-
 	path, err := CreateSupportCommentFile(file)
 	if err != nil {
 		log.Errorf("supportFile: failed to create support comment file: %s", err.Error())
@@ -229,12 +226,12 @@ func findSupportFile(files []os.DirEntry, supportFile support.File) (os.DirEntry
 			continue
 		}
 
-		comment, err := GetSupportFileComment(file.Name())
+		comment, err := getSupportFileComment(file.Name())
 		if err != nil {
 			continue
 		}
 
-		if isCommentMatchWithFile(comment, supportFile) {
+		if isCommentMatchToFile(comment, supportFile) {
 			return file, nil
 		}
 	}
@@ -242,7 +239,7 @@ func findSupportFile(files []os.DirEntry, supportFile support.File) (os.DirEntry
 	return nil, errors.New("no support file found")
 }
 
-func GetSupportFileComment(file string) (*support.File, error) {
+func getSupportFileComment(file string) (*support.File, error) {
 	filePath := filepath.Join(support.DefaultFileDir, file)
 	out, err := exec.Command("hex_config", "get_support_file_comment", filePath).CombinedOutput()
 	if err != nil {
@@ -298,7 +295,7 @@ func SyncSupportFiles() {
 		return
 	}
 
-	findAndParseSupportFiles(files)
+	setSupportFiles(files)
 }
 
 func RemovePendingReq(db, collection string) {
@@ -310,14 +307,14 @@ func RemovePendingReq(db, collection string) {
 	}
 }
 
-func findAndParseSupportFiles(files []os.DirEntry) {
+func setSupportFiles(files []os.DirEntry) {
 	for _, file := range files {
 		supportFile, err := parseSupportFile(file)
 		if err != nil {
 			continue
 		}
 
-		info, err := GetSupportFileComment(supportFile.Name())
+		info, err := getSupportFileComment(supportFile.Name())
 		if err != nil {
 			continue
 		}
@@ -329,7 +326,19 @@ func findAndParseSupportFiles(files []os.DirEntry) {
 	}
 }
 
-func isCommentMatchWithFile(comment *support.File, file support.File) bool {
+func parseSupportFile(file os.DirEntry) (fs.FileInfo, error) {
+	if file.IsDir() {
+		return nil, errors.New("not a file")
+	}
+
+	if !IsSupportFile(file.Name()) {
+		return nil, errors.New("not a support file")
+	}
+
+	return file.Info()
+}
+
+func isCommentMatchToFile(comment *support.File, file support.File) bool {
 	if comment.Group != file.Group {
 		return false
 	}
@@ -357,18 +366,6 @@ func genRandomFilePath() (string, error) {
 		support.DefaultFileTmpDir,
 		random,
 	), nil
-}
-
-func parseSupportFile(file os.DirEntry) (fs.FileInfo, error) {
-	if file.IsDir() {
-		return nil, errors.New("not a file")
-	}
-
-	if !IsSupportFile(file.Name()) {
-		return nil, errors.New("not a support file")
-	}
-
-	return file.Info()
 }
 
 func enrichSupportFile(file fs.FileInfo, info support.File) support.File {

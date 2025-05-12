@@ -18,21 +18,21 @@ type NetworkInterface struct {
 	Speed       string `json:"speed" yaml:"speed" bson:"speed"`
 }
 
-func GetControllerVirtualIp(mgmtNet string) (string, error) {
+func GetControllerVirtualIp(net string) (string, error) {
 	if !base.IsHaEnabled {
-		return GetStandaloneVirtualIp(mgmtNet)
+		return GetStandaloneVirtualIp(net)
 	}
 
 	return GetClusterVirtualIp()
 }
 
-func GetStandaloneVirtualIp(mgmtNet string) (string, error) {
-	if mgmtNet == "" {
-		return "", fmt.Errorf("management network is empty")
+func GetStandaloneVirtualIp(net string) (string, error) {
+	if net == "" {
+		return "", fmt.Errorf("%s network is empty", net)
 	}
 
-	netIfAddrMgmtIp := fmt.Sprintf("%s%s", CubeNetIfAddrPrefix, mgmtNet)
-	return GetTuningValue(netIfAddrMgmtIp)
+	netIfAddrIp := fmt.Sprintf("%s%s", CubeNetIfAddrPrefix, net)
+	return GetTuningValue(netIfAddrIp)
 }
 
 func GetClusterVirtualIp() (string, error) {
@@ -90,4 +90,18 @@ func DumpInterfaces() ([]NetworkInterface, error) {
 	}
 
 	return interfaces, nil
+}
+
+func IsOvnSFlowEnabled() bool {
+	_, err := exec.Command("hex_sdk", "ovn_sflow_status").Output()
+	if err == nil {
+		return true
+	}
+
+	result, ok := err.(*exec.ExitError)
+	if !ok {
+		return false
+	}
+
+	return result.ExitCode() == 0
 }

@@ -15,7 +15,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	cuberr "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/health"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -87,13 +87,13 @@ func IsRepairing() bool {
 }
 
 func IsRepairable() bool {
-	if !IsClusterSetReady() {
-		log.Errorf("data center is not ready for repairing")
+	if !IsDataCenterReady() {
+		log.Errorf("healths: data center is not ready for repairing")
 		return false
 	}
 
 	if base.CurrentRole == "" {
-		log.Errorf("role is not set for repairing")
+		log.Errorf("healths: role is not set for repairing")
 		return false
 	}
 
@@ -236,10 +236,10 @@ func GetServiceHealthHistory(serviceName, duration string) []ModuleHealth {
 	return statuses
 }
 
-func GetModuleHealthHistory(moduleName, duration, order string, onlyLast bool) ([]health.Check, error) {
+func GetModuleHealthHistory(module, duration, order string, onlyLast bool) ([]health.Check, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
-	stmt := GenModuleHealthHistoryQuery(moduleName, duration, order, onlyLast)
+	stmt := GenModuleHealthHistoryQuery(module, duration, order, onlyLast)
 	h := influx.GetGlobalHelper()
 	c, err := h.QueryApiClient.Query(ctx, stmt)
 	if err != nil {
@@ -256,11 +256,11 @@ func GetModuleHealthHistory(moduleName, duration, order string, onlyLast bool) (
 	}
 
 	checks = aggregateHealthsByTime(checks, defaultAggreateWindow)
-	SetUnhealthLogUrl(&checks)
+	setUnhealthLogUrl(&checks)
 	return checks, nil
 }
 
-func SetUnhealthLogUrl(history *[]health.Check) {
+func setUnhealthLogUrl(history *[]health.Check) {
 	for i, check := range *history {
 		if !check.IsNg() {
 			continue
@@ -315,7 +315,7 @@ func aggregateHealthsByTime(checks []health.Check, duration ostime.Duration) []h
 }
 
 func backfillFirstCheck(t ostime.Time) health.Check {
-	date, err := ostime.Parse(event.TimeLayout, t.Add(-defaultAggreateWindow).Local().String())
+	date, err := ostime.Parse(events.TimeLayout, t.Add(-defaultAggreateWindow).Local().String())
 	if err != nil {
 		return health.Check{}
 	}
@@ -392,7 +392,10 @@ func genTimeDuration(past string) string {
 
 func parseHealthCheck(c *api.QueryTableResult, checks *[]health.Check) error {
 	for c.Next() {
-		*checks = append(*checks, genHealthCheckByRecord(c.Record()))
+		*checks = append(
+			*checks,
+			genHealthCheckByRecord(c.Record()),
+		)
 	}
 	if c.Err() != nil {
 		return c.Err()
@@ -429,16 +432,16 @@ func parseHealthResult(record *query.FluxRecord) string {
 	code := record.ValueByKey("code")
 	code, ok := code.(string)
 	if !ok {
-		return "ng"
+		return status.Ng
 	}
 
 	desc := record.ValueByKey("description")
 	desc, ok = desc.(string)
 	if !ok {
-		return "ng"
+		return status.Ng
 	}
 
-	isOkOrFixingDesc := desc == "ok" || desc == "fixing"
+	isOkOrFixingDesc := desc == status.Ok || desc == status.Fixing
 	if code != "0" && !isOkOrFixingDesc {
 		return status.Ng
 	}
@@ -566,7 +569,7 @@ func parseDetails(record *query.FluxRecord) string {
 }
 
 func parseTime(record *query.FluxRecord) string {
-	date, err := ostime.Parse(event.TimeLayout, record.Time().Local().String())
+	date, err := ostime.Parse(events.TimeLayout, record.Time().Local().String())
 	if err != nil {
 		log.Debugf("failed to parse date from record: %v", record)
 	}

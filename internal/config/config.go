@@ -166,6 +166,10 @@ func SyncOptions() error {
 	return nil
 }
 
+func GetOpenstack() openstack.Options {
+	return Opts.Spec.ResourceControl.Openstack
+}
+
 func parseFileOpts() error {
 	conf, err := newConfiger()
 	if err != nil {

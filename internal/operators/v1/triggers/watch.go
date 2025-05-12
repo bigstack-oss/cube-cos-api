@@ -5,7 +5,7 @@ import (
 
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
@@ -105,7 +105,7 @@ func convertAttributesToFullName(trigger *triggers.ApiSchema) {
 			continue
 		}
 
-		fullname := event.GetSeverityFullName(attribute.Value.(string))
+		fullname := events.GetSeverityFullName(attribute.Value.(string))
 		trigger.Attributes[i].Value = fullname
 	}
 }

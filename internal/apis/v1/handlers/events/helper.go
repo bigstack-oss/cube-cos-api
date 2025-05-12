@@ -5,7 +5,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	"github.com/gin-gonic/gin"
@@ -108,7 +108,7 @@ func (h *helper) getEventRank() (*data, error) {
 	}, nil
 }
 
-func (h *helper) getEventFilterConditions() *event.Filter {
+func (h *helper) getEventFilterConditions() *events.Filter {
 	systemCategories, err := cubecos.GetEventFilterConditions(h.genFilterConditionStmt("system", "category"))
 	if err != nil {
 		log.Errorf("events(%s): failed to get system categories: %v", queries.GetReqId(h.c), err)
@@ -139,16 +139,16 @@ func (h *helper) getEventFilterConditions() *event.Filter {
 		log.Errorf("events(%s): failed to get instances: %v", queries.GetReqId(h.c), err)
 	}
 
-	return &event.Filter{
-		System: event.SystemFilter{
+	return &events.Filter{
+		System: events.SystemFilter{
 			Categories: systemCategories,
 			Severities: convertSystemSeverities(systemSeverities),
 		},
-		Host: event.HostFilter{
+		Host: events.HostFilter{
 			Categories: hostCategories,
 			Names:      hostnames,
 		},
-		Instance: event.InstanceFilter{
+		Instance: events.InstanceFilter{
 			Categories: instanceCategories,
 			Ids:        instanceIds,
 		},

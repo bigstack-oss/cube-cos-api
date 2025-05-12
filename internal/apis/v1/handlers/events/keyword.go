@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/blevesearch/bleve/v2"
 	log "go-micro.dev/v5/logger"
@@ -11,7 +11,7 @@ const (
 	maxSearchResults = 10000
 )
 
-func (h *helper) filteredByKeyword(nonFilterEvents []event.Options) []event.Options {
+func (h *helper) filteredByKeyword(nonFilterEvents []events.Event) []events.Event {
 	if !h.isKeywordRequired() {
 		return nonFilterEvents
 	}
@@ -24,7 +24,7 @@ func (h *helper) filteredByKeyword(nonFilterEvents []event.Options) []event.Opti
 	}
 
 	eventMap := genEventMap(nonFilterEvents)
-	filtered := []event.Options{}
+	filtered := []events.Event{}
 	for _, hit := range result.Hits {
 		filtered = append(filtered, eventMap[hit.ID])
 	}
@@ -32,13 +32,13 @@ func (h *helper) filteredByKeyword(nonFilterEvents []event.Options) []event.Opti
 	return filtered
 }
 
-func (h *helper) setEventSearchIndex(nonFilterEvents *[]event.Options) {
+func (h *helper) setEventSearchIndex(nonFilterEvents *[]events.Event) {
 	for i := range *nonFilterEvents {
 		(*nonFilterEvents)[i].SetSearchIndex()
 	}
 }
 
-func (h *helper) searchEvents(nonFilterEvents []event.Options) (*bleve.SearchResult, error) {
+func (h *helper) searchEvents(nonFilterEvents []events.Event) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
 		log.Errorf("events: failed to create search index: %s", err.Error())
@@ -56,8 +56,8 @@ func (h *helper) searchEvents(nonFilterEvents []event.Options) (*bleve.SearchRes
 	return searcher.Search(search.WildcardQuery(h.keyword))
 }
 
-func genEventMap(nonFilterEvents []event.Options) map[string]event.Options {
-	eventMap := map[string]event.Options{}
+func genEventMap(nonFilterEvents []events.Event) map[string]events.Event {
+	eventMap := map[string]events.Event{}
 	for _, event := range nonFilterEvents {
 		eventMap[event.SearchIndex] = event
 	}

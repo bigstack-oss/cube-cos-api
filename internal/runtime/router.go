@@ -29,7 +29,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/auths/saml"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/health"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
@@ -146,7 +145,7 @@ func prepareApiHandlersByRole() {
 	)
 
 	api.RegisterHandlersToRoles(
-		event.Module,
+		events.Module,
 		events.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,

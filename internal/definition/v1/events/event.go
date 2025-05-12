@@ -1,4 +1,4 @@
-package event
+package events
 
 import (
 	"maps"
@@ -33,7 +33,7 @@ var (
 	}
 )
 
-type Options struct {
+type Event struct {
 	SearchIndex string         `json:"-"`
 	Type        string         `json:"type"`
 	Severity    string         `json:"severity"`
@@ -128,29 +128,56 @@ func GetSeverityFullNames(severities []string) []string {
 	return names
 }
 
-func (o *Options) GetSeverityFullName() string {
-	return GetSeverityFullName(o.Severity)
+func (e *Event) GetSeverityFullName() string {
+	return GetSeverityFullName(e.Severity)
 }
 
-func (o *Options) SetSearchIndex() {
-	o.SearchIndex = uuid.New().String()
+func (e *Event) SetSearchIndex() {
+	e.SearchIndex = uuid.New().String()
 }
 
 // note:
 // in the current search lib(bleve), the algo is not able to detect the string if it include uppercase
 // we've tried a few different init settings, but the result is not as expected as always
 // currenlty, the only way we found is to convert all the string to lower case and inject to searcher
-func (o *Options) GenSearchableObject() Options {
-	return Options{
-		SearchIndex: o.SearchIndex,
-		Type:        strings.ToLower(o.Type),
-		Id:          strings.ToLower(o.Id),
-		Severity:    strings.ToLower(o.Severity),
-		Description: strings.ToLower(o.Description),
-		Host:        strings.ToLower(o.Host),
-		Category:    strings.ToLower(o.Category),
-		Service:     strings.ToLower(o.Service),
-		Metadata:    maps.Clone(o.Metadata),
-		Time:        o.Time,
+func (e *Event) GenSearchableObject() Event {
+	return Event{
+		SearchIndex: e.SearchIndex,
+		Type:        strings.ToLower(e.Type),
+		Id:          strings.ToLower(e.Id),
+		Severity:    strings.ToLower(e.Severity),
+		Description: strings.ToLower(e.Description),
+		Host:        strings.ToLower(e.Host),
+		Category:    strings.ToLower(e.Category),
+		Service:     strings.ToLower(e.Service),
+		Metadata:    maps.Clone(e.Metadata),
+		Time:        e.Time,
 	}
+}
+
+func (e *Event) SetCategory(metaObj map[string]any) {
+	metaCategory, found := metaObj["category"]
+	if !found {
+		return
+	}
+
+	e.Category, _ = metaCategory.(string)
+}
+
+func (e *Event) SetService(metaObj map[string]any) {
+	metaService, found := metaObj["service"]
+	if !found {
+		return
+	}
+
+	e.Service, _ = metaService.(string)
+}
+
+func (e *Event) SetHostname(metaObj map[string]any) {
+	metaHost, found := metaObj["host"]
+	if !found {
+		return
+	}
+
+	e.Host, _ = metaHost.(string)
 }

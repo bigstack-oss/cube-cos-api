@@ -3,7 +3,7 @@ package events
 import (
 	"math"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 )
 
@@ -31,7 +31,7 @@ func (h *helper) isInstanceRequired() bool {
 	return h.instance != ""
 }
 
-func (h *helper) paginateEvents(events []event.Options) ([]event.Options, error) {
+func (h *helper) paginateEvents(events []events.Event) ([]events.Event, error) {
 	if !h.page.IsRequired() {
 		return events, nil
 	}
@@ -41,7 +41,7 @@ func (h *helper) paginateEvents(events []event.Options) ([]event.Options, error)
 	return events[left:right], nil
 }
 
-func (h *helper) genPageInfo(events []event.Options) (pages.Page, error) {
+func (h *helper) genPageInfo(events []events.Event) (pages.Page, error) {
 	if !h.page.IsRequired() {
 		return pages.Page{
 			Total:          1,
@@ -60,7 +60,7 @@ func (h *helper) genPageInfo(events []event.Options) (pages.Page, error) {
 	}, nil
 }
 
-func (h *helper) getAmountDetails(events []event.Options) (int64, int64) {
+func (h *helper) getAmountDetails(events []events.Event) (int64, int64) {
 	count := len(events)
 	return int64(count),
 		int64(math.Ceil(float64(count) / float64(h.page.Size)))

@@ -191,7 +191,7 @@ func parseProduct(raw licenses.Raw) licenses.Product {
 		name = raw.Product
 	}
 
-	feature := "N/A"
+	feature := licenses.NA
 	if raw.Feature != "" {
 		feature = raw.Feature
 	}
@@ -203,7 +203,7 @@ func parseProduct(raw licenses.Raw) licenses.Product {
 }
 
 func parseQuantity(raw licenses.Raw) string {
-	quantity := "N/A"
+	quantity := licenses.NA
 	if raw.Quantity != "" {
 		quantity = raw.Quantity
 	}
@@ -212,7 +212,7 @@ func parseQuantity(raw licenses.Raw) string {
 }
 
 func parseSupportPlan(raw licenses.Raw) string {
-	supportPlan := "N/A"
+	supportPlan := licenses.NA
 	if raw.SLA != "" {
 		supportPlan = raw.SLA
 	}
@@ -425,26 +425,26 @@ func isLicenseForAllNodes(hardwareInfo string) bool {
 	return strings.Contains(hardwareInfo, "*")
 }
 
-func convertToLicenseNodes(nodes []nodes.Node) []licenses.Node {
-	licenseNodes := []licenses.Node{}
-	for _, node := range nodes {
-		l := getLicenseByNodeName(node.Hostname)
-		if !l.IsValid() {
-			l.Status.Current = "unlicense"
+func convertToLicenseNodes(list []nodes.Node) []licenses.Node {
+	nodes := []licenses.Node{}
+	for _, node := range list {
+		license := getLicenseByNodeName(node.Hostname)
+		if !license.IsValid() {
+			license.Status.Current = status.Unlicense
 		}
 
-		licenseNodes = append(
-			licenseNodes,
+		nodes = append(
+			nodes,
 			licenses.Node{
 				Name:   node.Hostname,
 				Role:   node.Role,
-				Expiry: l.Expiry,
-				Status: l.Status,
+				Expiry: license.Expiry,
+				Status: license.Status,
 			},
 		)
 	}
 
-	return licenseNodes
+	return nodes
 }
 
 func getLicenseByNodeName(nodeName string) licenses.License {
@@ -487,15 +487,15 @@ func setValueToLicenseDat(licenseDat *licenses.License, parts []string) {
 	case "sla":
 		licenseDat.SupportPlan = value
 	case "issue.date":
-		licenseDat.Issue.Date = parseLicenseDatIssueDate(value)
+		licenseDat.Issue.Date = parseDatIssueDate(value)
 	case "expiry.date":
-		expiry, status := ParseLicenseExpiryAndStatus(value)
+		expiry, status := parseExpiryAndStatus(value)
 		licenseDat.Expiry = expiry
 		licenseDat.Status = status
 	}
 }
 
-func parseLicenseDatIssueDate(value string) string {
+func parseDatIssueDate(value string) string {
 	issue, err := ostime.Parse("2006-01-02 15:04:05 MST", value)
 	if err != nil {
 		return "unknown issue date"
@@ -504,14 +504,14 @@ func parseLicenseDatIssueDate(value string) string {
 	return issue.In(time.LocalFixedZone).Format(time.FormatRFC3339)
 }
 
-func ParseLicenseExpiryAndStatus(value string) (licenses.Expiry, status.License) {
+func parseExpiryAndStatus(value string) (licenses.Expiry, status.License) {
 	expiry, err := ostime.Parse("2006-01-02 15:04:05 MST", value)
 	if err != nil {
 		return licenses.Expiry{
 				Date: "unknown expiry date",
 				Days: 0,
 			}, status.License{
-				Current: "expired",
+				Current: status.Expired,
 			}
 	}
 
@@ -521,12 +521,12 @@ func ParseLicenseExpiryAndStatus(value string) (licenses.Expiry, status.License)
 	}
 
 	if ostime.Now().After(expiry) {
-		return licenseExpiry, status.License{Current: "expired"}
+		return licenseExpiry, status.License{Current: status.Expired}
 	}
 
 	if ostime.Now().AddDate(0, 0, 30).After(expiry) {
-		return licenseExpiry, status.License{Current: "expiring", IsExpiring: true}
+		return licenseExpiry, status.License{Current: status.Expairing, IsExpiring: true}
 	}
 
-	return licenseExpiry, status.License{Current: "ok", IsExpiring: false}
+	return licenseExpiry, status.License{Current: status.Ok, IsExpiring: false}
 }

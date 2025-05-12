@@ -9,9 +9,10 @@ import (
 )
 
 func IsGpuEnabled() (bool, error) {
-	provider, err := openstack.NewProvider(conf.Opts.Spec.ResourceControl.Openstack.Auth.File)
+	opts := conf.GetOpenstack()
+	provider, err := openstack.NewProvider(opts.Auth.File)
 	if err != nil {
-		log.Errorf("cos: failed to create openstack provider: %s", err.Error())
+		log.Errorf("gpu: failed to create openstack provider: %s", err.Error())
 		return false, err
 	}
 
@@ -20,7 +21,7 @@ func IsGpuEnabled() (bool, error) {
 		openstack.DefaultEndpointOpts,
 	)
 	if err != nil {
-		log.Errorf("cos: failed to create accelerator client: %s", err.Error())
+		log.Errorf("gpu: failed to create accelerator client: %s", err.Error())
 		return false, err
 	}
 
@@ -29,7 +30,7 @@ func IsGpuEnabled() (bool, error) {
 		devices.ListOpts{Hostname: base.Hostname},
 	)
 	if err != nil {
-		log.Errorf("cos: failed to list accelerator devices: %s", err.Error())
+		log.Errorf("gpu: failed to list accelerator devices: %s", err.Error())
 		return false, err
 	}
 

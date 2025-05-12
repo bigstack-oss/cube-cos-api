@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/event"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 )
 
 func (h *helper) parseParamsByHandler() error {
@@ -127,7 +127,7 @@ func (h *helper) parseEventFilterConditions() error {
 
 func (h *helper) parseType() error {
 	query := h.c.DefaultQuery("type", "")
-	if !event.IsValidType(query) {
+	if !events.IsValidType(query) {
 		return errors.New(
 			"'type' can't be null and should be one of 'system', 'host', or 'instance'",
 		)
@@ -139,7 +139,7 @@ func (h *helper) parseType() error {
 
 func (h *helper) parseFilterConditions() error {
 	queries := h.c.Request.URL.Query()
-	for _, condition := range event.GetFilterConditions() {
+	for _, condition := range events.GetFilterConditions() {
 		value, found := queries[condition]
 		if !found {
 			continue
@@ -159,9 +159,9 @@ func (h *helper) parseFilterConditions() error {
 		case "categories":
 			h.categories = h.c.QueryArray("categories")
 		case "severity":
-			h.severity = event.GetSeverityShortName(value[0])
+			h.severity = events.GetSeverityShortName(value[0])
 		case "severities":
-			h.severities = event.GetSeverityFullNames(h.c.QueryArray("severities"))
+			h.severities = events.GetSeverityFullNames(h.c.QueryArray("severities"))
 		case "host":
 			h.host = value[0]
 		case "hosts":
