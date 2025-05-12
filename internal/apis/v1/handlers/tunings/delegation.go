@@ -31,7 +31,7 @@ func (h *helper) delegateTuningReq() {
 
 		err := h.delegateToPeerNode(node)
 		if err != nil {
-			log.Errorf("tunings(%s): failed to delegate %s to %s: %s", h.reqId, h.tuning.Name, node.Hostname, err.Error())
+			log.Errorf("tunings(%s): failed to delegate %s to %s: %v", h.reqId, h.tuning.Name, node.Hostname, err)
 		}
 	}
 }
@@ -57,7 +57,7 @@ func (h *helper) delegateTuningToggleReq() {
 
 		err := h.delegateToPeerNode(node)
 		if err != nil {
-			log.Errorf("tunings(%s): failed to delegate %s to %s: %s", h.reqId, h.tuning.Name, node.Hostname, err.Error())
+			log.Errorf("tunings(%s): failed to delegate %s to %s: %v", h.reqId, h.tuning.Name, node.Hostname, err)
 		}
 	}
 }
@@ -65,7 +65,7 @@ func (h *helper) delegateTuningToggleReq() {
 func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*tunings.Tuning, error) {
 	tunings, err := cubecos.ListTunings(tunings.ListOptions{AllNodes: h.allNodes})
 	if err != nil {
-		log.Errorf("tunings(%s): failed to get tuning: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to get tuning: %v", h.reqId, err)
 		return nil, err
 	}
 
@@ -107,7 +107,7 @@ func (h *helper) delegateToPeerNode(node *nodes.Node) error {
 		SetBody(genTuningUpdate(h.tuning, node)).
 		Patch(node.PatchTuningUrl(h.tuning.Name))
 	if err != nil {
-		log.Errorf("tunings(%s): failed to send tuning %s to %s: %s", h.reqId, h.tuning.Name, node.Id, err.Error())
+		log.Errorf("tunings(%s): failed to send tuning %s to %s: %v", h.reqId, h.tuning.Name, node.Id)
 		return err
 	}
 

@@ -49,7 +49,7 @@ func ListSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
 func ListHostSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
 	node, err := nodes.Get(opts.Host)
 	if err != nil {
-		log.Errorf("failed to get node by hostname: %s", err.Error())
+		log.Errorf("failed to get node by hostname: %v", err)
 		return nil, err
 	}
 
@@ -78,7 +78,7 @@ func ListSupportFilesFromPeerNodes() ([]support.File, error) {
 
 		file, err := getNodeSupportFiles(node)
 		if err != nil {
-			log.Errorf("supportfiles: failed to get supportFiles from node %s: %s", node.Hostname, err.Error())
+			log.Errorf("supportfiles: failed to get supportFiles from node %s: %v", node.Hostname, err)
 			continue
 		}
 
@@ -91,7 +91,7 @@ func ListSupportFilesFromPeerNodes() ([]support.File, error) {
 func CreateSupportFile(file support.File) error {
 	path, err := CreateSupportCommentFile(file)
 	if err != nil {
-		log.Errorf("supportFile: failed to create support comment file: %s", err.Error())
+		log.Errorf("supportFile: failed to create support comment file: %v", err)
 		return err
 	}
 
@@ -107,7 +107,7 @@ func CreateSupportFile(file support.File) error {
 func SetSupportFileComment(file support.File) error {
 	path, err := CreateSupportCommentFile(file)
 	if err != nil {
-		log.Errorf("supportFile: failed to create support comment file: %s", err.Error())
+		log.Errorf("supportFile: failed to create support comment file: %v", err)
 		return err
 	}
 
@@ -285,7 +285,7 @@ func getNodeSupportFiles(node nodes.Node) ([]support.File, error) {
 func SyncSupportFiles() {
 	files, err := os.ReadDir(support.DefaultFileDir)
 	if err != nil {
-		log.Errorf("supportFile: failed to read support file directory: %s", err.Error())
+		log.Errorf("supportFile: failed to read support file directory: %v", err)
 		return
 	}
 
@@ -301,7 +301,7 @@ func RemovePendingReq(db, collection string) {
 	h := mongo.GetGlobalHelper()
 	err := h.DeleteAll(db, collection, bson.M{})
 	if err != nil {
-		log.Errorf("%s: failed to remove pending request: %s", db, err.Error())
+		log.Errorf("%s: failed to remove pending request: %v", db, err)
 		return
 	}
 }

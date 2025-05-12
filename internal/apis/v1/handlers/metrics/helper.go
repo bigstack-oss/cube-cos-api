@@ -3,12 +3,14 @@ package metrics
 import (
 	"fmt"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	"github.com/gin-gonic/gin"
 )
 
 type helper struct {
 	c       *gin.Context
+	reqId   string
 	handler string
 
 	metricType string
@@ -31,7 +33,7 @@ type rank struct {
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
-	h := &helper{c: c, handler: handler}
+	h := &helper{c: c, reqId: queries.GetReqId(c), handler: handler}
 	return h, h.parseParamsByHandler()
 }
 

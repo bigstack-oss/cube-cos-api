@@ -54,7 +54,7 @@ func newHttpServer() (*server.Server, error) {
 	prepareApiHandlersByRole()
 	err := registerHandlersByCurrentRole(router)
 	if err != nil {
-		log.Errorf("runtime: failed to register handlers: %s", err.Error())
+		log.Errorf("runtime: failed to register handlers: %v", err)
 		return nil, err
 	}
 

@@ -5,7 +5,6 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/licenses"
 	"github.com/gin-gonic/gin"
@@ -93,7 +92,7 @@ func verifyLicense(c *gin.Context) {
 func importClusterLicense(c *gin.Context) {
 	h, err := initHelper(c, "importClusterLicense")
 	if err != nil {
-		log.Errorf("license(%s): failed to init helper: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("license(%s): failed to init helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -106,7 +105,7 @@ func importClusterLicense(c *gin.Context) {
 
 	err = cubecos.ImportClusterLicense(path)
 	if err != nil {
-		log.Errorf("license(%s): failed to import cluster license: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("license(%s): failed to import cluster license: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -121,14 +120,14 @@ func importClusterLicense(c *gin.Context) {
 func importHostLicense(c *gin.Context) {
 	h, err := initHelper(c, "importHostLicense")
 	if err != nil {
-		log.Errorf("license(%s): failed to init helper: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("license(%s): failed to init helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.importOrDelegateLicense()
 	if err != nil {
-		log.Errorf("license(%s): failed to import license: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("license(%s): failed to import license: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -143,7 +142,7 @@ func importHostLicense(c *gin.Context) {
 func listAttachments(c *gin.Context) {
 	h, err := initHelper(c, "listAttachments")
 	if err != nil {
-		log.Errorf("license(%s): failed to init helper: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("license(%s): failed to init helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}

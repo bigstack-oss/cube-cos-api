@@ -47,7 +47,7 @@ func (o *Operator) Run() {
 		health := req.(*cubecos.Health)
 		err := o.operateReq(*health)
 		if err != nil {
-			log.Errorf("health: failed to operate request: %s", err.Error())
+			log.Errorf("health: failed to operate request: %v", err)
 			health.Overall.Status.SetCurrentToError(err)
 		}
 

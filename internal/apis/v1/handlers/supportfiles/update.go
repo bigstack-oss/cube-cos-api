@@ -19,7 +19,7 @@ func (h *helper) syncCreatingFiles(files *[]support.File) {
 		bson.M{"status.current": "creating"},
 	)
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to get creating file set: %s", h.reqId, err.Error())
+		log.Errorf("supportFiles(%s): failed to get creating file set: %v", h.reqId, err)
 		return
 	}
 
@@ -36,7 +36,7 @@ func (h *helper) setCreatingFile(files *[]support.File, c *mongo.Cursor) {
 		file := support.File{}
 		err := c.Decode(&file)
 		if err != nil {
-			log.Errorf("supportFiles(%s): failed to decode creating file set: %s", h.reqId, err.Error())
+			log.Errorf("supportFiles(%s): failed to decode creating file set: %v", h.reqId, err)
 			continue
 		}
 

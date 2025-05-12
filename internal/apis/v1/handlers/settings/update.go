@@ -34,7 +34,7 @@ func (h *helper) syncUpdatingTitlePrefixValue(titlePrefix *settings.TitlePrefix)
 		bson.M{"type": "titlePrefix"},
 	)
 	if err != nil {
-		log.Errorf("settings(%s): failed to update value from title prefix cursor(%s)", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to update value from title prefix cursor(%v)", h.reqId, err)
 		return
 	}
 
@@ -51,7 +51,7 @@ func (h *helper) setUpdatingTitlePrefixValue(c *mongo.Cursor, titlePrefix *setti
 		req := &settings.Setting{}
 		err := c.Decode(req)
 		if err != nil {
-			log.Errorf("settings(%s): failed to decode title prefix cursor (%s)", h.reqId, err.Error())
+			log.Errorf("settings(%s): failed to decode title prefix cursor (%v)", h.reqId, err)
 			continue
 		}
 
@@ -80,7 +80,7 @@ func (h *helper) syncCreatingSenderIfExists(senders *[]email.Sender) {
 		bson.M{"type": "emailSender"},
 	)
 	if err != nil {
-		log.Errorf("settings: failed to update value from email sender cursor (%s)", err.Error())
+		log.Errorf("settings: failed to update value from email sender cursor (%v)", err)
 		return
 	}
 
@@ -97,7 +97,7 @@ func (h *helper) setUpdatingEmailSenders(c *mongo.Cursor, senders *[]email.Sende
 		req := &settings.Setting{}
 		err := c.Decode(req)
 		if err != nil {
-			log.Errorf("settings: failed to decode email sender cursor (%s)", err.Error())
+			log.Errorf("settings: failed to decode email sender cursor (%v)", err)
 			continue
 		}
 
@@ -112,7 +112,7 @@ func (h *helper) syncUpdatingSenderValue(sender email.Sender) *email.Sender {
 		bson.M{"type": "emailSender", "key": sender.Host},
 	)
 	if err != nil {
-		log.Errorf("settings: failed to update value from email sender cursor (%s)", err.Error())
+		log.Errorf("settings: failed to update value from email sender cursor (%v)", err)
 		return nil
 	}
 
@@ -129,7 +129,7 @@ func (h *helper) parseEmailSenderUpdateValue(c *mongo.Cursor) *email.Sender {
 	for c.Next(ctx) {
 		err := c.Decode(req)
 		if err != nil {
-			log.Errorf("settings: failed to decode email sender cursor (%s)", err.Error())
+			log.Errorf("settings: failed to decode email sender cursor (%v)", err)
 			return nil
 		}
 	}
@@ -162,7 +162,7 @@ func (h *helper) syncRecipientRecords(recipients *[]email.Recipient) {
 		bson.M{"type": "emailRecipient"},
 	)
 	if err != nil {
-		log.Errorf("settings: failed to update value from email recipient cursor (%s)", err.Error())
+		log.Errorf("settings: failed to update value from email recipient cursor (%v)", err)
 		return
 	}
 
@@ -200,7 +200,7 @@ func (h *helper) parseUpdatingRecipients(c *mongo.Cursor, recipients *[]email.Re
 		req := &settings.Setting{}
 		err := c.Decode(req)
 		if err != nil {
-			log.Errorf("settings(%s): failed to decode recipient cursor (%s)", h.reqId, err.Error())
+			log.Errorf("settings(%s): failed to decode recipient cursor (%v)", h.reqId, err)
 			continue
 		}
 
@@ -215,7 +215,7 @@ func (h *helper) syncUpdatingRecipientValue(recipient *email.Recipient) *email.R
 		bson.M{"type": "emailRecipient", "key": recipient.Address},
 	)
 	if err != nil {
-		log.Errorf("settings(%s): failed to get update value from recipient cursor (%s)", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to get update value from recipient cursor (%v)", h.reqId, err)
 		return nil
 	}
 
@@ -232,7 +232,7 @@ func (h *helper) parseUpdatingRecipientValue(c *mongo.Cursor) *email.Recipient {
 	for c.Next(ctx) {
 		err := c.Decode(req)
 		if err != nil {
-			log.Errorf("settings(%s): failed to decode recipient cursor (%s)", h.reqId, err.Error())
+			log.Errorf("settings(%s): failed to decode recipient cursor (%v)", h.reqId, err)
 			return nil
 		}
 	}
@@ -273,7 +273,7 @@ func (h *helper) syncUpdatingSlacks(channels *[]slack.ApiChannel) {
 		bson.M{"type": "slackChannel"},
 	)
 	if err != nil {
-		log.Errorf("settings(%s): failed to get update value from slack cursor(%s)", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to get update value from slack cursor(%v)", h.reqId, err)
 		return
 	}
 
@@ -291,7 +291,7 @@ func (h *helper) parseUpdatingSlacks(c *mongo.Cursor, slack *[]slack.ApiChannel)
 		req := &settings.Setting{}
 		err := c.Decode(req)
 		if err != nil {
-			log.Errorf("settings: failed to decode slack channel cursor (%s)", err.Error())
+			log.Errorf("settings: failed to decode slack channel cursor (%v)", err)
 			continue
 		}
 
@@ -338,7 +338,7 @@ func (h *helper) syncUpdatingSlackValue(channel *slack.ApiChannel) *slack.ApiCha
 		bson.M{"type": "slackChannel", "key": channel.URL},
 	)
 	if err != nil {
-		log.Errorf("settings: failed to update value from slack channel cursor (%s)", err.Error())
+		log.Errorf("settings: failed to update value from slack channel cursor (%v)", err)
 		return nil
 	}
 
@@ -355,7 +355,7 @@ func (h *helper) parseUpdatingSlackValue(c *mongo.Cursor) *slack.ApiChannel {
 	for c.Next(ctx) {
 		err := c.Decode(req)
 		if err != nil {
-			log.Errorf("settings: failed to decode slack channel cursor (%s)", err.Error())
+			log.Errorf("settings: failed to decode slack channel cursor (%v)", err)
 			return nil
 		}
 	}

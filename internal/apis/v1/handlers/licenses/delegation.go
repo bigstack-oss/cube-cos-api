@@ -5,7 +5,6 @@ import (
 	"mime/multipart"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
 )
@@ -13,13 +12,13 @@ import (
 func (h *helper) importPeerNode(license *multipart.FileHeader) error {
 	node, err := nodes.Get(h.node)
 	if err != nil {
-		log.Errorf("license(%s): failed to get nodes by role %s: %s", queries.GetReqId(h.c), h.node, err.Error())
+		log.Errorf("license(%s): failed to get nodes by role %s: %v", h.reqId, h.node, err)
 		return err
 	}
 
 	reader, err := license.Open()
 	if err != nil {
-		log.Errorf("licenses(%s): failed to open license file: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to open license file: %v", h.reqId, err)
 		return err
 	}
 
@@ -37,6 +36,6 @@ func (h *helper) importPeerNode(license *multipart.FileHeader) error {
 	}
 
 	err = fmt.Errorf("has resp error for license: %s", string(resp.Body()))
-	log.Errorf("licenses(%s): %s", queries.GetReqId(h.c), err.Error())
+	log.Errorf("licenses(%s): %v", h.reqId, err)
 	return err
 }

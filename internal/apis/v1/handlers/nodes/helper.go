@@ -15,6 +15,7 @@ import (
 
 type helper struct {
 	c       *gin.Context
+	reqId   string
 	handler string
 
 	node            string
@@ -28,7 +29,7 @@ type helper struct {
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
-	h := &helper{c: c, handler: handler}
+	h := &helper{c: c, reqId: queries.GetReqId(c), handler: handler}
 	return h, h.parseParamsByHandler()
 }
 
@@ -78,7 +79,7 @@ func (h *helper) sortNodes(node *[]nodes.Node) {
 func (h *helper) getNode() (*nodes.Node, error) {
 	node, err := nodes.Get(h.node)
 	if err != nil {
-		log.Errorf("nodes(%s): failed to get node: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("nodes(%s): failed to get node: %v", h.reqId, err)
 		return nil, err
 	}
 
@@ -106,7 +107,7 @@ func (h *helper) askPeerNode(node *nodes.Node) (*nodes.Node, error) {
 
 	return nil, fmt.Errorf(
 		"nodes(%s): has err resp for node details %s: %s",
-		queries.GetReqId(h.c),
+		h.reqId,
 		node.Hostname,
 		string(resp.Body()),
 	)

@@ -12,10 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-const (
-	maxSearchResults = 10000
-)
-
 func selectRolesUsingActivityAndLabels(tuningSpec *tunings.Spec) []*nodes.Role {
 	for i, role := range tuningSpec.Roles {
 		tuningSpec.Roles[i].Nodes = getNodesBySelector(role.Nodes, tuningSpec.Selector)
@@ -83,7 +79,7 @@ func (h *helper) filterUnexpectedTunings(list []tunings.Tuning) []tunings.Tuning
 func (h *helper) filteredByKeyword(list []tunings.Tuning) []tunings.Tuning {
 	result, err := h.searchTunings(list)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to search tunings: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to search tunings: %v", h.reqId, err)
 		return list
 	}
 
@@ -99,7 +95,7 @@ func (h *helper) filteredByKeyword(list []tunings.Tuning) []tunings.Tuning {
 func (h *helper) searchTunings(tunings []tunings.Tuning) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
-		log.Errorf("tunings(%s): failed to create tuning searcher: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to create tuning searcher: %v", h.reqId, err)
 		return nil, err
 	}
 

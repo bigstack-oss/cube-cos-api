@@ -84,7 +84,7 @@ func (h *helper) filteredByProduct(nodesToFilter []nodes.Node) []nodes.Node {
 func (h *helper) filteredByKeyword(nodesToFilter []nodes.Node) []nodes.Node {
 	result, err := h.searchNodes(nodesToFilter)
 	if err != nil {
-		log.Errorf("nodes: failed to search nodes: %s", err.Error())
+		log.Errorf("nodes: failed to search nodes: %v", err)
 		return nodesToFilter
 	}
 
@@ -100,7 +100,7 @@ func (h *helper) filteredByKeyword(nodesToFilter []nodes.Node) []nodes.Node {
 func (h *helper) searchNodes(nodes []nodes.Node) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
-		log.Errorf("nodes: failed to create node searcher: %s", err.Error())
+		log.Errorf("nodes: failed to create node searcher: %v", err)
 		return nil, err
 	}
 

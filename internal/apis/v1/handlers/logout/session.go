@@ -18,13 +18,13 @@ func (h *helper) cleanSession(session *samlsp.Session) error {
 	claims := (*session).(samlsp.JWTSessionClaims)
 	err := h.deleteSamlSession(claims)
 	if err != nil {
-		log.Errorf("logout(%s): failed to delete saml session: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("logout(%s): failed to delete saml session: %v", queries.GetReqId(h.c), err)
 		return err
 	}
 
 	err = h.deleteKeycloakSession(claims)
 	if err != nil {
-		log.Errorf("logout(%s): failed to delete keycloak session: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("logout(%s): failed to delete keycloak session: %v", queries.GetReqId(h.c), err)
 		return err
 	}
 
@@ -34,13 +34,13 @@ func (h *helper) cleanSession(session *samlsp.Session) error {
 func (h *helper) deleteSamlSession(jwtSession samlsp.JWTSessionClaims) error {
 	_, err := saml.SpAuth.ServiceProvider.MakeRedirectLogoutRequest(jwtSession.Subject, "")
 	if err != nil {
-		log.Errorf("logout(%s): failed to get signout url: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("logout(%s): failed to get signout url: %v", queries.GetReqId(h.c), err)
 		return err
 	}
 
 	err = saml.SpAuth.Session.DeleteSession(h.c.Writer, h.c.Request)
 	if err != nil {
-		log.Errorf("logout(%s): failed to delete saml session: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("logout(%s): failed to delete saml session: %v", queries.GetReqId(h.c), err)
 		return err
 	}
 
@@ -51,7 +51,7 @@ func (h *helper) deleteKeycloakSession(claims samlsp.JWTSessionClaims) error {
 	keycloak := keycloak.GetGlobalHelper()
 	err := keycloak.LoginAdmin()
 	if err != nil {
-		log.Errorf("logout(%s): failed to login admin: %s", err.Error())
+		log.Errorf("logout(%s): failed to login admin: %v", err)
 		return err
 	}
 
@@ -71,7 +71,7 @@ func (h *helper) deleteKeycloakSession(claims samlsp.JWTSessionClaims) error {
 		sessionId := fragments[0]
 		err := keycloak.LogoutUserSession(conf.Opts.Spec.Identity.Keycloak.Realm, sessionId)
 		if err != nil {
-			log.Errorf("logout(%s): failed to logout user(%s): %s", queries.GetReqId(h.c), sessionId, err.Error())
+			log.Errorf("logout(%s): failed to logout user(%s): %v", queries.GetReqId(h.c), sessionId, err)
 		}
 	}
 

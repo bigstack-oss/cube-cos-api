@@ -12,7 +12,7 @@ import (
 
 func (o *Operator) handleExit(file *support.File, err error) {
 	if err != nil {
-		log.Errorf("supportfiles: failed to %s %s: %s", file.Status.Desired, file.Group, err.Error())
+		log.Errorf("supportfiles: failed to %s %s: %v", file.Status.Desired, file.Group, err)
 		file.SetError()
 	} else {
 		log.Infof("supportfiles: %s %s successfully", file.Status.Desired, file.Group)

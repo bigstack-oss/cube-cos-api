@@ -71,7 +71,7 @@ func (h *helper) parseTuningUpdate() error {
 func (h *helper) parseTuningReset() error {
 	err := h.c.ShouldBindJSON(&h.reset)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to parse reset tuning: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("tunings(%s): failed to parse reset tuning: %v", h.reqId, err)
 		return err
 	}
 
@@ -108,7 +108,7 @@ func (h *helper) parseTuningEnablement() error {
 
 	tuning, err := h.getTuningByNameAndHosts(h.tuning.Name, h.toggle.Hosts)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to get tuning: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("tunings(%s): failed to get tuning: %v", h.reqId, err)
 		return err
 	}
 
@@ -122,7 +122,7 @@ func (h *helper) parseTuningEnablement() error {
 func (h *helper) isTuningModified() bool {
 	tuning, err := h.getTuningByNameAndHosts(h.tuning.Name, h.toggle.Hosts)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to get tuning: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("tunings(%s): failed to get tuning: %v", h.reqId, err)
 		return false
 	}
 
@@ -140,7 +140,7 @@ func (h *helper) convertUpdateToTuning() {
 func (h *helper) ListTunings() (*data, error) {
 	tunings, err := cubecos.ListTunings(tunings.ListOptions{AllNodes: h.allNodes})
 	if err != nil {
-		log.Errorf("tunings(%s): failed to get tunings: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("tunings(%s): failed to get tunings: %v", h.reqId, err)
 		return nil, err
 	}
 
@@ -148,13 +148,13 @@ func (h *helper) ListTunings() (*data, error) {
 	tunings = h.filterTunings(tunings)
 	pagedTunings, err := h.paginateTunings(tunings)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to paginate tunings: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("tunings(%s): failed to paginate tunings: %v", h.reqId, err)
 		return nil, err
 	}
 
 	page, err := h.genPageInfo(tunings)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to gen page info: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("tunings(%s): failed to gen page info: %v", h.reqId, err)
 		return nil, err
 	}
 

@@ -129,14 +129,14 @@ var (
 func listSettings(c *gin.Context) {
 	h, err := initHelper(c, "listSettings")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	setting, err := h.listSettings()
 	if err != nil {
-		log.Errorf("settings(%s): failed to get setting: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to get setting: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -151,7 +151,7 @@ func listSettings(c *gin.Context) {
 func updateTitlePrefix(c *gin.Context) {
 	h, err := initHelper(c, "updateTitlePrefix")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -191,7 +191,7 @@ func tryEmailSender(c *gin.Context) {
 
 	senders, err := cubecos.GetEmailSenders()
 	if err != nil {
-		log.Errorf("settings(%s): failed to get email senders: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to get email senders: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -203,14 +203,14 @@ func tryEmailSender(c *gin.Context) {
 	sender := senders[0]
 	err = h.sendEmail(&sender, h.trial.Email)
 	if err != nil {
-		log.Errorf("settings(%s): %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 
 	err = h.setSenderAsVerified(sender)
 	if err != nil {
-		log.Errorf("settings(%s): failed to mark sender as verified: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to mark sender as verified: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -225,7 +225,7 @@ func tryEmailSender(c *gin.Context) {
 func listEmailSenders(c *gin.Context) {
 	setting, err := cubecos.GetAlertSetting()
 	if err != nil {
-		log.Errorf("settings(%s): failed to list email recipients: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to list email recipients: %v", queries.GetReqId(c), err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -241,7 +241,7 @@ func listEmailSenders(c *gin.Context) {
 func patchEmailSender(c *gin.Context) {
 	h, err := initHelper(c, "patchEmailSender")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -263,7 +263,7 @@ func patchEmailSender(c *gin.Context) {
 func deleteEmailSender(c *gin.Context) {
 	h, err := initHelper(c, "deleteEmailSender")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -283,7 +283,7 @@ func deleteEmailSender(c *gin.Context) {
 func createEmailRecipient(c *gin.Context) {
 	h, err := initHelper(c, "createEmailRecipient")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -303,21 +303,21 @@ func createEmailRecipient(c *gin.Context) {
 func tryEmailRecipient(c *gin.Context) {
 	h, err := initHelper(c, "tryEmailRecipient")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	sender, err := h.getVerifiedSender()
 	if err != nil {
-		log.Errorf("settings(%s): failed to get verified email sender: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to get verified email sender: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 
 	err = h.sendEmail(sender, h.recipientEmail)
 	if err != nil {
-		log.Errorf("settings(%s): failed to try email recipient: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to try email recipient: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -332,7 +332,7 @@ func tryEmailRecipient(c *gin.Context) {
 func listEmailRecipients(c *gin.Context) {
 	setting, err := cubecos.GetAlertSetting()
 	if err != nil {
-		log.Errorf("settings(%s): failed to get email recipients: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to get email recipients: %v", queries.GetReqId(c), err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -347,14 +347,14 @@ func listEmailRecipients(c *gin.Context) {
 func patchEmailRecipient(c *gin.Context) {
 	h, err := initHelper(c, "patchEmailRecipient")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.checkRecipientUpdate()
 	if err != nil {
-		log.Errorf("settings(%s): failed to update email recipient: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to update email recipient: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -369,7 +369,7 @@ func patchEmailRecipient(c *gin.Context) {
 func deleteEmailRecipient(c *gin.Context) {
 	h, err := initHelper(c, "deleteEmailRecipient")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -389,7 +389,7 @@ func deleteEmailRecipient(c *gin.Context) {
 func createSlackChannel(c *gin.Context) {
 	h, err := initHelper(c, "createSlackChannel")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -409,14 +409,14 @@ func createSlackChannel(c *gin.Context) {
 func trySlackChannel(c *gin.Context) {
 	h, err := initHelper(c, "trySlackChannel")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.sendSlackMessage()
 	if err != nil {
-		log.Errorf("settings(%s): failed to try slack channel: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to try slack channel: %v", queries.GetReqId(c), err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -431,7 +431,7 @@ func trySlackChannel(c *gin.Context) {
 func listSlackChannels(c *gin.Context) {
 	setting, err := cubecos.GetAlertSetting()
 	if err != nil {
-		log.Errorf("settings(%s): failed to get slack channels: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("settings(%s): failed to get slack channels: %v", queries.GetReqId(c), err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -447,7 +447,7 @@ func listSlackChannels(c *gin.Context) {
 func putSlackChannel(c *gin.Context) {
 	h, err := initHelper(c, "putSlackChannel")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -467,7 +467,7 @@ func putSlackChannel(c *gin.Context) {
 func deleteSlackChannel(c *gin.Context) {
 	h, err := initHelper(c, "deleteSlackChannel")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -487,7 +487,7 @@ func deleteSlackChannel(c *gin.Context) {
 func updateSettingTask(c *gin.Context) {
 	h, err := initHelper(c, "updateSettingTask")
 	if err != nil {
-		log.Errorf("settings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -500,7 +500,7 @@ func updateSettingTask(c *gin.Context) {
 
 	err = h.updateSettingTask()
 	if err != nil {
-		log.Errorf("settings(%s): failed to update setting task: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to update setting task: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}

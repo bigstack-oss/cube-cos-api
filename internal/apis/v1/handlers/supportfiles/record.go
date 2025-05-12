@@ -19,10 +19,10 @@ func (h *helper) addReqRecord(file support.File) {
 	)
 	if err != nil {
 		log.Errorf(
-			"supportFiles(%s): failed to sync tuning record for %s(%s)",
+			"supportfiles(%s): failed to sync tuning record for %s(%v)",
 			h.reqId,
 			file.Name,
-			err.Error(),
+			err,
 		)
 	}
 }

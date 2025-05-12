@@ -325,7 +325,7 @@ func GetDiscoveredServices() ([]*registry.Service, error) {
 
 	svcs, err := registry.GetService(base.ServiceDiscoveryIdentity)
 	if err != nil {
-		log.Errorf("nodes: failed to get service from %s (%s)", base.ServiceDiscoveryIdentity, err.Error())
+		log.Errorf("nodes: failed to get service from %s(%v)", base.ServiceDiscoveryIdentity, err)
 		return nil, err
 	}
 
@@ -400,8 +400,8 @@ func GetControlNodes() ([]Node, error) {
 
 	if len(controllers) == 0 {
 		return nil, fmt.Errorf(
-			"failed to get control nodes(control or control-converged): %s",
-			err.Error(),
+			"failed to get control nodes(control or control-converged): %v",
+			err,
 		)
 	}
 
@@ -423,8 +423,8 @@ func GetPeerControls() ([]Node, error) {
 
 	if len(controllers) == 0 {
 		return nil, fmt.Errorf(
-			"failed to get control nodes(control or control-converged): %s",
-			err.Error(),
+			"failed to get control nodes(control or control-converged): %v",
+			err,
 		)
 	}
 

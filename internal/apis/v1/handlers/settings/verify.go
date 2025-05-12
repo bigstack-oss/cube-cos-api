@@ -76,7 +76,7 @@ func (h *helper) isSenderVerified(sender *email.Sender) bool {
 		bson.M{"host": sender.Host, "accessVerified": true},
 	)
 	if err != nil {
-		log.Errorf("settings(%s): failed to check email sender verification (%s)", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to check email sender verification(%v)", h.reqId, err)
 		return false
 	}
 

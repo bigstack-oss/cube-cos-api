@@ -13,14 +13,14 @@ import (
 func (h *helper) decodeTuningReq(reqBody io.ReadCloser) (*tunings.Tuning, error) {
 	b, err := io.ReadAll(reqBody)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to read request body: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to read request body: %v", h.reqId, err)
 		return nil, err
 	}
 
 	tuning := &tunings.Tuning{}
 	err = json.Unmarshal(b, tuning)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to decode tuning request: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to decode tuning request: %v", h.reqId, err)
 		return nil, fmt.Errorf("the request body is brought or not valid")
 	}
 

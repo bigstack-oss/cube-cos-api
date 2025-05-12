@@ -45,7 +45,7 @@ func initHepler(c *gin.Context, handler string) (*helper, error) {
 func (h *helper) listSupportFiles() (*filePage, error) {
 	files, err := cubecos.ListSupportFiles(support.ListFileOptions{AllNodes: true})
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to list files: %s", h.reqId, err.Error())
+		log.Errorf("supportFiles(%s): failed to list files: %v", h.reqId, err)
 		return nil, err
 	}
 
@@ -53,13 +53,13 @@ func (h *helper) listSupportFiles() (*filePage, error) {
 	sets := h.genFileSets(files)
 	pagedSets, err := h.paginateFileSets(sets)
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to paginate files: %s", h.reqId, err.Error())
+		log.Errorf("supportFiles(%s): failed to paginate files: %v", h.reqId, err)
 		return nil, err
 	}
 
 	page, err := h.genPageInfo(sets)
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to gen page info: %s", h.reqId, err.Error())
+		log.Errorf("supportFiles(%s): failed to gen page info: %v", h.reqId, err)
 		return nil, err
 	}
 

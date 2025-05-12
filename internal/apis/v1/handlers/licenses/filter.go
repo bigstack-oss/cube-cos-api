@@ -4,7 +4,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/blevesearch/bleve/v2"
@@ -58,7 +57,7 @@ func (h *helper) filterAttachments(attachments []licenses.Attachment) []licenses
 func (h *helper) filteredByKeyword(list []licenses.License) []licenses.License {
 	result, err := h.searchLicenses(list)
 	if err != nil {
-		log.Errorf("failed to search licenses: %s", err.Error())
+		log.Errorf("failed to search licenses: %v", err)
 		return list
 	}
 
@@ -108,7 +107,7 @@ func (h *helper) filteredByProduct(list []licenses.License) []licenses.License {
 func (h *helper) searchLicenses(list []licenses.License) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
-		log.Errorf("licenses(%s): failed to new searcher: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to new searcher: %v", h.reqId, err)
 		return nil, err
 	}
 
@@ -136,7 +135,7 @@ func genLicenseMap(list []licenses.License) map[string]licenses.License {
 func (h *helper) filteredAttachmentByKeyword(attachments []licenses.Attachment) []licenses.Attachment {
 	result, err := h.searchAttachments(attachments)
 	if err != nil {
-		log.Errorf("failed to search license attachments: %s", err.Error())
+		log.Errorf("failed to search license attachments: %v", err)
 		return attachments
 	}
 
@@ -152,7 +151,7 @@ func (h *helper) filteredAttachmentByKeyword(attachments []licenses.Attachment) 
 func (h *helper) searchAttachments(attachments []licenses.Attachment) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
-		log.Errorf("licenses(%s): failed to new searcher: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to new searcher: %v", h.reqId, err)
 		return nil, err
 	}
 

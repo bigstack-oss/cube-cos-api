@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
@@ -47,7 +46,7 @@ func genLicenseVerifyPath(filename string) (string, error) {
 func (h *helper) importOrDelegateLicense() error {
 	license, err := h.c.FormFile("license")
 	if err != nil {
-		log.Errorf("licenses(%s): failed to get license file: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to get license file: %v", h.reqId, err)
 		return err
 	}
 
@@ -61,13 +60,13 @@ func (h *helper) importOrDelegateLicense() error {
 func (h *helper) importLocal(license *multipart.FileHeader) error {
 	filePath, err := genLicenseStorePath(license.Filename)
 	if err != nil {
-		log.Errorf("licenses(%s): failed to generate license store path: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to generate license store path: %v", h.reqId, err)
 		return err
 	}
 
 	err = h.c.SaveUploadedFile(license, filePath)
 	if err != nil {
-		log.Errorf("licenses(%s): failed to save license file: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("licenses(%s): failed to save license file: %v", h.reqId, err)
 		return err
 	}
 

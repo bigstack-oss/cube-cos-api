@@ -23,10 +23,10 @@ func (h *helper) addReqRecord() {
 	)
 	if err != nil {
 		log.Errorf(
-			"triggers(%s): failed to sync trigger record for %s (%s)",
+			"triggers(%s): failed to sync trigger record for %s(%v)",
 			h.reqId,
 			h.trigger.Name,
-			err.Error(),
+			err,
 		)
 	}
 }
@@ -111,10 +111,10 @@ func (h *helper) updateTriggerToPeerNode(node nodes.Node) {
 	resp, err := req.Execute(h.c.Request.Method, url)
 	if err != nil {
 		log.Errorf(
-			"triggers(%s): failed to update trigger to peer node %s: %s",
+			"triggers(%s): failed to update trigger to peer node %s: %v",
 			h.reqId,
 			node.Hostname,
-			err.Error(),
+			err,
 		)
 		return
 	}

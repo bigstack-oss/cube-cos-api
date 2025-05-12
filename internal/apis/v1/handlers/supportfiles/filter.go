@@ -30,7 +30,7 @@ func (h *helper) filterFiles(sets []support.FileSet) []support.FileSet {
 func (h *helper) filteredByKeyword(sets []support.FileSet) []support.FileSet {
 	result, err := h.searchFileSets(sets)
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to search supportFiles: %s", h.reqId, err.Error())
+		log.Errorf("supportFiles(%s): failed to search supportFiles: %v", h.reqId, err)
 		return sets
 	}
 
@@ -68,7 +68,7 @@ func (h *helper) filteredByPeriod(fileSets []support.FileSet) []support.FileSet 
 func (h *helper) searchFileSets(fileSets []support.FileSet) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to create searcher: %s", h.reqId, err.Error())
+		log.Errorf("supportFiles(%s): failed to create searcher: %v", h.reqId, err)
 		return nil, err
 	}
 

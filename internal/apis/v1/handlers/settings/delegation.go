@@ -18,11 +18,11 @@ func (h *helper) addReqRecord(req settings.Setting) {
 	)
 	if err != nil {
 		log.Errorf(
-			"settings(%s): failed to sync %s record for %s (%s)",
+			"settings(%s): failed to sync %s record for %s(%v)",
 			h.reqId,
 			req.Type,
 			req.Key,
-			err.Error(),
+			err,
 		)
 	}
 }

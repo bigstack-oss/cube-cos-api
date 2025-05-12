@@ -49,7 +49,7 @@ var (
 func listSupportFiles(c *gin.Context) {
 	h, err := initHepler(c, "listSupportFiles")
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to init list helper: %s", h.reqId, err.Error())
+		log.Errorf("supportFiles(%s): failed to init list helper: %v", h.reqId, err)
 		return
 	}
 

@@ -41,11 +41,11 @@ func (h *helper) delegateSupportFileReq() {
 		err = h.delegateToPeerNode(node)
 		if err != nil {
 			log.Errorf(
-				"supportFiles(%s): failed to delegate %s to %s: %s",
+				"supportFiles(%s): failed to delegate %s to %s: %v",
 				h.reqId,
 				h.file.Name,
 				node.Hostname,
-				err.Error(),
+				err,
 			)
 		}
 	}
@@ -91,7 +91,7 @@ func (h *helper) delegateToPeerNode(node *nodes.Node) error {
 	http := http.GetGlobalHelper()
 	resp, err := http.R().SetHeaders(nodes.GetSecretHeaders()).SetBody(body).Post(url)
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to create support file %s to %s: %s", h.reqId, h.file.Name, node.Id, err.Error())
+		log.Errorf("supportFiles(%s): failed to create support file %s to %s: %v", h.reqId, h.file.Name, node.Id, err)
 		return err
 	}
 
@@ -175,7 +175,7 @@ func (h *helper) streamFileDownload(filename string) {
 func (h *helper) streamDownloadByPeerNode(set support.FileSet, file support.File) {
 	node, err := nodes.Get(file.Source.Host)
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to get node by hostname %s: %s", h.reqId, file.Source.Host, err.Error())
+		log.Errorf("supportFiles(%s): failed to get node by hostname %s: %v", h.reqId, file.Source.Host, err)
 		return
 	}
 
@@ -183,7 +183,7 @@ func (h *helper) streamDownloadByPeerNode(set support.FileSet, file support.File
 	http := http.GetGlobalHelper()
 	resp, err := http.R().SetHeaders(nodes.GetSecretHeaders()).Get(url)
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to download support file %s from %s: %s", h.reqId, file.Name, node.Hostname, err.Error())
+		log.Errorf("supportFiles(%s): failed to download support file %s from %s: %v", h.reqId, file.Name, node.Hostname, err)
 		return
 	}
 	if resp.IsError() {

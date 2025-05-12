@@ -25,14 +25,14 @@ var (
 func createToken(c *gin.Context) {
 	user, err := parseUserBody(c)
 	if err != nil {
-		log.Errorf("tokens(%s): failed to parse user: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("tokens(%s): failed to parse user: %v", queries.GetReqId(c), err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	auth, err := cubecos.CreateToken(user)
 	if err != nil {
-		log.Errorf("tokens(%s): failed to generate token: %s", queries.GetReqId(c), err.Error())
+		log.Errorf("tokens(%s): failed to generate token: %v", queries.GetReqId(c), err)
 		bodies.SetUnauthorized(c, err)
 		return
 	}

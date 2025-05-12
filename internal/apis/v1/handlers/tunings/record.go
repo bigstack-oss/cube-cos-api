@@ -23,10 +23,10 @@ func (h *helper) addReqRecord(tuning tunings.Tuning) {
 	)
 	if err != nil {
 		log.Errorf(
-			"tunings(%s): failed to sync tuning record for %s (%s)",
+			"tunings(%s): failed to sync tuning record for %s(%v)",
 			h.reqId,
 			tuning.Name,
-			err.Error(),
+			err,
 		)
 	}
 }

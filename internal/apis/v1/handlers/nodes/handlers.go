@@ -5,7 +5,6 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/node"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -35,14 +34,14 @@ func init() {
 func listNodes(c *gin.Context) {
 	h, err := initHelper(c, "listNodes")
 	if err != nil {
-		log.Errorf("nodes(%s): failed to init helper: %v", queries.GetReqId(c), err)
+		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	resp, err := h.listNodes()
 	if err != nil {
-		log.Errorf("nodes(%s): failed to list node: %v", queries.GetReqId(c), err)
+		log.Errorf("nodes(%s): failed to list node: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -62,14 +61,14 @@ func listNodes(c *gin.Context) {
 func getNode(c *gin.Context) {
 	h, err := initHelper(c, "getNode")
 	if err != nil {
-		log.Errorf("nodes(%s): failed to init helper: %v", queries.GetReqId(c), err)
+		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	node, err := h.getNode()
 	if err != nil {
-		log.Errorf("nodes(%s): failed to get node details: %v", queries.GetReqId(c), err)
+		log.Errorf("nodes(%s): failed to get node details: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}

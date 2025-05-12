@@ -126,7 +126,7 @@ func GetSamlClient(id string) (*gocloak.Client, error) {
 	h := keycloak.GetGlobalHelper()
 	err := h.LoginAdmin()
 	if err != nil {
-		log.Errorf("runtime: failed to login admin for fetching saml client: %s", err.Error())
+		log.Errorf("runtime: failed to login admin for fetching saml client: %v", err)
 		return nil, err
 	}
 
@@ -135,7 +135,7 @@ func GetSamlClient(id string) (*gocloak.Client, error) {
 		gocloak.GetClientsParams{ClientID: gocloak.StringP(id)},
 	)
 	if err != nil {
-		log.Errorf("runtime: failed to get clients: %s", err.Error())
+		log.Errorf("runtime: failed to get clients: %v", err)
 		return nil, err
 	}
 
@@ -153,7 +153,7 @@ func CreateSamlMapper(id string, mapper gocloak.ProtocolMapperRepresentation) er
 	h := keycloak.GetGlobalHelper()
 	err := h.LoginAdmin()
 	if err != nil {
-		log.Errorf("runtime: failed to login admin for mapper creation: %s", err.Error())
+		log.Errorf("runtime: failed to login admin for mapper creation: %v", err)
 		return err
 	}
 

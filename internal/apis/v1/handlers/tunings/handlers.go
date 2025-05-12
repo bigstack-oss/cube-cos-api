@@ -59,14 +59,14 @@ func init() {
 func listTunings(c *gin.Context) {
 	h, err := initHelper(c, "listTunings")
 	if err != nil {
-		log.Errorf("tunings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	tunings, err := h.ListTunings()
 	if err != nil {
-		log.Errorf("tunings(%s): failed to get tunings: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to get tunings: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -86,14 +86,14 @@ func listTunings(c *gin.Context) {
 func getTuningSpecs(c *gin.Context) {
 	h, err := initHelper(c, "getTuningSpecs")
 	if err != nil {
-		log.Errorf("tunings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	specs, err := h.ListTuningSpecs()
 	if err != nil {
-		log.Errorf("tunings(%s): failed to get tuning specs: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to get tuning specs: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -108,21 +108,21 @@ func getTuningSpecs(c *gin.Context) {
 func updateTuning(c *gin.Context) {
 	h, err := initHelper(c, "updateTuning")
 	if err != nil {
-		log.Errorf("tunings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.parseTuningUpdate()
 	if err != nil {
-		log.Errorf("tunings(%s): failed to parse tuning request: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to parse tuning request: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.checkTuningPatchReq()
 	if err != nil {
-		log.Errorf("tunings(%s): failed to check tuning: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to check tuning: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -137,21 +137,21 @@ func updateTuning(c *gin.Context) {
 func resetTuning(c *gin.Context) {
 	h, err := initHelper(c, "resetTuning")
 	if err != nil {
-		log.Errorf("tunings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.parseTuningReset()
 	if err != nil {
-		log.Errorf("tunings(%s): failed to parse tuning req: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to parse tuning req: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.checkTuningResetReq()
 	if err != nil {
-		log.Errorf("tunings(%s): failed to check tuning reset: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to check tuning reset: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -166,28 +166,28 @@ func resetTuning(c *gin.Context) {
 func updateTuningTask(c *gin.Context) {
 	h, err := initHelper(c, "updateTuningTask")
 	if err != nil {
-		log.Errorf("tunings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	tuning, err := h.decodeTuningReq(c.Request.Body)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to decode tuning: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to decode tuning: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.checkTaskUpdateReq(tuning)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to check tuning: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to check tuning: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = updateTaskStatus(tuning)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to update tuning status: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to update tuning status: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -202,14 +202,14 @@ func updateTuningTask(c *gin.Context) {
 func enableOrDisableTuning(c *gin.Context) {
 	h, err := initHelper(c, "enableOrDisableTuning")
 	if err != nil {
-		log.Errorf("tunings(%s): failed to init request helper: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to init request helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.parseTuningEnablement()
 	if err != nil {
-		log.Errorf("tunings(%s): failed to parse tuning req: %s", h.reqId, err.Error())
+		log.Errorf("tunings(%s): failed to parse tuning req: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}

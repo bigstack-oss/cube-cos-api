@@ -19,7 +19,7 @@ func initHelper(c *gin.Context) *helper {
 func (h *helper) getSession() (*samlsp.Session, error) {
 	session, err := saml.SpAuth.Session.GetSession(h.c.Request)
 	if err != nil {
-		log.Errorf("logout(%s): failed to get session for logout: %s", queries.GetReqId(h.c), err.Error())
+		log.Errorf("logout(%s): failed to get session for logout: %v", queries.GetReqId(h.c), err)
 		return nil, err
 	}
 

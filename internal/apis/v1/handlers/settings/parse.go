@@ -62,7 +62,7 @@ func (h *helper) initEmailSenderCreateParams() error {
 	h.task = &settings.Setting{Type: "emailSender"}
 	err := h.c.ShouldBindJSON(&h.task.Sender)
 	if err != nil {
-		log.Errorf("settings(%s): failed to decode email sender: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to decode email sender: %v", h.reqId, err)
 		return err
 	}
 
@@ -86,13 +86,13 @@ func (h *helper) initEmailSenderCreateParams() error {
 func (h *helper) initEmailSenderTrialParams() error {
 	err := h.c.ShouldBindJSON(&h.trial)
 	if err != nil {
-		log.Errorf("settings(%s): failed to decode email: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to decode email: %v", h.reqId, err)
 		return err
 	}
 
 	err = email.CheckFormat(h.trial.Email)
 	if err != nil {
-		log.Errorf("settings(%s): invalid email format: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): invalid email format: %v", h.reqId, err)
 		return err
 	}
 
@@ -158,13 +158,13 @@ func (h *helper) initEmailRecipientCreateParams() error {
 	h.task = &settings.Setting{Type: "emailRecipient"}
 	err := h.c.ShouldBindJSON(&h.task.Recipient)
 	if err != nil {
-		log.Errorf("settings(%s): failed to decode email recipient: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to decode email recipient: %v", h.reqId, err)
 		return err
 	}
 
 	err = email.CheckFormat(h.task.Recipient.Address)
 	if err != nil {
-		log.Errorf("settings(%s): invalid email format: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): invalid email format: %v", h.reqId, err)
 		bodies.SetBadRequest(h.c, err)
 		return err
 	}
@@ -228,7 +228,7 @@ func (h *helper) initSlackChannelDeleteParams() error {
 
 	policy, err := cubecos.GetAlertSetting()
 	if err != nil {
-		log.Errorf("settings(%s): failed to get alert setting: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to get alert setting: %v", h.reqId, err)
 		return err
 	}
 
@@ -247,7 +247,7 @@ func (h *helper) initSlackChannelCreateParams() error {
 	h.task = &settings.Setting{Type: "slackChannel"}
 	err := h.c.ShouldBindJSON(&h.task.Slack)
 	if err != nil {
-		log.Errorf("settings(%s): failed to decode slack channel: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to decode slack channel: %v", h.reqId, err)
 		return err
 	}
 
@@ -297,7 +297,7 @@ func (h *helper) initSlackChannelPatchParams() error {
 func (h *helper) parseTaskUpdate() error {
 	err := h.c.ShouldBindJSON(&h.task)
 	if err != nil {
-		log.Errorf("settings(%s): failed to parse task: %s", h.reqId, err.Error())
+		log.Errorf("settings(%s): failed to parse task: %v", h.reqId, err)
 		return err
 	}
 

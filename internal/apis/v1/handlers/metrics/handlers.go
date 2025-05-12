@@ -5,7 +5,6 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/metrics"
 	"github.com/gin-gonic/gin"
@@ -42,7 +41,7 @@ func init() {
 func getDataCenterSummary(c *gin.Context) {
 	h, err := initHelper(c, "getDataCenterSummary")
 	if err != nil {
-		log.Errorf("metrics(%s): %v", queries.GetReqId(c), err)
+		log.Errorf("metrics(%s): %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -63,14 +62,14 @@ func getDataCenterSummary(c *gin.Context) {
 func getMetrics(c *gin.Context) {
 	h, err := initHelper(c, "getMetrics")
 	if err != nil {
-		log.Errorf("metrics(%s): failed to init helper: %v", queries.GetReqId(c), err)
+		log.Errorf("metrics(%s): failed to init helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	metrics, err := h.getMetrics()
 	if err != nil {
-		log.Errorf("metrics(%s): failed to fetch %s: %v", queries.GetReqId(c), h.metricType, err)
+		log.Errorf("metrics(%s): failed to fetch %s: %v", h.reqId, h.metricType, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
