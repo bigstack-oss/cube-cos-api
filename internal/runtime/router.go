@@ -305,7 +305,7 @@ func isAuthFreeReq(c *gin.Context) bool {
 		return false
 	}
 
-	if strings.Contains(c.Request.URL.Path, "/datacenters") {
+	if c.Request.URL.Path == "/api/v1/datacenters" {
 		return true
 	}
 

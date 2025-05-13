@@ -207,6 +207,6 @@ func (h *helper) setInstancesFilter(query *influx.Query) {
 	}
 
 	if h.instance != "" {
-		query.Filter(h.genFuzzyFilter("instance", h.instance))
+		query.Filter(h.genFilter("instance", h.instance))
 	}
 }

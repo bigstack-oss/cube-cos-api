@@ -24,7 +24,7 @@ func (h *helper) addFilters(query influx.Query) influx.Query {
 	}
 
 	if h.isInstanceRequired() {
-		query.Filter(h.genFuzzyFilter("_value", h.instance))
+		query.Filter(h.genFilter("instance", h.instance))
 	}
 
 	return query
@@ -32,8 +32,4 @@ func (h *helper) addFilters(query influx.Query) influx.Query {
 
 func (h *helper) genFilter(key, value string) string {
 	return fmt.Sprintf(`fn: (r) => r.%s == "%s"`, key, value)
-}
-
-func (h *helper) genFuzzyFilter(key, value string) string {
-	return fmt.Sprintf(`fn: (r) => r.%s =~ /%s/`, key, value)
 }
