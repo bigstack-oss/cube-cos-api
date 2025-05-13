@@ -10,6 +10,19 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+func (h *helper) hitRecipientLimit() bool {
+	setting, err := cubecos.GetAlertSetting()
+	if err != nil {
+		return true
+	}
+
+	if setting.Emails == nil {
+		return false
+	}
+
+	return len(setting.Emails) >= settings.MaxRecipientCount
+}
+
 func (h *helper) checkRecipientUpdate() error {
 	if !h.isRecipientExist(h.c.Param("recipientEmail")) {
 		return errors.New("recipient not found")
@@ -30,6 +43,19 @@ func (h *helper) isRecipientExist(recipient string) bool {
 	}
 
 	return setting.HasRecipient(recipient)
+}
+
+func (h *helper) hitSlackLimit() bool {
+	setting, err := cubecos.GetAlertSetting()
+	if err != nil {
+		return true
+	}
+
+	if setting.Slacks == nil {
+		return false
+	}
+
+	return len(setting.Slacks) >= settings.MaxSlackCount
 }
 
 func (h *helper) isSlackChannlExist() bool {

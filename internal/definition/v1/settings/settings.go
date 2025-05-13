@@ -15,6 +15,9 @@ const (
 	ReqTTL        = 3600
 	PolicyDir     = "/etc/policies/alert_setting"
 	PolicyV1      = "/etc/policies/alert_setting/alert_setting1_0.yml"
+
+	MaxRecipientCount = 10
+	MaxSlackCount     = 10
 )
 
 type Setting struct {

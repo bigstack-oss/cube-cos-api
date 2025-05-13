@@ -288,6 +288,11 @@ func createEmailRecipient(c *gin.Context) {
 		return
 	}
 
+	if h.hitRecipientLimit() {
+		bodies.SetBadRequest(c, errors.New("recipient 10 limit reached"))
+		return
+	}
+
 	if h.isRecipientExist(h.task.Recipient.Address) {
 		bodies.SetConflict(c, errors.New("recipient already exists"))
 		return
@@ -394,8 +399,13 @@ func createSlackChannel(c *gin.Context) {
 		return
 	}
 
+	if h.hitSlackLimit() {
+		bodies.SetBadRequest(c, errors.New("slack 10 limit reached"))
+		return
+	}
+
 	if h.isSlackChannlExist() {
-		bodies.SetConflict(c, errors.New("slack channel already exists"))
+		bodies.SetConflict(c, errors.New("slack already exists"))
 		return
 	}
 
