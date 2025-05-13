@@ -123,9 +123,9 @@ func parseLicenses(raws []licenses.Raw) []licenses.License {
 func convertToLicenses(raws []licenses.Raw) []licenses.License {
 	licenses := []licenses.License{}
 	for _, raw := range raws {
-		// if raw.IsUnlicense() {
-		// 	continue
-		// }
+		if raw.IsUnlicense() {
+			continue
+		}
 
 		licenses = append(
 			licenses,

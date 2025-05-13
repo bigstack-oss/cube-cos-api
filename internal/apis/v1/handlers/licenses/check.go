@@ -1,5 +1,7 @@
 package licenses
 
+import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
+
 func (h *helper) isFilterRequired() bool {
 	return h.isTypeRequired() ||
 		h.areProductsRequired() ||
@@ -36,4 +38,8 @@ func (h *helper) isProductRequired() bool {
 
 func (h *helper) areRolesRequired() bool {
 	return len(h.roles) > 0
+}
+
+func (h *helper) isLicenseNotInstalled(list []licenses.License) bool {
+	return len(list) == 0
 }

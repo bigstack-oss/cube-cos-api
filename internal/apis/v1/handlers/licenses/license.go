@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
 )
@@ -41,6 +42,33 @@ func genLicenseVerifyPath(filename string) (string, error) {
 	}
 
 	return filePath, nil
+}
+
+func (h *helper) genUnlicenseAttachmentsForAll() []licenses.Attachment {
+	attachements := []licenses.Attachment{}
+	for _, node := range nodes.List() {
+		attachements = append(
+			attachements,
+			h.genUnlicenseAttachment(node),
+		)
+	}
+
+	return attachements
+}
+
+func (h *helper) genAttachmentsByProduct(list []licenses.License) []licenses.Attachment {
+	attachments := []licenses.Attachment{}
+	for _, node := range nodes.List() {
+		attachment := h.genUnlicenseAttachment(node)
+		status, found := h.getNodeProductStatus(node, list)
+		if found {
+			attachment.Status = status
+		}
+
+		attachments = append(attachments, attachment)
+	}
+
+	return attachments
 }
 
 func (h *helper) importOrDelegateLicense() error {

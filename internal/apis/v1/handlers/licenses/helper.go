@@ -5,8 +5,11 @@ import (
 	"slices"
 	"strings"
 
+	errs "errors"
+
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
@@ -106,23 +109,16 @@ func (h *helper) listAttachments() ([]licenses.Attachment, error) {
 
 func (h *helper) listAttachmentsByProduct() ([]licenses.Attachment, error) {
 	list, err := cubecos.ListLicenses()
-	if err != nil {
+	if !errs.Is(err, errors.ErrLicensesNotFound) {
 		log.Errorf("licenses(%s): failed to list the licenses: %v", h.reqId, err)
 		return nil, err
 	}
 
-	attachments := []licenses.Attachment{}
-	for _, node := range nodes.List() {
-		attachment := h.genUnlicenseAttachment(node)
-		status, found := h.getNodeProductStatus(node, list)
-		if found {
-			attachment.Status = status
-		}
-
-		attachments = append(attachments, attachment)
+	if h.isLicenseNotInstalled(list) {
+		return h.genUnlicenseAttachmentsForAll(), nil
 	}
 
-	return attachments, nil
+	return h.genAttachmentsByProduct(list), nil
 }
 
 func (h *helper) genUnlicenseAttachment(node nodes.Node) licenses.Attachment {
