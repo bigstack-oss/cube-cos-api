@@ -114,7 +114,7 @@ func (h *helper) listAttachmentsByProduct() ([]licenses.Attachment, error) {
 		return nil, err
 	}
 
-	if h.isLicenseNotInstalled(list) {
+	if licenses.IsNotInstalled(list) {
 		return h.genUnlicenseAttachmentsForAll(), nil
 	}
 

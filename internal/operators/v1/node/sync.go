@@ -2,6 +2,7 @@ package node
 
 import (
 	"encoding/json"
+	errs "errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -17,6 +18,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -81,7 +83,7 @@ func (o *Operator) setNodeDown(node *nodes.Node) {
 	node.DataCenter = base.DataCenterName
 	node.BlockDevices = []nodes.BlockDevice{}
 	node.NetworkInterfaces = []nodes.NetworkInterface{}
-	node.License = o.getLicenseByHostname(node.Hostname)
+	node.License = o.getHostLicense(node.Hostname)
 	node.Status = status.Down
 }
 
@@ -140,14 +142,22 @@ func (o *Operator) askPeerNode(node nodes.Node) (*nodes.Node, error) {
 }
 
 func (o *Operator) setLicense(node *nodes.Node) {
-	node.License = o.getLicenseByHostname(node.Hostname)
+	node.License = o.getHostLicense(node.Hostname)
 }
 
-func (o *Operator) getLicenseByHostname(hostname string) licenses.License {
+func (o *Operator) getHostLicense(hostname string) licenses.License {
 	list, err := cubecos.ListLicenses()
-	if err != nil {
+	if !errs.Is(err, errors.ErrLicensesNotFound) {
 		log.Warnf("nodes: failed to add license info to the nodes: %v", err)
 		return licenses.License{}
+	}
+
+	if licenses.IsNotInstalled(list) {
+		return licenses.License{
+			Status: status.License{
+				Current: status.Unlicense,
+			},
+		}
 	}
 
 	for _, license := range list {

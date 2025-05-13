@@ -164,6 +164,10 @@ func (r *Raw) IsUnlicense() bool {
 	return r.Date == ""
 }
 
+func IsNotInstalled(list []License) bool {
+	return len(list) == 0
+}
+
 func List() []License {
 	list := licenses.Load()
 	if list == nil {
