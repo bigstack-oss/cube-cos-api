@@ -301,19 +301,19 @@ func GetHostSummary() (*HostSummary, error) {
 
 func GetHostUsage(node nodes.Node) (*metric.HostUsage, error) {
 	if node.IsDown() {
-		return nil, fmt.Errorf("host %s is down", node.Hostname)
+		return &metric.HostUsage{}, nil
 	}
 
 	cpuStat, err := GetHostCpuSummary(node.Hostname)
 	if err != nil {
-		log.Errorf("metrics: failed to get cpu summary of host %s: %v", node.Hostname, err)
-		return nil, err
+		log.Warnf("metrics: failed to get cpu summary of host %s: %v", node.Hostname, err)
+		cpuStat = &metric.Compute{}
 	}
 
 	memoryStat, err := GetHostMemoryUsageSummary(node.Hostname)
 	if err != nil {
-		log.Errorf("metrics: failed to get memory summary of host %s: %v", node.Hostname, err)
-		return nil, err
+		log.Warnf("metrics: failed to get memory summary of host %s: %v", node.Hostname, err)
+		memoryStat = &metric.Space{}
 	}
 
 	return &metric.HostUsage{
