@@ -406,21 +406,6 @@ func setRoleAndIpToTunings(tunings []Tuning) []Tuning {
 	return tunings
 }
 
-func ShouldIHandleTheTuning(name string) bool {
-	spec, loaded := Specs.Load(name)
-	if !loaded {
-		return false
-	}
-
-	for _, r := range spec.([]*nodes.Role) {
-		if r.Name == base.CurrentRole {
-			return true
-		}
-	}
-
-	return false
-}
-
 func (t *Tuning) Bytes() ([]byte, error) {
 	b, err := json.Marshal(t)
 	if err != nil {

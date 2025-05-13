@@ -26,8 +26,14 @@ func syncLicense(event fsnotify.Event) {
 		return
 	}
 
-	if event.Has(fsnotify.Create) || event.Has(fsnotify.Write) {
+	if shouldSync(event) {
 		cubelog.Throttle("licenses", fmt.Sprintf("%s changed, syncing license", event.Name))
 		cubecos.SyncSourceLicense()
 	}
+}
+
+func shouldSync(event fsnotify.Event) bool {
+	return event.Has(fsnotify.Create) ||
+		event.Has(fsnotify.Write) ||
+		event.Has(fsnotify.Remove)
 }

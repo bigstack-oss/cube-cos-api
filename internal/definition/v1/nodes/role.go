@@ -31,32 +31,10 @@ var (
 	Moderator        atomic.Pointer[Role]
 	EdgeCore         atomic.Pointer[Role]
 
-	AllRoles = []*Role{
-		Control.Load(),
-		Compute.Load(),
-		Storage.Load(),
-		ControlConverged.Load(),
-		Moderator.Load(),
-		EdgeCore.Load(),
-	}
-
-	AllGeneralRoles = []*Role{
-		Control.Load(),
-		Compute.Load(),
-		Storage.Load(),
-		ControlConverged.Load(),
-	}
-
-	ControlRoles = []*Role{
-		Control.Load(),
-		ControlConverged.Load(),
-	}
-
-	ComputeRoles = []*Role{
-		Compute.Load(),
-		ControlConverged.Load(),
-		EdgeCore.Load(),
-	}
+	AllRoles        = []*Role{}
+	AllGeneralRoles = []*Role{}
+	ControlRoles    = []*Role{}
+	ComputeRoles    = []*Role{}
 
 	cloudRoles = []string{
 		RoleControlConverged,
@@ -126,6 +104,41 @@ func newModeratorRole() {
 
 func newEdgeCoreRole() {
 	EdgeCore.Store(&Role{Name: RoleEdgeCore})
+}
+
+func SetAllRoles() {
+	AllRoles = []*Role{
+		Control.Load(),
+		Compute.Load(),
+		Storage.Load(),
+		ControlConverged.Load(),
+		Moderator.Load(),
+		EdgeCore.Load(),
+	}
+}
+
+func SetAllGeneralRoles() {
+	AllGeneralRoles = []*Role{
+		Control.Load(),
+		Compute.Load(),
+		Storage.Load(),
+		ControlConverged.Load(),
+	}
+}
+
+func SetControlRoles() {
+	ControlRoles = []*Role{
+		Control.Load(),
+		ControlConverged.Load(),
+	}
+}
+
+func SetComputeRoles() {
+	ComputeRoles = []*Role{
+		Compute.Load(),
+		ControlConverged.Load(),
+		EdgeCore.Load(),
+	}
 }
 
 func GetControlRole() *Role {

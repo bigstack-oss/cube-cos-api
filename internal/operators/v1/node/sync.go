@@ -43,14 +43,15 @@ func (o *Operator) syncNodes() {
 	defer o.sync.Unlock()
 
 	nodes.Sync()
-	allNodes, err := o.syncNodesUpAndDown()
+	list, err := o.syncNodesUpAndDown()
 	if err != nil {
 		log.Errorf("nodes: failed to sync nodes: %v", err)
 		return
 	}
 
-	o.syncDetails(&allNodes)
-	nodes.SetList(allNodes)
+	o.syncDetails(&list)
+	nodes.SetList(list)
+	cubecos.SetTuningMetadata()
 }
 
 func (o *Operator) syncNodesUpAndDown() ([]nodes.Node, error) {

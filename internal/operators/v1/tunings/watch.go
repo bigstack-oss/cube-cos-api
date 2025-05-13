@@ -31,7 +31,7 @@ func (o *Operator) watchChanges() {
 		select {
 		case event, ok := <-o.policy.Events:
 			if ok {
-				checkAndSyncTunings(event)
+				o.checkAndSyncTunings(event)
 			}
 		case err, ok := <-o.policy.Errors:
 			if !ok {
@@ -45,7 +45,7 @@ func (o *Operator) watchChanges() {
 	}
 }
 
-func checkAndSyncTunings(event fsnotify.Event) {
+func (o *Operator) checkAndSyncTunings(event fsnotify.Event) {
 	if event.Name != conf.Opts.Spec.Identity.Policy {
 		return
 	}

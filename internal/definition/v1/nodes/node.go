@@ -474,6 +474,11 @@ func SetList(nodes []Node) {
 }
 
 func Sync() {
+	SyncEachRole()
+	SyncRoleCombination()
+}
+
+func SyncEachRole() {
 	for _, role := range roles {
 		nodes, err := GetNodesByRole(role)
 		if err != nil {
@@ -496,6 +501,13 @@ func Sync() {
 			EdgeCore.Swap(&role)
 		}
 	}
+}
+
+func SyncRoleCombination() {
+	SetAllRoles()
+	SetAllGeneralRoles()
+	SetControlRoles()
+	SetComputeRoles()
 }
 
 func GetMap() map[string]Node {

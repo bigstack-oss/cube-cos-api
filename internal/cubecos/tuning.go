@@ -37,6 +37,7 @@ const (
 	NetIfAddrEth0            = "net.if.addr.eth0"
 
 	// public tunings
+	ApplianceLoginGreeting      = "appliance.login.greeting"
 	BarbicanDebugEnabled        = "barbican.debug.enabled"
 	CephDebugEnabled            = "ceph.debug.enabled"
 	CephMirrorMetaSync          = "ceph.mirror.meta.sync"
@@ -121,13 +122,20 @@ var (
 	tuningToSelectors = map[string]nodes.Selector{}
 )
 
-func init() {
+func SyncTunings() {
+	nodes.Sync()
+	SetTuningMetadata()
+}
+
+func SetTuningMetadata() {
 	setTuningToRoles()
 	setTuningToSelectors()
 	setTuningSpecs()
+	setTuningParams()
 }
 
 func setTuningToRoles() {
+	tuningToRoles[ApplianceLoginGreeting] = nodes.ControlRoles
 	tuningToRoles[BarbicanDebugEnabled] = nodes.AllGeneralRoles
 	tuningToRoles[CephDebugEnabled] = nodes.AllGeneralRoles
 	tuningToRoles[CephMirrorMetaSync] = nodes.ControlRoles
@@ -201,6 +209,52 @@ func setTuningToRoles() {
 	tuningToRoles[TimeTimezone] = nodes.AllRoles
 	tuningToRoles[UpdateSecurityAutoUpdate] = nodes.AllRoles
 	tuningToRoles[WatcherDebugEnabled] = nodes.AllRoles
+}
+
+func setTuningToSelectors() {
+	tuningToSelectors[NovaGpuType] = nodes.Selector{
+		Enabled: true,
+		Labels:  map[string]string{"isGpuEnabled": "true"},
+	}
+}
+
+func setTuningSpecs() {
+	out, err := exec.Command("hex_sdk", "-f", "json", "tuning_dump").Output()
+	if err != nil {
+		log.Errorf("tunings: failed to get tuning specs: %v", err)
+		return
+	}
+
+	rawSpecs := []tunings.RawSpec{}
+	err = json.Unmarshal(out, &rawSpecs)
+	if err != nil {
+		log.Errorf("tunings: failed to unmarshal tuning specs: %v", err)
+		return
+	}
+
+	for _, rawSpec := range rawSpecs {
+		tunings.SetSpec(
+			rawSpec.Name,
+			convertToTuningSpec(rawSpec),
+		)
+	}
+}
+
+func setTuningParams() {
+	for _, spec := range tunings.ListSpecs() {
+		srcTuning, err := GetSourceTuning(spec.Name)
+		if err == nil {
+			srcTuning.IsModified = true
+			srcTuning.Description = spec.Description
+			srcTuning.Limitation = spec.Limitation
+			srcTuning.Hosts = []nodes.Host{{Name: base.Hostname, Ip: base.AdvertiseIp}}
+			checkAndUpdateTuning(spec.Name, *srcTuning)
+		}
+
+		if errors.Is(err, errors.ErrTuningNotFound) {
+			setDefaultTuning(spec)
+		}
+	}
 }
 
 func GetTuningValue(name string) (string, error) {
@@ -344,49 +398,6 @@ func ListTuningsFromOtherNodes() (map[string][]tunings.Tuning, error) {
 	return nodeTunings, nil
 }
 
-func SyncTunings() {
-	for _, spec := range tunings.ListSpecs() {
-		srcTuning, err := GetSourceTuning(spec.Name)
-		if err == nil {
-			srcTuning.IsModified = true
-			srcTuning.Description = spec.Description
-			srcTuning.Limitation = spec.Limitation
-			srcTuning.Hosts = []nodes.Host{{Name: base.Hostname, Ip: base.AdvertiseIp}}
-			checkAndUpdateTuning(spec.Name, *srcTuning)
-		}
-
-		if errors.Is(err, errors.ErrTuningNotFound) {
-			setDefaultTuning(spec)
-		}
-	}
-}
-
-func setTuningToSelectors() {
-	tuningToSelectors[NovaGpuType] = nodes.Selector{
-		Enabled: true,
-		Labels:  map[string]string{"isGpuEnabled": "true"},
-	}
-}
-
-func setTuningSpecs() {
-	out, err := exec.Command("hex_sdk", "-f", "json", "tuning_dump").Output()
-	if err != nil {
-		log.Errorf("tunings: failed to get tuning specs: %v", err)
-		return
-	}
-
-	rawSpecs := []tunings.RawSpec{}
-	err = json.Unmarshal(out, &rawSpecs)
-	if err != nil {
-		log.Errorf("tunings: failed to unmarshal tuning specs: %v", err)
-		return
-	}
-
-	for _, rawtuningSpec := range rawSpecs {
-		tunings.SetSpec(rawtuningSpec.Name, convertToTuningSpec(rawtuningSpec))
-	}
-}
-
 func convertToTuningSpec(rawSpec tunings.RawSpec) *tunings.Spec {
 	spec := &tunings.Spec{
 		Name:        rawSpec.Name,
@@ -415,8 +426,8 @@ func convertLimit(raw tunings.RawSpec) tunings.Limitation {
 	}
 }
 
-func getTuningRoles(tuningName string) []*nodes.Role {
-	roles, found := tuningToRoles[tuningName]
+func getTuningRoles(name string) []*nodes.Role {
+	roles, found := tuningToRoles[name]
 	if found {
 		return roles
 	}

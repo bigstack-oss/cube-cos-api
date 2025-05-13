@@ -105,6 +105,7 @@ func parseRawLicenses(b []byte) ([]licenses.Raw, error) {
 	raws := []licenses.Raw{}
 	err := json.Unmarshal(b, &raws)
 	if err != nil {
+		log.Errorf("licenses: failed to parse raw licenses: %v", err)
 		return nil, err
 	}
 	if len(raws) <= 0 {
@@ -122,9 +123,9 @@ func parseLicenses(raws []licenses.Raw) []licenses.License {
 func convertToLicenses(raws []licenses.Raw) []licenses.License {
 	licenses := []licenses.License{}
 	for _, raw := range raws {
-		if raw.IsUnlicense() {
-			continue
-		}
+		// if raw.IsUnlicense() {
+		// 	continue
+		// }
 
 		licenses = append(
 			licenses,
