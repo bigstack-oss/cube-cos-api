@@ -1,7 +1,6 @@
 package runtime
 
 import (
-	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
@@ -82,7 +81,7 @@ func initIdentities() error {
 		return err
 	}
 
-	base.SerialNumber, err = base.GetSystemSerial(conf.Opts.Identity.Serial)
+	base.SerialNumber, err = cubecos.GetSystemSerial()
 	if err != nil {
 		log.Warnf("runtime: failed to get system serial: %v", err)
 	}

@@ -301,7 +301,23 @@ func verifyAuthToken() gin.HandlerFunc {
 }
 
 func isAuthFreeReq(c *gin.Context) bool {
-	return c.Request.Method == "GET" && c.Request.URL.Path == "/api/v1/datacenters"
+	if c.Request.Method != "GET" {
+		return false
+	}
+
+	if strings.Contains(c.Request.URL.Path, "/datacenters") {
+		return true
+	}
+
+	if strings.Contains(c.Request.URL.Path, "/grafana") {
+		return true
+	}
+
+	if strings.Contains(c.Request.URL.Path, "/opensearch") {
+		return true
+	}
+
+	return false
 }
 
 func parseInternalToken(c *gin.Context) string {
