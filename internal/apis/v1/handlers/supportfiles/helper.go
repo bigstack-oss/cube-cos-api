@@ -50,6 +50,7 @@ func (h *helper) listSupportFiles() (*filePage, error) {
 	}
 
 	h.syncCreatingFiles(&files)
+	h.syncHostPortInUrl(&files)
 	sets := h.genFileSets(files)
 	pagedSets, err := h.paginateFileSets(sets)
 	if err != nil {
