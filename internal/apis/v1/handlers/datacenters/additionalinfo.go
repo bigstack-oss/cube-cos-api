@@ -14,7 +14,7 @@ func getNodeLicenseStatus() base.NodeLicenseStatus {
 			nodeStatus.Valid++
 		case status.Expired:
 			nodeStatus.Expired++
-		default:
+		case status.Unlicense:
 			nodeStatus.Unlicense++
 		}
 	}

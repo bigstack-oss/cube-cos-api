@@ -255,6 +255,10 @@ func (n *Node) IsLocal() bool {
 	return n.Address == base.AdvertiseAddr && n.Hostname == base.Hostname
 }
 
+func (n *Node) IsUp() bool {
+	return n.Status == status.Up
+}
+
 func (n *Node) IsDown() bool {
 	return n.Status == status.Down
 }

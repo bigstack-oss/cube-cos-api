@@ -125,8 +125,9 @@ func (o *Operator) syncDetails(nodes *[]nodes.Node) {
 	}
 
 	for i, node := range *nodes {
+		o.setLicense(&(*nodes)[i])
+
 		if node.IsLocal() {
-			o.setLicense(&(*nodes)[i])
 			o.setInfraSpec(&(*nodes)[i])
 			continue
 		}
@@ -194,7 +195,17 @@ func (o *Operator) getHostLicense(hostname string) licenses.License {
 		}
 	}
 
-	return licenses.License{}
+	return o.backfillNodeDownLicense(
+		hostname,
+		list[0],
+	)
+}
+
+func (o *Operator) backfillNodeDownLicense(hostname string, license licenses.License) licenses.License {
+	license.Hostname = hostname
+	license.Serial = ""
+	license.Hosts = nil
+	return license
 }
 
 func (o *Operator) setInfraSpec(node *nodes.Node) {
