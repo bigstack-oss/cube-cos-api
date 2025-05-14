@@ -106,7 +106,7 @@ func importClusterLicense(c *gin.Context) {
 	err = cubecos.ImportClusterLicense(path)
 	if err != nil {
 		log.Errorf("license(%s): failed to import cluster license: %v", h.reqId, err)
-		bodies.SetInternalServerError(c, err)
+		bodies.SetBadRequest(c, err)
 		return
 	}
 

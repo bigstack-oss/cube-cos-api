@@ -62,8 +62,6 @@ func GetMacAddr(netInterface string) (string, error) {
 	return macAddr, nil
 }
 
-var ()
-
 func CapturePanic() {
 	recovery := recover()
 	if recovery != nil {

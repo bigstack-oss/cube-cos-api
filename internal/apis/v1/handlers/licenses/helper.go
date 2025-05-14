@@ -5,11 +5,8 @@ import (
 	"slices"
 	"strings"
 
-	errs "errors"
-
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
@@ -41,12 +38,7 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 }
 
 func (h *helper) listLicenses() (*licensePage, error) {
-	licenses, err := cubecos.ListLicenses()
-	if err != nil {
-		log.Warnf("licenses(%s): failed to list the cluster license: %v", h.reqId, err)
-		return nil, err
-	}
-
+	licenses := cubecos.ListLicenses()
 	licenses = h.filterLicenses(licenses)
 	return &licensePage{
 		Licenses: h.paginateLicenses(licenses),
@@ -108,11 +100,7 @@ func (h *helper) listAttachments() ([]licenses.Attachment, error) {
 }
 
 func (h *helper) listAttachmentsByProduct() ([]licenses.Attachment, error) {
-	list, err := cubecos.ListLicenses()
-	if !errs.Is(err, errors.ErrLicensesNotFound) {
-		log.Errorf("licenses(%s): failed to list the licenses: %v", h.reqId, err)
-		return nil, err
-	}
+	list := cubecos.ListLicenses()
 
 	if licenses.IsNotInstalled(list) {
 		return h.genUnlicenseAttachmentsForAll(), nil

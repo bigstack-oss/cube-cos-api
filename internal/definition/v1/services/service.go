@@ -22,6 +22,7 @@ type Module struct {
 	Name         string         `json:"name" bson:"name"`
 	Status       *status.Health `json:"status,omitempty" bson:"status,omitempty"`
 	IsRepairable bool           `json:"-" bson:"isRepairable"`
+	IsCloudOnly  bool           `json:"-" bson:"-"`
 	Description  string         `json:"description,omitempty" bson:"description"`
 }
 

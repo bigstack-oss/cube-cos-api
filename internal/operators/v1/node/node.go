@@ -32,6 +32,7 @@ func (o *Operator) Name() string {
 func (o *Operator) Init() error {
 	o.ctx, o.cancel = context.WithCancel(context.Background())
 	o.sync = sync.Mutex{}
+	go o.syncOrderSensitiveServices()
 	go o.periodicSyncNodes()
 	return nil
 }

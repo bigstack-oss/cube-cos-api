@@ -2,7 +2,6 @@ package node
 
 import (
 	"encoding/json"
-	errs "errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -18,15 +17,48 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/datacenter"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/shirou/gopsutil/v4/cpu"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )
+
+func (o *Operator) syncOrderSensitiveServices() {
+	for {
+		if !o.hasAtLeastOneNode() {
+			wait.Seconds(60)
+			continue
+		}
+
+		if !datacenter.IsCloudType() {
+			o.removeCloudOnlyServices()
+		}
+
+		break
+	}
+}
+
+func (o *Operator) hasAtLeastOneNode() bool {
+	return len(nodes.List()) > 0
+}
+
+func (o *Operator) removeCloudOnlyServices() {
+	for i, service := range cubecos.OrderSensitiveServices {
+		modules := []services.Module{}
+		for _, module := range service.Modules {
+			if !module.IsCloudOnly {
+				modules = append(modules, module)
+			}
+		}
+
+		cubecos.OrderSensitiveServices[i].Modules = modules
+	}
+}
 
 func (o *Operator) periodicSyncNodes() {
 	for {
@@ -146,12 +178,7 @@ func (o *Operator) setLicense(node *nodes.Node) {
 }
 
 func (o *Operator) getHostLicense(hostname string) licenses.License {
-	list, err := cubecos.ListLicenses()
-	if !errs.Is(err, errors.ErrLicensesNotFound) {
-		log.Warnf("nodes: failed to add license info to the nodes: %v", err)
-		return licenses.License{}
-	}
-
+	list := cubecos.ListLicenses()
 	if licenses.IsNotInstalled(list) {
 		return licenses.License{
 			Status: status.License{

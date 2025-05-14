@@ -84,7 +84,7 @@ var (
 				{Name: "haproxy", IsRepairable: true},
 				{Name: "httpd", IsRepairable: true},
 				{Name: "skyline", IsRepairable: true},
-				{Name: "lmi", IsRepairable: true},
+				{Name: "nginx", IsRepairable: true},
 				{Name: "memcache", IsRepairable: true},
 				{Name: "api", IsRepairable: true},
 			},
@@ -116,7 +116,7 @@ var (
 			Name:     "bareMetal",
 			Category: "cloud computing",
 			Modules: []services.Module{
-				{Name: "ironic", IsRepairable: true},
+				{Name: "ironic", IsRepairable: true, IsCloudOnly: true},
 			},
 		},
 		{
@@ -165,14 +165,14 @@ var (
 			Name:     "dnsaas",
 			Category: "cloud computing",
 			Modules: []services.Module{
-				{Name: "designate", IsRepairable: true},
+				{Name: "designate", IsRepairable: true, IsCloudOnly: true},
 			},
 		},
 		{
 			Name:     "k8saas",
 			Category: "cloud computing",
 			Modules: []services.Module{
-				{Name: "rancher", IsRepairable: false},
+				{Name: "rancher", IsRepairable: false, IsCloudOnly: true},
 			},
 		},
 		{
@@ -186,7 +186,7 @@ var (
 			Name:     "businessLogic",
 			Category: "cloud computing",
 			Modules: []services.Module{
-				{Name: "senlin", IsRepairable: true},
+				{Name: "senlin", IsRepairable: true, IsCloudOnly: true},
 				{Name: "watcher", IsRepairable: true},
 			},
 		},
@@ -214,8 +214,8 @@ var (
 				{Name: "filebeat", IsRepairable: true},
 				{Name: "auditbeat", IsRepairable: true},
 				{Name: "logstash", IsRepairable: true},
-				{Name: "opensearch", IsRepairable: true},
-				{Name: "opensearch-dashboards", IsRepairable: true},
+				{Name: "opensearch", IsRepairable: true, IsCloudOnly: true},
+				{Name: "opensearch-dashboards", IsRepairable: true, IsCloudOnly: true},
 			},
 		},
 		{

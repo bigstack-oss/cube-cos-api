@@ -72,33 +72,33 @@ func VerifyLicense(file string) (*licenses.Verification, error) {
 func ImportClusterLicense(licensePath string) error {
 	dir, base := getDirAndLicenseName(licensePath)
 	out, err := exec.Command("hex_config", "sdk_run", "license_cluster_import", dir, base).Output()
-	if err != nil {
-		log.Errorf("licenses: failed to import licenses: %v (%s)", err, string(out))
-		return err
+	if err == nil {
+		return nil
 	}
 
-	return nil
+	log.Errorf("licenses: failed to import cluster license: %v(%s)", err, string(out))
+	return checkLicenseErr(err)
 }
 
 func ImportNodeLicense(licensePath string) error {
 	dir := filepath.Dir(licensePath)
 	filename := strings.TrimSuffix(filepath.Base(licensePath), filepath.Ext(licensePath))
 	out, err := exec.Command("hex_config", "sdk_run", "license_node_import", dir, filename).Output()
-	if err != nil {
-		log.Errorf("licenses: failed to import licenses: %v(%s)", err, string(out))
-		return err
+	if err == nil {
+		return nil
 	}
 
-	return nil
+	log.Errorf("licenses: failed to import node license: %v(%s)", err, string(out))
+	return checkLicenseErr(err)
 }
 
-func ListLicenses() ([]licenses.License, error) {
-	licenses := licenses.List()
-	if len(licenses) == 0 {
-		return nil, errors.ErrLicensesNotFound
+func ListLicenses() []licenses.License {
+	list := licenses.List()
+	if len(list) == 0 {
+		return []licenses.License{}
 	}
 
-	return licenses, nil
+	return list
 }
 
 func parseRawLicenses(b []byte) ([]licenses.Raw, error) {
@@ -164,23 +164,23 @@ func genLicenseMap(list []licenses.License) map[string]licenses.License {
 
 func parseLicense(raw licenses.Raw) licenses.License {
 	return licenses.License{
-		Name:        parseName(raw),
+		Name:        parseName(raw.Name),
 		Type:        raw.Type,
 		Hosts:       []string{raw.Hostname},
 		Product:     parseProduct(raw),
 		Serial:      raw.Serial,
 		Quantity:    parseQuantity(raw),
-		SupportPlan: parseSupportPlan(raw),
+		SupportPlan: parseSupportPlan(raw.SLA),
 		Issue:       parseIssue(raw),
 		Expiry:      parseExpiry(raw),
 		Status:      parseStatus(raw),
 	}
 }
 
-func parseName(raw licenses.Raw) string {
+func parseName(value string) string {
 	name := "CubeOS License"
-	if raw.Name != "" {
-		name = raw.Name
+	if value != "" {
+		name = value
 	}
 
 	return name
@@ -212,10 +212,10 @@ func parseQuantity(raw licenses.Raw) string {
 	return quantity
 }
 
-func parseSupportPlan(raw licenses.Raw) string {
+func parseSupportPlan(value string) string {
 	supportPlan := licenses.NA
-	if raw.SLA != "" {
-		supportPlan = raw.SLA
+	if value != "" {
+		supportPlan = value
 	}
 
 	return supportPlan
@@ -334,23 +334,23 @@ func checkImportLicense(license string) error {
 
 func parseLicenseDat(file string, checkInfo error) (*licenses.License, error) {
 	dir, name := getDirAndLicenseName(file)
-	datFile, err := os.Open(filepath.Join(dir, fmt.Sprintf("%s.dat", name)))
+	dat, err := os.Open(filepath.Join(dir, fmt.Sprintf("%s.dat", name)))
 	if err != nil {
 		return nil, err
 	}
 
-	defer datFile.Close()
-	licenseDat := &licenses.License{}
-	setLicenseDat(datFile, licenseDat)
-	setLicenseDatStatus(licenseDat, checkInfo)
-	return licenseDat, nil
+	defer dat.Close()
+	license := &licenses.License{}
+	setLicenseDat(dat, license)
+	setLicenseDatStatus(license, checkInfo)
+	return license, nil
 }
 
 func getDirAndLicenseName(license string) (string, string) {
 	return filepath.Dir(license), strings.TrimSuffix(filepath.Base(license), filepath.Ext(license))
 }
 
-func setLicenseDat(datFile *os.File, licenseDat *licenses.License) {
+func setLicenseDat(datFile *os.File, license *licenses.License) {
 	scanner := bufio.NewScanner(datFile)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
@@ -363,13 +363,33 @@ func setLicenseDat(datFile *os.File, licenseDat *licenses.License) {
 			continue
 		}
 
-		setValueToLicenseDat(licenseDat, parts)
+		setValueToLicenseDat(license, parts)
 	}
 
 	err := scanner.Err()
 	if err != nil {
 		log.Errorf("licenses: failed to read license dat file: %v", err)
 		return
+	}
+
+	backfillValueForOldLicense(license)
+}
+
+func backfillValueForOldLicense(license *licenses.License) {
+	if license.Name == "" {
+		license.Name = licenses.CubeCOS
+	}
+
+	if license.Product.Name == "" {
+		license.Product.Name = licenses.CubeCOS
+	}
+
+	if license.Product.Feature == "" {
+		license.Product.Feature = licenses.NA
+	}
+
+	if license.SupportPlan == "" {
+		license.SupportPlan = licenses.NA
 	}
 }
 
@@ -449,13 +469,7 @@ func convertToLicenseNodes(list []nodes.Node) []licenses.Node {
 }
 
 func getNodeLicense(nodeName string) licenses.License {
-	list, err := ListLicenses()
-	if err != nil {
-		log.Errorf("licenses: failed to get license by node name: %v", err)
-		return licenses.License{}
-	}
-
-	for _, license := range list {
+	for _, license := range ListLicenses() {
 		if slices.Contains(license.Hosts, nodeName) {
 			return license
 		}
@@ -470,7 +484,7 @@ func setValueToLicenseDat(licenseDat *licenses.License, parts []string) {
 
 	switch key {
 	case "license.name":
-		licenseDat.Name = value
+		licenseDat.Name = parseName(value)
 	case "license.type":
 		licenseDat.Type = value
 	case "issue.by":
@@ -482,11 +496,11 @@ func setValueToLicenseDat(licenseDat *licenses.License, parts []string) {
 	case "product":
 		licenseDat.Product.Name = value
 	case "feature":
-		licenseDat.Product.Feature = value
+		licenseDat.Product.Feature = parseFeature(value)
 	case "quantity":
 		licenseDat.Quantity = value
 	case "sla":
-		licenseDat.SupportPlan = value
+		licenseDat.SupportPlan = parseSupportPlan(value)
 	case "issue.date":
 		licenseDat.Issue.Date = parseDatIssueDate(value)
 	case "expiry.date":
@@ -494,6 +508,15 @@ func setValueToLicenseDat(licenseDat *licenses.License, parts []string) {
 		licenseDat.Expiry = expiry
 		licenseDat.Status = status
 	}
+}
+
+func parseFeature(value string) string {
+	feature := licenses.NA
+	if value != "" {
+		feature = value
+	}
+
+	return feature
 }
 
 func parseDatIssueDate(value string) string {
