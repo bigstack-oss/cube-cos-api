@@ -111,6 +111,7 @@ func prepareApiHandlersByRole() {
 		datacenterapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -118,6 +119,7 @@ func prepareApiHandlersByRole() {
 		servicesapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -125,6 +127,7 @@ func prepareApiHandlersByRole() {
 		meapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -132,6 +135,7 @@ func prepareApiHandlersByRole() {
 		integrations.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -149,6 +153,7 @@ func prepareApiHandlersByRole() {
 		events.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -185,6 +190,8 @@ func prepareApiHandlersByRole() {
 		auths.Tokens,
 		tokens.Handlers,
 		nodes.RoleControl,
+		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -192,6 +199,7 @@ func prepareApiHandlersByRole() {
 		logout.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -199,6 +207,7 @@ func prepareApiHandlersByRole() {
 		licenseapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -206,6 +215,7 @@ func prepareApiHandlersByRole() {
 		triggerapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -223,6 +233,7 @@ func prepareApiHandlersByRole() {
 		grafanapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -230,6 +241,7 @@ func prepareApiHandlersByRole() {
 		opensearchapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 
 	api.RegisterHandlersToRoles(
@@ -237,6 +249,7 @@ func prepareApiHandlersByRole() {
 		settingsapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
 	)
 }
 
