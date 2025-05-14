@@ -166,11 +166,11 @@ func (h *helper) enrichTunings(tunings *[]tunings.Tuning) {
 
 func (h *helper) syncUpdates(tunings *[]tunings.Tuning) {
 	for i, tuning := range *tunings {
-		(*tunings)[i] = h.syncUpdateStatus(tuning)
+		(*tunings)[i] = h.syncUpdatingTuning(tuning)
 	}
 }
 
-func (h *helper) syncUpdateStatus(tuning tunings.Tuning) tunings.Tuning {
+func (h *helper) syncUpdatingTuning(tuning tunings.Tuning) tunings.Tuning {
 	tuning.SetOk()
 	if !h.hasUpdateHistory(tuning) {
 		return tuning
@@ -181,9 +181,9 @@ func (h *helper) syncUpdateStatus(tuning tunings.Tuning) tunings.Tuning {
 		return tuning
 	}
 
-	tuning.Status.IsUpdating = record.Status.IsUpdating
-	tuning.Status.Current = record.Status.Current
-	tuning.Status.UpdatedAt = record.Status.UpdatedAt
+	tuning.Enabled = record.Enabled
+	tuning.Value = record.Value
+	tuning.Status = record.Status
 	return tuning
 }
 
