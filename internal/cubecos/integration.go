@@ -7,11 +7,11 @@ import (
 
 func ListBuiltInIntegrations() []integration.Service {
 	if !datacenter.IsCloudType() {
-		return integration.Common
+		return integration.GetCommonServices()
 	}
 
 	return append(
-		integration.Common,
-		integration.Cloud,
+		integration.GetCommonServices(),
+		integration.GetCloudService(),
 	)
 }

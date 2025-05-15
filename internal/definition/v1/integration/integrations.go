@@ -16,8 +16,16 @@ const (
 //
 // also, cos is a bit hard to have a solid convention to fetch the port or path for the services,
 // so we just hardcode the info here, but in the M2, can consider to discuss with team to support such features from cos.
-var (
-	Common = []Service{
+type Service struct {
+	Name                    string `json:"name"`
+	IsHeaderShortcutEnabled bool   `json:"isHeaderShortcutEnabled"`
+	Description             string `json:"description"`
+	IsBuiltIn               bool   `json:"isBuiltIn"`
+	Url                     string `json:"url"`
+}
+
+func GetCommonServices() []Service {
+	return []Service{
 		{
 			Name:                    "keycloak",
 			IsHeaderShortcutEnabled: true,
@@ -40,20 +48,14 @@ var (
 			Url:                     fmt.Sprintf("https://%s:7443/ceph/#/dashboard", base.DataCenterVip),
 		},
 	}
+}
 
-	Cloud = Service{
+func GetCloudService() Service {
+	return Service{
 		Name:                    "rancher",
 		IsHeaderShortcutEnabled: true,
 		Description:             "Turnkey Kubernetes container management platform",
 		IsBuiltIn:               true,
 		Url:                     fmt.Sprintf("https://%s:10443", base.DataCenterVip),
 	}
-)
-
-type Service struct {
-	Name                    string `json:"name"`
-	IsHeaderShortcutEnabled bool   `json:"isHeaderShortcutEnabled"`
-	Description             string `json:"description"`
-	IsBuiltIn               bool   `json:"isBuiltIn"`
-	Url                     string `json:"url"`
 }
