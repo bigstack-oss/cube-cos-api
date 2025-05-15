@@ -48,6 +48,11 @@ func (o *Operator) hasAtLeastOneNode() bool {
 }
 
 func (o *Operator) removeCloudOnlyServices() {
+	o.filterCloudSupportModules()
+	o.filterEmptyModuleServices()
+}
+
+func (o *Operator) filterCloudSupportModules() {
 	for i, service := range cubecos.OrderSensitiveServices {
 		modules := []services.Module{}
 		for _, module := range service.Modules {
@@ -58,6 +63,17 @@ func (o *Operator) removeCloudOnlyServices() {
 
 		cubecos.OrderSensitiveServices[i].Modules = modules
 	}
+}
+
+func (o *Operator) filterEmptyModuleServices() {
+	svcs := []services.Service{}
+	for _, service := range cubecos.OrderSensitiveServices {
+		if len(service.Modules) != 0 {
+			svcs = append(svcs, service)
+		}
+	}
+
+	cubecos.OrderSensitiveServices = svcs
 }
 
 func (o *Operator) periodicSyncNodes() {
