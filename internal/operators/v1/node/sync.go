@@ -131,8 +131,19 @@ func (o *Operator) setNodeDown(node *nodes.Node) {
 	node.DataCenter = base.DataCenterName
 	node.BlockDevices = []nodes.BlockDevice{}
 	node.NetworkInterfaces = []nodes.NetworkInterface{}
-	node.License = o.getHostLicense(node.Hostname)
+	node.License = o.getPreviousLicense(node.Hostname)
 	node.Status = status.Down
+}
+
+func (o *Operator) getPreviousLicense(hostname string) licenses.License {
+	prevList := nodes.ListPrevious()
+	for _, node := range prevList {
+		if node.Hostname == hostname {
+			return node.License
+		}
+	}
+
+	return licenses.License{}
 }
 
 func (o *Operator) syncDetails(nodes *[]nodes.Node) {
@@ -211,17 +222,7 @@ func (o *Operator) getHostLicense(hostname string) licenses.License {
 		}
 	}
 
-	return o.backfillNodeDownLicense(
-		hostname,
-		list[0],
-	)
-}
-
-func (o *Operator) backfillNodeDownLicense(hostname string, license licenses.License) licenses.License {
-	license.Hostname = hostname
-	license.Serial = ""
-	license.Hosts = nil
-	return license
+	return licenses.License{}
 }
 
 func (o *Operator) setInfraSpec(node *nodes.Node) {

@@ -25,7 +25,9 @@ const (
 )
 
 var (
-	list           = atomic.Pointer[[]Node]{}
+	list         = atomic.Pointer[[]Node]{}
+	previousList = atomic.Pointer[[]Node]{}
+
 	updateServices = sync.Mutex{}
 )
 
@@ -474,12 +476,24 @@ func Get(hostname string) (*Node, error) {
 }
 
 func SetList(nodes []Node) {
-	list.Swap(&nodes)
+	prev := list.Swap(&nodes)
+	if prev != nil {
+		previousList.Store(prev)
+	}
 }
 
 func Sync() {
 	SyncEachRole()
 	SyncRoleCombination()
+}
+
+func ListPrevious() []Node {
+	nodes := previousList.Load()
+	if nodes == nil {
+		return []Node{}
+	}
+
+	return *nodes
 }
 
 func SyncEachRole() {
