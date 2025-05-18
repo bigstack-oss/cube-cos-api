@@ -75,6 +75,7 @@ func newGinRouter() *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Recovery())
 	router.Use(timeTracker)
+	router.Use(filterReq)
 	router.Use(initReqInfo)
 	router.Any("/live", checkLive())
 	router.Any("/saml/*any", saml.ServeAcs())
@@ -311,26 +312,6 @@ func verifyAuthToken() gin.HandlerFunc {
 
 		c.Next()
 	}
-}
-
-func isAuthFreeReq(c *gin.Context) bool {
-	if c.Request.Method != "GET" {
-		return false
-	}
-
-	if c.Request.URL.Path == "/api/v1/datacenters" {
-		return true
-	}
-
-	if strings.Contains(c.Request.URL.Path, "/grafana") {
-		return true
-	}
-
-	if strings.Contains(c.Request.URL.Path, "/opensearch") {
-		return true
-	}
-
-	return false
 }
 
 func parseInternalToken(c *gin.Context) string {

@@ -4,6 +4,7 @@ import (
 	"maps"
 	"strings"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/google/uuid"
 )
 
@@ -143,13 +144,13 @@ func (e *Event) SetSearchIndex() {
 func (e *Event) GenSearchableObject() Event {
 	return Event{
 		SearchIndex: e.SearchIndex,
-		Type:        strings.ToLower(e.Type),
-		Id:          strings.ToLower(e.Id),
-		Severity:    strings.ToLower(e.Severity),
-		Description: strings.ToLower(e.Description),
-		Host:        strings.ToLower(e.Host),
-		Category:    strings.ToLower(e.Category),
-		Service:     strings.ToLower(e.Service),
+		Type:        search.NormalizedKeyword(e.Type),
+		Id:          search.NormalizedKeyword(e.Id),
+		Severity:    search.NormalizedKeyword(e.Severity),
+		Description: search.NormalizedKeyword(e.Description),
+		Host:        search.NormalizedKeyword(e.Host),
+		Category:    search.NormalizedKeyword(e.Category),
+		Service:     search.NormalizedKeyword(e.Service),
 		Metadata:    maps.Clone(e.Metadata),
 		Time:        e.Time,
 	}

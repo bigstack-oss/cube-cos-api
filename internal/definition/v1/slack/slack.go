@@ -32,20 +32,20 @@ func (o *Options) SetOk() {
 	}
 }
 
-func (c *ApiChannel) SetUpdating() {
-	c.Status = status.Settings{
+func (a *ApiChannel) SetUpdating() {
+	a.Status = status.Settings{
 		Current:    status.Updating,
 		Desired:    status.Updated,
 		IsUpdating: true,
 	}
 }
 
-func (c *ApiChannel) ToCosSchema() CosChannel {
+func (a *ApiChannel) ToCosSchema() CosChannel {
 	return CosChannel{
-		Channel:     c.Name,
-		URL:         c.URL,
+		Channel:     a.Name,
+		URL:         a.URL,
 		Username:    "",
 		Workspace:   "",
-		Description: c.Description,
+		Description: a.Description,
 	}
 }

@@ -150,13 +150,13 @@ func (l *License) GenSearchableObject() License {
 	return *l
 }
 
-func (o *Attachment) GenSearchableObject() Attachment {
+func (a *Attachment) GenSearchableObject() Attachment {
 	return Attachment{
-		SerialNumber: search.NormalizedKeyword(o.SerialNumber),
-		Hostname:     search.NormalizedKeyword(o.Hostname),
-		Role:         search.NormalizedKeyword(o.Role),
-		Product:      search.NormalizedKeyword(o.Product),
-		Status:       search.NormalizedKeyword(o.Status),
+		SerialNumber: search.NormalizedKeyword(a.SerialNumber),
+		Hostname:     search.NormalizedKeyword(a.Hostname),
+		Role:         search.NormalizedKeyword(a.Role),
+		Product:      search.NormalizedKeyword(a.Product),
+		Status:       search.NormalizedKeyword(a.Status),
 	}
 }
 
