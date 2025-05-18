@@ -72,6 +72,29 @@ func GetNodeRole() (string, error) {
 	return role, nil
 }
 
+func ListNodesWithTimeSensitiveInfo() []nodes.Node {
+	list := nodes.List()
+	if len(list) == 0 {
+		return []nodes.Node{}
+	}
+
+	syncTimeSensitiveInfo(&list)
+	return list
+}
+
+func GetNodeWithTimeSensitiveInfo(hostname string) (*nodes.Node, error) {
+	for _, node := range ListNodesWithTimeSensitiveInfo() {
+		if node.Hostname == hostname {
+			return &node, nil
+		}
+	}
+
+	return nil, fmt.Errorf(
+		"node %s not found",
+		hostname,
+	)
+}
+
 func IsGpuEnabled() (bool, error) {
 	opts := conf.GetOpenstack()
 	provider, err := openstack.NewProvider(opts.Auth.File)
@@ -99,4 +122,10 @@ func IsGpuEnabled() (bool, error) {
 	}
 
 	return len(devices) > 0, nil
+}
+
+func syncTimeSensitiveInfo(list *[]nodes.Node) {
+	for i, node := range *list {
+		(*list)[i].License = GetHostLicense(node.Hostname)
+	}
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
@@ -57,7 +58,8 @@ func (h *helper) parseGetOptions() error {
 }
 
 func (h *helper) listNodes() (*nodePage, error) {
-	nodes := h.filterNodes(nodes.List())
+	nodes := cubecos.ListNodesWithTimeSensitiveInfo()
+	nodes = h.filterNodes(nodes)
 	nodesPerPage := h.paginateNodes(nodes)
 	h.sortNodes(&nodesPerPage)
 
@@ -77,7 +79,7 @@ func (h *helper) sortNodes(node *[]nodes.Node) {
 }
 
 func (h *helper) getNode() (*nodes.Node, error) {
-	node, err := nodes.Get(h.node)
+	node, err := cubecos.GetNodeWithTimeSensitiveInfo(h.node)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to get node: %v", h.reqId, err)
 		return nil, err

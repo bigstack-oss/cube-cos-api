@@ -89,8 +89,8 @@ func (o *Operator) periodicSyncNodes() {
 }
 
 func (o *Operator) syncNodes() {
-	o.sync.Lock()
-	defer o.sync.Unlock()
+	nodes.Lock()
+	defer nodes.Unlock()
 
 	nodes.Sync()
 	list, err := o.syncNodesUpAndDown()
@@ -202,27 +202,7 @@ func (o *Operator) askPeerNode(node nodes.Node) (*nodes.Node, error) {
 }
 
 func (o *Operator) setLicense(node *nodes.Node) {
-	node.License = o.getHostLicense(node.Hostname)
-}
-
-func (o *Operator) getHostLicense(hostname string) licenses.License {
-	list := cubecos.ListLicenses()
-	if licenses.IsNotInstalled(list) {
-		return licenses.License{
-			Status: status.License{
-				Current: status.Unlicense,
-			},
-		}
-	}
-
-	for _, license := range list {
-		if slices.Contains(license.Hosts, hostname) {
-			license.Hosts = nil
-			return license
-		}
-	}
-
-	return licenses.License{}
+	node.License = cubecos.GetHostLicense(node.Hostname)
 }
 
 func (o *Operator) setInfraSpec(node *nodes.Node) {

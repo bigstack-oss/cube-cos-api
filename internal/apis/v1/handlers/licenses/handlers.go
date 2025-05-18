@@ -110,6 +110,7 @@ func importClusterLicense(c *gin.Context) {
 		return
 	}
 
+	cubecos.SyncSourceLicense()
 	bodies.SetOk(
 		c,
 		"import license successfully",
@@ -132,6 +133,7 @@ func importHostLicense(c *gin.Context) {
 		return
 	}
 
+	cubecos.SyncSourceLicense()
 	bodies.SetOk(
 		c,
 		"update licenses successfully",

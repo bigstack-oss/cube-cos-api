@@ -2,7 +2,6 @@ package node
 
 import (
 	"context"
-	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
@@ -22,7 +21,6 @@ func init() {
 type Operator struct {
 	ctx    context.Context
 	cancel context.CancelFunc
-	sync   sync.Mutex
 }
 
 func (o *Operator) Name() string {
@@ -31,7 +29,6 @@ func (o *Operator) Name() string {
 
 func (o *Operator) Init() error {
 	o.ctx, o.cancel = context.WithCancel(context.Background())
-	o.sync = sync.Mutex{}
 	go o.syncOrderSensitiveServices()
 	go o.periodicSyncNodes()
 	return nil

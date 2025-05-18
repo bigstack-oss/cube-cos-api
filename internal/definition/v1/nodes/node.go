@@ -28,7 +28,8 @@ var (
 	list         = atomic.Pointer[[]Node]{}
 	previousList = atomic.Pointer[[]Node]{}
 
-	updateServices = sync.Mutex{}
+	serviceList = sync.Mutex{}
+	nodeList    = sync.Mutex{}
 )
 
 type Node struct {
@@ -326,8 +327,8 @@ func parseNodesByRole(svc *registry.Service, role string) []Node {
 }
 
 func GetDiscoveredServices() ([]*registry.Service, error) {
-	updateServices.Lock()
-	defer updateServices.Unlock()
+	serviceList.Lock()
+	defer serviceList.Unlock()
 
 	svcs, err := registry.GetService(base.ServiceDiscoveryIdentity)
 	if err != nil {
@@ -451,6 +452,14 @@ func GetController() (*Node, error) {
 	}
 
 	return &nodes[0], nil
+}
+
+func Lock() {
+	nodeList.Lock()
+}
+
+func Unlock() {
+	nodeList.Unlock()
 }
 
 func List() []Node {

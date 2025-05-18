@@ -34,7 +34,7 @@ func IsLicenseFile(file string) bool {
 }
 
 func SyncSourceLicense() {
-	b, err := exec.Command("hex_config", "sdk_run", "-f", "json", "license_cluster_show").Output()
+	b, err := exec.Command("hex_sdk", "-f", "json", "license_cluster_show").Output()
 	if err != nil {
 		log.Errorf("licenses: licenses: failed to list licenses: %v", err)
 		return
@@ -99,6 +99,26 @@ func ListLicenses() []licenses.License {
 	}
 
 	return list
+}
+
+func GetHostLicense(hostname string) licenses.License {
+	list := ListLicenses()
+	if licenses.IsNotInstalled(list) {
+		return licenses.License{
+			Status: status.License{
+				Current: status.Unlicense,
+			},
+		}
+	}
+
+	for _, license := range list {
+		if slices.Contains(license.Hosts, hostname) {
+			license.Hosts = nil
+			return license
+		}
+	}
+
+	return licenses.License{}
 }
 
 func parseRawLicenses(b []byte) ([]licenses.Raw, error) {
