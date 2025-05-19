@@ -5,7 +5,7 @@ import (
 
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
+	bslog "github.com/bigstack-oss/cube-cos-api/internal/log"
 	"github.com/fsnotify/fsnotify"
 	log "go-micro.dev/v5/logger"
 )
@@ -51,7 +51,7 @@ func (o *Operator) checkAndSyncTunings(event fsnotify.Event) {
 	}
 
 	if event.Has(fsnotify.Write) || event.Has(fsnotify.Create) {
-		cubelog.Throttle("tunings", fmt.Sprintf("%s changed, syncing tunings", event.Name))
+		bslog.Throttle("tunings", fmt.Sprintf("%s changed, syncing tunings", event.Name))
 		cubecos.SyncTunings()
 	}
 }

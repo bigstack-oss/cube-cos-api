@@ -3,7 +3,9 @@ package cubecos
 import (
 	"context"
 	"fmt"
+	osmath "math"
 	"runtime"
+	"sort"
 	"sync/atomic"
 	ostime "time"
 
@@ -570,13 +572,13 @@ func GetHostsDiskIopsHistory(readStmt, writeStmt string) (*metric.StorageTimeSer
 	}, nil
 }
 
-func GeHostsDiskLatencyHistory(readStmt, writeStmt string) (*metric.StorageTimeSeries, error) {
-	readSeries, err := getHostsDiskLatencyHistory(readStmt)
+func GeHostsDiskLatencyHistory(past string) (*metric.StorageTimeSeries, error) {
+	readSeries, err := getHostsDiskReadLatencyHistory(past)
 	if err != nil {
 		return nil, err
 	}
 
-	writeSeries, err := getHostsDiskLatencyHistory(writeStmt)
+	writeSeries, err := getHostsDiskWriteLatencyHistory(past)
 	if err != nil {
 		return nil, err
 	}
@@ -1051,7 +1053,55 @@ func getHostsDiskIopsHistory(stmt string) ([]metric.TimeValue, error) {
 	return parseDiskOpsHistory(c)
 }
 
-func getHostsDiskLatencyHistory(stmt string) ([]metric.TimeValue, error) {
+func getHostsDiskWriteLatencyHistory(past string) ([]metric.TimeValue, error) {
+	latencies, err := getHostsDiskWriteLatencies(past)
+	if err != nil {
+		log.Errorf("metrics: failed to get disk write latencies: %v", err)
+		return nil, err
+	}
+
+	ops, err := getHostsDiskWriteOps(past)
+	if err != nil {
+		log.Errorf("metrics: failed to get disk write ops: %v", err)
+		return nil, err
+	}
+
+	timeValues := []metric.TimeValue{}
+	for time, value := range latencies {
+		ops, found := ops[time]
+		if found {
+			value := value / ops
+			if osmath.IsNaN(value) {
+				value = 0
+			}
+
+			timeValues = append(timeValues, metric.TimeValue{
+				Time:  time,
+				Value: value,
+			})
+		}
+	}
+
+	sort.Slice(timeValues, func(i, j int) bool {
+		return timeValues[i].Time < timeValues[j].Time
+	})
+
+	return timeValues, nil
+}
+
+func getHostsDiskWriteLatencies(past string) (map[string]float64, error) {
+	query := influx.Query{}
+	stmt := query.Bucket("ceph").
+		Range(fmt.Sprintf(`start: -%s`, past)).
+		Measurement("ceph_daemon_stats_join").
+		Filter(`fn: (r) => r._field == "latency_w.value"`).
+		AggregateWindow(`every: 1m, fn: sum, createEmpty: false`).
+		Derivative(`unit: 1s, nonNegative: true`).
+		Group(`columns: ["_time"]`).
+		Sum(`column: "_value"`).
+		Sort(`columns: ["_time"], desc: false`).
+		String()
+
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1059,7 +1109,112 @@ func getHostsDiskLatencyHistory(stmt string) ([]metric.TimeValue, error) {
 
 	defer cancel()
 	defer c.Close()
-	return parseDiskLatencyHistory(c)
+	return parseDiskLatencyTimeValueMap(c)
+}
+
+func getHostsDiskWriteOps(past string) (map[string]float64, error) {
+	query := influx.Query{}
+	stmt := query.Bucket("ceph").
+		Range(fmt.Sprintf(`start: -%s`, past)).
+		Measurement("ceph_daemon_stats_join").
+		Filter(`fn: (r) => r._field == "op_w.value"`).
+		AggregateWindow(`every: 1m, fn: sum, createEmpty: false`).
+		Derivative(`unit: 1s, nonNegative: true`).
+		Group(`columns: ["_time"]`).
+		Sum(`column: "_value"`).
+		Sort(`columns: ["_time"], desc: false`).
+		String()
+
+	c, cancel, err := influx.GetQueryCursor(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer cancel()
+	defer c.Close()
+	return parseDiskIopsTimeValueMap(c)
+}
+
+func getHostsDiskReadLatencyHistory(past string) ([]metric.TimeValue, error) {
+	latencies, err := getHostsDiskReadLatencies(past)
+	if err != nil {
+		log.Errorf("metrics: failed to get disk write latencies: %v", err)
+		return nil, err
+	}
+
+	ops, err := getHostsDiskReadOps(past)
+	if err != nil {
+		log.Errorf("metrics: failed to get disk write ops: %v", err)
+		return nil, err
+	}
+
+	timeValues := []metric.TimeValue{}
+	for time, value := range latencies {
+		ops, found := ops[time]
+		if found {
+			value := value / ops
+			if osmath.IsNaN(value) {
+				value = 0
+			}
+
+			timeValues = append(timeValues, metric.TimeValue{
+				Time:  time,
+				Value: value,
+			})
+		}
+	}
+
+	sort.Slice(timeValues, func(i, j int) bool {
+		return timeValues[i].Time < timeValues[j].Time
+	})
+
+	return timeValues, nil
+}
+
+func getHostsDiskReadLatencies(past string) (map[string]float64, error) {
+	query := influx.Query{}
+	stmt := query.Bucket("ceph").
+		Range(fmt.Sprintf(`start: -%s`, past)).
+		Measurement("ceph_daemon_stats_join").
+		Filter(`fn: (r) => r._field == "latency_r.value"`).
+		AggregateWindow(`every: 1m, fn: sum, createEmpty: false`).
+		Derivative(`unit: 1s, nonNegative: true`).
+		Group(`columns: ["_time"]`).
+		Sum(`column: "_value"`).
+		Sort(`columns: ["_time"], desc: false`).
+		String()
+
+	c, cancel, err := influx.GetQueryCursor(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer cancel()
+	defer c.Close()
+	return parseDiskLatencyTimeValueMap(c)
+}
+
+func getHostsDiskReadOps(past string) (map[string]float64, error) {
+	query := influx.Query{}
+	stmt := query.Bucket("ceph").
+		Range(fmt.Sprintf(`start: -%s`, past)).
+		Measurement("ceph_daemon_stats_join").
+		Filter(`fn: (r) => r._field == "op_r.value"`).
+		AggregateWindow(`every: 1m, fn: sum, createEmpty: false`).
+		Derivative(`unit: 1s, nonNegative: true`).
+		Group(`columns: ["_time"]`).
+		Sum(`column: "_value"`).
+		Sort(`columns: ["_time"], desc: false`).
+		String()
+
+	c, cancel, err := influx.GetQueryCursor(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer cancel()
+	defer c.Close()
+	return parseDiskIopsTimeValueMap(c)
 }
 
 func appendHistoryToDiskUsageRank(rank []metric.RankPoint) {
@@ -1399,7 +1554,60 @@ func parseDiskOpsHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	return points, nil
 }
 
+func parseDiskLatencyTimeValueMap(c *api.QueryTableResult) (map[string]float64, error) {
+	timeMap := map[string]float64{}
+	for c.Next() {
+		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		if err != nil {
+			continue
+		}
+
+		timeMap[time.LocalRFC3339(date)] = math.RoundDown(c.Record().Value().(float64)/1000.0/1000.0, 4)
+	}
+
+	return timeMap, nil
+}
+
+func parseDiskIopsTimeValueMap(c *api.QueryTableResult) (map[string]float64, error) {
+	timeMap := map[string]float64{}
+	for c.Next() {
+		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		if err != nil {
+			continue
+		}
+
+		timeMap[time.LocalRFC3339(date)] = c.Record().Value().(float64)
+	}
+
+	return timeMap, nil
+}
+
 func parseDiskLatencyHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
+	points := []metric.TimeValue{}
+	for c.Next() {
+		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		if err != nil {
+			continue
+		}
+
+		value := math.RoundDown(c.Record().Value().(float64), 4)
+		if value > 0 {
+			value = value / 1000.0 / 1000.0
+		}
+
+		points = append(
+			points,
+			metric.TimeValue{
+				Time:  time.LocalRFC3339(date),
+				Value: value,
+			},
+		)
+	}
+
+	return points, nil
+}
+
+func parseDiskIopsHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
 		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
@@ -1411,7 +1619,7 @@ func parseDiskLatencyHistory(c *api.QueryTableResult) ([]metric.TimeValue, error
 			points,
 			metric.TimeValue{
 				Time:  time.LocalRFC3339(date),
-				Value: math.RoundDown(c.Record().Value().(float64), 4),
+				Value: c.Record().Value().(int),
 			},
 		)
 	}

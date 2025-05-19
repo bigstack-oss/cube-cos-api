@@ -179,8 +179,13 @@ func genLogoutRedirectUrl() (string, error) {
 	), nil
 }
 
-func genRequestMsg(c *gin.Context) string {
-	return fmt.Sprintf("%s %s%s", c.Request.Method, c.Request.URL.Path, parseParams(c))
+func genReqMsg(c *gin.Context) string {
+	return fmt.Sprintf(
+		"%s %s%s",
+		c.Request.Method,
+		c.Request.URL.Path,
+		parseParams(c),
+	)
 }
 
 func parseRedirectPath() (string, error) {

@@ -182,12 +182,7 @@ func parseFileOpts() error {
 		return err
 	}
 
-	err = conf.Get().Scan(&Opts)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return conf.Scan(&Opts)
 }
 
 func newConfiger() (config.Config, error) {

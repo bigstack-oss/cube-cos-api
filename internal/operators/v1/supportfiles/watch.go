@@ -6,7 +6,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
-	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
+	bslog "github.com/bigstack-oss/cube-cos-api/internal/log"
 	"github.com/fsnotify/fsnotify"
 	log "go-micro.dev/v5/logger"
 )
@@ -53,7 +53,7 @@ func syncSourceSupportFiles(event fsnotify.Event) {
 	}
 
 	if event.Has(fsnotify.Create) {
-		cubelog.Throttle("supportFiles", fmt.Sprintf("support file %s created", event.Name))
+		bslog.Throttle("supportFiles", fmt.Sprintf("support file %s created", event.Name))
 		cubecos.SyncSupportFiles()
 	}
 }

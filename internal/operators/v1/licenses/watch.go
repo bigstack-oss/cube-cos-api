@@ -6,7 +6,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
-	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
+	bslog "github.com/bigstack-oss/cube-cos-api/internal/log"
 	"github.com/fsnotify/fsnotify"
 )
 
@@ -27,7 +27,7 @@ func syncLicense(event fsnotify.Event) {
 	}
 
 	if shouldSync(event) {
-		cubelog.Throttle("licenses", fmt.Sprintf("%s changed, syncing license", event.Name))
+		bslog.Throttle("licenses", fmt.Sprintf("%s changed, syncing license", event.Name))
 		cubecos.SyncSourceLicense()
 	}
 }

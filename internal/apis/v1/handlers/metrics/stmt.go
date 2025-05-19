@@ -109,16 +109,28 @@ func (h *helper) genHostsStorageWriteIopsStmt() string {
 }
 
 func (h *helper) genHostsStorageReadLatencyStmt() string {
+	// query := influx.Query{}
+	// return query.Bucket("ceph").
+	// 	Range(h.genTimeDuration()).
+	// 	Filter(`fn: (r) => r._measurement == "ceph_daemon_stats" and r.ceph_daemon =~ /^osd\.[0-9]+$/ and r.type_instance == "osd.op_r_latency"`).
+	// 	AggregateWindow(`every: 60s, fn: sum, createEmpty: false`).
+	// 	Different().
+	// 	Derivative(`unit: 1s, nonNegative: true`).
+	// 	Group(`columns: ["_time"]`).
+	// 	Max(`column: "_value"`).
+	// 	Group("").
+	// 	String()
+
 	query := influx.Query{}
 	return query.Bucket("ceph").
 		Range(h.genTimeDuration()).
-		Filter(`fn: (r) => r._measurement == "ceph_daemon_stats" and r.ceph_daemon =~ /^osd\.[0-9]+$/ and r.type_instance == "osd.op_r_latency"`).
-		AggregateWindow(`every: 60s, fn: sum, createEmpty: false`).
-		Different().
+		Measurement("ceph_daemon_stats_join").
+		Filter(`fn: (r) => r._field == "latency_w.value"`).
+		AggregateWindow(`every: 1m, fn: sum, createEmpty: false`).
 		Derivative(`unit: 1s, nonNegative: true`).
 		Group(`columns: ["_time"]`).
-		Max(`column: "_value"`).
-		Group("").
+		Sum(`column: "_value"`).
+		Sort(`columns: ["_time"], desc: false`).
 		String()
 }
 

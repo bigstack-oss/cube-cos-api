@@ -6,6 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func isLiveCheck(c *gin.Context) bool {
+	return c.Request.Method == "GET" && c.Request.URL.Path == "/live"
+}
+
 func filterReq(c *gin.Context) {
 	if isGetSamlAcs(c) {
 		c.AbortWithStatus(403)

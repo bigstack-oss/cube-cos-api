@@ -25,6 +25,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tokens"
 	triggerapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/triggers"
 	tuningapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tunings"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/auths/oidc"
 	"github.com/bigstack-oss/cube-cos-api/internal/auths/saml"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
@@ -258,15 +259,17 @@ func timeTracker(c *gin.Context) {
 	start := time.Now()
 	c.Next()
 	elapsed := time.Since(start)
-	reqId, found := c.Get("reqId")
-	if !found {
-		reqId = "unknown"
+
+	reqId := queries.GetReqId(c)
+	if isLiveCheck(c) {
+		logLiveCheck(c, reqId, elapsed)
+		return
 	}
 
 	log.Infof(
 		"req(%s): %s (%s)",
 		reqId,
-		genRequestMsg(c),
+		genReqMsg(c),
 		elapsed,
 	)
 }

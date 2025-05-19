@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
-	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
+	bslog "github.com/bigstack-oss/cube-cos-api/internal/log"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
@@ -66,5 +66,5 @@ func (o *Operator) checkAndSyncNodes(watcher *registry.Watcher) {
 	}
 
 	o.syncNodes()
-	cubelog.Throttle("node", genDiscoveryMsg(event))
+	bslog.Throttle("node", genDiscoveryMsg(event))
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
-	cubelog "github.com/bigstack-oss/cube-cos-api/internal/log"
+	bslog "github.com/bigstack-oss/cube-cos-api/internal/log"
 	"github.com/fsnotify/fsnotify"
 	log "go-micro.dev/v5/logger"
 )
@@ -55,7 +55,7 @@ func (o *Operator) checkTriggers(event fsnotify.Event) {
 	}
 
 	if event.Has(fsnotify.Write) || event.Has(fsnotify.Create) {
-		cubelog.Throttle("triggers", fmt.Sprintf("%s changed, syncing triggers", event.Name))
+		bslog.Throttle("triggers", fmt.Sprintf("%s changed, syncing triggers", event.Name))
 		o.syncTriggers()
 	}
 }
