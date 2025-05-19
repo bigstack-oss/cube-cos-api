@@ -90,8 +90,7 @@ func (h *helper) genHostsStorageReadIopsStmt() string {
 		AggregateWindow(`every: 60s, fn: sum, createEmpty: false`).
 		Derivative(`unit: 1s, nonNegative: true`).
 		Group(`columns: ["_time"]`).
-		Max(`column: "_value"`).
-		Group("").
+		Sum(`column: "_value"`).
 		String()
 }
 
@@ -103,8 +102,7 @@ func (h *helper) genHostsStorageWriteIopsStmt() string {
 		AggregateWindow(`every: 60s, fn: sum, createEmpty: false`).
 		Derivative(`unit: 1s, nonNegative: true`).
 		Group(`columns: ["_time"]`).
-		Max(`column: "_value"`).
-		Group("").
+		Sum(`column: "_value"`).
 		String()
 }
 
