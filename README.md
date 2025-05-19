@@ -7,10 +7,9 @@
 
 [![License][License-Image]][License-Url] [![made-with-Go][Go-Made-Image]][Go-Made-Url] [![Go][Go-Report-Image]][Go-Report-Url] [![GitHub issues][Github-Issue-Image]][Github-Issue-Url] [![GitHub last commit (branch)][GitHub-Last-Commit-Image]][GitHub-Last-Commit-Url]
 
-
 <br/><br/>
 
-#### ▎To Start Developing
+<h3 style="color: gray;">▎To Start Developing</h3>
 
 <br/>
 
@@ -61,7 +60,9 @@ hex_config bootstrap api
 
 <br/>
 
-#### ▎License
+
+<h3 style="color: gray;">▎License</h3>
+
 
 Copyright (c) 2025 [Bigstack co., ltd](https://bigstack.co/)
 
