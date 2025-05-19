@@ -147,7 +147,7 @@ func (h *helper) getDiskLatency() (any, error) {
 func (h *helper) getDiskLatencyHistory() (any, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GeHostsDiskLatencyHistory("62m")
+		return cubecos.GeHostsDiskLatencyHistory(h.past)
 	default:
 		return nil, fmt.Errorf(
 			"invalid entity type(%s) to get disk latency",

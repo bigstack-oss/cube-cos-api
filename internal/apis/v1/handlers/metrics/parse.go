@@ -90,6 +90,9 @@ func (h *helper) parseLimit() error {
 	return err
 }
 
+// note:
+// the reason to use "62m" is that to prevent some times the
+// metrics in the influxdb might not exactly match the 60 data points for 1 hour
 func (h *helper) parsePast() error {
 	var err error
 	h.past, err = query.GetPast(h.c)
@@ -97,7 +100,7 @@ func (h *helper) parsePast() error {
 		return err
 	}
 	if h.past == "" {
-		h.past = "1h"
+		h.past = "62m"
 	}
 
 	_, err = duration.Str2Duration(h.past)

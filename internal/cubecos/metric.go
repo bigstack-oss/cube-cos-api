@@ -1060,48 +1060,17 @@ func getHostsDiskWriteLatencyHistory(past string) ([]metric.TimeValue, error) {
 		return nil, err
 	}
 
-	ops, err := getHostsDiskWriteOps(past)
+	iops, err := getHostsDiskWriteOps(past)
 	if err != nil {
 		log.Errorf("metrics: failed to get disk write ops: %v", err)
 		return nil, err
 	}
 
-	timeValues := []metric.TimeValue{}
-	for time, value := range latencies {
-		ops, found := ops[time]
-		if found {
-			value := value / ops
-			if osmath.IsNaN(value) {
-				value = 0
-			}
-
-			timeValues = append(timeValues, metric.TimeValue{
-				Time:  time,
-				Value: value,
-			})
-		}
-	}
-
-	sort.Slice(timeValues, func(i, j int) bool {
-		return timeValues[i].Time < timeValues[j].Time
-	})
-
-	return timeValues, nil
+	return genDiskLatencyHistory(latencies, iops), nil
 }
 
 func getHostsDiskWriteLatencies(past string) (map[string]float64, error) {
-	query := influx.Query{}
-	stmt := query.Bucket("ceph").
-		Range(fmt.Sprintf(`start: -%s`, past)).
-		Measurement("ceph_daemon_stats_join").
-		Filter(`fn: (r) => r._field == "latency_w.value"`).
-		AggregateWindow(`every: 1m, fn: sum, createEmpty: false`).
-		Derivative(`unit: 1s, nonNegative: true`).
-		Group(`columns: ["_time"]`).
-		Sum(`column: "_value"`).
-		Sort(`columns: ["_time"], desc: false`).
-		String()
-
+	stmt := genHostDiskStmt(past, "latency_w.value")
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1113,18 +1082,7 @@ func getHostsDiskWriteLatencies(past string) (map[string]float64, error) {
 }
 
 func getHostsDiskWriteOps(past string) (map[string]float64, error) {
-	query := influx.Query{}
-	stmt := query.Bucket("ceph").
-		Range(fmt.Sprintf(`start: -%s`, past)).
-		Measurement("ceph_daemon_stats_join").
-		Filter(`fn: (r) => r._field == "op_w.value"`).
-		AggregateWindow(`every: 1m, fn: sum, createEmpty: false`).
-		Derivative(`unit: 1s, nonNegative: true`).
-		Group(`columns: ["_time"]`).
-		Sum(`column: "_value"`).
-		Sort(`columns: ["_time"], desc: false`).
-		String()
-
+	stmt := genHostDiskStmt(past, "op_w.value")
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1142,48 +1100,46 @@ func getHostsDiskReadLatencyHistory(past string) ([]metric.TimeValue, error) {
 		return nil, err
 	}
 
-	ops, err := getHostsDiskReadOps(past)
+	iops, err := getHostsDiskReadIops(past)
 	if err != nil {
 		log.Errorf("metrics: failed to get disk write ops: %v", err)
 		return nil, err
 	}
 
-	timeValues := []metric.TimeValue{}
-	for time, value := range latencies {
-		ops, found := ops[time]
-		if found {
-			value := value / ops
-			if osmath.IsNaN(value) {
-				value = 0
-			}
+	return genDiskLatencyHistory(latencies, iops), nil
+}
 
-			timeValues = append(timeValues, metric.TimeValue{
-				Time:  time,
-				Value: value,
-			})
+func genDiskLatencyHistory(latencies, iops map[string]float64) []metric.TimeValue {
+	history := []metric.TimeValue{}
+	for time, latency := range latencies {
+		ops, found := iops[time]
+		if !found {
+			continue
 		}
+
+		value := latency / ops
+		if osmath.IsNaN(value) {
+			value = 0
+		}
+
+		history = append(
+			history,
+			metric.TimeValue{
+				Time:  time,
+				Value: math.RoundDown(value, 4),
+			},
+		)
 	}
 
-	sort.Slice(timeValues, func(i, j int) bool {
-		return timeValues[i].Time < timeValues[j].Time
+	sort.Slice(history, func(i, j int) bool {
+		return history[i].Time < history[j].Time
 	})
 
-	return timeValues, nil
+	return history
 }
 
 func getHostsDiskReadLatencies(past string) (map[string]float64, error) {
-	query := influx.Query{}
-	stmt := query.Bucket("ceph").
-		Range(fmt.Sprintf(`start: -%s`, past)).
-		Measurement("ceph_daemon_stats_join").
-		Filter(`fn: (r) => r._field == "latency_r.value"`).
-		AggregateWindow(`every: 1m, fn: sum, createEmpty: false`).
-		Derivative(`unit: 1s, nonNegative: true`).
-		Group(`columns: ["_time"]`).
-		Sum(`column: "_value"`).
-		Sort(`columns: ["_time"], desc: false`).
-		String()
-
+	stmt := genHostDiskStmt(past, "latency_r.value")
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1194,19 +1150,8 @@ func getHostsDiskReadLatencies(past string) (map[string]float64, error) {
 	return parseDiskLatencyTimeValueMap(c)
 }
 
-func getHostsDiskReadOps(past string) (map[string]float64, error) {
-	query := influx.Query{}
-	stmt := query.Bucket("ceph").
-		Range(fmt.Sprintf(`start: -%s`, past)).
-		Measurement("ceph_daemon_stats_join").
-		Filter(`fn: (r) => r._field == "op_r.value"`).
-		AggregateWindow(`every: 1m, fn: sum, createEmpty: false`).
-		Derivative(`unit: 1s, nonNegative: true`).
-		Group(`columns: ["_time"]`).
-		Sum(`column: "_value"`).
-		Sort(`columns: ["_time"], desc: false`).
-		String()
-
+func getHostsDiskReadIops(past string) (map[string]float64, error) {
+	stmt := genHostDiskStmt(past, "op_r.value")
 	c, cancel, err := influx.GetQueryCursor(stmt)
 	if err != nil {
 		return nil, err
@@ -1557,12 +1502,18 @@ func parseDiskOpsHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 func parseDiskLatencyTimeValueMap(c *api.QueryTableResult) (map[string]float64, error) {
 	timeMap := map[string]float64{}
 	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(
+			events.TimeLayout,
+			c.Record().Time().String(),
+		)
 		if err != nil {
 			continue
 		}
 
-		timeMap[time.LocalRFC3339(date)] = math.RoundDown(c.Record().Value().(float64)/1000.0/1000.0, 4)
+		timeMap[time.LocalRFC3339(date)] = math.RoundDown(
+			c.Record().Value().(float64)/1000.0/1000.0,
+			4,
+		)
 	}
 
 	return timeMap, nil
@@ -1580,51 +1531,6 @@ func parseDiskIopsTimeValueMap(c *api.QueryTableResult) (map[string]float64, err
 	}
 
 	return timeMap, nil
-}
-
-func parseDiskLatencyHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
-	points := []metric.TimeValue{}
-	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
-		if err != nil {
-			continue
-		}
-
-		value := math.RoundDown(c.Record().Value().(float64), 4)
-		if value > 0 {
-			value = value / 1000.0 / 1000.0
-		}
-
-		points = append(
-			points,
-			metric.TimeValue{
-				Time:  time.LocalRFC3339(date),
-				Value: value,
-			},
-		)
-	}
-
-	return points, nil
-}
-
-func parseDiskIopsHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
-	points := []metric.TimeValue{}
-	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
-		if err != nil {
-			continue
-		}
-
-		points = append(
-			points,
-			metric.TimeValue{
-				Time:  time.LocalRFC3339(date),
-				Value: c.Record().Value().(int),
-			},
-		)
-	}
-
-	return points, nil
 }
 
 func parsVmDiskIopsRank(c *api.QueryTableResult) ([]metric.RankPoint, error) {
@@ -1704,6 +1610,20 @@ func genHostCpuUsageHistoryStmt(hostId string) string {
 		Filter(fmt.Sprintf(`fn: (r) => r._measurement == "cpu" and r.host == "%s" and r._field == "usage_idle"`, hostId)).
 		Map(`fn: (r) => ({ r with _value: 100.0 - r._value })`).
 		Rename(`columns: {_value: "used"}`).
+		String()
+}
+
+func genHostDiskStmt(past string, field string) string {
+	query := influx.Query{}
+	return query.Bucket("ceph").
+		Range(fmt.Sprintf(`start: -%s`, past)).
+		Measurement("ceph_daemon_stats_join").
+		Filter(fmt.Sprintf(`fn: (r) => r._field == "%s"`, field)).
+		AggregateWindow(`every: 1m, fn: sum, createEmpty: false`).
+		Derivative(`unit: 1s, nonNegative: true`).
+		Group(`columns: ["_time"]`).
+		Sum(`column: "_value"`).
+		Sort(`columns: ["_time"], desc: false`).
 		String()
 }
 
