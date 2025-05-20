@@ -71,12 +71,6 @@ func genHypervisorUsage(stats *hypervisors.Statistics) *metric.VmUsage {
 			UsedPercent: math.RoundDown(float64(stats.MemoryMBUsed)/float64(stats.MemoryMB), 4),
 			FreePercent: math.RoundDown(float64(stats.MemoryMB-stats.MemoryMBUsed)/float64(stats.MemoryMB), 4),
 		},
-		Storage: metric.Space{
-			TotalMiB:    float64(stats.LocalGB) * 1024,
-			UsedMiB:     float64(stats.LocalGBUsed) * 1024,
-			FreeMiB:     float64(stats.LocalGB-stats.LocalGBUsed) * 1024,
-			UsedPercent: math.RoundDown(float64(stats.LocalGBUsed)/float64(stats.LocalGB), 4),
-			FreePercent: math.RoundDown(float64(stats.LocalGB-stats.LocalGBUsed)/float64(stats.LocalGB), 4),
-		},
+		Storage: GetCephUsage(),
 	}
 }

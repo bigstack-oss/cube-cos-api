@@ -38,7 +38,7 @@ func (h *helper) delegateSupportFileReq() {
 			continue
 		}
 
-		err = h.delegateToPeerNode(node)
+		err = h.tunePeerNode(node)
 		if err != nil {
 			log.Errorf(
 				"supportFiles(%s): failed to delegate %s to %s: %v",
@@ -85,7 +85,7 @@ func (h *helper) delegateToLocal() {
 	reqQueue.Add(&h.file)
 }
 
-func (h *helper) delegateToPeerNode(node *nodes.Node) error {
+func (h *helper) tunePeerNode(node *nodes.Node) error {
 	url := node.CreateSupportFileUrl(h.file)
 	body := h.genFileReqBody(*node)
 	http := http.GetGlobalHelper()

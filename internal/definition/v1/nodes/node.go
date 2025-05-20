@@ -196,6 +196,7 @@ func (n *Node) PatchTuningUrl(tuning string) string {
 	u.Scheme = n.Protocol
 	u.Host = n.Address
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/tunings/parameters/%s", base.DataCenterName, tuning)
+	u.RawQuery = fmt.Sprintf("isRecordRequired=%s", "false")
 	return u.String()
 }
 

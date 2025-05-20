@@ -18,9 +18,8 @@ func (o *Operator) handleExit(tuning tunings.Tuning, err error) {
 		tuning.SetCompleted()
 	}
 
-	err = o.reportToController(tuning)
-	if err != nil {
-		return
+	if tuning.IsReportRequired {
+		o.reportToController(tuning)
 	}
 }
 

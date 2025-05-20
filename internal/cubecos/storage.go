@@ -6,12 +6,40 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/dustin/go-humanize"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 )
+
+func GetCephUsage() metric.Space {
+	b, err := exec.Command("ceph", "df", "-f", "json").Output()
+	if err != nil {
+		log.Errorf("metrics: failed to get ceph usage: %v", err)
+		return metric.Space{}
+	}
+
+	cephUsage := ceph.SpaceMetrics{}
+	err = json.Unmarshal(b, &cephUsage)
+	if err != nil {
+		log.Errorf("metrics: failed to unmarshal ceph usage: %v", err)
+		return metric.Space{}
+	}
+
+	total := float64(cephUsage.Stats.TotalBytes) / 1024.0 / 1024.0
+	used := float64(cephUsage.Stats.TotalUsedBytes) / 1024.0 / 1024.0
+	avail := float64(cephUsage.Stats.TotalAvailBytes) / 1024.0 / 1024.0
+	return metric.Space{
+		TotalMiB:    math.RoundDown(total, 4),
+		UsedMiB:     math.RoundDown(used, 4),
+		FreeMiB:     math.RoundDown(avail, 4),
+		UsedPercent: math.RoundDown(used/total, 4),
+		FreePercent: math.RoundDown(avail/total, 4),
+	}
+}
 
 func GetRawBlockDevices() ([]nodes.RawBlockDevice, error) {
 	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "TYPE,NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS", "-e", blockdevice.NetCode).Output()

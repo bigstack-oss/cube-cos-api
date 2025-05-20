@@ -18,6 +18,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
+	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -70,14 +71,15 @@ type RawLimitation struct {
 }
 
 type Tuning struct {
-	Id          string     `json:"id,omitempty" yaml:"-" bson:"id"`
-	Name        string     `json:"name" yaml:"name" bson:"name"`
-	Value       any        `json:"value" yaml:"value" bson:"value"`
-	Description string     `json:"description" yaml:"-" bson:"-"`
-	Enabled     bool       `json:"enabled" yaml:"enabled" bson:"enabled"`
-	IsModified  bool       `json:"isModified" yaml:"-" bson:"-"`
-	Limitation  Limitation `json:"limitation" yaml:"-" bson:"-"`
-	SortIndex   string     `json:"-" yaml:"-" bson:"-"`
+	Id               string     `json:"id,omitempty" yaml:"-" bson:"id"`
+	Name             string     `json:"name" yaml:"name" bson:"name"`
+	Value            any        `json:"value" yaml:"value" bson:"value"`
+	Description      string     `json:"description" yaml:"-" bson:"-"`
+	Enabled          bool       `json:"enabled" yaml:"enabled" bson:"enabled"`
+	IsModified       bool       `json:"isModified" yaml:"-" bson:"-"`
+	IsReportRequired bool       `json:"-" yaml:"-" bson:"-"`
+	Limitation       Limitation `json:"limitation" yaml:"-" bson:"-"`
+	SortIndex        string     `json:"-" yaml:"-" bson:"-"`
 
 	Node   *nodes.Node    `json:"node,omitempty" yaml:"-" bson:"-"`
 	Hosts  []nodes.Host   `json:"hosts" yaml:"-" bson:"-"`
@@ -166,7 +168,7 @@ func (t *Tuning) IncludeHosts(hosts []string) bool {
 	return true
 }
 
-func (t *Tuning) InitHosts(hosts []string) {
+func (t *Tuning) SetHosts(hosts []string) {
 	t.Hosts = []nodes.Host{}
 	for _, host := range hosts {
 		t.Hosts = append(t.Hosts, nodes.Host{Name: host})
@@ -181,7 +183,7 @@ func (t *Tuning) InitStatus(current, desired string) {
 	}
 }
 
-func (t *Tuning) InitUpdateStatus() {
+func (t *Tuning) SetUpdating() {
 	t.Status = &status.Tuning{
 		Current:    status.Updating,
 		Desired:    status.Updated,
@@ -191,7 +193,7 @@ func (t *Tuning) InitUpdateStatus() {
 	}
 }
 
-func (t *Tuning) InitResetStatus() {
+func (t *Tuning) SetResetting() {
 	t.Status = &status.Tuning{
 		Current:    status.Updating,
 		Desired:    status.Reset,
@@ -215,10 +217,6 @@ func (t *Tuning) StrValue() string {
 
 func (t *Tuning) SetDesired(status string) {
 	t.Status.Desired = status
-}
-
-func (t *Tuning) SetUpdating() {
-	t.Status.Current = status.Updating
 }
 
 func (t *Tuning) SetUpdated() {
@@ -287,6 +285,7 @@ func CheckSpec(tuning Tuning) error {
 func isValueValid(tuning Tuning, spec *Spec) bool {
 	switch spec.Limitation.Type {
 	case "int", "uint":
+		log.Infof("test is int or uint: %v", tuning, spec.Limitation.Type)
 		return isValidInt(tuning, spec)
 	case "str":
 		return isValidString(tuning, spec)
@@ -299,12 +298,19 @@ func isValueValid(tuning Tuning, spec *Spec) bool {
 }
 
 func isValidInt(tuning Tuning, spec *Spec) bool {
-	value, ok := tuning.Value.(int)
+	value, ok := tuning.Value.(string)
 	if !ok {
+		log.Errorf("tuning(%s): value is not string: %v", tuning.Name, tuning.Value)
 		return false
 	}
 
-	return spec.IsInLimitedRange(value)
+	intValue, err := strconv.Atoi(value)
+	if err != nil {
+		log.Errorf("tuning(%s): failed to convert value to int: %v", tuning.Name, tuning.Value)
+		return false
+	}
+
+	return spec.IsInLimitedRange(intValue)
 }
 
 func isValidString(tuning Tuning, spec *Spec) bool {

@@ -4,7 +4,22 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	log "go-micro.dev/v5/logger"
 )
+
+func (h *helper) parseEnabled() (bool, error) {
+	tuning, err := h.getTuningByNameAndHosts(h.tuning.Name, h.toggle.Hosts)
+	if err != nil {
+		log.Errorf("tunings(%s): failed to get tuning: %v", h.reqId, err)
+		return false, err
+	}
+
+	if tuning.IsModified {
+		return tuning.Enabled, nil
+	}
+
+	return true, nil
+}
 
 func (h *helper) parsePage() error {
 	var err error
@@ -39,6 +54,10 @@ func (h *helper) parseWatch() error {
 	var err error
 	h.watch, err = queries.GetWatch(h.c)
 	return err
+}
+
+func (h *helper) ParseRecordRequire() {
+	h.isRecordRequired = queries.ParseRecordRequire(h.c)
 }
 
 func (h *helper) isFilterRequired() bool {

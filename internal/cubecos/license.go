@@ -30,7 +30,7 @@ const (
 )
 
 func IsLicenseFile(file string) bool {
-	return strings.Contains(file, "license.")
+	return strings.Contains(file, "license")
 }
 
 func SyncSourceLicense() {
@@ -52,8 +52,7 @@ func SyncSourceLicense() {
 
 func VerifyLicense(file string) (*licenses.Verification, error) {
 	defer os.Remove(file)
-	checkInfo := checkImportLicense(file)
-	dat, err := parseLicenseDat(file, checkInfo)
+	dat, err := parseLicenseDat(file)
 	if err != nil {
 		log.Errorf("licenses: failed to parse license: %v", err)
 		return nil, err
@@ -340,19 +339,12 @@ func checkLicenseErr(err error) error {
 	return errors.ErrLicenseUnknownStatus
 }
 
-func checkImportLicense(license string) error {
-	dir, file := getDirAndLicenseName(license)
-	err := zip.DecompressFromTo(license, dir)
+func parseLicenseDat(file string) (*licenses.License, error) {
+	err := unzipImportLicense(file)
 	if err != nil {
-		log.Errorf("licenses: failed to decompress license: %v", err)
-		return err
+		return nil, err
 	}
 
-	_, err = exec.Command("hex_config", "license_check", "def", filepath.Join(dir, file)).Output()
-	return checkLicenseErr(err)
-}
-
-func parseLicenseDat(file string, checkInfo error) (*licenses.License, error) {
 	dir, name := getDirAndLicenseName(file)
 	dat, err := os.Open(filepath.Join(dir, fmt.Sprintf("%s.dat", name)))
 	if err != nil {
@@ -362,8 +354,34 @@ func parseLicenseDat(file string, checkInfo error) (*licenses.License, error) {
 	defer dat.Close()
 	license := &licenses.License{}
 	setLicenseDat(dat, license)
-	setLicenseDatStatus(license, checkInfo)
+	setLicenseDatStatus(
+		license,
+		checkImportLicense(file, *license),
+	)
+
 	return license, nil
+}
+
+func unzipImportLicense(license string) error {
+	dir, _ := getDirAndLicenseName(license)
+	err := zip.DecompressFromTo(license, dir)
+	if err != nil {
+		log.Errorf("licenses: failed to unzip license: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func checkImportLicense(file string, license licenses.License) error {
+	dir, file := getDirAndLicenseName(file)
+	product := "def"
+	if license.Product.Name == licenses.CubeCMP {
+		product = "cmp"
+	}
+
+	_, err := exec.Command("hex_config", "license_check", product, filepath.Join(dir, file)).Output()
+	return checkLicenseErr(err)
 }
 
 func getDirAndLicenseName(license string) (string, string) {

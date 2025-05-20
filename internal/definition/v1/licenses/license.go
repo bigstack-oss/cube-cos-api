@@ -13,9 +13,10 @@ const (
 	Module = "licenses"
 	Dir    = "/etc/update"
 
-	CubeCOS = "CubeCOS"
-	CubeCMP = "CubeCMP"
-	NA      = "N/A"
+	CubeCOS  = "CubeCOS"
+	CubeEdge = "CubeEdge"
+	CubeCMP  = "CubeCMP"
+	NA       = "N/A"
 )
 
 var (

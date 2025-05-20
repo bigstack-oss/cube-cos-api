@@ -3,7 +3,7 @@ package tunings
 import (
 	"errors"
 
-	cubeHttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	bshttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
@@ -18,9 +18,8 @@ func (h *helper) delegateTuningReq() {
 			continue
 		}
 
-		h.backfillTuningInfoByHandler(h.tuning)
 		if node.IsLocal() {
-			h.delegateToLocal(h.tuning)
+			h.tuneLocal(h.tuning)
 			continue
 		}
 
@@ -29,7 +28,7 @@ func (h *helper) delegateTuningReq() {
 			continue
 		}
 
-		err := h.delegateToPeerNode(node)
+		err := h.tunePeerNode(node)
 		if err != nil {
 			log.Errorf("tunings(%s): failed to delegate %s to %s: %v", h.reqId, h.tuning.Name, node.Hostname, err)
 		}
@@ -46,7 +45,7 @@ func (h *helper) delegateTuningToggleReq() {
 
 		h.backfillTuningInfoByHandler(h.tuning)
 		if node.IsLocal() {
-			h.delegateToLocal(h.tuning)
+			h.tuneLocal(h.tuning)
 			continue
 		}
 
@@ -55,7 +54,7 @@ func (h *helper) delegateTuningToggleReq() {
 			continue
 		}
 
-		err := h.delegateToPeerNode(node)
+		err := h.tunePeerNode(node)
 		if err != nil {
 			log.Errorf("tunings(%s): failed to delegate %s to %s: %v", h.reqId, h.tuning.Name, node.Hostname, err)
 		}
@@ -84,8 +83,11 @@ func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*tunings.
 	return nil, errors.New("tuning not found")
 }
 
-func (h *helper) delegateToLocal(tuning tunings.Tuning) {
-	h.addReqRecord(tuning)
+func (h *helper) tuneLocal(tuning tunings.Tuning) {
+	if h.isRecordRequired {
+		h.addReqRecord(tuning)
+	}
+
 	reqQueue.Add(&tuning)
 }
 
@@ -96,13 +98,10 @@ func (h *helper) backfillTuningInfoByHandler(tuning tunings.Tuning) {
 	case "enableOrDisableTuning":
 		h.tuning.Value = tuning.Value
 	}
-
-	h.tuning.Id = h.tuning.GenerateId()
 }
 
-func (h *helper) delegateToPeerNode(node *nodes.Node) error {
-	http := cubeHttp.GetGlobalHelper()
-	resp, err := http.R().
+func (h *helper) tunePeerNode(node *nodes.Node) error {
+	resp, err := bshttp.GetGlobalHelper().R().
 		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(genTuningUpdate(h.tuning, node)).
 		Patch(node.PatchTuningUrl(h.tuning.Name))

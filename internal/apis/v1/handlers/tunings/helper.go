@@ -23,10 +23,11 @@ type helper struct {
 	update tunings.Update
 	reset  tunings.Reset
 
-	allNodes bool
-	hosts    []string
-	keyword  string
-	modified []bool
+	allNodes         bool
+	hosts            []string
+	keyword          string
+	modified         []bool
+	isRecordRequired bool
 
 	*pages.Page
 	watch bool
@@ -53,6 +54,7 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h.parseKeyword()
 	h.parseHosts()
 	h.parseModified()
+	h.ParseRecordRequire()
 
 	return h, nil
 }
@@ -64,7 +66,22 @@ func (h *helper) parseTuningUpdate() error {
 		return err
 	}
 
-	h.convertUpdateToTuning()
+	return h.convertReqToTuningSpec()
+}
+
+func (h *helper) convertReqToTuningSpec() error {
+	var err error
+	h.tuning.Name = h.c.Param("parameterName")
+	h.tuning.Enabled, err = h.parseEnabled()
+	if err != nil {
+		return err
+	}
+
+	h.tuning.Value = h.update.Value
+	h.tuning.SetHosts(h.update.Hosts)
+	h.tuning.SetUpdating()
+	h.tuning.Id = h.tuning.GenerateId()
+	h.tuning.IsReportRequired = h.isRecordRequired
 	return nil
 }
 
@@ -89,9 +106,10 @@ func (h *helper) parseTuningReset() error {
 	h.tuning.Value = spec.Limitation.Default
 	h.tuning.Enabled = true
 	h.tuning.IsModified = false
+	h.tuning.SetResetting()
+	h.tuning.SetHosts(h.reset.Hosts)
 	h.tuning.Id = h.tuning.GenerateId()
-	h.tuning.InitResetStatus()
-	h.tuning.InitHosts(h.reset.Hosts)
+	h.tuning.IsReportRequired = h.isRecordRequired
 	return nil
 }
 
@@ -114,8 +132,10 @@ func (h *helper) parseTuningEnablement() error {
 
 	h.tuning = *tuning
 	h.tuning.Enabled = h.toggle.Enable
-	h.tuning.InitUpdateStatus()
-	h.tuning.InitHosts(h.toggle.Hosts)
+	h.tuning.SetUpdating()
+	h.tuning.SetHosts(h.toggle.Hosts)
+	h.tuning.Id = h.tuning.GenerateId()
+	h.tuning.IsReportRequired = h.isRecordRequired
 	return nil
 }
 
@@ -127,14 +147,6 @@ func (h *helper) isTuningModified() bool {
 	}
 
 	return tuning.IsModified
-}
-
-func (h *helper) convertUpdateToTuning() {
-	h.tuning.Name = h.c.Param("parameterName")
-	h.tuning.Enabled = h.update.Enabled
-	h.tuning.Value = h.update.Value
-	h.tuning.InitUpdateStatus()
-	h.tuning.InitHosts(h.update.Hosts)
 }
 
 func (h *helper) ListTunings() (*data, error) {

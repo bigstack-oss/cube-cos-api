@@ -124,6 +124,10 @@ func (h *helper) normalizeProductName(product string) string {
 		return licenses.CubeCOS
 	}
 
+	if strings.EqualFold(product, licenses.CubeEdge) {
+		return licenses.CubeEdge
+	}
+
 	if strings.EqualFold(product, licenses.CubeCMP) {
 		return licenses.CubeCMP
 	}
