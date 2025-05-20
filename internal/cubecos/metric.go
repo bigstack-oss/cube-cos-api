@@ -15,7 +15,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
@@ -907,7 +906,7 @@ func syncDataCenterSummary() (*Summary, error) {
 func parseCpuUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(metric.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1004,7 +1003,7 @@ func appendHistoryToMemoryUsageRank(rank []metric.RankPoint) {
 func parseMemoryUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(metric.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1024,7 +1023,7 @@ func parseMemoryUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error
 func parseMemorySizeHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(metric.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1111,8 +1110,8 @@ func getHostsDiskReadLatencyHistory(past string) ([]metric.TimeValue, error) {
 
 func genDiskLatencyHistory(latencies, iops map[string]float64) []metric.TimeValue {
 	history := []metric.TimeValue{}
-	for time, latency := range latencies {
-		ops, found := iops[time]
+	for date, latency := range latencies {
+		ops, found := iops[date]
 		if !found {
 			continue
 		}
@@ -1122,10 +1121,15 @@ func genDiskLatencyHistory(latencies, iops map[string]float64) []metric.TimeValu
 			value = 0
 		}
 
+		dateTime, err := ostime.Parse(time.FormatRFC3339, date)
+		if err != nil {
+			continue
+		}
+
 		history = append(
 			history,
 			metric.TimeValue{
-				Time:  time,
+				Time:  time.LocalRFC3339AddDuration(dateTime, ostime.Minute*-1),
 				Value: math.RoundDown(value, 4),
 			},
 		)
@@ -1177,7 +1181,7 @@ func appendHistoryToDiskUsageRank(rank []metric.RankPoint) {
 func parseDiskUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(metric.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1209,7 +1213,7 @@ func appendHistoryToNetworkTrafficInRank(rank []metric.RankPoint) {
 func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(metric.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1253,7 +1257,7 @@ func appendHistoryToVmCpuUsageRank(rank []metric.RankPoint) {
 func parseVmCpuUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(metric.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1285,7 +1289,7 @@ func appendHistoryToVmMemoryUsageRank(rank []metric.RankPoint) {
 func parseMemoryUsageHistoryOfVm(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(metric.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1482,7 +1486,7 @@ func parseHostStorageUsageRank(c *api.QueryTableResult) ([]metric.RankPoint, err
 func parseDiskOpsHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(metric.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1503,7 +1507,7 @@ func parseDiskLatencyTimeValueMap(c *api.QueryTableResult) (map[string]float64, 
 	timeMap := map[string]float64{}
 	for c.Next() {
 		date, err := ostime.Parse(
-			events.TimeLayout,
+			metric.TimeLayout,
 			c.Record().Time().String(),
 		)
 		if err != nil {
@@ -1522,7 +1526,7 @@ func parseDiskLatencyTimeValueMap(c *api.QueryTableResult) (map[string]float64, 
 func parseDiskIopsTimeValueMap(c *api.QueryTableResult) (map[string]float64, error) {
 	timeMap := map[string]float64{}
 	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(metric.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}
@@ -1567,7 +1571,7 @@ func getDiskBandwidthHistory(stmt string) ([]metric.TimeValue, error) {
 func parseDiskBandwidthHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 	points := []metric.TimeValue{}
 	for c.Next() {
-		date, err := ostime.Parse(events.TimeLayout, c.Record().Time().String())
+		date, err := ostime.Parse(metric.TimeLayout, c.Record().Time().String())
 		if err != nil {
 			continue
 		}

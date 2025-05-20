@@ -4764,6 +4764,7 @@ const docTemplate = `{
                                                         "cpuSpec": "Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz",
                                                         "networkInterfaces": [
                                                             {
+                                                                "interface": "eth0",
                                                                 "label": "IF.1",
                                                                 "busIdSlaves": "0000:01:00.0",
                                                                 "driver": "tg3",
@@ -4771,6 +4772,7 @@ const docTemplate = `{
                                                                 "speed": "1000F/1000F"
                                                             },
                                                             {
+                                                                "interface": "eth1",
                                                                 "label": "IF.2",
                                                                 "busIdSlaves": "0000:01:00.1",
                                                                 "driver": "tg3",
@@ -4778,6 +4780,7 @@ const docTemplate = `{
                                                                 "speed": "NA/1000F"
                                                             },
                                                             {
+                                                                "interface": "eth2",
                                                                 "label": "IF.3",
                                                                 "busIdSlaves": "0000:02:00.0",
                                                                 "driver": "tg3",
@@ -4785,6 +4788,7 @@ const docTemplate = `{
                                                                 "speed": "NA/1000F"
                                                             },
                                                             {
+                                                                "interface": "eth3",
                                                                 "label": "IF.4",
                                                                 "busIdSlaves": "0000:02:00.1",
                                                                 "driver": "tg3",
@@ -4962,6 +4966,7 @@ const docTemplate = `{
                                                 "cpuSpec": "Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz",
                                                 "networkInterfaces": [
                                                     {
+                                                        "interface": "eth0",
                                                         "label": "IF.1",
                                                         "busIdSlaves": "0000:01:00.0",
                                                         "driver": "tg3",
@@ -4969,6 +4974,7 @@ const docTemplate = `{
                                                         "speed": "1000F/1000F"
                                                     },
                                                     {
+                                                        "interface": "eth1",
                                                         "label": "IF.2",
                                                         "busIdSlaves": "0000:01:00.1",
                                                         "driver": "tg3",
@@ -4976,6 +4982,7 @@ const docTemplate = `{
                                                         "speed": "NA/1000F"
                                                     },
                                                     {
+                                                        "interface": "eth2",
                                                         "label": "IF.3",
                                                         "busIdSlaves": "0000:02:00.0",
                                                         "driver": "tg3",
@@ -4983,6 +4990,7 @@ const docTemplate = `{
                                                         "speed": "NA/1000F"
                                                     },
                                                     {
+                                                        "interface": "eth3",
                                                         "label": "IF.4",
                                                         "busIdSlaves": "0000:02:00.1",
                                                         "driver": "tg3",
@@ -15350,6 +15358,7 @@ const docTemplate = `{
                         "items": {
                             "type": "object",
                             "required": [
+                                "interface",
                                 "label",
                                 "busIdSlaves",
                                 "driver",
@@ -15357,6 +15366,9 @@ const docTemplate = `{
                                 "speed"
                             ],
                             "properties": {
+                                "interface": {
+                                    "type": "string"
+                                },
                                 "label": {
                                     "type": "string"
                                 },

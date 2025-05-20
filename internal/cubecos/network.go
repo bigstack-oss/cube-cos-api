@@ -11,6 +11,7 @@ import (
 )
 
 type NetworkInterface struct {
+	Interface   string `json:"dev" yaml:"dev" bson:"dev"`
 	Label       string `json:"label" yaml:"label" bson:"label"`
 	BusIdSlaves string `json:"busid" yaml:"busid" bson:"busid"`
 	Driver      string `json:"driver" yaml:"driver" bson:"driver"`
@@ -76,7 +77,7 @@ func GetStorageIp(storageNet string) (string, error) {
 }
 
 func DumpInterfaces() ([]NetworkInterface, error) {
-	out, err := exec.Command("hex_sdk", "-f", "json", "DumpInterface").CombinedOutput()
+	out, err := exec.Command("hex_sdk", "-v", "-f", "json", "DumpInterface").CombinedOutput()
 	if err != nil {
 		log.Errorf("net: failed to get network info: %v", err)
 		return nil, err

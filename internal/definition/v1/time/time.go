@@ -70,6 +70,11 @@ func LocalRFC3339(t time.Time) string {
 	return t.In(LocalFixedZone).Format(time.RFC3339)
 }
 
+func LocalRFC3339AddDuration(t time.Time, duration time.Duration) string {
+	adjusted := t.Add(duration)
+	return adjusted.In(LocalFixedZone).Format(time.RFC3339)
+}
+
 func ISO8601Z(t time.Time) string {
 	return t.Format(FormatISO8601Z)
 }

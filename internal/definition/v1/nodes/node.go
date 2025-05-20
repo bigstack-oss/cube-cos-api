@@ -56,6 +56,7 @@ type Node struct {
 }
 
 type NetworkInterface struct {
+	Interface   string `json:"interface" yaml:"interface" bson:"interface"`
 	Label       string `json:"label" yaml:"label" bson:"label"`
 	BusIdSlaves string `json:"busIdSlaves" yaml:"busIdSlaves" bson:"busIdSlaves"`
 	Driver      string `json:"driver" yaml:"driver" bson:"driver"`
