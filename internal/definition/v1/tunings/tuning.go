@@ -71,7 +71,6 @@ type RawLimitation struct {
 }
 
 type Tuning struct {
-	Id               string     `json:"id,omitempty" yaml:"-" bson:"id"`
 	Name             string     `json:"name" yaml:"name" bson:"name"`
 	Value            any        `json:"value" yaml:"value" bson:"value"`
 	Description      string     `json:"description" yaml:"-" bson:"-"`
@@ -83,7 +82,6 @@ type Tuning struct {
 
 	Node   *nodes.Node    `json:"node,omitempty" yaml:"-" bson:"-"`
 	Hosts  []nodes.Host   `json:"hosts" yaml:"-" bson:"-"`
-	Roles  []nodes.Role   `json:"roles,omitempty" yaml:"-" bson:"-"`
 	Status *status.Tuning `json:"status,omitempty" yaml:"-" bson:"status,omitempty"`
 }
 
@@ -172,6 +170,9 @@ func (t *Tuning) SetHosts(hosts []string) {
 	t.Hosts = []nodes.Host{}
 	for _, host := range hosts {
 		t.Hosts = append(t.Hosts, nodes.Host{Name: host})
+		if host == base.Hostname {
+			t.Node = &nodes.Node{Hostname: host}
+		}
 	}
 }
 
@@ -248,15 +249,18 @@ func (t *Tuning) CopyAndOverrideHost(n nodes.Node) Tuning {
 
 func (t *Tuning) GenTaskUpdate() Tuning {
 	return Tuning{
-		Id:     t.Id,
 		Name:   t.Name,
 		Value:  t.Value,
+		Node:   t.Node,
 		Status: t.Status,
 	}
 }
 
 func (t *Tuning) IndexKey() string {
-	return t.Name + "|" + fmt.Sprintf("%v", t.Value) + "|" + strconv.FormatBool(t.Enabled) + "|" + strconv.FormatBool(t.IsModified)
+	return t.Name + "|" +
+		fmt.Sprintf("%v", t.Value) + "|" +
+		strconv.FormatBool(t.Enabled) + "|" +
+		strconv.FormatBool(t.IsModified)
 }
 
 func (t *Tuning) GenSortIndex() string {
@@ -285,7 +289,6 @@ func CheckSpec(tuning Tuning) error {
 func isValueValid(tuning Tuning, spec *Spec) bool {
 	switch spec.Limitation.Type {
 	case "int", "uint":
-		log.Infof("test is int or uint: %v", tuning, spec.Limitation.Type)
 		return isValidInt(tuning, spec)
 	case "str":
 		return isValidString(tuning, spec)
@@ -298,19 +301,13 @@ func isValueValid(tuning Tuning, spec *Spec) bool {
 }
 
 func isValidInt(tuning Tuning, spec *Spec) bool {
-	value, ok := tuning.Value.(string)
+	value, ok := tuning.Value.(int)
 	if !ok {
-		log.Errorf("tuning(%s): value is not string: %v", tuning.Name, tuning.Value)
+		log.Errorf("tuning: %s value is not int: %v", tuning.Name, tuning.Value)
 		return false
 	}
 
-	intValue, err := strconv.Atoi(value)
-	if err != nil {
-		log.Errorf("tuning(%s): failed to convert value to int: %v", tuning.Name, tuning.Value)
-		return false
-	}
-
-	return spec.IsInLimitedRange(intValue)
+	return spec.IsInLimitedRange(value)
 }
 
 func isValidString(tuning Tuning, spec *Spec) bool {
@@ -323,8 +320,9 @@ func isValidString(tuning Tuning, spec *Spec) bool {
 		return true
 	}
 
-	regex := regexp.MustCompile(spec.Limitation.Regex)
-	return regex.MatchString(value)
+	return regexp.
+		MustCompile(spec.Limitation.Regex).
+		MatchString(value)
 }
 
 func SetSpec(name string, spec *Spec) {

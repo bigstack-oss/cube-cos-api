@@ -5,9 +5,10 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"slices"
 	"strconv"
 	"strings"
+
+	"maps"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
@@ -360,22 +361,38 @@ func IsTuningDeleted(tuning tunings.Tuning) bool {
 		noValueInSettings(valueErr)
 }
 
-func ListTunings(opts tunings.ListOptions) ([]tunings.Tuning, error) {
-	localTunings := tunings.ListLocal()
+// func ListTunings(opts tunings.ListOptions) ([]tunings.Tuning, error) {
+// 	local := tunings.ListLocal()
+// 	if !opts.AllNodes {
+// 		return local, nil
+// 	}
+
+// 	peers, err := ListPeerNodeTunings()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	peers[base.Hostname] = local
+// 	return aggregateTunings(peers), nil
+// }
+
+func ListTunings(opts tunings.ListOptions) (map[string][]tunings.Tuning, error) {
+	all := map[string][]tunings.Tuning{}
+	all[base.Hostname] = tunings.ListLocal()
 	if !opts.AllNodes {
-		return localTunings, nil
+		return all, nil
 	}
 
-	allTunings, err := ListTuningsFromOtherNodes()
+	peers, err := ListPeerNodeTunings()
 	if err != nil {
 		return nil, err
 	}
 
-	allTunings[base.Hostname] = localTunings
-	return aggregateTunings(allTunings), nil
+	maps.Copy(all, peers)
+	return all, nil
 }
 
-func ListTuningsFromOtherNodes() (map[string][]tunings.Tuning, error) {
+func ListPeerNodeTunings() (map[string][]tunings.Tuning, error) {
 	nodeTunings := map[string][]tunings.Tuning{}
 	for _, node := range nodes.List() {
 		if node.IsLocal() {
@@ -585,33 +602,6 @@ func getNodeTunings(node nodes.Node) ([]tunings.Tuning, error) {
 
 	list := resp.Result().(*bodies.TuningList)
 	return list.Data.Tunings, nil
-}
-
-func aggregateTunings(nodeToTuning map[string][]tunings.Tuning) []tunings.Tuning {
-	mergedMap := make(map[string]tunings.Tuning)
-	for _, tunings := range nodeToTuning {
-		setTunings(mergedMap, tunings)
-	}
-
-	tunings := []tunings.Tuning{}
-	for _, item := range mergedMap {
-		tunings = append(tunings, item)
-	}
-
-	return tunings
-}
-
-func setTunings(mergedMap map[string]tunings.Tuning, tunings []tunings.Tuning) {
-	for _, tuning := range tunings {
-		key := tuning.IndexKey()
-		existing, found := mergedMap[key]
-		if found {
-			existing.Hosts = slices.Concat(existing.Hosts, tuning.Hosts)
-			mergedMap[key] = existing
-		} else {
-			mergedMap[key] = tuning
-		}
-	}
 }
 
 func checkAndUpdateTuning(key string, sourceTuning tunings.Tuning) {

@@ -537,7 +537,7 @@ func setValueToLicenseDat(licenseDat *licenses.License, parts []string) {
 		licenseDat.Product.Feature = parseFeature(value)
 	case "quantity":
 		licenseDat.Quantity = value
-	case "sla":
+	case "support.plan":
 		licenseDat.SupportPlan = parseSupportPlan(value)
 	case "issue.date":
 		licenseDat.Issue.Date = parseDatIssueDate(value)

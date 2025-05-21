@@ -160,23 +160,23 @@ func genTuningMap(list []tunings.Tuning) map[string]tunings.Tuning {
 }
 
 func (h *helper) enrichTunings(tunings *[]tunings.Tuning) {
-	h.syncUpdates(tunings)
+	// h.syncUpdates(tunings)
 	h.sortTunings(tunings)
 }
 
-func (h *helper) syncUpdates(tunings *[]tunings.Tuning) {
-	for i, tuning := range *tunings {
-		(*tunings)[i] = h.syncUpdatingTuning(tuning)
-	}
-}
+// func (h *helper) syncUpdates(tunings *[]tunings.Tuning) {
+// 	for i, tuning := range *tunings {
+// 		(*tunings)[i] = h.getUpdatingTuning(tuning)
+// 	}
+// }
 
-func (h *helper) syncUpdatingTuning(tuning tunings.Tuning) tunings.Tuning {
+func (h *helper) getUpdatingTuning(tuning tunings.Tuning, host string) tunings.Tuning {
 	tuning.SetOk()
-	if !h.hasUpdateHistory(tuning) {
+	if !h.hasUpdatedHistory(tuning, host) {
 		return tuning
 	}
 
-	record, err := h.getUpdateRecord(tuning)
+	record, err := h.getUpdateRecord(tuning, host)
 	if err != nil {
 		return tuning
 	}
@@ -187,12 +187,11 @@ func (h *helper) syncUpdatingTuning(tuning tunings.Tuning) tunings.Tuning {
 	return tuning
 }
 
-func (h *helper) hasUpdateHistory(tuning tunings.Tuning) bool {
-	mongo := bsmongo.GetGlobalHelper()
-	count, err := mongo.GetCount(
+func (h *helper) hasUpdatedHistory(tuning tunings.Tuning, host string) bool {
+	count, err := h.mongo.GetCount(
 		tunings.Module,
 		tunings.ReqCollection(),
-		bson.M{"id": tuning.GenerateId()},
+		bson.M{"name": tuning.Name, "host": host},
 	)
 	if err != nil {
 		return false
@@ -201,12 +200,12 @@ func (h *helper) hasUpdateHistory(tuning tunings.Tuning) bool {
 	return count > 0
 }
 
-func (h *helper) getUpdateRecord(tuning tunings.Tuning) (tunings.Tuning, error) {
+func (h *helper) getUpdateRecord(tuning tunings.Tuning, host string) (tunings.Tuning, error) {
 	mongo := bsmongo.GetGlobalHelper()
 	record, err := mongo.Get(
 		tunings.Module,
 		tunings.ReqCollection(),
-		bson.M{"id": tuning.GenerateId()},
+		bson.M{"name": tuning.Name, "host": host},
 	)
 	if err != nil {
 		return tuning, err

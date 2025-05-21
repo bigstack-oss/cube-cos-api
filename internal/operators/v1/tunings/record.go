@@ -18,9 +18,7 @@ func (o *Operator) handleExit(tuning tunings.Tuning, err error) {
 		tuning.SetCompleted()
 	}
 
-	if tuning.IsReportRequired {
-		o.reportToController(tuning)
-	}
+	o.reportToController(tuning)
 }
 
 func (o *Operator) reportToController(tuning tunings.Tuning) error {
@@ -34,14 +32,14 @@ func (o *Operator) reportToController(tuning tunings.Tuning) error {
 	resp, err := h.R().
 		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(tuning.GenTaskUpdate()).
-		Patch(node.PatchTuningTaskUrl(tuning.Id))
+		Patch(node.PatchTuningTaskUrl())
 	if err != nil {
-		log.Errorf("tunings: failed to send tuning %s to %s: %v", tuning.Name, node.Hostname, err)
+		log.Errorf("tunings: failed to update %s to %s: %v", tuning.Name, node.Hostname, err)
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("tunings: failed to send tuning %s to %s: %s", tuning.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("tunings: has resp error from %s: %s(%s)", node.Hostname, tuning.Name, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 

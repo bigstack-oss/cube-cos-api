@@ -13,7 +13,7 @@ import (
 	json "github.com/json-iterator/go"
 )
 
-type dataChan chan data
+type dataChan chan tuningPage
 
 type watcher struct {
 	helper
@@ -51,16 +51,16 @@ func streamingWatcher() {
 	}
 }
 
-func streamTuningsByHandlerType(h *helper) (*data, error) {
+func streamTuningsByHandlerType(h *helper) (*tuningPage, error) {
 	switch h.handler {
 	case "getTunings":
-		return h.ListTunings()
+		return h.listTunings()
 	}
 
 	return nil, errors.New("no internal function supported")
 }
 
-func watchTunings(h *helper, data *data) {
+func watchTunings(h *helper, data *tuningPage) {
 	setChunkedTransfer(h.c)
 	flusher, ok := h.c.Writer.(http.Flusher)
 	if !ok {
@@ -101,7 +101,7 @@ func removeWatcher(watcherToRemove watcher) {
 	}
 }
 
-func sendFirstTuning(c *gin.Context, flusher http.Flusher, data *data) {
+func sendFirstTuning(c *gin.Context, flusher http.Flusher, data *tuningPage) {
 	c.Writer.Write(streamingResp(data))
 	c.Writer.Write([]byte("\n"))
 	flusher.Flush()
@@ -122,7 +122,7 @@ func streamingTuning(c *gin.Context, flusher http.Flusher, watcher watcher) {
 	}
 }
 
-func streamingResp(data *data) []byte {
+func streamingResp(data *tuningPage) []byte {
 	b, err := json.Marshal(gin.H{
 		"code":   http.StatusOK,
 		"status": "ok",

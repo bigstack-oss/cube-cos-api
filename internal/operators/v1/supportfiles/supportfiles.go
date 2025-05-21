@@ -33,7 +33,7 @@ func (o *Operator) Name() string {
 
 func (o *Operator) Init() error {
 	cubecos.SyncSupportFiles()
-	cubecos.RemovePendingReq(support.FileDB, support.FileReqCollection)
+	cubecos.ForceRemovePendingReq(support.FileDB, support.FileReqCollection)
 	return o.initWatcher()
 }
 

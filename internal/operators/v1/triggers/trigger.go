@@ -38,7 +38,7 @@ func (o *Operator) Init() error {
 	}
 
 	o.syncTriggers()
-	cubecos.RemovePendingReq(triggers.DB, triggers.ReqCollection)
+	cubecos.ForceRemovePendingReq(triggers.DB, triggers.ReqCollection)
 	return nil
 }
 

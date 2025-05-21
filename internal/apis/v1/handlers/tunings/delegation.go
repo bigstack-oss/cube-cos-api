@@ -3,8 +3,6 @@ package tunings
 import (
 	"errors"
 
-	bshttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	log "go-micro.dev/v5/logger"
@@ -19,42 +17,16 @@ func (h *helper) delegateTuningReq() {
 		}
 
 		if node.IsLocal() {
-			h.tuneLocal(h.tuning)
+			h.tuneLocal(node)
 			continue
 		}
 
 		if node.IsDown() {
-			log.Errorf("tunings(%s): node %s is down, cannot delegate %s", h.reqId, node.Hostname, h.tuning.Name)
+			log.Errorf("tunings(%s): %s is down, cannot delegate %s", h.reqId, node.Hostname, h.tuning.Name)
 			continue
 		}
 
-		err := h.tunePeerNode(node)
-		if err != nil {
-			log.Errorf("tunings(%s): failed to delegate %s to %s: %v", h.reqId, h.tuning.Name, node.Hostname, err)
-		}
-	}
-}
-
-func (h *helper) delegateTuningToggleReq() {
-	for _, host := range h.tuning.Hosts {
-		node := host.GetNode()
-		if node == nil {
-			log.Errorf("tunings(%s): failed to get node by hostname(%s)", h.reqId, host.Name)
-			continue
-		}
-
-		h.backfillTuningInfoByHandler(h.tuning)
-		if node.IsLocal() {
-			h.tuneLocal(h.tuning)
-			continue
-		}
-
-		if node.IsDown() {
-			log.Errorf("tunings(%s): node %s is down, cannot delegate %s", h.reqId, h.tuning.Name, node.Hostname)
-			continue
-		}
-
-		err := h.tunePeerNode(node)
+		err := h.tunePeer(node)
 		if err != nil {
 			log.Errorf("tunings(%s): failed to delegate %s to %s: %v", h.reqId, h.tuning.Name, node.Hostname, err)
 		}
@@ -62,7 +34,7 @@ func (h *helper) delegateTuningToggleReq() {
 }
 
 func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*tunings.Tuning, error) {
-	tunings, err := cubecos.ListTunings(tunings.ListOptions{AllNodes: h.allNodes})
+	tunings, err := h.listAggregatedTunings()
 	if err != nil {
 		log.Errorf("tunings(%s): failed to get tuning: %v", h.reqId, err)
 		return nil, err
@@ -83,45 +55,58 @@ func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*tunings.
 	return nil, errors.New("tuning not found")
 }
 
-func (h *helper) tuneLocal(tuning tunings.Tuning) {
-	if h.isRecordRequired {
-		h.addReqRecord(tuning)
-	}
-
-	reqQueue.Add(&tuning)
+func (h *helper) tuneLocal(node *nodes.Node) {
+	h.updateRecord(node.Hostname)
+	reqQueue.Add(&h.tuning)
 }
 
-func (h *helper) backfillTuningInfoByHandler(tuning tunings.Tuning) {
-	switch h.handler {
-	case "updateTuning":
-		h.tuning.Enabled = tuning.Enabled
-	case "enableOrDisableTuning":
-		h.tuning.Value = tuning.Value
-	}
-}
-
-func (h *helper) tunePeerNode(node *nodes.Node) error {
-	resp, err := bshttp.GetGlobalHelper().R().
+func (h *helper) tunePeer(node *nodes.Node) error {
+	resp, err := h.http.R().
 		SetHeaders(nodes.GetSecretHeaders()).
-		SetBody(genTuningUpdate(h.tuning, node)).
-		Patch(node.PatchTuningUrl(h.tuning.Name))
+		SetBody(h.genTuningBodyByHandler(node)).
+		Patch(h.genTuningUrlByHandler(node))
 	if err != nil {
-		log.Errorf("tunings(%s): failed to send tuning %s to %s: %v", h.reqId, h.tuning.Name, node.Id)
+		log.Errorf("tunings(%s): failed to send %s to %s: %v", h.reqId, h.tuning.Name, node.Id, err)
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf("tunings(%s): failed to send tuning %s to %s: %s", h.reqId, h.tuning.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("tunings(%s): failed to send %s to %s: %s", h.reqId, h.tuning.Name, node.Hostname, string(resp.Body()))
 		return errors.New(string(resp.Body()))
 	}
 
 	return nil
 }
 
-func genTuningUpdate(tuning tunings.Tuning, node *nodes.Node) *tunings.Update {
+func (h *helper) genTuningBodyByHandler(node *nodes.Node) any {
+	switch h.handler {
+	case "enableOrDisableTuning":
+		return h.genTuningEnablement(node)
+	default:
+		return h.genTuningUpdate(node)
+	}
+}
+
+func (h *helper) genTuningUrlByHandler(node *nodes.Node) string {
+	switch h.handler {
+	case "enableOrDisableTuning":
+		return node.EnableOrDisableTuningUrl(h.tuning.Name)
+	default:
+		return node.PatchTuningUrl(h.tuning.Name)
+	}
+}
+
+func (h *helper) genTuningEnablement(node *nodes.Node) *tunings.Toggle {
+	return &tunings.Toggle{
+		Enable: h.tuning.Enabled,
+		Hosts:  []string{node.Hostname},
+	}
+}
+
+func (h *helper) genTuningUpdate(node *nodes.Node) *tunings.Update {
 	return &tunings.Update{
-		Value:   tuning.Value,
-		Enabled: tuning.Enabled,
+		Value:   h.tuning.Value,
+		Enabled: h.tuning.Enabled,
 		Hosts:   []string{node.Hostname},
 	}
 }

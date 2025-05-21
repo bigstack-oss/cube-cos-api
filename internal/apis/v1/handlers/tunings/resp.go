@@ -5,7 +5,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 )
 
-type data struct {
+type tuningPage struct {
 	Tunings    []tunings.Tuning `json:"tunings"`
 	pages.Page `json:"page"`
 }

@@ -1,11 +1,11 @@
 package tunings
 
 import (
-	"errors"
 	"sort"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	"github.com/gin-gonic/gin"
@@ -15,6 +15,8 @@ import (
 
 type helper struct {
 	c       *gin.Context
+	http    *http.Helper
+	mongo   *mongo.Helper
 	reqId   string
 	handler string
 
@@ -23,11 +25,10 @@ type helper struct {
 	update tunings.Update
 	reset  tunings.Reset
 
-	allNodes         bool
-	hosts            []string
-	keyword          string
-	modified         []bool
-	isRecordRequired bool
+	allNodes bool
+	hosts    []string
+	keyword  string
+	modified []bool
 
 	*pages.Page
 	watch bool
@@ -36,6 +37,8 @@ type helper struct {
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{
 		c:       c,
+		http:    http.GetGlobalHelper(),
+		mongo:   mongo.GetGlobalHelper(),
 		reqId:   queries.GetReqId(c),
 		handler: handler,
 	}
@@ -54,113 +57,21 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h.parseKeyword()
 	h.parseHosts()
 	h.parseModified()
-	h.ParseRecordRequire()
 
 	return h, nil
 }
 
-func (h *helper) parseTuningUpdate() error {
-	err := h.c.ShouldBindJSON(&h.update)
+func (h *helper) listTunings() (*tuningPage, error) {
+	tunings, err := h.listAggregatedTunings()
 	if err != nil {
-
-		return err
-	}
-
-	return h.convertReqToTuningSpec()
-}
-
-func (h *helper) convertReqToTuningSpec() error {
-	var err error
-	h.tuning.Name = h.c.Param("parameterName")
-	h.tuning.Enabled, err = h.parseEnabled()
-	if err != nil {
-		return err
-	}
-
-	h.tuning.Value = h.update.Value
-	h.tuning.SetHosts(h.update.Hosts)
-	h.tuning.SetUpdating()
-	h.tuning.Id = h.tuning.GenerateId()
-	h.tuning.IsReportRequired = h.isRecordRequired
-	return nil
-}
-
-func (h *helper) parseTuningReset() error {
-	err := h.c.ShouldBindJSON(&h.reset)
-	if err != nil {
-		log.Errorf("tunings(%s): failed to parse reset tuning: %v", h.reqId, err)
-		return err
-	}
-
-	name := h.c.Param("parameterName")
-	spec, err := tunings.GetSpec(name)
-	if err != nil {
-		return err
-	}
-
-	h.tuning.Name = name
-	if !h.isTuningModified() {
-		return errors.New("can't reset unmodified tuning")
-	}
-
-	h.tuning.Value = spec.Limitation.Default
-	h.tuning.Enabled = true
-	h.tuning.IsModified = false
-	h.tuning.SetResetting()
-	h.tuning.SetHosts(h.reset.Hosts)
-	h.tuning.Id = h.tuning.GenerateId()
-	h.tuning.IsReportRequired = h.isRecordRequired
-	return nil
-}
-
-func (h *helper) parseTuningEnablement() error {
-	err := h.c.ShouldBindJSON(&h.toggle)
-	if err != nil {
-		return err
-	}
-
-	h.tuning.Name = h.c.Param("parameterName")
-	if !h.isTuningModified() {
-		return errors.New("can't enable/disable unmodified tuning")
-	}
-
-	tuning, err := h.getTuningByNameAndHosts(h.tuning.Name, h.toggle.Hosts)
-	if err != nil {
-		log.Errorf("tunings(%s): failed to get tuning: %v", h.reqId, err)
-		return err
-	}
-
-	h.tuning = *tuning
-	h.tuning.Enabled = h.toggle.Enable
-	h.tuning.SetUpdating()
-	h.tuning.SetHosts(h.toggle.Hosts)
-	h.tuning.Id = h.tuning.GenerateId()
-	h.tuning.IsReportRequired = h.isRecordRequired
-	return nil
-}
-
-func (h *helper) isTuningModified() bool {
-	tuning, err := h.getTuningByNameAndHosts(h.tuning.Name, h.toggle.Hosts)
-	if err != nil {
-		log.Errorf("tunings(%s): failed to get tuning: %v", h.reqId, err)
-		return false
-	}
-
-	return tuning.IsModified
-}
-
-func (h *helper) ListTunings() (*data, error) {
-	tunings, err := cubecos.ListTunings(tunings.ListOptions{AllNodes: h.allNodes})
-	if err != nil {
-		log.Errorf("tunings(%s): failed to get tunings: %v", h.reqId, err)
+		log.Errorf("tunings(%s): failed to get parameters: %v", h.reqId, err)
 		return nil, err
 	}
 
-	h.enrichTunings(&tunings)
 	tunings = h.filterTunings(tunings)
 	pagedTunings, err := h.paginateTunings(tunings)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to paginate tunings: %v", h.reqId, err)
+		log.Errorf("tunings(%s): failed to paginate parameters: %v", h.reqId, err)
 		return nil, err
 	}
 
@@ -170,13 +81,13 @@ func (h *helper) ListTunings() (*data, error) {
 		return nil, err
 	}
 
-	return &data{
+	return &tuningPage{
 		Tunings: pagedTunings,
 		Page:    page,
 	}, nil
 }
 
-func (h *helper) ListTuningSpecs() ([]tunings.Spec, error) {
+func (h *helper) listTuningSpecs() ([]tunings.Spec, error) {
 	specs := []tunings.Spec{}
 	tunings.GetSpecs().Range(func(key, value any) bool {
 		spec := deepcopy.Copy(value).(*tunings.Spec)

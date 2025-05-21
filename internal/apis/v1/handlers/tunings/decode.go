@@ -10,21 +10,20 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (h *helper) decodeTuningReq(reqBody io.ReadCloser) (*tunings.Tuning, error) {
+func (h *helper) decodeTuningReq(reqBody io.ReadCloser) error {
 	b, err := io.ReadAll(reqBody)
 	if err != nil {
 		log.Errorf("tunings(%s): failed to read request body: %v", h.reqId, err)
-		return nil, err
+		return err
 	}
 
-	tuning := &tunings.Tuning{}
-	err = json.Unmarshal(b, tuning)
+	err = json.Unmarshal(b, &h.tuning)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to decode tuning request: %v", h.reqId, err)
-		return nil, fmt.Errorf("the request body is brought or not valid")
+		log.Errorf("tunings(%s): failed to decode request: %v", h.reqId, err)
+		return fmt.Errorf("the request body is not valid")
 	}
 
-	return tuning, nil
+	return nil
 }
 
 func (h *helper) checkTuningPatchReq() error {
@@ -51,12 +50,16 @@ func (h *helper) checkHostsAreValid() error {
 	return nil
 }
 
-func (h *helper) checkTaskUpdateReq(tuning *tunings.Tuning) error {
-	if tuning.Id == "" {
-		return fmt.Errorf("tuning id is required")
+func (h *helper) checkTaskUpdateReq() error {
+	if h.tuning.Name == "" {
+		return fmt.Errorf("tuning name is required")
 	}
 
-	if tuning.Status == nil {
+	if h.tuning.Node == nil {
+		return fmt.Errorf("node is required")
+	}
+
+	if h.tuning.Status == nil {
 		return fmt.Errorf("tuning status is required")
 	}
 

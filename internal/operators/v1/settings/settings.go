@@ -33,7 +33,7 @@ func (o *Operator) Name() string {
 
 func (o *Operator) Init() error {
 	cubecos.SyncAlertSettings()
-	cubecos.RemovePendingReq(settings.DB, settings.ReqCollection)
+	cubecos.ForceRemovePendingReq(settings.DB, settings.ReqCollection)
 	return o.initWatcher()
 }
 

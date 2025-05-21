@@ -12,20 +12,20 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (h *helper) addReqRecord(tuning tunings.Tuning) {
+func (h *helper) updateRecord(host string) {
 	mongo := bsmongo.GetGlobalHelper()
 	err := mongo.UpdateOne(
 		tunings.DB(),
 		tunings.ReqCollection(),
-		bson.M{"id": tuning.Id},
-		genUpsertPayload(tuning),
+		bson.M{"name": h.tuning.Name, "host": host},
+		genUpsertPayload(h.tuning),
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
 		log.Errorf(
-			"tunings(%s): failed to sync tuning record for %s(%v)",
+			"tunings(%s): failed to sync record for %s(%v)",
 			h.reqId,
-			tuning.Name,
+			h.tuning.Name,
 			err,
 		)
 	}
@@ -34,7 +34,6 @@ func (h *helper) addReqRecord(tuning tunings.Tuning) {
 func genUpsertPayload(tuning tunings.Tuning) bson.M {
 	return bson.M{
 		"$set": bson.M{
-			"id":      tuning.Id,
 			"name":    tuning.Name,
 			"value":   tuning.Value,
 			"enabled": tuning.Enabled,
@@ -43,15 +42,15 @@ func genUpsertPayload(tuning tunings.Tuning) bson.M {
 	}
 }
 
-func updateTaskStatus(tuning *tunings.Tuning) error {
-	h := bsmongo.GetGlobalHelper()
-	return h.UpdateOne(
+func (h *helper) updateTaskStatus() error {
+	mongo := bsmongo.GetGlobalHelper()
+	return mongo.UpdateOne(
 		tunings.DB(),
 		tunings.ReqCollection(),
-		bson.M{"id": tuning.Id},
+		bson.M{"name": h.tuning.Name, "host": h.tuning.Node.Hostname},
 		bson.M{
 			"$set": bson.M{
-				"status.current":    tuning.Status.Current,
+				"status.current":    h.tuning.Status.Current,
 				"status.isUpdating": false,
 			},
 		},

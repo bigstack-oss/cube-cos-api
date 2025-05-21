@@ -18,7 +18,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/aws"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
@@ -26,7 +25,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 func ListSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
@@ -295,15 +293,6 @@ func SyncSupportFiles() {
 	}
 
 	setSupportFiles(files)
-}
-
-func RemovePendingReq(db, collection string) {
-	h := mongo.GetGlobalHelper()
-	err := h.DeleteAll(db, collection, bson.M{})
-	if err != nil {
-		log.Errorf("%s: failed to remove pending request: %v", db, err)
-		return
-	}
 }
 
 func setSupportFiles(files []os.DirEntry) {

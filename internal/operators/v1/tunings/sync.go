@@ -34,12 +34,12 @@ func (o *Operator) resetTuning(tuning tunings.Tuning) error {
 	policy.DeleteTuning(tuning.Name)
 	err = cubecos.ApplyTunings(policy.Tunings)
 	if err != nil {
-		log.Errorf("tuning: failed to delete tunings: %v", err)
+		log.Errorf("tuning: failed to delete %s: %v", tuning.Name, err)
 		return err
 	}
 
 	if !cubecos.IsTuningDeleted(tuning) {
-		err := fmt.Errorf("tuning: tuning %s is not reset", tuning.Name)
+		err := fmt.Errorf("tuning: %s is not reset", tuning.Name)
 		log.Errorf(err.Error())
 		return err
 	}

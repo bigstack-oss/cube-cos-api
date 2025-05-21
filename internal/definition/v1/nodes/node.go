@@ -196,15 +196,22 @@ func (n *Node) PatchTuningUrl(tuning string) string {
 	u.Scheme = n.Protocol
 	u.Host = n.Address
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/tunings/parameters/%s", base.DataCenterName, tuning)
-	u.RawQuery = fmt.Sprintf("isRecordRequired=%s", "false")
 	return u.String()
 }
 
-func (n *Node) PatchTuningTaskUrl(id string) string {
+func (n *Node) EnableOrDisableTuningUrl(tuning string) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/tunings/tasks/%s", base.DataCenterName, id)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/tunings/parameters/%s/enable", base.DataCenterName, tuning)
+	return u.String()
+}
+
+func (n *Node) PatchTuningTaskUrl() string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/tunings/tasks", base.DataCenterName)
 	return u.String()
 }
 
