@@ -17,7 +17,7 @@ func (h *helper) delegateTuningReq() {
 		}
 
 		if node.IsLocal() {
-			h.tuneLocal(node)
+			go h.tuneLocal(node)
 			continue
 		}
 
@@ -26,10 +26,7 @@ func (h *helper) delegateTuningReq() {
 			continue
 		}
 
-		err := h.tunePeer(node)
-		if err != nil {
-			log.Errorf("tunings(%s): failed to delegate %s to %s: %v", h.reqId, h.tuning.Name, node.Hostname, err)
-		}
+		go h.tunePeer(node)
 	}
 }
 
@@ -60,30 +57,41 @@ func (h *helper) tuneLocal(node *nodes.Node) {
 	reqQueue.Add(&h.tuning)
 }
 
-func (h *helper) tunePeer(node *nodes.Node) error {
+func (h *helper) tunePeer(node *nodes.Node) {
 	resp, err := h.http.R().
 		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(h.genTuningBodyByHandler(node)).
-		Patch(h.genTuningUrlByHandler(node))
+		Execute(
+			h.genMethodByHandler(),
+			h.genTuningUrlByHandler(node),
+		)
 	if err != nil {
 		log.Errorf("tunings(%s): failed to send %s to %s: %v", h.reqId, h.tuning.Name, node.Id, err)
-		return err
+		return
 	}
 
 	if resp.IsError() {
 		log.Errorf("tunings(%s): failed to send %s to %s: %s", h.reqId, h.tuning.Name, node.Hostname, string(resp.Body()))
-		return errors.New(string(resp.Body()))
 	}
-
-	return nil
 }
 
 func (h *helper) genTuningBodyByHandler(node *nodes.Node) any {
 	switch h.handler {
 	case "enableOrDisableTuning":
 		return h.genTuningEnablement(node)
+	case "resetTuning":
+		return h.genTuningReset(node)
 	default:
 		return h.genTuningUpdate(node)
+	}
+}
+
+func (h *helper) genMethodByHandler() string {
+	switch h.handler {
+	case "resetTuning":
+		return "POST"
+	default:
+		return "PATCH"
 	}
 }
 
@@ -91,6 +99,8 @@ func (h *helper) genTuningUrlByHandler(node *nodes.Node) string {
 	switch h.handler {
 	case "enableOrDisableTuning":
 		return node.EnableOrDisableTuningUrl(h.tuning.Name)
+	case "resetTuning":
+		return node.ResetTuningUrl(h.tuning.Name)
 	default:
 		return node.PatchTuningUrl(h.tuning.Name)
 	}
@@ -100,6 +110,12 @@ func (h *helper) genTuningEnablement(node *nodes.Node) *tunings.Toggle {
 	return &tunings.Toggle{
 		Enable: h.tuning.Enabled,
 		Hosts:  []string{node.Hostname},
+	}
+}
+
+func (h *helper) genTuningReset(node *nodes.Node) *tunings.Reset {
+	return &tunings.Reset{
+		Hosts: []string{node.Hostname},
 	}
 }
 

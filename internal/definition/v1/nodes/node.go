@@ -207,6 +207,14 @@ func (n *Node) EnableOrDisableTuningUrl(tuning string) string {
 	return u.String()
 }
 
+func (n *Node) ResetTuningUrl(tuning string) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/tunings/parameters/%s/reset", base.DataCenterName, tuning)
+	return u.String()
+}
+
 func (n *Node) PatchTuningTaskUrl() string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
