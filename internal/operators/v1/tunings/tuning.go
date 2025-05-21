@@ -38,7 +38,7 @@ func (o *Operator) Init() error {
 	}
 
 	cubecos.SyncTunings()
-	cubecos.RemovePendingReq(tunings.DB(), tunings.ReqCollection())
+	cubecos.RemoveHostPendingReq(tunings.DB(), tunings.ReqCollection())
 	return nil
 }
 

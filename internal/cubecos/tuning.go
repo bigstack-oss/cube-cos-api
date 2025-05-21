@@ -361,21 +361,6 @@ func IsTuningDeleted(tuning tunings.Tuning) bool {
 		noValueInSettings(valueErr)
 }
 
-// func ListTunings(opts tunings.ListOptions) ([]tunings.Tuning, error) {
-// 	local := tunings.ListLocal()
-// 	if !opts.AllNodes {
-// 		return local, nil
-// 	}
-
-// 	peers, err := ListPeerNodeTunings()
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	peers[base.Hostname] = local
-// 	return aggregateTunings(peers), nil
-// }
-
 func ListTunings(opts tunings.ListOptions) (map[string][]tunings.Tuning, error) {
 	all := map[string][]tunings.Tuning{}
 	all[base.Hostname] = tunings.ListLocal()

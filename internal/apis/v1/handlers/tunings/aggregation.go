@@ -14,7 +14,12 @@ func (h *helper) listAggregatedTunings() ([]bstuning.Tuning, error) {
 		return nil, err
 	}
 
-	for host, tunings := range hostTunings {
+	h.syncUpdatingTunings(&hostTunings)
+	return h.convergeTunings(hostTunings), nil
+}
+
+func (h *helper) syncUpdatingTunings(hostTunings *map[string][]bstuning.Tuning) {
+	for host, tunings := range *hostTunings {
 		if len(tunings) == 0 {
 			continue
 		}
@@ -23,12 +28,8 @@ func (h *helper) listAggregatedTunings() ([]bstuning.Tuning, error) {
 			tunings[i] = h.getUpdatingTuning(tuning, host)
 		}
 
-		hostTunings[host] = tunings
+		(*hostTunings)[host] = tunings
 	}
-
-	tunings := h.convergeTunings(hostTunings)
-	h.sortTunings(&tunings)
-	return tunings, nil
 }
 
 func (h *helper) convergeTunings(nodeTunings map[string][]bstuning.Tuning) []bstuning.Tuning {
@@ -42,6 +43,7 @@ func (h *helper) convergeTunings(nodeTunings map[string][]bstuning.Tuning) []bst
 		tunings = append(tunings, item)
 	}
 
+	h.sortTunings(&tunings)
 	return tunings
 }
 

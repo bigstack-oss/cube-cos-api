@@ -159,17 +159,6 @@ func genTuningMap(list []tunings.Tuning) map[string]tunings.Tuning {
 	return tuningMap
 }
 
-func (h *helper) enrichTunings(tunings *[]tunings.Tuning) {
-	// h.syncUpdates(tunings)
-	h.sortTunings(tunings)
-}
-
-// func (h *helper) syncUpdates(tunings *[]tunings.Tuning) {
-// 	for i, tuning := range *tunings {
-// 		(*tunings)[i] = h.getUpdatingTuning(tuning)
-// 	}
-// }
-
 func (h *helper) getUpdatingTuning(tuning tunings.Tuning, host string) tunings.Tuning {
 	tuning.SetOk()
 	if !h.hasUpdatedHistory(tuning, host) {
