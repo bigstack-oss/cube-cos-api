@@ -28,20 +28,17 @@ import (
 )
 
 func ListSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
-	localFiles := support.ListLocalFiles()
+	locals := support.ListLocalFiles()
 	if !opts.AllNodes {
-		return localFiles, nil
+		return locals, nil
 	}
 
-	peerNodeFiles, err := ListSupportFilesFromPeerNodes()
+	peers, err := ListPeerNodeSupportFiles()
 	if err != nil {
 		return nil, err
 	}
 
-	return append(
-		localFiles,
-		peerNodeFiles...,
-	), nil
+	return append(locals, peers...), nil
 }
 
 func ListHostSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
@@ -63,7 +60,7 @@ func ListHostSupportFiles(opts support.ListFileOptions) ([]support.File, error) 
 	return getNodeSupportFiles(*node)
 }
 
-func ListSupportFilesFromPeerNodes() ([]support.File, error) {
+func ListPeerNodeSupportFiles() ([]support.File, error) {
 	files := []support.File{}
 	for _, node := range nodes.List() {
 		if node.IsLocal() {
@@ -283,7 +280,7 @@ func getNodeSupportFiles(node nodes.Node) ([]support.File, error) {
 func SyncSupportFiles() {
 	files, err := os.ReadDir(support.DefaultFileDir)
 	if err != nil {
-		log.Errorf("supportFile: failed to read support file directory: %v", err)
+		log.Errorf("supportFile: failed to read support file directory(%v)", err)
 		return
 	}
 

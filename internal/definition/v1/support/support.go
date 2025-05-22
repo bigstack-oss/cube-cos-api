@@ -17,7 +17,6 @@ const (
 	Files             = "supportfiles"
 	FileDB            = "supportfiles"
 	FileReqCollection = "requests"
-	ReqTTL            = 3600
 )
 
 var (

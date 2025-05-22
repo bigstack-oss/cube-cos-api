@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 )
 
@@ -16,6 +17,8 @@ func (h *helper) genFileSets(files []support.File) []support.FileSet {
 
 func (h *helper) aggregateToFileSets(files []support.File) []support.FileSet {
 	setMap := h.groupFileSet(files)
+	h.syncCreatingStatus(&setMap)
+
 	sets := []support.FileSet{}
 	for _, set := range setMap {
 		sets = append(sets, *set)
@@ -70,4 +73,30 @@ func (h *helper) enrichFileInfo(file support.File) support.File {
 		Url:         file.Url,
 		Source:      file.Source,
 	}
+}
+
+func (h *helper) syncCreatingStatus(setMap *map[string]*support.FileSet) {
+	for key, set := range *setMap {
+		if len(set.Files) == 0 {
+			continue
+		}
+
+		if h.areAllFilesCreated(set) {
+			(*setMap)[key].Status.Current = status.Completed
+			(*setMap)[key].Status.IsCreating = false
+		} else {
+			(*setMap)[key].Status.Current = status.Creating
+			(*setMap)[key].Status.IsCreating = true
+		}
+	}
+}
+
+func (h *helper) areAllFilesCreated(set *support.FileSet) bool {
+	for _, file := range set.Files {
+		if file.Status.IsCreating {
+			return false
+		}
+	}
+
+	return true
 }

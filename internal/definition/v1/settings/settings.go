@@ -12,7 +12,6 @@ const (
 	Module        = "settings"
 	DB            = "settings"
 	ReqCollection = "requests"
-	ReqTTL        = 3600
 	PolicyDir     = "/etc/policies/alert_setting"
 	PolicyV1      = "/etc/policies/alert_setting/alert_setting1_0.yml"
 

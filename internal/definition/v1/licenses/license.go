@@ -94,14 +94,13 @@ type Node struct {
 
 func (l *License) Key() string {
 	return fmt.Sprintf(
-		"%s-%s-%s-%s-%s-%s-%d",
+		"%s-%s-%s-%s-%s-%s",
 		l.Type,
 		l.Product.Name,
 		l.Issue.By,
 		l.Issue.To,
 		l.Hardware,
 		l.Expiry.Date,
-		l.Expiry.Days,
 	)
 }
 
