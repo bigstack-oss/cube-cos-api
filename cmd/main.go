@@ -11,18 +11,18 @@ import (
 func main() {
 	err := config.SyncOptions()
 	if err != nil {
-		log.Errorf("failed to load config: %v", err)
+		log.Errorf("failed to load config(%v)", err)
 		return
 	}
 
 	srv, err := runtime.NewHttpServer()
 	if err != nil {
-		log.Errorf("failed to init runtime: %v", err)
+		log.Errorf("failed to init runtime(%v)", err)
 		return
 	}
 
 	err = svc.Micro(srv).Run()
 	if err != nil {
-		log.Errorf("failed to run service: %v", err)
+		log.Errorf("failed to run service(%v)", err)
 	}
 }
