@@ -51,7 +51,7 @@ func (h *helper) deleteKeycloakSession(claims samlsp.JWTSessionClaims) error {
 	keycloak := keycloak.GetGlobalHelper()
 	err := keycloak.LoginAdmin()
 	if err != nil {
-		log.Errorf("logout(%s): failed to login admin: %v", err)
+		log.Errorf("logout(%s): failed to login admin(%v)", err)
 		return err
 	}
 

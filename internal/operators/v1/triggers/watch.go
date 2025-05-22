@@ -42,7 +42,7 @@ func (o *Operator) watchChanges() {
 				continue
 			}
 			if err != nil {
-				log.Errorf("triggers: failed to fetch policy change event: %v", err)
+				log.Errorf("triggers: failed to fetch policy change event(%v)", err)
 				continue
 			}
 		}
@@ -63,7 +63,7 @@ func (o *Operator) checkTriggers(event fsnotify.Event) {
 func (o *Operator) syncTriggers() {
 	list, err := cubecos.GetTriggers()
 	if err != nil {
-		log.Errorf("triggers: failed to sync triggers: %v", err)
+		log.Errorf("triggers: failed to sync triggers(%v)", err)
 		return
 	}
 

@@ -27,7 +27,7 @@ func (o *Operator) operateReq(tuning tunings.Tuning) error {
 func (o *Operator) resetTuning(tuning tunings.Tuning) error {
 	policy, err := cubecos.GetTuningPolicy(cubecos.TuningPolicyFile)
 	if err != nil {
-		log.Errorf("tuning: failed to get all tunings: %v", err)
+		log.Errorf("tuning: failed to get all tunings(%v)", err)
 		return err
 	}
 

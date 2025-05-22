@@ -243,7 +243,7 @@ func GetModuleHealthHistory(module, duration, order string, onlyLast bool) ([]he
 	h := influx.GetGlobalHelper()
 	c, err := h.QueryApiClient.Query(ctx, stmt)
 	if err != nil {
-		log.Errorf("healths: failed to get query cursor: %v", err)
+		log.Errorf("healths: failed to get query cursor(%v)", err)
 		return nil, err
 	}
 
@@ -251,7 +251,7 @@ func GetModuleHealthHistory(module, duration, order string, onlyLast bool) ([]he
 	checks := []health.Check{}
 	err = parseHealthCheck(c, &checks)
 	if err != nil {
-		log.Errorf("healths: failed to parse events from cursor: %v", err)
+		log.Errorf("healths: failed to parse events from cursor(%v)", err)
 		return nil, err
 	}
 
@@ -300,7 +300,7 @@ func GetRepairingInfo() (*services.ReairingInfo, error) {
 	info := services.ReairingInfo{}
 	err = json.Unmarshal(b, &info)
 	if err != nil {
-		log.Errorf("healths: failed to unmarshal repairing info: %v", err)
+		log.Errorf("healths: failed to unmarshal repairing info(%v)", err)
 		return nil, err
 	}
 
@@ -329,7 +329,7 @@ func setPresignedUrl(check *health.Check) {
 	h := aws.GetGlobalHelper()
 	url, err := h.GenPresignedUrl("log", genHealthLogKey(check.Error.Log), time.Day*7)
 	if err != nil {
-		log.Errorf("healths: failed to generate presigned url: %v", err)
+		log.Errorf("healths: failed to generate presigned url(%v)", err)
 		return
 	}
 
@@ -573,7 +573,7 @@ func parseDetails(record *query.FluxRecord) string {
 func parseTime(record *query.FluxRecord) string {
 	date, err := ostime.Parse(events.TimeLayout, record.Time().Local().String())
 	if err != nil {
-		log.Debugf("healths: failed to parse date from record: %v", err)
+		log.Debugf("healths: failed to parse date from record(%v)", err)
 	}
 
 	return time.RFC3339Z(date)

@@ -95,7 +95,7 @@ func (o *Operator) syncNodes() {
 	nodes.Sync()
 	list, err := o.syncNodesUpAndDown()
 	if err != nil {
-		log.Errorf("nodes: failed to sync nodes: %v", err)
+		log.Errorf("nodes: failed to sync nodes(%v)", err)
 		return
 	}
 
@@ -109,7 +109,7 @@ func (o *Operator) syncNodesUpAndDown() ([]nodes.Node, error) {
 	ups := nodes.GetMap()
 	upsAndDowns, err := cubecos.GetSourceNodeMap()
 	if err != nil {
-		log.Errorf("nodes: failed to get source node map: %v", err)
+		log.Errorf("nodes: failed to get source node map(%v)", err)
 		return nil, err
 	}
 
@@ -198,7 +198,7 @@ func (o *Operator) askPeerNode(node nodes.Node) (*nodes.Node, error) {
 	}
 
 	err = fmt.Errorf("resp error for node details %s: %s", node.Hostname, string(resp.Body()))
-	log.Errorf("nodes: %v", err)
+	log.Errorf("nodes(%v)", err)
 	return nil, err
 }
 
@@ -232,7 +232,7 @@ func (o *Operator) setComputeStatus(node *nodes.Node) {
 	h := openstack.GetGlobalHelper()
 	hypervisor, err := h.GetHypervisorByHostname(node.Hostname)
 	if err != nil {
-		log.Errorf("nodes: failed to add hypervisor info to the node: %v", err)
+		log.Errorf("nodes: failed to add hypervisor info to the node(%v)", err)
 		return
 	}
 
@@ -248,7 +248,7 @@ func (o *Operator) setHardwareSpec(node *nodes.Node) {
 func (o *Operator) setCpuSpec(node *nodes.Node) {
 	info, err := cpu.Info()
 	if err != nil {
-		log.Errorf("nodes: failed to get cpu info: %v", err)
+		log.Errorf("nodes: failed to get cpu info(%v)", err)
 		return
 	}
 
@@ -322,7 +322,7 @@ func (o *Operator) setMetric(node *nodes.Node) {
 
 	cpu, err := cubecos.GetHostCpuSummary(node.Hostname)
 	if err != nil {
-		log.Errorf("nodes: failed to set cpu summary of host: %v", err)
+		log.Errorf("nodes: failed to set cpu summary of host(%v)", err)
 	}
 	if cpu == nil {
 		cpu = &metric.Compute{}
@@ -330,7 +330,7 @@ func (o *Operator) setMetric(node *nodes.Node) {
 
 	memory, err := cubecos.GetHostMemoryUsageSummary(node.Hostname)
 	if err != nil {
-		log.Errorf("nodes: failed to get memory summary of host: %v", err)
+		log.Errorf("nodes: failed to get memory summary of host(%v)", err)
 	}
 	if memory == nil {
 		memory = &metric.Space{}
@@ -338,7 +338,7 @@ func (o *Operator) setMetric(node *nodes.Node) {
 
 	storage, err := cubecos.GetHostDiskStorageSummary()
 	if err != nil {
-		log.Errorf("nodes: failed to get disk summary of host: %v", err)
+		log.Errorf("nodes: failed to get disk summary of host(%v)", err)
 	}
 	if storage == nil {
 		storage = &metric.Space{}
@@ -352,7 +352,7 @@ func (o *Operator) setMetric(node *nodes.Node) {
 func (o *Operator) setUptime(node *nodes.Node) {
 	data, err := os.ReadFile("/proc/uptime")
 	if err != nil {
-		log.Errorf("nodes: failed to read uptime file: %v", err)
+		log.Errorf("nodes: failed to read uptime file(%v)", err)
 		return
 	}
 
@@ -364,7 +364,7 @@ func (o *Operator) setUptime(node *nodes.Node) {
 
 	uptimeSeconds, err := strconv.ParseFloat(fields[0], 64)
 	if err != nil {
-		log.Errorf("nodes: failed to parse uptime: %v", err)
+		log.Errorf("nodes: failed to parse uptime(%v)", err)
 		return
 	}
 
@@ -435,7 +435,7 @@ func genMainBlockDevStatus(partitionStatuses map[string]string) map[string]strin
 	for partition, status := range partitionStatuses {
 		parent, err := parentDeviceSysfs(partition)
 		if err != nil {
-			log.Errorf("nodes: failed to get parent device: %v", err)
+			log.Errorf("nodes: failed to get parent device(%v)", err)
 			continue
 		}
 

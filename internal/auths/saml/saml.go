@@ -56,13 +56,13 @@ func NewGlobalAuth(opts Options) error {
 		opts.ServiceProvider.Host.Auth.Key,
 	)
 	if err != nil {
-		log.Errorf("auth: failed to generate api server cert key pair: %v", err)
+		log.Errorf("auth: failed to generate api server cert key pair(%v)", err)
 		return err
 	}
 
 	idpMetadata, err := GenIdentityProviderMetadata(opts)
 	if err != nil {
-		log.Errorf("auth: failed to generate idp metadata: %v", err)
+		log.Errorf("auth: failed to generate idp metadata(%v)", err)
 		return err
 	}
 
@@ -77,7 +77,7 @@ func NewGlobalAuth(opts Options) error {
 		SignRequest:        true,
 	})
 	if err != nil {
-		log.Errorf("auth: failed to create saml auth: %v", err)
+		log.Errorf("auth: failed to create saml auth(%v)", err)
 		return err
 	}
 
@@ -126,7 +126,7 @@ func GetSamlClient(id string) (*gocloak.Client, error) {
 	h := keycloak.GetGlobalHelper()
 	err := h.LoginAdmin()
 	if err != nil {
-		log.Errorf("runtime: failed to login admin for fetching saml client: %v", err)
+		log.Errorf("runtime: failed to login admin for fetching saml client(%v)", err)
 		return nil, err
 	}
 
@@ -135,7 +135,7 @@ func GetSamlClient(id string) (*gocloak.Client, error) {
 		gocloak.GetClientsParams{ClientID: gocloak.StringP(id)},
 	)
 	if err != nil {
-		log.Errorf("runtime: failed to get clients: %v", err)
+		log.Errorf("runtime: failed to get clients(%v)", err)
 		return nil, err
 	}
 
@@ -153,7 +153,7 @@ func CreateSamlMapper(id string, mapper gocloak.ProtocolMapperRepresentation) er
 	h := keycloak.GetGlobalHelper()
 	err := h.LoginAdmin()
 	if err != nil {
-		log.Errorf("runtime: failed to login admin for mapper creation: %v", err)
+		log.Errorf("runtime: failed to login admin for mapper creation(%v)", err)
 		return err
 	}
 

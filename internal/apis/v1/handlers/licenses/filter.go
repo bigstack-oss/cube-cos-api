@@ -57,7 +57,7 @@ func (h *helper) filterAttachments(attachments []licenses.Attachment) []licenses
 func (h *helper) filteredByKeyword(list []licenses.License) []licenses.License {
 	result, err := h.searchLicenses(list)
 	if err != nil {
-		log.Errorf("failed to search licenses: %v", err)
+		log.Errorf("failed to search licenses(%v)", err)
 		return list
 	}
 
@@ -135,7 +135,7 @@ func genLicenseMap(list []licenses.License) map[string]licenses.License {
 func (h *helper) filteredAttachmentByKeyword(attachments []licenses.Attachment) []licenses.Attachment {
 	result, err := h.searchAttachments(attachments)
 	if err != nil {
-		log.Errorf("failed to search license attachments: %v", err)
+		log.Errorf("failed to search license attachments(%v)", err)
 		return attachments
 	}
 

@@ -54,7 +54,7 @@ func newProvider() (*oidc.Provider, context.CancelFunc) {
 		return provider, cancel
 	}
 
-	log.Errorf("oidc: failed to create oidc provider: %v", err)
+	log.Errorf("oidc: failed to create oidc provider(%v)", err)
 	return nil, cancel
 }
 

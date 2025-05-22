@@ -19,7 +19,7 @@ func (h *helper) filteredByKeyword(nonFilterEvents []events.Event) []events.Even
 	h.setEventSearchIndex(&nonFilterEvents)
 	result, err := h.searchEvents(nonFilterEvents)
 	if err != nil {
-		log.Errorf("events: failed to search events: %v", err)
+		log.Errorf("events: failed to search events(%v)", err)
 		return nonFilterEvents
 	}
 
@@ -41,7 +41,7 @@ func (h *helper) setEventSearchIndex(nonFilterEvents *[]events.Event) {
 func (h *helper) searchEvents(nonFilterEvents []events.Event) (*bleve.SearchResult, error) {
 	searcher, err := search.New()
 	if err != nil {
-		log.Errorf("events: failed to create search index: %v", err)
+		log.Errorf("events: failed to create search index(%v)", err)
 		return nil, err
 	}
 

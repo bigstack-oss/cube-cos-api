@@ -38,7 +38,7 @@ func (o *Operator) watchChanges() {
 				continue
 			}
 			if err != nil {
-				log.Errorf("tunings: failed to fetch policy change event: %v", err)
+				log.Errorf("tunings: failed to fetch policy change event(%v)", err)
 				continue
 			}
 		}

@@ -40,7 +40,7 @@ func (o *Operator) Run() {
 			registry.WatchService(base.ServiceDiscoveryIdentity),
 		)
 		if err != nil {
-			log.Errorf("nodes: failed to create watcher: %v", err)
+			log.Errorf("nodes: failed to create watcher(%v)", err)
 			return
 		}
 
@@ -61,7 +61,7 @@ func (o *Operator) checkAndSyncNodes(watcher *registry.Watcher) {
 	defer (*watcher).Stop()
 	event, err := (*watcher).Next()
 	if err != nil {
-		log.Errorf("nodes: failed to get service discovery event: %v", err)
+		log.Errorf("nodes: failed to get service discovery event(%v)", err)
 		return
 	}
 

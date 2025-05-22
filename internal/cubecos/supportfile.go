@@ -44,7 +44,7 @@ func ListSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
 func ListHostSupportFiles(opts support.ListFileOptions) ([]support.File, error) {
 	node, err := nodes.Get(opts.Host)
 	if err != nil {
-		log.Errorf("failed to get node by hostname: %v", err)
+		log.Errorf("failed to get node by hostname(%v)", err)
 		return nil, err
 	}
 
@@ -86,7 +86,7 @@ func ListPeerNodeSupportFiles() ([]support.File, error) {
 func CreateSupportFile(file support.File) error {
 	path, err := CreateSupportCommentFile(file)
 	if err != nil {
-		log.Errorf("supportFile: failed to create support comment file: %v", err)
+		log.Errorf("supportFile: failed to create support comment file(%v)", err)
 		return err
 	}
 
@@ -102,7 +102,7 @@ func CreateSupportFile(file support.File) error {
 func SetSupportFileComment(file support.File) error {
 	path, err := CreateSupportCommentFile(file)
 	if err != nil {
-		log.Errorf("supportFile: failed to create support comment file: %v", err)
+		log.Errorf("supportFile: failed to create support comment file(%v)", err)
 		return err
 	}
 

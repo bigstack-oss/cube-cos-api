@@ -38,13 +38,13 @@ func IsLicenseFile(file string) bool {
 func SyncSourceLicense() {
 	b, err := exec.Command("hex_sdk", "-f", "json", "license_cluster_show").Output()
 	if err != nil {
-		log.Errorf("licenses: licenses: failed to list licenses: %v", err)
+		log.Errorf("licenses: licenses: failed to list licenses(%v)", err)
 		return
 	}
 
 	raws, err := parseRawLicenses(b)
 	if err != nil {
-		log.Errorf("licenses: licenses: failed to parse raw licenses: %v", err)
+		log.Errorf("licenses: licenses: failed to parse raw licenses(%v)", err)
 		return
 	}
 
@@ -56,7 +56,7 @@ func VerifyLicense(file string) (*licenses.Verification, error) {
 	defer os.Remove(file)
 	dat, err := parseLicenseDat(file)
 	if err != nil {
-		log.Errorf("licenses: failed to parse license: %v", err)
+		log.Errorf("licenses: failed to parse license(%v)", err)
 		return nil, err
 	}
 
@@ -71,7 +71,7 @@ func VerifyLicense(file string) (*licenses.Verification, error) {
 // because it will still return 0 even the result is not ok.
 // see ticket to know more https://github.com/bigstack-oss/cubecos/issues/29
 func ImportClusterLicense(licensePath string) error {
-	dir, base := getDirAndLicenseName(licensePath)
+	dir, base := getLicenseDirAndName(licensePath)
 	out, err := exec.Command("hex_config", "sdk_run", "license_cluster_import", dir, base).Output()
 	if err == nil {
 		return nil
@@ -126,7 +126,7 @@ func parseRawLicenses(b []byte) ([]licenses.Raw, error) {
 	raws := []licenses.Raw{}
 	err := json.Unmarshal(b, &raws)
 	if err != nil {
-		log.Errorf("licenses: failed to parse raw licenses: %v", err)
+		log.Errorf("licenses: failed to parse raw licenses(%v)", err)
 		return nil, err
 	}
 	if len(raws) <= 0 {
@@ -345,12 +345,12 @@ func checkLicenseErr(err error) error {
 }
 
 func parseLicenseDat(file string) (*licenses.License, error) {
-	err := unzipImportLicense(file)
+	err := unzipLicense(file)
 	if err != nil {
 		return nil, err
 	}
 
-	dir, name := getDirAndLicenseName(file)
+	dir, name := getLicenseDirAndName(file)
 	dat, err := os.Open(filepath.Join(dir, fmt.Sprintf("%s.dat", name)))
 	if err != nil {
 		return nil, err
@@ -367,11 +367,11 @@ func parseLicenseDat(file string) (*licenses.License, error) {
 	return license, nil
 }
 
-func unzipImportLicense(license string) error {
-	dir, _ := getDirAndLicenseName(license)
+func unzipLicense(license string) error {
+	dir, _ := getLicenseDirAndName(license)
 	err := zip.DecompressFromTo(license, dir)
 	if err != nil {
-		log.Errorf("licenses: failed to unzip license: %v", err)
+		log.Errorf("licenses: failed to unzip license(%v)", err)
 		return err
 	}
 
@@ -379,7 +379,7 @@ func unzipImportLicense(license string) error {
 }
 
 func checkImportLicense(file string, license licenses.License) error {
-	dir, file := getDirAndLicenseName(file)
+	dir, file := getLicenseDirAndName(file)
 	product := "def"
 	if license.Product.Name == licenses.CubeCMP {
 		product = "cmp"
@@ -389,7 +389,7 @@ func checkImportLicense(file string, license licenses.License) error {
 	return checkLicenseErr(err)
 }
 
-func getDirAndLicenseName(license string) (string, string) {
+func getLicenseDirAndName(license string) (string, string) {
 	return filepath.Dir(license), strings.TrimSuffix(filepath.Base(license), filepath.Ext(license))
 }
 
@@ -411,7 +411,7 @@ func setLicenseDat(datFile *os.File, license *licenses.License) {
 
 	err := scanner.Err()
 	if err != nil {
-		log.Errorf("licenses: failed to read license dat file: %v", err)
+		log.Errorf("licenses: failed to read license dat file(%v)", err)
 		return
 	}
 

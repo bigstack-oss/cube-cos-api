@@ -81,7 +81,7 @@ func GetEmailRecipients() ([]email.Recipient, error) {
 func GetSlackChannel(channel string) (slack.CosChannel, error) {
 	setting, err := GetAlertSetting()
 	if err != nil {
-		log.Errorf("settings: failed to get slack channel: %v", err)
+		log.Errorf("settings: failed to get slack channel(%v)", err)
 		return slack.CosChannel{}, err
 	}
 
@@ -97,7 +97,7 @@ func GetSlackChannel(channel string) (slack.CosChannel, error) {
 func GetSlackChannels() ([]slack.CosChannel, error) {
 	setting, err := GetAlertSetting()
 	if err != nil {
-		log.Errorf("settings: failed to get slack channels: %v", err)
+		log.Errorf("settings: failed to get slack channels(%v)", err)
 		return nil, err
 	}
 
@@ -108,13 +108,13 @@ func ApplyTitlePrefix(titlePrefix string) error {
 	payload := map[string]string{"titlePrefix": titlePrefix}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
-		log.Errorf("settings: failed to marshal title prefix: %v", err)
+		log.Errorf("settings: failed to marshal title prefix(%v)", err)
 		return err
 	}
 
 	out, err := exec.Command("hex_sdk", "alert_set_setting_title_prefix", string(bytes)).CombinedOutput()
 	if err != nil {
-		log.Errorf("settings: failed to set title prefix: %v", err)
+		log.Errorf("settings: failed to set title prefix(%v)", err)
 		return errors.ErrSdkExecutionFailure
 	}
 
@@ -130,7 +130,7 @@ func ApplyTitlePrefix(titlePrefix string) error {
 func DeleteEmailSender() error {
 	out, err := exec.Command("hex_sdk", "alert_delete_setting_sender_email").CombinedOutput()
 	if err != nil {
-		log.Errorf("settings: failed to delete email sender: %v", err)
+		log.Errorf("settings: failed to delete email sender(%v)", err)
 		return errors.ErrSdkExecutionFailure
 	}
 
@@ -146,13 +146,13 @@ func DeleteEmailSender() error {
 func ApplyEmailSender(sender email.Sender) error {
 	bytes, err := json.Marshal(sender)
 	if err != nil {
-		log.Errorf("settings: failed to marshal email sender: %v", err)
+		log.Errorf("settings: failed to marshal email sender(%v)", err)
 		return err
 	}
 
 	out, err := exec.Command("hex_sdk", "alert_set_setting_sender_email", string(bytes)).CombinedOutput()
 	if err != nil {
-		log.Errorf("settings: failed to set email sender: %v", err)
+		log.Errorf("settings: failed to set email sender(%v)", err)
 		return errors.ErrSdkExecutionFailure
 	}
 
@@ -177,13 +177,13 @@ func DeleteAndCreateEmailRecipient(setting settings.Setting) error {
 func ApplyEmailRecipient(recipient email.Recipient) error {
 	bytes, err := json.Marshal(recipient)
 	if err != nil {
-		log.Errorf("settings: failed to marshal email recipient: %v", err)
+		log.Errorf("settings: failed to marshal email recipient(%v)", err)
 		return err
 	}
 
 	out, err := exec.Command("hex_sdk", "alert_put_setting_receiver_email", string(bytes)).CombinedOutput()
 	if err != nil {
-		log.Errorf("settings: failed to set email recipient: %v", err)
+		log.Errorf("settings: failed to set email recipient(%v)", err)
 		return errors.ErrSdkExecutionFailure
 	}
 
@@ -200,13 +200,13 @@ func DeleteEmailRecipient(address string) error {
 	payload := map[string]string{"address": address}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
-		log.Errorf("settings: failed to marshal email recipient: %v", err)
+		log.Errorf("settings: failed to marshal email recipient(%v)", err)
 		return err
 	}
 
 	out, err := exec.Command("hex_sdk", "alert_delete_setting_receiver_email", string(bytes)).CombinedOutput()
 	if err != nil {
-		log.Errorf("settings: failed to delete email recipient: %v", err)
+		log.Errorf("settings: failed to delete email recipient(%v)", err)
 		return errors.ErrSdkExecutionFailure
 	}
 
@@ -231,13 +231,13 @@ func DeleteAndCreateSlackChannel(setting settings.Setting) error {
 func ApplySlackChannel(channel slack.CosChannel) error {
 	bytes, err := json.Marshal(channel)
 	if err != nil {
-		log.Errorf("settings: failed to marshal slack channel: %v", err)
+		log.Errorf("settings: failed to marshal slack channel(%v)", err)
 		return err
 	}
 
 	out, err := exec.Command("hex_sdk", "alert_put_setting_receiver_slack", string(bytes)).CombinedOutput()
 	if err != nil {
-		log.Errorf("settings: failed to set slack channel: %v", err)
+		log.Errorf("settings: failed to set slack channel(%v)", err)
 		return errors.ErrSdkExecutionFailure
 	}
 
@@ -254,13 +254,13 @@ func DeleteSlackChannel(url string) error {
 	payload := map[string]string{"url": url}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
-		log.Errorf("settings: failed to marshal slack channel: %v", err)
+		log.Errorf("settings: failed to marshal slack channel(%v)", err)
 		return err
 	}
 
 	out, err := exec.Command("hex_sdk", "alert_delete_setting_receiver_slack", string(bytes)).CombinedOutput()
 	if err != nil {
-		log.Errorf("settings: failed to delete slack channel: %v", err)
+		log.Errorf("settings: failed to delete slack channel(%v)", err)
 		return errors.ErrSdkExecutionFailure
 	}
 
@@ -316,7 +316,7 @@ func checkSettingReturnError(err error) error {
 
 	exitErr, ok := err.(*exec.ExitError)
 	if !ok {
-		log.Errorf("settings: failed to get setting exit error: %v", err)
+		log.Errorf("settings: failed to get setting exit error(%v)", err)
 		return errors.ErrSdkExecutionFailure
 	}
 

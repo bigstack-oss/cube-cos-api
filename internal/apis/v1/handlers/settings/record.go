@@ -45,7 +45,7 @@ func (h *helper) updateLocal() {
 func (h *helper) updatePeerControllers() {
 	peerNodes, err := nodes.GetPeerControls()
 	if err != nil {
-		log.Errorf("settings: failed to get peer controller nodes: %v", err)
+		log.Errorf("settings: failed to get peer controller nodes(%v)", err)
 		return
 	}
 

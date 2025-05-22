@@ -51,7 +51,7 @@ func (o *Operator) Run() {
 				continue
 			}
 			if err != nil {
-				log.Errorf("licenses: failed to fetch license change event: %v", err)
+				log.Errorf("licenses: failed to fetch license change event(%v)", err)
 				continue
 			}
 		}

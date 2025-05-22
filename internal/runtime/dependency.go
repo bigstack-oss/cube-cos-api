@@ -39,61 +39,61 @@ func initDependencies() error {
 func newGlobalHelpers() error {
 	err := newGlobalLogHelper()
 	if err != nil {
-		log.Errorf("runtime: failed to init logger: %v", err)
+		log.Errorf("runtime: failed to init logger(%v)", err)
 		return err
 	}
 
 	err = newGlobalHttpHelper()
 	if err != nil {
-		log.Errorf("runtime: failed to init http helper: %v", err)
+		log.Errorf("runtime: failed to init http helper(%v)", err)
 		return err
 	}
 
 	err = newGlobalSamlHelper()
 	if err != nil {
-		log.Errorf("runtime: failed to init keycloak auth: %v", err)
+		log.Errorf("runtime: failed to init keycloak auth(%v)", err)
 		return err
 	}
 
 	err = newGlobalMongoHelper()
 	if err != nil {
-		log.Errorf("runtime: failed to init mongo helper: %v", err)
+		log.Errorf("runtime: failed to init mongo helper(%v)", err)
 		return err
 	}
 
 	err = newGlobalInfluxHelper()
 	if err != nil {
-		log.Errorf("runtime: failed to init influx helper: %v", err)
+		log.Errorf("runtime: failed to init influx helper(%v)", err)
 		return err
 	}
 
 	err = newGlobalOpenstackHelper()
 	if err != nil {
-		log.Errorf("runtime: failed to init openstack helper: %v", err)
+		log.Errorf("runtime: failed to init openstack helper(%v)", err)
 		return err
 	}
 
 	err = newGlobalKeycloakHelper()
 	if err != nil {
-		log.Errorf("runtime: failed to init keycloak helper: %v", err)
+		log.Errorf("runtime: failed to init keycloak helper(%v)", err)
 		return err
 	}
 
 	err = newKeycloakOidcAuth()
 	if err != nil {
-		log.Errorf("runtime: failed to init oidc auth in keycloak: %v", err)
+		log.Errorf("runtime: failed to init oidc auth in keycloak(%v)", err)
 		return err
 	}
 
 	err = newDefaultOidcSecret()
 	if err != nil {
-		log.Errorf("runtime: failed to init oidc secret in keycloak: %v", err)
+		log.Errorf("runtime: failed to init oidc secret in keycloak(%v)", err)
 		return err
 	}
 
 	err = newGlobalAwsHelper()
 	if err != nil {
-		log.Warnf("runtime: failed to init aws helper: %v", err)
+		log.Warnf("runtime: failed to init aws helper(%v)", err)
 	}
 
 	return nil
@@ -102,31 +102,31 @@ func newGlobalHelpers() error {
 func newAuthIdentities() error {
 	err := newDefaultNodeToken()
 	if err != nil {
-		log.Errorf("runtime: failed to init node token: %v", err)
+		log.Errorf("runtime: failed to init node token(%v)", err)
 		return err
 	}
 
 	err = newKeycloakSamlMapper()
 	if err != nil {
-		log.Errorf("runtime: failed to init saml mapper in keycloak: %v", err)
+		log.Errorf("runtime: failed to init saml mapper in keycloak(%v)", err)
 		return err
 	}
 
 	err = newBucketSecret()
 	if err != nil {
-		log.Errorf("runtime: failed to init bucket secret: %v", err)
+		log.Errorf("runtime: failed to init bucket secret(%v)", err)
 		return err
 	}
 
 	err = newServiceDiscoveryIdentity()
 	if err != nil {
-		log.Errorf("runtime: failed to parse service discovery identify: %v", err)
+		log.Errorf("runtime: failed to parse service discovery identify(%v)", err)
 		return err
 	}
 
 	err = newNodeMetadata()
 	if err != nil {
-		log.Errorf("runtime: failed to generate node metadata: %v", err)
+		log.Errorf("runtime: failed to generate node metadata(%v)", err)
 		return err
 	}
 
@@ -233,7 +233,7 @@ func newKeycloakOidcAuth() error {
 	h := keycloak.GetGlobalHelper()
 	err := h.LoginAdmin()
 	if err != nil {
-		log.Errorf("runtime: failed to login admin: %v", err)
+		log.Errorf("runtime: failed to login admin(%v)", err)
 		return err
 	}
 
@@ -255,7 +255,7 @@ func newDefaultOidcSecret() error {
 	h := keycloak.GetGlobalHelper()
 	err := h.LoginAdmin()
 	if err != nil {
-		log.Errorf("runtime: failed to login keycloak admin: %v", err)
+		log.Errorf("runtime: failed to login keycloak admin(%v)", err)
 		return err
 	}
 
@@ -264,7 +264,7 @@ func newDefaultOidcSecret() error {
 		gocloak.GetClientsParams{ClientID: gocloak.StringP(auths.DefaultOidcClientId)},
 	)
 	if err != nil {
-		log.Errorf("runtime: failed to get clients: %v", err)
+		log.Errorf("runtime: failed to get clients(%v)", err)
 		return err
 	}
 	if len(clients) == 0 {
@@ -276,7 +276,7 @@ func newDefaultOidcSecret() error {
 		*clients[0].ID,
 	)
 	if err != nil {
-		log.Errorf("runtime: failed to get client secret: %v", err)
+		log.Errorf("runtime: failed to get client secret(%v)", err)
 		return err
 	}
 
@@ -297,7 +297,7 @@ func newKeycloakSamlMapper() error {
 	url := saml.GenServiceProviderMetadataUrl(conf.Opts.Spec.Identity.Saml)
 	client, err := saml.GetSamlClient(url.String())
 	if err != nil {
-		log.Errorf("runtime: failed to get saml client: %v", err)
+		log.Errorf("runtime: failed to get saml client(%v)", err)
 		return err
 	}
 

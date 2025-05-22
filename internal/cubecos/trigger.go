@@ -12,7 +12,7 @@ import (
 func IsTriggerExist(name string) bool {
 	list, err := GetTriggers()
 	if err != nil {
-		log.Errorf("triggers: failed to get trigger value: %v", err)
+		log.Errorf("triggers: failed to get trigger value(%v)", err)
 		return false
 	}
 
@@ -36,7 +36,7 @@ func GetTriggers() ([]triggers.CosSchema, error) {
 	triggers := []triggers.CosSchema{}
 	err = yaml.Unmarshal(out, &triggers)
 	if err != nil {
-		log.Errorf("triggers: failed to unmarshal trigger value: %v", err)
+		log.Errorf("triggers: failed to unmarshal trigger value(%v)", err)
 		return nil, err
 	}
 
@@ -51,7 +51,7 @@ func GetTriggers() ([]triggers.CosSchema, error) {
 func ApplyTrigger(trigger triggers.CosSchema) error {
 	b, err := trigger.Bytes()
 	if err != nil {
-		log.Errorf("triggers: failed to get trigger bytes: %v", err)
+		log.Errorf("triggers: failed to get trigger bytes(%v)", err)
 		return err
 	}
 

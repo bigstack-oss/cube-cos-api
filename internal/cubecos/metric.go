@@ -219,7 +219,7 @@ func IsMetricReportTypeValid(t string) bool {
 func SyncMetricsSummary() {
 	summary, err := syncDataCenterSummary()
 	if err != nil {
-		log.Errorf("metrics: failed to sync data center summary: %v", err)
+		log.Errorf("metrics: failed to sync data center summary(%v)", err)
 		return
 	}
 
@@ -387,7 +387,7 @@ func GetHostCpuHistory(stmt string) (*metric.History, error) {
 	defer c.Close()
 	history, err := parseCpuUsageHistory(c)
 	if err != nil {
-		log.Errorf("metrics: failed to parse cpu usage history: %v", err)
+		log.Errorf("metrics: failed to parse cpu usage history(%v)", err)
 		return nil, err
 	}
 
@@ -494,7 +494,7 @@ func GetHostMemorySizeHistory(stmt string) (*metric.History, error) {
 	defer c.Close()
 	history, err := parseMemorySizeHistory(c)
 	if err != nil {
-		log.Errorf("metrics: failed to parse memory usage history: %v", err)
+		log.Errorf("metrics: failed to parse memory usage history(%v)", err)
 		return nil, err
 	}
 
@@ -531,13 +531,13 @@ func GetHostDiskStorageSummary() (*metric.Space, error) {
 func GetHostsDiskBandwidthHistory(readStmt, writeStmt string) (*metric.StorageTimeSeries, error) {
 	read, err := getDiskBandwidthHistory(readStmt)
 	if err != nil {
-		log.Errorf("metrics: failed to get host storage read bandwidth series: %v", err)
+		log.Errorf("metrics: failed to get host storage read bandwidth series(%v)", err)
 		return nil, err
 	}
 
 	write, err := getDiskBandwidthHistory(writeStmt)
 	if err != nil {
-		log.Errorf("metrics: failed to get host storage write bandwidth series: %v", err)
+		log.Errorf("metrics: failed to get host storage write bandwidth series(%v)", err)
 		return nil, err
 	}
 
@@ -875,19 +875,19 @@ func GetVmsNetworkIngressRank(stmt string) (*metric.Rank, error) {
 func syncDataCenterSummary() (*Summary, error) {
 	host, err := GetHostSummary()
 	if err != nil {
-		log.Errorf("metrics: failed to get host summary: %v", err)
+		log.Errorf("metrics: failed to get host summary(%v)", err)
 		return nil, err
 	}
 
 	dataCenter, err := GetDataCenterUsage(host)
 	if err != nil {
-		log.Errorf("metrics: failed to get data center usage: %v", err)
+		log.Errorf("metrics: failed to get data center usage(%v)", err)
 		return nil, err
 	}
 
 	vm, err := GetVmSummary()
 	if err != nil {
-		log.Errorf("metrics: failed to get vm summary: %v", err)
+		log.Errorf("metrics: failed to get vm summary(%v)", err)
 		return nil, err
 	}
 
@@ -1050,13 +1050,13 @@ func getHostsDiskIopsHistory(stmt string) ([]metric.TimeValue, error) {
 func getHostsDiskWriteLatencyHistory(past string) ([]metric.TimeValue, error) {
 	latencies, err := getHostsDiskWriteLatencies(past)
 	if err != nil {
-		log.Errorf("metrics: failed to get disk write latencies: %v", err)
+		log.Errorf("metrics: failed to get disk write latencies(%v)", err)
 		return nil, err
 	}
 
 	iops, err := getHostsDiskWriteOps(past)
 	if err != nil {
-		log.Errorf("metrics: failed to get disk write ops: %v", err)
+		log.Errorf("metrics: failed to get disk write ops(%v)", err)
 		return nil, err
 	}
 
@@ -1090,13 +1090,13 @@ func getHostsDiskWriteOps(past string) (map[string]float64, error) {
 func getHostsDiskReadLatencyHistory(past string) ([]metric.TimeValue, error) {
 	latencies, err := getHostsDiskReadLatencies(past)
 	if err != nil {
-		log.Errorf("metrics: failed to get disk write latencies: %v", err)
+		log.Errorf("metrics: failed to get disk write latencies(%v)", err)
 		return nil, err
 	}
 
 	iops, err := getHostsDiskReadIops(past)
 	if err != nil {
-		log.Errorf("metrics: failed to get disk write ops: %v", err)
+		log.Errorf("metrics: failed to get disk write ops(%v)", err)
 		return nil, err
 	}
 

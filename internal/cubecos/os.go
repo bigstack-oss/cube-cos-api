@@ -11,12 +11,12 @@ import (
 func GetSystemSerial() (string, error) {
 	out, err := exec.Command("hex_sdk", "license_serial_get").Output()
 	if err != nil {
-		log.Errorf("base: failed to get system serial: %v", err)
+		log.Errorf("base: failed to get system serial(%v)", err)
 		return "", err
 	}
 
 	if !IsHexSdkSuccess(err) {
-		return "", fmt.Errorf("failed to get system serial by hex sdk: %v", err)
+		return "", fmt.Errorf("failed to get system serial by hex sdk(%v)", err)
 	}
 
 	serial := strings.TrimSpace(string(out))

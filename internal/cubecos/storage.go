@@ -18,14 +18,14 @@ import (
 func GetCephUsage() metric.Space {
 	b, err := exec.Command("ceph", "df", "-f", "json").Output()
 	if err != nil {
-		log.Errorf("metrics: failed to get ceph usage: %v", err)
+		log.Errorf("metrics: failed to get ceph usage(%v)", err)
 		return metric.Space{}
 	}
 
 	cephUsage := ceph.SpaceMetrics{}
 	err = json.Unmarshal(b, &cephUsage)
 	if err != nil {
-		log.Errorf("metrics: failed to unmarshal ceph usage: %v", err)
+		log.Errorf("metrics: failed to unmarshal ceph usage(%v)", err)
 		return metric.Space{}
 	}
 
@@ -44,14 +44,14 @@ func GetCephUsage() metric.Space {
 func GetRawBlockDevices() ([]nodes.RawBlockDevice, error) {
 	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "TYPE,NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS", "-e", blockdevice.NetCode).Output()
 	if err != nil {
-		log.Errorf("nodes: failed to get block device info: %v", err)
+		log.Errorf("nodes: failed to get block device info(%v)", err)
 		return nil, err
 	}
 
 	blockDevMap := map[string][]nodes.RawBlockDevice{}
 	err = json.Unmarshal(b, &blockDevMap)
 	if err != nil {
-		log.Errorf("nodes: failed to unmarshal block device info: %v", err)
+		log.Errorf("nodes: failed to unmarshal block device info(%v)", err)
 		return nil, err
 	}
 
@@ -104,7 +104,7 @@ func convertBlockDeviceType(rotation bool) string {
 func convertBlockDeviceSize(sizeStr string) float64 {
 	bytes, err := humanize.ParseBytes(sizeStr)
 	if err != nil {
-		log.Errorf("nodes: failed to convert block device size: %v", err)
+		log.Errorf("nodes: failed to convert block device size(%v)", err)
 		return 0
 	}
 

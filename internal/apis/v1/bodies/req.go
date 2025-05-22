@@ -11,7 +11,7 @@ import (
 func ParseReq(c *gin.Context) []byte {
 	body, err := c.GetRawData()
 	if err != nil {
-		log.Errorf("api: failed to parse request body: %v", err)
+		log.Errorf("api: failed to parse request body(%v)", err)
 		return nil
 	}
 

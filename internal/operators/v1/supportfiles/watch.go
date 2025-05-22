@@ -39,7 +39,7 @@ func (o *Operator) watchChanges() {
 				continue
 			}
 			if err != nil {
-				log.Errorf("supportfiles: failed to fetch support file change event: %v", err)
+				log.Errorf("supportfiles: failed to fetch support file change event(%v)", err)
 				continue
 			}
 		}
