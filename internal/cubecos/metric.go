@@ -368,17 +368,12 @@ func GetHostCpuSummary(hostname string) (*metric.Compute, error) {
 	}
 
 	freeCores := totalCores - usedCores
-	cpuPercents, err := cpu.Percent(ostime.Second, false)
-	if err != nil {
-		return nil, err
-	}
-
 	return &metric.Compute{
 		TotalCores:  float64(runtime.NumCPU()),
 		UsedCores:   math.RoundDown(usedCores, 4),
-		UsedPercent: math.RoundDown(cpuPercents[0], 4),
+		UsedPercent: math.RoundDown(usedCores/totalCores*100, 4),
 		FreeCores:   math.RoundDown(freeCores, 4),
-		FreePercent: math.RoundDown(100-cpuPercents[0], 4),
+		FreePercent: math.RoundDown(freeCores/totalCores*100, 4),
 	}, nil
 }
 
@@ -526,10 +521,10 @@ func GetHostDiskStorageSummary() (*metric.Space, error) {
 		spaceStatistic.TotalMiB = parseDiskTotal(record)
 		spaceStatistic.UsedMiB = parseDiskUsed(record)
 		spaceStatistic.FreeMiB = parseDiskFree(record)
-		spaceStatistic.UsedPercent = parseDiskUsedPercent(record)
-		spaceStatistic.FreePercent = math.RoundDown(100-spaceStatistic.UsedPercent, 4)
 	}
 
+	spaceStatistic.UsedPercent = math.RoundDown(spaceStatistic.UsedMiB/spaceStatistic.TotalMiB*100, 4)
+	spaceStatistic.FreePercent = math.RoundDown(spaceStatistic.FreeMiB/spaceStatistic.TotalMiB*100, 4)
 	return spaceStatistic, nil
 }
 

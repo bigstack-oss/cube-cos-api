@@ -17,7 +17,7 @@ func (h *helper) delegateTuningReq() {
 		}
 
 		if node.IsLocal() {
-			go h.tuneLocal(node)
+			h.tuneLocal(node)
 			continue
 		}
 
@@ -26,7 +26,7 @@ func (h *helper) delegateTuningReq() {
 			continue
 		}
 
-		go h.tunePeer(node)
+		h.tunePeer(node)
 	}
 }
 
