@@ -38,7 +38,7 @@ func checkAndRepairServices(health cubecos.Health) {
 	var err error
 	health.Services, err = cubecos.GetUnhealthyServices()
 	if err != nil {
-		log.Errorf("health: failed to get unhealthy services: %v", err)
+		log.Errorf("health: failed to get unhealthy services(%v)", err)
 		return
 	}
 
@@ -69,7 +69,7 @@ func repairServices(health cubecos.Health) {
 func reportToController(health cubecos.Health) {
 	node, err := nodes.GetController()
 	if err != nil {
-		log.Errorf("healths: failed to get controller nodes: %v", err)
+		log.Errorf("healths: failed to get controller nodes(%v)", err)
 		return
 	}
 
@@ -78,12 +78,12 @@ func reportToController(health cubecos.Health) {
 		SetHeaders(nodes.GetSecretHeaders()).
 		Delete(genRepairTaskURL(health, node))
 	if err != nil {
-		log.Errorf("healths: failed to send repairing task to controller: %v", err)
+		log.Errorf("healths: failed to send repairing task to controller(%v)", err)
 		return
 	}
 
 	if resp.IsError() {
-		log.Errorf("healths: has error response from controller: %s", resp.String())
+		log.Errorf("healths: error response from controller(%s)", resp.String())
 		return
 	}
 }

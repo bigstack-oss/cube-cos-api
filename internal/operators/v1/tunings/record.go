@@ -1,8 +1,6 @@
 package tunings
 
 import (
-	"errors"
-
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
@@ -21,11 +19,11 @@ func (o *Operator) handleExit(tuning tunings.Tuning, err error) {
 	o.reportToController(tuning)
 }
 
-func (o *Operator) reportToController(tuning tunings.Tuning) error {
+func (o *Operator) reportToController(tuning tunings.Tuning) {
 	node, err := nodes.GetController()
 	if err != nil {
-		log.Errorf("tunings: failed to get controller nodes: %v", err)
-		return err
+		log.Errorf("tunings: failed to get controller nodes(%v)", err)
+		return
 	}
 
 	h := http.GetGlobalHelper()
@@ -34,14 +32,11 @@ func (o *Operator) reportToController(tuning tunings.Tuning) error {
 		SetBody(tuning.GenTaskUpdate()).
 		Patch(node.PatchTuningTaskUrl())
 	if err != nil {
-		log.Errorf("tunings: failed to update %s to %s: %v", tuning.Name, node.Hostname, err)
-		return err
+		log.Errorf("tunings: failed to update %s to %s(%v)", tuning.Name, node.Hostname, err)
+		return
 	}
 
 	if resp.IsError() {
 		log.Errorf("tunings: has resp error from %s: %s(%s)", node.Hostname, tuning.Name, string(resp.Body()))
-		return errors.New(string(resp.Body()))
 	}
-
-	return nil
 }

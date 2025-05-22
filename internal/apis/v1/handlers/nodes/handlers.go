@@ -5,7 +5,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/node"
+	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/nodes"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )

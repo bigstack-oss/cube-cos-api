@@ -27,6 +27,8 @@ const (
 	LicenseInvalidHardware    = 253
 	LicenseInvalidSignature   = 254
 	LicenseSysytemCompromised = 255
+
+	timeFormatLicense = "2006-01-02 15:04:05 MST"
 )
 
 func IsLicenseFile(file string) bool {
@@ -189,7 +191,7 @@ func parseLicense(raw licenses.Raw) licenses.License {
 		Product:     parseProduct(raw),
 		Serial:      raw.Serial,
 		Quantity:    parseQuantity(raw),
-		SupportPlan: parseSupportPlan(raw.SLA),
+		SupportPlan: parseSupportPlan(raw.SupportPlan),
 		Issue:       parseIssue(raw),
 		Expiry:      parseExpiry(raw),
 		Status:      parseStatus(raw),
@@ -242,7 +244,7 @@ func parseSupportPlan(value string) string {
 
 func parseIssue(raw licenses.Raw) licenses.Issue {
 	date := ""
-	issue, err := ostime.Parse("2006-01-02 15:04:05 MST", raw.Date)
+	issue, err := ostime.Parse(timeFormatLicense, raw.Date)
 	if err == nil {
 		date = issue.In(time.LocalFixedZone).Format(time.FormatRFC3339)
 	}
@@ -257,7 +259,7 @@ func parseIssue(raw licenses.Raw) licenses.Issue {
 
 func parseExpiry(raw licenses.Raw) licenses.Expiry {
 	date := ""
-	expiry, err := ostime.Parse("2006-01-02 15:04:05 MST", raw.Expiry)
+	expiry, err := ostime.Parse(timeFormatLicense, raw.Expiry)
 	if err == nil {
 		date = expiry.In(time.LocalFixedZone).Format(time.FormatRFC3339)
 	}
@@ -285,7 +287,7 @@ func parseStatus(raw licenses.Raw) status.License {
 		}
 	}
 
-	expiry, err := ostime.Parse("2006-01-02 15:04:05 MST", raw.Expiry)
+	expiry, err := ostime.Parse(timeFormatLicense, raw.Expiry)
 	if err != nil {
 		expiry = ostime.Now().Local()
 	}
@@ -558,7 +560,7 @@ func parseFeature(value string) string {
 }
 
 func parseDatIssueDate(value string) string {
-	issue, err := ostime.Parse("2006-01-02 15:04:05 MST", value)
+	issue, err := ostime.Parse(timeFormatLicense, value)
 	if err != nil {
 		return "unknown issue date"
 	}
@@ -567,7 +569,7 @@ func parseDatIssueDate(value string) string {
 }
 
 func parseExpiryAndStatus(value string) (licenses.Expiry, status.License) {
-	expiry, err := ostime.Parse("2006-01-02 15:04:05 MST", value)
+	expiry, err := ostime.Parse(timeFormatLicense, value)
 	if err != nil {
 		return licenses.Expiry{
 				Date: "unknown expiry date",

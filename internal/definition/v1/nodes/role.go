@@ -106,6 +106,14 @@ func newEdgeCoreRole() {
 	EdgeCore.Store(&Role{Name: RoleEdgeCore})
 }
 
+func IsCloudRole(role string) bool {
+	return slices.Contains(cloudRoles, role)
+}
+
+func IsEdgeRole(role string) bool {
+	return slices.Contains(edgeRoles, role)
+}
+
 func SetAllRoles() {
 	AllRoles = []*Role{
 		Control.Load(),
@@ -173,10 +181,41 @@ func GetEdgeRoles() []string {
 	return edgeRoles
 }
 
-func IsCloudRole(role string) bool {
-	return slices.Contains(cloudRoles, role)
+func GetNodesByRole(role string) ([]Node, error) {
+	svcs, err := GetDiscoveredServices()
+	if err != nil {
+		return nil, err
+	}
+
+	list := []Node{}
+	for _, svc := range svcs {
+		nodes := parseNodesByRole(svc, role)
+		if len(nodes) != 0 {
+			list = append(list, nodes...)
+		}
+	}
+
+	return list, nil
 }
 
-func IsEdgeRole(role string) bool {
-	return slices.Contains(edgeRoles, role)
+func GetNodesByRoles() []Node {
+	nodes := []Node{}
+	for _, role := range roles {
+		switch role {
+		case RoleControl:
+			nodes = append(nodes, Control.Load().Nodes...)
+		case RoleCompute:
+			nodes = append(nodes, Compute.Load().Nodes...)
+		case RoleStorage:
+			nodes = append(nodes, Storage.Load().Nodes...)
+		case RoleControlConverged:
+			nodes = append(nodes, ControlConverged.Load().Nodes...)
+		case RoleModerator:
+			nodes = append(nodes, Moderator.Load().Nodes...)
+		case RoleEdgeCore:
+			nodes = append(nodes, EdgeCore.Load().Nodes...)
+		}
+	}
+
+	return nodes
 }

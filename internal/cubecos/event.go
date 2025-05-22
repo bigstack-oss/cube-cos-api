@@ -71,7 +71,7 @@ func GetEventRank(stmt string) ([]events.Stat, error) {
 		return nil, err
 	}
 
-	setPercentageToEachEvent(&events)
+	setEventPercentage(&events)
 	return events, nil
 }
 
@@ -123,7 +123,7 @@ func parseEventValues(c *api.QueryTableResult, values *[]string) error {
 	return nil
 }
 
-func setPercentageToEachEvent(events *[]events.Stat) {
+func setEventPercentage(events *[]events.Stat) {
 	total := int64(0)
 	for _, event := range *events {
 		total = total + event.Number
@@ -176,27 +176,27 @@ func parseEvents(c *api.QueryTableResult, events *[]events.Event) error {
 func parseEvent(record *query.FluxRecord) events.Event {
 	date, err := ostime.Parse(events.TimeLayout, record.Time().Local().String())
 	if err != nil {
-		log.Debugf("events: failed to parse date from record: %v", record)
+		log.Debugf("events: no date from record: %v", record)
 	}
 
 	severity, ok := record.ValueByKey("severity").(string)
 	if !ok {
-		log.Debugf("events: failed to parse severity from record: %v", record)
+		log.Debugf("events: no severity from record: %v", record)
 	}
 
 	eventId, ok := record.ValueByKey("key").(string)
 	if !ok {
-		log.Debugf("events: failed to parse key from record: %v", record)
+		log.Debugf("events: no key from record: %v", record)
 	}
 
 	msg, ok := record.ValueByKey("message").(string)
 	if !ok {
-		log.Debugf("events: failed to parse message from record: %v", record)
+		log.Debugf("events: no message from record: %v", record)
 	}
 
 	host, ok := record.ValueByKey("host").(string)
 	if !ok {
-		log.Debugf("events: failed to parse host from record: %v", record)
+		log.Debugf("events: no host from record: %v", record)
 	}
 
 	return events.Event{
@@ -212,14 +212,14 @@ func parseEvent(record *query.FluxRecord) events.Event {
 func setMetadata(event *events.Event, record *query.FluxRecord) {
 	metadata, ok := record.ValueByKey("metadata").(string)
 	if !ok {
-		log.Debugf("events: failed to parse metadata from record: %v", record)
+		log.Debugf("events: no metadata from record: %v", record)
 		return
 	}
 
 	metaObj := map[string]any{}
 	err := json.Unmarshal([]byte(metadata), &metaObj)
 	if err != nil {
-		log.Debugf("events: failed to parse metadata from record: %v", record)
+		log.Debugf("events: no metadata from record: %v", record)
 		return
 	}
 
@@ -232,7 +232,7 @@ func setMetadata(event *events.Event, record *query.FluxRecord) {
 func parseSeverity(record *query.FluxRecord) string {
 	severity, ok := record.ValueByKey("severity").(string)
 	if !ok {
-		log.Debugf("events: failed to parse severity from record: %v", record)
+		log.Debugf("events: no severity from record: %v", record)
 		return ""
 	}
 
@@ -242,7 +242,7 @@ func parseSeverity(record *query.FluxRecord) string {
 func parseCategory(record *query.FluxRecord) string {
 	category, ok := record.ValueByKey("category").(string)
 	if !ok {
-		log.Debugf("events: failed to parse category from record: %v", record)
+		log.Debugf("events: no category from record: %v", record)
 		return ""
 	}
 
@@ -252,7 +252,7 @@ func parseCategory(record *query.FluxRecord) string {
 func parseInstanceId(record *query.FluxRecord) string {
 	id, ok := record.ValueByKey("instance").(string)
 	if !ok {
-		log.Debugf("events: failed to parse instance from record: %v", record)
+		log.Debugf("events: no instance from record: %v", record)
 		return ""
 	}
 
@@ -262,7 +262,7 @@ func parseInstanceId(record *query.FluxRecord) string {
 func parseInstanceName(record *query.FluxRecord) string {
 	name, ok := record.ValueByKey("vm_name").(string)
 	if !ok {
-		log.Debugf("events: failed to parse instance name from record: %v", record)
+		log.Debugf("events: no instance name from record: %v", record)
 		return ""
 	}
 

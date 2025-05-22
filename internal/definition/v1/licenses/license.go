@@ -24,21 +24,21 @@ var (
 )
 
 type Raw struct {
-	Name     string `json:"name" yaml:"name" bson:"name"`
-	Type     string `json:"type" yaml:"type" bson:"type"`
-	Hostname string `json:"hostname" yaml:"hostname" bson:"hostname"`
-	Product  string `json:"product" yaml:"product" bson:"product"`
-	Feature  string `json:"feature" yaml:"feature" bson:"feature"`
-	Quantity string `json:"quantity" yaml:"quantity" bson:"quantity"`
-	SLA      string `json:"sla" yaml:"sla" bson:"sla"`
-	Serial   string `json:"serial" yaml:"serial" bson:"serial"`
-	Check    int    `json:"check" yaml:"check" bson:"check"`
-	IssueBy  string `json:"issueby" yaml:"issueby" bson:"issueby"`
-	IssueTo  string `json:"issueto" yaml:"issueto" bson:"issueto"`
-	Hardware string `json:"hardware" yaml:"hardware" bson:"hardware"`
-	Expiry   string `json:"expiry" yaml:"expiry" bson:"expiry"`
-	Date     string `json:"date" yaml:"date" bson:"date"`
-	Days     int    `json:"days" yaml:"days" bson:"days"`
+	Name        string `json:"name" yaml:"name" bson:"name"`
+	Type        string `json:"type" yaml:"type" bson:"type"`
+	Hostname    string `json:"hostname" yaml:"hostname" bson:"hostname"`
+	Product     string `json:"product" yaml:"product" bson:"product"`
+	Feature     string `json:"feature" yaml:"feature" bson:"feature"`
+	Quantity    string `json:"quantity" yaml:"quantity" bson:"quantity"`
+	SupportPlan string `json:"supportplan" yaml:"supportplan" bson:"supportplan"`
+	Serial      string `json:"serial" yaml:"serial" bson:"serial"`
+	Check       int    `json:"check" yaml:"check" bson:"check"`
+	IssueBy     string `json:"issueby" yaml:"issueby" bson:"issueby"`
+	IssueTo     string `json:"issueto" yaml:"issueto" bson:"issueto"`
+	Hardware    string `json:"hardware" yaml:"hardware" bson:"hardware"`
+	Expiry      string `json:"expiry" yaml:"expiry" bson:"expiry"`
+	Date        string `json:"date" yaml:"date" bson:"date"`
+	Days        int    `json:"days" yaml:"days" bson:"days"`
 }
 
 type License struct {

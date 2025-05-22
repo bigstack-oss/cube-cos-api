@@ -1,24 +1,18 @@
 package tunings
 
 import (
-	"context"
-
-	bsmongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func (h *helper) updateRecord(host string) {
-	mongo := bsmongo.GetGlobalHelper()
-	err := mongo.UpdateOne(
+	err := h.mongo.UpdateOne(
 		tunings.DB(),
 		tunings.ReqCollection(),
 		bson.M{"name": h.tuning.Name, "host": host},
-		genUpsertPayload(h.tuning),
+		h.genUpsertPayload(),
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
@@ -31,20 +25,19 @@ func (h *helper) updateRecord(host string) {
 	}
 }
 
-func genUpsertPayload(tuning tunings.Tuning) bson.M {
+func (h *helper) genUpsertPayload() bson.M {
 	return bson.M{
 		"$set": bson.M{
-			"name":    tuning.Name,
-			"value":   tuning.Value,
-			"enabled": tuning.Enabled,
-			"status":  tuning.Status,
+			"name":    h.tuning.Name,
+			"value":   h.tuning.Value,
+			"enabled": h.tuning.Enabled,
+			"status":  h.tuning.Status,
 		},
 	}
 }
 
 func (h *helper) updateTaskStatus() error {
-	mongo := bsmongo.GetGlobalHelper()
-	return mongo.UpdateOne(
+	return h.mongo.UpdateOne(
 		tunings.DB(),
 		tunings.ReqCollection(),
 		bson.M{"name": h.tuning.Name, "host": h.tuning.Node.Hostname},
@@ -56,39 +49,4 @@ func (h *helper) updateTaskStatus() error {
 		},
 		options.Update().SetUpsert(true),
 	)
-}
-
-func getUpdatingTunings() ([]tunings.Tuning, error) {
-	mongo := bsmongo.GetGlobalHelper()
-	cursor, err := mongo.GetQueryCursor(
-		tunings.DB(),
-		tunings.ReqCollection(),
-		bson.M{},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
-	defer cancel()
-	defer cursor.Close(ctx)
-	return parseUpdatingTunings(cursor)
-}
-
-func parseUpdatingTunings(cursor *mongo.Cursor) ([]tunings.Tuning, error) {
-	list := []tunings.Tuning{}
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
-	defer cancel()
-
-	for cursor.Next(ctx) {
-		tuning := tunings.Tuning{}
-		err := cursor.Decode(&tuning)
-		if err != nil {
-			return nil, err
-		}
-
-		list = append(list, tuning)
-	}
-
-	return list, nil
 }
