@@ -267,13 +267,22 @@ func parseExpiry(raw licenses.Raw) licenses.Expiry {
 	days := raw.Days
 	s := parseStatus(raw)
 	if s.Current == status.Expired {
-		days = int(expiry.Sub(ostime.Now().Local()).Hours() / 24)
+		days = parseExpiryDuration(expiry)
 	}
 
 	return licenses.Expiry{
 		Date: date,
 		Days: days,
 	}
+}
+
+func parseExpiryDuration(expiry ostime.Time) int {
+	secondsAgo := expiry.Sub(ostime.Now().Local()).Seconds() / 86400.0
+	if secondsAgo < 1 {
+		return -1
+	}
+
+	return int(secondsAgo)
 }
 
 // note:
