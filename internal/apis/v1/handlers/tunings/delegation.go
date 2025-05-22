@@ -2,13 +2,16 @@ package tunings
 
 import (
 	"errors"
+	"sync/atomic"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	log "go-micro.dev/v5/logger"
 )
 
 func (h *helper) delegateTuningReq() {
+	sent := atomic.Int32{}
 	for _, host := range h.tuning.Hosts {
 		node := host.GetNode()
 		if node == nil {
@@ -17,7 +20,7 @@ func (h *helper) delegateTuningReq() {
 		}
 
 		if node.IsLocal() {
-			h.tuneLocal(node)
+			go h.tuneLocal(node, &sent)
 			continue
 		}
 
@@ -26,7 +29,20 @@ func (h *helper) delegateTuningReq() {
 			continue
 		}
 
-		h.tunePeer(node)
+		go h.tunePeer(node, &sent)
+	}
+
+	h.waitReqsSent(&sent)
+}
+
+func (h *helper) waitReqsSent(sent *atomic.Int32) {
+	for {
+		if sent.Load() == int32(len(h.tuning.Hosts)) {
+			log.Infof("tunings(%s): all %s tuning requests sent", h.reqId, h.tuning.Name)
+			break
+		}
+
+		wait.Seconds(1)
 	}
 }
 
@@ -52,12 +68,14 @@ func (h *helper) getTuningByNameAndHosts(name string, hosts []string) (*tunings.
 	return nil, errors.New("tuning not found")
 }
 
-func (h *helper) tuneLocal(node *nodes.Node) {
+func (h *helper) tuneLocal(node *nodes.Node, sent *atomic.Int32) {
 	h.updateRecord(node.Hostname)
 	reqQueue.Add(&h.tuning)
+	sent.Add(1)
 }
 
-func (h *helper) tunePeer(node *nodes.Node) {
+func (h *helper) tunePeer(node *nodes.Node, sent *atomic.Int32) {
+	defer sent.Add(1)
 	resp, err := h.http.R().
 		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(h.genTuningBodyByHandler(node)).

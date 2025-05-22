@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"regexp"
 	"slices"
 	"strconv"
@@ -301,13 +302,13 @@ func isValueValid(tuning Tuning, spec *Spec) bool {
 }
 
 func isValidInt(tuning Tuning, spec *Spec) bool {
-	value, ok := tuning.Value.(int)
+	value, ok := tuning.Value.(float64)
 	if !ok {
-		log.Errorf("tuning: %s value is not int: %v", tuning.Name, tuning.Value)
+		log.Errorf("tuning: %s value is not int(%v: %v)", tuning.Name, tuning.Value, reflect.TypeOf(tuning.Value))
 		return false
 	}
 
-	return spec.IsInLimitedRange(value)
+	return spec.IsInLimitedRange(int(value))
 }
 
 func isValidString(tuning Tuning, spec *Spec) bool {
