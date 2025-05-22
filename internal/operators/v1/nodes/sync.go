@@ -99,6 +99,7 @@ func (o *Operator) syncNodes() {
 		return
 	}
 
+	cubecos.SyncSourceLicense()
 	o.syncDetails(&list)
 	nodes.SetList(list)
 	cubecos.SetTuningMetadata()

@@ -34,7 +34,7 @@ type Ip struct {
 func GetSourceNodeMap() (map[string]nodes.Node, error) {
 	file, err := os.Open(EtcNodeInventory)
 	if err != nil {
-		log.Errorf("nodes: failed to open %s: %v", EtcNodeInventory, err)
+		log.Errorf("nodes: failed to open %s(%v)", EtcNodeInventory, err)
 		return nil, err
 	}
 
