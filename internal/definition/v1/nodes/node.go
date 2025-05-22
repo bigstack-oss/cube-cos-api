@@ -9,6 +9,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
@@ -75,6 +76,29 @@ func (n *Node) IsLicenseExpired() bool {
 
 func (n *Node) IsUnlicensed() bool {
 	return n.License.Status.Current == status.Unlicense
+}
+
+// note:
+// in the current search lib(bleve), we realize that it seems like not able to serach the status keyword
+// from the single status field, but it's pretty tricky that it will work if we add the status behind any of fields below
+// like hostname, address, managementIP... so that's why we do this for the time being
+// in the M2, we will try to deep dive into the bleve and see if we can find a better way to do this
+func (n *Node) GenSearchableObject() Node {
+	return Node{
+		Id:           search.NormalizedKeyword(n.Id),
+		SerialNumber: search.NormalizedKeyword(n.SerialNumber),
+		Hostname:     search.NormalizedKeyword(n.Hostname) + search.NormalizedKeyword(n.Status),
+		Role:         search.NormalizedKeyword(n.Role),
+		Address:      search.NormalizedKeyword(n.Address),
+		Ip:           search.NormalizedKeyword(n.Ip),
+		StorageIP:    search.NormalizedKeyword(n.StorageIP),
+		ManagementIP: search.NormalizedKeyword(n.ManagementIP),
+		License: licenses.License{
+			Expiry: licenses.Expiry{
+				Date: search.NormalizedKeyword(n.License.Expiry.Date),
+			},
+		},
+	}
 }
 
 func IsLocal(hostname string) bool {

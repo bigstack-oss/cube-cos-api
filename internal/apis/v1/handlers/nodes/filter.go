@@ -105,7 +105,7 @@ func (h *helper) searchNodes(nodes []nodes.Node) (*bleve.SearchResult, error) {
 	}
 
 	for _, node := range nodes {
-		err := searcher.Index(node.Hostname, node)
+		err := searcher.Index(node.Hostname, node.GenSearchableObject())
 		if err != nil {
 			continue
 		}
