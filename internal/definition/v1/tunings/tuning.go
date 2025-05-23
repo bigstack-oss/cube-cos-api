@@ -1,8 +1,6 @@
 package tunings
 
 import (
-	"crypto/sha512"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -262,16 +260,6 @@ func (t *Tuning) IndexKey() string {
 		fmt.Sprintf("%v", t.Value) + "|" +
 		strconv.FormatBool(t.Enabled) + "|" +
 		strconv.FormatBool(t.IsModified)
-}
-
-func (t *Tuning) GenSortIndex() string {
-	if len(t.Name) == 0 {
-		return ""
-	}
-
-	firstChar := fmt.Sprintf("%c", t.Name[0])
-	hash := sha512.Sum512([]byte(t.IndexKey()))
-	return fmt.Sprintf("%s%s", firstChar, hex.EncodeToString(hash[:]))
 }
 
 func CheckSpec(tuning Tuning) error {

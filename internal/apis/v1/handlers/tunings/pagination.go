@@ -19,13 +19,16 @@ func (h *helper) paginateTunings(tunings []tunings.Tuning) ([]tunings.Tuning, er
 }
 
 func (h *helper) sortTunings(tunings *[]tunings.Tuning) {
-	for i, tuning := range *tunings {
+	for i := range *tunings {
 		h.sortHosts(&(*tunings)[i])
-		(*tunings)[i].SortIndex = tuning.GenSortIndex()
 	}
 
 	sort.Slice(*tunings, func(i, j int) bool {
-		return (*tunings)[i].SortIndex < (*tunings)[j].SortIndex
+		if (*tunings)[i].Name == (*tunings)[j].Name {
+			return len((*tunings)[i].Hosts) < len((*tunings)[j].Hosts)
+		}
+
+		return (*tunings)[i].Name < (*tunings)[j].Name
 	})
 }
 
