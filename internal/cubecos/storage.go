@@ -36,8 +36,8 @@ func GetCephUsage() metric.Space {
 		TotalMiB:    math.RoundDown(total, 4),
 		UsedMiB:     math.RoundDown(used, 4),
 		FreeMiB:     math.RoundDown(avail, 4),
-		UsedPercent: math.RoundDown(used/total, 4),
-		FreePercent: math.RoundDown(avail/total, 4),
+		UsedPercent: math.RoundDown((used/total)*100.0, 4),
+		FreePercent: math.RoundDown((avail/total)*100.0, 4),
 	}
 }
 
