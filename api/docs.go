@@ -10568,6 +10568,13 @@ const docTemplate = `{
         }
     },
     "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
         "parameters": {
             "dataCenter": {
                 "in": "path",
@@ -15779,7 +15786,12 @@ const docTemplate = `{
                 }
             }
         }
-    }
+    },
+    "security": [
+        {
+            "BearerAuth": []
+        }
+    ]
 }`
 
 var SwaggerInfo = &swag.Spec{
