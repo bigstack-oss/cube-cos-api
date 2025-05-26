@@ -85,8 +85,6 @@ func (n *Node) IsUnlicensed() bool {
 // in the M2, we will try to deep dive into the bleve and see if we can find a better way to do this
 func (n *Node) GenSearchableObject() Node {
 	return Node{
-		Id:           search.NormalizedKeyword(n.Id),
-		SerialNumber: search.NormalizedKeyword(n.SerialNumber),
 		Hostname:     search.NormalizedKeyword(n.Hostname) + search.NormalizedKeyword(n.Status),
 		Role:         search.NormalizedKeyword(n.Role),
 		Address:      search.NormalizedKeyword(n.Address),
