@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 )
 
@@ -139,6 +140,10 @@ func (h *helper) genInstanceRankStmt() string {
 }
 
 func (h *helper) genTimeDuration() string {
+	if queries.ArePeriodAndPastEmpty(h.c) {
+		return "start: -24h"
+	}
+
 	if query.IsPastRequired(h.c) {
 		return fmt.Sprintf("start: -%s", h.past)
 	}

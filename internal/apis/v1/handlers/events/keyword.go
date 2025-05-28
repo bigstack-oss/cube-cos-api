@@ -53,7 +53,8 @@ func (h *helper) searchEvents(nonFilterEvents []events.Event) (*bleve.SearchResu
 	}
 
 	defer searcher.Close()
-	return searcher.Search(search.WildcardQuery(h.keyword))
+	keyword := search.NormalizedKeyword(h.keyword)
+	return searcher.Search(search.WildcardQuery(keyword))
 }
 
 func genEventMap(nonFilterEvents []events.Event) map[string]events.Event {

@@ -36,6 +36,10 @@ func ArePeriodAndPastRequired(c *gin.Context) bool {
 	return IsPeriodRequired(c) && IsPastRequired(c)
 }
 
+func ArePeriodAndPastEmpty(c *gin.Context) bool {
+	return !IsPeriodRequired(c) && !IsPastRequired(c)
+}
+
 func IsPeriodRequired(c *gin.Context) bool {
 	return c.DefaultQuery("stop", "") != "" || c.DefaultQuery("start", "") != ""
 }
