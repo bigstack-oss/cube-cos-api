@@ -52,6 +52,10 @@ func (h *helper) parseListParams() error {
 		return err
 	}
 
+	if queries.ArePeriodAndPastEmpty(h.c) {
+		h.past = "24h"
+	}
+
 	return nil
 }
 

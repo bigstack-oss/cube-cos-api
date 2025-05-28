@@ -3,6 +3,7 @@ package healths
 import (
 	"fmt"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
@@ -57,6 +58,10 @@ func (h *helper) parseServiceHealthParams() error {
 		return err
 	}
 
+	if queries.ArePeriodAndPastEmpty(h.c) {
+		h.past = "24h"
+	}
+
 	h.serviceType = h.c.Param("serviceType")
 	if !cubecos.IsValidService(h.serviceType) {
 		return fmt.Errorf("invalid serviceType: %s", h.serviceType)
@@ -80,6 +85,10 @@ func (h *helper) parseModuleHealthParams() error {
 	h.period, err = query.GetPeriod(h.c)
 	if err != nil {
 		return err
+	}
+
+	if queries.ArePeriodAndPastEmpty(h.c) {
+		h.past = "24h"
 	}
 
 	h.serviceType = h.c.Param("serviceType")
