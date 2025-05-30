@@ -7,62 +7,26 @@
 
 [![License][License-Image]][License-Url] [![made-with-Go][Go-Made-Image]][Go-Made-Url] [![Go][Go-Report-Image]][Go-Report-Url] [![GitHub issues][Github-Issue-Image]][Github-Issue-Url] [![GitHub last commit (branch)][GitHub-Last-Commit-Image]][GitHub-Last-Commit-Url]
 
+⛩️ [Architecture] | 👷‍♂️ [Developing] | 🔬 [Troubleshooting]
+
 <br/><br/>
 
-<h3 style="color: gray;">▎To Start Developing</h3>
+## ▎Overview
+
+The cube-cos api is a central communication mechanism in the CubeCOS written in [Go]. Each node has its own cube-cos api and discover peer nodes by [MDNS] for cross-node communication.
+
+Additionally, there’re 14+ apis in the cube-cos, the cube-cos api is just one of apis which responsible for the partial native features of cube-cos currently, but it will cover more and more features in the incoming milestones.
 
 <br/>
 
-0). Get the build environment ready
-
-We would need an `x86_64` / `amd64` based machine to build the rpm package.
-
-We would need to have `golang` ready on the machine.
-
-We would need rpm build tools.
-
-For Fedora Linux based OS:
-
-```bash
-sudo dnf install -y rpmdevtools rpmlint
-```
+<img src="assets/images/api-and-node-roles.png" alt="Logo" width="" height="">
 
 <br/>
-
-1). Build rpm
-
-```bash
-task rpm:build
-```
-
 <br/>
-
-2). Send the built rpm to a running CubeCOS
-
-```
-scp <path of rpm> <user>@<cubecos>:<path to place rpm>
-```
-
-<br/>
-
-3). Install the rpm and start the service
-
-```bash
-systemctl stop cube-cos-api
-dnf -y remove cube-cos-api
-dnf -y install "<path to cube-cos-api rpm>"
-hex_config bootstrap api
-```
-
-<br/>
-
----
-
 <br/>
 
 
-<h3 style="color: gray;">▎License</h3>
-
+## ▎License
 
 Copyright (c) 2025 [Bigstack co., ltd](https://bigstack.co/)
 
@@ -79,6 +43,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
+[Architecture]: https://github.com/bigstack-oss/cube-cos-api/docs/architecture
+[Developing]: https://github.com/bigstack-oss/cube-cos-api/issues/developing
+[Troubleshooting]: https://github.com/bigstack-oss/cube-cos-api/troubleshooting
+[Go]: https://go.dev/
+[MDNS]: https://en.wikipedia.org/wiki/Multicast_DNS
 [License-Url]: https://www.apache.org/licenses/LICENSE-2.0
 [License-Image]: https://img.shields.io/badge/License-Apache2-blue.svg
 [Go-Report-Url]: https://goreportcard.com/report/github.com/bigstack-oss/cube-cos-api
