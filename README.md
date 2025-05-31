@@ -19,7 +19,7 @@ Additionally, there’re 14+ apis in the CubeCOS, the cube-cos api is just one o
 
 <br/>
 
-<img src="assets/images/api-and-node-roles.png" alt="Logo" width="" height="">
+<img src="assets/images/architecture-base.png" alt="Logo" width="" height="">
 
 <br/>
 <br/>
