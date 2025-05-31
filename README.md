@@ -15,7 +15,7 @@
 
 The cube-cos api is a central communication mechanism in the CubeCOS written in [Go]. Each node has its own cube-cos api and discover peer nodes by [MDNS] for cross-node communication.
 
-Additionally, there’re 14+ apis in the cube-cos, the cube-cos api is just one of apis which responsible for the partial native features of cube-cos currently, but it will cover more and more features in the incoming milestones.
+Additionally, there’re 14+ apis in the CubeCOS, the cube-cos api is just one of apis which responsible for the partial native features of cube-cos currently, but it will cover more and more features in the incoming milestones.
 
 <br/>
 
@@ -44,8 +44,8 @@ limitations under the License.
 
 
 [Architecture]: https://github.com/bigstack-oss/cube-cos-api/docs/architecture
-[Developing]: https://github.com/bigstack-oss/cube-cos-api/issues/developing
-[Troubleshooting]: https://github.com/bigstack-oss/cube-cos-api/troubleshooting
+[Developing]: https://github.com/bigstack-oss/cube-cos-api/docs/developing
+[Troubleshooting]: https://github.com/bigstack-oss/cube-cos-api/docs/troubleshooting
 [Go]: https://go.dev/
 [MDNS]: https://en.wikipedia.org/wiki/Multicast_DNS
 [License-Url]: https://www.apache.org/licenses/LICENSE-2.0

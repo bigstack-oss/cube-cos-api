@@ -6,7 +6,7 @@ Genearlly, there're two ways for CubeCOS API developing which help you to have a
 
 - RPM: A comprehensive way to develop with CubeCOS
 
-- Binary replacement: A faster way to develop with CubeCOS (:warning: the binary will be reset when CubeCOS get restarted)
+- Binary replacement: A faster way to develop with CubeCOS (⚠️ the binary will be reset when CubeCOS get restarted)
 
 <br/>
 
