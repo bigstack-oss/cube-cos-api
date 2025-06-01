@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br/>
 <div align="left">
-  <img src="assets/images/bigstack.png" alt="Logo" width="" height="">
+  <img src="assets/images/panel/api.png" alt="Logo" width="" height="">
   </p>
 </div>
 
@@ -19,7 +19,7 @@ Additionally, there’re 14+ apis in the CubeCOS, the cube-cos api is just one o
 
 <br/>
 
-<img src="assets/images/architecture-base.png" alt="Logo" width="" height="">
+<img src="assets/images/architecture/base.png" alt="Logo" width="" height="">
 
 <br/>
 <br/>
