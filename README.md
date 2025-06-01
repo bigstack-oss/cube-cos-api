@@ -7,7 +7,7 @@
 
 [![License][License-Image]][License-Url] [![made-with-Go][Go-Made-Image]][Go-Made-Url] [![Go][Go-Report-Image]][Go-Report-Url] [![GitHub issues][Github-Issue-Image]][Github-Issue-Url] [![GitHub last commit (branch)][GitHub-Last-Commit-Image]][GitHub-Last-Commit-Url]
 
-⛩️ [Architecture] | 👷‍♂️ [Developing] | 🔬 [Troubleshooting]
+🚀 [API] | ⛩️ [Architecture] | 👷‍♂️ [Developing] | 🔬 [Troubleshooting]
 
 <br/><br/>
 
@@ -43,6 +43,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
+[API]: https://github.com/bigstack-oss/cube-cos-api/docs/api
 [Architecture]: https://github.com/bigstack-oss/cube-cos-api/docs/architecture
 [Developing]: https://github.com/bigstack-oss/cube-cos-api/docs/developing
 [Troubleshooting]: https://github.com/bigstack-oss/cube-cos-api/docs/troubleshooting
