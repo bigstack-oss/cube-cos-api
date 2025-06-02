@@ -43,10 +43,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-[API]: https://github.com/bigstack-oss/cube-cos-api/docs/api
-[Architecture]: https://github.com/bigstack-oss/cube-cos-api/docs/architecture
-[Developing]: https://github.com/bigstack-oss/cube-cos-api/docs/developing
-[Troubleshooting]: https://github.com/bigstack-oss/cube-cos-api/docs/troubleshooting
+[API]: https://github.com/bigstack-oss/cube-cos-api/tree/develop/docs/api
+[Architecture]: https://github.com/bigstack-oss/cube-cos-api/tree/develop/docs/architecture
+[Developing]: https://github.com/bigstack-oss/cube-cos-api/tree/develop/docs/developing
+[Troubleshooting]: https://github.com/bigstack-oss/cube-cos-api/tree/develop/docs/troubleshooting
 [Go]: https://go.dev/
 [MDNS]: https://en.wikipedia.org/wiki/Multicast_DNS
 [License-Url]: https://www.apache.org/licenses/LICENSE-2.0

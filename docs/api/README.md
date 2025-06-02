@@ -10,7 +10,7 @@ Genearlly, there're two ways to find it out
 
 You should be able to see the doc like the video below via either way
 
-https://github.com/bigstack-oss/cube-cos-api/assets/video/api/interfaces.mov
+https://github.com/bigstack-oss/cube-cos-api/blob/develop/assets/videos/api/interfaces.mov
 
 <br/>
 
