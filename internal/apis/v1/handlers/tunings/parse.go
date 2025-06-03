@@ -71,14 +71,14 @@ func (h *helper) parseTuningReset() error {
 	}
 
 	h.tuning.Name = name
+	h.tuning.Value = spec.Limitation.Default
+	h.tuning.Enabled = true
+	h.tuning.SetHosts(h.reset.Hosts)
 	if !h.isTuningModified() {
 		return errors.New("can't reset unmodified tuning")
 	}
 
-	h.tuning.Value = spec.Limitation.Default
-	h.tuning.Enabled = true
 	h.tuning.IsModified = false
-	h.tuning.SetHosts(h.reset.Hosts)
 	h.tuning.SetResetting()
 	return nil
 }

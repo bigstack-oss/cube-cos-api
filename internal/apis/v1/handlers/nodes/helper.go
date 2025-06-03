@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -93,24 +91,5 @@ func (h *helper) getNode() (*nodes.Node, error) {
 		return nil, fmt.Errorf("node %s is down", node.Hostname)
 	}
 
-	return h.askPeerNode(node)
-}
-
-func (h *helper) askPeerNode(node *nodes.Node) (*nodes.Node, error) {
-	http := http.GetGlobalHelper()
-	resp, err := http.R().SetResult(&bodies.Node{}).SetHeaders(nodes.GetSecretHeaders()).Get(node.GetNodeUrl())
-	if err != nil {
-		return nil, err
-	}
-
-	if !resp.IsError() {
-		return &resp.Result().(*bodies.Node).Data, nil
-	}
-
-	return nil, fmt.Errorf(
-		"nodes(%s): has err resp for node details %s: %s",
-		h.reqId,
-		node.Hostname,
-		string(resp.Body()),
-	)
+	return node, nil
 }
