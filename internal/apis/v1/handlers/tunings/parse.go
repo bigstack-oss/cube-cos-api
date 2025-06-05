@@ -40,7 +40,7 @@ func (h *helper) parseEnableValue() error {
 	}
 
 	h.tuning.Name = h.c.Param("parameterName")
-	if !h.isTuningModified() {
+	if !h.isTuningModified(h.toggle.Hosts) {
 		return errors.New("can't enable/disable unmodified tuning")
 	}
 
@@ -74,7 +74,7 @@ func (h *helper) parseTuningReset() error {
 	h.tuning.Value = spec.Limitation.Default
 	h.tuning.Enabled = true
 	h.tuning.SetHosts(h.reset.Hosts)
-	if !h.isTuningModified() {
+	if !h.isTuningModified(h.reset.Hosts) {
 		return errors.New("can't reset unmodified tuning")
 	}
 
@@ -149,8 +149,8 @@ func (h *helper) isModifiedRequired() bool {
 	return required
 }
 
-func (h *helper) isTuningModified() bool {
-	tuning, err := h.getTuningByNameAndHosts(h.tuning.Name, h.toggle.Hosts)
+func (h *helper) isTuningModified(hosts []string) bool {
+	tuning, err := h.getTuningByNameAndHosts(h.tuning.Name, hosts)
 	if err != nil {
 		log.Errorf("tunings(%s): failed to get tuning: %v", h.reqId, err)
 		return false
