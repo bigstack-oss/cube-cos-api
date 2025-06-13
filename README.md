@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br/>
 <div align="left">
-  <img src="assets/images/panel/api.png" alt="Logo" width="" height="">
+  <img src="./assets/images/panel/api.png" alt="Logo" width="" height="">
   </p>
 </div>
 
@@ -9,7 +9,8 @@
 
 🚀 [API] | ⛩️ [Architecture] | 👷‍♂️ [Developing] | 🔬 [Troubleshooting]
 
-<br/><br/>
+<br/>
+<br/>
 
 ## ▎Overview
 
@@ -19,12 +20,18 @@ Additionally, there’re 14+ apis in the CubeCOS, the cube-cos api is just one o
 
 <br/>
 
-<img src="assets/images/architecture/base.png" alt="Logo" width="" height="">
+<img src="./assets/images/architecture/base.png" alt="Logo" width="" height="">
 
 <br/>
 <br/>
 <br/>
 
+## Community
+
+- [License](./LICENSE)
+- [Contributing](./CONTRIBUTING.md)
+- [Code of Conduct](./CODE_OF_CONDUCT.md)
+- [Security](./SECURITY.md)
 
 ## ▎License
 
@@ -43,10 +50,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-[API]: https://github.com/bigstack-oss/cube-cos-api/tree/develop/docs/api
-[Architecture]: https://github.com/bigstack-oss/cube-cos-api/tree/develop/docs/architecture
-[Developing]: https://github.com/bigstack-oss/cube-cos-api/tree/develop/docs/developing
-[Troubleshooting]: https://github.com/bigstack-oss/cube-cos-api/tree/develop/docs/troubleshooting
+[API]: ./docs/api/README.md
+[Architecture]: ./docs/architecture/README.md
+[Developing]: ./docs/developing/README.md
+[Troubleshooting]: ./docs/troubleshooting/README.md
 [Go]: https://go.dev/
 [MDNS]: https://en.wikipedia.org/wiki/Multicast_DNS
 [License-Url]: https://www.apache.org/licenses/LICENSE-2.0

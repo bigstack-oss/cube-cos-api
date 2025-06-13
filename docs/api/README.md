@@ -10,7 +10,7 @@ Genearlly, there're two ways to find it out
 
 You should be able to see the doc like the video below via either way
 
-https://github.com/bigstack-oss/cube-cos-api/blob/develop/assets/videos/api/interfaces.mov
+[Video](../../assets/videos/api/interfaces.mov)
 
 <br/>
 
@@ -30,7 +30,7 @@ https://github.com/bigstack-oss/cube-cos-api/blob/develop/assets/videos/api/inte
 
 ## ▎Swagger Online Editor
 
-1). Copy the JSON content from https://github.com/bigstack-oss/cube-cos-api/blob/develop/api/docs.json
+1). Copy the JSON content from [JSON](../../api/docs.json)
 
 <br/>
 
