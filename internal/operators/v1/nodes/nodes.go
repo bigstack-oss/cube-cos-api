@@ -6,6 +6,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	bslog "github.com/bigstack-oss/cube-cos-api/internal/log"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
+	"github.com/fsnotify/fsnotify"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )
@@ -19,8 +20,9 @@ func init() {
 }
 
 type Operator struct {
-	ctx    context.Context
-	cancel context.CancelFunc
+	ctx     context.Context
+	cancel  context.CancelFunc
+	watcher *fsnotify.Watcher
 }
 
 func (o *Operator) Name() string {
@@ -31,7 +33,7 @@ func (o *Operator) Init() error {
 	o.ctx, o.cancel = context.WithCancel(context.Background())
 	go o.syncOrderSensitiveServices()
 	go o.periodicSyncNodes()
-	return nil
+	return o.initPacemakerWatcher()
 }
 
 func (o *Operator) Run() {

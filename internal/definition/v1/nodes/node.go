@@ -42,6 +42,7 @@ type Node struct {
 
 	CpuSpec           string             `json:"cpuSpec" yaml:"cpuSpec"`
 	NetworkInterfaces []NetworkInterface `json:"networkInterfaces" yaml:"networkInterfaces"`
+	IsVirtualIpOwner  bool               `json:"isVirtualIpOwner" yaml:"isVirtualIpOwner"`
 	BlockDevices      []BlockDevice      `json:"blockDevices" yaml:"blockDevices"`
 	Vcpu              metric.Compute     `json:"vcpu" yaml:"vcpu"`
 	Memory            metric.Space       `json:"memory" yaml:"memory"`
