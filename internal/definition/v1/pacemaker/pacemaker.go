@@ -9,10 +9,10 @@ import (
 )
 
 type Status struct {
-	XMLName   xml.Name `xml:"pacemaker-result"`
-	Summary   Summary  `xml:"summary"`
-	Nodes     []Node   `xml:"nodes>node"`
-	Resources struct {
+	XMLName          xml.Name `xml:"pacemaker-result"`
+	Summary          Summary  `xml:"summary"`
+	Nodes            []Node   `xml:"nodes>node"`
+	ResourceAndClone struct {
 		Resources []Resource `xml:"resource"`
 		Clones    []Clone    `xml:"clone"`
 	} `xml:"resources"`
@@ -131,7 +131,7 @@ type OperationHistory struct {
 }
 
 func (s *Status) GetVipHost() (string, error) {
-	for _, resource := range s.Resources.Resources {
+	for _, resource := range s.ResourceAndClone.Resources {
 		if resource.ID != "vip" {
 			continue
 		}
@@ -144,14 +144,14 @@ func (s *Status) GetVipHost() (string, error) {
 	}
 
 	return "", fmt.Errorf(
-		"node: virtual IP resource not found in pacemaker status",
+		"nodes: virtual ip not found from crm monitoring",
 	)
 }
 
 func IsVirtualIpOwner(hostname string) bool {
 	vipHost, err := GetVirtualIpHost()
 	if err != nil {
-		log.Errorf("node: failed to get virtual IP host: %v", err)
+		log.Errorf("nodes: failed to get virtual ip host: %v", err)
 		return false
 	}
 
@@ -161,7 +161,7 @@ func IsVirtualIpOwner(hostname string) bool {
 func GetVirtualIpHost() (string, error) {
 	status, err := GetStatus()
 	if err != nil {
-		return "", fmt.Errorf("node: failed to get pacemaker status: %v", err)
+		return "", fmt.Errorf("nodes: failed to get pcs status: %v", err)
 	}
 
 	return status.GetVipHost()
@@ -169,21 +169,22 @@ func GetVirtualIpHost() (string, error) {
 
 func GetStatus() (*Status, error) {
 	out, err := exec.Command("crm_mon", "--one-shot", "--inactive", "--output-as", "xml").CombinedOutput()
-	if err == nil {
-		return convertToStatus(out)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"nodes: failed to get pcs status: %v, output: %s",
+			err,
+			string(out),
+		)
 	}
 
-	return nil, fmt.Errorf(
-		"node: failed to get pacemaker status: %v, output: %s",
-		err, string(out),
-	)
+	return convertToStatus(out)
 }
 
 func convertToStatus(data []byte) (*Status, error) {
 	status := Status{}
 	err := xml.Unmarshal(data, &status)
 	if err != nil {
-		log.Errorf("node: failed to unmarshal pcs status xml: %v", err)
+		log.Errorf("nodes: failed to unmarshal pcs status xml: %v", err)
 		return nil, err
 	}
 
