@@ -21,7 +21,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pacemaker"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/shirou/gopsutil/v4/cpu"
@@ -170,7 +169,6 @@ func (o *Operator) syncDetails(nodes *[]nodes.Node) {
 			(*nodes)[i].ManagementIP = n.ManagementIP
 			(*nodes)[i].SerialNumber = n.SerialNumber
 			(*nodes)[i].StorageIP = n.StorageIP
-			(*nodes)[i].IsVirtualIpOwner = n.IsVirtualIpOwner
 			(*nodes)[i].Vcpu = n.Vcpu
 			(*nodes)[i].Memory = n.Memory
 			(*nodes)[i].Storage = n.Storage
@@ -217,7 +215,6 @@ func (o *Operator) setInfraSpec(node *nodes.Node) {
 }
 
 func (o *Operator) setIps(node *nodes.Node) {
-	node.IsVirtualIpOwner = pacemaker.IsVirtualIpOwner()
 	node.ManagementIP = base.ManagementIp
 	node.StorageIP = base.StorageIP
 }

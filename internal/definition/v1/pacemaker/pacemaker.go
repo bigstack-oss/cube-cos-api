@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	log "go-micro.dev/v5/logger"
 )
 
 const (
 	AlertId        = "alert-to-notify-api"
 	AlertScriptDir = "/var/lib/pacemaker/alerts/scripts"
-	AlertLogDir    = "/var/log/pacemaker/alerts"
+	AlertLogDir    = "/tmp/pcs"
 	Notifier       = "notifier.sh"
 )
 
@@ -167,14 +166,14 @@ func (s *Status) GetVipHost() (string, error) {
 	)
 }
 
-func IsVirtualIpOwner() bool {
-	host, err := GetVirtualIpHost()
+func IsVirtualIpOwner(hostname string) bool {
+	vipHost, err := GetVirtualIpHost()
 	if err != nil {
 		log.Errorf("node: failed to get virtual IP host: %v", err)
 		return false
 	}
 
-	return host == base.Hostname
+	return vipHost == hostname
 }
 
 func GetVirtualIpHost() (string, error) {
@@ -187,7 +186,7 @@ func GetVirtualIpHost() (string, error) {
 }
 
 func GetStatus() (*Status, error) {
-	out, err := exec.Command("pcs", "status", "xml").CombinedOutput()
+	out, err := exec.Command("crm_mon", "--one-shot", "--inactive", "--output-as", "xml").CombinedOutput()
 	if err == nil {
 		return convertToStatus(out)
 	}

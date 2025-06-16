@@ -10,6 +10,7 @@ import (
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pacemaker"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -125,7 +126,18 @@ func IsGpuEnabled() (bool, error) {
 }
 
 func syncTimeSensitiveInfo(list *[]nodes.Node) {
+	syncLicense(list)
+	syncVirutalIpOwner(list)
+}
+
+func syncLicense(list *[]nodes.Node) {
 	for i, node := range *list {
 		(*list)[i].License = GetHostLicense(node.Hostname)
+	}
+}
+
+func syncVirutalIpOwner(list *[]nodes.Node) {
+	for i, node := range *list {
+		(*list)[i].IsVirtualIpOwner = pacemaker.IsVirtualIpOwner(node.Hostname)
 	}
 }

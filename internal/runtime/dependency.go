@@ -33,11 +33,6 @@ func initDependencies() error {
 		return err
 	}
 
-	err = newPacemakerSensor()
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -133,20 +128,6 @@ func newAuthIdentities() error {
 	if err != nil {
 		log.Errorf("runtime: failed to generate node metadata(%v)", err)
 		return err
-	}
-
-	return nil
-}
-
-func newPacemakerSensor() error {
-	err := syncPacemakerAlertPreflight()
-	if err != nil {
-		log.Errorf("runtime: failed to sync pacemaker dir(%v)", err)
-	}
-
-	err = syncPacemakerAlertOperation()
-	if err != nil {
-		log.Errorf("runtime: failed to sync pacemaker alert(%v)", err)
 	}
 
 	return nil
