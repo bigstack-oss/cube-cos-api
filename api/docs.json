@@ -4730,6 +4730,7 @@
                                                         "ip": "10.10.10.10",
                                                         "managementIP": "10.10.10.10",
                                                         "storageIP": "10.10.10.10",
+                                                        "isVirtualIpOwner": true,
                                                         "license": {
                                                             "name": "example-license",
                                                             "type": "trial",
@@ -4932,6 +4933,7 @@
                                                 "ip": "10.10.10.10",
                                                 "managementIP": "10.10.10.10",
                                                 "storageIP": "10.10.10.10",
+                                                "isVirtualIpOwner": true,
                                                 "license": {
                                                     "name": "example-license",
                                                     "type": "trial",
@@ -15239,6 +15241,7 @@
                     "ip",
                     "managementIP",
                     "storageIP",
+                    "isVirtualIpOwner",
                     "license",
                     "status",
                     "cpuSpec",
@@ -15277,6 +15280,9 @@
                     },
                     "storageIP": {
                         "type": "string"
+                    },
+                    "isVirtualIpOwner": {
+                        "type": "boolean"
                     },
                     "license": {
                         "type": "object",

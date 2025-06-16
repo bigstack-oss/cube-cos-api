@@ -8,24 +8,6 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-const (
-	AlertId        = "alert-to-notify-api"
-	AlertScriptDir = "/var/lib/pacemaker/alerts/scripts"
-	AlertLogDir    = "/tmp/pcs"
-	Notifier       = "notifier.sh"
-)
-
-var (
-	AlertDirs     = []string{AlertScriptDir, AlertLogDir}
-	AlertNotifier = fmt.Sprintf("%s/%s", AlertScriptDir, "notifier.sh")
-
-	AlertRecord = fmt.Sprintf(
-		"%s/%s",
-		AlertLogDir,
-		"changed.txt",
-	)
-)
-
 type Status struct {
 	XMLName   xml.Name `xml:"pacemaker-result"`
 	Summary   Summary  `xml:"summary"`

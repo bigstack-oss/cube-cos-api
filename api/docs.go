@@ -4734,6 +4734,7 @@ const docTemplate = `{
                                                         "ip": "10.10.10.10",
                                                         "managementIP": "10.10.10.10",
                                                         "storageIP": "10.10.10.10",
+                                                        "isVirtualIpOwner": true,
                                                         "license": {
                                                             "name": "example-license",
                                                             "type": "trial",
@@ -4936,6 +4937,7 @@ const docTemplate = `{
                                                 "ip": "10.10.10.10",
                                                 "managementIP": "10.10.10.10",
                                                 "storageIP": "10.10.10.10",
+                                                "isVirtualIpOwner": true,
                                                 "license": {
                                                     "name": "example-license",
                                                     "type": "trial",
@@ -15243,6 +15245,7 @@ const docTemplate = `{
                     "ip",
                     "managementIP",
                     "storageIP",
+                    "isVirtualIpOwner",
                     "license",
                     "status",
                     "cpuSpec",
@@ -15281,6 +15284,9 @@ const docTemplate = `{
                     },
                     "storageIP": {
                         "type": "string"
+                    },
+                    "isVirtualIpOwner": {
+                        "type": "boolean"
                     },
                     "license": {
                         "type": "object",
