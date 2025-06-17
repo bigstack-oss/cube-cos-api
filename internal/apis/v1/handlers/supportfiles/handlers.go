@@ -21,6 +21,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  "GET",
+			Path:    "/supportFiles/hosts/:hostname",
+			Func:    listHostSupportFiles,
+		},
+		{
+			Version: apis.V1,
 			Method:  "POST",
 			Path:    "/supportFiles",
 			Func:    createSupportFile,
@@ -33,15 +39,15 @@ var (
 		},
 		{
 			Version: apis.V1,
-			Method:  "PATCH",
+			Method:  "DELETE",
 			Path:    "/supportFiles/:supportFileGroup",
-			Func:    updateSupportFileTask,
+			Func:    deleteSupportFileGroup,
 		},
 		{
 			Version: apis.V1,
-			Method:  "GET",
-			Path:    "/supportFiles/hosts/:hostname",
-			Func:    listHostSupportFiles,
+			Method:  "PATCH",
+			Path:    "/supportFiles/:supportFileGroup",
+			Func:    updateSupportFileTask,
 		},
 	}
 )
@@ -92,6 +98,26 @@ func downloadSupportFile(c *gin.Context) {
 		log.Errorf("supportFiles(%s): failed to download support file: %v", h.reqId, err)
 		return
 	}
+}
+
+func deleteSupportFileGroup(c *gin.Context) {
+	h, err := initHepler(c, "deleteSupportFileGroup")
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to init req helper: %v", h.reqId, err)
+		return
+	}
+
+	err = h.deleteSupportFileGroup()
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to delete support file group: %v", h.reqId, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"support file group deleted successfully",
+		nil,
+	)
 }
 
 func updateSupportFileTask(c *gin.Context) {

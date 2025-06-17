@@ -8,6 +8,7 @@ import (
 	ostime "time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -170,6 +171,91 @@ func (h *helper) streamFileDownload(filename string) {
 		file,
 		nil,
 	)
+}
+
+func (h *helper) deleteSupportFileGroup() error {
+	hosts, err := h.getHostsByGroup(h.group.Name)
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to get hosts by group %s: %v", h.reqId, h.group.Name, err)
+		return err
+	}
+
+	for _, host := range hosts {
+		file, err := h.GetSupportFileByGroup(h.group.Name)
+		if err != nil {
+			log.Errorf("supportFiles(%s): failed to get support file by group %s: %v", h.reqId, h.group.Name, err)
+			continue
+		}
+
+		if file.IsCreating() {
+			log.Warnf("supportFiles(%s): group %s has creating file, skip to delete", h.reqId, h.group.Name)
+			return errors.New("has creating file, skip to delete")
+		}
+
+		node, err := nodes.Get(host)
+		if err != nil {
+			log.Errorf("supportFiles(%s): failed to get node by hostname %s: %v", h.reqId, host, err)
+			continue
+		}
+
+		if node.IsLocal() {
+			cubecos.DeleteSupportFile(*file)
+			continue
+		}
+
+		if node.IsDown() {
+			log.Warnf("supportFiles(%s): node %s is down, cannot delete group %s", h.reqId, node.Hostname, h.group.Name)
+			continue
+		}
+
+		h.deletePeerNodeSupportFiles(node)
+	}
+
+	return nil
+}
+
+func (h *helper) deletePeerNodeSupportFiles(node *nodes.Node) {
+	url := node.DeleteSupportFileUrl(h.group.Name)
+	http := http.GetGlobalHelper()
+	resp, err := http.R().SetHeaders(nodes.GetSecretHeaders()).Delete(url)
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to delete support file group %s from %s: %v", h.reqId, h.group.Name, node.Hostname, err)
+		return
+	}
+	if resp.IsError() {
+		log.Errorf("supportFiles(%s): %s resp error from %s: %s", h.reqId, h.group.Name, node.Hostname, string(resp.Body()))
+		return
+	}
+
+	log.Infof(
+		"supportFiles(%s): support file group(%s) deleted successfully from %s",
+		h.reqId,
+		h.group.Name,
+		node.Hostname,
+	)
+}
+
+func (h *helper) GetSupportFileByGroup(group string) (*support.File, error) {
+	sets, err := h.listSupportFileSets()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, set := range sets {
+		if set.Name != group {
+			continue
+		}
+
+		for _, file := range set.Files {
+			if file.Source.Host != base.Hostname {
+				continue
+			}
+
+			return &file, nil
+		}
+	}
+
+	return nil, fmt.Errorf("support file group(%s) not found", group)
 }
 
 func (h *helper) streamDownloadByPeerNode(set support.FileSet, file support.File) {

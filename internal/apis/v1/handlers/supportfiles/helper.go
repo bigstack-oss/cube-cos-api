@@ -15,12 +15,14 @@ type helper struct {
 	reqId   string
 	handler string
 
-	keyword string
-	host    string
-	group   support.FileSet
-	file    support.File
-	fileReq support.FileRequest
-	roles   []string
+	keyword  string
+	host     string
+	hosts    []string
+	allHosts bool
+	group    support.FileSet
+	file     support.File
+	fileReq  support.FileRequest
+	roles    []string
 
 	*pages.Page
 	past string
@@ -29,8 +31,6 @@ type helper struct {
 	watch bool
 }
 
-// note:
-// deletion will be supported in the M2 release
 func initHepler(c *gin.Context, handler string) (*helper, error) {
 	h := helper{
 		c:       c,
@@ -43,15 +43,12 @@ func initHepler(c *gin.Context, handler string) (*helper, error) {
 }
 
 func (h *helper) listSupportFiles() (*filePage, error) {
-	files, err := cubecos.ListSupportFiles(support.ListFileOptions{AllNodes: true})
+	sets, err := h.listSupportFileSets()
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to list files: %v", h.reqId, err)
+		log.Errorf("supportFiles(%s): failed to list file sets: %v", h.reqId, err)
 		return nil, err
 	}
 
-	h.syncCreatingFiles(&files)
-	h.syncHostPortInUrl(&files)
-	sets := h.genFileSets(files)
 	pagedSets, err := h.paginateFileSets(sets)
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to paginate files: %v", h.reqId, err)
@@ -68,4 +65,16 @@ func (h *helper) listSupportFiles() (*filePage, error) {
 		SupportFileSet: pagedSets,
 		Page:           page,
 	}, nil
+}
+
+func (h *helper) listSupportFileSets() ([]support.FileSet, error) {
+	files, err := cubecos.ListSupportFiles(support.ListFileOptions{AllNodes: true})
+	if err != nil {
+		log.Errorf("supportFiles(%s): failed to list files: %v", h.reqId, err)
+		return nil, err
+	}
+
+	h.syncCreatingFiles(&files)
+	h.syncHostPortInUrl(&files)
+	return h.genFileSets(files), nil
 }

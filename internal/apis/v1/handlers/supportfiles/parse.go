@@ -2,11 +2,13 @@ package supportfiles
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"strings"
 	ostime "time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 )
 
@@ -18,6 +20,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseHostListParams()
 	case "createSupportFile":
 		return h.parseCreateParams()
+	case "deleteSupportFileGroup":
+		return h.parseDeleteParams()
 	case "downloadSupportFile":
 		return h.parseDownloadParams()
 	case "updateSupportFileTask":
@@ -70,6 +74,16 @@ func (h *helper) parseHostListParams() error {
 
 func (h *helper) parseCreateParams() error {
 	return h.parseHosts()
+}
+
+func (h *helper) parseDeleteParams() error {
+	group, err := url.PathUnescape(h.c.Param("supportFileGroup"))
+	if err != nil {
+		return err
+	}
+
+	h.group.Name = group
+	return nil
 }
 
 func (h *helper) parseDownloadParams() error {
@@ -152,4 +166,42 @@ func (h *helper) isKeywordRequired() bool {
 
 func (h *helper) isRoleRequired() bool {
 	return len(h.roles) > 0
+}
+
+func (h *helper) getHostsByGroup(group string) ([]string, error) {
+	sets, err := h.listSupportFileSets()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, set := range sets {
+		if set.Name == group {
+			return h.parseHostsFromSet(set)
+		}
+	}
+
+	return nil, fmt.Errorf(
+		"support file group(%s) not found",
+		group,
+	)
+}
+
+func (h *helper) parseHostsFromSet(set support.FileSet) ([]string, error) {
+	hosts := []string{}
+	for _, file := range set.Files {
+		if file.IsCreating() {
+			return nil, errors.New("has creating file, skip to delete")
+		}
+
+		if file.Source.Host == "" {
+			continue
+		}
+
+		hosts = append(
+			hosts,
+			file.Source.Host,
+		)
+	}
+
+	return hosts, nil
 }

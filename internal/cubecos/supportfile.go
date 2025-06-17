@@ -153,6 +153,15 @@ func GetSupportFile(file support.File) (string, error) {
 	return info.Name(), nil
 }
 
+func DeleteSupportFile(file support.File) error {
+	return os.Remove(
+		filepath.Join(
+			support.DefaultFileDir,
+			file.Name,
+		),
+	)
+}
+
 func UploadSupportFileToObjectStore(supportFile support.File) error {
 	file, err := os.Open(supportFile.Name)
 	if err != nil {
