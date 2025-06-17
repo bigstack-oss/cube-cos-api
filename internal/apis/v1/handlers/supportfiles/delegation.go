@@ -180,10 +180,14 @@ func (h *helper) deleteSupportFileGroup() error {
 		return err
 	}
 
+	return h.deleteSupportFiles(hosts)
+}
+
+func (h *helper) deleteSupportFiles(hosts []string) error {
 	for _, host := range hosts {
-		file, err := h.GetSupportFileByGroup(h.group.Name)
+		file, err := h.GetHostSupportFile(h.group.Name, host)
 		if err != nil {
-			log.Errorf("supportFiles(%s): failed to get support file by group %s: %v", h.reqId, h.group.Name, err)
+			log.Warnf("supportFiles(%s): failed to get support file by group %s(%v)", h.reqId, h.group.Name, err)
 			continue
 		}
 
@@ -194,7 +198,7 @@ func (h *helper) deleteSupportFileGroup() error {
 
 		node, err := nodes.Get(host)
 		if err != nil {
-			log.Errorf("supportFiles(%s): failed to get node by hostname %s: %v", h.reqId, host, err)
+			log.Errorf("supportFiles(%s): failed to get node by hostname %s(%v)", h.reqId, host, err)
 			continue
 		}
 
@@ -208,22 +212,23 @@ func (h *helper) deleteSupportFileGroup() error {
 			continue
 		}
 
-		h.deletePeerNodeSupportFiles(node)
+		h.deletePeerFile(node, file.Name)
 	}
 
 	return nil
 }
 
-func (h *helper) deletePeerNodeSupportFiles(node *nodes.Node) {
-	url := node.DeleteSupportFileUrl(h.group.Name)
+func (h *helper) deletePeerFile(node *nodes.Node, filename string) {
+	url := node.DeleteSupportFileUrl(h.group.Name, filename)
 	http := http.GetGlobalHelper()
 	resp, err := http.R().SetHeaders(nodes.GetSecretHeaders()).Delete(url)
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to delete support file group %s from %s: %v", h.reqId, h.group.Name, node.Hostname, err)
+		log.Errorf("supportFiles(%s): failed to delete support file group %s from %s(%v)", h.reqId, h.group.Name, node.Hostname, err)
 		return
 	}
+
 	if resp.IsError() {
-		log.Errorf("supportFiles(%s): %s resp error from %s: %s", h.reqId, h.group.Name, node.Hostname, string(resp.Body()))
+		log.Errorf("supportFiles(%s): %s resp error from %s(%s)", h.reqId, h.group.Name, node.Hostname, string(resp.Body()))
 		return
 	}
 
@@ -235,7 +240,7 @@ func (h *helper) deletePeerNodeSupportFiles(node *nodes.Node) {
 	)
 }
 
-func (h *helper) GetSupportFileByGroup(group string) (*support.File, error) {
+func (h *helper) GetHostSupportFile(group, host string) (*support.File, error) {
 	sets, err := h.listSupportFileSets()
 	if err != nil {
 		return nil, err
@@ -246,16 +251,28 @@ func (h *helper) GetSupportFileByGroup(group string) (*support.File, error) {
 			continue
 		}
 
-		for _, file := range set.Files {
-			if file.Source.Host != base.Hostname {
-				continue
-			}
-
-			return &file, nil
+		file, found := h.findFile(set, host)
+		if found {
+			return file, nil
 		}
 	}
 
-	return nil, fmt.Errorf("support file group(%s) not found", group)
+	return nil, fmt.Errorf(
+		"support file group(%s) not found",
+		group,
+	)
+}
+
+func (h *helper) findFile(set support.FileSet, host string) (*support.File, bool) {
+	for _, file := range set.Files {
+		if file.Source.Host != host {
+			continue
+		}
+
+		return &file, true
+	}
+
+	return nil, false
 }
 
 func (h *helper) streamDownloadByPeerNode(set support.FileSet, file support.File) {

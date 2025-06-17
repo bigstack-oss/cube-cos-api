@@ -125,11 +125,11 @@ func (n *Node) PatchSupportFileTaskUrl(file support.File) string {
 	return u.String()
 }
 
-func (n *Node) DeleteSupportFileUrl(group string) string {
+func (n *Node) DeleteSupportFileUrl(group, file string) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/%s", base.DataCenterName, group)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/supportFiles/%s/%s", base.DataCenterName, group, file)
 	return u.String()
 }
 

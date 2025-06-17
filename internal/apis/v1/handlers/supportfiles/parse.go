@@ -21,7 +21,9 @@ func (h *helper) parseParamsByHandler() error {
 	case "createSupportFile":
 		return h.parseCreateParams()
 	case "deleteSupportFileGroup":
-		return h.parseDeleteParams()
+		return h.parseDeleteGroupParams()
+	case "deleteSupportFile":
+		return h.parseDeleteFileParams()
 	case "downloadSupportFile":
 		return h.parseDownloadParams()
 	case "updateSupportFileTask":
@@ -76,13 +78,18 @@ func (h *helper) parseCreateParams() error {
 	return h.parseHosts()
 }
 
-func (h *helper) parseDeleteParams() error {
+func (h *helper) parseDeleteGroupParams() error {
 	group, err := url.PathUnescape(h.c.Param("supportFileGroup"))
 	if err != nil {
 		return err
 	}
 
 	h.group.Name = group
+	return nil
+}
+
+func (h *helper) parseDeleteFileParams() error {
+	h.file = support.File{Name: h.c.Param("supportFileName")}
 	return nil
 }
 
