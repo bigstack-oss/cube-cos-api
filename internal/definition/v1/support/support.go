@@ -157,6 +157,10 @@ func SetLocalFile(File File) {
 	localFiles.Store(File.Name, File)
 }
 
+func SetEmptyLocalList() {
+	localFiles = sync.Map{}
+}
+
 func ListLocalFiles() []File {
 	files := []File{}
 	localFiles.Range(func(key, value any) bool {

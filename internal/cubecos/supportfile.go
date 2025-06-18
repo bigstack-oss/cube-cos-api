@@ -294,7 +294,8 @@ func SyncSupportFiles() {
 	}
 
 	if len(files) == 0 {
-		log.Warnf("supportFile: no support file found")
+		log.Infof("supportFile: no support file found")
+		support.SetEmptyLocalList()
 		return
 	}
 
@@ -302,6 +303,8 @@ func SyncSupportFiles() {
 }
 
 func setSupportFiles(files []os.DirEntry) {
+	hasAtLeatOneUpdated := false
+
 	for _, file := range files {
 		supportFile, err := parseSupportFile(file)
 		if err != nil {
@@ -313,10 +316,15 @@ func setSupportFiles(files []os.DirEntry) {
 			continue
 		}
 
+		hasAtLeatOneUpdated = true
 		support.SetLocalFile(enrichSupportFile(
 			supportFile,
 			*info,
 		))
+	}
+
+	if !hasAtLeatOneUpdated {
+		support.SetEmptyLocalList()
 	}
 }
 
