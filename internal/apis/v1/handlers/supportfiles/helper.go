@@ -15,14 +15,12 @@ type helper struct {
 	reqId   string
 	handler string
 
-	keyword  string
-	host     string
-	hosts    []string
-	allHosts bool
-	group    support.FileSet
-	file     support.File
-	fileReq  support.FileRequest
-	roles    []string
+	keyword string
+	host    string
+	group   support.FileSet
+	file    support.File
+	fileReq support.FileRequest
+	roles   []string
 
 	*pages.Page
 	past string
