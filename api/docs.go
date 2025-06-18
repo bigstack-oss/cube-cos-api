@@ -9743,6 +9743,251 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/supportFiles/{supportFileSet}": {
+            "delete": {
+                "operationId": "DeleteSupportFiles",
+                "tags": [
+                    "Support Files"
+                ],
+                "summary": "Delete support file set",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "in": "path",
+                        "name": "supportFileSet",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The name of the support file set to delete. (have to be done the http encode)",
+                        "example": "Cube Appliance 3.0.0 Support File Set 2025-06-18T15:54:48+00:00"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Delete support files successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeleteSupportFileSetResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Delete support file set",
+                                        "value": {
+                                            "code": 200,
+                                            "msg": "support file set deleted successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "support file set not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to delete support files: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createSupportFiles",
+                "tags": [
+                    "Support Files"
+                ],
+                "summary": "Create one or more support files",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateSupportFilesRequest"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Support file creation request",
+                                    "value": {
+                                        "description": "example-description",
+                                        "hosts": [
+                                            "example-node-0"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Support file creation request received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateSupportFilesResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Support file creation response",
+                                        "value": {
+                                            "code": 202,
+                                            "msg": "support file creation request received",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid host found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to request support file creation: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/supportFiles/hosts/{hostname}": {
             "get": {
                 "operationId": "getHostSupportFile",
@@ -13403,6 +13648,25 @@ const docTemplate = `{
                                 "$ref": "#/components/schemas/Page"
                             }
                         }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "DeleteSupportFileSetResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
                     },
                     "msg": {
                         "type": "string"
