@@ -153,6 +153,15 @@ func GetSupportFile(file support.File) (string, error) {
 	return info.Name(), nil
 }
 
+func DeleteSupportFile(file support.File) error {
+	return os.Remove(
+		filepath.Join(
+			support.DefaultFileDir,
+			file.Name,
+		),
+	)
+}
+
 func UploadSupportFileToObjectStore(supportFile support.File) error {
 	file, err := os.Open(supportFile.Name)
 	if err != nil {
@@ -285,7 +294,8 @@ func SyncSupportFiles() {
 	}
 
 	if len(files) == 0 {
-		log.Warnf("supportFile: no support file found")
+		log.Infof("supportFile: no support file found")
+		support.SetEmptyLocalList()
 		return
 	}
 
@@ -293,6 +303,8 @@ func SyncSupportFiles() {
 }
 
 func setSupportFiles(files []os.DirEntry) {
+	hasAtLeatOneUpdated := false
+
 	for _, file := range files {
 		supportFile, err := parseSupportFile(file)
 		if err != nil {
@@ -304,10 +316,15 @@ func setSupportFiles(files []os.DirEntry) {
 			continue
 		}
 
+		hasAtLeatOneUpdated = true
 		support.SetLocalFile(enrichSupportFile(
 			supportFile,
 			*info,
 		))
+	}
+
+	if !hasAtLeatOneUpdated {
+		support.SetEmptyLocalList()
 	}
 }
 

@@ -53,7 +53,7 @@ func syncSourceSupportFiles(event fsnotify.Event) {
 	}
 
 	if shouldSync(event) {
-		bslog.Throttle("supportFiles", fmt.Sprintf("support file %s created", event.Name))
+		bslog.Throttle("supportFiles", fmt.Sprintf("support file %s get updated", event.Name))
 		cubecos.SyncSupportFiles()
 	}
 }
