@@ -64,9 +64,9 @@ type Role struct {
 }
 
 type Host struct {
-	Role string `json:"role,omitzero"`
-	Name string `json:"name"`
-	Ip   string `json:"ip,omitzero"`
+	Role string `json:"role,omitzero" bson:"role,omitzero"`
+	Name string `json:"name" bson:"name"`
+	Ip   string `json:"ip,omitzero" bson:"ip"`
 }
 
 func (r *Role) IsNodeEmpty() bool {

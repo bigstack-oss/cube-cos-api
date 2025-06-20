@@ -16,7 +16,9 @@ import (
 )
 
 const (
-	Module = "nodes"
+	Module         = "nodes"
+	Db             = "nodes"
+	CollectionIpmi = "ipmi"
 )
 
 var (

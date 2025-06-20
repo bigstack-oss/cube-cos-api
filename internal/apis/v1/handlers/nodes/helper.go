@@ -4,16 +4,19 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type helper struct {
 	c       *gin.Context
+	mongo   *mongo.Helper
 	reqId   string
 	handler string
 
@@ -22,13 +25,20 @@ type helper struct {
 	products        []string
 	licenseStatuses []string
 	roles           []string
+	ipmi            *nodes.Ipmi
 
 	page  *pages.Page
 	watch bool
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
-	h := &helper{c: c, reqId: queries.GetReqId(c), handler: handler}
+	h := &helper{
+		c:       c,
+		mongo:   mongo.GetGlobalHelper(),
+		reqId:   queries.GetReqId(c),
+		handler: handler,
+	}
+
 	return h, h.parseParamsByHandler()
 }
 
@@ -92,4 +102,41 @@ func (h *helper) getNode() (*nodes.Node, error) {
 	}
 
 	return node, nil
+}
+
+func (h *helper) getNodeIpmi() (*nodes.Ipmi, error) {
+	doc, err := h.mongo.Get(nodes.Db, nodes.CollectionIpmi, bson.M{"host.name": h.node})
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get node ipmi(%v)", h.reqId, err)
+		return nil, err
+	}
+	if doc == nil {
+		return nil, fmt.Errorf("node %s ipmi not found", h.node)
+	}
+
+	impi := &nodes.Ipmi{}
+	err = doc.Decode(impi)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to decode node ipmi(%v)", h.reqId, err)
+		return nil, err
+	}
+
+	return impi, nil
+}
+
+// note: password have to be encrypted before saving to db
+func (h *helper) updateNodeIpmi() error {
+	return h.mongo.UpdateOne(
+		nodes.Db,
+		nodes.CollectionIpmi,
+		bson.M{"host.name": h.node},
+		bson.M{
+			"$set": bson.M{
+				"host":     h.ipmi.Host,
+				"port":     h.ipmi.Port,
+				"username": h.ipmi.Username,
+				"password": h.ipmi.Password,
+			},
+		},
+	)
 }

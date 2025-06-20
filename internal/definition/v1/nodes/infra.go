@@ -39,6 +39,26 @@ type RawBlockDevice struct {
 	MountPoints []string `json:"mountpoints"`
 }
 
+type ImpiValidation struct {
+	Board   `json:"board"`
+	Product `json:"product"`
+}
+
+type Board struct {
+	ManufacturingDate string `json:"manufacturingDate"`
+	Manufacturer      string `json:"manufacturer"`
+	Product           string `json:"product"`
+	Serial            string `json:"serial"`
+	PartNumber        string `json:"partNumber"`
+}
+
+type Product struct {
+	Manufacturer string `json:"manufacturer"`
+	Name         string `json:"name"`
+	Version      string `json:"version"`
+	Serial       string `json:"serial"`
+}
+
 func (r *RawBlockDevice) IsPartition() bool {
 	return r.Type == "part"
 }

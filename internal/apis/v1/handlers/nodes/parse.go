@@ -13,6 +13,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListOptions()
 	case "getNode":
 		return h.parseGetOptions()
+	case "getNodeIpmi":
+		return h.parseGetOptions()
 	default:
 		return fmt.Errorf(
 			"unknown node handler: %s",

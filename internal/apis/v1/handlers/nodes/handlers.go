@@ -24,6 +24,42 @@ var (
 			Path:    "/nodes/:nodeName",
 			Func:    getNode,
 		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/nodes/:nodeName/ipmi",
+			Func:    verifyNodeIpmi,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/nodes/:nodeName/ipmi",
+			Func:    getNodeIpmi,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPut,
+			Path:    "/nodes/:nodeName/ipmi",
+			Func:    updateNodeIpmi,
+		},
+		// {
+		// 	Version: apis.V1,
+		// 	Method:  http.MethodPatch,
+		// 	Path:    "/nodes/:nodeName/ipmi/enable",
+		// 	Func:    enableOrDisableNodeIpmi,
+		// },
+		// {
+		// 	Version: apis.V1,
+		// 	Method:  http.MethodPost,
+		// 	Path:    "/nodes/:nodeName/ipmi/powerOn",
+		// 	Func:    powerOnNode,
+		// },
+		// {
+		// 	Version: apis.V1,
+		// 	Method:  http.MethodPost,
+		// 	Path:    "/nodes/:nodeName/ipmi/powerOff",
+		// 	Func:    powerOffNode,
+		// },
 	}
 )
 
@@ -82,5 +118,69 @@ func getNode(c *gin.Context) {
 		c,
 		"fetch node successfully",
 		node,
+	)
+}
+
+func verifyNodeIpmi(c *gin.Context) {
+	h, err := initHelper(c, "verifyNodeIpmi")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	verifiedInfo, err := h.verifyNodeIpmi()
+	if err != nil {
+		log.Errorf("nodes(%s): failed to verify node ipmi: %v", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"verify node ipmi successfully",
+		verifiedInfo,
+	)
+}
+
+func getNodeIpmi(c *gin.Context) {
+	h, err := initHelper(c, "getNodeIpmi")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	ipmi, err := h.getNodeIpmi()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"fetch node ipmi successfully",
+		ipmi,
+	)
+}
+
+func updateNodeIpmi(c *gin.Context) {
+	h, err := initHelper(c, "updateNodeIpmi")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.updateNodeIpmi()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"update node ipmi successfully",
+		nil,
 	)
 }
