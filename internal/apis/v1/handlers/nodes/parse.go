@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 )
 
 func (h *helper) parseParamsByHandler() error {
@@ -15,12 +16,41 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseGetOptions()
 	case "getNodeIpmi":
 		return h.parseGetOptions()
+	case "verifyNodeIpmi", "updateNodeIpmi":
+		return h.parseVerifyOrUpdateOptions()
+	case "ipmiOperateNode":
+		return h.parseIpmiOperateOptions()
 	default:
 		return fmt.Errorf(
 			"unknown node handler: %s",
 			h.handler,
 		)
 	}
+}
+
+func (h *helper) parseVerifyOrUpdateOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("nodeName should be provided")
+	}
+
+	h.ipmi = &nodes.Ipmi{}
+	err := h.c.ShouldBindJSON(h.ipmi)
+	if err != nil {
+		return err
+	}
+
+	return h.ipmi.CheckInvalidValues()
+}
+
+func (h *helper) parseIpmiOperateOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("nodeName should be provided")
+	}
+
+	h.operation = strings.ToLower(h.c.Param("operation"))
+	return h.validateIpmiOperation()
 }
 
 func (h *helper) parseKeyword() {

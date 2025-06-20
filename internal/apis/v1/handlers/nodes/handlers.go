@@ -42,24 +42,12 @@ var (
 			Path:    "/nodes/:nodeName/ipmi",
 			Func:    updateNodeIpmi,
 		},
-		// {
-		// 	Version: apis.V1,
-		// 	Method:  http.MethodPatch,
-		// 	Path:    "/nodes/:nodeName/ipmi/enable",
-		// 	Func:    enableOrDisableNodeIpmi,
-		// },
-		// {
-		// 	Version: apis.V1,
-		// 	Method:  http.MethodPost,
-		// 	Path:    "/nodes/:nodeName/ipmi/powerOn",
-		// 	Func:    powerOnNode,
-		// },
-		// {
-		// 	Version: apis.V1,
-		// 	Method:  http.MethodPost,
-		// 	Path:    "/nodes/:nodeName/ipmi/powerOff",
-		// 	Func:    powerOffNode,
-		// },
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/nodes/:nodeName/ipmi/:operation",
+			Func:    ipmiOperateNode,
+		},
 	}
 )
 
@@ -129,7 +117,7 @@ func verifyNodeIpmi(c *gin.Context) {
 		return
 	}
 
-	verifiedInfo, err := h.verifyNodeIpmi()
+	info, err := h.verifyNodeIpmi()
 	if err != nil {
 		log.Errorf("nodes(%s): failed to verify node ipmi: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
@@ -139,7 +127,7 @@ func verifyNodeIpmi(c *gin.Context) {
 	bodies.SetOk(
 		c,
 		"verify node ipmi successfully",
-		verifiedInfo,
+		info,
 	)
 }
 
@@ -181,6 +169,27 @@ func updateNodeIpmi(c *gin.Context) {
 	bodies.SetOk(
 		c,
 		"update node ipmi successfully",
+		nil,
+	)
+}
+
+func ipmiOperateNode(c *gin.Context) {
+	h, err := initHelper(c, "ipmiOperateNode")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.ipmiOperateNode()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"ipmi power on node successfully",
 		nil,
 	)
 }

@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ipmi"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
+	osipmi "github.com/bougou/go-ipmi"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -26,6 +28,7 @@ type helper struct {
 	licenseStatuses []string
 	roles           []string
 	ipmi            *nodes.Ipmi
+	operation       string
 
 	page  *pages.Page
 	watch bool
@@ -139,4 +142,50 @@ func (h *helper) updateNodeIpmi() error {
 			},
 		},
 	)
+}
+
+func (h *helper) ipmiOperateNode() error {
+	info, err := h.getNodeIpmi()
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get node ipmi: %v", h.reqId, err)
+		return err
+	}
+
+	op, err := h.getIpmiOperation()
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get ipmi operation: %v", h.reqId, err)
+		return err
+	}
+
+	c, err := ipmi.NewHelper(
+		ipmi.Host(info.Host.Ip),
+		ipmi.Port(info.Port),
+		ipmi.Username(info.Username),
+		ipmi.Password(info.Password),
+	)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to create ipmi helper: %v", h.reqId, err)
+		return err
+	}
+
+	_, err = c.Operate(op)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to operate ipmi: %v", h.reqId, err)
+		return err
+	}
+
+	return nil
+}
+
+func (h *helper) getIpmiOperation() (osipmi.ChassisControl, error) {
+	switch h.operation {
+	case "poweron":
+		return osipmi.ChassisControlPowerUp, nil
+	case "poweroff":
+		return osipmi.ChassisControlPowerDown, nil
+	case "powercycle":
+		return osipmi.ChassisControlPowerCycle, nil
+	default:
+		return 0, fmt.Errorf("unknown ipmi operation: %s", h.operation)
+	}
 }
