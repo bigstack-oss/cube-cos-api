@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v1"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v1/accelerators/devices"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
@@ -12,6 +13,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pacemaker"
 	log "go-micro.dev/v5/logger"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 const (
@@ -128,6 +130,7 @@ func IsGpuEnabled() (bool, error) {
 func syncTimeSensitiveInfo(list *[]nodes.Node) {
 	syncLicense(list)
 	syncVirutalIpOwner(list)
+	syncPowerStatus(list)
 }
 
 func syncLicense(list *[]nodes.Node) {
@@ -139,5 +142,32 @@ func syncLicense(list *[]nodes.Node) {
 func syncVirutalIpOwner(list *[]nodes.Node) {
 	for i, node := range *list {
 		(*list)[i].IsVirtualIpOwner = pacemaker.IsVirtualIpOwner(node.Hostname)
+	}
+}
+
+func syncPowerStatus(list *[]nodes.Node) {
+	mongo := mongo.GetGlobalHelper()
+	for i, node := range *list {
+		doc, err := mongo.Get(
+			nodes.Db,
+			nodes.RequestsCollection,
+			bson.M{"hostname": node.Hostname},
+		)
+		if err != nil {
+			log.Errorf("nodes: failed to get node(%s) status(%v)", node.Hostname, err)
+			continue
+		}
+		if doc == nil {
+			continue
+		}
+
+		node := &nodes.Node{}
+		err = doc.Decode(node)
+		if err != nil {
+			log.Errorf("nodes: failed to decode node(%s) status(%v)", node.Hostname, err)
+			continue
+		}
+
+		(*list)[i].Status = node.Status
 	}
 }

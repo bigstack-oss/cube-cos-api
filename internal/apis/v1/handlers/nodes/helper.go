@@ -94,7 +94,7 @@ func (h *helper) sortNodes(node *[]nodes.Node) {
 func (h *helper) getNode() (*nodes.Node, error) {
 	node, err := cubecos.GetNodeWithTimeSensitiveInfo(h.node)
 	if err != nil {
-		log.Errorf("nodes(%s): failed to get node: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to get node(%v)", h.reqId, err)
 		return nil, err
 	}
 
@@ -129,11 +129,10 @@ func (h *helper) getNodeIpmi() (*nodes.Ipmi, error) {
 	return impi, nil
 }
 
-// note: password have to be encrypted before saving to db
 func (h *helper) updateNodeIpmi() error {
 	encrytedPassword, err := password.Encrypt(h.ipmi.Password, base.SystemSeed)
 	if err != nil {
-		log.Errorf("nodes(%s): failed to encrypt ipmi password: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to encrypt ipmi password(%v)", h.reqId, err)
 		return err
 	}
 
@@ -155,18 +154,19 @@ func (h *helper) updateNodeIpmi() error {
 func (h *helper) ipmiOperateNode() error {
 	info, err := h.getNodeIpmi()
 	if err != nil {
-		log.Errorf("nodes(%s): failed to get node ipmi: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to get node ipmi(%v)", h.reqId, err)
 		return err
 	}
+
 	decryptedPassword, err := password.Decrypt(info.Password, base.SystemSeed)
 	if err != nil {
-		log.Errorf("nodes(%s): failed to decrypt ipmi password: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to decrypt ipmi password(%v)", h.reqId, err)
 		return err
 	}
 
 	op, err := h.getIpmiOperation()
 	if err != nil {
-		log.Errorf("nodes(%s): failed to get ipmi operation: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to get ipmi operation(%v)", h.reqId, err)
 		return err
 	}
 
@@ -177,15 +177,23 @@ func (h *helper) ipmiOperateNode() error {
 		ipmi.Password(decryptedPassword),
 	)
 	if err != nil {
-		log.Errorf("nodes(%s): failed to create ipmi helper: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to create ipmi helper(%v)", h.reqId, err)
 		return err
 	}
 
 	_, err = c.Operate(op)
 	if err != nil {
-		log.Errorf("nodes(%s): failed to operate ipmi: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to operate ipmi(%v)", h.reqId, err)
 		return err
 	}
+
+	go traceNodeStatus(info.Host.Name, h.operation)
+	log.Infof(
+		"nodes(%s): successfully operated ipmi(%s) on node(%s)",
+		h.reqId,
+		h.operation,
+		info.Host.Ip,
+	)
 
 	return nil
 }

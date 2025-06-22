@@ -9,13 +9,14 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.78.2
 	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250622142039-866776b102c7
 	github.com/blevesearch/bleve/v2 v2.4.4
+	github.com/bougou/go-ipmi v0.7.6
 	github.com/coreos/go-oidc v2.3.0+incompatible
 	github.com/crewjam/saml v0.4.14
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fsnotify/fsnotify v1.8.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-micro/plugins/v5/config/encoder/yaml v1.0.0
-	github.com/google/uuid v1.3.1
+	github.com/google/uuid v1.6.0
 	github.com/gophercloud/gophercloud/v2 v2.4.0
 	github.com/influxdata/influxdb-client-go/v2 v2.14.0
 	github.com/json-iterator/go v1.1.12
@@ -23,6 +24,7 @@ require (
 	github.com/micro/plugins/v5/wrapper/breaker/hystrix v1.0.2
 	github.com/micro/plugins/v5/wrapper/ratelimiter/uber v1.0.2
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
+	github.com/prometheus-community/pro-bing v0.7.0
 	github.com/shirou/gopsutil/v4 v4.25.1
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
@@ -77,7 +79,6 @@ require (
 	github.com/blevesearch/zapx/v14 v14.3.10 // indirect
 	github.com/blevesearch/zapx/v15 v15.3.16 // indirect
 	github.com/blevesearch/zapx/v16 v16.1.9-0.20241217210638-a0519e7caf3b // indirect
-	github.com/bougou/go-ipmi v0.7.6 // indirect
 	github.com/bytedance/sonic v1.11.9 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
@@ -157,15 +158,15 @@ require (
 	go.uber.org/ratelimit v0.2.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
-	golang.org/x/crypto v0.36.0 // indirect
-	golang.org/x/mod v0.19.0 // indirect
-	golang.org/x/net v0.38.0 // indirect
+	golang.org/x/crypto v0.39.0 // indirect
+	golang.org/x/mod v0.25.0 // indirect
+	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/oauth2 v0.10.0 // indirect
-	golang.org/x/sync v0.12.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
-	golang.org/x/text v0.23.0 // indirect
+	golang.org/x/sync v0.15.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
-	golang.org/x/tools v0.23.0 // indirect
+	golang.org/x/tools v0.33.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/go-jose/go-jose.v2 v2.6.3 // indirect
