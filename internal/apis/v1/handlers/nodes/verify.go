@@ -12,6 +12,7 @@ func (h *helper) validateIpmiOperation() error {
 	default:
 		return fmt.Errorf(
 			"unsupport ipmi operation(%s), should be one of [poweron, poweroff, powercycle]",
+			h.operation,
 		)
 	}
 }

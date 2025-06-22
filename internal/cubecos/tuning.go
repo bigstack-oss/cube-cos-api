@@ -28,6 +28,7 @@ const (
 	TuningPolicyFile = "/etc/policies/tuning/tuning1_0.yml"
 
 	// private tunings
+	CubeSysSeed              = "cubesys.seed"
 	CubeSysHa                = "cubesys.ha"
 	CubeSysController        = "cubesys.controller"
 	CubeSysControllerVip     = "cubesys.control.vip"

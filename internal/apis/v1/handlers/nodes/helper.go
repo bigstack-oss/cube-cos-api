@@ -6,8 +6,10 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ipmi"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/password"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	osipmi "github.com/bougou/go-ipmi"
@@ -129,6 +131,12 @@ func (h *helper) getNodeIpmi() (*nodes.Ipmi, error) {
 
 // note: password have to be encrypted before saving to db
 func (h *helper) updateNodeIpmi() error {
+	encrytedPassword, err := password.Encrypt(h.ipmi.Password, base.SystemSeed)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to encrypt ipmi password: %v", h.reqId, err)
+		return err
+	}
+
 	return h.mongo.UpdateOne(
 		nodes.Db,
 		nodes.CollectionIpmi,
@@ -138,7 +146,7 @@ func (h *helper) updateNodeIpmi() error {
 				"host":     h.ipmi.Host,
 				"port":     h.ipmi.Port,
 				"username": h.ipmi.Username,
-				"password": h.ipmi.Password,
+				"password": encrytedPassword,
 			},
 		},
 	)
@@ -148,6 +156,11 @@ func (h *helper) ipmiOperateNode() error {
 	info, err := h.getNodeIpmi()
 	if err != nil {
 		log.Errorf("nodes(%s): failed to get node ipmi: %v", h.reqId, err)
+		return err
+	}
+	decryptedPassword, err := password.Decrypt(info.Password, base.SystemSeed)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to decrypt ipmi password: %v", h.reqId, err)
 		return err
 	}
 
@@ -161,7 +174,7 @@ func (h *helper) ipmiOperateNode() error {
 		ipmi.Host(info.Host.Ip),
 		ipmi.Port(info.Port),
 		ipmi.Username(info.Username),
-		ipmi.Password(info.Password),
+		ipmi.Password(decryptedPassword),
 	)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to create ipmi helper: %v", h.reqId, err)

@@ -9,6 +9,10 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 )
 
+func GetSystemSeed() (string, error) {
+	return GetTuningValue(CubeSysSeed)
+}
+
 func GetDataCenterNumericVersion() (string, error) {
 	return ReadSettingSys(SysProductVersion)
 }

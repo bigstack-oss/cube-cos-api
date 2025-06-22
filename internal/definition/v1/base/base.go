@@ -18,6 +18,7 @@ const (
 )
 
 var (
+	SystemSeed               string
 	ServiceDiscoveryIdentity string
 	DataCenterName           string
 	DataCenterVersion        string

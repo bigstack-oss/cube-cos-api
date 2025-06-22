@@ -9,6 +9,12 @@ import (
 
 func initIdentities() error {
 	var err error
+	base.SystemSeed, err = cubecos.GetSystemSeed()
+	if err != nil {
+		log.Errorf("runtime: failed to get system seed(%v)", err)
+		return err
+	}
+
 	base.Hostname, err = getHostname()
 	if err != nil {
 		log.Errorf("runtime: failed to get hostname(%v)", err)
