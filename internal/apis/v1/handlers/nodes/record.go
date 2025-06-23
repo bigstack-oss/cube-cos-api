@@ -31,9 +31,26 @@ func checkNodeProgress(hostname, operation string) {
 	p.SetPrivileged(true)
 	p.Count = 600
 	p.Interval = time.Second * 1
-	p.Timeout = time.Second * 2
-	p.OnFinish = func(stats *ping.Statistics) { updateFinalStatus(hostname, operation) }
+	setTrackerCallback(p, hostname, operation)
 	p.Run()
+}
+
+func setTrackerCallback(p *ping.Pinger, hostname, operation string) {
+	if operation == "poweron" {
+		p.OnRecv = func(pkt *ping.Packet) {
+			log.Infof("nodes: node %s is starting", hostname)
+			updateFinalStatus(hostname, operation)
+			p.Stop()
+		}
+	}
+
+	if operation == "poweroff" {
+		p.OnRecvError = func(err error) {
+			log.Errorf("nodes: node %s is not reachable, marking as stopped", hostname)
+			updateFinalStatus(hostname, operation)
+			p.Stop()
+		}
+	}
 }
 
 func updatePendingStatus(hostname, operation string) error {
