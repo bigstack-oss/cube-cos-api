@@ -12,7 +12,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
-	osipmi "github.com/bougou/go-ipmi"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -110,7 +109,7 @@ func (h *helper) getNode() (*nodes.Node, error) {
 }
 
 func (h *helper) getNodeIpmi() (*nodes.Ipmi, error) {
-	doc, err := h.mongo.Get(nodes.Db, nodes.CollectionIpmi, bson.M{"host.name": h.node})
+	doc, err := h.mongo.Get(nodes.Db, nodes.CollectionIpmi, bson.M{"host": h.node})
 	if err != nil {
 		log.Errorf("nodes(%s): failed to get node ipmi(%v)", h.reqId, err)
 		return nil, err
@@ -129,7 +128,7 @@ func (h *helper) getNodeIpmi() (*nodes.Ipmi, error) {
 	return impi, nil
 }
 
-func (h *helper) updateNodeIpmi() error {
+func (h *helper) setNodeIpmi() error {
 	encrytedPassword, err := password.Encrypt(h.ipmi.Password, base.SystemSeed)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to encrypt ipmi password(%v)", h.reqId, err)
@@ -198,15 +197,10 @@ func (h *helper) ipmiOperateNode() error {
 	return nil
 }
 
-func (h *helper) getIpmiOperation() (osipmi.ChassisControl, error) {
-	switch h.operation {
-	case "poweron":
-		return osipmi.ChassisControlPowerUp, nil
-	case "poweroff":
-		return osipmi.ChassisControlPowerDown, nil
-	case "powercycle":
-		return osipmi.ChassisControlPowerCycle, nil
-	default:
-		return 0, fmt.Errorf("unknown ipmi operation: %s", h.operation)
-	}
+func (h *helper) disconnectNodeIpmi() error {
+	return h.mongo.DeleteOne(
+		nodes.Db,
+		nodes.CollectionIpmi,
+		bson.M{"host.name": h.node},
+	)
 }

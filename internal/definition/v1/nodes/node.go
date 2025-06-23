@@ -45,11 +45,13 @@ type Node struct {
 
 	CpuSpec           string             `json:"cpuSpec" yaml:"cpuSpec"`
 	NetworkInterfaces []NetworkInterface `json:"networkInterfaces" yaml:"networkInterfaces"`
-	IsVirtualIpOwner  bool               `json:"isVirtualIpOwner" yaml:"isVirtualIpOwner"`
 	BlockDevices      []BlockDevice      `json:"blockDevices" yaml:"blockDevices"`
 	Vcpu              metric.Compute     `json:"vcpu" yaml:"vcpu"`
 	Memory            metric.Space       `json:"memory" yaml:"memory"`
 	Storage           metric.Space       `json:"storage" yaml:"storage"`
+
+	IsVirtualIpOwner bool `json:"isVirtualIpOwner" yaml:"isVirtualIpOwner"`
+	IsIpmiConnected  bool `json:"isIpmiConnected" yaml:"isIpmiConnected"`
 
 	License       licenses.License `json:"license" yaml:"license,omitempty"`
 	Status        string           `json:"status" yaml:"status"`

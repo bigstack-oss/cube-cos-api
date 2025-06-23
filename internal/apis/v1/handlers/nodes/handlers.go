@@ -28,25 +28,25 @@ var (
 			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/nodes/:nodeName/ipmi",
+			Func:    setNodeIpmi,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/nodes/:nodeName/ipmi/verify",
 			Func:    verifyNodeIpmi,
-		},
-		{
-			Version: apis.V1,
-			Method:  http.MethodGet,
-			Path:    "/nodes/:nodeName/ipmi",
-			Func:    getNodeIpmi,
-		},
-		{
-			Version: apis.V1,
-			Method:  http.MethodPut,
-			Path:    "/nodes/:nodeName/ipmi",
-			Func:    updateNodeIpmi,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/nodes/:nodeName/ipmi/:operation",
 			Func:    ipmiOperateNode,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/nodes/:nodeName/ipmi/connect",
+			Func:    disconnectNodeIpmi,
 		},
 	}
 )
@@ -131,36 +131,15 @@ func verifyNodeIpmi(c *gin.Context) {
 	)
 }
 
-func getNodeIpmi(c *gin.Context) {
-	h, err := initHelper(c, "getNodeIpmi")
+func setNodeIpmi(c *gin.Context) {
+	h, err := initHelper(c, "setNodeIpmi")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
-	ipmi, err := h.getNodeIpmi()
-	if err != nil {
-		bodies.SetInternalServerError(c, err)
-		return
-	}
-
-	bodies.SetOk(
-		c,
-		"fetch node ipmi successfully",
-		ipmi,
-	)
-}
-
-func updateNodeIpmi(c *gin.Context) {
-	h, err := initHelper(c, "updateNodeIpmi")
-	if err != nil {
-		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
-		return
-	}
-
-	err = h.updateNodeIpmi()
+	err = h.setNodeIpmi()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
@@ -181,7 +160,33 @@ func ipmiOperateNode(c *gin.Context) {
 		return
 	}
 
+	err = h.checkStatusConflict()
+	if err != nil {
+		bodies.SetConflict(c, err)
+		return
+	}
+
 	err = h.ipmiOperateNode()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"ipmi operation request accepted",
+	)
+}
+
+func disconnectNodeIpmi(c *gin.Context) {
+	h, err := initHelper(c, "disconnectNodeIpmi")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.disconnectNodeIpmi()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
@@ -189,7 +194,7 @@ func ipmiOperateNode(c *gin.Context) {
 
 	bodies.SetOk(
 		c,
-		"ipmi power on node successfully",
+		"connect or disconnect node ipmi successfully",
 		nil,
 	)
 }

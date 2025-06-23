@@ -5080,6 +5080,406 @@
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/ipmi": {
+            "post": {
+                "operationId": "setNodeIpmi",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Set the node IPMI setting",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NodeIpmiSettingRequest"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Set node IPMI setting",
+                                    "value": {
+                                        "ip": "10.10.10.10",
+                                        "port": 623,
+                                        "username": "admin",
+                                        "password": "example-password"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Node IPMI setting set successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SetNodeIpmiSettingResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Node not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to set node IPMI setting: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/ipmi/disconnect": {
+            "patch": {
+                "operationId": "disconnectNodeIpmi",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Disconnect the node IPMI control",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Disconnect the node IPMI successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DisconnectNodeIpmiResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Disconnect node IPMI",
+                                        "value": {
+                                            "code": 200,
+                                            "msg": "node IPMI is disconnected successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to disconnect node IPMI: bad request"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to disconnect node IPMI: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/ipmi/verify": {
+            "post": {
+                "operationId": "verifyNodeIpmi",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Verify the node IPMI setting",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NodeIpmiSettingRequest"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Verify node IPMI setting",
+                                    "value": {
+                                        "ip": "10.10.10.10",
+                                        "port": 623,
+                                        "username": "admin",
+                                        "password": "example-password"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Node IPMI setting verified successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VerifyNodeIpmiResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Node IPMI setting",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "board": {
+                                                    "manufacturingDate": "2025-01-01T01:00:00+00:00",
+                                                    "manufacturer": "DELL",
+                                                    "product": "PowerEdge R630",
+                                                    "serial": "CN747516CK0286",
+                                                    "partNumber": "02C2CPA04"
+                                                },
+                                                "product": {
+                                                    "name": "PowerEdge R630",
+                                                    "manufacturer": "DELL",
+                                                    "serial": "1MXXZH2",
+                                                    "version": "01"
+                                                }
+                                            },
+                                            "msg": "node IPMI setting verified successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Node not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to verify node IPMI setting: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/ipmi/{operation}": {
+            "post": {
+                "operationId": "operateNodeIpmi",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Operate the node by IPMI",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    },
+                    {
+                        "name": "operation",
+                        "in": "path",
+                        "description": "The operation to perform on the node IPMI",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "poweron",
+                                "poweroff",
+                                "powercycle"
+                            ]
+                        },
+                        "example": "poweroff"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "the ipmi oepration request received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OperateNodeIpmiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Node not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to operate node: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/settings": {
             "get": {
                 "operationId": "getSettings",
@@ -10829,6 +11229,16 @@
                 "description": "The name of the data center to operate",
                 "example": "example-data-center"
             },
+            "nodeName": {
+                "name": "nodeName",
+                "in": "path",
+                "description": "The name of the node",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "example": "example-node-0"
+            },
             "instanceId": {
                 "in": "path",
                 "name": "instanceId",
@@ -13541,6 +13951,219 @@
                     "status": {
                         "type": "string",
                         "example": "ok"
+                    }
+                }
+            },
+            "GetNodeIpmiSettingResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "ip",
+                            "port",
+                            "username",
+                            "password"
+                        ],
+                        "properties": {
+                            "ip": {
+                                "type": "string"
+                            },
+                            "port": {
+                                "type": "integer"
+                            },
+                            "username": {
+                                "type": "string"
+                            },
+                            "password": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "VerifyNodeIpmiResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "board",
+                            "product"
+                        ],
+                        "properties": {
+                            "board": {
+                                "type": "object",
+                                "required": [
+                                    "manufacturingDate",
+                                    "manufacturer",
+                                    "product",
+                                    "serial",
+                                    "partNumber"
+                                ],
+                                "properties": {
+                                    "manufacturingDate": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "manufacturer": {
+                                        "type": "string"
+                                    },
+                                    "product": {
+                                        "type": "string"
+                                    },
+                                    "serial": {
+                                        "type": "string"
+                                    },
+                                    "partNumber": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "product": {
+                                "type": "object",
+                                "required": [
+                                    "manufacturer",
+                                    "name",
+                                    "serial",
+                                    "version"
+                                ],
+                                "properties": {
+                                    "manufacturer": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "serial": {
+                                        "type": "string"
+                                    },
+                                    "version": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "NodeIpmiSettingRequest": {
+                "type": "object",
+                "required": [
+                    "ip",
+                    "port",
+                    "username",
+                    "password"
+                ],
+                "properties": {
+                    "ip": {
+                        "type": "string",
+                        "description": "IP address of the node's IPMI interface"
+                    },
+                    "port": {
+                        "type": "integer",
+                        "description": "Port number of the node's IPMI interface"
+                    },
+                    "username": {
+                        "type": "string",
+                        "description": "Username for the node's IPMI interface"
+                    },
+                    "password": {
+                        "type": "string",
+                        "description": "Password for the node's IPMI interface"
+                    }
+                }
+            },
+            "SetNodeIpmiSettingResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "IPMI settings updated successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "OperateNodeIpmiResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 202
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "node is being operated successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "DisconnectNodeIpmiResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
                     }
                 }
             },

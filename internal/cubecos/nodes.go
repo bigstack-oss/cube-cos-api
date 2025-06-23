@@ -131,6 +131,7 @@ func syncTimeSensitiveInfo(list *[]nodes.Node) {
 	syncLicense(list)
 	syncVirutalIpOwner(list)
 	syncPowerStatus(list)
+	syncIpmiInfo(list)
 }
 
 func syncLicense(list *[]nodes.Node) {
@@ -146,28 +147,79 @@ func syncVirutalIpOwner(list *[]nodes.Node) {
 }
 
 func syncPowerStatus(list *[]nodes.Node) {
-	mongo := mongo.GetGlobalHelper()
 	for i, node := range *list {
-		doc, err := mongo.Get(
-			nodes.Db,
-			nodes.RequestsCollection,
-			bson.M{"hostname": node.Hostname},
-		)
-		if err != nil {
-			log.Errorf("nodes: failed to get node(%s) status(%v)", node.Hostname, err)
-			continue
-		}
-		if doc == nil {
+		if !hasPowerRequest(node.Hostname) {
 			continue
 		}
 
-		node := &nodes.Node{}
-		err = doc.Decode(node)
+		status, err := getNodePendingPowerStatus(node.Status)
 		if err != nil {
-			log.Errorf("nodes: failed to decode node(%s) status(%v)", node.Hostname, err)
 			continue
 		}
 
-		(*list)[i].Status = node.Status
+		(*list)[i].Status = status
 	}
+}
+
+func syncIpmiInfo(list *[]nodes.Node) {
+	for i, node := range *list {
+		if hasIpmiRecord(node.Hostname) {
+			(*list)[i].IsIpmiConnected = true
+		}
+	}
+}
+
+func hasPowerRequest(hostname string) bool {
+	mongo := mongo.GetGlobalHelper()
+	count, err := mongo.GetCount(
+		nodes.Db,
+		nodes.RequestsCollection,
+		bson.M{"hostname": hostname},
+	)
+	if err != nil {
+		log.Errorf("nodes: failed to get node(%s) power request count(%v)", hostname, err)
+		return false
+	}
+
+	return count > 1
+}
+
+func hasIpmiRecord(hostname string) bool {
+	mongo := mongo.GetGlobalHelper()
+	count, err := mongo.GetCount(
+		nodes.Db,
+		nodes.CollectionIpmi,
+		bson.M{"host": hostname},
+	)
+	if err != nil {
+		log.Errorf("nodes: failed to get node(%s) ipmi record(%v)", hostname, err)
+		return false
+	}
+
+	return count > 0
+}
+
+func getNodePendingPowerStatus(hostname string) (string, error) {
+	mongo := mongo.GetGlobalHelper()
+	doc, err := mongo.Get(
+		nodes.Db,
+		nodes.RequestsCollection,
+		bson.M{"hostname": hostname},
+	)
+	if err != nil {
+		log.Errorf("nodes: failed to get node(%s) status(%v)", hostname, err)
+		return "", err
+	}
+	if doc == nil {
+		return "", err
+	}
+
+	node := &nodes.Node{}
+	err = doc.Decode(node)
+	if err != nil {
+		log.Errorf("nodes: failed to decode node(%s) status(%v)", hostname, err)
+		return "", err
+	}
+
+	return node.Status, nil
 }

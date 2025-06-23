@@ -6,17 +6,16 @@ import (
 
 	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	osipmi "github.com/bougou/go-ipmi"
 )
 
 func (h *helper) parseParamsByHandler() error {
 	switch h.handler {
 	case "listNodes":
 		return h.parseListOptions()
-	case "getNode":
+	case "getNode", "getNodeIpmi", "disconnectNodeIpmi":
 		return h.parseGetOptions()
-	case "getNodeIpmi":
-		return h.parseGetOptions()
-	case "verifyNodeIpmi", "updateNodeIpmi":
+	case "verifyNodeIpmi", "setNodeIpmi":
 		return h.parseVerifyOrUpdateOptions()
 	case "ipmiOperateNode":
 		return h.parseIpmiOperateOptions()
@@ -53,6 +52,15 @@ func (h *helper) parseIpmiOperateOptions() error {
 	return h.validateIpmiOperation()
 }
 
+func (h *helper) parseIpmiDisconnectOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("nodeName should be provided")
+	}
+
+	return nil
+}
+
 func (h *helper) parseKeyword() {
 	keyword := h.c.DefaultQuery("keyword", "")
 	h.keyword = strings.ToLower(keyword)
@@ -84,4 +92,17 @@ func (h *helper) parseWatch() error {
 	}
 
 	return nil
+}
+
+func (h *helper) getIpmiOperation() (osipmi.ChassisControl, error) {
+	switch h.operation {
+	case "poweron":
+		return osipmi.ChassisControlPowerUp, nil
+	case "poweroff":
+		return osipmi.ChassisControlPowerDown, nil
+	case "powercycle":
+		return osipmi.ChassisControlPowerCycle, nil
+	default:
+		return 0, fmt.Errorf("unknown ipmi operation: %s", h.operation)
+	}
 }
