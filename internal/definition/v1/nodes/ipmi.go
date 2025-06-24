@@ -1,6 +1,10 @@
 package nodes
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/network"
+)
 
 const (
 	DefaultIpmiDeviceId = uint8(0)
@@ -8,7 +12,8 @@ const (
 )
 
 type Ipmi struct {
-	Ip       string `json:"host" bson:"host"`
+	Host     string `json:"host" bson:"host"`
+	Ip       string `json:"ip" bson:"ip"`
 	Port     int    `json:"port" bson:"port"`
 	Username string `json:"username" bson:"username"`
 	Password string `json:"password" bson:"password"`
@@ -21,11 +26,11 @@ type IpmiEnablement struct {
 }
 
 func (i *Ipmi) CheckInvalidValues() error {
-	if i.Ip == "" {
+	if !network.IsValidIPv4(i.Ip) {
 		return fmt.Errorf("ipmi host ip should be provided")
 	}
 
-	if i.Port <= 0 || i.Port > 65535 {
+	if !network.IsValidPortRange(i.Port) {
 		return fmt.Errorf("ipmi port should be between 1 and 65535")
 	}
 

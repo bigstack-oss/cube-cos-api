@@ -15,6 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type helper struct {
@@ -28,7 +29,7 @@ type helper struct {
 	products        []string
 	licenseStatuses []string
 	roles           []string
-	ipmi            *nodes.Ipmi
+	ipmi            nodes.Ipmi
 	operation       string
 
 	page  *pages.Page
@@ -129,7 +130,8 @@ func (h *helper) getNodeIpmi() (*nodes.Ipmi, error) {
 }
 
 func (h *helper) setNodeIpmi() error {
-	encrytedPassword, err := password.Encrypt(h.ipmi.Password, base.SystemSeed)
+	var err error
+	h.ipmi.Password, err = password.Encrypt(h.ipmi.Password, base.SystemSeed)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to encrypt ipmi password(%v)", h.reqId, err)
 		return err
@@ -138,15 +140,9 @@ func (h *helper) setNodeIpmi() error {
 	return h.mongo.UpdateOne(
 		nodes.Db,
 		nodes.CollectionIpmi,
-		bson.M{"host.name": h.node},
-		bson.M{
-			"$set": bson.M{
-				"host":     h.ipmi.Ip,
-				"port":     h.ipmi.Port,
-				"username": h.ipmi.Username,
-				"password": encrytedPassword,
-			},
-		},
+		bson.M{"host": h.node},
+		h.genUpsertPayload(),
+		options.Update().SetUpsert(true),
 	)
 }
 

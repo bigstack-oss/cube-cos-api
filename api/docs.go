@@ -14132,7 +14132,7 @@ const docTemplate = `{
                     },
                     "msg": {
                         "type": "string",
-                        "example": "IPMI settings updated successfully"
+                        "example": "IPMI settings set successfully"
                     },
                     "status": {
                         "type": "string",

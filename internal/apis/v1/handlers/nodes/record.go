@@ -105,3 +105,15 @@ func getFinalStatus(operation string) string {
 		return "unknown final status"
 	}
 }
+
+func (h *helper) genUpsertPayload() bson.M {
+	return bson.M{
+		"$set": bson.M{
+			"host":     h.node,
+			"ip":       h.ipmi.Ip,
+			"port":     h.ipmi.Port,
+			"username": h.ipmi.Username,
+			"password": h.ipmi.Password,
+		},
+	}
+}

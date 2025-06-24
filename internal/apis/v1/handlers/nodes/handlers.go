@@ -147,7 +147,7 @@ func setNodeIpmi(c *gin.Context) {
 
 	bodies.SetOk(
 		c,
-		"update node ipmi successfully",
+		"the node ipmi setting is set successfully",
 		nil,
 	)
 }

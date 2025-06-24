@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	osipmi "github.com/bougou/go-ipmi"
 )
 
@@ -15,8 +14,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListOptions()
 	case "getNode", "getNodeIpmi", "disconnectNodeIpmi":
 		return h.parseGetOptions()
-	case "verifyNodeIpmi", "setNodeIpmi":
-		return h.parseVerifyOrUpdateOptions()
+	case "setNodeIpmi", "verifyNodeIpmi":
+		return h.parseSetOrVerifyOptions()
 	case "ipmiOperateNode":
 		return h.parseIpmiOperateOptions()
 	default:
@@ -27,13 +26,12 @@ func (h *helper) parseParamsByHandler() error {
 	}
 }
 
-func (h *helper) parseVerifyOrUpdateOptions() error {
+func (h *helper) parseSetOrVerifyOptions() error {
 	h.node = h.c.Param("nodeName")
 	if h.node == "" {
-		return fmt.Errorf("nodeName should be provided")
+		return fmt.Errorf("node name should be provided")
 	}
 
-	h.ipmi = &nodes.Ipmi{}
 	err := h.c.ShouldBindJSON(h.ipmi)
 	if err != nil {
 		return err
