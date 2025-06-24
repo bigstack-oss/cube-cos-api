@@ -11,20 +11,20 @@ func (h *helper) addFilters(query influx.Query) influx.Query {
 		query.Filter(h.genFilter("key", h.eventId))
 	}
 
-	if h.isCategoryRequired() {
-		query.Filter(h.genFilter("category", h.category))
+	if h.isCategoriesRequired() {
+		h.setCategoriesFilter(&query)
 	}
 
-	if h.isSeverityRequired() {
-		query.Filter(h.genFilter("severity", h.severity))
+	if h.isSeveritiesRequired() {
+		h.setSeveritiesFilter(&query)
 	}
 
-	if h.isHostRequired() {
-		query.Filter(h.genFilter("host", h.host))
+	if h.isHostsRequired() {
+		h.setHostsFilter(&query)
 	}
 
-	if h.isInstanceRequired() {
-		query.Filter(h.genFilter("instance", h.instance))
+	if h.isInstancesRequired() {
+		h.setInstancesFilter(&query)
 	}
 
 	return query

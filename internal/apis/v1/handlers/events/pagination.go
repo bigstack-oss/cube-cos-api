@@ -11,24 +11,24 @@ func (h *helper) isKeywordRequired() bool {
 	return h.keyword != ""
 }
 
-func (h *helper) isCategoryRequired() bool {
-	return h.category != ""
+func (h *helper) isCategoriesRequired() bool {
+	return len(h.categories) > 0
 }
 
 func (h *helper) isIdRequired() bool {
 	return h.eventId != ""
 }
 
-func (h *helper) isSeverityRequired() bool {
-	return h.severity != ""
+func (h *helper) isSeveritiesRequired() bool {
+	return len(h.severities) > 0
 }
 
-func (h *helper) isHostRequired() bool {
-	return h.host != ""
+func (h *helper) isHostsRequired() bool {
+	return len(h.hosts) > 0
 }
 
-func (h *helper) isInstanceRequired() bool {
-	return h.instance != ""
+func (h *helper) isInstancesRequired() bool {
+	return len(h.instances) > 0
 }
 
 func (h *helper) paginateEvents(events []events.Event) ([]events.Event, error) {

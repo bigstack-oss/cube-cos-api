@@ -6,25 +6,12 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 )
 
 const (
 	convertValueToField = `rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value"`
 	descByTime          = `columns: ["_time"], desc: true`
 )
-
-func (h *helper) genCountQueryStmt() string {
-	query := influx.Query{}
-	query.Bucket("events").
-		Range(h.genTimeDuration()).
-		Measurement(h.eventType)
-
-	query = h.addFilters(query)
-	return query.Pivot(convertValueToField).
-		Group("").
-		String()
-}
 
 func (h *helper) genFilterConditionStmt(eventType, column string) string {
 	query := influx.Query{}
@@ -144,7 +131,7 @@ func (h *helper) genTimeDuration() string {
 		return "start: -24h"
 	}
 
-	if query.IsPastRequired(h.c) {
+	if queries.IsPastRequired(h.c) {
 		return fmt.Sprintf("start: -%s", h.past)
 	}
 
