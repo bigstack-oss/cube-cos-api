@@ -716,40 +716,57 @@ const docTemplate = `{
                     },
                     {
                         "in": "query",
-                        "name": "category",
+                        "name": "categories",
                         "required": false,
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
                         },
                         "description": "The category of the event to query.",
                         "example": "NET"
                     },
                     {
                         "in": "query",
-                        "name": "severity",
+                        "name": "severities",
                         "required": false,
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Info",
+                                    "Warning",
+                                    "Error"
+                                ]
+                            }
                         },
                         "description": "The severity of the event to query, the value can be only 'Info', 'Warning', and 'Error'.",
                         "example": "Info"
                     },
                     {
                         "in": "query",
-                        "name": "host",
+                        "name": "hosts",
                         "required": false,
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
                         },
                         "description": "The host of the event to query.",
                         "example": "example-node-0"
                     },
                     {
                         "in": "query",
-                        "name": "instance",
+                        "name": "instances",
                         "required": false,
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
                         },
                         "description": "The instance of the event to query.",
                         "example": "ccc449e4-a26c-47ac-afc1-c792ab1ed20a"
@@ -10165,14 +10182,7 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "in": "path",
-                        "name": "supportFileSet",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the support file set to delete. (have to be done the http encode)",
-                        "example": "Cube Appliance 3.0.0 Support File Set 2025-06-18T15:54:48+00:00"
+                        "$ref": "#/components/parameters/supportFileSet"
                     }
                 ],
                 "responses": {
@@ -10258,133 +10268,6 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to delete support files: internal server error"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "internal server error"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "operationId": "createSupportFiles",
-                "tags": [
-                    "Support Files"
-                ],
-                "summary": "Create one or more support files",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/dataCenter"
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreateSupportFilesRequest"
-                            },
-                            "examples": {
-                                "example": {
-                                    "summary": "Support file creation request",
-                                    "value": {
-                                        "description": "example-description",
-                                        "hosts": [
-                                            "example-node-0"
-                                        ]
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "202": {
-                        "description": "Support file creation request received",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/CreateSupportFilesResponse"
-                                },
-                                "examples": {
-                                    "example": {
-                                        "summary": "Support file creation response",
-                                        "value": {
-                                            "code": 202,
-                                            "msg": "support file creation request received",
-                                            "status": "ok"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 400
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "invalid host found"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "bad request"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 401
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "invalid_grant: Invalid user credentials"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "unauthorized"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 500
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "failed to request support file creation: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -11503,6 +11386,16 @@ const docTemplate = `{
                 },
                 "description": "The end time of the event to query, the value should be in RFC3339 format (default is now).",
                 "example": "2025-01-01T01:00:00+00:00"
+            },
+            "supportFileSet": {
+                "in": "path",
+                "name": "supportFileSet",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The name of the support file set to delete. (have to be done the http encode)",
+                "example": "Cube Appliance 3.0.0 Support File Set 2025-06-18T15:54:48+00:00"
             }
         },
         "schemas": {
