@@ -4816,6 +4816,11 @@
                                                                 }
                                                             }
                                                         ],
+                                                        "ipmi": {
+                                                            "isSupported": true,
+                                                            "isConnected": false,
+                                                            "ip": "10.32.10.45"
+                                                        },
                                                         "vcpu": {
                                                             "totalCores": 48,
                                                             "usedCores": 40,
@@ -5019,6 +5024,11 @@
                                                         }
                                                     }
                                                 ],
+                                                "ipmi": {
+                                                    "isSupported": true,
+                                                    "isConnected": false,
+                                                    "ip": "10.32.10.45"
+                                                },
                                                 "vcpu": {
                                                     "totalCores": 48,
                                                     "usedCores": 40,
@@ -16134,6 +16144,7 @@
                     "cpuSpec",
                     "networkInterfaces",
                     "blockDevices",
+                    "ipmi",
                     "vcpu",
                     "memory",
                     "storage",
@@ -16331,6 +16342,25 @@
                                         }
                                     }
                                 }
+                            }
+                        }
+                    },
+                    "ipmi": {
+                        "type": "object",
+                        "required": [
+                            "isSupported",
+                            "isConnected",
+                            "ip"
+                        ],
+                        "properties": {
+                            "isSupported": {
+                                "type": "boolean"
+                            },
+                            "isConnected": {
+                                "type": "boolean"
+                            },
+                            "ip": {
+                                "type": "string"
                             }
                         }
                     },

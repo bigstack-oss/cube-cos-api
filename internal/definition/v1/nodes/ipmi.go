@@ -4,17 +4,24 @@ import "fmt"
 
 const (
 	DefaultIpmiDeviceId = uint8(0)
+	IpmiMarkerfile      = "/etc/appliance/state/ipmi_detected"
 )
 
 type Ipmi struct {
-	Host     `json:"host" bson:"host"`
+	Ip       string `json:"host" bson:"host"`
 	Port     int    `json:"port" bson:"port"`
 	Username string `json:"username" bson:"username"`
 	Password string `json:"password" bson:"password"`
 }
 
+type IpmiEnablement struct {
+	IsSupported bool   `json:"isSupported" bson:"isSupported"`
+	IsConnected bool   `json:"isConnected" bson:"isConnected"`
+	Ip          string `json:"ip" bson:"ip"`
+}
+
 func (i *Ipmi) CheckInvalidValues() error {
-	if i.Host.Ip == "" {
+	if i.Ip == "" {
 		return fmt.Errorf("ipmi host ip should be provided")
 	}
 

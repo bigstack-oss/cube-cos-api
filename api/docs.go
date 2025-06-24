@@ -4820,6 +4820,11 @@ const docTemplate = `{
                                                                 }
                                                             }
                                                         ],
+                                                        "ipmi": {
+                                                            "isSupported": true,
+                                                            "isConnected": false,
+                                                            "ip": "10.32.10.45"
+                                                        },
                                                         "vcpu": {
                                                             "totalCores": 48,
                                                             "usedCores": 40,
@@ -5023,6 +5028,11 @@ const docTemplate = `{
                                                         }
                                                     }
                                                 ],
+                                                "ipmi": {
+                                                    "isSupported": true,
+                                                    "isConnected": false,
+                                                    "ip": "10.32.10.45"
+                                                },
                                                 "vcpu": {
                                                     "totalCores": 48,
                                                     "usedCores": 40,
@@ -16138,6 +16148,7 @@ const docTemplate = `{
                     "cpuSpec",
                     "networkInterfaces",
                     "blockDevices",
+                    "ipmi",
                     "vcpu",
                     "memory",
                     "storage",
@@ -16335,6 +16346,25 @@ const docTemplate = `{
                                         }
                                     }
                                 }
+                            }
+                        }
+                    },
+                    "ipmi": {
+                        "type": "object",
+                        "required": [
+                            "isSupported",
+                            "isConnected",
+                            "ip"
+                        ],
+                        "properties": {
+                            "isSupported": {
+                                "type": "boolean"
+                            },
+                            "isConnected": {
+                                "type": "boolean"
+                            },
+                            "ip": {
+                                "type": "string"
                             }
                         }
                     },

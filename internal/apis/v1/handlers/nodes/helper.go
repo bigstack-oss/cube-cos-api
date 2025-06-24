@@ -141,7 +141,7 @@ func (h *helper) setNodeIpmi() error {
 		bson.M{"host.name": h.node},
 		bson.M{
 			"$set": bson.M{
-				"host":     h.ipmi.Host,
+				"host":     h.ipmi.Ip,
 				"port":     h.ipmi.Port,
 				"username": h.ipmi.Username,
 				"password": encrytedPassword,
@@ -170,7 +170,7 @@ func (h *helper) ipmiOperateNode() error {
 	}
 
 	c, err := ipmi.NewHelper(
-		ipmi.Host(info.Host.Ip),
+		ipmi.Host(info.Ip),
 		ipmi.Port(info.Port),
 		ipmi.Username(info.Username),
 		ipmi.Password(decryptedPassword),
@@ -186,12 +186,12 @@ func (h *helper) ipmiOperateNode() error {
 		return err
 	}
 
-	go traceNodeStatus(info.Host.Name, h.operation)
+	go traceNodeStatus(h.node, h.operation)
 	log.Infof(
 		"nodes(%s): successfully operated ipmi(%s) on node(%s)",
 		h.reqId,
 		h.operation,
-		info.Host.Ip,
+		info.Ip,
 	)
 
 	return nil

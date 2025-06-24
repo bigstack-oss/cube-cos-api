@@ -208,6 +208,7 @@ func (o *Operator) setLicense(node *nodes.Node) {
 
 func (o *Operator) setInfraSpec(node *nodes.Node) {
 	o.setIps(node)
+	o.setIpmi(node)
 	o.setStatus(node)
 	o.setHardwareSpec(node)
 	o.setMetric(node)
@@ -217,6 +218,59 @@ func (o *Operator) setInfraSpec(node *nodes.Node) {
 func (o *Operator) setIps(node *nodes.Node) {
 	node.ManagementIP = base.ManagementIp
 	node.StorageIP = base.StorageIP
+}
+
+func (o *Operator) setIpmi(node *nodes.Node) {
+	node.IpmiEnablement.IsSupported = o.isIpmiSupported()
+	if !node.IpmiEnablement.IsSupported {
+		log.Infof("nodes: ipmi is not supported on this node(%s)", node.Hostname)
+		return
+	}
+
+	ip, err := o.getIpmiIp()
+	if err != nil {
+		log.Errorf("nodes: failed to get ipmi ip for node(%s): %v", node.Hostname, err)
+		return
+	}
+
+	node.IpmiEnablement.Ip = ip
+}
+
+func (o *Operator) isIpmiSupported() bool {
+	_, err := os.Stat(nodes.IpmiMarkerfile)
+	return err == nil
+}
+
+func (o *Operator) getIpmiIp() (string, error) {
+	out, err := exec.Command("ipmitool", "lan", "print", "1").Output()
+	if err != nil {
+		log.Errorf("base: failed to get system serial(%v)", err)
+		return "", err
+	}
+
+	return o.parseIpmiIp(out)
+}
+
+func (o *Operator) parseIpmiIp(out []byte) (string, error) {
+	lines := strings.SplitSeq(string(out), "\n")
+
+	for line := range lines {
+		if !strings.HasPrefix(line, "IP Address") {
+			continue
+		}
+
+		if strings.Contains(line, "IP Address Source") {
+			continue
+		}
+
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) == 2 {
+			ip := strings.TrimSpace(parts[1])
+			return ip, nil
+		}
+	}
+
+	return "", fmt.Errorf("ipmi ip not found in output")
 }
 
 func (o *Operator) setStatus(n *nodes.Node) {

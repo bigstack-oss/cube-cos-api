@@ -131,7 +131,6 @@ func syncTimeSensitiveInfo(list *[]nodes.Node) {
 	syncLicense(list)
 	syncVirutalIpOwner(list)
 	syncPowerStatus(list)
-	syncIpmiInfo(list)
 }
 
 func syncLicense(list *[]nodes.Node) {
@@ -158,14 +157,6 @@ func syncPowerStatus(list *[]nodes.Node) {
 		}
 
 		(*list)[i].Status = status
-	}
-}
-
-func syncIpmiInfo(list *[]nodes.Node) {
-	for i, node := range *list {
-		if hasIpmiRecord(node.Hostname) {
-			(*list)[i].IsIpmiConnected = true
-		}
 	}
 }
 

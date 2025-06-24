@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net"
+	"os/exec"
 	"runtime"
 
 	log "go-micro.dev/v5/logger"
@@ -80,4 +81,17 @@ func GenerateNodeHashByMacAddr() (string, error) {
 
 	hash := sha256.Sum256([]byte(macAddr))
 	return hex.EncodeToString(hash[:])[:8], nil
+}
+
+func IsSuccessCode(err error) bool {
+	if err == nil {
+		return true
+	}
+
+	result, ok := err.(*exec.ExitError)
+	if !ok {
+		return false
+	}
+
+	return result.ExitCode() == 0
 }

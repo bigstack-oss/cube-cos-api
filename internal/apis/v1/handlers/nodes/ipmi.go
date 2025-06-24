@@ -10,7 +10,7 @@ import (
 
 func (h *helper) verifyNodeIpmi() (*nodes.ImpiValidation, error) {
 	helper, err := ipmi.NewHelper(
-		ipmi.Host(h.ipmi.Host.Ip),
+		ipmi.Host(h.ipmi.Ip),
 		ipmi.Port(h.ipmi.Port),
 		ipmi.Username(h.ipmi.Username),
 		ipmi.Password(h.ipmi.Password),

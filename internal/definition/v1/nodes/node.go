@@ -51,7 +51,7 @@ type Node struct {
 	Storage           metric.Space       `json:"storage" yaml:"storage"`
 
 	IsVirtualIpOwner bool `json:"isVirtualIpOwner" yaml:"isVirtualIpOwner"`
-	IsIpmiConnected  bool `json:"isIpmiConnected" yaml:"isIpmiConnected"`
+	IpmiEnablement   `json:"ipmi" yaml:"ipmi"`
 
 	License       licenses.License `json:"license" yaml:"license,omitempty"`
 	Status        string           `json:"status" yaml:"status"`
