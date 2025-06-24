@@ -152,8 +152,9 @@ func syncPowerStatus(list *[]nodes.Node) {
 			continue
 		}
 
-		status, err := getNodePendingPowerStatus(node.Status)
+		status, err := getPendingPowerStatus(node.Hostname)
 		if err != nil {
+			log.Errorf("nodes: failed to get node(%s) pending power status(%v)", node.Hostname, err)
 			continue
 		}
 
@@ -181,7 +182,7 @@ func hasPowerRequest(hostname string) bool {
 		return false
 	}
 
-	return count > 1
+	return count > 0
 }
 
 func hasIpmiRecord(hostname string) bool {
@@ -199,7 +200,7 @@ func hasIpmiRecord(hostname string) bool {
 	return count > 0
 }
 
-func getNodePendingPowerStatus(hostname string) (string, error) {
+func getPendingPowerStatus(hostname string) (string, error) {
 	mongo := mongo.GetGlobalHelper()
 	doc, err := mongo.Get(
 		nodes.Db,

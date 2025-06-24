@@ -34,7 +34,7 @@ type Node struct {
 	Id           string `json:"id" yaml:"id"`
 	SerialNumber string `json:"serialNumber" yaml:"serialNumber"`
 	DataCenter   string `json:"dataCenter" yaml:"dataCenter"`
-	Hostname     string `json:"hostname" yaml:"hostname"`
+	Hostname     string `json:"hostname" yaml:"hostname" bson:"hostname"`
 	Role         string `json:"role" yaml:"role"`
 
 	Protocol     string `json:"protocol,omitempty" yaml:"protocol,omitempty"`
@@ -54,7 +54,7 @@ type Node struct {
 	IpmiEnablement   `json:"ipmi" yaml:"ipmi"`
 
 	License       licenses.License `json:"license" yaml:"license,omitempty"`
-	Status        string           `json:"status" yaml:"status"`
+	Status        string           `json:"status" yaml:"status" bson:"status"`
 	UptimeSeconds float64          `json:"uptimeSeconds" yaml:"uptimeSeconds"`
 
 	Labels map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`

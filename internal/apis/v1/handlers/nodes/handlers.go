@@ -58,14 +58,14 @@ func init() {
 func listNodes(c *gin.Context) {
 	h, err := initHelper(c, "listNodes")
 	if err != nil {
-		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	resp, err := h.listNodes()
 	if err != nil {
-		log.Errorf("nodes(%s): failed to list node: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to list node(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -85,14 +85,14 @@ func listNodes(c *gin.Context) {
 func getNode(c *gin.Context) {
 	h, err := initHelper(c, "getNode")
 	if err != nil {
-		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	node, err := h.getNode()
 	if err != nil {
-		log.Errorf("nodes(%s): failed to get node details: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to get node details(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -112,7 +112,7 @@ func getNode(c *gin.Context) {
 func verifyNodeIpmi(c *gin.Context) {
 	h, err := initHelper(c, "verifyNodeIpmi")
 	if err != nil {
-		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -126,7 +126,7 @@ func verifyNodeIpmi(c *gin.Context) {
 
 	bodies.SetOk(
 		c,
-		"node ipmi is verified successfully",
+		"the node ipmi is verified successfully",
 		info,
 	)
 }
@@ -134,7 +134,7 @@ func verifyNodeIpmi(c *gin.Context) {
 func setNodeIpmi(c *gin.Context) {
 	h, err := initHelper(c, "setNodeIpmi")
 	if err != nil {
-		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -163,7 +163,7 @@ func setNodeIpmi(c *gin.Context) {
 func ipmiOperateNode(c *gin.Context) {
 	h, err := initHelper(c, "ipmiOperateNode")
 	if err != nil {
-		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -182,14 +182,14 @@ func ipmiOperateNode(c *gin.Context) {
 
 	bodies.SetAccepted(
 		c,
-		"ipmi operation request accepted",
+		"the requets of ipmi operation is accepted and under processing",
 	)
 }
 
 func disconnectNodeIpmi(c *gin.Context) {
 	h, err := initHelper(c, "disconnectNodeIpmi")
 	if err != nil {
-		log.Errorf("nodes(%s): failed to init helper: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -203,7 +203,7 @@ func disconnectNodeIpmi(c *gin.Context) {
 
 	bodies.SetOk(
 		c,
-		"the node ipmi is disconnected successfully",
+		"the ipmi is successfully disconnected",
 		nil,
 	)
 }

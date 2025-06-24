@@ -24,7 +24,7 @@ func traceNodeStatus(hostname, operation string) {
 func checkNodeProgress(hostname, operation string) {
 	p, err := ping.NewPinger(hostname)
 	if err != nil {
-		log.Errorf("nodes: failed to create pinger for %s: %v", hostname, err)
+		log.Errorf("nodes: failed to create pinger for %s(%v)", hostname, err)
 		return
 	}
 
@@ -46,7 +46,7 @@ func setTrackerCallback(p *ping.Pinger, hostname, operation string) {
 
 	if operation == "poweroff" {
 		p.OnRecvError = func(err error) {
-			log.Errorf("nodes: node %s is not reachable, marking as stopped", hostname)
+			log.Errorf("nodes: node %s is not reachable, marking as down", hostname)
 			updateFinalStatus(hostname, operation)
 			p.Stop()
 		}
@@ -60,7 +60,7 @@ func updatePendingStatus(hostname, operation string) error {
 		nodes.Db,
 		nodes.RequestsCollection,
 		bson.M{"hostname": hostname},
-		bson.M{"$set": bson.M{"host": hostname, "status": status}},
+		bson.M{"$set": bson.M{"hostname": hostname, "status": status}},
 		options.Update().SetUpsert(true),
 	)
 }
@@ -72,11 +72,11 @@ func updateFinalStatus(hostname, operation string) {
 		nodes.Db,
 		nodes.RequestsCollection,
 		bson.M{"hostname": hostname},
-		bson.M{"$set": bson.M{"host": hostname, "status": status}},
+		bson.M{"$set": bson.M{"hostname": hostname, "status": status}},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Errorf("nodes: failed to update final status for %s: %v", hostname, err)
+		log.Errorf("nodes: failed to update final status for %s(%v)", hostname, err)
 	}
 }
 
@@ -96,11 +96,9 @@ func getInprogressStatus(operation string) string {
 func getFinalStatus(operation string) string {
 	switch operation {
 	case "poweron":
-		return "running"
+		return "up"
 	case "poweroff":
-		return "stopped"
-	case "powercycle":
-		return "restarted"
+		return "down"
 	default:
 		return "unknown final status"
 	}

@@ -183,7 +183,7 @@ func (h *helper) ipmiOperateNode() error {
 
 	go traceNodeStatus(h.node, h.operation)
 	log.Infof(
-		"nodes(%s): successfully operated ipmi(%s) on node(%s)",
+		"nodes(%s): the ipmi operation(%s) is successfully operated on %s",
 		h.reqId,
 		h.operation,
 		info.Ip,
@@ -200,7 +200,7 @@ func (h *helper) disconnectNodeIpmi() error {
 	)
 	if err != nil {
 		return fmt.Errorf(
-			"failed to disconnect node ipmi due to db issues(%v)",
+			"failed to disconnect node ipmi due to the db issues(%v)",
 			err,
 		)
 	}

@@ -13,7 +13,7 @@ func (o *Operator) removeHostPendingReq() {
 	err := h.DeleteAll(
 		nodes.Db,
 		nodes.RequestsCollection,
-		bson.M{"name": base.Hostname},
+		bson.M{"hostname": base.Hostname},
 	)
 	if err != nil {
 		log.Errorf("nodes: failed to reset pending requests for host %s: %v", base.Hostname, err)
