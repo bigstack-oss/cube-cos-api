@@ -32,7 +32,7 @@ func (h *helper) parseSetOrVerifyOptions() error {
 		return fmt.Errorf("node name should be provided")
 	}
 
-	err := h.c.ShouldBindJSON(h.ipmi)
+	err := h.c.ShouldBindJSON(&h.ipmi)
 	if err != nil {
 		return err
 	}
@@ -47,16 +47,7 @@ func (h *helper) parseIpmiOperateOptions() error {
 	}
 
 	h.operation = strings.ToLower(h.c.Param("operation"))
-	return h.validateIpmiOperation()
-}
-
-func (h *helper) parseIpmiDisconnectOptions() error {
-	h.node = h.c.Param("nodeName")
-	if h.node == "" {
-		return fmt.Errorf("nodeName should be provided")
-	}
-
-	return nil
+	return h.checkIpmiOperation()
 }
 
 func (h *helper) parseKeyword() {

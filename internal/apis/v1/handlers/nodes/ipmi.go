@@ -1,10 +1,13 @@
 package nodes
 
 import (
-	"encoding/base64"
+	"fmt"
+	"strings"
+	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ipmi"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	bstime "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -16,57 +19,33 @@ func (h *helper) verifyNodeIpmi() (*nodes.ImpiValidation, error) {
 		ipmi.Password(h.ipmi.Password),
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to connect to IPMI %s(%v)", h.ipmi.Ip, err)
 	}
 
+	defer helper.Close()
 	validation, err := helper.GetFRU(nodes.DefaultIpmiDeviceId)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to get IPMI board info %s(%v)", h.ipmi.Ip, err)
 	}
 
-	manufacturer, err := base64.StdEncoding.DecodeString(string(validation.BoardInfoArea.Manufacturer))
+	manufacturerDate, err := time.Parse(bstime.FormatBmc, validation.BoardInfoArea.MfgDateTime.String())
 	if err != nil {
-		log.Warnf("nodes: failed to decode ipmi manufacturer(%v)", err)
-	}
-
-	productName, err := base64.StdEncoding.DecodeString(string(validation.BoardInfoArea.ProductName))
-	if err != nil {
-		log.Warnf("nodes: failed to decode ipmi product name(%v)", err)
-	}
-
-	ManufacturingSerial, err := base64.StdEncoding.DecodeString(string(validation.BoardInfoArea.SerialNumber))
-	if err != nil {
-		log.Warnf("nodes: failed to decode ipmi serial(%v)", err)
-	}
-
-	partNumber, err := base64.StdEncoding.DecodeString(string(validation.BoardInfoArea.PartNumber))
-	if err != nil {
-		log.Warnf("nodes: failed to decode ipmi part number(%v)", err)
-	}
-
-	productVersion, err := base64.StdEncoding.DecodeString(string(validation.ProductInfoArea.Version))
-	if err != nil {
-		log.Warnf("nodes: failed to decode ipmi product version(%v)", err)
-	}
-
-	productSerial, err := base64.StdEncoding.DecodeString(string(validation.ProductInfoArea.SerialNumber))
-	if err != nil {
-		log.Warnf("nodes: failed to decode ipmi product serial(%v)", err)
+		log.Warnf("nodes(%s): failed to parse IPMI manufacturer date(%v)", h.reqId, err)
 	}
 
 	return &nodes.ImpiValidation{
 		Board: nodes.Board{
-			ManufacturingDate: validation.BoardInfoArea.MfgDateTime.String(),
-			Manufacturer:      string(manufacturer),
-			Product:           string(productName),
-			Serial:            string(ManufacturingSerial),
-			PartNumber:        string(partNumber),
+			ManufacturingDate: bstime.RFC3339Z(manufacturerDate),
+			Manufacturer:      string(validation.BoardInfoArea.Manufacturer),
+			Product:           strings.TrimRight(string(validation.BoardInfoArea.ProductName), " "),
+			Serial:            string(validation.BoardInfoArea.SerialNumber),
+			PartNumber:        string(validation.BoardInfoArea.PartNumber),
 		},
 		Product: nodes.Product{
-			Manufacturer: string(manufacturer),
-			Name:         string(productName),
-			Version:      string(productVersion),
-			Serial:       string(productSerial),
+			Manufacturer: string(validation.BoardInfoArea.Manufacturer),
+			Name:         strings.TrimRight(string(validation.BoardInfoArea.ProductName), " "),
+			Version:      string(validation.ProductInfoArea.Version),
+			Serial:       strings.TrimRight(string(validation.ProductInfoArea.SerialNumber), "\x00"),
 		},
 	}, nil
 }

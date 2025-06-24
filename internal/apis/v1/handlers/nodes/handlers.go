@@ -44,8 +44,8 @@ var (
 		},
 		{
 			Version: apis.V1,
-			Method:  http.MethodPatch,
-			Path:    "/nodes/:nodeName/ipmi/connect",
+			Method:  http.MethodDelete,
+			Path:    "/nodes/:nodeName/ipmi/disconnect",
 			Func:    disconnectNodeIpmi,
 		},
 	}
@@ -119,14 +119,14 @@ func verifyNodeIpmi(c *gin.Context) {
 
 	info, err := h.verifyNodeIpmi()
 	if err != nil {
-		log.Errorf("nodes(%s): failed to verify node ipmi: %v", h.reqId, err)
+		log.Errorf("nodes(%s): failed to verify node ipmi(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 
 	bodies.SetOk(
 		c,
-		"verify node ipmi successfully",
+		"node ipmi is verified successfully",
 		info,
 	)
 }
@@ -139,8 +139,16 @@ func setNodeIpmi(c *gin.Context) {
 		return
 	}
 
+	_, err = h.verifyNodeIpmi()
+	if err != nil {
+		log.Errorf("nodes(%s): failed to verify node ipmi(%v)", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
 	err = h.setNodeIpmi()
 	if err != nil {
+		log.Errorf("nodes(%s): failed to set node ipmi(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -188,13 +196,14 @@ func disconnectNodeIpmi(c *gin.Context) {
 
 	err = h.disconnectNodeIpmi()
 	if err != nil {
+		log.Errorf("nodes(%s): failed to disconnect node ipmi(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 
 	bodies.SetOk(
 		c,
-		"connect or disconnect node ipmi successfully",
+		"the node ipmi is disconnected successfully",
 		nil,
 	)
 }

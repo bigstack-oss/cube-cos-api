@@ -133,8 +133,7 @@ func (h *helper) setNodeIpmi() error {
 	var err error
 	h.ipmi.Password, err = password.Encrypt(h.ipmi.Password, base.SystemSeed)
 	if err != nil {
-		log.Errorf("nodes(%s): failed to encrypt ipmi password(%v)", h.reqId, err)
-		return err
+		return fmt.Errorf("failed to encrypt ipmi password(%v)", err)
 	}
 
 	return h.mongo.UpdateOne(
@@ -153,15 +152,9 @@ func (h *helper) ipmiOperateNode() error {
 		return err
 	}
 
-	decryptedPassword, err := password.Decrypt(info.Password, base.SystemSeed)
+	info.Password, err = password.Decrypt(info.Password, base.SystemSeed)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to decrypt ipmi password(%v)", h.reqId, err)
-		return err
-	}
-
-	op, err := h.getIpmiOperation()
-	if err != nil {
-		log.Errorf("nodes(%s): failed to get ipmi operation(%v)", h.reqId, err)
 		return err
 	}
 
@@ -169,10 +162,16 @@ func (h *helper) ipmiOperateNode() error {
 		ipmi.Host(info.Ip),
 		ipmi.Port(info.Port),
 		ipmi.Username(info.Username),
-		ipmi.Password(decryptedPassword),
+		ipmi.Password(info.Password),
 	)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to create ipmi helper(%v)", h.reqId, err)
+		return err
+	}
+
+	op, err := h.getIpmiOperation()
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get ipmi operation(%v)", h.reqId, err)
 		return err
 	}
 
@@ -194,9 +193,17 @@ func (h *helper) ipmiOperateNode() error {
 }
 
 func (h *helper) disconnectNodeIpmi() error {
-	return h.mongo.DeleteOne(
+	err := h.mongo.DeleteOne(
 		nodes.Db,
 		nodes.CollectionIpmi,
-		bson.M{"host.name": h.node},
+		bson.M{"host": h.node},
 	)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to disconnect node ipmi due to db issues(%v)",
+			err,
+		)
+	}
+
+	return nil
 }

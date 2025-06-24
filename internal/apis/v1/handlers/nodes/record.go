@@ -60,7 +60,7 @@ func updatePendingStatus(hostname, operation string) error {
 		nodes.Db,
 		nodes.RequestsCollection,
 		bson.M{"hostname": hostname},
-		bson.M{"$set": bson.M{"hostname": hostname, "status": status}},
+		bson.M{"$set": bson.M{"host": hostname, "status": status}},
 		options.Update().SetUpsert(true),
 	)
 }
@@ -72,7 +72,7 @@ func updateFinalStatus(hostname, operation string) {
 		nodes.Db,
 		nodes.RequestsCollection,
 		bson.M{"hostname": hostname},
-		bson.M{"$set": bson.M{"hostname": hostname, "status": status}},
+		bson.M{"$set": bson.M{"host": hostname, "status": status}},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {

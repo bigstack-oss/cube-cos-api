@@ -7,6 +7,7 @@ import (
 )
 
 const (
+	FormatBmc      = "2006-01-02 15:04:05 -0700 MST"
 	FormatISO8601  = "2006-01-02T15:04:05"
 	FormatISO8601Z = "2006-01-02T15:04:05+00:00"
 	FormatRFC3339  = time.RFC3339

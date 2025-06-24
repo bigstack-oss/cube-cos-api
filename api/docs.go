@@ -5193,7 +5193,7 @@ const docTemplate = `{
             }
         },
         "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/ipmi/disconnect": {
-            "patch": {
+            "delete": {
                 "operationId": "disconnectNodeIpmi",
                 "tags": [
                     "Nodes"

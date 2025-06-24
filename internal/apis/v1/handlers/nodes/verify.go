@@ -9,7 +9,7 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (h *helper) validateIpmiOperation() error {
+func (h *helper) checkIpmiOperation() error {
 	switch strings.ToLower(h.operation) {
 	case "poweron", "poweroff", "powercycle":
 		return nil
