@@ -175,6 +175,7 @@ func (o *Operator) syncDetails(nodes *[]nodes.Node) {
 			(*nodes)[i].CpuSpec = n.CpuSpec
 			(*nodes)[i].NetworkInterfaces = n.NetworkInterfaces
 			(*nodes)[i].BlockDevices = n.BlockDevices
+			(*nodes)[i].IpmiEnablement = n.IpmiEnablement
 			(*nodes)[i].License = n.License
 			(*nodes)[i].Status = n.Status
 			(*nodes)[i].UptimeSeconds = n.UptimeSeconds
