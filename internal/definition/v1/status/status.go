@@ -18,6 +18,9 @@ const (
 	Deleting             = "deleting"
 	Expairing            = "expairing"
 	Fixing               = "fixing"
+	PoweringOn           = "powering on"
+	PoweringOff          = "powering off"
+	PoweringCycle        = "powering cycle"
 
 	Completed = "completed"
 	Created   = "created"

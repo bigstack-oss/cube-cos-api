@@ -5,6 +5,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	ping "github.com/prometheus-community/pro-bing"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -54,7 +55,7 @@ func setTrackerCallback(p *ping.Pinger, hostname, operation string) {
 }
 
 func updatePendingStatus(hostname, operation string) error {
-	status := getInprogressStatus(operation)
+	status := getPendingStatus(operation)
 	m := mongo.GetGlobalHelper()
 	return m.UpdateOne(
 		nodes.Db,
@@ -80,14 +81,14 @@ func updateFinalStatus(hostname, operation string) {
 	}
 }
 
-func getInprogressStatus(operation string) string {
+func getPendingStatus(operation string) string {
 	switch operation {
 	case "poweron":
-		return "starting"
+		return status.PoweringOn
 	case "poweroff":
-		return "stopping"
+		return status.PoweringOff
 	case "powercycle":
-		return "restarting"
+		return status.PoweringCycle
 	default:
 		return "unknown inprogress status"
 	}
