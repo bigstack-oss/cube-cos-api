@@ -223,6 +223,7 @@ func (o *Operator) setIps(node *nodes.Node) {
 
 func (o *Operator) setIpmi(node *nodes.Node) {
 	node.IpmiEnablement.IsSupported = o.isIpmiSupported()
+	o.setIpmiEnablement(node)
 	if !node.IpmiEnablement.IsSupported {
 		log.Infof("nodes: ipmi is not supported on this node(%s)", node.Hostname)
 		return

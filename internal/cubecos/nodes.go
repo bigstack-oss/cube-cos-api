@@ -164,9 +164,8 @@ func syncPowerStatus(list *[]nodes.Node) {
 
 func syncIpmiAccess(list *[]nodes.Node) {
 	for i, node := range *list {
-		if hasIpmiRecord(node.Hostname) {
-			(*list)[i].IpmiEnablement.IsConnected = true
-		}
+		(*list)[i].IpmiEnablement.IsSupported = hasIpmiSupportRecord(node.Hostname)
+		(*list)[i].IpmiEnablement.IsConnected = hasIpmiRecord(node.Hostname)
 	}
 }
 
@@ -185,11 +184,26 @@ func hasPowerRequest(hostname string) bool {
 	return count > 0
 }
 
+func hasIpmiSupportRecord(hostname string) bool {
+	mongo := mongo.GetGlobalHelper()
+	count, err := mongo.GetCount(
+		nodes.Db,
+		nodes.CollectionIpmiSupport,
+		bson.M{"host": hostname, "supported": true},
+	)
+	if err != nil {
+		log.Errorf("nodes: failed to get node(%s) ipmi support record(%v)", hostname, err)
+		return false
+	}
+
+	return count > 0
+}
+
 func hasIpmiRecord(hostname string) bool {
 	mongo := mongo.GetGlobalHelper()
 	count, err := mongo.GetCount(
 		nodes.Db,
-		nodes.CollectionIpmi,
+		nodes.CollectionIpmiAccess,
 		bson.M{"host": hostname},
 	)
 	if err != nil {

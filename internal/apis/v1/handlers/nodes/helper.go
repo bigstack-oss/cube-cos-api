@@ -102,15 +102,11 @@ func (h *helper) getNode() (*nodes.Node, error) {
 		return node, nil
 	}
 
-	if node.IsDown() {
-		return nil, fmt.Errorf("node %s is down", node.Hostname)
-	}
-
 	return node, nil
 }
 
 func (h *helper) getNodeIpmi() (*nodes.Ipmi, error) {
-	doc, err := h.mongo.Get(nodes.Db, nodes.CollectionIpmi, bson.M{"host": h.node})
+	doc, err := h.mongo.Get(nodes.Db, nodes.CollectionIpmiAccess, bson.M{"host": h.node})
 	if err != nil {
 		log.Errorf("nodes(%s): failed to get node ipmi(%v)", h.reqId, err)
 		return nil, err
@@ -138,7 +134,7 @@ func (h *helper) setNodeIpmi() error {
 
 	return h.mongo.UpdateOne(
 		nodes.Db,
-		nodes.CollectionIpmi,
+		nodes.CollectionIpmiAccess,
 		bson.M{"host": h.node},
 		h.genUpsertPayload(),
 		options.Update().SetUpsert(true),
@@ -195,7 +191,7 @@ func (h *helper) ipmiOperateNode() error {
 func (h *helper) disconnectNodeIpmi() error {
 	err := h.mongo.DeleteOne(
 		nodes.Db,
-		nodes.CollectionIpmi,
+		nodes.CollectionIpmiAccess,
 		bson.M{"host": h.node},
 	)
 	if err != nil {
