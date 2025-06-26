@@ -171,7 +171,7 @@ func (h *helper) ipmiOperateNode() error {
 		return err
 	}
 
-	_, err = c.Operate(op)
+	err = c.Operate(op)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to operate ipmi(%v)", h.reqId, err)
 		return err

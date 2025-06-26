@@ -1,13 +1,11 @@
 module github.com/bigstack-oss/cube-cos-api
 
-go 1.24
-
-toolchain go1.24.0
+go 1.24.0
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.78.2
-	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250622142039-866776b102c7
+	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250626131352-51ee547908a9
 	github.com/blevesearch/bleve/v2 v2.4.4
 	github.com/bougou/go-ipmi v0.7.6
 	github.com/coreos/go-oidc v2.3.0+incompatible

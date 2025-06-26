@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	osipmi "github.com/bougou/go-ipmi"
 )
 
 func (h *helper) parseParamsByHandler() error {
@@ -83,15 +82,15 @@ func (h *helper) parseWatch() error {
 	return nil
 }
 
-func (h *helper) getIpmiOperation() (osipmi.ChassisControl, error) {
+func (h *helper) getIpmiOperation() (string, error) {
 	switch h.operation {
 	case "poweron":
-		return osipmi.ChassisControlPowerUp, nil
+		return "on", nil
 	case "poweroff":
-		return osipmi.ChassisControlPowerDown, nil
+		return "off", nil
 	case "powercycle":
-		return osipmi.ChassisControlPowerCycle, nil
+		return "cycle", nil
 	default:
-		return 0, fmt.Errorf("unknown ipmi operation: %s", h.operation)
+		return "", fmt.Errorf("unknown ipmi operation: %s", h.operation)
 	}
 }

@@ -82,6 +82,7 @@ func ListNodesWithTimeSensitiveInfo() []nodes.Node {
 	}
 
 	syncTimeSensitiveInfo(&list)
+	backfillMissingInfo(&list)
 	return list
 }
 
@@ -132,6 +133,18 @@ func syncTimeSensitiveInfo(list *[]nodes.Node) {
 	syncVirutalIpOwner(list)
 	syncPowerStatus(list)
 	syncIpmiAccess(list)
+}
+
+func backfillMissingInfo(list *[]nodes.Node) {
+	for i, node := range *list {
+		if node.NetworkInterfaces == nil {
+			(*list)[i].NetworkInterfaces = []nodes.NetworkInterface{}
+		}
+
+		if node.BlockDevices == nil {
+			(*list)[i].BlockDevices = []nodes.BlockDevice{}
+		}
+	}
 }
 
 func syncLicense(list *[]nodes.Node) {
