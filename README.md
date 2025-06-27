@@ -26,7 +26,7 @@ Additionally, there’re 14+ apis in the CubeCOS, the cube-cos api is just one o
 <br/>
 <br/>
 
-## Community
+## ▎Community
 
 - [License](./LICENSE)
 - [Contributing](./CONTRIBUTING.md)

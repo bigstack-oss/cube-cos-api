@@ -16176,7 +16176,15 @@ const docTemplate = `{
                         }
                     },
                     "status": {
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "up",
+                            "down",
+                            "powering on",
+                            "powering off",
+                            "powering cycle",
+                            "unknown"
+                        ]
                     },
                     "cpuSpec": {
                         "type": "string"
