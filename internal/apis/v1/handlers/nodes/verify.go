@@ -37,6 +37,10 @@ func (h *helper) checkStatusConflict() error {
 		if node.Status == status.Down {
 			return fmt.Errorf("node(%s) is already powered off", h.node)
 		}
+	case "powercycle":
+		if node.Status != status.Up {
+			return fmt.Errorf("node(%s) is not powered on, cannot power cycle", h.node)
+		}
 	}
 
 	return nil
