@@ -219,7 +219,7 @@ func GetServiceHealthHistory(serviceName, duration string) []ModuleHealth {
 	statuses := []ModuleHealth{}
 
 	for _, module := range modules {
-		history, err := GetModuleHealthHistory(module.Name, duration, health.AscSort, false)
+		history, err := GetModuleHealthHistoryWithParams(module.Name, duration, health.AscSort, false)
 		if err != nil {
 			continue
 		}
@@ -236,7 +236,30 @@ func GetServiceHealthHistory(serviceName, duration string) []ModuleHealth {
 	return statuses
 }
 
-func GetModuleHealthHistory(module, duration, order string, onlyLast bool) ([]health.Check, error) {
+func GetModuleHealthHistory(stmt string) ([]health.Check, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
+	defer cancel()
+	h := influx.GetGlobalHelper()
+	c, err := h.QueryApiClient.Query(ctx, stmt)
+	if err != nil {
+		log.Errorf("healths: failed to get query cursor(%v)", err)
+		return nil, err
+	}
+
+	defer c.Close()
+	checks := []health.Check{}
+	err = parseHealthCheck(c, &checks)
+	if err != nil {
+		log.Errorf("healths: failed to parse events from cursor(%v)", err)
+		return nil, err
+	}
+
+	checks = aggregateHealthsByTime(checks, defaultAggreateWindow)
+	setUnhealthLogUrl(&checks)
+	return checks, nil
+}
+
+func GetModuleHealthHistoryWithParams(module, duration, order string, onlyLast bool) ([]health.Check, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
 	stmt := GenModuleHealthHistoryQuery(module, duration, order, onlyLast)
@@ -484,7 +507,7 @@ func syncServiceHealth(services *[]services.Service, duration string) {
 		service.SetOk()
 
 		for m, module := range service.Modules {
-			history, err := GetModuleHealthHistory(module.Name, duration, health.DescSort, true)
+			history, err := GetModuleHealthHistoryWithParams(module.Name, duration, health.DescSort, true)
 			if err != nil {
 				continue
 			}

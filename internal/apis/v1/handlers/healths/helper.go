@@ -45,7 +45,8 @@ func (h *helper) genServiceHealthHistory() []cubecos.ModuleHealth {
 
 func (h *helper) genModuleHealthHistory() cubecos.ModuleHealth {
 	service := cubecos.ModuleToService[h.moduleType]
-	history, err := cubecos.GetModuleHealthHistory(h.moduleType, h.past, health.AscSort, false)
+	stmt := h.genModuleHealthHistoryQuery(false)
+	history, err := cubecos.GetModuleHealthHistory(stmt)
 	if err != nil {
 		log.Errorf("healths(%s): %v", queries.GetReqId(h.c), err)
 	}
