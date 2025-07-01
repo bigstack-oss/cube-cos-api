@@ -55,14 +55,14 @@ var (
 func listTriggerMaterials(c *gin.Context) {
 	h, err := initHelper(c, "listTriggerMaterials")
 	if err != nil {
-		log.Errorf("triggers(%s): failed to initHelper: %v", h.reqId, err)
+		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	materials, err := h.listTriggerMaterials()
 	if err != nil {
-		log.Errorf("triggers(%s): failed to listTriggerMaterials: %v", h.reqId, err)
+		log.Errorf("triggers(%s): failed to list trigger materials(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -77,14 +77,14 @@ func listTriggerMaterials(c *gin.Context) {
 func listTriggers(c *gin.Context) {
 	h, err := initHelper(c, "listTriggers")
 	if err != nil {
-		log.Errorf("triggers(%s): failed to initHelper: %v", h.reqId, err)
+		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	triggers, err := h.listTriggers()
 	if err != nil {
-		log.Errorf("triggers(%s): failed to listTriggers: %v", h.reqId, err)
+		log.Errorf("triggers(%s): failed to listTriggers(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -99,14 +99,14 @@ func listTriggers(c *gin.Context) {
 func getTrigger(c *gin.Context) {
 	h, err := initHelper(c, "getTrigger")
 	if err != nil {
-		log.Errorf("triggers(%s): failed to initHelper: %v", h.reqId, err)
+		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	trigger, err := h.getTrigger(h.parseTriggerName())
 	if err != nil {
-		log.Errorf("triggers(%s): failed to getTrigger: %v", h.reqId, err)
+		log.Errorf("triggers(%s): failed to getTrigger(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -121,7 +121,7 @@ func getTrigger(c *gin.Context) {
 func updateTrigger(c *gin.Context) {
 	h, err := initHelper(c, "updateTrigger")
 	if err != nil {
-		log.Errorf("triggers(%s): failed to initHelper: %v", h.reqId, err)
+		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -137,14 +137,14 @@ func updateTrigger(c *gin.Context) {
 func enableOrDisableTrigger(c *gin.Context) {
 	h, err := initHelper(c, "enableOrDisableTrigger")
 	if err != nil {
-		log.Errorf("tunings(%s): failed to init request helper: %v", h.reqId, err)
+		log.Errorf("tunings(%s): failed to init request helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.parseTriggerEnablement()
 	if err != nil {
-		log.Errorf("tunings(%s): failed to parse tuning req: %v", h.reqId, err)
+		log.Errorf("tunings(%s): failed to parse tuning req(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -159,21 +159,21 @@ func enableOrDisableTrigger(c *gin.Context) {
 func updateTriggerTask(c *gin.Context) {
 	h, err := initHelper(c, "updateTriggerTask")
 	if err != nil {
-		log.Errorf("triggers(%s): failed to init request helper: %v", h.reqId, err)
+		log.Errorf("triggers(%s): failed to init request helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.checkTaskUpdateReq()
 	if err != nil {
-		log.Errorf("triggers(%s): failed to check trigger: %v", h.reqId, err)
+		log.Errorf("triggers(%s): failed to check trigger(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
 	err = h.updateTaskStatus()
 	if err != nil {
-		log.Errorf("triggers(%s): failed to update trigger status: %v", h.reqId, err)
+		log.Errorf("triggers(%s): failed to update trigger status(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
