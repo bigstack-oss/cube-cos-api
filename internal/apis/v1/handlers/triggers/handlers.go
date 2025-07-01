@@ -16,6 +16,12 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodGet,
+			Path:    "/triggers/materials",
+			Func:    listTriggerMaterials,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
 			Path:    "/triggers",
 			Func:    listTriggers,
 		},
@@ -45,6 +51,28 @@ var (
 		},
 	}
 )
+
+func listTriggerMaterials(c *gin.Context) {
+	h, err := initHelper(c, "listTriggerMaterials")
+	if err != nil {
+		log.Errorf("triggers(%s): failed to initHelper: %v", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	materials, err := h.listTriggerMaterials()
+	if err != nil {
+		log.Errorf("triggers(%s): failed to listTriggerMaterials: %v", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"fetched trigger materials successfully",
+		materials,
+	)
+}
 
 func listTriggers(c *gin.Context) {
 	h, err := initHelper(c, "listTriggers")

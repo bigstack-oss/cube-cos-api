@@ -68,3 +68,28 @@ func ApplyTrigger(trigger triggers.CosSchema) error {
 
 	return nil
 }
+
+func GetAlertTypes() ([]string, error) {
+	alertTypes := []string{}
+	return alertTypes, nil
+}
+
+func GetSeverities() ([]string, error) {
+	severities := []string{}
+	return severities, nil
+}
+
+func GetCategories() ([]string, error) {
+	categories := []string{}
+	return categories, nil
+}
+
+func GetEventIds() ([]string, error) {
+	eventIds := []string{}
+	return eventIds, nil
+}
+
+func GetScriptTypes() ([]string, error) {
+	scriptTypes := []string{}
+	return scriptTypes, nil
+}
