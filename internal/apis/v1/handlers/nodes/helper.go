@@ -75,7 +75,6 @@ func (h *helper) listNodes() (*nodePage, error) {
 	nodes = h.filterNodes(nodes)
 	nodesPerPage := h.paginateNodes(nodes)
 	h.sortNodes(&nodesPerPage)
-
 	return &nodePage{
 		Nodes: nodesPerPage,
 		Page:  h.genPageInfo(nodes),
@@ -168,6 +167,12 @@ func (h *helper) ipmiOperateNode() error {
 	op, err := h.getIpmiOperation()
 	if err != nil {
 		log.Errorf("nodes(%s): failed to get ipmi operation(%v)", h.reqId, err)
+		return err
+	}
+
+	err = h.syncTemporaryNodeDetails()
+	if err != nil {
+		log.Errorf("nodes(%s): failed to sync temporary node details(%v)", h.reqId, err)
 		return err
 	}
 

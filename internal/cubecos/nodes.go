@@ -12,6 +12,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pacemaker"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -136,6 +137,11 @@ func syncTimeSensitiveInfo(list *[]nodes.Node) {
 }
 
 func backfillMissingInfo(list *[]nodes.Node) {
+	backfillMissingInfraSpec(list)
+	backfillMissingStatus(list)
+}
+
+func backfillMissingInfraSpec(list *[]nodes.Node) {
 	for i, node := range *list {
 		if node.NetworkInterfaces == nil {
 			(*list)[i].NetworkInterfaces = []nodes.NetworkInterface{}
@@ -143,6 +149,14 @@ func backfillMissingInfo(list *[]nodes.Node) {
 
 		if node.BlockDevices == nil {
 			(*list)[i].BlockDevices = []nodes.BlockDevice{}
+		}
+	}
+}
+
+func backfillMissingStatus(list *[]nodes.Node) {
+	for i, node := range *list {
+		if node.Status == "" {
+			(*list)[i].Status = status.Syncing
 		}
 	}
 }

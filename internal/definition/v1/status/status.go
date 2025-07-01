@@ -14,6 +14,7 @@ const (
 	Pending              = "pending"
 	Updating             = "updating"
 	Repairing            = "repairing"
+	Syncing              = "syncing"
 	CheckingAndRepairing = "checkingAndRepairing"
 	Deleting             = "deleting"
 	Expairing            = "expairing"

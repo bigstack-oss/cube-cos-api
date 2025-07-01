@@ -20,7 +20,7 @@ type RawNetworkInterface struct {
 }
 
 type BlockDevice struct {
-	Serial       string             `json:"serial"`
+	Serial       string             `json:"serial" bson:"serial"`
 	Name         string             `json:"device" yaml:"device" bson:"device"`
 	Type         string             `json:"type" yaml:"type" bson:"type"`
 	SizeMiB      float64            `json:"sizeMiB" yaml:"sizeMiB" bson:"sizeMiB"`

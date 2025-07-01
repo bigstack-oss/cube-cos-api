@@ -1,6 +1,9 @@
 package supportfiles
 
 import (
+	"fmt"
+
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/blevesearch/bleve/v2"
@@ -91,4 +94,29 @@ func (h *helper) genFileSetMap(files []support.FileSet) map[string]support.FileS
 	}
 
 	return setMap
+}
+
+func (h *helper) checkHostValidation() error {
+	if len(h.fileReq.Hosts) == 0 {
+		return fmt.Errorf("no hosts specified for support file request")
+	}
+
+	for _, host := range h.fileReq.Hosts {
+		node, err := nodes.Get(host)
+		if err != nil {
+			return fmt.Errorf(
+				"failed to get node info for %s(%v)",
+				host, err,
+			)
+		}
+
+		if node.IsNotUp() {
+			return fmt.Errorf(
+				"specified hosts %s is not up, the operation is not allowed",
+				node.Hostname,
+			)
+		}
+	}
+
+	return nil
 }

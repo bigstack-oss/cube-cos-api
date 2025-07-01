@@ -16,11 +16,12 @@ import (
 )
 
 const (
-	Module                = "nodes"
-	Db                    = "nodes"
-	RequestsCollection    = "requests"
-	CollectionIpmiAccess  = "ipmiAccess"
-	CollectionIpmiSupport = "ipmiSupport"
+	Module                         = "nodes"
+	Db                             = "nodes"
+	RequestsCollection             = "requests"
+	CollectionTemporaryNodeDetails = "temporaryNodeDetails"
+	CollectionIpmiAccess           = "ipmiAccess"
+	CollectionIpmiSupport          = "ipmiSupport"
 )
 
 var (
@@ -32,33 +33,33 @@ var (
 )
 
 type Node struct {
-	Id           string `json:"id" yaml:"id"`
-	SerialNumber string `json:"serialNumber" yaml:"serialNumber"`
-	DataCenter   string `json:"dataCenter" yaml:"dataCenter"`
+	Id           string `json:"id" yaml:"id" bson:"id"`
+	SerialNumber string `json:"serialNumber" yaml:"serialNumber" bson:"serialNumber"`
+	DataCenter   string `json:"dataCenter" yaml:"dataCenter" bson:"dataCenter"`
 	Hostname     string `json:"hostname" yaml:"hostname" bson:"hostname"`
-	Role         string `json:"role" yaml:"role"`
+	Role         string `json:"role" yaml:"role" bson:"role"`
 
-	Protocol     string `json:"protocol,omitempty" yaml:"protocol,omitempty"`
-	Address      string `json:"address" yaml:"address"`
-	Ip           string `json:"ip" yaml:"ip"`
-	ManagementIP string `json:"managementIP" yaml:"managementIP"`
-	StorageIP    string `json:"storageIP" yaml:"storageIP"`
+	Protocol     string `json:"protocol,omitempty" yaml:"protocol,omitempty" bson:"protocol,omitempty"`
+	Address      string `json:"address" yaml:"address" bson:"address"`
+	Ip           string `json:"ip" yaml:"ip" bson:"ip"`
+	ManagementIP string `json:"managementIP" yaml:"managementIP" bson:"managementIP"`
+	StorageIP    string `json:"storageIP" yaml:"storageIP" bson:"storageIP"`
 
-	CpuSpec           string             `json:"cpuSpec" yaml:"cpuSpec"`
-	NetworkInterfaces []NetworkInterface `json:"networkInterfaces" yaml:"networkInterfaces"`
-	BlockDevices      []BlockDevice      `json:"blockDevices" yaml:"blockDevices"`
-	Vcpu              metric.Compute     `json:"vcpu" yaml:"vcpu"`
-	Memory            metric.Space       `json:"memory" yaml:"memory"`
-	Storage           metric.Space       `json:"storage" yaml:"storage"`
+	CpuSpec           string             `json:"cpuSpec" yaml:"cpuSpec" bson:"cpuSpec"`
+	NetworkInterfaces []NetworkInterface `json:"networkInterfaces" yaml:"networkInterfaces" bson:"networkInterfaces"`
+	BlockDevices      []BlockDevice      `json:"blockDevices" yaml:"blockDevices" bson:"blockDevices"`
+	Vcpu              metric.Compute     `json:"vcpu" yaml:"vcpu" bson:"vcpu"`
+	Memory            metric.Space       `json:"memory" yaml:"memory" bson:"memory"`
+	Storage           metric.Space       `json:"storage" yaml:"storage" bson:"storage"`
 
-	IsVirtualIpOwner bool `json:"isVirtualIpOwner" yaml:"isVirtualIpOwner"`
-	IpmiEnablement   `json:"ipmi" yaml:"ipmi"`
+	IsVirtualIpOwner bool `json:"isVirtualIpOwner" yaml:"isVirtualIpOwner" bson:"isVirtualIpOwner"`
+	IpmiEnablement   `json:"ipmi" yaml:"ipmi" bson:"ipmi"`
 
-	License       licenses.License `json:"license" yaml:"license,omitempty"`
-	Status        string           `json:"status" yaml:"status" bson:"status"`
-	UptimeSeconds float64          `json:"uptimeSeconds" yaml:"uptimeSeconds"`
+	License       licenses.License `json:"license" yaml:"license,omitempty" bson:"license,omitempty"`
+	Status        string           `json:"status" yaml:"status" bson:"status" default:"down"`
+	UptimeSeconds float64          `json:"uptimeSeconds" yaml:"uptimeSeconds" bson:"uptimeSeconds"`
 
-	Labels map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
+	Labels map[string]string `json:"labels,omitempty" yaml:"labels,omitempty" bson:"labels,omitempty"`
 }
 
 func (n *Node) IsLocal() bool {
@@ -67,6 +68,10 @@ func (n *Node) IsLocal() bool {
 
 func (n *Node) IsUp() bool {
 	return n.Status == status.Up
+}
+
+func (n *Node) IsNotUp() bool {
+	return n.Status != status.Up
 }
 
 func (n *Node) IsDown() bool {

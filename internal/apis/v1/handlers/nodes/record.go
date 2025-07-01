@@ -1,6 +1,7 @@
 package nodes
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
@@ -115,4 +116,36 @@ func (h *helper) genUpsertPayload() bson.M {
 			"password": h.ipmi.Password,
 		},
 	}
+}
+
+func (h *helper) syncTemporaryNodeDetails() error {
+	if h.operation != "poweroff" {
+		return nil
+	}
+
+	err := h.saveTemporaryNodeDetails()
+	if err != nil {
+		log.Errorf("nodes(%s): failed to save temporary node details(%v)", h.reqId, err)
+		return fmt.Errorf(
+			"failed to save node info due to the db issue",
+		)
+	}
+
+	return nil
+}
+
+func (h *helper) saveTemporaryNodeDetails() error {
+	node, err := nodes.Get(h.node)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get node details(%v)", h.reqId, err)
+		return err
+	}
+
+	return h.mongo.UpdateOne(
+		nodes.Db,
+		nodes.CollectionTemporaryNodeDetails,
+		bson.M{"hostname": h.node},
+		bson.M{"$set": node},
+		options.Update().SetUpsert(true),
+	)
 }

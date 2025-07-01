@@ -21,7 +21,7 @@ func (h *helper) verifyNodeIpmi() (*ipmi.FRU, error) {
 
 	fru, err := helper.GetFRU()
 	if err != nil {
-		return nil, fmt.Errorf("unable to get IPMI board info %s(%v)", h.ipmi.Ip, err)
+		return nil, fmt.Errorf("unable to connect with IPMI, please check your IPMI settings")
 	}
 
 	dateTime, err := time.Parse(bstime.FormatBmc, fru.ManufacturingDate)

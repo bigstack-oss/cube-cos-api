@@ -140,6 +140,10 @@ func (h *helper) normalizeProductName(product string) string {
 
 func (h *helper) getNodeProductStatus(node nodes.Node, licenses []licenses.License) (string, bool) {
 	for _, license := range licenses {
+		if node.IsNotUp() {
+			license.Hosts = append(license.Hosts, node.Hostname)
+		}
+
 		if !strings.EqualFold(h.product, license.Product.Name) {
 			continue
 		}
