@@ -110,7 +110,7 @@ func (h *helper) checkHostValidation() error {
 			)
 		}
 
-		if node.IsNotUp() {
+		if !node.IsUp() {
 			return fmt.Errorf(
 				"specified hosts %s is not up, the operation is not allowed",
 				node.Hostname,

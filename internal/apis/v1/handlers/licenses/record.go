@@ -1,8 +1,6 @@
 package licenses
 
 import (
-	"encoding/json"
-
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
@@ -27,10 +25,6 @@ func (h *helper) getTemprorayNodeDetails(hostname string) *nodes.Node {
 		log.Errorf("licenses(%s): failed to decode temporary node details for %s(%v)", h.reqId, hostname, err)
 		return nil
 	}
-
-	log.Infof("----------------------------------")
-	b, _ := json.MarshalIndent(node, "", "  ")
-	log.Infof(string(b))
 
 	return node
 }

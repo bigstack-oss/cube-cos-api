@@ -70,10 +70,6 @@ func (n *Node) IsUp() bool {
 	return n.Status == status.Up
 }
 
-func (n *Node) IsNotUp() bool {
-	return n.Status != status.Up
-}
-
 func (n *Node) IsDown() bool {
 	return n.Status == status.Down
 }

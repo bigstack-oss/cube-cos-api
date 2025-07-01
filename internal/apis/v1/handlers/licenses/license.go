@@ -59,7 +59,7 @@ func (h *helper) genUnlicenseAttachmentsForAll() []licenses.Attachment {
 func (h *helper) genAttachmentsByProduct(list []licenses.License) []licenses.Attachment {
 	attachments := []licenses.Attachment{}
 	for _, node := range nodes.List() {
-		if node.IsNotUp() {
+		if !node.IsUp() {
 			tmpNode := h.getTemprorayNodeDetails(node.Hostname)
 			if tmpNode != nil {
 				node.SerialNumber = tmpNode.SerialNumber
