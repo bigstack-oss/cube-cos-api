@@ -16183,6 +16183,7 @@ const docTemplate = `{
                             "powering on",
                             "powering off",
                             "powering cycle",
+                            "syncing",
                             "unknown"
                         ]
                     },
