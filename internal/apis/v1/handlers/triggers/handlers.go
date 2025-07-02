@@ -35,7 +35,7 @@ var (
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/triggers/:triggerName",
-			Func:    updateTrigger,
+			Func:    applyTrigger,
 		},
 		{
 			Version: apis.V1,
@@ -118,8 +118,8 @@ func getTrigger(c *gin.Context) {
 	)
 }
 
-func updateTrigger(c *gin.Context) {
-	h, err := initHelper(c, "updateTrigger")
+func applyTrigger(c *gin.Context) {
+	h, err := initHelper(c, "applyTrigger")
 	if err != nil {
 		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
@@ -130,7 +130,7 @@ func updateTrigger(c *gin.Context) {
 	h.updateToAllControllers()
 	bodies.SetAccepted(
 		c,
-		"trigger update request received",
+		"the requset of applying trigger is accepted successfully",
 	)
 }
 

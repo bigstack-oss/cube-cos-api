@@ -11,8 +11,8 @@ import (
 
 func (h *helper) parseParamsByHandler() error {
 	switch h.handler {
-	case "updateTrigger":
-		return h.parseUpdateParams()
+	case "applyTrigger":
+		return h.parseApplyParams()
 	case "enableOrDisableTrigger":
 		return h.parseToggleParams()
 	case "updateTriggerTask":
@@ -22,7 +22,7 @@ func (h *helper) parseParamsByHandler() error {
 	}
 }
 
-func (h *helper) parseUpdateParams() error {
+func (h *helper) parseApplyParams() error {
 	err := h.parseTrigger()
 	if err != nil {
 		return err

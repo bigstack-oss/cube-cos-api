@@ -9,6 +9,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	"github.com/gin-gonic/gin"
+	log "go-micro.dev/v5/logger"
 )
 
 type helper struct {
@@ -89,31 +90,41 @@ func (h *helper) checkTaskUpdateReq() error {
 }
 
 func (h *helper) getAttribute() (*Attribute, error) {
-	alertTypes, err := cubecos.GetAlertTypes()
+	events, err := cubecos.GetPredefinedEvents()
 	if err != nil {
+		log.Errorf("triggers(%s): failed to get predefined events(%v)", h.reqId, err)
 		return nil, err
 	}
 
-	severities, err := cubecos.GetSeverities()
+	eventIds, err := h.GetEventIds(events)
 	if err != nil {
+		log.Errorf("triggers(%s): failed to get event ids(%v)", h.reqId, err)
 		return nil, err
 	}
 
-	categories, err := cubecos.GetCategories()
+	alertTypes, err := h.GetAlertTypes(events)
 	if err != nil {
+		log.Errorf("triggers(%s): failed to get alert types(%v)", h.reqId, err)
 		return nil, err
 	}
 
-	eventIds, err := cubecos.GetEventIds()
+	severities, err := h.GetSeverities(events)
 	if err != nil {
+		log.Errorf("triggers(%s): failed to get severities(%v)", h.reqId, err)
+		return nil, err
+	}
+
+	categories, err := h.GetCategories(events)
+	if err != nil {
+		log.Errorf("triggers(%s): failed to get categories(%v)", h.reqId, err)
 		return nil, err
 	}
 
 	return &Attribute{
+		EventIds:   eventIds,
 		AlertTypes: alertTypes,
 		Severities: severities,
 		Categories: categories,
-		EventIds:   eventIds,
 	}, nil
 }
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	log "go-micro.dev/v5/logger"
 	"gopkg.in/yaml.v3"
@@ -69,24 +70,8 @@ func ApplyTrigger(trigger triggers.CosSchema) error {
 	return nil
 }
 
-func GetAlertTypes() ([]string, error) {
-	alertTypes := []string{}
-	return alertTypes, nil
-}
-
-func GetSeverities() ([]string, error) {
-	severities := []string{}
-	return severities, nil
-}
-
-func GetCategories() ([]string, error) {
-	categories := []string{}
-	return categories, nil
-}
-
-func GetEventIds() ([]string, error) {
-	eventIds := []string{}
-	return eventIds, nil
+func GetPredefinedEvents() ([]events.Event, error) {
+	return []events.Event{}, nil
 }
 
 func GetScriptTypes() ([]string, error) {
