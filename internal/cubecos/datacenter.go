@@ -5,12 +5,22 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 )
 
 func GetSystemSeed() (string, error) {
 	return GetTuningValue(CubeSysSeed)
+}
+
+func GetBoardSerial() (string, error) {
+	data, err := os.ReadFile(base.BoardSerialPath)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(string(data)), err
 }
 
 func GetDataCenterNumericVersion() (string, error) {

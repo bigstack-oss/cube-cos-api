@@ -92,6 +92,11 @@ func initIdentities() error {
 		log.Warnf("runtime: failed to get system serial(%v)", err)
 	}
 
+	base.BoardSerial, err = cubecos.GetBoardSerial()
+	if err != nil {
+		log.Warnf("runtime: failed to get board serial(%v)", err)
+	}
+
 	base.ListenIp, err = parseLocalListenAddr()
 	if err != nil {
 		log.Errorf("runtime: failed to parse local listen address(%v)", err)

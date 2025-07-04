@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ipmi"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	bstime "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 )
 
@@ -30,4 +31,24 @@ func (h *helper) verifyNodeIpmi() (*ipmi.FRU, error) {
 	}
 
 	return fru, nil
+}
+
+func (h *helper) checkBoardSerialConsistency(fru *ipmi.FRU) error {
+	node, err := nodes.Get(h.node)
+	if err != nil {
+		return err
+	}
+
+	rfuBoardSerial := fmt.Sprintf(".%s.%s.", fru.Product.Serial, fru.Board.Serial)
+	if node.BoardSerial == rfuBoardSerial {
+		return nil
+	}
+
+	return fmt.Errorf(
+		"board serial is mismatched: %s serial is '%s', but host %s board serial is '%s'",
+		h.ipmi.Ip,
+		rfuBoardSerial,
+		h.node,
+		node.BoardSerial,
+	)
 }

@@ -15,12 +15,13 @@ const (
 	NetMajorInterface = "eth0"
 
 	DataCenterHelpUrl = "https://www.bigstack.co/contact-us"
-	defaultSerialPath = "/sys/class/dmi/id/product_serial"
+	BoardSerialPath   = "/sys/class/dmi/id/board_serial"
 )
 
 var (
 	SystemSeed               string
 	ServiceDiscoveryIdentity string
+	BoardSerial              string
 	DataCenterName           string
 	DataCenterVersion        string
 	DataCenterNumericVersion string

@@ -35,6 +35,7 @@ var (
 type Node struct {
 	Id           string `json:"id" yaml:"id" bson:"id"`
 	SerialNumber string `json:"serialNumber" yaml:"serialNumber" bson:"serialNumber"`
+	BoardSerial  string `json:"boardSerial" yaml:"boardSerial" bson:"boardSerial"`
 	DataCenter   string `json:"dataCenter" yaml:"dataCenter" bson:"dataCenter"`
 	Hostname     string `json:"hostname" yaml:"hostname" bson:"hostname"`
 	Role         string `json:"role" yaml:"role" bson:"role"`
@@ -120,6 +121,7 @@ func New(node *registry.Node) Node {
 		Role:         node.Metadata["role"],
 		Id:           node.Id,
 		SerialNumber: node.Metadata["serialNumber"],
+		BoardSerial:  node.Metadata["boardSerial"],
 		DataCenter:   node.Metadata["dataCenter"],
 		Protocol:     node.Metadata["protocol"],
 		Ip:           node.Metadata["ip"],

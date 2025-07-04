@@ -126,6 +126,7 @@ func newNodeMetadata() error {
 		"dataCenter":   base.DataCenterName,
 		"nodeID":       base.HostID,
 		"serialNumber": base.SerialNumber,
+		"boardSerial":  base.BoardSerial,
 		"protocol":     conf.Opts.Kind,
 		"ip":           base.ManagementIp,
 		"isGpuEnabled": fmt.Sprintf("%t", base.IsGpuEnabled),

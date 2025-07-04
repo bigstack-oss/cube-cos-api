@@ -168,6 +168,7 @@ func (o *Operator) syncDetails(nodes *[]nodes.Node) {
 		if err == nil {
 			(*nodes)[i].ManagementIP = n.ManagementIP
 			(*nodes)[i].SerialNumber = n.SerialNumber
+			(*nodes)[i].BoardSerial = n.BoardSerial
 			(*nodes)[i].StorageIP = n.StorageIP
 			(*nodes)[i].Vcpu = n.Vcpu
 			(*nodes)[i].Memory = n.Memory

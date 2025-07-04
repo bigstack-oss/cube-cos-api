@@ -124,6 +124,13 @@ func verifyNodeIpmi(c *gin.Context) {
 		return
 	}
 
+	err = h.checkBoardSerialConsistency(info)
+	if err != nil {
+		log.Errorf("nodes(%s): board serial mismatch(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
 	bodies.SetOk(
 		c,
 		"the node ipmi is verified successfully",
@@ -139,10 +146,17 @@ func setNodeIpmi(c *gin.Context) {
 		return
 	}
 
-	_, err = h.verifyNodeIpmi()
+	info, err := h.verifyNodeIpmi()
 	if err != nil {
 		log.Errorf("nodes(%s): failed to verify node ipmi(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	err = h.checkBoardSerialConsistency(info)
+	if err != nil {
+		log.Errorf("nodes(%s): board serial mismatch(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
 		return
 	}
 
