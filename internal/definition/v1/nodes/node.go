@@ -18,7 +18,7 @@ import (
 const (
 	Module                         = "nodes"
 	Db                             = "nodes"
-	RequestsCollection             = "requests"
+	ReqCollection                  = "requests"
 	CollectionTemporaryNodeDetails = "temporaryNodeDetails"
 	CollectionIpmiAccess           = "ipmiAccess"
 	CollectionIpmiSupport          = "ipmiSupport"

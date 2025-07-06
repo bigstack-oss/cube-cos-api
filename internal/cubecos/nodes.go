@@ -175,7 +175,7 @@ func syncVirutalIpOwner(list *[]nodes.Node) {
 
 func syncPowerStatus(list *[]nodes.Node) {
 	for i, node := range *list {
-		if !hasPowerRequest(node.Hostname) {
+		if !IsNodeHasPowerRequest(node.Hostname) {
 			continue
 		}
 
@@ -196,11 +196,11 @@ func syncIpmiAccess(list *[]nodes.Node) {
 	}
 }
 
-func hasPowerRequest(hostname string) bool {
+func IsNodeHasPowerRequest(hostname string) bool {
 	mongo := mongo.GetGlobalHelper()
 	count, err := mongo.GetCount(
 		nodes.Db,
-		nodes.RequestsCollection,
+		nodes.ReqCollection,
 		bson.M{"hostname": hostname},
 	)
 	if err != nil {
@@ -245,7 +245,7 @@ func getPendingPowerStatus(hostname string) (string, error) {
 	mongo := mongo.GetGlobalHelper()
 	doc, err := mongo.Get(
 		nodes.Db,
-		nodes.RequestsCollection,
+		nodes.ReqCollection,
 		bson.M{"hostname": hostname},
 	)
 	if err != nil {

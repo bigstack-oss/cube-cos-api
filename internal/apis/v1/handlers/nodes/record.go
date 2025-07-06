@@ -41,7 +41,7 @@ func setTrackerCallback(p *ping.Pinger, hostname, operation string) {
 	if operation == "poweron" {
 		p.OnRecv = func(pkt *ping.Packet) {
 			log.Infof("nodes: node %s is starting", hostname)
-			updateFinalStatus(hostname, operation)
+			updatePendingStatus(hostname, operation)
 			p.Stop()
 		}
 	}
@@ -60,7 +60,7 @@ func updatePendingStatus(hostname, operation string) error {
 	m := mongo.GetGlobalHelper()
 	return m.UpdateOne(
 		nodes.Db,
-		nodes.RequestsCollection,
+		nodes.ReqCollection,
 		bson.M{"hostname": hostname},
 		bson.M{"$set": bson.M{"hostname": hostname, "status": status}},
 		options.Update().SetUpsert(true),
@@ -72,7 +72,7 @@ func updateFinalStatus(hostname, operation string) {
 	m := mongo.GetGlobalHelper()
 	err := m.UpdateOne(
 		nodes.Db,
-		nodes.RequestsCollection,
+		nodes.ReqCollection,
 		bson.M{"hostname": hostname},
 		bson.M{"$set": bson.M{"hostname": hostname, "status": status}},
 		options.Update().SetUpsert(true),
@@ -98,11 +98,11 @@ func getPendingStatus(operation string) string {
 func getFinalStatus(operation string) string {
 	switch operation {
 	case "poweron":
-		return "up"
+		return status.Up
 	case "poweroff":
-		return "down"
+		return status.Down
 	default:
-		return "unknown final status"
+		return status.Syncing
 	}
 }
 

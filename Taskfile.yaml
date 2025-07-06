@@ -9,7 +9,7 @@ vars:
   dbReplicaSet: "cube-cos-rs"
   devCosUser: "root"
   devCosIp: "<REPLACE_WITH_YOUR_DEV_COS_IP>"
-  devE2EIp: "10.32.200.12"
+  devE2EIp: "<REPLACE_WITH_YOUR_E2E_COS_IP>"
   devE2EContainer: "3c_3p_5s"
   devE2ENode: "10.1.0.1"
   mongoVersion: "6.0.19"
@@ -118,7 +118,7 @@ tasks:
   activateSystemdService:
     cmds:
       - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl daemon-reload"
-      - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl enable cube-cos-api.service"
+      - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl disable cube-cos-api.service"
       - ssh {{.devCosUser}}@{{.devCosIp}} "systemctl restart cube-cos-api.service"
   restartRemoteE2ESystemdService:
     cmds:

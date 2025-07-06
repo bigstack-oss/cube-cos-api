@@ -121,19 +121,24 @@ func (o *Operator) syncNodesUpAndDown() ([]nodes.Node, error) {
 			continue
 		}
 
-		o.setNodeDown(&node)
+		o.setNodeDownOrSyncing(&node)
 		nodes = append(nodes, node)
 	}
 
 	return nodes, nil
 }
 
-func (o *Operator) setNodeDown(node *nodes.Node) {
+func (o *Operator) setNodeDownOrSyncing(node *nodes.Node) {
 	node.DataCenter = base.DataCenterName
 	node.BlockDevices = []nodes.BlockDevice{}
 	node.NetworkInterfaces = []nodes.NetworkInterface{}
 	node.License = o.getPreviousLicense(node.Hostname)
-	node.Status = status.Down
+
+	if cubecos.IsNodeHasPowerRequest(node.Hostname) {
+		node.Status = status.Syncing
+	} else {
+		node.Status = status.Down
+	}
 }
 
 func (o *Operator) getPreviousLicense(hostname string) licenses.License {
