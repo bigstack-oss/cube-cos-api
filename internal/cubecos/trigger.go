@@ -71,5 +71,42 @@ func ApplyTrigger(trigger triggers.CosSchema) error {
 }
 
 func GetPredefinedEvents() ([]events.Event, error) {
-	return []events.Event{}, nil
+	return []events.Event{
+		{
+			Type:     "system",
+			Id:       "KSN00001I",
+			Category: "KSN",
+			Severity: "INFO",
+		},
+		{
+			Type:     "system",
+			Id:       "CMP01001I",
+			Category: "CMP",
+			Severity: "INFO",
+		},
+		{
+			Type:     "host",
+			Id:       "ETH00001I",
+			Category: "ETH",
+			Severity: "INFO",
+		},
+		{
+			Type:     "host",
+			Id:       "CPU00002W",
+			Category: "CPU",
+			Severity: "WARNING",
+		},
+		{
+			Type:     "instance",
+			Id:       "CPU00004I",
+			Category: "CPU",
+			Severity: "INFO",
+		},
+		{
+			Type:     "instance",
+			Id:       "CPU00006C",
+			Category: "CPU",
+			Severity: "CTRITICAL",
+		},
+	}, nil
 }

@@ -13,6 +13,8 @@ func (h *helper) parseParamsByHandler() error {
 	switch h.handler {
 	case "listTriggers":
 		return h.parseListParams()
+	case "verifyMaterialScript":
+		return h.parseMaterialVerifyParams()
 	case "applyTrigger":
 		return h.parseApplyParams()
 	case "enableOrDisableTrigger":
@@ -27,6 +29,15 @@ func (h *helper) parseParamsByHandler() error {
 func (h *helper) parseListParams() error {
 	var err error
 	h.page, err = queries.GetPage(h.c)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (h *helper) parseMaterialVerifyParams() error {
+	err := h.c.ShouldBindJSON(&h.trigger)
 	if err != nil {
 		return err
 	}

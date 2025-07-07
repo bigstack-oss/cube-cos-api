@@ -9096,6 +9096,265 @@
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/triggers/materials": {
+            "get": {
+                "operationId": "getTriggerMaterials",
+                "tags": [
+                    "Triggers"
+                ],
+                "summary": "Retrieve all trigger materials",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve trigger materials successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetTriggerMaterialsResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Trigger materials list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "attribute": {
+                                                    "alertTypes": [
+                                                        "system",
+                                                        "host",
+                                                        "instance"
+                                                    ],
+                                                    "severities": [
+                                                        "INFO",
+                                                        "WARNING",
+                                                        "CTRITICAL"
+                                                    ],
+                                                    "categories": [
+                                                        "KSN",
+                                                        "CMP",
+                                                        "ETH",
+                                                        "CPU"
+                                                    ],
+                                                    "eventIds": [
+                                                        "KSN00001I",
+                                                        "CMP01001I",
+                                                        "ETH00001I",
+                                                        "CPU00002W",
+                                                        "CPU00004I",
+                                                        "CPU00006C"
+                                                    ]
+                                                },
+                                                "response": {
+                                                    "scriptTypes": {
+                                                        "type": "Bash",
+                                                        "environment": "Alpine Linux"
+                                                    },
+                                                    "notifications": {
+                                                        "emails": [
+                                                            {
+                                                                "address": "example-user@bigstack.co",
+                                                                "note": "example email recipient"
+                                                            }
+                                                        ],
+                                                        "slacks": [
+                                                            {
+                                                                "name": "Example slack channel",
+                                                                "url": "https://example.slack.com/archives/exmpale-token-abc",
+                                                                "description": "example slack channel"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "msg": "fetched trigger materials successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to get trigger materials: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/triggers/materials/script/verify": {
+            "post": {
+                "operationId": "verifyTriggerScript",
+                "tags": [
+                    "Triggers"
+                ],
+                "summary": "Verify trigger script",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifyMaterialScriptRequest"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Trigger script verification request",
+                                    "value": {
+                                        "script": "base64-encoded-script-content"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Trigger script verified successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VerifyMaterialScriptResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Trigger script verification result",
+                                        "value": {
+                                            "code": 200,
+                                            "msg": "trigger script verified successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid script content"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to verify trigger script: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/triggers": {
             "get": {
                 "operationId": "getTriggers",
@@ -15360,6 +15619,189 @@
                     },
                     "status": {
                         "type": "string"
+                    }
+                }
+            },
+            "GetTriggerMaterialsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "attribute",
+                            "response"
+                        ],
+                        "properties": {
+                            "attribute": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "alertTypes",
+                                        "severities",
+                                        "categories",
+                                        "eventIds"
+                                    ],
+                                    "properties": {
+                                        "alertTypes": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "severities": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "categories": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "eventIds": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "response": {
+                                "type": "object",
+                                "required": [
+                                    "scriptTypes",
+                                    "notifications"
+                                ],
+                                "properties": {
+                                    "scriptTypes": {
+                                        "type": "object",
+                                        "required": [
+                                            "types",
+                                            "environments"
+                                        ],
+                                        "properties": {
+                                            "types": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "environments": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "notifications": {
+                                        "type": "object",
+                                        "required": [
+                                            "slacks",
+                                            "emails"
+                                        ],
+                                        "properties": {
+                                            "slacks": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "name",
+                                                        "url",
+                                                        "description"
+                                                    ],
+                                                    "properties": {
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "url": {
+                                                            "type": "string"
+                                                        },
+                                                        "description": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "emails": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "address",
+                                                        "note"
+                                                    ],
+                                                    "properties": {
+                                                        "address": {
+                                                            "type": "string"
+                                                        },
+                                                        "note": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "trigger materials retrieved successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "VerifyMaterialScriptResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "trigger script verified successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "VerifyMaterialScriptRequest": {
+                "type": "object",
+                "required": [
+                    "script"
+                ],
+                "properties": {
+                    "script": {
+                        "type": "string",
+                        "example": "base64-encoded-script-content"
                     }
                 }
             },

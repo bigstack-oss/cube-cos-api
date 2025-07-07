@@ -22,6 +22,7 @@ type helper struct {
 
 	trigger               triggers.ApiSchema
 	toggle                triggers.Toggle
+	script                string
 	rawBody               []byte
 	isClusterWiseRequired bool
 	page                  *pages.Page
@@ -39,7 +40,7 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 	return h, h.parseParamsByHandler()
 }
 
-func (h *helper) listTriggerMaterials() (*materials, error) {
+func (h *helper) listMaterials() (*materials, error) {
 	attribute, err := h.getAttribute()
 	if err != nil {
 		return nil, err
@@ -54,6 +55,10 @@ func (h *helper) listTriggerMaterials() (*materials, error) {
 		Attribute: *attribute,
 		Response:  *response,
 	}, nil
+}
+
+func (h *helper) verifyMaterialScript() error {
+	return nil
 }
 
 func (h *helper) listTriggers() (*triggerPage, error) {
@@ -142,8 +147,8 @@ func (h *helper) getResponse() (*Response, error) {
 
 	return &Response{
 		Script: Script{
-			Type:        "bash",
-			Environment: "Apline Linux",
+			Type:        "Bash",
+			Environment: "Alpine Linux",
 		},
 		Notifications: *notifications,
 	}, nil

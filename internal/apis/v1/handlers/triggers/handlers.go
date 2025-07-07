@@ -17,7 +17,13 @@ var (
 			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/triggers/materials",
-			Func:    listTriggerMaterials,
+			Func:    listMaterials,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/triggers/materials/script/verify",
+			Func:    verifyMaterialScript,
 		},
 		{
 			Version: apis.V1,
@@ -52,15 +58,15 @@ var (
 	}
 )
 
-func listTriggerMaterials(c *gin.Context) {
-	h, err := initHelper(c, "listTriggerMaterials")
+func listMaterials(c *gin.Context) {
+	h, err := initHelper(c, "listMaterials")
 	if err != nil {
 		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
-	materials, err := h.listTriggerMaterials()
+	materials, err := h.listMaterials()
 	if err != nil {
 		log.Errorf("triggers(%s): failed to list trigger materials(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
@@ -71,6 +77,28 @@ func listTriggerMaterials(c *gin.Context) {
 		c,
 		"fetched trigger materials successfully",
 		materials,
+	)
+}
+
+func verifyMaterialScript(c *gin.Context) {
+	h, err := initHelper(c, "verifyMaterialScript")
+	if err != nil {
+		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.verifyMaterialScript()
+	if err != nil {
+		log.Errorf("triggers(%s): failed to verify material script(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"material script verified successfully",
+		nil,
 	)
 }
 
