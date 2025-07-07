@@ -71,10 +71,6 @@ func (c *CosSchema) ConvertToApiAttributes() []Attribute {
 	return enabledAttrs
 }
 
-func isValidAttrPair(attrPair []string) bool {
-	return len(attrPair) == 2
-}
-
 func (c *CosSchema) ConvertToApiEmails() []email.Recipient {
 	emails := []email.Recipient{}
 	for _, e := range c.Emails {
@@ -97,4 +93,13 @@ func (c *CosSchema) ConvertToApiSlacks() []slack.ApiChannel {
 	}
 
 	return slacks
+}
+
+func isValidAttrPair(attrPair []string) bool {
+	return len(attrPair) == 2
+}
+
+func isBuiltInTrigger(name string) bool {
+	_, found := builtInNameMap[name]
+	return found
 }

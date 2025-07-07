@@ -17,7 +17,7 @@ func IsTriggerExist(name string) bool {
 		return false
 	}
 
-	cosName := triggers.GetNameMap()
+	cosName := triggers.GetBuiltInNameMap()
 	for _, trigger := range list {
 		if trigger.Name == cosName[name] {
 			return true
@@ -72,9 +72,4 @@ func ApplyTrigger(trigger triggers.CosSchema) error {
 
 func GetPredefinedEvents() ([]events.Event, error) {
 	return []events.Event{}, nil
-}
-
-func GetScriptTypes() ([]string, error) {
-	scriptTypes := []string{}
-	return scriptTypes, nil
 }

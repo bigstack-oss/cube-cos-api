@@ -25,15 +25,17 @@ var (
 	detailsMap = map[string]ApiSchema{
 		"admin-notify": {
 			Name:        "Administrative Level Notification",
+			IsBuiltIn:   true,
 			Description: `Configure how you are going to be notified for system events and host alerts, including levels 'warning', 'error', and 'critical'.`,
 		},
 		"instance-notify": {
 			Name:        "Instance Level Notification",
+			IsBuiltIn:   true,
 			Description: `Configure how you are going to be notified for instance alerts, including levels 'warning', and 'critical'.`,
 		},
 	}
 
-	nameMap = map[string]string{
+	builtInNameMap = map[string]string{
 		"Administrative Level Notification": "admin-notify",
 		"Instance Level Notification":       "instance-notify",
 	}
@@ -45,6 +47,7 @@ type Toggle struct {
 
 type ApiSchema struct {
 	Name             string      `json:"name" yaml:"name" bson:"name"`
+	IsBuiltIn        bool        `json:"isBuiltIn" yaml:"-" bson:"isBuiltIn"`
 	Description      string      `json:"description" yaml:"description" bson:"description"`
 	Match            string      `json:"-" yaml:"match"`
 	Attributes       []Attribute `json:"attributes" bson:"attributes" yaml:"-"`
@@ -56,7 +59,7 @@ type ApiSchema struct {
 
 func (a *ApiSchema) ToCosSchema() CosSchema {
 	return CosSchema{
-		Name:        nameMap[a.Name],
+		Name:        builtInNameMap[a.Name],
 		Description: a.Description,
 		Match:       a.GenMatchRule(),
 		WriteResponses: WriteResponses{
@@ -252,8 +255,8 @@ func GetDetailsMap() map[string]ApiSchema {
 	return detailsMap
 }
 
-func GetNameMap() map[string]string {
-	return nameMap
+func GetBuiltInNameMap() map[string]string {
+	return builtInNameMap
 }
 
 func TimeISO8601Z(t time.Time) string {

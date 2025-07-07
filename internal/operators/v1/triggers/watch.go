@@ -94,6 +94,7 @@ func syncTriggerDetails(apiTrigger *triggers.ApiSchema) {
 	details, found := triggerMap[apiTrigger.Name]
 	if found {
 		apiTrigger.Name = details.Name
+		apiTrigger.IsBuiltIn = details.IsBuiltIn
 	}
 
 	convertAttributesToFullName(apiTrigger)

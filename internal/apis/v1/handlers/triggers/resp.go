@@ -13,8 +13,13 @@ type Attribute struct {
 }
 
 type Response struct {
-	ScriptTypes   []string `json:"scriptTypes"`
+	Script        `json:"scriptTypes"`
 	Notifications `json:"notifications"`
+}
+
+type Script struct {
+	Type        string `json:"type"`
+	Environment string `json:"environment"`
 }
 
 type Notifications struct {

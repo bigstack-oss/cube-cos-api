@@ -129,18 +129,16 @@ func (h *helper) getAttribute() (*Attribute, error) {
 }
 
 func (h *helper) getResponse() (*Response, error) {
-	scriptTypes, err := cubecos.GetScriptTypes()
-	if err != nil {
-		return nil, err
-	}
-
 	notifications, err := h.getNotifications()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Response{
-		ScriptTypes:   scriptTypes,
+		Script: Script{
+			Type:        "bash",
+			Environment: "Apline Linux",
+		},
 		Notifications: *notifications,
 	}, nil
 }
