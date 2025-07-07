@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 )
 
@@ -29,17 +29,17 @@ func (h *helper) parseEventListingParams() error {
 		return err
 	}
 
-	h.past, err = query.GetPast(h.c)
+	h.past, err = queries.GetPast(h.c)
 	if err != nil {
 		return err
 	}
 
-	h.period, err = query.GetPeriod(h.c)
+	h.period, err = queries.GetPeriod(h.c)
 	if err != nil {
 		return err
 	}
 
-	h.page, err = query.GetPage(h.c)
+	h.page, err = queries.GetPage(h.c)
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func (h *helper) parseEventListingParams() error {
 		return err
 	}
 
-	h.watch, err = query.GetWatch(h.c)
+	h.watch, err = queries.GetWatch(h.c)
 	if err != nil {
 		return err
 	}
@@ -63,12 +63,12 @@ func (h *helper) parseEventAbstractParams() error {
 		return err
 	}
 
-	h.limit, err = query.GetLimit(h.c)
+	h.limit, err = queries.GetLimit(h.c)
 	if err != nil {
 		return err
 	}
 
-	h.watch, err = query.GetWatch(h.c)
+	h.watch, err = queries.GetWatch(h.c)
 	if err != nil {
 		return err
 	}
@@ -82,17 +82,17 @@ func (h *helper) parseEventRankParams() error {
 		return err
 	}
 
-	h.past, err = query.GetPast(h.c)
+	h.past, err = queries.GetPast(h.c)
 	if err != nil {
 		return err
 	}
 
-	h.period, err = query.GetPeriod(h.c)
+	h.period, err = queries.GetPeriod(h.c)
 	if err != nil {
 		return err
 	}
 
-	h.limit, err = query.GetLimit(h.c)
+	h.limit, err = queries.GetLimit(h.c)
 	if err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func (h *helper) parseEventRankParams() error {
 		return err
 	}
 
-	h.watch, err = query.GetWatch(h.c)
+	h.watch, err = queries.GetWatch(h.c)
 	if err != nil {
 		return err
 	}
@@ -112,12 +112,12 @@ func (h *helper) parseEventRankParams() error {
 
 func (h *helper) parseEventFilterConditions() error {
 	var err error
-	h.past, err = query.GetPast(h.c)
+	h.past, err = queries.GetPast(h.c)
 	if err != nil {
 		return err
 	}
 
-	h.period, err = query.GetPeriod(h.c)
+	h.period, err = queries.GetPeriod(h.c)
 	if err != nil {
 		return err
 	}

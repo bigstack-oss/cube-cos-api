@@ -7,6 +7,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -23,6 +24,7 @@ type helper struct {
 	toggle                triggers.Toggle
 	rawBody               []byte
 	isClusterWiseRequired bool
+	page                  *pages.Page
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
@@ -54,14 +56,18 @@ func (h *helper) listTriggerMaterials() (*materials, error) {
 	}, nil
 }
 
-func (h *helper) listTriggers() ([]triggers.ApiSchema, error) {
+func (h *helper) listTriggers() (*triggerPage, error) {
 	list := []triggers.ApiSchema{}
 	for _, trigger := range triggers.List() {
 		h.syncUpdatingInfo(&trigger)
 		list = append(list, trigger)
 	}
 
-	return list, nil
+	h.sortTriggers(&list)
+	return &triggerPage{
+		Triggers: h.paginateTriggers(list),
+		Page:     h.genPageInfo(list),
+	}, nil
 }
 
 func (h *helper) getTrigger(name string) (*triggers.ApiSchema, error) {

@@ -11,6 +11,8 @@ import (
 
 func (h *helper) parseParamsByHandler() error {
 	switch h.handler {
+	case "listTriggers":
+		return h.parseListParams()
 	case "applyTrigger":
 		return h.parseApplyParams()
 	case "enableOrDisableTrigger":
@@ -20,6 +22,16 @@ func (h *helper) parseParamsByHandler() error {
 	default:
 		return nil
 	}
+}
+
+func (h *helper) parseListParams() error {
+	var err error
+	h.page, err = queries.GetPage(h.c)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (h *helper) parseApplyParams() error {

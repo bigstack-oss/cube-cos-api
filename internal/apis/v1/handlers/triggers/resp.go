@@ -1,5 +1,15 @@
 package triggers
 
+import (
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
+)
+
+type triggerPage struct {
+	Triggers   []triggers.ApiSchema `json:"triggers"`
+	pages.Page `json:"page"`
+}
+
 type materials struct {
 	Attribute `json:"attribute"`
 	Response  `json:"response"`
