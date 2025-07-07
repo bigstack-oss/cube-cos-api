@@ -18,6 +18,7 @@ type helper struct {
 	handler string
 
 	eventType  string
+	eventTypes []string
 	eventId    string
 	category   string
 	categories []string
@@ -68,6 +69,25 @@ func (h *helper) listEvents() (*data, error) {
 		Events: pagedEvents,
 		Page:   &page,
 	}, nil
+}
+
+func (h *helper) listPredefinedEvents() ([]predefinedEvent, error) {
+	events, err := cubecos.GetPredefinedEvents()
+	if err != nil {
+		return nil, err
+	}
+
+	predefinedEvents := []predefinedEvent{}
+	for _, event := range events {
+		predefinedEvents = append(predefinedEvents, predefinedEvent{
+			Type:     event.Type,
+			Id:       event.Id,
+			Severity: event.Severity,
+			Category: event.Category,
+		})
+	}
+
+	return h.filteredPredefinedEvents(predefinedEvents), nil
 }
 
 func (h *helper) listEventAbstract() (*data, error) {

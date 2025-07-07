@@ -9,3 +9,10 @@ type data struct {
 	*pages.Page  `json:"page,omitempty"`
 	*pages.Limit `json:"limit,omitempty"`
 }
+
+type predefinedEvent struct {
+	Type     string `json:"type"`
+	Id       string `json:"id"`
+	Severity string `json:"severity"`
+	Category string `json:"category"`
+}

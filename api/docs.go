@@ -859,6 +859,154 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/events/predefined": {
+            "get": {
+                "operationId": "getPredefinedEvents",
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Retrieve the predefined events",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "in": "query",
+                        "name": "types",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "system",
+                                    "host",
+                                    "instance"
+                                ]
+                            }
+                        },
+                        "description": "The types of event to query, the value can be only 'system', 'host', and 'instance'.",
+                        "example": "system"
+                    },
+                    {
+                        "in": "query",
+                        "name": "categories",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "description": "The categories of the event to query.",
+                        "example": "CPU"
+                    },
+                    {
+                        "in": "query",
+                        "name": "severities",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "Info",
+                                    "Warning",
+                                    "Critical",
+                                    "Error"
+                                ]
+                            }
+                        },
+                        "description": "The severities of the event to query.",
+                        "example": "Info"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the predefined events successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetPredefinedEventFilterResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Predefined event list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "type": "system",
+                                                    "id": "KSN00001I",
+                                                    "severity": "INFO",
+                                                    "category": "KSN"
+                                                },
+                                                {
+                                                    "type": "system",
+                                                    "id": "CMP01001I",
+                                                    "severity": "INFO",
+                                                    "category": "CMP"
+                                                },
+                                                {
+                                                    "type": "host",
+                                                    "id": "ETH00001I",
+                                                    "severity": "INFO",
+                                                    "category": "ETH"
+                                                },
+                                                {
+                                                    "type": "host",
+                                                    "id": "CPU00002W",
+                                                    "severity": "WARNING",
+                                                    "category": "CPU"
+                                                },
+                                                {
+                                                    "type": "instance",
+                                                    "id": "CPU00004I",
+                                                    "severity": "INFO",
+                                                    "category": "CPU"
+                                                },
+                                                {
+                                                    "type": "instance",
+                                                    "id": "CPU00006C",
+                                                    "severity": "CTRITICAL",
+                                                    "category": "CPU"
+                                                }
+                                            ],
+                                            "msg": "fetch predefined events successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch predefined events: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/events/filterConditions": {
             "get": {
                 "operationId": "getEventFilterConditions",
@@ -12111,6 +12259,59 @@ const docTemplate = `{
                     "status": {
                         "type": "string",
                         "example": "ok"
+                    }
+                }
+            },
+            "GetPredefinedEventFilterResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "events"
+                        ],
+                        "properties": {
+                            "events": {
+                                "type": "array",
+                                "items": {
+                                    "required": [
+                                        "type",
+                                        "id",
+                                        "severity",
+                                        "category"
+                                    ],
+                                    "properties": {
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "severity": {
+                                            "type": "string"
+                                        },
+                                        "category": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
                     }
                 }
             },

@@ -12,6 +12,8 @@ func (h *helper) parseParamsByHandler() error {
 	switch h.handler {
 	case "listEvents":
 		return h.parseEventListingParams()
+	case "listPredefinedEvents":
+		return h.parsePredefinedEventParams()
 	case "listEventAbstract":
 		return h.parseEventAbstractParams()
 	case "getEventRank":
@@ -55,6 +57,10 @@ func (h *helper) parseEventListingParams() error {
 	}
 
 	return nil
+}
+
+func (h *helper) parsePredefinedEventParams() error {
+	return h.parsePredefinedFilterConditions()
 }
 
 func (h *helper) parseEventAbstractParams() error {
@@ -172,6 +178,33 @@ func (h *helper) parseFilterConditions() error {
 			h.instances = h.c.QueryArray("instances")
 		case "keyword":
 			h.keyword = value[0]
+		}
+	}
+
+	return nil
+}
+
+func (h *helper) parsePredefinedFilterConditions() error {
+	queries := h.c.Request.URL.Query()
+	for _, condition := range events.GetFilterConditions() {
+		value, found := queries[condition]
+		if !found {
+			continue
+		}
+		if len(value) == 0 {
+			continue
+		}
+		if value[0] == "" {
+			continue
+		}
+
+		switch condition {
+		case "types":
+			h.eventTypes = h.c.QueryArray("types")
+		case "categories":
+			h.categories = h.c.QueryArray("categories")
+		case "severities":
+			h.severities = h.c.QueryArray("severities")
 		}
 	}
 

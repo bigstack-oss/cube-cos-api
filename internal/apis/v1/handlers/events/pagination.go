@@ -11,6 +11,10 @@ func (h *helper) isKeywordRequired() bool {
 	return h.keyword != ""
 }
 
+func (h *helper) isTypesRequired() bool {
+	return len(h.eventTypes) > 0
+}
+
 func (h *helper) isCategoriesRequired() bool {
 	return len(h.categories) > 0
 }

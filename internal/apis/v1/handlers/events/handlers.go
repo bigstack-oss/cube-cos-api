@@ -22,6 +22,12 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodGet,
+			Path:    "/events/predefined",
+			Func:    listPredefinedEvents,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
 			Path:    "/events/abstract",
 			Func:    listEventAbstract,
 		},
@@ -66,6 +72,28 @@ func listEvents(c *gin.Context) {
 	bodies.SetOk(
 		c,
 		"fetch events successfully",
+		events,
+	)
+}
+
+func listPredefinedEvents(c *gin.Context) {
+	h, err := initHelper(c, "listPredefinedEvents")
+	if err != nil {
+		log.Errorf("events(%s): %v", queries.GetReqId(c), err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	events, err := h.listPredefinedEvents()
+	if err != nil {
+		log.Errorf("events(%s): failed to list predefined events: %v", queries.GetReqId(c), err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"fetch predefined events successfully",
 		events,
 	)
 }
