@@ -50,7 +50,7 @@ scp <path of rpm> <user>@<cubecos>:<path to place rpm>
 systemctl stop cube-cos-api
 dnf -y remove cube-cos-api
 dnf -y install "<path to cube-cos-api rpm>"
-hex_config bootstrap api
+systemctl start cube-cos-api
 ```
 
 <br/>
