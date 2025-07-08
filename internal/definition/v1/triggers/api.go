@@ -128,6 +128,57 @@ func (a *ApiSchema) SetCreating() {
 	}
 }
 
+func (a *ApiSchema) SetMatchRule(attrs ApplyAttributes) {
+	andRules := []string{}
+
+	if len(attrs.AlertTypes) > 0 {
+		andRules = append(andRules, GenOrRule("type", attrs.AlertTypes))
+	}
+
+	if len(attrs.EventIds) > 0 {
+		andRules = append(andRules, GenOrRule("id", attrs.EventIds))
+	}
+
+	if len(attrs.Severities) > 0 {
+		andRules = append(andRules, GenOrRule("severity", attrs.Severities))
+	}
+
+	if len(attrs.Categories) > 0 {
+		andRules = append(andRules, GenOrRule("category", attrs.Categories))
+	}
+
+	a.Match = strings.Join(andRules, " AND ")
+}
+
+func GenOrRule(key string, attrs []string) string {
+	rule := []string{}
+	for _, attr := range attrs {
+		rule = append(
+			rule,
+			fmt.Sprintf(`%q == %q`, key, attr),
+		)
+	}
+
+	orRule := strings.Join(rule, " OR ")
+	return fmt.Sprintf(`(%s)`, orRule)
+}
+
+func (a *ApiSchema) SetResponses(resp ApplyResponse) {
+	for _, e := range resp.Emails {
+		a.Response.Emails = append(
+			a.Response.Emails,
+			email.Recipient{Address: e, Enabled: true},
+		)
+	}
+
+	for _, s := range resp.Slacks {
+		a.Response.Slacks = append(
+			a.Response.Slacks,
+			slack.ApiChannel{URL: s, Enabled: true},
+		)
+	}
+}
+
 func (a *ApiSchema) GenMatchRule() string {
 	rule := []string{}
 	for _, attr := range a.Attributes {

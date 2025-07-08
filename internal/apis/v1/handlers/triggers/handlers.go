@@ -172,6 +172,8 @@ func createTrigger(c *gin.Context) {
 		return
 	}
 
+	h.setCreationReq()
+	h.updateToAllControllers()
 	bodies.SetAccepted(
 		c,
 		"trigger creation request received",
