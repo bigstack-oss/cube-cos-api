@@ -9544,82 +9544,47 @@ const docTemplate = `{
                                                         "name": "Administrative Level Notification",
                                                         "isBuiltIn": true,
                                                         "description": "Configure how you are going to be notified for system events and host alerts, including levels 'warning', 'error', and 'critical'.",
-                                                        "attributes": [
-                                                            {
-                                                                "name": "severity",
-                                                                "type": "string",
-                                                                "value": "Warning",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "severity",
-                                                                "type": "string",
-                                                                "value": "Error",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "severity",
-                                                                "type": "string",
-                                                                "value": "Critical",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "DEV",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "CPU",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "DSK",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "MEM",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "NET",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "SRV",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "VRT",
-                                                                "enabled": false
-                                                            }
-                                                        ],
+                                                        "attributes": {
+                                                            "alertTypes": [
+                                                                "system",
+                                                                "host",
+                                                                "instance"
+                                                            ],
+                                                            "eventIds": [
+                                                                "KSN00001I",
+                                                                "ETH00001I",
+                                                                "CPU00002W"
+                                                            ],
+                                                            "severities": [
+                                                                "Warning",
+                                                                "Error",
+                                                                "Critical"
+                                                            ],
+                                                            "categories": [
+                                                                "DEV",
+                                                                "CPU",
+                                                                "DSK"
+                                                            ]
+                                                        },
                                                         "response": {
                                                             "types": [
+                                                                "script",
                                                                 "email",
                                                                 "slack"
                                                             ],
+                                                            "script": {
+                                                                "filePath": "/tmp/example.sh",
+                                                                "content": "IyEvYmluL2Jhc2gKCmN1cmwgaHR0cDovL2V4YW1wbGUuY29tICR7IHN0YXR1cyA9ICdzdWNjZXNzJzsgfQ=="
+                                                            },
                                                             "slacks": [
                                                                 {
-                                                                    "name": "amqp-alert-p1",
+                                                                    "name": "example-slack-channel-0",
                                                                     "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
                                                                     "description": "example slack channel 1",
                                                                     "enabled": false
                                                                 },
                                                                 {
-                                                                    "name": "#test-cos-300-notification",
+                                                                    "name": "example-slack-channel-1",
                                                                     "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
                                                                     "description": "example slack channel 2",
                                                                     "enabled": false
@@ -9642,82 +9607,47 @@ const docTemplate = `{
                                                         "name": "Instance Level Notification",
                                                         "isBuiltIn": true,
                                                         "description": "Configure how you are going to be notified for instance alerts, including levels 'warning', and 'critical'.",
-                                                        "attributes": [
-                                                            {
-                                                                "name": "severity",
-                                                                "type": "string",
-                                                                "value": "Warning",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "severity",
-                                                                "type": "string",
-                                                                "value": "Error",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "severity",
-                                                                "type": "string",
-                                                                "value": "Critical",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "DEV",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "CPU",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "DSK",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "MEM",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "NET",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "SRV",
-                                                                "enabled": false
-                                                            },
-                                                            {
-                                                                "name": "category",
-                                                                "type": "string",
-                                                                "value": "VRT",
-                                                                "enabled": false
-                                                            }
-                                                        ],
+                                                        "attributes": {
+                                                            "alertTypes": [
+                                                                "system",
+                                                                "host",
+                                                                "instance"
+                                                            ],
+                                                            "eventIds": [
+                                                                "KSN00001I",
+                                                                "ETH00001I",
+                                                                "CPU00002W"
+                                                            ],
+                                                            "severities": [
+                                                                "Warning",
+                                                                "Error",
+                                                                "Critical"
+                                                            ],
+                                                            "categories": [
+                                                                "DEV",
+                                                                "CPU",
+                                                                "DSK"
+                                                            ]
+                                                        },
                                                         "response": {
                                                             "types": [
+                                                                "script",
                                                                 "email",
                                                                 "slack"
                                                             ],
+                                                            "script": {
+                                                                "filePath": "/tmp/example.sh",
+                                                                "content": "IyEvYmluL2Jhc2gKCmN1cmwgaHR0cDovL2V4YW1wbGUuY29tICR7IHN0YXR1cyA9ICdzdWNjZXNzJzsgfQ=="
+                                                            },
                                                             "slacks": [
                                                                 {
-                                                                    "name": "amqp-alert-p1",
+                                                                    "name": "example-slack-channel-0",
                                                                     "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
                                                                     "description": "example slack channel 1",
                                                                     "enabled": false
                                                                 },
                                                                 {
-                                                                    "name": "#test-cos-300-notification",
+                                                                    "name": "example-slack-channel-1",
                                                                     "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
                                                                     "description": "example slack channel 2",
                                                                     "enabled": false
@@ -9964,82 +9894,47 @@ const docTemplate = `{
                                                 "name": "Administrative Level Notification",
                                                 "isBuiltIn": true,
                                                 "description": "Configure how you are going to be notified for system events and host alerts, including levels 'warning', 'error', and 'critical'.",
-                                                "attributes": [
-                                                    {
-                                                        "name": "severity",
-                                                        "type": "string",
-                                                        "value": "Warning",
-                                                        "enabled": false
-                                                    },
-                                                    {
-                                                        "name": "severity",
-                                                        "type": "string",
-                                                        "value": "Error",
-                                                        "enabled": false
-                                                    },
-                                                    {
-                                                        "name": "severity",
-                                                        "type": "string",
-                                                        "value": "Critical",
-                                                        "enabled": false
-                                                    },
-                                                    {
-                                                        "name": "category",
-                                                        "type": "string",
-                                                        "value": "DEV",
-                                                        "enabled": false
-                                                    },
-                                                    {
-                                                        "name": "category",
-                                                        "type": "string",
-                                                        "value": "CPU",
-                                                        "enabled": false
-                                                    },
-                                                    {
-                                                        "name": "category",
-                                                        "type": "string",
-                                                        "value": "DSK",
-                                                        "enabled": false
-                                                    },
-                                                    {
-                                                        "name": "category",
-                                                        "type": "string",
-                                                        "value": "MEM",
-                                                        "enabled": false
-                                                    },
-                                                    {
-                                                        "name": "category",
-                                                        "type": "string",
-                                                        "value": "NET",
-                                                        "enabled": false
-                                                    },
-                                                    {
-                                                        "name": "category",
-                                                        "type": "string",
-                                                        "value": "SRV",
-                                                        "enabled": false
-                                                    },
-                                                    {
-                                                        "name": "category",
-                                                        "type": "string",
-                                                        "value": "VRT",
-                                                        "enabled": false
-                                                    }
-                                                ],
+                                                "attributes": {
+                                                    "alertTypes": [
+                                                        "system",
+                                                        "host",
+                                                        "instance"
+                                                    ],
+                                                    "eventIds": [
+                                                        "KSN00001I",
+                                                        "ETH00001I",
+                                                        "CPU00002W"
+                                                    ],
+                                                    "severities": [
+                                                        "Warning",
+                                                        "Error",
+                                                        "Critical"
+                                                    ],
+                                                    "categories": [
+                                                        "DEV",
+                                                        "CPU",
+                                                        "DSK"
+                                                    ]
+                                                },
                                                 "response": {
                                                     "types": [
+                                                        "script",
                                                         "email",
                                                         "slack"
                                                     ],
+                                                    "script": {
+                                                        "filePath": "/tmp/example.sh",
+                                                        "content": "IyEvYmluL2Jhc2gKCmN1cmwgaHR0cDovL2V4YW1wbGUuY29tICR7IHN0YXR1cyA9ICdzdWNjZXNzJzsgfQ=="
+                                                    },
                                                     "slacks": [
                                                         {
-                                                            "name": "amqp-alert-p1",
+                                                            "name": "example-slack-channel-0",
                                                             "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
                                                             "description": "example slack channel 1",
                                                             "enabled": false
                                                         },
                                                         {
-                                                            "name": "#test-cos-300-notification",
+                                                            "name": "example-slack-channel-1",
                                                             "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
                                                             "description": "example slack channel 2",
                                                             "enabled": false
@@ -10138,81 +10033,32 @@ const docTemplate = `{
                                 "example": {
                                     "summary": "Trigger update request",
                                     "value": {
-                                        "attributes": [
-                                            {
-                                                "name": "severity",
-                                                "type": "string",
-                                                "value": "Warning",
-                                                "enabled": true
-                                            },
-                                            {
-                                                "name": "severity",
-                                                "type": "string",
-                                                "value": "Error",
-                                                "enabled": true
-                                            },
-                                            {
-                                                "name": "severity",
-                                                "type": "string",
-                                                "value": "Critical",
-                                                "enabled": true
-                                            },
-                                            {
-                                                "name": "category",
-                                                "type": "string",
-                                                "value": "DEV",
-                                                "enabled": false
-                                            },
-                                            {
-                                                "name": "category",
-                                                "type": "string",
-                                                "value": "CPU",
-                                                "enabled": false
-                                            },
-                                            {
-                                                "name": "category",
-                                                "type": "string",
-                                                "value": "DSK",
-                                                "enabled": false
-                                            },
-                                            {
-                                                "name": "category",
-                                                "type": "string",
-                                                "value": "MEM",
-                                                "enabled": false
-                                            },
-                                            {
-                                                "name": "category",
-                                                "type": "string",
-                                                "value": "NET",
-                                                "enabled": false
-                                            },
-                                            {
-                                                "name": "category",
-                                                "type": "string",
-                                                "value": "SRV",
-                                                "enabled": false
-                                            },
-                                            {
-                                                "name": "category",
-                                                "type": "string",
-                                                "value": "VRT",
-                                                "enabled": false
-                                            }
-                                        ],
-                                        "response": {
-                                            "slacks": [
-                                                {
-                                                    "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>"
-                                                }
+                                        "attributes": {
+                                            "alertTypes": [
+                                                "system",
+                                                "host"
                                             ],
-                                            "emails": [
-                                                {
-                                                    "address": "example.user@example.com"
-                                                }
+                                            "severities": [
+                                                "Warning",
+                                                "Error"
+                                            ],
+                                            "categories": [
+                                                "CPU",
+                                                "DSK"
+                                            ],
+                                            "eventIds": [
+                                                "CPU00006C"
                                             ]
                                         },
-                                        "description": "example-update-description"
+                                        "description": "example-update-description",
+                                        "response": {
+                                            "slacks": [
+                                                "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>"
+                                            ],
+                                            "emails": [
+                                                "example.user@example.com"
+                                            ]
+                                        }
                                     }
                                 }
                             }
@@ -16281,27 +16127,36 @@ const docTemplate = `{
                                             "type": "string"
                                         },
                                         "attributes": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "required": [
-                                                    "name",
-                                                    "type",
-                                                    "value",
-                                                    "enabled"
-                                                ],
-                                                "properties": {
-                                                    "name": {
+                                            "type": "object",
+                                            "required": [
+                                                "alertTypes",
+                                                "severities",
+                                                "categories",
+                                                "eventIds"
+                                            ],
+                                            "properties": {
+                                                "alertTypes": {
+                                                    "type": "array",
+                                                    "items": {
                                                         "type": "string"
-                                                    },
-                                                    "type": {
+                                                    }
+                                                },
+                                                "severities": {
+                                                    "type": "array",
+                                                    "items": {
                                                         "type": "string"
-                                                    },
-                                                    "value": {
+                                                    }
+                                                },
+                                                "categories": {
+                                                    "type": "array",
+                                                    "items": {
                                                         "type": "string"
-                                                    },
-                                                    "enabled": {
-                                                        "type": "boolean"
+                                                    }
+                                                },
+                                                "eventIds": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
                                                     }
                                                 }
                                             }
@@ -16310,6 +16165,7 @@ const docTemplate = `{
                                             "type": "object",
                                             "required": [
                                                 "types",
+                                                "script",
                                                 "slacks",
                                                 "emails"
                                             ],
@@ -16318,6 +16174,22 @@ const docTemplate = `{
                                                     "type": "array",
                                                     "items": {
                                                         "type": "string"
+                                                    }
+                                                },
+                                                "script": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "filePath",
+                                                        "content"
+                                                    ],
+                                                    "properties": {
+                                                        "filePath": {
+                                                            "type": "string"
+                                                        },
+                                                        "content": {
+                                                            "type": "string",
+                                                            "description": "Base64 encoded script content"
+                                                        }
                                                     }
                                                 },
                                                 "slacks": {
@@ -16439,27 +16311,36 @@ const docTemplate = `{
                                 "type": "string"
                             },
                             "attributes": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "required": [
-                                        "name",
-                                        "type",
-                                        "value",
-                                        "enabled"
-                                    ],
-                                    "properties": {
-                                        "name": {
+                                "type": "object",
+                                "required": [
+                                    "alertTypes",
+                                    "severities",
+                                    "categories",
+                                    "eventIds"
+                                ],
+                                "properties": {
+                                    "alertTypes": {
+                                        "type": "array",
+                                        "items": {
                                             "type": "string"
-                                        },
-                                        "type": {
+                                        }
+                                    },
+                                    "severities": {
+                                        "type": "array",
+                                        "items": {
                                             "type": "string"
-                                        },
-                                        "value": {
+                                        }
+                                    },
+                                    "categories": {
+                                        "type": "array",
+                                        "items": {
                                             "type": "string"
-                                        },
-                                        "enabled": {
-                                            "type": "boolean"
+                                        }
+                                    },
+                                    "eventIds": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
                                         }
                                     }
                                 }
@@ -16669,22 +16550,35 @@ const docTemplate = `{
                 ],
                 "properties": {
                     "attributes": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "required": [
-                                "name",
-                                "type",
-                                "value"
-                            ],
-                            "properties": {
-                                "name": {
+                        "type": "object",
+                        "required": [
+                            "alertTypes",
+                            "severities",
+                            "categories",
+                            "eventIds"
+                        ],
+                        "properties": {
+                            "alertTypes": {
+                                "type": "array",
+                                "items": {
                                     "type": "string"
-                                },
-                                "type": {
+                                }
+                            },
+                            "severities": {
+                                "type": "array",
+                                "items": {
                                     "type": "string"
-                                },
-                                "value": {
+                                }
+                            },
+                            "categories": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "eventIds": {
+                                "type": "array",
+                                "items": {
                                     "type": "string"
                                 }
                             }
@@ -16693,36 +16587,37 @@ const docTemplate = `{
                     "response": {
                         "type": "object",
                         "required": [
+                            "script",
                             "slacks",
                             "emails"
                         ],
                         "properties": {
+                            "script": {
+                                "type": "object",
+                                "required": [
+                                    "filePath",
+                                    "content"
+                                ],
+                                "properties": {
+                                    "filePath": {
+                                        "type": "string"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "description": "Base64 encoded script content"
+                                    }
+                                }
+                            },
                             "slacks": {
                                 "type": "array",
                                 "items": {
-                                    "type": "object",
-                                    "required": [
-                                        "url"
-                                    ],
-                                    "properties": {
-                                        "url": {
-                                            "type": "string"
-                                        }
-                                    }
+                                    "type": "string"
                                 }
                             },
                             "emails": {
                                 "type": "array",
                                 "items": {
-                                    "type": "object",
-                                    "required": [
-                                        "address"
-                                    ],
-                                    "properties": {
-                                        "address": {
-                                            "type": "string"
-                                        }
-                                    }
+                                    "type": "string"
                                 }
                             }
                         }

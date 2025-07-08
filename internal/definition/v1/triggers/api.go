@@ -46,12 +46,14 @@ type Toggle struct {
 }
 
 type ApiSchema struct {
-	Name             string      `json:"name" yaml:"name" bson:"name"`
-	IsBuiltIn        bool        `json:"isBuiltIn" yaml:"-" bson:"isBuiltIn"`
-	Description      string      `json:"description" yaml:"description" bson:"description"`
-	Match            string      `json:"-" yaml:"match"`
-	Attributes       []Attribute `json:"attributes" bson:"attributes" yaml:"-"`
-	Response         `json:"response" yaml:"response" bson:"response"`
+	Name        string `json:"name" yaml:"name" bson:"name"`
+	IsBuiltIn   bool   `json:"isBuiltIn" yaml:"-" bson:"isBuiltIn"`
+	Description string `json:"description" yaml:"description" bson:"description"`
+	Match       string `json:"-" yaml:"match"`
+
+	Attributes `json:"attributes" yaml:"attributes" bson:"attributes"`
+	Response   `json:"response" yaml:"response" bson:"response"`
+
 	Enabled          bool            `json:"enabled" yaml:"enabled" bson:"enabled"`
 	Status           *status.Trigger `json:"status" yaml:"-" bson:"status"`
 	IsReportRequired bool            `json:"-" yaml:"-"`
@@ -138,26 +140,30 @@ func (a *ApiSchema) SetDeleting() {
 	}
 }
 
-func (a *ApiSchema) SetMatchRule(attrs ApplyAttributes) {
+func (a *ApiSchema) SetMatchRule() {
+	a.Match = a.GenMatchRule()
+}
+
+func (a *ApiSchema) GenMatchRule() string {
 	andRules := []string{}
 
-	if len(attrs.AlertTypes) > 0 {
-		andRules = append(andRules, GenOrRule("type", attrs.AlertTypes))
+	if len(a.Attributes.AlertTypes) > 0 {
+		andRules = append(andRules, GenOrRule("type", a.Attributes.AlertTypes))
 	}
 
-	if len(attrs.EventIds) > 0 {
-		andRules = append(andRules, GenOrRule("id", attrs.EventIds))
+	if len(a.Attributes.EventIds) > 0 {
+		andRules = append(andRules, GenOrRule("id", a.Attributes.EventIds))
 	}
 
-	if len(attrs.Severities) > 0 {
-		andRules = append(andRules, GenOrRule("severity", attrs.Severities))
+	if len(a.Attributes.Severities) > 0 {
+		andRules = append(andRules, GenOrRule("severity", a.Attributes.Severities))
 	}
 
-	if len(attrs.Categories) > 0 {
-		andRules = append(andRules, GenOrRule("category", attrs.Categories))
+	if len(a.Attributes.Categories) > 0 {
+		andRules = append(andRules, GenOrRule("category", a.Attributes.Categories))
 	}
 
-	a.Match = strings.Join(andRules, " AND ")
+	return strings.Join(andRules, " AND ")
 }
 
 func GenOrRule(key string, attrs []string) string {
@@ -187,22 +193,6 @@ func (a *ApiSchema) SetResponses(resp ApplyResponse) {
 			slack.ApiChannel{URL: s, Enabled: true},
 		)
 	}
-}
-
-func (a *ApiSchema) GenMatchRule() string {
-	rule := []string{}
-	for _, attr := range a.Attributes {
-		if !attr.Enabled {
-			continue
-		}
-
-		rule = append(
-			rule,
-			fmt.Sprintf(`%q == %q`, attr.Name, attr.Value),
-		)
-	}
-
-	return strings.Join(rule, " OR ")
 }
 
 func (a *ApiSchema) HasEmailRecipients() bool {
@@ -300,7 +290,8 @@ func (a *ApiSchema) SetCompleted() {
 }
 
 type Response struct {
-	Types  []string           `json:"types" yaml:"-" bson:"types"`
+	Types  []string `json:"types" yaml:"-" bson:"types"`
+	Script `json:"script" yaml:"script" bson:"script"`
 	Slacks []slack.ApiChannel `json:"slacks" yaml:"slacks" bson:"slacks"`
 	Emails []email.Recipient  `json:"emails" yaml:"emails" bson:"emails"`
 }

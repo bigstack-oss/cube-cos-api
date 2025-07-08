@@ -87,14 +87,14 @@ func (h *helper) checkResponse() error {
 }
 
 func (h *helper) allAttributesAreEmpty() bool {
-	return len(h.applyOpts.ApplyAttributes.AlertTypes) == 0 &&
-		len(h.applyOpts.ApplyAttributes.Severities) == 0 &&
-		len(h.applyOpts.ApplyAttributes.Categories) == 0 &&
-		len(h.applyOpts.ApplyAttributes.EventIds) == 0
+	return len(h.applyOpts.Attributes.AlertTypes) == 0 &&
+		len(h.applyOpts.Attributes.Severities) == 0 &&
+		len(h.applyOpts.Attributes.Categories) == 0 &&
+		len(h.applyOpts.Attributes.EventIds) == 0
 }
 
 func (h *helper) hasInvalidEventIds() error {
-	for _, eventId := range h.applyOpts.ApplyAttributes.EventIds {
+	for _, eventId := range h.applyOpts.Attributes.EventIds {
 		if !slices.Contains(h.materials.Attribute.EventIds, eventId) {
 			return fmt.Errorf(
 				"invalid event id %s for trigger %s",
@@ -108,7 +108,7 @@ func (h *helper) hasInvalidEventIds() error {
 }
 
 func (h *helper) hasInvalidSeverities() error {
-	for _, severity := range h.applyOpts.ApplyAttributes.Severities {
+	for _, severity := range h.applyOpts.Attributes.Severities {
 		if !slices.Contains(h.materials.Attribute.Severities, severity) {
 			return fmt.Errorf(
 				"invalid severity %s for trigger %s",
@@ -122,7 +122,7 @@ func (h *helper) hasInvalidSeverities() error {
 }
 
 func (h *helper) hasInvaliadAlertTypes() error {
-	for _, alertType := range h.applyOpts.ApplyAttributes.AlertTypes {
+	for _, alertType := range h.applyOpts.Attributes.AlertTypes {
 		if !slices.Contains(h.materials.Attribute.AlertTypes, alertType) {
 			return fmt.Errorf(
 				"invalid alert type %s for trigger %s",
@@ -136,7 +136,7 @@ func (h *helper) hasInvaliadAlertTypes() error {
 }
 
 func (h *helper) hasInvalidCategories() error {
-	for _, category := range h.applyOpts.ApplyAttributes.Categories {
+	for _, category := range h.applyOpts.Attributes.Categories {
 		if !slices.Contains(h.materials.Attribute.Categories, category) {
 			return fmt.Errorf(
 				"invalid category %s for trigger %s",

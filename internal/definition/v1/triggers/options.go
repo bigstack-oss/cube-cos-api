@@ -1,13 +1,13 @@
 package triggers
 
 type ApplyOptions struct {
-	Name            string `json:"name" bson:"name"`
-	Description     string `json:"description" bson:"description"`
-	ApplyAttributes `json:"attributes" bson:"attributes"`
-	ApplyResponse   `json:"response" bson:"response"`
+	Name          string `json:"name" bson:"name"`
+	Description   string `json:"description" bson:"description"`
+	Attributes    `json:"attributes" bson:"attributes"`
+	ApplyResponse `json:"response" bson:"response"`
 }
 
-type ApplyAttributes struct {
+type Attributes struct {
 	AlertTypes []string `json:"alertTypes" bson:"alertTypes"`
 	EventIds   []string `json:"eventIds" bson:"eventIds"`
 	Severities []string `json:"severities" bson:"severities"`

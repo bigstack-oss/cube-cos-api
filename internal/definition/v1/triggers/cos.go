@@ -1,9 +1,11 @@
 package triggers
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	json "github.com/json-iterator/go"
 )
@@ -49,26 +51,33 @@ func (c *CosSchema) ToApiSchema() ApiSchema {
 	}
 }
 
-func (c *CosSchema) ConvertToApiAttributes() []Attribute {
-	enabledAttrs := []Attribute{}
-	matchRule := strings.ReplaceAll(c.Match, `"`, ``)
-	parts := strings.SplitSeq(matchRule, " OR ")
-	for part := range parts {
-		attrPair := strings.Split(part, " == ")
-		if !isValidAttrPair(attrPair) {
-			continue
-		}
-
-		enabledAttrs = append(
-			enabledAttrs,
-			Attribute{
-				Name:  strings.TrimSpace(attrPair[0]),
-				Value: strings.TrimSpace(attrPair[1]),
-			},
-		)
+func (c *CosSchema) ConvertToApiAttributes() Attributes {
+	// to match the "field" == "value"
+	regex := regexp.MustCompile(`"([^"]+)"\s*==\s*"([^"]+)"`)
+	matches := regex.FindAllStringSubmatch(c.Match, -1)
+	attrs := Attributes{
+		AlertTypes: []string{},
+		EventIds:   []string{},
+		Severities: []string{},
+		Categories: []string{},
 	}
 
-	return enabledAttrs
+	for _, match := range matches {
+		key := strings.TrimSpace(match[1])
+		val := strings.TrimSpace(match[2])
+		switch key {
+		case "type":
+			attrs.AlertTypes = append(attrs.AlertTypes, val)
+		case "id":
+			attrs.EventIds = append(attrs.EventIds, val)
+		case "severity":
+			attrs.Severities = append(attrs.Severities, events.GetSeverityFullName(val))
+		case "category":
+			attrs.Categories = append(attrs.Categories, val)
+		}
+	}
+
+	return attrs
 }
 
 func (c *CosSchema) ConvertToApiEmails() []email.Recipient {

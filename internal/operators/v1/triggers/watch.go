@@ -5,7 +5,6 @@ import (
 
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	bslog "github.com/bigstack-oss/cube-cos-api/internal/log"
@@ -95,19 +94,6 @@ func syncTriggerDetails(apiTrigger *triggers.ApiSchema) {
 	if found {
 		apiTrigger.Name = details.Name
 		apiTrigger.IsBuiltIn = details.IsBuiltIn
-	}
-
-	convertAttributesToFullName(apiTrigger)
-}
-
-func convertAttributesToFullName(trigger *triggers.ApiSchema) {
-	for i, attribute := range trigger.Attributes {
-		if attribute.Name != "severity" {
-			continue
-		}
-
-		fullname := events.GetSeverityFullName(attribute.Value.(string))
-		trigger.Attributes[i].Value = fullname
 	}
 }
 
