@@ -39,15 +39,27 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/triggers",
+			Func:    createTrigger,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/triggers/:triggerName",
-			Func:    applyTrigger,
+			Func:    updateTrigger,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/triggers/:triggerName/enable",
 			Func:    enableOrDisableTrigger,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodDelete,
+			Path:    "/triggers/:triggerName",
+			Func:    deleteTrigger,
 		},
 		{
 			Version: apis.V1,
@@ -146,8 +158,22 @@ func getTrigger(c *gin.Context) {
 	)
 }
 
-func applyTrigger(c *gin.Context) {
-	h, err := initHelper(c, "applyTrigger")
+func createTrigger(c *gin.Context) {
+	h, err := initHelper(c, "createTrigger")
+	if err != nil {
+		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"trigger creation request received",
+	)
+}
+
+func updateTrigger(c *gin.Context) {
+	h, err := initHelper(c, "updateTrigger")
 	if err != nil {
 		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
@@ -159,6 +185,20 @@ func applyTrigger(c *gin.Context) {
 	bodies.SetAccepted(
 		c,
 		"the requset of applying trigger is accepted successfully",
+	)
+}
+
+func deleteTrigger(c *gin.Context) {
+	h, err := initHelper(c, "deleteTrigger")
+	if err != nil {
+		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"trigger deletion request received",
 	)
 }
 

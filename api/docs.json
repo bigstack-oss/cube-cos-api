@@ -9797,6 +9797,135 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "operationId": "createTrigger",
+                "tags": [
+                    "Triggers"
+                ],
+                "summary": "Create trigger",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateTriggerRequest"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Create trigger request",
+                                    "value": {
+                                        "name": "example-trigger",
+                                        "description": "This is an example trigger",
+                                        "attribute": {
+                                            "alertTypes": [
+                                                "system"
+                                            ],
+                                            "severities": [
+                                                "Critical"
+                                            ],
+                                            "categories": [
+                                                "CPU"
+                                            ],
+                                            "eventIds": [
+                                                "CPU00006C"
+                                            ]
+                                        },
+                                        "response": {
+                                            "script": {
+                                                "filePath": "/tmp/example.sh",
+                                                "content": "IyEvYmluL2Jhc2gKCmN1cmwgaHR0cDovL2V4YW1wbGUuY29tICR7IHN0YXR1cyA9ICdzdWNjZXNzJzsgfQ=="
+                                            },
+                                            "notifications": {
+                                                "emails": [
+                                                    "example-user@bigstack.co"
+                                                ],
+                                                "slacks": [
+                                                    "https://hooks.slack.com/services/T00000000/B00000000/XXXXX"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Trigger creation request received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateTriggerResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Trigger creation request received",
+                                        "value": {
+                                            "code": 202,
+                                            "msg": "trigger creation request received",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list triggers: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/v1/datacenters/{dataCenter}/triggers/{triggerName}": {
@@ -9811,14 +9940,7 @@
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "in": "path",
-                        "name": "triggerName",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the trigger to operate",
-                        "example": "Administrative Level Notification"
+                        "$ref": "#/components/parameters/triggerName"
                     }
                 ],
                 "responses": {
@@ -9998,14 +10120,7 @@
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "in": "path",
-                        "name": "triggerName",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the trigger to operate",
-                        "example": "Administrative Level Notification"
+                        "$ref": "#/components/parameters/triggerName"
                     }
                 ],
                 "requestBody": {
@@ -10194,6 +10309,115 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "operationId": "deleteTrigger",
+                "tags": [
+                    "Triggers"
+                ],
+                "summary": "Delete a specific trigger",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/triggerName"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Delete trigger request received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeleteTriggerResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Trigger deletion request received",
+                                        "value": {
+                                            "code": 202,
+                                            "msg": "trigger deletion request received",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid_grant: Invalid user credentials"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "unauthorized"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "trigger not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to delete trigger: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/v1/datacenters/{dataCenter}/triggers/{triggerName}/enable": {
@@ -10208,14 +10432,7 @@
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "in": "path",
-                        "name": "triggerName",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The name of the trigger to update.",
-                        "example": "Administrative Level Notification"
+                        "$ref": "#/components/parameters/triggerName"
                     }
                 ],
                 "requestBody": {
@@ -11840,6 +12057,16 @@
                 },
                 "description": "The name of the support file set to delete. (have to be done the http encode)",
                 "example": "Cube Appliance 3.0.0 Support File Set 2025-06-18T15:54:48+00:00"
+            },
+            "triggerName": {
+                "in": "path",
+                "name": "triggerName",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The name of the trigger to operate",
+                "example": "Administrative Level Notification"
             }
         },
         "schemas": {
@@ -16312,6 +16539,123 @@
                     }
                 }
             },
+            "CreateTriggerRequest": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "description",
+                    "attribute",
+                    "response"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "attribute": {
+                        "type": "object",
+                        "required": [
+                            "alertTypes",
+                            "severities",
+                            "categories",
+                            "eventIds"
+                        ],
+                        "properties": {
+                            "alertTypes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "severities": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "categories": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "eventIds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "response": {
+                        "type": "object",
+                        "required": [
+                            "script",
+                            "notifications"
+                        ],
+                        "properties": {
+                            "script": {
+                                "type": "object",
+                                "required": [
+                                    "filePath",
+                                    "content"
+                                ],
+                                "properties": {
+                                    "filePath": {
+                                        "type": "string"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "description": "Base64 encoded script content"
+                                    }
+                                }
+                            },
+                            "notifications": {
+                                "type": "object",
+                                "required": [
+                                    "slacks",
+                                    "emails"
+                                ],
+                                "properties": {
+                                    "slacks": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "emails": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "CreateTriggerResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
             "UpdateTriggerRequest": {
                 "type": "object",
                 "required": [
@@ -16396,6 +16740,25 @@
                 }
             },
             "UpdateTriggerResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "DeleteTriggerResponse": {
                 "type": "object",
                 "required": [
                     "code",

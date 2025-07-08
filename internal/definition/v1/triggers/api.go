@@ -118,6 +118,16 @@ func (a *ApiSchema) SetUpdating() {
 	}
 }
 
+func (a *ApiSchema) SetCreating() {
+	a.Status = &status.Trigger{
+		Current:    status.Creating,
+		Desired:    status.Created,
+		CreatedAt:  time.Now().Local().Format(time.RFC3339),
+		UpdatedAt:  time.Now().Local().Format(time.RFC3339),
+		IsCreating: true,
+	}
+}
+
 func (a *ApiSchema) GenMatchRule() string {
 	rule := []string{}
 	for _, attr := range a.Attributes {

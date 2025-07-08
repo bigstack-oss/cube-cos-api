@@ -68,6 +68,7 @@ type Trigger struct {
 	CreatedAt string `json:"createdAt,omitzero" bson:"createdAt"`
 	UpdatedAt string `json:"updatedAt,omitzero" bson:"updatedAt"`
 
+	IsCreating bool `json:"isCreating" bson:"isCreating"`
 	IsUpdating bool `json:"isUpdating" bson:"isUpdating"`
 }
 

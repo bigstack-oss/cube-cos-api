@@ -15,8 +15,12 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListParams()
 	case "verifyMaterialScript":
 		return h.parseMaterialVerifyParams()
-	case "applyTrigger":
-		return h.parseApplyParams()
+	case "createTrigger":
+		return h.parseCreateParams()
+	case "updateTrigger":
+		return h.parseUpdateParams()
+	case "deleteTrigger":
+		return h.parseDeleteparams()
 	case "enableOrDisableTrigger":
 		return h.parseToggleParams()
 	case "updateTriggerTask":
@@ -45,13 +49,26 @@ func (h *helper) parseMaterialVerifyParams() error {
 	return nil
 }
 
-func (h *helper) parseApplyParams() error {
+func (h *helper) parseCreateParams() error {
+	return h.c.ShouldBindJSON(&h.applyOpts)
+}
+
+func (h *helper) parseUpdateParams() error {
 	err := h.parseTrigger()
 	if err != nil {
 		return err
 	}
 
 	h.isClusterWiseRequired = queries.ParseClusterWise(h.c)
+	return nil
+}
+
+func (h *helper) parseDeleteparams() error {
+	name := h.c.Param("triggerName")
+	if !cubecos.IsTriggerExist(name) {
+		return errors.New("trigger does not exist")
+	}
+
 	return nil
 }
 

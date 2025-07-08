@@ -21,8 +21,8 @@ type helper struct {
 	http http.Helper
 
 	trigger               triggers.ApiSchema
+	applyOpts             triggers.ApplyOptions
 	toggle                triggers.Toggle
-	script                string
 	rawBody               []byte
 	isClusterWiseRequired bool
 	page                  *pages.Page
