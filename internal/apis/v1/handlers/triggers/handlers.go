@@ -1,6 +1,7 @@
 package triggers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
@@ -163,6 +164,11 @@ func createTrigger(c *gin.Context) {
 	if err != nil {
 		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	if h.isTriggerExist(h.applyOpts.Name) {
+		bodies.SetConflict(c, fmt.Errorf("trigger %s already exists", h.applyOpts.Name))
 		return
 	}
 

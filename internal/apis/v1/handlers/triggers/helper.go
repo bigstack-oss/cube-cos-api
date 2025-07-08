@@ -21,6 +21,7 @@ type helper struct {
 	http http.Helper
 
 	trigger               triggers.ApiSchema
+	materials             *materials
 	applyOpts             triggers.ApplyOptions
 	toggle                triggers.Toggle
 	rawBody               []byte
@@ -179,6 +180,10 @@ func (h *helper) GetEmails() ([]Email, error) {
 
 	emails := make([]Email, len(receipients))
 	for _, receipient := range receipients {
+		if receipient.Address == "" {
+			continue
+		}
+
 		emails = append(emails, Email{
 			Address: receipient.Address,
 			Note:    receipient.Note,
@@ -196,6 +201,10 @@ func (h *helper) GetSlacks() ([]Slack, error) {
 
 	slacks := make([]Slack, len(channels))
 	for _, channel := range channels {
+		if channel.Channel == "" || channel.URL == "" {
+			continue
+		}
+
 		slacks = append(slacks, Slack{
 			Name:        channel.Channel,
 			Url:         channel.URL,

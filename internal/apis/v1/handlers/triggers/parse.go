@@ -50,7 +50,16 @@ func (h *helper) parseMaterialVerifyParams() error {
 }
 
 func (h *helper) parseCreateParams() error {
-	return h.c.ShouldBindJSON(&h.applyOpts)
+	err := h.c.ShouldBindJSON(&h.applyOpts)
+	if err != nil {
+		return err
+	}
+
+	if h.applyOpts.Name == "" {
+		return errors.New("trigger name is required")
+	}
+
+	return h.checkMaterials()
 }
 
 func (h *helper) parseUpdateParams() error {
