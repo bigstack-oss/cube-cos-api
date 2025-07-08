@@ -70,6 +70,21 @@ func ApplyTrigger(trigger triggers.CosSchema) error {
 	return nil
 }
 
+func DeleteTrigger(trigger triggers.CosSchema) error {
+	out, err := exec.Command("hex_sdk", "alert_delete_trigger", trigger.Name).CombinedOutput()
+	if err != nil {
+		log.Errorf("triggers: failed to delete trigger value: %v(%s)", err, string(out))
+		return err
+	}
+
+	if !IsHexSdkSuccess(err) {
+		err := fmt.Errorf("triggers: failed to delete trigger: %s", string(out))
+		return err
+	}
+
+	return nil
+}
+
 func GetPredefinedEvents() ([]events.Event, error) {
 	return []events.Event{
 		{

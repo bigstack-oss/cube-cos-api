@@ -188,7 +188,7 @@ func updateTrigger(c *gin.Context) {
 		return
 	}
 
-	h.setUpdateInfo()
+	h.setUpdateReq()
 	h.updateToAllControllers()
 	bodies.SetAccepted(
 		c,
@@ -204,6 +204,8 @@ func deleteTrigger(c *gin.Context) {
 		return
 	}
 
+	h.setDeletionReq()
+	h.updateToAllControllers()
 	bodies.SetAccepted(
 		c,
 		"trigger deletion request received",

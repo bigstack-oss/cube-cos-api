@@ -12,6 +12,8 @@ func (o *Operator) operateReq(trigger triggers.ApiSchema) error {
 	switch trigger.Status.Desired {
 	case status.Updated:
 		return o.updateTrigger(trigger)
+	case status.Deleted:
+		return o.deleteTrigger(trigger)
 	}
 
 	return fmt.Errorf(
@@ -24,4 +26,9 @@ func (o *Operator) operateReq(trigger triggers.ApiSchema) error {
 func (o *Operator) updateTrigger(trigger triggers.ApiSchema) error {
 	cosTrigger := trigger.ToCosSchema()
 	return cubecos.ApplyTrigger(cosTrigger)
+}
+
+func (o *Operator) deleteTrigger(trigger triggers.ApiSchema) error {
+	cosTrigger := trigger.ToCosSchema()
+	return cubecos.DeleteTrigger(cosTrigger)
 }

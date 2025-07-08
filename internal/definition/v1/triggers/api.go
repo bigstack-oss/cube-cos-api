@@ -128,6 +128,16 @@ func (a *ApiSchema) SetCreating() {
 	}
 }
 
+func (a *ApiSchema) SetDeleting() {
+	a.Status = &status.Trigger{
+		Current:    status.Deleting,
+		Desired:    status.Deleted,
+		CreatedAt:  time.Now().Local().Format(time.RFC3339),
+		UpdatedAt:  time.Now().Local().Format(time.RFC3339),
+		IsDeleting: true,
+	}
+}
+
 func (a *ApiSchema) SetMatchRule(attrs ApplyAttributes) {
 	andRules := []string{}
 

@@ -70,6 +70,7 @@ type Trigger struct {
 
 	IsCreating bool `json:"isCreating" bson:"isCreating"`
 	IsUpdating bool `json:"isUpdating" bson:"isUpdating"`
+	IsDeleting bool `json:"isDeleting" bson:"isDeleting"`
 }
 
 type SupportFile struct {
