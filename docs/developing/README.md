@@ -44,13 +44,30 @@ scp <path of rpm> <user>@<cubecos>:<path to place rpm>
 
 <br/>
 
-4). Log in to your CubeCOS
+4). Log in to your CubeCOS and reinstall the cube-cos-api by the RPM
 
 ```bash
 systemctl stop cube-cos-api
 dnf -y remove cube-cos-api
+rm -f /usr/local/bin/cube-cos-api
 dnf -y install "<path to cube-cos-api rpm>"
-systemctl start cube-cos-api
+```
+
+<br/>
+
+5). Commit the changes if you don't want to lost the binary after machine reboot
+
+```bash
+git add /usr/local/bin/cube-cos-api
+hex_sdk git_push "change the cube-cos-api with dev version manually (YYYY-MM-DD)"
+```
+
+<br/>
+
+6). Restart the cube-cos-api by the hex sdk
+
+```bash
+hex_config bootstrap api
 ```
 
 <br/>
