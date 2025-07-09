@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ipmi"
@@ -39,15 +40,14 @@ func (h *helper) checkBoardSerialConsistency(fru *ipmi.FRU) error {
 		return err
 	}
 
-	rfuBoardSerial := fmt.Sprintf(".%s.%s.", fru.Product.Serial, fru.Board.Serial)
-	if node.BoardSerial == rfuBoardSerial {
+	if strings.Contains(node.BoardSerial, fru.Board.Serial) {
 		return nil
 	}
 
 	return fmt.Errorf(
 		"board serial is mismatched: %s serial is '%s', but host %s board serial is '%s'",
 		h.ipmi.Ip,
-		rfuBoardSerial,
+		fru.Board.Serial,
 		h.node,
 		node.BoardSerial,
 	)

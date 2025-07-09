@@ -151,7 +151,7 @@ func (s *Status) GetVipHost() (string, error) {
 func IsVirtualIpOwner(hostname string) bool {
 	vipHost, err := GetVirtualIpHost()
 	if err != nil {
-		log.Errorf("nodes: failed to get virtual ip host: %v", err)
+		log.Warnf("nodes: failed to get virtual ip host(%v)", err)
 		return false
 	}
 
@@ -161,7 +161,7 @@ func IsVirtualIpOwner(hostname string) bool {
 func GetVirtualIpHost() (string, error) {
 	status, err := GetStatus()
 	if err != nil {
-		return "", fmt.Errorf("nodes: failed to get pcs status: %v", err)
+		return "", fmt.Errorf("nodes: failed to get pcs status(%v)", err)
 	}
 
 	return status.GetVipHost()
@@ -184,7 +184,7 @@ func convertToStatus(data []byte) (*Status, error) {
 	status := Status{}
 	err := xml.Unmarshal(data, &status)
 	if err != nil {
-		log.Errorf("nodes: failed to unmarshal pcs status xml: %v", err)
+		log.Errorf("nodes: failed to unmarshal pcs status xml(%v)", err)
 		return nil, err
 	}
 
