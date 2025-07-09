@@ -22,6 +22,7 @@ var (
 
 	filterConditions = []string{
 		"id",
+		"ids",
 		"types",
 		"category",
 		"categories",

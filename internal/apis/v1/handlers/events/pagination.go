@@ -15,6 +15,10 @@ func (h *helper) isTypesRequired() bool {
 	return len(h.eventTypes) > 0
 }
 
+func (h *helper) isEventIdsRequired() bool {
+	return len(h.eventIds) > 0
+}
+
 func (h *helper) isCategoriesRequired() bool {
 	return len(h.categories) > 0
 }

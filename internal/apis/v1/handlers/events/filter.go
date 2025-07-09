@@ -48,6 +48,10 @@ func (h *helper) filteredPredefinedEvents(list []predefinedEvent) []predefinedEv
 		list = h.filterBySeverities(list)
 	}
 
+	if h.isEventIdsRequired() {
+		list = h.filterByEventIds(list)
+	}
+
 	return list
 }
 
@@ -84,6 +88,20 @@ func (h *helper) filterBySeverities(list []predefinedEvent) []predefinedEvent {
 	for _, event := range list {
 		for _, severity := range h.severities {
 			if strings.EqualFold(event.Severity, severity) {
+				filtered = append(filtered, event)
+				break
+			}
+		}
+	}
+
+	return filtered
+}
+
+func (h *helper) filterByEventIds(list []predefinedEvent) []predefinedEvent {
+	filtered := []predefinedEvent{}
+	for _, event := range list {
+		for _, eventId := range h.eventIds {
+			if strings.EqualFold(event.Id, eventId) {
 				filtered = append(filtered, event)
 				break
 			}

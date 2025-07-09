@@ -873,7 +873,7 @@ const docTemplate = `{
                     {
                         "in": "query",
                         "name": "types",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "array",
                             "items": {
@@ -918,6 +918,19 @@ const docTemplate = `{
                             }
                         },
                         "description": "The severities of the event to query.",
+                        "example": "Info"
+                    },
+                    {
+                        "in": "query",
+                        "name": "ids",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "description": "The ids of the event to query.",
                         "example": "Info"
                     }
                 ],
@@ -9580,21 +9593,18 @@ const docTemplate = `{
                                                                 {
                                                                     "name": "example-slack-channel-0",
                                                                     "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
-                                                                    "description": "example slack channel 1",
-                                                                    "enabled": false
+                                                                    "description": "example slack channel 1"
                                                                 },
                                                                 {
                                                                     "name": "example-slack-channel-1",
                                                                     "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
-                                                                    "description": "example slack channel 2",
-                                                                    "enabled": false
+                                                                    "description": "example slack channel 2"
                                                                 }
                                                             ],
                                                             "emails": [
                                                                 {
                                                                     "address": "example.user@example.com",
-                                                                    "note": "example email recipient",
-                                                                    "enabled": false
+                                                                    "note": "example email recipient"
                                                                 }
                                                             ]
                                                         },
@@ -9643,21 +9653,18 @@ const docTemplate = `{
                                                                 {
                                                                     "name": "example-slack-channel-0",
                                                                     "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
-                                                                    "description": "example slack channel 1",
-                                                                    "enabled": false
+                                                                    "description": "example slack channel 1"
                                                                 },
                                                                 {
                                                                     "name": "example-slack-channel-1",
                                                                     "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
-                                                                    "description": "example slack channel 2",
-                                                                    "enabled": false
+                                                                    "description": "example slack channel 2"
                                                                 }
                                                             ],
                                                             "emails": [
                                                                 {
                                                                     "address": "example.user@example.com",
-                                                                    "note": "example email recipient",
-                                                                    "enabled": false
+                                                                    "note": "example email recipient"
                                                                 }
                                                             ]
                                                         },
@@ -16199,8 +16206,7 @@ const docTemplate = `{
                                                         "required": [
                                                             "name",
                                                             "url",
-                                                            "description",
-                                                            "enabled"
+                                                            "description"
                                                         ],
                                                         "properties": {
                                                             "name": {
@@ -16211,9 +16217,6 @@ const docTemplate = `{
                                                             },
                                                             "description": {
                                                                 "type": "string"
-                                                            },
-                                                            "enabled": {
-                                                                "type": "boolean"
                                                             }
                                                         }
                                                     }
@@ -16224,8 +16227,7 @@ const docTemplate = `{
                                                         "type": "object",
                                                         "required": [
                                                             "address",
-                                                            "note",
-                                                            "enabled"
+                                                            "note"
                                                         ],
                                                         "properties": {
                                                             "address": {
@@ -16233,9 +16235,6 @@ const docTemplate = `{
                                                             },
                                                             "note": {
                                                                 "type": "string"
-                                                            },
-                                                            "enabled": {
-                                                                "type": "boolean"
                                                             }
                                                         }
                                                     }
@@ -16366,8 +16365,7 @@ const docTemplate = `{
                                             "required": [
                                                 "name",
                                                 "url",
-                                                "description",
-                                                "enabled"
+                                                "description"
                                             ],
                                             "properties": {
                                                 "name": {
@@ -16378,9 +16376,6 @@ const docTemplate = `{
                                                 },
                                                 "description": {
                                                     "type": "string"
-                                                },
-                                                "enabled": {
-                                                    "type": "boolean"
                                                 }
                                             }
                                         }
@@ -16391,8 +16386,7 @@ const docTemplate = `{
                                             "type": "object",
                                             "required": [
                                                 "address",
-                                                "note",
-                                                "enabled"
+                                                "note"
                                             ],
                                             "properties": {
                                                 "address": {
@@ -16400,9 +16394,6 @@ const docTemplate = `{
                                                 },
                                                 "note": {
                                                     "type": "string"
-                                                },
-                                                "enabled": {
-                                                    "type": "boolean"
                                                 }
                                             }
                                         }

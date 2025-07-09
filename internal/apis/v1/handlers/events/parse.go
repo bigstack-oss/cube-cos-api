@@ -201,6 +201,8 @@ func (h *helper) parsePredefinedFilterConditions() error {
 		switch condition {
 		case "types":
 			h.eventTypes = h.c.QueryArray("types")
+		case "ids":
+			h.eventIds = h.c.QueryArray("ids")
 		case "categories":
 			h.categories = h.c.QueryArray("categories")
 		case "severities":

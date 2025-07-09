@@ -20,6 +20,7 @@ type helper struct {
 	eventType  string
 	eventTypes []string
 	eventId    string
+	eventIds   []string
 	category   string
 	categories []string
 	severity   string
