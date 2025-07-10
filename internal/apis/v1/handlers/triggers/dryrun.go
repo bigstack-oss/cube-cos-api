@@ -164,7 +164,16 @@ func (h *helper) getDryRunLogs() (string, error) {
 		return "", err
 	}
 
-	return h.getPodLogs(pod)
+	logs, err := h.getPodLogs(pod)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.ReplaceAll(
+		logs,
+		"/scripts/script.sh: ",
+		"",
+	), nil
 }
 
 func (h *helper) deleteDryRunArtifacts() {
