@@ -66,19 +66,16 @@ func (h *helper) verifyMaterialScript() (string, error) {
 	defer h.deleteDryRunArtifacts()
 	err := h.createConfigMapWithScript()
 	if err != nil {
-		log.Errorf("triggers(%s): failed to create configmap with script(%v)", h.reqId, err)
 		return "", err
 	}
 
 	err = h.dryRunScript()
 	if err != nil {
-		log.Errorf("triggers(%s): failed to create dry run job(%v)", h.reqId, err)
 		return "", err
 	}
 
 	result, err := h.waitDryRunResult()
 	if err != nil {
-		log.Errorf("triggers(%s): failed to check dry run result(%v)", h.reqId, err)
 		return "", err
 	}
 

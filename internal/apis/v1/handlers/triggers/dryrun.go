@@ -1,11 +1,13 @@
 package triggers
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strings"
 	"time"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	log "go-micro.dev/v5/logger"
@@ -14,11 +16,16 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+func (h *helper) getScriptName() string {
+	return fmt.Sprintf("%s-script", h.reqId)
+}
+
 func (h *helper) createConfigMapWithScript() error {
 	config := h.genScriptConfigMap()
 	h.kubernetes.SetConfigMapClient(triggers.DryRunNamespace)
 	_, err := h.kubernetes.CreateConfigMap(&config)
 	if err != nil {
+		log.Errorf("triggers(%s): failed to create configmap with script(%v)", h.reqId, err)
 		return err
 	}
 
@@ -53,8 +60,7 @@ func (h *helper) waitDryRunResult() (string, error) {
 	}
 
 	return "", fmt.Errorf(
-		"dry run job %s failed with status %s(%s)",
-		h.getScriptName(),
+		"test finished with status %s. reason: %s",
 		result,
 		log,
 	)
@@ -152,44 +158,13 @@ func (h *helper) genJob() batchv1.Job {
 	}
 }
 
-func (h *helper) getScriptName() string {
-	return fmt.Sprintf("%s-script", h.reqId)
-}
-
 func (h *helper) getDryRunLogs() (string, error) {
-	h.kubernetes.SetPodClient(triggers.DryRunNamespace)
-	pods, err := h.kubernetes.ListPod(metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("job-name=%s", h.getScriptName()),
-	})
+	pod, err := h.getDryRunPod()
 	if err != nil {
-		log.Errorf("triggers(%s): failed to list pods for dry run job(%v)", h.reqId, err)
 		return "", err
 	}
 
-	if len(pods.Items) == 0 {
-		log.Warnf("triggers(%s): no pods found for dry run job", h.reqId)
-		return "", fmt.Errorf("no pods found for dry run job %s", h.getScriptName())
-	}
-
-	twoMiB := int64(2 * 1024 * 1024)
-	logs, err := h.kubernetes.GetPodLog(
-		pods.Items[0].Name,
-		&corev1.PodLogOptions{Follow: false, LimitBytes: &twoMiB},
-	)
-	if err != nil {
-		log.Errorf("triggers(%s): failed to get logs for dry run job pod(%v)", h.reqId, err)
-		return "", err
-	}
-
-	defer logs.Close()
-	buf := new(strings.Builder)
-	_, err = io.Copy(buf, logs)
-	if err != nil {
-		log.Errorf("triggers(%s): failed to read logs for dry run job pod(%v)", h.reqId, err)
-		return "", err
-	}
-
-	return buf.String(), nil
+	return h.getPodLogs(pod)
 }
 
 func (h *helper) deleteDryRunArtifacts() {
@@ -204,4 +179,60 @@ func (h *helper) deleteDryRunArtifacts() {
 	if err != nil {
 		log.Warnf("triggers(%s): failed to delete job for dry run job(%v)", h.reqId, err)
 	}
+}
+
+func (h *helper) getDryRunPod() (*corev1.Pod, error) {
+	h.kubernetes.SetPodClient(triggers.DryRunNamespace)
+	pods, err := h.kubernetes.ListPod(metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("job-name=%s", h.getScriptName()),
+	})
+	if err != nil {
+		log.Errorf("triggers(%s): failed to list pods for dry run job(%v)", h.reqId, err)
+		return nil, err
+	}
+
+	if len(pods.Items) == 0 {
+		return nil, fmt.Errorf("no pods found for dry run job %s", h.getScriptName())
+	}
+
+	for _, pod := range pods.Items {
+		if pod.Status.Phase != corev1.PodPending {
+			return &pod, nil
+		}
+	}
+
+	return nil, fmt.Errorf(
+		"no completed pods found for dry run job %s",
+		h.getScriptName(),
+	)
+}
+
+func (h *helper) getPodLogs(pod *corev1.Pod) (string, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
+	defer cancel()
+	twoMiB := int64(2 * 1024 * 1024)
+
+	req := h.kubernetes.GetLogs(
+		pod.Name,
+		&corev1.PodLogOptions{
+			Follow:     false,
+			LimitBytes: &twoMiB,
+		},
+	)
+
+	logs, err := req.Stream(ctx)
+	if err != nil {
+		log.Errorf("triggers(%s): failed to get logs for dry run job pod(%v)", h.reqId, err)
+		return "", err
+	}
+
+	defer logs.Close()
+	buf := new(strings.Builder)
+	_, err = io.Copy(buf, logs)
+	if err != nil {
+		log.Errorf("triggers(%s): failed to read logs for dry run pod(%v)", h.reqId, err)
+		return "", err
+	}
+
+	return buf.String(), nil
 }

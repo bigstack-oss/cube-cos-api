@@ -382,6 +382,7 @@ func genSamlMapper() gocloak.ProtocolMapperRepresentation {
 
 func newTriggerDryRunFacility() error {
 	h := kubernetes.GetGlobalHelper()
+	h.SetNamespaceClient()
 	err := h.CreateNamespace(metav1.ObjectMeta{
 		Name: triggers.DryRunNamespace,
 	})
