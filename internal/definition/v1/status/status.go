@@ -27,6 +27,7 @@ const (
 	Created   = "created"
 	Updated   = "updated"
 	Deleted   = "deleted"
+	Failed    = "failed"
 	Ok        = "ok"
 	Up        = "up"
 	Ng        = "ng"
@@ -35,8 +36,8 @@ const (
 	Valid     = "valid"
 	Unlicense = "unlicense"
 	Expired   = "expired"
-
-	Error = "error"
+	Unknown   = "unknown"
+	Error     = "error"
 )
 
 type Health struct {

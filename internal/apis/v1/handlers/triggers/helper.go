@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/kubernetes"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
@@ -18,7 +19,8 @@ type helper struct {
 	reqId   string
 	handler string
 
-	http http.Helper
+	http       http.Helper
+	kubernetes kubernetes.Helper
 
 	trigger               triggers.ApiSchema
 	materials             *materials
@@ -32,11 +34,12 @@ type helper struct {
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{
-		c:       c,
-		reqId:   queries.GetReqId(c),
-		handler: handler,
-		http:    *http.GetGlobalHelper(),
-		rawBody: bodies.ParseReq(c),
+		c:          c,
+		reqId:      queries.GetReqId(c),
+		handler:    handler,
+		http:       *http.GetGlobalHelper(),
+		kubernetes: *kubernetes.GetGlobalHelper(),
+		rawBody:    bodies.ParseReq(c),
 	}
 
 	return h, h.parseParamsByHandler()
@@ -60,19 +63,20 @@ func (h *helper) listMaterials() (*materials, error) {
 }
 
 func (h *helper) verifyMaterialScript() (string, error) {
+	defer h.deleteDryRunArtifacts()
 	err := h.createConfigMapWithScript()
 	if err != nil {
 		log.Errorf("triggers(%s): failed to create configmap with script(%v)", h.reqId, err)
 		return "", err
 	}
 
-	err = h.createDryRunEnv()
+	err = h.dryRunScript()
 	if err != nil {
 		log.Errorf("triggers(%s): failed to create dry run job(%v)", h.reqId, err)
 		return "", err
 	}
 
-	result, err := h.checkDryRunResult()
+	result, err := h.waitDryRunResult()
 	if err != nil {
 		log.Errorf("triggers(%s): failed to check dry run result(%v)", h.reqId, err)
 		return "", err

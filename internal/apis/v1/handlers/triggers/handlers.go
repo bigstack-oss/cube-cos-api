@@ -109,7 +109,7 @@ func verifyMaterialScript(c *gin.Context) {
 
 	bodies.SetOk(
 		c,
-		"material script verified successfully",
+		"trigger script verified successfully",
 		result,
 	)
 }
