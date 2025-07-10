@@ -243,3 +243,12 @@ func (h *helper) hasFoundSlackInMaterial(slackUrl string) bool {
 
 	return false
 }
+
+func (h *helper) decodeScript(content string) (string, error) {
+	decoded, err := base64.StdEncoding.DecodeString(content)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode script(%v)", err)
+	}
+
+	return string(decoded), nil
+}

@@ -14,7 +14,7 @@ func (h *helper) parseParamsByHandler() error {
 	case "listTriggers":
 		return h.parseListParams()
 	case "verifyMaterialScript":
-		return h.parseMaterialVerifyParams()
+		return h.parseScriptVerifyParams()
 	case "createTrigger":
 		return h.parseCreateParams()
 	case "updateTrigger":
@@ -40,8 +40,22 @@ func (h *helper) parseListParams() error {
 	return nil
 }
 
-func (h *helper) parseMaterialVerifyParams() error {
-	err := h.c.ShouldBindJSON(&h.trigger)
+func (h *helper) parseScriptVerifyParams() error {
+	err := h.c.ShouldBindJSON(&h.verifyScript)
+	if err != nil {
+		return err
+	}
+
+	script, found := h.verifyScript["script"]
+	if !found {
+		return errors.New("script is required for verification")
+	}
+
+	if script == "" {
+		return errors.New("script cannot be empty")
+	}
+
+	h.verifyScript["script"], err = h.decodeScript(script)
 	if err != nil {
 		return err
 	}

@@ -22,6 +22,7 @@ type helper struct {
 
 	trigger               triggers.ApiSchema
 	materials             *materials
+	verifyScript          map[string]string
 	applyOpts             triggers.ApplyOptions
 	toggle                triggers.Toggle
 	rawBody               []byte
@@ -58,8 +59,26 @@ func (h *helper) listMaterials() (*materials, error) {
 	}, nil
 }
 
-func (h *helper) verifyMaterialScript() error {
-	return nil
+func (h *helper) verifyMaterialScript() (string, error) {
+	err := h.createConfigMapWithScript()
+	if err != nil {
+		log.Errorf("triggers(%s): failed to create configmap with script(%v)", h.reqId, err)
+		return "", err
+	}
+
+	err = h.createDryRunEnv()
+	if err != nil {
+		log.Errorf("triggers(%s): failed to create dry run job(%v)", h.reqId, err)
+		return "", err
+	}
+
+	result, err := h.checkDryRunResult()
+	if err != nil {
+		log.Errorf("triggers(%s): failed to check dry run result(%v)", h.reqId, err)
+		return "", err
+	}
+
+	return result, nil
 }
 
 func (h *helper) listTriggers() (*triggerPage, error) {

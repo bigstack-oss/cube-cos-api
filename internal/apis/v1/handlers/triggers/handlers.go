@@ -101,9 +101,8 @@ func verifyMaterialScript(c *gin.Context) {
 		return
 	}
 
-	err = h.verifyMaterialScript()
+	result, err := h.verifyMaterialScript()
 	if err != nil {
-		log.Errorf("triggers(%s): failed to verify material script(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
@@ -111,7 +110,7 @@ func verifyMaterialScript(c *gin.Context) {
 	bodies.SetOk(
 		c,
 		"material script verified successfully",
-		nil,
+		result,
 	)
 }
 

@@ -6,6 +6,8 @@ import (
 
 const (
 	Module = "triggers"
+
+	DryRunNamespace = "triggers-scripts-dry-run"
 )
 
 var (

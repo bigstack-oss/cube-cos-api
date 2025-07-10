@@ -9,6 +9,7 @@ import (
 	bshttp "github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/kubernetes"
 	bslog "github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
@@ -18,8 +19,11 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	"github.com/gophercloud/gophercloud/v2"
 	log "go-micro.dev/v5/logger"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func initDependencies() error {
@@ -29,6 +33,11 @@ func initDependencies() error {
 	}
 
 	err = newAuthIdentities()
+	if err != nil {
+		return err
+	}
+
+	err = newDryRunFacility()
 	if err != nil {
 		return err
 	}
@@ -71,6 +80,11 @@ func newGlobalHelpers() error {
 	if err != nil {
 		log.Errorf("runtime: failed to init openstack helper(%v)", err)
 		return err
+	}
+
+	err = newGlobalKubernetesHelper()
+	if err != nil {
+		log.Errorf("runtime: failed to init kubernetes helper(%v)", err)
 	}
 
 	err = newGlobalKeycloakHelper()
@@ -133,6 +147,16 @@ func newAuthIdentities() error {
 	return nil
 }
 
+func newDryRunFacility() error {
+	err := newTriggerDryRunFacility()
+	if err != nil {
+		log.Errorf("runtime: failed to create dry run facility(%v)", err)
+		return err
+	}
+
+	return nil
+}
+
 func newGlobalLogHelper() error {
 	opts := conf.Opts.Spec.Observability.Log
 	return bslog.NewGlobalHelper(
@@ -182,6 +206,13 @@ func newGlobalOpenstackHelper() error {
 		openstack.ProjectDomainName(opts.Auth.Project.Domain.Name),
 		openstack.Username(opts.Auth.Username),
 		openstack.Password(opts.Auth.Password),
+	)
+}
+
+func newGlobalKubernetesHelper() error {
+	return kubernetes.NewGlobalHelper(
+		kubernetes.AuthType(kubernetes.OutOfClusterAuth),
+		kubernetes.AuthFile(conf.Opts.Spec.ResourceControl.K3s.Auth),
 	)
 }
 
@@ -347,4 +378,23 @@ func genSamlMapper() gocloak.ProtocolMapperRepresentation {
 			"attribute.nameformat": "Basic",
 		},
 	}
+}
+
+func newTriggerDryRunFacility() error {
+	h := kubernetes.GetGlobalHelper()
+	err := h.CreateNamespace(metav1.ObjectMeta{
+		Name: triggers.DryRunNamespace,
+	})
+	if err == nil {
+		return nil
+	}
+
+	if errors.IsAlreadyExists(err) {
+		return nil
+	}
+
+	return fmt.Errorf(
+		"failed to create trigger script dry run namespace(%v)",
+		err,
+	)
 }
