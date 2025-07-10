@@ -10059,6 +10059,10 @@ const docTemplate = `{
                                         },
                                         "description": "example-update-description",
                                         "response": {
+                                            "script": {
+                                                "filePath": "/tmp/example-update.sh",
+                                                "content": "IyEvYmluL2Jhc2gKCmN1cmwgaHR0cDovL2V4YW1wbGUuY29tICR7IHN0YXR1cyA9ICd1cGRhdGVkJzsgfQ=="
+                                            },
                                             "slacks": [
                                                 "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>"
                                             ],
@@ -16586,10 +16590,27 @@ const docTemplate = `{
                             "script": {
                                 "type": "object",
                                 "required": [
+                                    "script",
                                     "filePath",
                                     "content"
                                 ],
                                 "properties": {
+                                    "script": {
+                                        "type": "object",
+                                        "required": [
+                                            "filePath",
+                                            "content"
+                                        ],
+                                        "properties": {
+                                            "filePath": {
+                                                "type": "string"
+                                            },
+                                            "content": {
+                                                "type": "string",
+                                                "description": "Base64 encoded script content"
+                                            }
+                                        }
+                                    },
                                     "filePath": {
                                         "type": "string"
                                     },
