@@ -48,6 +48,12 @@ var (
 			Path:    "/nodes/:nodeName/ipmi/disconnect",
 			Func:    disconnectNodeIpmi,
 		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/nodes/:nodeName/devices",
+			Func:    listNodeDevices,
+		},
 	}
 )
 
@@ -219,5 +225,26 @@ func disconnectNodeIpmi(c *gin.Context) {
 		c,
 		"the ipmi is successfully disconnected",
 		nil,
+	)
+}
+
+func listNodeDevices(c *gin.Context) {
+	h, err := initHelper(c, "listNodeDevices")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	devices, err := h.listNodeDevices()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"fetch node devices successfully",
+		devices,
 	)
 }

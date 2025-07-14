@@ -32,6 +32,8 @@ const (
 	Up        = "up"
 	Ng        = "ng"
 	Down      = "down"
+	InUse     = "in-use"
+	System    = "system"
 
 	Valid     = "valid"
 	Unlicense = "unlicense"
@@ -95,8 +97,14 @@ type Settings struct {
 }
 
 type BlockDevice struct {
-	Current     string `json:"current,omitempty" bson:"current"`
-	Description string `json:"description,omitempty" bson:"description"`
+	Current      string `json:"current,omitempty" bson:"current"`
+	IsPromotable bool   `json:"isPromoted" bson:"isPromoted"`
+	IsDemotable  bool   `json:"isDemoted" bson:"isDemoted"`
+	Description  string `json:"description,omitempty" bson:"description"`
+}
+
+type Osd struct {
+	Current string `json:"current,omitempty" bson:"current"`
 }
 
 func NewHealthOk() *Health {

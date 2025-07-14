@@ -17,6 +17,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseSetOrVerifyOptions()
 	case "ipmiOperateNode":
 		return h.parseIpmiOperateOptions()
+	case "listNodeDevices":
+		return h.parseListDevicesOptions()
 	default:
 		return fmt.Errorf(
 			"unknown node handler: %s",
@@ -93,4 +95,13 @@ func (h *helper) getIpmiOperation() (string, error) {
 	default:
 		return "", fmt.Errorf("unknown ipmi operation: %s", h.operation)
 	}
+}
+
+func (h *helper) parseListDevicesOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("node name should be provided")
+	}
+
+	return nil
 }

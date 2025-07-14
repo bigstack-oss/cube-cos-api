@@ -130,7 +130,6 @@ func (o *Operator) syncNodesUpAndDown() ([]nodes.Node, error) {
 
 func (o *Operator) setNodeDownOrSyncing(node *nodes.Node) {
 	node.DataCenter = base.DataCenterName
-	node.BlockDevices = []nodes.BlockDevice{}
 	node.NetworkInterfaces = []nodes.NetworkInterface{}
 	node.License = o.getPreviousLicense(node.Hostname)
 
@@ -180,7 +179,6 @@ func (o *Operator) syncDetails(nodes *[]nodes.Node) {
 			(*nodes)[i].Storage = n.Storage
 			(*nodes)[i].CpuSpec = n.CpuSpec
 			(*nodes)[i].NetworkInterfaces = n.NetworkInterfaces
-			(*nodes)[i].BlockDevices = n.BlockDevices
 			(*nodes)[i].IpmiEnablement = n.IpmiEnablement
 			(*nodes)[i].License = n.License
 			(*nodes)[i].Status = n.Status
@@ -304,7 +302,6 @@ func (o *Operator) setComputeStatus(node *nodes.Node) {
 func (o *Operator) setHardwareSpec(node *nodes.Node) {
 	o.setCpuSpec(node)
 	o.setNetworkSpec(node)
-	o.setStorageSpec(node)
 }
 
 func (o *Operator) setCpuSpec(node *nodes.Node) {
@@ -328,52 +325,6 @@ func (o *Operator) setNetworkSpec(n *nodes.Node) {
 			n.NetworkInterfaces,
 			nodes.NetworkInterface(net),
 		)
-	}
-}
-
-func (o *Operator) setStorageSpec(n *nodes.Node) {
-	raws, err := cubecos.GetRawBlockDevices()
-	if err != nil {
-		return
-	}
-
-	n.BlockDevices = []nodes.BlockDevice{}
-	partitionMounts := map[string][]string{}
-	for _, raw := range raws {
-		if raw.IsPartition() {
-			o.setPartitionMounts(raw, partitionMounts)
-			continue
-		}
-
-		n.BlockDevices = append(
-			n.BlockDevices,
-			cubecos.ConvertToBlockDevice(raw),
-		)
-	}
-
-	o.setBlockDevicesAvailability(n, partitionMounts)
-	o.setBlockDevicesStatus(n)
-}
-
-func (o *Operator) setPartitionMounts(partition nodes.RawBlockDevice, mounts map[string][]string) {
-	if partition.NoMountPoints() {
-		return
-	}
-
-	mounts[partition.Name] = partition.MountPoints
-}
-
-func (o *Operator) setBlockDevicesAvailability(node *nodes.Node, partitions map[string][]string) {
-	partitionStatuses := genPartitionAvailability(partitions)
-	mainBlockDevStatus := genMainBlockDevStatus(partitionStatuses)
-	for i, blockDev := range node.BlockDevices {
-		node.BlockDevices[i].Availability = mainBlockDevStatus[blockDev.Name]
-	}
-}
-
-func (o *Operator) setBlockDevicesStatus(node *nodes.Node) {
-	for i, blockDev := range node.BlockDevices {
-		node.BlockDevices[i].Status = getBlockDeviceStatus(blockDev)
 	}
 }
 
