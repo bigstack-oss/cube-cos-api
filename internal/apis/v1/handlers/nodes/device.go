@@ -9,6 +9,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
@@ -17,11 +18,15 @@ import (
 func (h *helper) listNodeDevices() ([]nodes.BlockDevice, error) {
 	rawDevs, err := cubecos.GetRawBlockDevices()
 	if err != nil {
-		log.Errorf("nodes: failed to get raw block devices(%v)", err)
 		return nil, err
 	}
 
 	blockDevs := h.convertToBlockDevices(rawDevs)
+	err = h.syncCephOsds(&blockDevs)
+	if err != nil {
+		return nil, err
+	}
+
 	return blockDevs, nil
 }
 
@@ -41,9 +46,47 @@ func (h *helper) convertToBlockDevices(rawDevs []nodes.RawBlockDevice) []nodes.B
 		)
 	}
 
-	h.setBlockDevicesAvailability(&blockDevs, mountsMap)
-	h.setBlockDevicesStatus(&blockDevs)
+	h.setBlockDeviceAvailability(&blockDevs, mountsMap)
+	h.setBlockDeviceStatus(&blockDevs)
 	return blockDevs
+}
+
+func (h *helper) syncCephOsds(blockDevs *[]nodes.BlockDevice) error {
+	cephDevs, err := ceph.GetDeviceMapByHost(h.node)
+	if err != nil {
+		log.Errorf("nodes: failed to list ceph devices by host %s(%v)", h.node, err)
+		return err
+	}
+
+	for i, blockDev := range *blockDevs {
+		cephDev, found := cephDevs[blockDev.Name]
+		if found {
+			(*blockDevs)[i].Class = cephDev.Class
+			(*blockDevs)[i].Osd = nodes.Osd{
+				Reweigth: cephDev.Reweight,
+				Daemons:  h.convertToOsds(cephDev.Osds),
+			}
+		}
+	}
+
+	return nil
+}
+
+func (h *helper) convertToOsds(list []ceph.Osd) []nodes.Deamon {
+	deamons := []nodes.Deamon{}
+
+	for _, osd := range list {
+		deamons = append(
+			deamons,
+			nodes.Deamon{
+				Id:           osd.Id,
+				UsagePercent: osd.UsagePercent,
+				Status:       status.Osd{Current: osd.Status},
+			},
+		)
+	}
+
+	return deamons
 }
 
 func (h *helper) setPartitionMounts(mountsMap map[string][]string, rawDev nodes.RawBlockDevice) {
@@ -52,7 +95,7 @@ func (h *helper) setPartitionMounts(mountsMap map[string][]string, rawDev nodes.
 	}
 }
 
-func (h *helper) setBlockDevicesAvailability(blockDevs *[]nodes.BlockDevice, mountsMap map[string][]string) {
+func (h *helper) setBlockDeviceAvailability(blockDevs *[]nodes.BlockDevice, mountsMap map[string][]string) {
 	partitionAvailability := h.genPartitionAvailability(mountsMap)
 	parentDevAvailability := h.genParentDevAvailability(partitionAvailability)
 	for i, blockDev := range *blockDevs {
@@ -60,7 +103,7 @@ func (h *helper) setBlockDevicesAvailability(blockDevs *[]nodes.BlockDevice, mou
 	}
 }
 
-func (h *helper) setBlockDevicesStatus(blockDevs *[]nodes.BlockDevice) {
+func (h *helper) setBlockDeviceStatus(blockDevs *[]nodes.BlockDevice) {
 	for i, blockDev := range *blockDevs {
 		(*blockDevs)[i].Status = h.getBlockDeviceStatus(blockDev)
 	}
