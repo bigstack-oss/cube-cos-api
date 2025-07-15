@@ -16,12 +16,12 @@ import (
 )
 
 func (h *helper) listNodeDevices() ([]nodes.BlockDevice, error) {
-	rawDevs, err := cubecos.GetRawBlockDevices()
+	raws, err := cubecos.GetRawBlockDevices()
 	if err != nil {
 		return nil, err
 	}
 
-	blockDevs := h.convertToBlockDevices(rawDevs)
+	blockDevs := h.convertToBlockDevices(raws)
 	err = h.syncCephOsds(&blockDevs)
 	if err != nil {
 		return nil, err
@@ -30,19 +30,19 @@ func (h *helper) listNodeDevices() ([]nodes.BlockDevice, error) {
 	return blockDevs, nil
 }
 
-func (h *helper) convertToBlockDevices(rawDevs []nodes.RawBlockDevice) []nodes.BlockDevice {
+func (h *helper) convertToBlockDevices(raws []nodes.RawBlockDevice) []nodes.BlockDevice {
 	blockDevs := []nodes.BlockDevice{}
 	mountsMap := map[string][]string{}
 
-	for _, rawDev := range rawDevs {
-		if rawDev.IsPartition() {
-			h.setPartitionMounts(mountsMap, rawDev)
+	for _, raw := range raws {
+		if raw.IsPartition() {
+			h.setPartitionMounts(mountsMap, raw)
 			continue
 		}
 
 		blockDevs = append(
 			blockDevs,
-			cubecos.ConvertToBlockDevice(rawDev),
+			cubecos.ConvertToBlockDevice(raw),
 		)
 	}
 

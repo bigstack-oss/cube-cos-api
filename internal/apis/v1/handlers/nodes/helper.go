@@ -31,6 +31,7 @@ type helper struct {
 	roles           []string
 	ipmi            nodes.Ipmi
 	operation       string
+	device          string
 
 	page  *pages.Page
 	watch bool
