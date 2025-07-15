@@ -42,30 +42,30 @@ func GetCephUsage() metric.Space {
 }
 
 func GetRawBlockDevices() ([]nodes.RawBlockDevice, error) {
-	b, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "TYPE,NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS", "-e", blockdevice.NetCode).Output()
+	out, err := exec.Command("/bin/lsblk", "--sort", "name", "--json", "-o", "TYPE,NAME,ROTA,SERIAL,SIZE,MOUNTPOINTS", "-e", blockdevice.NetCode).Output()
 	if err != nil {
 		log.Errorf("nodes: failed to get block device info(%v)", err)
 		return nil, err
 	}
 
-	blockDevMap := map[string][]nodes.RawBlockDevice{}
-	err = json.Unmarshal(b, &blockDevMap)
+	resp := map[string][]nodes.RawBlockDevice{}
+	err = json.Unmarshal(out, &resp)
 	if err != nil {
 		log.Errorf("nodes: failed to unmarshal block device info(%v)", err)
 		return nil, err
 	}
 
-	rawBlockDevs, found := blockDevMap["blockdevices"]
+	raws, found := resp["blockdevices"]
 	if !found {
 		log.Errorf("nodes: failed to find block devices in the output")
 		return nil, err
 	}
-	if len(rawBlockDevs) <= 0 {
+	if len(raws) <= 0 {
 		log.Errorf("nodes: no block device found")
 		return nil, errors.New("no block device found")
 	}
 
-	return getBlockOrPartitionOnly(rawBlockDevs), nil
+	return getBlockOrPartitionOnly(raws), nil
 }
 
 func ConvertToBlockDevice(rawBlockDev nodes.RawBlockDevice) nodes.BlockDevice {

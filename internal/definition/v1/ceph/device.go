@@ -23,11 +23,21 @@ type Osd struct {
 	DeviceClass  string  `json:"device_class"`
 	Reweight     float64 `json:"reweight,omitzero"`
 	UsagePercent float64 `json:"usagePercent"`
+	Pgs          int     `json:"pgs"`
 	Status       string  `json:"status"`
 }
 
 type RawOsd struct {
 	Nodes []Node `json:"nodes"`
+}
+
+type PlacementGroup struct {
+	PgStats []PgStat `json:"pg_stats"`
+}
+
+type PgStat struct {
+	Id    string `json:"pgid"`
+	State string `json:"state"`
 }
 
 type Node struct {
@@ -37,6 +47,7 @@ type Node struct {
 	Type        string  `json:"type"`
 	Reweight    float64 `json:"reweight"`
 	Utilization float64 `json:"utilization"`
+	Pgs         int     `json:"pgs"`
 	Status      string  `json:"status"`
 }
 
@@ -191,6 +202,7 @@ func convertToOsd(raw Node) Osd {
 		DeviceClass:  raw.DeviceClass,
 		Reweight:     raw.Reweight,
 		UsagePercent: math.RoundDown(raw.Utilization, 4),
+		Pgs:          raw.Pgs,
 		Status:       raw.Status,
 	}
 }

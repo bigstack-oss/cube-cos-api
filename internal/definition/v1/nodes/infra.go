@@ -31,6 +31,7 @@ type BlockDevice struct {
 }
 
 type Osd struct {
+	Pgs      int      `json:"pgs" yaml:"pgs" bson:"pgs"`
 	Reweigth float64  `json:"reweight" yaml:"reweight" bson:"reweight"`
 	Daemons  []Deamon `json:"daemons" yaml:"daemons" bson:"daemons"`
 }
@@ -39,6 +40,7 @@ type Deamon struct {
 	Id           string     `json:"id" yaml:"id" bson:"id"`
 	UsagePercent float64    `json:"usagePercent" yaml:"usagePercent" bson:"usagePercent"`
 	Status       status.Osd `json:"status" yaml:"status" bson:"status"`
+	Pgs          int        `json:"-" yaml:"pgs" bson:"pgs"`
 }
 
 // note:

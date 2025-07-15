@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"slices"
+	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
@@ -63,6 +64,7 @@ func (h *helper) syncCephOsds(blockDevs *[]nodes.BlockDevice) error {
 		if found {
 			(*blockDevs)[i].Class = cephDev.Class
 			(*blockDevs)[i].Osd = nodes.Osd{
+				Pgs:      h.getTotalPgs(cephDev.Osds),
 				Reweigth: cephDev.Reweight,
 				Daemons:  h.convertToOsds(cephDev.Osds),
 			}
@@ -70,6 +72,15 @@ func (h *helper) syncCephOsds(blockDevs *[]nodes.BlockDevice) error {
 	}
 
 	return nil
+}
+
+func (h *helper) getTotalPgs(osds []ceph.Osd) int {
+	total := 0
+	for _, osd := range osds {
+		total += osd.Pgs
+	}
+
+	return total
 }
 
 func (h *helper) convertToOsds(list []ceph.Osd) []nodes.Deamon {
@@ -104,9 +115,31 @@ func (h *helper) setBlockDeviceAvailability(blockDevs *[]nodes.BlockDevice, moun
 }
 
 func (h *helper) setBlockDeviceStatus(blockDevs *[]nodes.BlockDevice) {
+	statusMap := h.syncBlockDeviceStatus(blockDevs)
+
 	for i, blockDev := range *blockDevs {
-		(*blockDevs)[i].Status = h.getBlockDeviceStatus(blockDev)
+		s, found := statusMap.Load(blockDev.Name)
+		if found {
+			(*blockDevs)[i].Status = s.(status.BlockDevice)
+		}
 	}
+}
+
+func (h *helper) syncBlockDeviceStatus(blockDevs *[]nodes.BlockDevice) *sync.Map {
+	wg := sync.WaitGroup{}
+	statusMap := sync.Map{}
+
+	for _, blockDev := range *blockDevs {
+		wg.Add(1)
+		go func(blockDev nodes.BlockDevice) {
+			defer wg.Done()
+			status := h.getBlockDeviceStatus(blockDev)
+			statusMap.Store(blockDev.Name, status)
+		}(blockDev)
+	}
+
+	wg.Wait()
+	return &statusMap
 }
 
 func (h *helper) getBlockDeviceStatus(blockDev nodes.BlockDevice) status.BlockDevice {
