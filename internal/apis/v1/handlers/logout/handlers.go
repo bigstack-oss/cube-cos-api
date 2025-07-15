@@ -1,6 +1,7 @@
 package logout
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
@@ -34,8 +35,8 @@ func logout(c *gin.Context) {
 		return
 	}
 
-	bodies.SetRedirect(
+	bodies.SetUnauthorized(
 		c,
-		genRedirectUrl(),
+		errors.New(genRedirectUrl()),
 	)
 }
