@@ -19,6 +19,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseIpmiOperateOptions()
 	case "listNodeDevices":
 		return h.parseListDevicesOptions()
+	case "createNodeDevice":
+		return h.parseCreateDeviceOptions()
 	default:
 		return fmt.Errorf(
 			"unknown node handler: %s",
@@ -101,6 +103,23 @@ func (h *helper) parseListDevicesOptions() error {
 	h.node = h.c.Param("nodeName")
 	if h.node == "" {
 		return fmt.Errorf("node name should be provided")
+	}
+
+	return nil
+}
+
+func (h *helper) parseCreateDeviceOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("node name should be provided")
+	}
+
+	err := h.c.ShouldBindJSON(&h.deviceReqOpts)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to parse create device options(%v)",
+			err,
+		)
 	}
 
 	return nil

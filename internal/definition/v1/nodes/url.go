@@ -141,6 +141,30 @@ func (n *Node) PatchSettingTaskUrl(setting settings.Setting) string {
 	return u.String()
 }
 
+func (n *Node) CreateDeviceUrl() string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/devices", base.DataCenterName, n.Hostname)
+	return u.String()
+}
+
+func (n *Node) PatchDeviceTaskUrl() string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/devices/tasks", base.DataCenterName, n.Hostname)
+	return u.String()
+}
+
+func (n *Node) PatchOsdTaskUrl() string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/osds/tasks", base.DataCenterName, n.Hostname)
+	return u.String()
+}
+
 func (n *Node) DeleteRepairingTaskUrl() string {
 	u := url.URL{}
 	u.Scheme = n.Protocol

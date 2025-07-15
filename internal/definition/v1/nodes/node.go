@@ -20,8 +20,11 @@ const (
 	Db                             = "nodes"
 	ReqCollection                  = "requests"
 	CollectionTemporaryNodeDetails = "temporaryNodeDetails"
-	CollectionIpmiAccess           = "ipmiAccess"
-	CollectionIpmiSupport          = "ipmiSupport"
+
+	CollectionIpmiAccess  = "ipmiAccess"
+	CollectionIpmiSupport = "ipmiSupport"
+
+	ReqDeviceCollection = "deviceRequests"
 )
 
 var (

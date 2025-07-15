@@ -54,6 +54,12 @@ var (
 			Path:    "/nodes/:nodeName/devices",
 			Func:    listNodeDevices,
 		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/nodes/:nodeName/devices/:device",
+			Func:    createNodeDevice,
+		},
 	}
 )
 
@@ -246,5 +252,30 @@ func listNodeDevices(c *gin.Context) {
 		c,
 		"fetch node devices successfully",
 		devices,
+	)
+}
+
+func createNodeDevice(c *gin.Context) {
+	h, err := initHelper(c, "createNodeDevice")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.validateCreationReq()
+	if err != nil {
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.delegateDeviceReq()
+	if err != nil {
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"the request of creating node device is accepted and under processing",
 	)
 }

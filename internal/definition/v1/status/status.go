@@ -11,20 +11,25 @@ const (
 	Reset  = "reset"
 
 	Creating             = "creating"
+	Adding               = "adding"
 	Pending              = "pending"
 	Updating             = "updating"
 	Repairing            = "repairing"
 	Syncing              = "syncing"
 	CheckingAndRepairing = "checkingAndRepairing"
 	Deleting             = "deleting"
+	Removing             = "removing"
 	Expairing            = "expairing"
 	Fixing               = "fixing"
 	PoweringOn           = "powering on"
 	PoweringOff          = "powering off"
 	PoweringCycle        = "powering cycle"
+	Restarted            = "restarted"
 
 	Completed = "completed"
 	Created   = "created"
+	Added     = "added"
+	Removed   = "removed"
 	Updated   = "updated"
 	Deleted   = "deleted"
 	Failed    = "failed"
@@ -98,13 +103,19 @@ type Settings struct {
 
 type BlockDevice struct {
 	Current      string `json:"current,omitempty" bson:"current"`
-	IsPromotable bool   `json:"isPromoted" bson:"isPromoted"`
-	IsDemotable  bool   `json:"isDemoted" bson:"isDemoted"`
+	Desired      string `json:"-" bson:"desired"`
+	IsPromotable bool   `json:"isPromotable" bson:"isPromotable"`
+	IsDemotable  bool   `json:"isDemotable" bson:"isDemotable"`
+	IsAdding     bool   `json:"isAdding" bson:"isAdding"`
+	IsRemoving   bool   `json:"isRemoving" bson:"isRemoving"`
 	Description  string `json:"description,omitempty" bson:"description"`
 }
 
 type Osd struct {
-	Current string `json:"current,omitempty" bson:"current"`
+	Current      string `json:"current,omitempty" bson:"current"`
+	Desired      string `json:"-" bson:"desired"`
+	IsRestarting bool   `json:"isAdding" bson:"isAdding"`
+	IsRemoving   bool   `json:"isRemoving" bson:"isRemoving"`
 }
 
 func NewHealthOk() *Health {

@@ -24,19 +24,3 @@ func (h *helper) parseTrigger() error {
 	h.trigger.Name = name
 	return nil
 }
-
-func (h *helper) setResponseTypes() {
-	if h.trigger.HasEmailRecipients() {
-		h.trigger.Response.Types = append(
-			h.trigger.Response.Types,
-			"email",
-		)
-	}
-
-	if h.trigger.HasSlackChannels() {
-		h.trigger.Response.Types = append(
-			h.trigger.Response.Types,
-			"slack",
-		)
-	}
-}

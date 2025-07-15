@@ -32,6 +32,7 @@ type helper struct {
 	ipmi            nodes.Ipmi
 	operation       string
 	device          string
+	deviceReqOpts   nodes.DeviceReqOpts
 
 	page  *pages.Page
 	watch bool
@@ -136,7 +137,7 @@ func (h *helper) setNodeIpmi() error {
 		nodes.Db,
 		nodes.CollectionIpmiAccess,
 		bson.M{"host": h.node},
-		h.genUpsertPayload(),
+		h.genIpmiUpsertPayload(),
 		options.Update().SetUpsert(true),
 	)
 }

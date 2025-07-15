@@ -1,12 +1,9 @@
 package node
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -16,7 +13,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/datacenter"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
@@ -382,90 +378,6 @@ func (o *Operator) setUptime(node *nodes.Node) {
 	}
 
 	node.UptimeSeconds = uptimeSeconds
-}
-
-func parentDeviceSysfs(device string) (string, error) {
-	link := "/sys/class/block/" + device
-	target, err := filepath.EvalSymlinks(link)
-	if err != nil {
-		log.Errorf("nodes: failed to get parent device for %s: %v", device, err)
-		return "", err
-	}
-
-	return filepath.Base(filepath.Dir(target)), nil
-}
-
-func getBlockDeviceStatus(blockDev nodes.BlockDevice) status.BlockDevice {
-	out, err := exec.Command("hex_sdk", "-f", "json", "ceph_osd_list", fmt.Sprintf("/dev/%s", blockDev.Name)).CombinedOutput()
-	if err != nil {
-		log.Errorf("nodes: failed to get block device(%s) status: %v", blockDev.Name, err)
-		return status.BlockDevice{Current: "failed"}
-	}
-
-	smartCtl := []blockdevice.SmartCtl{}
-	err = json.Unmarshal(out, &smartCtl)
-	if err != nil {
-		log.Errorf("nodes: failed to unmarshal block device(%s) status: %v", blockDev.Name, err)
-		return status.BlockDevice{Current: "failed"}
-	}
-
-	return convergeBlockStatuses(smartCtl)
-}
-
-func convergeBlockStatuses(statuses []blockdevice.SmartCtl) status.BlockDevice {
-	status := status.BlockDevice{Current: "ok"}
-
-	for _, s := range statuses {
-		if s.State != "ok" {
-			status.Current = s.State
-			status.Description = s.Remark
-			return status
-		}
-	}
-
-	return status
-}
-
-func genPartitionAvailability(partitions map[string][]string) map[string]string {
-	partitionStatuses := map[string]string{}
-
-	for partition, mountPoints := range partitions {
-		if len(mountPoints) == 0 {
-			continue
-		}
-
-		partitionStatuses[partition] = "in-use"
-		if slices.Contains(mountPoints, "/") {
-			partitionStatuses[partition] = "system"
-		}
-	}
-
-	return partitionStatuses
-}
-
-func genMainBlockDevStatus(partitionStatuses map[string]string) map[string]string {
-	mainBlockDevStatus := map[string]string{}
-	for partition, status := range partitionStatuses {
-		parent, err := parentDeviceSysfs(partition)
-		if err != nil {
-			log.Errorf("nodes: failed to get parent device(%v)", err)
-			continue
-		}
-
-		val, found := mainBlockDevStatus[parent]
-		if !found {
-			mainBlockDevStatus[parent] = status
-			continue
-		}
-
-		if val == "system" {
-			continue
-		}
-
-		mainBlockDevStatus[parent] = status
-	}
-
-	return mainBlockDevStatus
 }
 
 func genDiscoveryMsg(event *registry.Result) string {

@@ -106,7 +106,7 @@ func getFinalStatus(operation string) string {
 	}
 }
 
-func (h *helper) genUpsertPayload() bson.M {
+func (h *helper) genIpmiUpsertPayload() bson.M {
 	return bson.M{
 		"$set": bson.M{
 			"host":     h.node,
@@ -148,4 +148,22 @@ func (h *helper) saveTemporaryNodeDetails() error {
 		bson.M{"$set": node},
 		options.Update().SetUpsert(true),
 	)
+}
+
+func (h *helper) upsertDeviceReqRecord() {
+	err := mongo.GetGlobalHelper().UpdateOne(
+		nodes.Db,
+		nodes.ReqDeviceCollection,
+		bson.M{"hostname": h.node},
+		bson.M{"$set": h.deviceReqOpts},
+		options.Update().SetUpsert(true),
+	)
+	if err != nil {
+		log.Errorf(
+			"nodes(%s): failed to add device request record for %s(%v)",
+			h.reqId,
+			h.node,
+			err,
+		)
+	}
 }

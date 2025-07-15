@@ -1,7 +1,6 @@
 package cubecos
 
 import (
-	"os"
 	"os/exec"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
@@ -11,7 +10,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
-	"gopkg.in/yaml.v3"
 )
 
 func IsAlertSetting(file string) bool {
@@ -271,22 +269,6 @@ func DeleteSlackChannel(url string) error {
 	}
 
 	return nil
-}
-
-func WriteFakePolicyFile(policy *settings.Cos) {
-	policyFile, err := os.Create(settings.PolicyV1)
-	if err != nil {
-		log.Errorf("settings: failed to create fake policy file: %s", err)
-		return
-	}
-
-	defer policyFile.Close()
-	yamlEncoder := yaml.NewEncoder(policyFile)
-	yamlEncoder.SetIndent(2)
-	err = yamlEncoder.Encode(policy)
-	if err != nil {
-		log.Errorf("settings: failed to encode fake policy to yaml: %s", err)
-	}
 }
 
 func IsSettingDeleted(setting settings.Setting) bool {
