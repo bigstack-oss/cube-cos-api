@@ -318,6 +318,7 @@ func addNodeDevice(c *gin.Context) {
 
 	err = h.delegateDeviceReq()
 	if err != nil {
+		bodies.SetInternalServerError(c, err)
 		return
 	}
 
@@ -343,6 +344,7 @@ func removeNodeDevice(c *gin.Context) {
 
 	err = h.delegateDeviceReq()
 	if err != nil {
+		bodies.SetInternalServerError(c, err)
 		return
 	}
 
@@ -368,6 +370,7 @@ func updateNodeDevice(c *gin.Context) {
 
 	err = h.delegateDeviceReq()
 	if err != nil {
+		bodies.SetInternalServerError(c, err)
 		return
 	}
 
@@ -393,6 +396,7 @@ func restartNodeOsd(c *gin.Context) {
 
 	err = h.delegateOsdReq()
 	if err != nil {
+		bodies.SetInternalServerError(c, err)
 		return
 	}
 
@@ -407,6 +411,18 @@ func removeNodeOsd(c *gin.Context) {
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.validateOsdReq()
+	if err != nil {
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.delegateOsdReq()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
 		return
 	}
 
@@ -432,6 +448,7 @@ func patchNodeOsd(c *gin.Context) {
 
 	err = h.delegateOsdReq()
 	if err != nil {
+		bodies.SetInternalServerError(c, err)
 		return
 	}
 

@@ -231,6 +231,16 @@ func (h *helper) parseRemoveOsdOptions() error {
 		return fmt.Errorf("osd id should be provided")
 	}
 
+	device, err := ceph.GetDeviceByOsdId(h.node, h.osdId)
+	if err != nil {
+		return fmt.Errorf("failed to get device by osd id(%s): %v", h.osdId, err)
+	}
+
+	h.osdReqOpts = nodes.OsdReqOpts{}
+	h.osdReqOpts.Device = fmt.Sprintf("/dev/%s", device.Dev)
+	h.osdReqOpts.Hostname = h.node
+	h.osdReqOpts.Id = h.osdId
+	h.osdReqOpts.SetRemoving()
 	return nil
 }
 
