@@ -5941,7 +5941,7 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/nodeName"
                     },
                     {
-                        "$ref": "#/components/parameters/device"
+                        "$ref": "#/components/parameters/deviceName"
                     }
                 ],
                 "responses": {
@@ -12323,14 +12323,14 @@ const docTemplate = `{
                 },
                 "example": "example-node-0"
             },
-            "device": {
+            "deviceName": {
                 "in": "path",
-                "name": "device",
+                "name": "deviceName",
                 "required": true,
                 "schema": {
                     "type": "string"
                 },
-                "description": "The device to remove from the node",
+                "description": "The device name to remove from the node",
                 "example": "sdb"
             },
             "osdId": {

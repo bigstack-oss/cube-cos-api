@@ -160,8 +160,14 @@ func (h *helper) setPartitionMounts(mountsMap map[string][]string, rawDev nodes.
 func (h *helper) setBlockDeviceAvailability(blockDevs *[]nodes.BlockDevice, mountsMap map[string][]string) {
 	partitionAvailability := h.genPartitionAvailability(mountsMap)
 	parentDevAvailability := h.genParentDevAvailability(partitionAvailability)
+
 	for i, blockDev := range *blockDevs {
-		(*blockDevs)[i].Availability = parentDevAvailability[blockDev.Name]
+		availability, found := parentDevAvailability[blockDev.Name]
+		if found {
+			(*blockDevs)[i].Availability = availability
+		} else {
+			(*blockDevs)[i].Availability = status.Available
+		}
 	}
 }
 

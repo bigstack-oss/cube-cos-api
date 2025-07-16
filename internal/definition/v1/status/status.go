@@ -37,6 +37,7 @@ const (
 	Up        = "up"
 	Ng        = "ng"
 	Down      = "down"
+	Available = "available"
 	InUse     = "in-use"
 	System    = "system"
 
