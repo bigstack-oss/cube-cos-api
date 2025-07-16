@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 )
 
@@ -103,6 +104,12 @@ func (h *helper) parseListDevicesOptions() error {
 	h.node = h.c.Param("nodeName")
 	if h.node == "" {
 		return fmt.Errorf("node name should be provided")
+	}
+
+	var err error
+	h.watch, err = queries.GetWatch(h.c)
+	if err != nil {
+		return err
 	}
 
 	return nil

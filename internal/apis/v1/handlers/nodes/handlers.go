@@ -83,7 +83,7 @@ func listNodes(c *gin.Context) {
 	}
 
 	if h.watch {
-		watchNode(h, *resp)
+		streamData(h, *resp)
 		return
 	}
 
@@ -110,7 +110,7 @@ func getNode(c *gin.Context) {
 	}
 
 	if h.watch {
-		watchNode(h, *node)
+		streamData(h, *node)
 		return
 	}
 
@@ -245,6 +245,11 @@ func listNodeDevices(c *gin.Context) {
 	devices, err := h.listNodeDevices()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	if h.watch {
+		streamData(h, devices)
 		return
 	}
 

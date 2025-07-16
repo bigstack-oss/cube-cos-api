@@ -106,16 +106,14 @@ type BlockDevice struct {
 	Desired      string `json:"-" bson:"desired"`
 	IsPromotable bool   `json:"isPromotable" bson:"isPromotable"`
 	IsDemotable  bool   `json:"isDemotable" bson:"isDemotable"`
-	IsAdding     bool   `json:"isAdding" bson:"isAdding"`
-	IsRemoving   bool   `json:"isRemoving" bson:"isRemoving"`
+	IsProcessing bool   `json:"isProcessing" bson:"isProcessing"`
 	Description  string `json:"description,omitempty" bson:"description"`
 }
 
 type Osd struct {
 	Current      string `json:"current,omitempty" bson:"current"`
 	Desired      string `json:"-" bson:"desired"`
-	IsRestarting bool   `json:"isAdding" bson:"isAdding"`
-	IsRemoving   bool   `json:"isRemoving" bson:"isRemoving"`
+	IsProcessing bool   `json:"isProcessing" bson:"isProcessing"`
 }
 
 func NewHealthOk() *Health {

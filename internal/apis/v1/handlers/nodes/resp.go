@@ -9,3 +9,10 @@ type nodePage struct {
 	Nodes      []nodes.Node `json:"nodes"`
 	pages.Page `json:"page"`
 }
+
+type devicesResp struct {
+	Code   int                 `json:"code"`
+	Status string              `json:"status"`
+	Msg    string              `json:"msg"`
+	Data   []nodes.BlockDevice `json:"data"`
+}

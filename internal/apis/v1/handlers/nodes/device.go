@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"slices"
+	"strings"
 	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
@@ -16,22 +17,71 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
+var (
+	lastDeviceList = sync.Map{}
+)
+
 func (h *helper) listNodeDevices() ([]nodes.BlockDevice, error) {
+	var err error
+	blockDevs := []nodes.BlockDevice{}
+
+	if nodes.IsLocal(h.node) {
+		blockDevs, err = h.listLocalDevices()
+	} else {
+		blockDevs, err = h.listRemoteDevices()
+	}
+	if err != nil {
+		log.Errorf("nodes: failed to list local devices for node %s(%v)", h.node, err)
+		return nil, err
+	}
+
+	h.syncCachedBlockDevices(blockDevs)
+	return blockDevs, nil
+}
+
+func (h *helper) listRemoteDevices() ([]nodes.BlockDevice, error) {
+	node, err := nodes.Get(h.node)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get node(%s)(%v)", h.reqId, h.node, err)
+		return nil, err
+	}
+
+	resp, err := h.http.R().
+		SetResult(&devicesResp{}).
+		SetHeaders(nodes.GetSecretHeaders()).
+		Get(node.ListDevicesUrl())
+	if err != nil {
+		log.Errorf("nodes(%s): failed to list devices for node %s(%v)", h.reqId, h.node, err)
+		return nil, err
+	}
+
+	if resp.IsError() {
+		err := fmt.Errorf("failed to list devices for node %s(%s)", h.node, string(resp.Body()))
+		log.Errorf("nodes(%s): %v", h.reqId, err)
+		return nil, err
+	}
+
+	devResp := resp.Result().(*devicesResp)
+	return devResp.Data, nil
+}
+
+func (h *helper) listLocalDevices() ([]nodes.BlockDevice, error) {
 	raws, err := cubecos.GetRawBlockDevices()
 	if err != nil {
 		return nil, err
 	}
 
-	blockDevs := h.convertToBlockDevices(raws)
+	blockDevs := h.rawsToBlockDevices(raws)
 	err = h.syncCephOsds(&blockDevs)
 	if err != nil {
 		return nil, err
 	}
 
+	h.syncUpdatingBlockDevices(&blockDevs)
 	return blockDevs, nil
 }
 
-func (h *helper) convertToBlockDevices(raws []nodes.RawBlockDevice) []nodes.BlockDevice {
+func (h *helper) rawsToBlockDevices(raws []nodes.RawBlockDevice) []nodes.BlockDevice {
 	blockDevs := []nodes.BlockDevice{}
 	mountsMap := map[string][]string{}
 
@@ -43,12 +93,13 @@ func (h *helper) convertToBlockDevices(raws []nodes.RawBlockDevice) []nodes.Bloc
 
 		blockDevs = append(
 			blockDevs,
-			cubecos.ConvertToBlockDevice(raw),
+			cubecos.RawToBlockDevice(raw),
 		)
 	}
 
 	h.setBlockDeviceAvailability(&blockDevs, mountsMap)
 	h.setBlockDeviceStatus(&blockDevs)
+	h.setBlockPromotionDetails(&blockDevs)
 	return blockDevs
 }
 
@@ -121,6 +172,18 @@ func (h *helper) setBlockDeviceStatus(blockDevs *[]nodes.BlockDevice) {
 		s, found := statusMap.Load(blockDev.Name)
 		if found {
 			(*blockDevs)[i].Status = s.(status.BlockDevice)
+		}
+	}
+}
+
+func (h *helper) setBlockPromotionDetails(blockDevs *[]nodes.BlockDevice) {
+	for i, blockDev := range *blockDevs {
+		if strings.EqualFold(blockDev.Class, "ssd") {
+			(*blockDevs)[i].Status.IsPromotable = false
+			(*blockDevs)[i].Status.IsDemotable = true
+		} else {
+			(*blockDevs)[i].Status.IsPromotable = true
+			(*blockDevs)[i].Status.IsDemotable = false
 		}
 	}
 }

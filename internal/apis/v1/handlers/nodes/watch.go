@@ -27,42 +27,7 @@ var (
 	}{}
 )
 
-func streamingWatcher() {
-	for {
-		wait.Seconds(2)
-		if len(stream.Watchers) == 0 {
-			continue
-		}
-
-		stream.Lock()
-		for _, w := range stream.Watchers {
-			resp, err := streamNodeByHandler(&w.helper)
-			if err != nil {
-				continue
-			}
-
-			select {
-			case w.dataChan <- resp:
-			default:
-			}
-		}
-
-		stream.Unlock()
-	}
-}
-
-func streamNodeByHandler(h *helper) (any, error) {
-	switch h.handler {
-	case "listNodes":
-		return h.listNodes()
-	case "getNode":
-		return h.getNode()
-	}
-
-	return nil, errors.New("no internal function supported")
-}
-
-func watchNode(h *helper, data any) {
+func streamData(h *helper, data any) {
 	setChunkedTransfer(h.c)
 	flusher, ok := h.c.Writer.(http.Flusher)
 	if !ok {
@@ -76,6 +41,43 @@ func watchNode(h *helper, data any) {
 
 	sendFirstData(h.c, flusher, data)
 	streamingData(h.c, flusher, watcher)
+}
+
+func streamingWatcher() {
+	for {
+		if len(stream.Watchers) == 0 {
+			wait.Seconds(2)
+			continue
+		}
+
+		stream.Lock()
+		for _, w := range stream.Watchers {
+			data, err := streamDataByHandler(&w.helper)
+			if err != nil {
+				continue
+			}
+
+			select {
+			case w.dataChan <- data:
+			default:
+			}
+		}
+
+		stream.Unlock()
+	}
+}
+
+func streamDataByHandler(h *helper) (any, error) {
+	switch h.handler {
+	case "listNodes":
+		return h.listNodes()
+	case "getNode":
+		return h.getNode()
+	case "listNodeDevices":
+		return h.listNodeDevices()
+	}
+
+	return nil, errors.New("no internal function supported")
 }
 
 func setChunkedTransfer(c *gin.Context) {
@@ -128,7 +130,7 @@ func streamingResp(data any) []byte {
 	b, err := json.Marshal(gin.H{
 		"code":   http.StatusOK,
 		"status": "ok",
-		"msg":    "fetch node successfully",
+		"msg":    "fetch streaming data successfully",
 		"data":   data,
 	})
 	if err != nil {

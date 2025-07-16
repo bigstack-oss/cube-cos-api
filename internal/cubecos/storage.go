@@ -68,7 +68,7 @@ func GetRawBlockDevices() ([]nodes.RawBlockDevice, error) {
 	return getBlockOrPartitionOnly(raws), nil
 }
 
-func ConvertToBlockDevice(rawBlockDev nodes.RawBlockDevice) nodes.BlockDevice {
+func RawToBlockDevice(rawBlockDev nodes.RawBlockDevice) nodes.BlockDevice {
 	return nodes.BlockDevice{
 		Serial:  rawBlockDev.Serial,
 		Name:    rawBlockDev.Name,

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ipmi"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/password"
@@ -20,6 +21,7 @@ import (
 
 type helper struct {
 	c       *gin.Context
+	http    *http.Helper
 	mongo   *mongo.Helper
 	reqId   string
 	handler string
@@ -41,6 +43,7 @@ type helper struct {
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{
 		c:       c,
+		http:    http.GetGlobalHelper(),
 		mongo:   mongo.GetGlobalHelper(),
 		reqId:   queries.GetReqId(c),
 		handler: handler,

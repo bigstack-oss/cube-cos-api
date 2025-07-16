@@ -12,9 +12,9 @@ func (h *helper) setDeviceCreateReq() nodes.DeviceReqOpts {
 		Device:   fmt.Sprintf("/dev/%s", h.device),
 		Hostname: h.node,
 		Status: status.BlockDevice{
-			Desired:  status.Added,
-			Current:  status.Adding,
-			IsAdding: true,
+			Desired:      status.Added,
+			Current:      status.Adding,
+			IsProcessing: true,
 		},
 	}
 }
@@ -23,8 +23,8 @@ func (h *helper) setRemoveReqOpts() {
 	h.deviceReqOpts.Device = fmt.Sprintf("/dev/%s", h.device)
 	h.deviceReqOpts.Hostname = h.node
 	h.deviceReqOpts.Status = status.BlockDevice{
-		Desired:    status.Removed,
-		Current:    status.Removing,
-		IsRemoving: true,
+		Desired:      status.Removed,
+		Current:      status.Removing,
+		IsProcessing: true,
 	}
 }

@@ -3,6 +3,7 @@ package runtime
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/aws"
@@ -253,7 +254,9 @@ func newGlobalKeycloakHelper() error {
 }
 
 func newGlobalHttpHelper() error {
-	return bshttp.NewGlobalHelper()
+	return bshttp.NewGlobalHelper(
+		bshttp.Timeout(180 * time.Second),
+	)
 }
 
 func newGlobalSamlHelper() error {

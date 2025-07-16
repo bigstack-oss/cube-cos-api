@@ -151,7 +151,7 @@ func (h *helper) saveTemporaryNodeDetails() error {
 }
 
 func (h *helper) upsertDeviceReqRecord() {
-	err := mongo.GetGlobalHelper().UpdateOne(
+	err := h.mongo.UpdateOne(
 		nodes.Db,
 		nodes.ReqDeviceCollection,
 		bson.M{"hostname": h.node},
@@ -166,4 +166,31 @@ func (h *helper) upsertDeviceReqRecord() {
 			err,
 		)
 	}
+}
+
+func (h *helper) syncUpdatingBlockDevices(blockDevs *[]nodes.BlockDevice) {
+	for i, dev := range *blockDevs {
+		if h.hasUpdatingReq(dev) {
+			(*blockDevs)[i].Status.IsProcessing = true
+			continue
+		}
+	}
+}
+
+func (h *helper) syncCachedBlockDevices(blockDevs []nodes.BlockDevice) {
+	lastDeviceList.Store(h.node, blockDevs)
+}
+
+func (h *helper) hasUpdatingReq(dev nodes.BlockDevice) bool {
+	count, err := h.mongo.GetCount(
+		nodes.Db,
+		nodes.ReqDeviceCollection,
+		bson.M{"hostname": h.node, "device": fmt.Sprintf("/dev/%s", dev.Name)},
+	)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get updating record for device %s(%v)", h.reqId, dev.Name, err)
+		return false
+	}
+
+	return count > 0
 }

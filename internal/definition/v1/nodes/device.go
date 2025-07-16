@@ -11,30 +11,26 @@ type DeviceReqOpts struct {
 type OsdReqOpts struct {
 	Hostname string     `json:"host"`
 	Id       string     `json:"id"`
+	Device   string     `json:"device"`
 	Reweight float64    `json:"rewight"`
 	Status   status.Osd `json:"status"`
 }
 
 func (d *DeviceReqOpts) SetError() {
 	d.Status.Current = status.Error
-	d.Status.IsAdding = false
-	d.Status.IsRemoving = false
+	d.Status.IsProcessing = false
 }
 
 func (d *DeviceReqOpts) SetCompleted() {
 	d.Status.Current = status.Ok
-	d.Status.IsAdding = false
-	d.Status.IsRemoving = false
+	d.Status.IsProcessing = false
 }
 
 func (o *OsdReqOpts) SetError() {
 	o.Status.Current = status.Error
-	o.Status.IsRestarting = false
-	o.Status.IsRemoving = false
 }
 
 func (o *OsdReqOpts) SetCompleted() {
 	o.Status.Current = status.Ok
-	o.Status.IsRestarting = false
-	o.Status.IsRemoving = false
+	o.Status.IsProcessing = false
 }
