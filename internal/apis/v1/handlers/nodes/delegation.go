@@ -17,7 +17,7 @@ func (h *helper) delegateDeviceReq() error {
 		return nil
 	}
 
-	return h.createDeviceOnPeerNode()
+	return h.operateDeviceOnPeerNode()
 }
 
 func (h *helper) delegateToLocal() {
@@ -25,7 +25,7 @@ func (h *helper) delegateToLocal() {
 	devReqQueue.Add(h.deviceReqOpts)
 }
 
-func (h *helper) createDeviceOnPeerNode() error {
+func (h *helper) operateDeviceOnPeerNode() error {
 	node, err := nodes.Get(h.node)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to get node(%s) for device request(%v)", h.reqId, h.node, err)
@@ -36,7 +36,11 @@ func (h *helper) createDeviceOnPeerNode() error {
 	resp, err := http.R().
 		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(h.deviceReqOpts).
-		Post(node.CreateDeviceUrl())
+		Execute(
+			h.getMethodByHandler(),
+			h.getDeviceUrlByHandler(node),
+		)
+
 	if err != nil {
 		log.Errorf("nodes(%s): failed to send device creation to %s(%v)", h.reqId, node.Hostname, err)
 		return err
@@ -51,4 +55,30 @@ func (h *helper) createDeviceOnPeerNode() error {
 	}
 
 	return nil
+}
+
+func (h *helper) getMethodByHandler() string {
+	switch h.handler {
+	case "addNodeDevice":
+		return "POST"
+	case "updateNodeDevice":
+		return "PATCH"
+	case "removeNodeDevice":
+		return "DELETE"
+	default:
+		return "GET"
+	}
+}
+
+func (h *helper) getDeviceUrlByHandler(node *nodes.Node) string {
+	switch h.handler {
+	case "addNodeDevice":
+		return node.AddDeviceUrl()
+	case "updateNodeDevice":
+		return node.UpdateDeviceUrl(h.deviceReqOpts.Device)
+	case "removeNodeDevice":
+		return node.RemoveDeviceUrl(h.deviceReqOpts.Device)
+	default:
+		return node.GetDeviceUrl(h.deviceReqOpts.Device)
+	}
 }

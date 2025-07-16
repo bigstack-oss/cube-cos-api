@@ -22,6 +22,11 @@ func (d *DeviceReqOpts) SetAdding() {
 	d.Status.IsProcessing = true
 }
 
+func (d *DeviceReqOpts) SetUpdating() {
+	d.Status.Desired = status.Updated
+	d.Status.IsProcessing = true
+}
+
 func (d *DeviceReqOpts) SetRemoving() {
 	d.Status.Desired = status.Removed
 	d.Status.IsProcessing = true

@@ -22,7 +22,7 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListDevicesOptions()
 	case "addNodeDevice":
 		return h.parseCreateDeviceOptions()
-	case "promoteOrDemoteNodeDevice":
+	case "updateNodeDevice":
 		return h.parsePromoteOrDemoteOptions()
 	case "removeNodeDevice":
 		return h.parseRemoveDeviceOptions()
@@ -171,6 +171,9 @@ func (h *helper) parsePromoteOrDemoteOptions() error {
 		)
 	}
 
+	h.deviceReqOpts.Hostname = h.node
+	h.deviceReqOpts.Device = fmt.Sprintf("/dev/%s", h.device)
+	h.deviceReqOpts.SetUpdating()
 	return nil
 }
 

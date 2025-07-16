@@ -14,6 +14,8 @@ func (o *Operator) operateDevice(req nodes.DeviceReqOpts) error {
 	switch req.Status.Desired {
 	case status.Added:
 		return cubecos.AddDevice(req)
+	case status.Updated:
+		return cubecos.UpdateDevice(req)
 	case status.Removed:
 		return cubecos.RemoveDevice(req)
 	}

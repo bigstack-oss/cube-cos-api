@@ -70,7 +70,7 @@ var (
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/nodes/:nodeName/devices/:device",
-			Func:    promoteOrDemoteNodeDevice,
+			Func:    updateNodeDevice,
 		},
 		{
 			Version: apis.V1,
@@ -352,10 +352,16 @@ func removeNodeDevice(c *gin.Context) {
 	)
 }
 
-func promoteOrDemoteNodeDevice(c *gin.Context) {
-	h, err := initHelper(c, "promoteOrDemoteNodeDevice")
+func updateNodeDevice(c *gin.Context) {
+	h, err := initHelper(c, "updateNodeDevice")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.validateDeviceReq()
+	if err != nil {
 		bodies.SetBadRequest(c, err)
 		return
 	}

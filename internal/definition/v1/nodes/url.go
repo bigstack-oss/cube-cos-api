@@ -149,11 +149,35 @@ func (n *Node) ListDevicesUrl() string {
 	return u.String()
 }
 
-func (n *Node) CreateDeviceUrl() string {
+func (n *Node) GetDeviceUrl(device string) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/devices/%s", base.DataCenterName, n.Hostname, device)
+	return u.String()
+}
+
+func (n *Node) AddDeviceUrl() string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/devices", base.DataCenterName, n.Hostname)
+	return u.String()
+}
+
+func (n *Node) UpdateDeviceUrl(device string) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/devices/%s", base.DataCenterName, n.Hostname, device)
+	return u.String()
+}
+
+func (n *Node) RemoveDeviceUrl(device string) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/devices/%s", base.DataCenterName, n.Hostname, device)
 	return u.String()
 }
 
