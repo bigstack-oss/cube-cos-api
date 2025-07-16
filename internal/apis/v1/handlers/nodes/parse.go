@@ -22,6 +22,16 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListDevicesOptions()
 	case "createNodeDevice":
 		return h.parseCreateDeviceOptions()
+	case "promoteOrDemoteNodeDevice":
+		return h.parsePromoteOrDemoteOptions()
+	case "removeNodeDevice":
+		return h.parseRemoveDeviceOptions()
+	case "restartNodeOsd":
+		return h.parseRestartOsdOptions()
+	case "removeNodeOsd":
+		return h.parseRemoveOsdOptions()
+	case "patchNodeOsd":
+		return h.parsePatchOsdOptions()
 	default:
 		return fmt.Errorf(
 			"unknown node handler: %s",
@@ -125,6 +135,92 @@ func (h *helper) parseCreateDeviceOptions() error {
 	if err != nil {
 		return fmt.Errorf(
 			"failed to parse create device options(%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+func (h *helper) parsePromoteOrDemoteOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("node name should be provided")
+	}
+
+	h.device = h.c.Param("device")
+	if h.device == "" {
+		return fmt.Errorf("device name should be provided")
+	}
+
+	err := h.c.ShouldBindJSON(&h.deviceReqOpts)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to parse promote or demote options(%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+func (h *helper) parseRemoveDeviceOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("node name should be provided")
+	}
+
+	h.device = h.c.Param("device")
+	if h.device == "" {
+		return fmt.Errorf("device name should be provided")
+	}
+
+	return nil
+}
+
+func (h *helper) parseRestartOsdOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("node name should be provided")
+	}
+
+	h.osdId = h.c.Param("id")
+	if h.osdId == "" {
+		return fmt.Errorf("osd id should be provided")
+	}
+
+	return nil
+}
+
+func (h *helper) parseRemoveOsdOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("node name should be provided")
+	}
+
+	h.osdId = h.c.Param("id")
+	if h.osdId == "" {
+		return fmt.Errorf("osd id should be provided")
+	}
+
+	return nil
+}
+
+func (h *helper) parsePatchOsdOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("node name should be provided")
+	}
+
+	h.osdId = h.c.Param("id")
+	if h.osdId == "" {
+		return fmt.Errorf("osd id should be provided")
+	}
+
+	err := h.c.ShouldBindJSON(&h.osdReqOpts)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to parse patch osd options(%v)",
 			err,
 		)
 	}

@@ -5,6 +5,7 @@ import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 type DeviceReqOpts struct {
 	Hostname string             `json:"host"`
 	Device   string             `json:"device"`
+	Class    string             `json:"class"`
 	Status   status.BlockDevice `json:"status"`
 }
 

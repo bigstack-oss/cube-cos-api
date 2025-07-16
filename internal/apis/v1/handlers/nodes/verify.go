@@ -61,3 +61,19 @@ func (h *helper) validateCreationReq() error {
 
 	return nil
 }
+
+func (h *helper) validateRemovalReq() error {
+	// if !nodes.IsExist(node) {
+	// 	return fmt.Errorf("node(%s) does not exist", h.node)
+	// }
+
+	// if !cubecos.HasDevice(h.node, h.createOpts.Device) {
+	// 	return fmt.Errorf(
+	// 		"device(%s) does not exist on node(%s)",
+	// 		h.createOpts.Device,
+	// 		h.node,
+	// 	)
+	// }
+
+	return nil
+}

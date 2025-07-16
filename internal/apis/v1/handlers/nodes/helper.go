@@ -34,7 +34,9 @@ type helper struct {
 	ipmi            nodes.Ipmi
 	operation       string
 	device          string
+	osdId           string
 	deviceReqOpts   nodes.DeviceReqOpts
+	osdReqOpts      nodes.OsdReqOpts
 
 	page  *pages.Page
 	watch bool

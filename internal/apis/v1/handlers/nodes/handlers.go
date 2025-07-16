@@ -60,6 +60,36 @@ var (
 			Path:    "/nodes/:nodeName/devices/:device",
 			Func:    createNodeDevice,
 		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodDelete,
+			Path:    "/nodes/:nodeName/devices/:device",
+			Func:    removeNodeDevice,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/nodes/:nodeName/devices/:device",
+			Func:    promoteOrDemoteNodeDevice,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/nodes/:nodeName/osds/:id/restart",
+			Func:    restartNodeOsd,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodDelete,
+			Path:    "/nodes/:nodeName/osds/:id",
+			Func:    removeNodeOsd,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/nodes/:nodeName/osds/:id",
+			Func:    patchNodeOsd,
+		},
 	}
 )
 
@@ -282,5 +312,91 @@ func createNodeDevice(c *gin.Context) {
 	bodies.SetAccepted(
 		c,
 		"the request of creating node device is accepted and under processing",
+	)
+}
+
+func removeNodeDevice(c *gin.Context) {
+	h, err := initHelper(c, "removeNodeDevice")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.validateRemovalReq()
+	if err != nil {
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.delegateDeviceReq()
+	if err != nil {
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"the request of deleting node device is accepted and under processing",
+	)
+}
+
+func promoteOrDemoteNodeDevice(c *gin.Context) {
+	h, err := initHelper(c, "promoteOrDemoteNodeDevice")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.delegateDeviceReq()
+	if err != nil {
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"the request of promoting or demoting node device is accepted and under processing",
+	)
+}
+
+func restartNodeOsd(c *gin.Context) {
+	h, err := initHelper(c, "restartNodeOsd")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"the request of restarting node osd is accepted and under processing",
+	)
+}
+
+func removeNodeOsd(c *gin.Context) {
+	h, err := initHelper(c, "removeNodeOsd")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"the request of removing node osd is accepted and under processing",
+	)
+}
+
+func patchNodeOsd(c *gin.Context) {
+	h, err := initHelper(c, "patchNodeOsd")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"the request of patching node osd is accepted and under processing",
 	)
 }
