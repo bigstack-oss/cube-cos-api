@@ -51,9 +51,8 @@ func RemoveOsd(req nodes.OsdReqOpts) error {
 }
 
 func ReweightOsd(req nodes.OsdReqOpts) error {
-	id := fmt.Sprintf("osd.%s", req.Id)
-	reweight := fmt.Sprintf("%f", req.Reweight)
-	out, err := exec.Command("ceph", "osd", "crush", "reweight", id, reweight).CombinedOutput()
+	value := fmt.Sprintf("%f", req.Reweight)
+	out, err := exec.Command("ceph", "osd", "crush", "reweight", req.Id, value).CombinedOutput()
 	if err != nil {
 		log.Errorf(
 			"hexSdk: failed to execute osd reweight cmd %s(%v %s)",

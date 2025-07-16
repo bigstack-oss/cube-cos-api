@@ -253,6 +253,16 @@ func (h *helper) parsePatchOsdOptions() error {
 		)
 	}
 
+	device, err := ceph.GetDeviceByOsdId(h.node, h.osdId)
+	if err != nil {
+		return fmt.Errorf("failed to get device by osd id(%s): %v", h.osdId, err)
+	}
+
+	h.osdReqOpts.Hostname = h.node
+	h.osdReqOpts.Device = fmt.Sprintf("/dev/%s", device.Dev)
+	h.osdReqOpts.Hostname = h.node
+	h.osdReqOpts.Id = h.osdId
+	h.osdReqOpts.SetRewighting()
 	return nil
 }
 
