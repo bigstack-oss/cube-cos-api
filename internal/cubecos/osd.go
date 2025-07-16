@@ -31,7 +31,7 @@ func RestartOsd(req nodes.OsdReqOpts) error {
 }
 
 func RemoveOsd(req nodes.OsdReqOpts) error {
-	out, err := exec.Command("hex_sdk", "ceph_osd_remove", req.Id).CombinedOutput()
+	out, err := exec.Command("hex_sdk", "ceph_osd_remove", req.Id, "force").CombinedOutput()
 	if err != nil {
 		log.Errorf(
 			"hexSdk: failed to remove osd cmd %s(%v %s)",
