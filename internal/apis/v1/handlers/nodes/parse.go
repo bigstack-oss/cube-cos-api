@@ -6,7 +6,6 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	nodes "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
 func (h *helper) parseParamsByHandler() error {
@@ -143,17 +142,13 @@ func (h *helper) parseCreateDeviceOptions() error {
 			err,
 		)
 	}
-
-	h.deviceReqOpts = nodes.DeviceReqOpts{
-		Device:   fmt.Sprintf("/dev/%s", h.deviceReqOpts.Device),
-		Hostname: h.node,
-		Status: status.BlockDevice{
-			Desired:      status.Added,
-			Current:      status.Adding,
-			IsProcessing: true,
-		},
+	if h.deviceReqOpts.Device == "" {
+		return fmt.Errorf("device name should be provided")
 	}
 
+	h.deviceReqOpts.Hostname = h.node
+	h.deviceReqOpts.Device = fmt.Sprintf("/dev/%s", h.deviceReqOpts.Device)
+	h.deviceReqOpts.SetAdding()
 	return nil
 }
 

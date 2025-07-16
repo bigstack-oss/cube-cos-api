@@ -12,7 +12,7 @@ func AddDevice(req nodes.DeviceReqOpts) error {
 	out, err := exec.Command("hex_sdk", "ceph_osd_add_disk_raw", req.Device).CombinedOutput()
 	if err != nil {
 		log.Errorf(
-			"hexSdk: failed to add device cmd %s(%v %s)",
+			"hexSdk: failed to execute device adding cmd %s(%v %s)",
 			req.Device, err, string(out),
 		)
 		return err
