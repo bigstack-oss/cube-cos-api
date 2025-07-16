@@ -3,7 +3,9 @@ package ceph
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os/exec"
+	"slices"
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
@@ -102,6 +104,35 @@ func ListRawDevicesByHost(host string) ([]RawDevice, error) {
 	}
 
 	return devices, nil
+}
+
+func GetDeviceByOsdId(host, id string) (*Device, error) {
+	devices, err := ListRawDevicesByHost(host)
+	if err != nil {
+		log.Errorf("ceph: failed to list devices by host %s(%v)", host, err)
+		return nil, err
+	}
+
+	for _, device := range devices {
+		if !slices.Contains(device.Daemons, id) {
+			continue
+		}
+
+		if len(device.Location) == 0 {
+			continue
+		}
+
+		return &Device{
+			Dev:  device.Location[0].Dev,
+			Osds: genOsdsByRaw(device.Daemons),
+		}, nil
+	}
+
+	log.Errorf("ceph: no device found for osd %s on host %s", id, host)
+	return nil, fmt.Errorf(
+		"no device found for osd %s on host %s",
+		id, host,
+	)
 }
 
 func convertToDevices(raws []RawDevice) ([]Device, error) {

@@ -69,30 +69,3 @@ func ReweightOsd(req nodes.OsdReqOpts) error {
 
 	return nil
 }
-
-func GetDeviceByOsdId(osdId string) (*nodes.BlockDevice, error) {
-	out, err := exec.Command("hex_sdk", "ceph_osd_get_device", osdId).CombinedOutput()
-	if err != nil {
-		log.Errorf(
-			"hexSdk: failed to get device by osd id %s(%v %s)",
-			osdId, err, string(out),
-		)
-		return nil, err
-	}
-
-	if !IsHexSdkSuccess(err) {
-		return nil, fmt.Errorf(
-			"failed to get device by osd id %s(%v %s)",
-			osdId, err, string(out),
-		)
-	}
-
-	device := &nodes.Device{}
-	err = nodes.UnmarshalDevice(out, device)
-	if err != nil {
-		log.Errorf("hexSdk: failed to unmarshal device(%v)", err)
-		return nil, err
-	}
-
-	return device, nil
-}
