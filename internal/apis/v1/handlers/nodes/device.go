@@ -112,13 +112,16 @@ func (h *helper) syncCephOsds(blockDevs *[]nodes.BlockDevice) error {
 
 	for i, blockDev := range *blockDevs {
 		cephDev, found := cephDevs[blockDev.Name]
-		if found {
-			(*blockDevs)[i].Class = cephDev.Class
-			(*blockDevs)[i].Osd = nodes.Osd{
-				Pgs:      h.getTotalPgs(cephDev.Osds),
-				Reweigth: cephDev.Reweight,
-				Daemons:  h.convertToOsds(cephDev.Osds),
-			}
+		if !found {
+			(*blockDevs)[i].Osd = nodes.Osd{Daemons: []nodes.Deamon{}}
+			continue
+		}
+
+		(*blockDevs)[i].Class = cephDev.Class
+		(*blockDevs)[i].Osd = nodes.Osd{
+			Pgs:      h.getTotalPgs(cephDev.Osds),
+			Reweigth: cephDev.Reweight,
+			Daemons:  h.convertToOsds(cephDev.Osds),
 		}
 	}
 
