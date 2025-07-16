@@ -5778,6 +5778,30 @@
                             }
                         }
                     },
+                    "404": {
+                        "description": "Node not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
@@ -5829,7 +5853,7 @@
                                 "example": {
                                     "summary": "Add Node Device",
                                     "value": {
-                                        "device": "sdd"
+                                        "device": "sdb"
                                     }
                                 }
                             }
@@ -5837,8 +5861,8 @@
                     }
                 },
                 "responses": {
-                    "201": {
-                        "description": "Device added to the node successfully",
+                    "202": {
+                        "description": "the request to add node device is accepted successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5898,7 +5922,7 @@
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/devices/{device}": {
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/devices/{deviceName}": {
             "delete": {
                 "operationId": "removeNodeDevice",
                 "tags": [
@@ -5918,7 +5942,7 @@
                 ],
                 "responses": {
                     "202": {
-                        "description": "the device removal request is received and is being processed",
+                        "description": "the request to remove node device is accepted successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6002,7 +6026,7 @@
                                 "example1": {
                                     "summary": "Promote a device to SSD class",
                                     "value": {
-                                        "class": "sdd"
+                                        "class": "ssd"
                                     }
                                 },
                                 "example2": {
@@ -6017,7 +6041,7 @@
                 },
                 "responses": {
                     "202": {
-                        "description": "the device update request is received and is being processed",
+                        "description": "the request to update node device is accepted successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6115,7 +6139,7 @@
                 },
                 "responses": {
                     "202": {
-                        "description": "the OSD update request is received and is being processed",
+                        "description": "the request to update node OSD is accepted successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6193,7 +6217,7 @@
                 ],
                 "responses": {
                     "202": {
-                        "description": "the OSD deletion request is received and is being processed",
+                        "description": "the request to delete node OSD is accepted successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6273,7 +6297,7 @@
                 ],
                 "responses": {
                     "202": {
-                        "description": "the OSD restart request is received and is being processed",
+                        "description": "the request to restart node OSD is accepted successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -15470,7 +15494,7 @@
                 "properties": {
                     "code": {
                         "type": "integer",
-                        "example": 201
+                        "example": 202
                     },
                     "msg": {
                         "type": "string",
