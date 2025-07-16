@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	nodes "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 )
 
@@ -206,6 +207,16 @@ func (h *helper) parseRestartOsdOptions() error {
 		return fmt.Errorf("osd id should be provided")
 	}
 
+	device, err := ceph.GetDeviceByOsdId(h.node, h.osdId)
+	if err != nil {
+		return fmt.Errorf("failed to get device by osd id(%s): %v", h.osdId, err)
+	}
+
+	h.osdReqOpts = nodes.OsdReqOpts{}
+	h.osdReqOpts.Device = fmt.Sprintf("/dev/%s", device.Dev)
+	h.osdReqOpts.Hostname = h.node
+	h.osdReqOpts.Id = h.osdId
+	h.osdReqOpts.SetRestarting()
 	return nil
 }
 

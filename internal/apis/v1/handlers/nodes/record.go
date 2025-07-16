@@ -168,6 +168,23 @@ func (h *helper) upsertDeviceReqRecord() {
 	}
 }
 
+func (h *helper) upsertOsdReqRecord() {
+	err := h.mongo.UpdateOne(
+		nodes.Db,
+		nodes.ReqOsdCollection,
+		bson.M{"hostname": h.node},
+		bson.M{"$set": h.osdReqOpts},
+		options.Update().SetUpsert(true),
+	)
+	if err != nil {
+		log.Errorf(
+			"nodes(%s): failed to add osd request record for %s(%v)",
+			h.reqId,
+			h.node,
+			err,
+		)
+	}
+}
 func (h *helper) syncUpdatingBlockDevices(blockDevs *[]nodes.BlockDevice) {
 	for i, dev := range *blockDevs {
 		if h.hasUpdatingReq(dev) {

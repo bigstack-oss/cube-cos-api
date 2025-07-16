@@ -42,6 +42,21 @@ func (d *DeviceReqOpts) SetCompleted() {
 	d.Status.IsProcessing = false
 }
 
+func (o *OsdReqOpts) SetRestarting() {
+	o.Status.Desired = status.Restarted
+	o.Status.IsProcessing = true
+}
+
+func (o *OsdReqOpts) SetRemoving() {
+	o.Status.Desired = status.Removed
+	o.Status.IsProcessing = true
+}
+
+func (o *OsdReqOpts) SetRewighting() {
+	o.Status.Desired = status.Reweighted
+	o.Status.IsProcessing = true
+}
+
 func (o *OsdReqOpts) SetError() {
 	o.Status.Current = status.Error
 }

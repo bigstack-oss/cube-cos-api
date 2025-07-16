@@ -189,6 +189,38 @@ func (n *Node) PatchDeviceTaskUrl() string {
 	return u.String()
 }
 
+func (n *Node) GetOsdUrl(id string) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/osds/%s", base.DataCenterName, n.Hostname, id)
+	return u.String()
+}
+
+func (n *Node) RestartOsdUrl(id string) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/osds/%s/restart", base.DataCenterName, n.Hostname, id)
+	return u.String()
+}
+
+func (n *Node) PatchOsdUrl(id string) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/osds/%s", base.DataCenterName, n.Hostname, id)
+	return u.String()
+}
+
+func (n *Node) RemoveOsdUrl(id string) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/osds/%s", base.DataCenterName, n.Hostname, id)
+	return u.String()
+}
+
 func (n *Node) PatchOsdTaskUrl() string {
 	u := url.URL{}
 	u.Scheme = n.Protocol

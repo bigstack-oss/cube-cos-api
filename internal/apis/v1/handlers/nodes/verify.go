@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
@@ -67,4 +68,25 @@ func (h *helper) validateDeviceReq() error {
 	err = fmt.Errorf("device file(%s) does not exist", h.deviceReqOpts.Device)
 	log.Errorf("nodes(%s): %v", h.reqId, err)
 	return err
+}
+
+func (h *helper) validateOsdReq() error {
+	if !nodes.IsExist(h.node) {
+		err := fmt.Errorf("node(%s) does not exist", h.node)
+		log.Errorf("nodes(%s): %v", h.reqId, err)
+		return err
+	}
+
+	if !nodes.IsLocal(h.node) {
+		return nil
+	}
+
+	_, err := ceph.GetOsdByDaemonId(h.osdId)
+	if err != nil {
+		err := fmt.Errorf("failed to get osd by daemon id(%s): %v", h.osdId, err)
+		log.Errorf("nodes(%s): %v", h.reqId, err)
+		return err
+	}
+
+	return nil
 }

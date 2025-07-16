@@ -14,6 +14,8 @@ func (o *Operator) operateOsd(req nodes.OsdReqOpts) error {
 	switch req.Status.Desired {
 	case status.Restarted:
 		return cubecos.RestartOsd(req)
+	case status.Reweighted:
+		return cubecos.ReweightOsd(req)
 	case status.Removed:
 		return cubecos.RemoveOsd(req)
 	}
@@ -48,7 +50,7 @@ func (o *Operator) reportOsdToController(req nodes.OsdReqOpts) {
 	resp, err := h.R().
 		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(req).
-		Patch(node.PatchDeviceTaskUrl())
+		Patch(node.PatchOsdTaskUrl())
 	if err != nil {
 		log.Errorf("nodes: failed to send osd(%s) task update to %s(%v)", req.Id, node.Hostname, err)
 		return

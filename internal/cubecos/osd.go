@@ -3,17 +3,19 @@ package cubecos
 import (
 	"fmt"
 	"os/exec"
+	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
 )
 
 func RestartOsd(req nodes.OsdReqOpts) error {
-	out, err := exec.Command("systemctl", "restart", req.Id).CombinedOutput()
+	service := fmt.Sprintf("ceph-osd@%s", strings.TrimPrefix(req.Id, "osd."))
+	out, err := exec.Command("systemctl", "restart", service).CombinedOutput()
 	if err != nil {
 		log.Errorf(
 			"hexSdk: failed to execute osd restart cmd %s(%v %s)",
-			req.Id, err, string(out),
+			service, err, string(out),
 		)
 		return err
 	}
@@ -21,7 +23,7 @@ func RestartOsd(req nodes.OsdReqOpts) error {
 	if !IsHexSdkSuccess(err) {
 		return fmt.Errorf(
 			"failed to restart osd %s(%v %s)",
-			req.Id, err, string(out),
+			service, err, string(out),
 		)
 	}
 

@@ -385,6 +385,17 @@ func restartNodeOsd(c *gin.Context) {
 		return
 	}
 
+	err = h.validateOsdReq()
+	if err != nil {
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.delegateOsdReq()
+	if err != nil {
+		return
+	}
+
 	bodies.SetAccepted(
 		c,
 		"the request of restarting node osd is accepted and under processing",
