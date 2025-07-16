@@ -17,6 +17,11 @@ type OsdReqOpts struct {
 	Status   status.Osd `json:"status"`
 }
 
+func (d *DeviceReqOpts) SetRemoving() {
+	d.Status.Desired = status.Removed
+	d.Status.IsProcessing = true
+}
+
 func (d *DeviceReqOpts) SetError() {
 	d.Status.Current = status.Error
 	d.Status.IsProcessing = false

@@ -5,7 +5,8 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	nodes "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
 func (h *helper) parseParamsByHandler() error {
@@ -32,6 +33,10 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseRemoveOsdOptions()
 	case "patchNodeOsd":
 		return h.parsePatchOsdOptions()
+	case "patchDeviceTask":
+		return h.parsePatchDeviceTaskOptions()
+	case "patchOsdTask":
+		return h.parsePatchOsdTaskOptions()
 	default:
 		return fmt.Errorf(
 			"unknown node handler: %s",
@@ -83,13 +88,13 @@ func (h *helper) parseLicenseStatus() {
 
 func (h *helper) parsePage() error {
 	var err error
-	h.page, err = query.GetPage(h.c)
+	h.page, err = queries.GetPage(h.c)
 	return err
 }
 
 func (h *helper) parseWatch() error {
 	var err error
-	h.watch, err = query.GetWatch(h.c)
+	h.watch, err = queries.GetWatch(h.c)
 	if err != nil {
 		return err
 	}
@@ -139,6 +144,16 @@ func (h *helper) parseCreateDeviceOptions() error {
 		)
 	}
 
+	h.deviceReqOpts = nodes.DeviceReqOpts{
+		Device:   fmt.Sprintf("/dev/%s", h.deviceReqOpts.Device),
+		Hostname: h.node,
+		Status: status.BlockDevice{
+			Desired:      status.Added,
+			Current:      status.Adding,
+			IsProcessing: true,
+		},
+	}
+
 	return nil
 }
 
@@ -175,6 +190,10 @@ func (h *helper) parseRemoveDeviceOptions() error {
 		return fmt.Errorf("device name should be provided")
 	}
 
+	h.deviceReqOpts = nodes.DeviceReqOpts{}
+	h.deviceReqOpts.Hostname = h.node
+	h.deviceReqOpts.Device = fmt.Sprintf("/dev/%s", h.device)
+	h.deviceReqOpts.SetRemoving()
 	return nil
 }
 
@@ -221,6 +240,40 @@ func (h *helper) parsePatchOsdOptions() error {
 	if err != nil {
 		return fmt.Errorf(
 			"failed to parse patch osd options(%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+func (h *helper) parsePatchDeviceTaskOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("node name should be provided")
+	}
+
+	err := h.c.ShouldBindJSON(&h.deviceReqOpts)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to parse patch device task options(%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+func (h *helper) parsePatchOsdTaskOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("node name should be provided")
+	}
+
+	err := h.c.ShouldBindJSON(&h.osdReqOpts)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to parse patch osd task options(%v)",
 			err,
 		)
 	}

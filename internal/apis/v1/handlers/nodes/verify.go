@@ -2,9 +2,11 @@ package nodes
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 )
@@ -46,34 +48,23 @@ func (h *helper) checkStatusConflict() error {
 	return nil
 }
 
-func (h *helper) validateCreationReq() error {
-	// if !nodes.IsExist(node) {
-	// 	return fmt.Errorf("node(%s) does not exist", h.node)
-	// }
+func (h *helper) validateDeviceReq() error {
+	if !nodes.IsExist(h.node) {
+		err := fmt.Errorf("node(%s) does not exist", h.node)
+		log.Errorf("nodes(%s): %v", h.reqId, err)
+		return err
+	}
 
-	// if !cubecos.HasDevice(h.node, h.createOpts.Device) {
-	// 	return fmt.Errorf(
-	// 		"device(%s) does not exist on node(%s)",
-	// 		h.createOpts.Device,
-	// 		h.node,
-	// 	)
-	// }
+	if !nodes.IsLocal(h.node) {
+		return nil
+	}
 
-	return nil
-}
+	_, err := os.Stat(h.deviceReqOpts.Device)
+	if err == nil {
+		return nil
+	}
 
-func (h *helper) validateRemovalReq() error {
-	// if !nodes.IsExist(node) {
-	// 	return fmt.Errorf("node(%s) does not exist", h.node)
-	// }
-
-	// if !cubecos.HasDevice(h.node, h.createOpts.Device) {
-	// 	return fmt.Errorf(
-	// 		"device(%s) does not exist on node(%s)",
-	// 		h.createOpts.Device,
-	// 		h.node,
-	// 	)
-	// }
-
-	return nil
+	err = fmt.Errorf("device file(%s) does not exist", h.deviceReqOpts.Device)
+	log.Errorf("nodes(%s): %v", h.reqId, err)
+	return err
 }

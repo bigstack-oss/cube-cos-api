@@ -25,6 +25,7 @@ const (
 	CollectionIpmiSupport = "ipmiSupport"
 
 	ReqDeviceCollection = "deviceRequests"
+	ReqOsdCollection    = "osdRequests"
 )
 
 var (
@@ -109,6 +110,11 @@ func (n *Node) GenSearchableObject() Node {
 			},
 		},
 	}
+}
+
+func IsExist(hostname string) bool {
+	_, err := Get(hostname)
+	return err == nil
 }
 
 func IsLocal(hostname string) bool {

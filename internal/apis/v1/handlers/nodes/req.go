@@ -7,9 +7,9 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
-func (h *helper) setDeviceCreateReq() nodes.DeviceReqOpts {
+func (h *helper) genDeviceCreateReq() nodes.DeviceReqOpts {
 	return nodes.DeviceReqOpts{
-		Device:   fmt.Sprintf("/dev/%s", h.device),
+		Device:   h.deviceReqOpts.Device,
 		Hostname: h.node,
 		Status: status.BlockDevice{
 			Desired:      status.Added,

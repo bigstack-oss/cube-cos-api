@@ -13,17 +13,16 @@ var (
 
 func (h *helper) delegateDeviceReq() error {
 	if nodes.IsLocal(h.node) {
-		req := h.setDeviceCreateReq()
-		h.delegateToLocal(req)
+		h.delegateToLocal()
 		return nil
 	}
 
 	return h.createDeviceOnPeerNode()
 }
 
-func (h *helper) delegateToLocal(req nodes.DeviceReqOpts) {
+func (h *helper) delegateToLocal() {
 	h.upsertDeviceReqRecord()
-	devReqQueue.Add(req)
+	devReqQueue.Add(h.deviceReqOpts)
 }
 
 func (h *helper) createDeviceOnPeerNode() error {

@@ -74,6 +74,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/nodes/:nodeName/devices/tasks",
+			Func:    patchDeviceTask,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/nodes/:nodeName/osds/:id/restart",
 			Func:    restartNodeOsd,
@@ -89,6 +95,12 @@ var (
 			Method:  http.MethodPatch,
 			Path:    "/nodes/:nodeName/osds/:id",
 			Func:    patchNodeOsd,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/nodes/:nodeName/osds/tasks",
+			Func:    patchOsdTask,
 		},
 	}
 )
@@ -298,7 +310,7 @@ func addNodeDevice(c *gin.Context) {
 		return
 	}
 
-	err = h.validateCreationReq()
+	err = h.validateDeviceReq()
 	if err != nil {
 		bodies.SetBadRequest(c, err)
 		return
@@ -323,7 +335,7 @@ func removeNodeDevice(c *gin.Context) {
 		return
 	}
 
-	err = h.validateRemovalReq()
+	err = h.validateDeviceReq()
 	if err != nil {
 		bodies.SetBadRequest(c, err)
 		return
@@ -398,5 +410,49 @@ func patchNodeOsd(c *gin.Context) {
 	bodies.SetAccepted(
 		c,
 		"the request of patching node osd is accepted and under processing",
+	)
+}
+
+func patchDeviceTask(c *gin.Context) {
+	h, err := initHelper(c, "patchDeviceTask")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.updateDeviceTask()
+	if err != nil {
+		log.Errorf("nodes(%s): failed to update node device task(%v)", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"update node device task successfully",
+		nil,
+	)
+}
+
+func patchOsdTask(c *gin.Context) {
+	h, err := initHelper(c, "patchOsdTask")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.updateOsdTask()
+	if err != nil {
+		log.Errorf("nodes(%s): failed to update node osd task(%v)", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"update node osd task successfully",
+		nil,
 	)
 }

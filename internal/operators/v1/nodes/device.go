@@ -34,10 +34,10 @@ func (o *Operator) handleDeviceExit(req nodes.DeviceReqOpts, err error) {
 		req.SetCompleted()
 	}
 
-	o.reportToController(req)
+	o.reportDeviceTaskToController(req)
 }
 
-func (o *Operator) reportToController(req nodes.DeviceReqOpts) {
+func (o *Operator) reportDeviceTaskToController(req nodes.DeviceReqOpts) {
 	node, err := nodes.GetController()
 	if err != nil {
 		log.Errorf("nodes: failed to get controller nodes(%v)", err)
