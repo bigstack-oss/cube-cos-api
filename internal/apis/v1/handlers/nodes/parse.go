@@ -20,7 +20,7 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseIpmiOperateOptions()
 	case "listNodeDevices":
 		return h.parseListDevicesOptions()
-	case "createNodeDevice":
+	case "addNodeDevice":
 		return h.parseCreateDeviceOptions()
 	case "promoteOrDemoteNodeDevice":
 		return h.parsePromoteOrDemoteOptions()

@@ -927,7 +927,7 @@
                             }
                         },
                         "description": "The ids of the event to query.",
-                        "example": "Info"
+                        "example": "CPU00004I"
                     }
                 ],
                 "responses": {
@@ -4971,29 +4971,6 @@
                                                                 "speed": "NA/1000F"
                                                             }
                                                         ],
-                                                        "blockDevices": [
-                                                            {
-                                                                "serial": "200264800526",
-                                                                "device": "nvme0n1",
-                                                                "type": "SSD",
-                                                                "sizeMiB": 222110.7482,
-                                                                "availability": "system",
-                                                                "status": {
-                                                                    "current": "ok"
-                                                                }
-                                                            },
-                                                            {
-                                                                "serial": "200598804038",
-                                                                "device": "nvme1n1",
-                                                                "type": "SSD",
-                                                                "sizeMiB": 222110.7482,
-                                                                "availability": "in-use",
-                                                                "status": {
-                                                                    "current": "warning",
-                                                                    "description": "status fetch timeout"
-                                                                }
-                                                            }
-                                                        ],
                                                         "ipmi": {
                                                             "isSupported": true,
                                                             "isConnected": false,
@@ -5177,29 +5154,6 @@
                                                         "driver": "tg3",
                                                         "state": "DOWN",
                                                         "speed": "NA/1000F"
-                                                    }
-                                                ],
-                                                "blockDevices": [
-                                                    {
-                                                        "serial": "200264800526",
-                                                        "device": "nvme0n1",
-                                                        "type": "SSD",
-                                                        "sizeMiB": 222110.7482,
-                                                        "availability": "system",
-                                                        "status": {
-                                                            "current": "ok"
-                                                        }
-                                                    },
-                                                    {
-                                                        "serial": "200598804038",
-                                                        "device": "nvme1n1",
-                                                        "type": "SSD",
-                                                        "sizeMiB": 222110.7482,
-                                                        "availability": "in-use",
-                                                        "status": {
-                                                            "current": "warning",
-                                                            "description": "status fetch timeout"
-                                                        }
                                                     }
                                                 ],
                                                 "ipmi": {
@@ -5692,6 +5646,693 @@
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/devices": {
+            "get": {
+                "operationId": "listNodeDevices",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Retrieve the node devices",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    },
+                    {
+                        "$ref": "#/components/parameters/watch"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the node devices successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListNodeDevicesResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Node Devices",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "serial": "57T0A05UF5YE",
+                                                    "device": "sda",
+                                                    "type": "HDD",
+                                                    "class": "hdd",
+                                                    "osd": {
+                                                        "pgs": 646,
+                                                        "reweight": 1,
+                                                        "daemons": [
+                                                            {
+                                                                "id": "osd.0",
+                                                                "usagePercent": 21.9012,
+                                                                "status": {
+                                                                    "current": "up",
+                                                                    "isProcessing": false
+                                                                }
+                                                            },
+                                                            {
+                                                                "id": "osd.1",
+                                                                "usagePercent": 17.4514,
+                                                                "status": {
+                                                                    "current": "up",
+                                                                    "isProcessing": false
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    "sizeMiB": 533008.5754,
+                                                    "availability": "in-use",
+                                                    "status": {
+                                                        "current": "ok",
+                                                        "isPromotable": true,
+                                                        "isDemotable": false,
+                                                        "isProcessing": false
+                                                    }
+                                                },
+                                                {
+                                                    "serial": "183222E1E59B",
+                                                    "device": "sdb",
+                                                    "type": "SSD",
+                                                    "class": "",
+                                                    "osd": {
+                                                        "pgs": 0,
+                                                        "reweight": 0,
+                                                        "daemons": []
+                                                    },
+                                                    "sizeMiB": 426387.7868,
+                                                    "availability": "system",
+                                                    "status": {
+                                                        "current": "ok",
+                                                        "isPromotable": true,
+                                                        "isDemotable": false,
+                                                        "isProcessing": false
+                                                    }
+                                                },
+                                                {
+                                                    "serial": "57P0A0EWF5YE",
+                                                    "device": "sdc",
+                                                    "type": "HDD",
+                                                    "class": "hdd",
+                                                    "osd": {
+                                                        "pgs": 634,
+                                                        "reweight": 1,
+                                                        "daemons": [
+                                                            {
+                                                                "id": "osd.2",
+                                                                "usagePercent": 15.748,
+                                                                "status": {
+                                                                    "current": "up",
+                                                                    "isProcessing": false
+                                                                }
+                                                            },
+                                                            {
+                                                                "id": "osd.3",
+                                                                "usagePercent": 21.4815,
+                                                                "status": {
+                                                                    "current": "up",
+                                                                    "isProcessing": false
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    "sizeMiB": 533008.5754,
+                                                    "availability": "in-use",
+                                                    "status": {
+                                                        "current": "ok",
+                                                        "isPromotable": true,
+                                                        "isDemotable": false,
+                                                        "isProcessing": false
+                                                    }
+                                                }
+                                            ],
+                                            "msg": "fetch node devices successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch setting: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "operationId": "addNodeDevice",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Add a device to the node",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddNodeDeviceRequest"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Add Node Device",
+                                    "value": {
+                                        "device": "sdd"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Device added to the node successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AddNodeDeviceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Node not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to add device: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/devices/{device}": {
+            "delete": {
+                "operationId": "removeNodeDevice",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Remove a device from the node",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    },
+                    {
+                        "$ref": "#/components/parameters/device"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "the device removal request is received and is being processed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RemoveNodeDeviceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Node or device not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node or device not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to remove device: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "updateNodeDevice",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Update a device on the node",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateNodeDeviceRequest"
+                            },
+                            "examples": {
+                                "example1": {
+                                    "summary": "Promote a device to SSD class",
+                                    "value": {
+                                        "class": "sdd"
+                                    }
+                                },
+                                "example2": {
+                                    "summary": "Demote a device to HDD class",
+                                    "value": {
+                                        "class": "hdd"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "the device update request is received and is being processed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpdateNodeDeviceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Node or device not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node or device not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to update device: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/osds/{osdId}": {
+            "patch": {
+                "operationId": "updateNodeOsd",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Update an OSD on the node",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    },
+                    {
+                        "$ref": "#/components/parameters/osdId"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateNodeOsdRequest"
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Reweight an OSD",
+                                    "value": {
+                                        "reweight": 0.5
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "the OSD update request is received and is being processed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpdateNodeOsdResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Node or OSD not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node or osd not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to update osd: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteNodeOsd",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Delete an OSD on the node",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    },
+                    {
+                        "$ref": "#/components/parameters/osdId"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "the OSD deletion request is received and is being processed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeleteNodeOsdResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Node or OSD not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node or osd not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to delete osd: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/osds/{osdId}/restart": {
+            "post": {
+                "operationId": "restartNodeOsd",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Restart an OSD on the node",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    },
+                    {
+                        "$ref": "#/components/parameters/osdId"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "the OSD restart request is received and is being processed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RestartNodeOsdResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Node or OSD not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node or osd not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to restart osd: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/settings": {
             "get": {
                 "operationId": "getSettings",
@@ -5762,7 +6403,7 @@
                                                     "channels": [
                                                         {
                                                             "name": "#example-alert-channel-1",
-                                                            "url": "https://hooks.slack.com/services/T9LMBBBBB/B08GQABBBBB/BBBBBBBSevAyxkM2dPYBBBBB",
+                                                            "url": "https://hooks.slack.com/services/example-token",
                                                             "description": "example alert channel 1",
                                                             "status": {
                                                                 "current": "ok",
@@ -5771,7 +6412,7 @@
                                                         },
                                                         {
                                                             "name": "#example-alert-channel-2",
-                                                            "url": "https://hooks.slack.com/services/T9LMCCCCC/C08GQACCCCC/CCCCCCCSevAyxkM2dPYCCCCC",
+                                                            "url": "https://hooks.slack.com/services/example-token",
                                                             "description": "example alert channel 2",
                                                             "status": {
                                                                 "current": "ok",
@@ -5917,8 +6558,8 @@
                                     "value": {
                                         "host": "email-smtp.example.mailserver.com",
                                         "port": 587,
-                                        "username": "ABBBBBBMJM56DCCCCJR",
-                                        "password": "VBHWEEGEEEEEX0f5NLHDXLESxdZR",
+                                        "username": "example-user",
+                                        "password": "example-password",
                                         "from": "noreply@example.com"
                                     }
                                 }
@@ -6636,7 +7277,7 @@
                                     "summary": "Slack Channel",
                                     "value": {
                                         "name": "#example-alert-channel-1",
-                                        "url": "https://hooks.slack.com/services/T9LMBBBBB/B08GQABBBBB/BBBBBBBSevAyxkM2dPYBBBBB",
+                                        "url": "https://hooks.slack.com/services/example-token",
                                         "description": "example alert channel 1"
                                     }
                                 }
@@ -6709,7 +7350,7 @@
                                                 "slackChannels": [
                                                     {
                                                         "name": "#example-alert-channel-1",
-                                                        "url": "https://hooks.slack.com/services/T9LMBBBBB/B08GQABBBBB/BBBBBBBSevAyxkM2dPYBBBBB",
+                                                        "url": "https://hooks.slack.com/services/example-token",
                                                         "description": "example alert channel 1",
                                                         "status": {
                                                             "current": "ok",
@@ -6718,7 +7359,7 @@
                                                     },
                                                     {
                                                         "name": "#example-alert-channel-2",
-                                                        "url": "https://hooks.slack.com/services/T9LMCCCCC/C08GQACCCCC/CCCCCCCSevAyxkM2dPYCCCCC",
+                                                        "url": "https://hooks.slack.com/services/example-token",
                                                         "description": "example alert channel 2",
                                                         "status": {
                                                             "current": "ok",
@@ -6852,7 +7493,7 @@
                                     "summary": "Slack channel",
                                     "value": {
                                         "name": "#example-alert-channel-1",
-                                        "url": "https://hooks.slack.com/services/T9LMBBBBB/B08GQABBBBB/BBBBBBBSevAyxkM2dPYBBBBB",
+                                        "url": "https://hooks.slack.com/services/example-token",
                                         "description": "example alert channel 1"
                                     }
                                 }
@@ -6992,8 +7633,8 @@
                                         "value": {
                                             "code": 201,
                                             "data": {
-                                                "token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIwdDdGdWlJZC1lbnhVUWRZWGVZalZ6Q0pQZFRWMmxaU0NZanRkQW01S3djIn0.eyJleHAiOjE3Mzg5NjA2NzYsImlhdCI6MTczODk1MzQ3NiwianRpIjoiZjZjZTJlMjMtYzgwNC00N2YxLWE0OWEtZjdlNWZlYTgyYThjIiwiaXNzIjoiaHR0cHM6Ly8xMC4zMi4xMC4xODA6MTA0NDMvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjpbIm1hc3Rlci1yZWFsbSIsImFjY291bnQiXSwic3ViIjoiMDY1OTVlMDAtZWIzOS00YWUxLTkzYjctZDMyNzg1MDdiZTUzIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoidG9rZW4tY29ubmVjdCIsInNlc3Npb25fc3RhdGUiOiJlOTE0MWVhZC01MTQ1LTRjZmQtODhiZC00ZjYxYzI0MzA0NzAiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImNyZWF0ZS1yZWFsbSIsImRlZmF1bHQtcm9sZXMtbWFzdGVyIiwib2ZmbGluZV9hY2Nlc3MiLCJhZG1pbiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsibWFzdGVyLXJlYWxtIjp7InJvbGVzIjpbInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwidmlldy1yZWFsbSIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInF1ZXJ5LXJlYWxtcyIsInZpZXctYXV0aG9yaXphdGlvbiIsInF1ZXJ5LWNsaWVudHMiLCJxdWVyeS11c2VycyIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIiwicXVlcnktZ3JvdXBzIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBlbWFpbCBwcm9maWxlIiwic2lkIjoiZTkxNDFlYWQtNTE0NS00Y2ZkLTg4YmQtNGY2MWMyNDMwNDcwIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhZG1pbiJ9.LkywGnG2BhQ90n-f3vJvX-frq1wRS6DAop5MUcCFb5FSuGvv3oP_byeiuHvh9rh06QWcwhpiTU_L_hOaUzMXF9spJjos8s2iOwK-4o46Ka_4Q2gnlitjd8ZG5wGfuqKRp0vb25RsBpNr6rxGFzOxxmULkjEXOGXbcrqQJBWIaWdRldYunLFRVErIpmH23w4KHKWSB5XkwqpkD9HnLH_PqbaunGpp2acgZ826JpevC8vhEhIg6fxXcDnCKhkw7nNvfs3rCC08Qci32WtzujeKH6js1ASRkKWOUxVkfIkzZ5Yg4Tfdb79_Tgy2iXLT3teeNTepmLsaftn2JzLn_6vHwg",
-                                                "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI1OGRkY2JhNC1hM2ZkLTQ2MTYtODgyYi1lMGY1ZjRlNzAyMTIifQ.eyJleHAiOjE3Mzg5NTUyNzYsImlhdCI6MTczODk1MzQ3NiwianRpIjoiNjkyZDkxMTAtMjExMy00NTU1LTgxMTctNWYxZTA2NzlmYmUxIiwiaXNzIjoiaHR0cHM6Ly8xMC4zMi4xMC4xODA6MTA0NDMvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiaHR0cHM6Ly8xMC4zMi4xMC4xODA6MTA0NDMvYXV0aC9yZWFsbXMvbWFzdGVyIiwic3ViIjoiMDY1OTVlMDAtZWIzOS00YWUxLTkzYjctZDMyNzg1MDdiZTUzIiwidHlwIjoiUmVmcmVzaCIsImF6cCI6InRva2VuLWNvbm5lY3QiLCJzZXNzaW9uX3N0YXRlIjoiZTkxNDFlYWQtNTE0NS00Y2ZkLTg4YmQtNGY2MWMyNDMwNDcwIiwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSIsInNpZCI6ImU5MTQxZWFkLTUxNDUtNGNmZC04OGJkLTRmNjFjMjQzMDQ3MCJ9._B9rU8TG_YSvwsri48bfne3RxFhc4Yq83bzR43nL4-c",
+                                                "token": "example-token",
+                                                "refresh": "example-refresh-token",
                                                 "expires": {
                                                     "access": 7200,
                                                     "refresh": 1800
@@ -11654,6 +12295,26 @@
                 },
                 "example": "example-node-0"
             },
+            "device": {
+                "in": "path",
+                "name": "device",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The device to remove from the node",
+                "example": "sdb"
+            },
+            "osdId": {
+                "in": "path",
+                "name": "osdId",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The OSD ID to operate",
+                "example": "osd.0"
+            },
             "instanceId": {
                 "in": "path",
                 "name": "instanceId",
@@ -14592,6 +15253,18 @@
                     }
                 }
             },
+            "AddNodeDeviceRequest": {
+                "type": "object",
+                "required": [
+                    "device"
+                ],
+                "properties": {
+                    "device": {
+                        "type": "string",
+                        "description": "The device path, e.g., sdc"
+                    }
+                }
+            },
             "SetNodeIpmiSettingResponse": {
                 "type": "object",
                 "required": [
@@ -14633,6 +15306,316 @@
                     "status": {
                         "type": "string",
                         "example": "ok"
+                    }
+                }
+            },
+            "ListNodeDevicesResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "serial",
+                                "device",
+                                "type",
+                                "class",
+                                "sizeMiB",
+                                "availability",
+                                "osd",
+                                "status"
+                            ],
+                            "properties": {
+                                "serial": {
+                                    "type": "string"
+                                },
+                                "device": {
+                                    "type": "string"
+                                },
+                                "class": {
+                                    "type": "string",
+                                    "enum": [
+                                        "ssd",
+                                        "hdd"
+                                    ]
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "sizeMiB": {
+                                    "type": "number"
+                                },
+                                "availability": {
+                                    "type": "string"
+                                },
+                                "osd": {
+                                    "type": "object",
+                                    "required": [
+                                        "pgs",
+                                        "reweight",
+                                        "daemons"
+                                    ],
+                                    "properties": {
+                                        "pgs": {
+                                            "type": "integer"
+                                        },
+                                        "reweight": {
+                                            "type": "number"
+                                        },
+                                        "daemons": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": [
+                                                    "id",
+                                                    "usagePercent",
+                                                    "status"
+                                                ],
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "usagePercent": {
+                                                        "type": "number"
+                                                    },
+                                                    "status": {
+                                                        "type": "object",
+                                                        "required": [
+                                                            "current",
+                                                            "isProcessing"
+                                                        ],
+                                                        "properties": {
+                                                            "current": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "up",
+                                                                    "down",
+                                                                    "warning",
+                                                                    "error"
+                                                                ]
+                                                            },
+                                                            "isProcessing": {
+                                                                "type": "boolean"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "status": {
+                                    "type": "object",
+                                    "required": [
+                                        "current",
+                                        "description",
+                                        "isPromotable",
+                                        "isDemotable",
+                                        "isProcessing"
+                                    ],
+                                    "properties": {
+                                        "current": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ok",
+                                                "warning",
+                                                "fail"
+                                            ]
+                                        },
+                                        "isPromotable": {
+                                            "type": "boolean"
+                                        },
+                                        "isDemotable": {
+                                            "type": "boolean"
+                                        },
+                                        "isProcessing": {
+                                            "type": "boolean"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "list node devices successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "AddNodeDeviceResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 201
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "the request to add node device is accepted successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "UpdateNodeDeviceResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 202
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "the request to update node device is accepted successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "RemoveNodeDeviceResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 202
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "the request to remove node device is accepted successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "UpdateNodeOsdResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 202
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "the request to update node OSD is accepted successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "RestartNodeOsdResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 202
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "the request to restart node OSD is accepted successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "DeleteNodeOsdResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 202
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "the request to delete node OSD is accepted successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "UpdateNodeDeviceRequest": {
+                "type": "object",
+                "required": [
+                    "class"
+                ],
+                "properties": {
+                    "class": {
+                        "type": "string",
+                        "enum": [
+                            "ssd",
+                            "hdd"
+                        ]
+                    }
+                }
+            },
+            "UpdateNodeOsdRequest": {
+                "type": "object",
+                "required": [
+                    "reweight"
+                ],
+                "properties": {
+                    "reweight": {
+                        "type": "number",
+                        "description": "The reweight value for the OSD, e.g., 0.5"
                     }
                 }
             },
@@ -17010,7 +17993,6 @@
                     "status",
                     "cpuSpec",
                     "networkInterfaces",
-                    "blockDevices",
                     "ipmi",
                     "vcpu",
                     "memory",
@@ -17166,57 +18148,6 @@
                                 },
                                 "speed": {
                                     "type": "string"
-                                }
-                            }
-                        }
-                    },
-                    "blockDevices": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "required": [
-                                "serial",
-                                "device",
-                                "type",
-                                "sizeMiB",
-                                "availability",
-                                "status"
-                            ],
-                            "properties": {
-                                "serial": {
-                                    "type": "string"
-                                },
-                                "device": {
-                                    "type": "string"
-                                },
-                                "type": {
-                                    "type": "string"
-                                },
-                                "sizeMiB": {
-                                    "type": "number"
-                                },
-                                "availability": {
-                                    "type": "string"
-                                },
-                                "status": {
-                                    "type": "object",
-                                    "required": [
-                                        "current",
-                                        "description"
-                                    ],
-                                    "properties": {
-                                        "current": {
-                                            "type": "string",
-                                            "enum": [
-                                                "ok",
-                                                "warning",
-                                                "fail"
-                                            ]
-                                        },
-                                        "description": {
-                                            "type": "string"
-                                        }
-                                    }
                                 }
                             }
                         }

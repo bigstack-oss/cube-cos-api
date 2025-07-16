@@ -57,8 +57,8 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
-			Path:    "/nodes/:nodeName/devices/:device",
-			Func:    createNodeDevice,
+			Path:    "/nodes/:nodeName/devices",
+			Func:    addNodeDevice,
 		},
 		{
 			Version: apis.V1,
@@ -290,8 +290,8 @@ func listNodeDevices(c *gin.Context) {
 	)
 }
 
-func createNodeDevice(c *gin.Context) {
-	h, err := initHelper(c, "createNodeDevice")
+func addNodeDevice(c *gin.Context) {
+	h, err := initHelper(c, "addNodeDevice")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
