@@ -5,7 +5,6 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
-	log "go-micro.dev/v5/logger"
 )
 
 const (
@@ -62,8 +61,5 @@ func (h *Check) IsFix() bool {
 }
 
 func (h *Check) IsNg() bool {
-	s := !h.IsFix() && !h.IsOk()
-	log.Infof("%s: %v", h.Status, s)
-
 	return !h.IsFix() && !h.IsOk()
 }

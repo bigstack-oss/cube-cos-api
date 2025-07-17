@@ -254,9 +254,6 @@ func GetModuleHealthHistory(stmt string, needsAggregate bool) ([]health.Check, e
 		return nil, err
 	}
 
-	log.Infof("-----------------")
-	log.Infof("%b", needsAggregate)
-
 	if needsAggregate {
 		checks = aggregateHealthsByTime(checks, defaultAggreateWindow)
 	}
@@ -483,16 +480,10 @@ func genHealthCheckByRecord(record *query.FluxRecord) health.Check {
 }
 
 func syncStatusDetails(record *query.FluxRecord, check *health.Check) {
-	// if desc == status.Ok {
-	// 	check.Status = status.Ok
-	// 	return
-	// }
-
 	if !check.IsNg() {
 		return
 	}
 
-	// check.Status = status.Ng
 	check.Error = &health.Error{
 		Type:        fmt.Sprintf("%s failure", record.ValueByKey("component").(string)),
 		Reason:      record.ValueByKey("description").(string),
@@ -504,22 +495,11 @@ func syncStatusDetails(record *query.FluxRecord, check *health.Check) {
 }
 
 func parseHealthResult(record *query.FluxRecord) string {
-	// code := record.ValueByKey("code")
-	// code, ok := code.(string)
-	// if !ok {
-	// 	return status.Ng
-	// }
-
 	val := record.ValueByKey("description")
 	desc, ok := val.(string)
 	if !ok {
 		return status.Ng
 	}
-
-	// isOkOrFixingDesc := desc == status.Ok || desc == status.Fixing
-	// if code != "0" && !isOkOrFixingDesc {
-	// 	return status.Ng
-	// }
 
 	return desc
 }
