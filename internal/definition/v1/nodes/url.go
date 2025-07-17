@@ -181,7 +181,7 @@ func (n *Node) RemoveDeviceUrl(device string) string {
 	return u.String()
 }
 
-func (n *Node) PatchDeviceTaskUrl() string {
+func (n *Node) UpdateDeviceTaskUrl() string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address
@@ -221,7 +221,7 @@ func (n *Node) RemoveOsdUrl(id string) string {
 	return u.String()
 }
 
-func (n *Node) PatchOsdTaskUrl() string {
+func (n *Node) UpdateOsdTaskUrl() string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address

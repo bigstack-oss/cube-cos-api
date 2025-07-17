@@ -75,8 +75,14 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
+			Path:    "/nodes/:nodeName/devices/:device/osds",
+			Func:    updateNodeDeviceOsds,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPatch,
 			Path:    "/nodes/:nodeName/devices/tasks",
-			Func:    patchDeviceTask,
+			Func:    updateDeviceTask,
 		},
 		{
 			Version: apis.V1,
@@ -94,13 +100,13 @@ var (
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/nodes/:nodeName/osds/:id",
-			Func:    patchNodeOsd,
+			Func:    updateNodeOsd,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/nodes/:nodeName/osds/tasks",
-			Func:    patchOsdTask,
+			Func:    updateOsdTask,
 		},
 	}
 )
@@ -380,6 +386,32 @@ func updateNodeDevice(c *gin.Context) {
 	)
 }
 
+func updateNodeDeviceOsds(c *gin.Context) {
+	h, err := initHelper(c, "updateNodeDeviceOsds")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.validateDeviceReq()
+	if err != nil {
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.delegateOsdReqs()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"the request of updating node device osds is accepted and under processing",
+	)
+}
+
 func restartNodeOsd(c *gin.Context) {
 	h, err := initHelper(c, "restartNodeOsd")
 	if err != nil {
@@ -432,8 +464,8 @@ func removeNodeOsd(c *gin.Context) {
 	)
 }
 
-func patchNodeOsd(c *gin.Context) {
-	h, err := initHelper(c, "patchNodeOsd")
+func updateNodeOsd(c *gin.Context) {
+	h, err := initHelper(c, "updateNodeOsd")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
@@ -458,8 +490,8 @@ func patchNodeOsd(c *gin.Context) {
 	)
 }
 
-func patchDeviceTask(c *gin.Context) {
-	h, err := initHelper(c, "patchDeviceTask")
+func updateDeviceTask(c *gin.Context) {
+	h, err := initHelper(c, "updateDeviceTask")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
@@ -480,8 +512,8 @@ func patchDeviceTask(c *gin.Context) {
 	)
 }
 
-func patchOsdTask(c *gin.Context) {
-	h, err := initHelper(c, "patchOsdTask")
+func updateOsdTask(c *gin.Context) {
+	h, err := initHelper(c, "updateOsdTask")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)

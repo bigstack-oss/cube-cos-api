@@ -50,7 +50,7 @@ func (o *Operator) reportDeviceTaskToController(req nodes.DeviceReqOpts) {
 	resp, err := h.R().
 		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(req).
-		Patch(node.PatchDeviceTaskUrl())
+		Patch(node.UpdateDeviceTaskUrl())
 	if err != nil {
 		log.Errorf("nodes: failed to send device(%s) task update to %s(%v)", req.Device, node.Hostname, err)
 		return

@@ -69,17 +69,24 @@ type HostDev struct {
 func GetDeviceMapByHost(host string) (map[string]Device, error) {
 	raws, err := ListRawDevicesByHost(host)
 	if err != nil {
+		log.Errorf("ceph: failed to list raw devices by host %s(%v)", host, err)
 		return nil, err
 	}
 
 	devices, err := convertToDevices(raws)
 	if err != nil {
+		log.Errorf("ceph: failed to convert raw devices to devices by host %s(%v)", host, err)
 		return nil, err
 	}
 
 	devMap := map[string]Device{}
 	for _, device := range devices {
 		devMap[device.Dev] = device
+	}
+	if len(devMap) == 0 {
+		err := fmt.Errorf("no devices found for host %s", host)
+		log.Errorf("ceph: %v", err)
+		return nil, err
 	}
 
 	return devMap, nil
@@ -134,6 +141,33 @@ func GetDeviceByOsdId(host, id string) (*Device, error) {
 		"no device found for osd %s on host %s",
 		id, host,
 	)
+}
+
+func ListOsdsByHostDevice(host, device string) ([]Osd, error) {
+	out, err := exec.Command("ceph", "osd", "ls-by-device", device, "-f", "json").CombinedOutput()
+	if err != nil {
+		log.Errorf("ceph: failed to list osds by device %s(%v)", device, err)
+		return nil, err
+	}
+
+	rawOsds := []RawOsd{}
+	err = json.Unmarshal(out, &rawOsds)
+	if err != nil {
+		log.Errorf("ceph: failed to unmarshal osds by device %s(%v)", device, err)
+		return nil, err
+	}
+
+	if len(rawOsds) == 0 {
+		log.Errorf("ceph: no osds found for device %s on host %s", device, host)
+		return nil, nil
+	}
+
+	osds := []Osd{}
+	for _, raw := range rawOsds[0].Nodes {
+		osds = append(osds, convertToOsd(raw))
+	}
+
+	return osds, nil
 }
 
 func convertToDevices(raws []RawDevice) ([]Device, error) {

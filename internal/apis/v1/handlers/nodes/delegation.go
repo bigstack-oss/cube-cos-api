@@ -1,6 +1,8 @@
 package nodes
 
 import (
+	"fmt"
+
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	nodes "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	node "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/nodes"
@@ -19,6 +21,23 @@ func (h *helper) delegateDeviceReq() error {
 	}
 
 	return h.operateDeviceOnPeerNode()
+}
+
+func (h *helper) delegateOsdReqs() error {
+	for _, osdReqOpts := range h.osdReqOptses {
+		h.osdReqOpts = osdReqOpts
+		if nodes.IsLocal(h.node) {
+			h.operateLocalOsd()
+			continue
+		}
+
+		err := h.operateOsdOnPeerNode()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (h *helper) delegateOsdReq() error {
@@ -53,20 +72,20 @@ func (h *helper) operateDeviceOnPeerNode() error {
 		SetBody(h.deviceReqOpts).
 		Execute(
 			h.getMethodByHandler(),
-			h.getDeviceUrlByHandler(node),
+			h.getUrlByHandler(node),
 		)
-
 	if err != nil {
 		log.Errorf("nodes(%s): failed to send device req to %s(%v)", h.reqId, node.Hostname, err)
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf(
-			"nodes(%s): has error response from %s device req(%d %v)",
-			h.reqId, node.Hostname, resp.StatusCode(), string(resp.Body()),
+		err := fmt.Errorf(
+			"has error response from %s device req(%d %v)",
+			node.Hostname, resp.StatusCode(), string(resp.Body()),
 		)
-		return nil
+		log.Errorf("nodes(%s): %v", h.reqId, err)
+		return err
 	}
 
 	return nil
@@ -85,20 +104,20 @@ func (h *helper) operateOsdOnPeerNode() error {
 		SetBody(h.osdReqOpts).
 		Execute(
 			h.getMethodByHandler(),
-			h.getDeviceUrlByHandler(node),
+			h.getUrlByHandler(node),
 		)
-
 	if err != nil {
 		log.Errorf("nodes(%s): failed to send osd req to %s(%v)", h.reqId, node.Hostname, err)
 		return err
 	}
 
 	if resp.IsError() {
-		log.Errorf(
-			"nodes(%s): has error response from %s osd req(%d %v)",
-			h.reqId, node.Hostname, resp.StatusCode(), string(resp.Body()),
+		err := fmt.Errorf(
+			"has error response from %s osd req(%d %v)",
+			node.Hostname, resp.StatusCode(), string(resp.Body()),
 		)
-		return nil
+		log.Errorf("nodes(%s): %v", h.reqId, err)
+		return err
 	}
 
 	return nil
@@ -116,14 +135,14 @@ func (h *helper) getMethodByHandler() string {
 		return "POST"
 	case "removeNodeOsd":
 		return "DELETE"
-	case "patchNodeOsd":
+	case "updateNodeOsd":
 		return "PATCH"
 	default:
 		return "GET"
 	}
 }
 
-func (h *helper) getDeviceUrlByHandler(node *nodes.Node) string {
+func (h *helper) getUrlByHandler(node *nodes.Node) string {
 	switch h.handler {
 	case "addNodeDevice":
 		return node.AddDeviceUrl()
@@ -135,7 +154,7 @@ func (h *helper) getDeviceUrlByHandler(node *nodes.Node) string {
 		return node.RestartOsdUrl(h.osdReqOpts.Id)
 	case "removeNodeOsd":
 		return node.RemoveOsdUrl(h.osdReqOpts.Id)
-	case "patchNodeOsd":
+	case "updateNodeOsd":
 		return node.PatchOsdUrl(h.osdReqOpts.Id)
 	default:
 		return node.GetDeviceUrl(h.deviceReqOpts.Device)

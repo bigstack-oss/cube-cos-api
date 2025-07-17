@@ -50,7 +50,7 @@ func (o *Operator) reportOsdToController(req nodes.OsdReqOpts) {
 	resp, err := h.R().
 		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(req).
-		Patch(node.PatchOsdTaskUrl())
+		Patch(node.UpdateOsdTaskUrl())
 	if err != nil {
 		log.Errorf("nodes: failed to send osd(%s) task update to %s(%v)", req.Id, node.Hostname, err)
 		return

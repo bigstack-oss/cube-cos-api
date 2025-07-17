@@ -37,6 +37,7 @@ type helper struct {
 	osdId           string
 	deviceReqOpts   nodes.DeviceReqOpts
 	osdReqOpts      nodes.OsdReqOpts
+	osdReqOptses    []nodes.OsdReqOpts
 
 	page  *pages.Page
 	watch bool

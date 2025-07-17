@@ -25,18 +25,20 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseCreateDeviceOptions()
 	case "updateNodeDevice":
 		return h.parsePromoteOrDemoteOptions()
+	case "updateNodeDeviceOsds":
+		return h.parseUpdateDeviceOsdsOptions()
 	case "removeNodeDevice":
 		return h.parseRemoveDeviceOptions()
 	case "restartNodeOsd":
 		return h.parseRestartOsdOptions()
 	case "removeNodeOsd":
 		return h.parseRemoveOsdOptions()
-	case "patchNodeOsd":
-		return h.parsePatchOsdOptions()
-	case "patchDeviceTask":
-		return h.parsePatchDeviceTaskOptions()
-	case "patchOsdTask":
-		return h.parsePatchOsdTaskOptions()
+	case "updateNodeOsd":
+		return h.parseUpdateOsdOptions()
+	case "updateDeviceTask":
+		return h.parseUpdateDeviceTaskOptions()
+	case "updateOsdTask":
+		return h.parseUpdateOsdTaskOptions()
 	default:
 		return fmt.Errorf(
 			"unknown node handler: %s",
@@ -178,6 +180,33 @@ func (h *helper) parsePromoteOrDemoteOptions() error {
 	return nil
 }
 
+func (h *helper) parseUpdateDeviceOsdsOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("node name should be provided")
+	}
+
+	h.device = h.c.Param("device")
+	if h.device == "" {
+		return fmt.Errorf("device name should be provided")
+	}
+
+	err := h.c.ShouldBindJSON(&h.osdReqOpts)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to parse patch osd options(%v)",
+			err,
+		)
+	}
+
+	if !h.isValidReweight(h.osdReqOpts.Reweight) {
+		return fmt.Errorf("reweight should be between 0.0 ~ 1.0 and only allow two decimal places")
+	}
+
+	h.deviceReqOpts.Device = fmt.Sprintf("/dev/%s", h.device)
+	return h.setOsdReqOptses()
+}
+
 func (h *helper) parseRemoveDeviceOptions() error {
 	h.node = h.c.Param("nodeName")
 	if h.node == "" {
@@ -244,7 +273,7 @@ func (h *helper) parseRemoveOsdOptions() error {
 	return nil
 }
 
-func (h *helper) parsePatchOsdOptions() error {
+func (h *helper) parseUpdateOsdOptions() error {
 	h.node = h.c.Param("nodeName")
 	if h.node == "" {
 		return fmt.Errorf("node name should be provided")
@@ -263,7 +292,7 @@ func (h *helper) parsePatchOsdOptions() error {
 		)
 	}
 
-	if h.isValidRewight(h.osdReqOpts.Reweight) {
+	if !h.isValidReweight(h.osdReqOpts.Reweight) {
 		return fmt.Errorf("reweight should be between 0.0 ~ 1.0 and only allow two decimal places")
 	}
 
@@ -272,15 +301,14 @@ func (h *helper) parsePatchOsdOptions() error {
 		return fmt.Errorf("failed to get device by osd id(%s): %v", h.osdId, err)
 	}
 
-	h.osdReqOpts.Hostname = h.node
 	h.osdReqOpts.Device = fmt.Sprintf("/dev/%s", device.Dev)
 	h.osdReqOpts.Hostname = h.node
 	h.osdReqOpts.Id = h.osdId
-	h.osdReqOpts.SetRewighting()
+	h.osdReqOpts.SetReweighting()
 	return nil
 }
 
-func (h *helper) parsePatchDeviceTaskOptions() error {
+func (h *helper) parseUpdateDeviceTaskOptions() error {
 	h.node = h.c.Param("nodeName")
 	if h.node == "" {
 		return fmt.Errorf("node name should be provided")
@@ -297,7 +325,7 @@ func (h *helper) parsePatchDeviceTaskOptions() error {
 	return nil
 }
 
-func (h *helper) parsePatchOsdTaskOptions() error {
+func (h *helper) parseUpdateOsdTaskOptions() error {
 	h.node = h.c.Param("nodeName")
 	if h.node == "" {
 		return fmt.Errorf("node name should be provided")
@@ -309,6 +337,35 @@ func (h *helper) parsePatchOsdTaskOptions() error {
 			"failed to parse patch osd task options(%v)",
 			err,
 		)
+	}
+
+	return nil
+}
+
+func (h *helper) setOsdReqOptses() error {
+	deviceMap, err := ceph.GetDeviceMapByHost(h.node)
+	if err != nil {
+		return fmt.Errorf("failed to get device map by host %s(%v)", h.node, err)
+	}
+
+	device, found := deviceMap[h.device]
+	if !found {
+		return fmt.Errorf("device %s not found on host %s", h.device, h.node)
+	}
+	if len(device.Osds) == 0 {
+		return fmt.Errorf("device %s has no OSDs on host %s", h.device, h.node)
+	}
+
+	for _, osd := range device.Osds {
+		odsReqOpts := nodes.OsdReqOpts{
+			Device:   fmt.Sprintf("/dev/%s", device.Dev),
+			Hostname: h.node,
+			Id:       osd.Id,
+			Reweight: h.osdReqOpts.Reweight,
+		}
+
+		odsReqOpts.SetReweighting()
+		h.osdReqOptses = append(h.osdReqOptses, odsReqOpts)
 	}
 
 	return nil

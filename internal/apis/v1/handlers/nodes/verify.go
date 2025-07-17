@@ -92,7 +92,7 @@ func (h *helper) validateOsdReq() error {
 	return nil
 }
 
-func (h *helper) isValidRewight(reweight float64) bool {
+func (h *helper) isValidReweight(reweight float64) bool {
 	if reweight < 0.0 || reweight > 1.0 {
 		return false
 	}

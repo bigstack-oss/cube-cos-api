@@ -13,7 +13,7 @@ type OsdReqOpts struct {
 	Hostname string     `json:"host"`
 	Id       string     `json:"id"`
 	Device   string     `json:"device"`
-	Reweight float64    `json:"rewight"`
+	Reweight float64    `json:"reweight"`
 	Status   status.Osd `json:"status"`
 }
 
@@ -52,7 +52,7 @@ func (o *OsdReqOpts) SetRemoving() {
 	o.Status.IsProcessing = true
 }
 
-func (o *OsdReqOpts) SetRewighting() {
+func (o *OsdReqOpts) SetReweighting() {
 	o.Status.Desired = status.Reweighted
 	o.Status.IsProcessing = true
 }
