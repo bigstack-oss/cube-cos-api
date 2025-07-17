@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 )
@@ -28,12 +27,12 @@ func (h *helper) parseParamsByHandler() error {
 
 func (h *helper) parseSummaryParams() error {
 	var err error
-	h.watch, err = query.GetWatch(h.c)
+	h.watch, err = queries.GetWatch(h.c)
 	if err != nil {
 		return err
 	}
 
-	h.past, err = query.GetPast(h.c)
+	h.past, err = queries.GetPast(h.c)
 	if err != nil {
 		return err
 	}
@@ -43,17 +42,17 @@ func (h *helper) parseSummaryParams() error {
 
 func (h *helper) parseServiceHealthParams() error {
 	var err error
-	h.watch, err = query.GetWatch(h.c)
+	h.watch, err = queries.GetWatch(h.c)
 	if err != nil {
 		return err
 	}
 
-	h.past, err = query.GetPast(h.c)
+	h.past, err = queries.GetPast(h.c)
 	if err != nil {
 		return err
 	}
 
-	h.period, err = query.GetPeriod(h.c)
+	h.period, err = queries.GetPeriod(h.c)
 	if err != nil {
 		return err
 	}
@@ -72,17 +71,22 @@ func (h *helper) parseServiceHealthParams() error {
 
 func (h *helper) parseModuleHealthParams() error {
 	var err error
-	h.watch, err = query.GetWatch(h.c)
+	h.watch, err = queries.GetWatch(h.c)
 	if err != nil {
 		return err
 	}
 
-	h.past, err = query.GetPast(h.c)
+	h.aggregate, err = queries.GetAggregation(h.c)
 	if err != nil {
 		return err
 	}
 
-	h.period, err = query.GetPeriod(h.c)
+	h.past, err = queries.GetPast(h.c)
+	if err != nil {
+		return err
+	}
+
+	h.period, err = queries.GetPeriod(h.c)
 	if err != nil {
 		return err
 	}

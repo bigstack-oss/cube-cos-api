@@ -22,8 +22,9 @@ type helper struct {
 	moduleType  string
 	module      *services.Module
 
-	period *time.Period
-	past   string
+	aggregate bool
+	period    *time.Period
+	past      string
 
 	watch bool
 }
@@ -46,7 +47,7 @@ func (h *helper) genServiceHealthHistory() []cubecos.ModuleHealth {
 func (h *helper) genModuleHealthHistory() cubecos.ModuleHealth {
 	service := cubecos.ModuleToService[h.moduleType]
 	stmt := h.genModuleHealthHistoryQuery(false)
-	history, err := cubecos.GetModuleHealthHistory(stmt)
+	history, err := cubecos.GetModuleHealthHistory(stmt, h.aggregate)
 	if err != nil {
 		log.Errorf("healths(%s): %v", queries.GetReqId(h.c), err)
 	}

@@ -1,7 +1,9 @@
 package queries
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
 	ostime "time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
@@ -32,6 +34,30 @@ func GetPeriod(c *gin.Context) (*time.Period, error) {
 	}, nil
 }
 
+func GetPast(c *gin.Context) (string, error) {
+	query := c.DefaultQuery("past", "")
+	if query == "" {
+		return "", nil
+	}
+
+	_, err := duration.Str2Duration(query)
+	if err != nil {
+		return "", fmt.Errorf("invalid 'past' duration: %s", query)
+	}
+
+	return query, nil
+}
+
+func GetAggregation(c *gin.Context) (bool, error) {
+	query := c.DefaultQuery("aggregate", "false")
+	aggregation, err := strconv.ParseBool(query)
+	if err != nil {
+		return false, errors.New("aggregate parameter is invalid, it should be true or false if provided")
+	}
+
+	return aggregation, nil
+}
+
 func ArePeriodAndPastRequired(c *gin.Context) bool {
 	return IsPeriodRequired(c) && IsPastRequired(c)
 }
@@ -49,16 +75,7 @@ func IsPastRequired(c *gin.Context) bool {
 	return found
 }
 
-func GetPast(c *gin.Context) (string, error) {
-	query := c.DefaultQuery("past", "")
-	if query == "" {
-		return "", nil
-	}
-
-	_, err := duration.Str2Duration(query)
-	if err != nil {
-		return "", fmt.Errorf("invalid 'past' duration: %s", query)
-	}
-
-	return query, nil
+func IsAggregationRequired(c *gin.Context) bool {
+	_, found := c.GetQuery("aggregation")
+	return found
 }

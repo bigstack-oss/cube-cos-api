@@ -236,7 +236,7 @@ func GetServiceHealthHistory(serviceName, duration string) []ModuleHealth {
 	return statuses
 }
 
-func GetModuleHealthHistory(stmt string) ([]health.Check, error) {
+func GetModuleHealthHistory(stmt string, needsAggregate bool) ([]health.Check, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
 	defer cancel()
 	h := influx.GetGlobalHelper()
@@ -254,7 +254,13 @@ func GetModuleHealthHistory(stmt string) ([]health.Check, error) {
 		return nil, err
 	}
 
-	checks = aggregateHealthsByTime(checks, defaultAggreateWindow)
+	log.Infof("-----------------")
+	log.Infof("%b", needsAggregate)
+
+	if needsAggregate {
+		checks = aggregateHealthsByTime(checks, defaultAggreateWindow)
+	}
+
 	setUnhealthLogUrl(&checks)
 	return checks, nil
 }
@@ -377,7 +383,7 @@ func aggregateHealthsByTime(checks []health.Check, duration ostime.Duration) []h
 			aggregated = append(aggregated, firstCheck)
 		}
 
-		picked := pickHealthyOrUnhealthy(grouped[key])
+		picked := pickFixingOrOkOrNg(grouped[key])
 		aggregated = append(aggregated, picked)
 	}
 
@@ -425,14 +431,22 @@ func getSortedTimeKeys(grouped map[ostime.Time][]health.Check) []ostime.Time {
 	return keys
 }
 
-func pickHealthyOrUnhealthy(group []health.Check) health.Check {
+func pickFixingOrOkOrNg(group []health.Check) health.Check {
 	for _, check := range group {
+		if check.IsFix() {
+			check.Status = status.Fixing
+			return check
+		}
+
 		if check.IsNg() {
+			check.Status = status.Ng
 			return check
 		}
 	}
 
-	return group[0]
+	check := group[0]
+	check.Status = status.Ok
+	return check
 }
 
 func genModuleFilter(modulName string) string {
@@ -458,19 +472,27 @@ func parseHealthCheck(c *api.QueryTableResult, checks *[]health.Check) error {
 }
 
 func genHealthCheckByRecord(record *query.FluxRecord) health.Check {
-	healthCheck := health.Check{Time: parseTime(record)}
+	healthCheck := health.Check{
+		Time:     parseTime(record),
+		Hostname: parseNode(record),
+		Status:   parseHealthResult(record),
+	}
+
 	syncStatusDetails(record, &healthCheck)
 	return healthCheck
 }
 
 func syncStatusDetails(record *query.FluxRecord, check *health.Check) {
-	desc := parseHealthResult(record)
-	if desc == status.Ok {
-		check.Status = status.Ok
+	// if desc == status.Ok {
+	// 	check.Status = status.Ok
+	// 	return
+	// }
+
+	if !check.IsNg() {
 		return
 	}
 
-	check.Status = status.Ng
+	// check.Status = status.Ng
 	check.Error = &health.Error{
 		Type:        fmt.Sprintf("%s failure", record.ValueByKey("component").(string)),
 		Reason:      record.ValueByKey("description").(string),
@@ -482,24 +504,24 @@ func syncStatusDetails(record *query.FluxRecord, check *health.Check) {
 }
 
 func parseHealthResult(record *query.FluxRecord) string {
-	code := record.ValueByKey("code")
-	code, ok := code.(string)
+	// code := record.ValueByKey("code")
+	// code, ok := code.(string)
+	// if !ok {
+	// 	return status.Ng
+	// }
+
+	val := record.ValueByKey("description")
+	desc, ok := val.(string)
 	if !ok {
 		return status.Ng
 	}
 
-	desc := record.ValueByKey("description")
-	desc, ok = desc.(string)
-	if !ok {
-		return status.Ng
-	}
+	// isOkOrFixingDesc := desc == status.Ok || desc == status.Fixing
+	// if code != "0" && !isOkOrFixingDesc {
+	// 	return status.Ng
+	// }
 
-	isOkOrFixingDesc := desc == status.Ok || desc == status.Fixing
-	if code != "0" && !isOkOrFixingDesc {
-		return status.Ng
-	}
-
-	return status.Ok
+	return desc
 }
 
 func syncServiceHealth(services *[]services.Service, duration string) {
@@ -610,6 +632,16 @@ func parseNodes(record *query.FluxRecord) []string {
 	}
 
 	return []string{val}
+}
+
+func parseNode(record *query.FluxRecord) string {
+	node := record.ValueByKey("node")
+	val, ok := node.(string)
+	if !ok {
+		return "unknown"
+	}
+
+	return val
 }
 
 func parseLog(record *query.FluxRecord) string {
