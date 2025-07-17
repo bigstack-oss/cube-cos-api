@@ -230,7 +230,7 @@ func GetOsdByDaemonId(daemonId string) (*Osd, error) {
 func convertToOsd(raw Node) Osd {
 	return Osd{
 		Id:           raw.Name,
-		DeviceClass:  raw.DeviceClass,
+		DeviceClass:  strings.ToUpper(raw.DeviceClass),
 		Reweight:     raw.Reweight,
 		UsagePercent: math.RoundDown(raw.Utilization, 4),
 		Pgs:          raw.Pgs,

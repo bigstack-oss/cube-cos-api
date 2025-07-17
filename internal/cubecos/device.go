@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
 )
@@ -31,7 +32,7 @@ func AddDevice(req nodes.DeviceReqOpts) error {
 
 func UpdateDevice(req nodes.DeviceReqOpts) error {
 	promoteOrDemote := "ceph_osd_promote_disk"
-	if strings.EqualFold(req.Class, "hdd") {
+	if strings.EqualFold(req.Class, blockdevice.HDD) {
 		promoteOrDemote = "ceph_osd_demote_disk"
 	}
 

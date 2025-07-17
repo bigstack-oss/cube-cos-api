@@ -5727,7 +5727,7 @@ const docTemplate = `{
                                                     "serial": "57T0A05UF5YE",
                                                     "device": "sda",
                                                     "type": "HDD",
-                                                    "class": "hdd",
+                                                    "class": "HDD",
                                                     "osd": {
                                                         "pgs": 646,
                                                         "reweight": 1,
@@ -5782,7 +5782,7 @@ const docTemplate = `{
                                                     "serial": "57P0A0EWF5YE",
                                                     "device": "sdc",
                                                     "type": "HDD",
-                                                    "class": "hdd",
+                                                    "class": "HDD",
                                                     "osd": {
                                                         "pgs": 634,
                                                         "reweight": 1,
@@ -6074,13 +6074,13 @@ const docTemplate = `{
                                 "example1": {
                                     "summary": "Promote a device to SSD class",
                                     "value": {
-                                        "class": "ssd"
+                                        "class": "SSD"
                                     }
                                 },
                                 "example2": {
                                     "summary": "Demote a device to HDD class",
                                     "value": {
-                                        "class": "hdd"
+                                        "class": "HDD"
                                     }
                                 }
                             }
@@ -15427,11 +15427,7 @@ const docTemplate = `{
                                     "type": "string"
                                 },
                                 "class": {
-                                    "type": "string",
-                                    "enum": [
-                                        "ssd",
-                                        "hdd"
-                                    ]
+                        "$ref": "#/components/schemas/DeviceType"
                                 },
                                 "type": {
                                     "type": "string"
@@ -15682,11 +15678,7 @@ const docTemplate = `{
                 ],
                 "properties": {
                     "class": {
-                        "type": "string",
-                        "enum": [
-                            "ssd",
-                            "hdd"
-                        ]
+                        "$ref": "#/components/schemas/DeviceType"
                     }
                 }
             },
@@ -18593,6 +18585,13 @@ const docTemplate = `{
                         "type": "boolean"
                     }
                 }
+            },
+            "DeviceType": {
+                "type": "string",
+                "enum": [
+                    "SSD",
+                    "HDD"
+                ]
             }
         }
     },

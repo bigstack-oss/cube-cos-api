@@ -187,7 +187,7 @@ func (h *helper) setBlockDeviceStatus(blockDevs *[]nodes.BlockDevice) {
 
 func (h *helper) setBlockPromotionDetails(blockDevs *[]nodes.BlockDevice) {
 	for i, blockDev := range *blockDevs {
-		if strings.EqualFold(blockDev.Class, "ssd") {
+		if strings.EqualFold(blockDev.Class, blockdevice.SSD) {
 			(*blockDevs)[i].Status.IsPromotable = false
 			(*blockDevs)[i].Status.IsDemotable = true
 		} else {
