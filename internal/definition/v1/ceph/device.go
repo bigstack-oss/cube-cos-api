@@ -23,7 +23,6 @@ type Device struct {
 type Osd struct {
 	Id           string  `json:"id"`
 	DeviceClass  string  `json:"device_class"`
-	CrushWeight  float64 `json:"crush_weight"`
 	Reweight     float64 `json:"reweight,omitzero"`
 	UsagePercent float64 `json:"usagePercent"`
 	Pgs          int     `json:"pgs"`
@@ -205,10 +204,10 @@ func getMaxOsdReweight(osds []Osd) float64 {
 		return 0.0
 	}
 
-	maxReweight := osds[0].CrushWeight
+	maxReweight := osds[0].Reweight
 	for _, osd := range osds {
-		if osd.CrushWeight > maxReweight {
-			maxReweight = osd.CrushWeight
+		if osd.Reweight > maxReweight {
+			maxReweight = osd.Reweight
 		}
 	}
 
