@@ -263,6 +263,10 @@ func (h *helper) parsePatchOsdOptions() error {
 		)
 	}
 
+	if h.isValidRewight(h.osdReqOpts.Reweight) {
+		return fmt.Errorf("reweight should be between 0.0 ~ 1.0 and only allow two decimal places")
+	}
+
 	device, err := ceph.GetDeviceByOsdId(h.node, h.osdId)
 	if err != nil {
 		return fmt.Errorf("failed to get device by osd id(%s): %v", h.osdId, err)

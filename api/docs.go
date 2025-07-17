@@ -5824,7 +5824,7 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": "Node not found",
+                        "description": "Node device not found",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5836,7 +5836,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "node not found"
+                                            "example": "node device not found"
                                         },
                                         "status": {
                                             "type": "string",
@@ -6178,7 +6178,7 @@ const docTemplate = `{
                                 "example": {
                                     "summary": "Reweight an OSD",
                                     "value": {
-                                        "reweight": 0.5
+                                        "reweight": 0.75
                                     }
                                 }
                             }
@@ -15690,7 +15690,7 @@ const docTemplate = `{
                 "properties": {
                     "reweight": {
                         "type": "number",
-                        "description": "The reweight value for the OSD, e.g., 0.5"
+                        "description": "The reweight value for the OSD. It's only allow to have two decimal places with a range of 0.0 to 1.0, for example, 0.5 or 0.75."
                     }
                 }
             },

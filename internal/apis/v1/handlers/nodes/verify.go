@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -89,4 +90,12 @@ func (h *helper) validateOsdReq() error {
 	}
 
 	return nil
+}
+
+func (h *helper) isValidRewight(reweight float64) bool {
+	if reweight < 0.0 || reweight > 1.0 {
+		return false
+	}
+
+	return !math.HasMoreThanTwoDecimalPlaces(h.osdReqOpts.Reweight)
 }

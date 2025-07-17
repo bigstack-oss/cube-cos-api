@@ -23,6 +23,7 @@ type Device struct {
 type Osd struct {
 	Id           string  `json:"id"`
 	DeviceClass  string  `json:"device_class"`
+	CrushWeight  float64 `json:"crush_weight"`
 	Reweight     float64 `json:"reweight,omitzero"`
 	UsagePercent float64 `json:"usagePercent"`
 	Pgs          int     `json:"pgs"`
@@ -47,7 +48,7 @@ type Node struct {
 	DeviceClass string  `json:"device_class"`
 	Name        string  `json:"name"`
 	Type        string  `json:"type"`
-	Reweight    float64 `json:"reweight"`
+	CrushWeight float64 `json:"crush_weight"`
 	Utilization float64 `json:"utilization"`
 	Pgs         int     `json:"pgs"`
 	Status      string  `json:"status"`
@@ -159,10 +160,10 @@ func getOsdDeviceClass(osds []Osd) string {
 
 	class := "unknown"
 	for _, osd := range osds {
-		return osd.DeviceClass
+		return strings.ToUpper(osd.DeviceClass)
 	}
 
-	return class
+	return strings.ToUpper(class)
 }
 
 func getMaxOsdReweight(osds []Osd) float64 {
@@ -170,10 +171,10 @@ func getMaxOsdReweight(osds []Osd) float64 {
 		return 0.0
 	}
 
-	maxReweight := osds[0].Reweight
+	maxReweight := osds[0].CrushWeight
 	for _, osd := range osds {
-		if osd.Reweight > maxReweight {
-			maxReweight = osd.Reweight
+		if osd.CrushWeight > maxReweight {
+			maxReweight = osd.CrushWeight
 		}
 	}
 
@@ -231,7 +232,7 @@ func convertToOsd(raw Node) Osd {
 	return Osd{
 		Id:           raw.Name,
 		DeviceClass:  strings.ToUpper(raw.DeviceClass),
-		Reweight:     raw.Reweight,
+		Reweight:     math.RoundDown(raw.CrushWeight, 2),
 		UsagePercent: math.RoundDown(raw.Utilization, 4),
 		Pgs:          raw.Pgs,
 		Status:       raw.Status,
