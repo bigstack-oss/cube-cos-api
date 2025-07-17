@@ -34,7 +34,7 @@ type Report struct {
 
 type Check struct {
 	Time     string `json:"time"`
-	Hostname string `json:"node"`
+	Hostname string `json:"hostname"`
 	Status   string `json:"status"`
 	*Error   `json:"error,omitempty"`
 }

@@ -2064,6 +2064,7 @@ const docTemplate = `{
                                                     "history": [
                                                         {
                                                             "time": "2025-02-15T08:44:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ng",
                                                             "error": {
                                                                 "type": "service down",
@@ -2078,22 +2079,27 @@ const docTemplate = `{
                                                         },
                                                         {
                                                             "time": "2025-02-15T08:49:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T08:54:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T08:59:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:04:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:09:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ng",
                                                             "error": {
                                                                 "type": "service down",
@@ -2108,22 +2114,27 @@ const docTemplate = `{
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:14:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:19:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:24:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:29:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:34:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ng",
                                                             "error": {
                                                                 "type": "service down",
@@ -2138,10 +2149,12 @@ const docTemplate = `{
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:39:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:44:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         }
                                                     ]
@@ -2154,6 +2167,7 @@ const docTemplate = `{
                                                     "history": [
                                                         {
                                                             "time": "2025-02-15T08:44:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ng",
                                                             "error": {
                                                                 "type": "service down",
@@ -2168,22 +2182,27 @@ const docTemplate = `{
                                                         },
                                                         {
                                                             "time": "2025-02-15T08:49:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T08:54:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T08:59:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:04:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:09:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ng",
                                                             "error": {
                                                                 "type": "service down",
@@ -2198,22 +2217,27 @@ const docTemplate = `{
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:14:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:19:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:24:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:29:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:34:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ng",
                                                             "error": {
                                                                 "type": "service down",
@@ -2228,10 +2252,12 @@ const docTemplate = `{
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:39:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
                                                             "time": "2025-02-15T09:44:36+00:00",
+                                                            "hostname": "example-node-0",
                                                             "status": "ok"
                                                         }
                                                     ]
@@ -2433,6 +2459,17 @@ const docTemplate = `{
                     },
                     {
                         "$ref": "#/components/parameters/watch"
+                    },
+                    {
+                        "in": "query",
+                        "name": "aggregate",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "description": "If true, the health history will be aggregated by time and status(fixing related status > ng related status > ok related status), otherwise it will return the raw history data.",
+                        "example": "false"
                     }
                 ],
                 "responses": {
@@ -2456,14 +2493,17 @@ const docTemplate = `{
                                                 "history": [
                                                     {
                                                         "time": "2025-02-01T03:00:00+00:00",
+                                                        "hostname": "example-node-0",
                                                         "status": "ok"
                                                     },
                                                     {
                                                         "time": "2025-02-01T02:55:00+00:00",
+                                                        "hostname": "example-node-0",
                                                         "status": "ok"
                                                     },
                                                     {
                                                         "time": "2025-02-01T02:50:00+00:00",
+                                                        "hostname": "example-node-0",
                                                         "status": "ng",
                                                         "error": {
                                                             "type": "service down",
@@ -2478,6 +2518,7 @@ const docTemplate = `{
                                                     },
                                                     {
                                                         "time": "2025-02-01T02:45:00+00:00",
+                                                        "hostname": "example-node-0",
                                                         "status": "ok"
                                                     }
                                                 ],
@@ -6017,6 +6058,9 @@ const docTemplate = `{
                     },
                     {
                         "$ref": "#/components/parameters/nodeName"
+                    },
+                    {
+                        "$ref": "#/components/parameters/deviceName"
                     }
                 ],
                 "requestBody": {
@@ -13542,6 +13586,7 @@ const docTemplate = `{
                                         "type": "object",
                                         "required": [
                                             "time",
+                                            "hostname",
                                             "status"
                                         ],
                                         "properties": {
@@ -13549,10 +13594,15 @@ const docTemplate = `{
                                                 "type": "string",
                                                 "format": "date-time"
                                             },
+                                            "hostname": {
+                                                "type": "string",
+                                                "example": "example-node-0"
+                                            },
                                             "status": {
                                                 "type": "string",
                                                 "enum": [
                                                     "ok",
+                                                    "fixing",
                                                     "ng"
                                                 ]
                                             },
@@ -13691,10 +13741,15 @@ const docTemplate = `{
                                             "type": "string",
                                             "format": "date-time"
                                         },
+                                        "hostname": {
+                                            "type": "string",
+                                            "example": "example-node-0"
+                                        },
                                         "status": {
                                             "type": "string",
                                             "enum": [
                                                 "ok",
+                                                "fixing",
                                                 "ng"
                                             ]
                                         },
