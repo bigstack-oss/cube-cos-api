@@ -151,6 +151,7 @@ func (h *helper) saveTemporaryNodeDetails() error {
 }
 
 func (h *helper) upsertDeviceReqRecord() {
+	changes.Add(nodes.Change{UseCacheInStream: true, Handler: h.handler})
 	err := h.mongo.UpdateOne(
 		nodes.Db,
 		nodes.ReqDeviceCollection,
@@ -169,6 +170,7 @@ func (h *helper) upsertDeviceReqRecord() {
 }
 
 func (h *helper) upsertOsdReqRecord() {
+	changes.Add(nodes.Change{UseCacheInStream: true, Handler: h.handler})
 	err := h.mongo.UpdateOne(
 		nodes.Db,
 		nodes.ReqOsdCollection,
@@ -187,7 +189,8 @@ func (h *helper) upsertOsdReqRecord() {
 }
 func (h *helper) syncUpdatingBlockDevices(blockDevs *[]nodes.BlockDevice) {
 	for i, dev := range *blockDevs {
-		if h.hasUpdatingReq(dev) {
+		if h.hasUpdatingReqs(dev) {
+			(*blockDevs)[i].Status.Current = status.Processing
 			(*blockDevs)[i].Status.IsProcessing = true
 			continue
 		}
@@ -198,16 +201,25 @@ func (h *helper) syncCachedBlockDevices(blockDevs []nodes.BlockDevice) {
 	lastDeviceList.Store(h.node, blockDevs)
 }
 
-func (h *helper) hasUpdatingReq(dev nodes.BlockDevice) bool {
-	count, err := h.mongo.GetCount(
-		nodes.Db,
-		nodes.ReqDeviceCollection,
-		bson.M{"hostname": h.node, "device": fmt.Sprintf("/dev/%s", dev.Name)},
-	)
-	if err != nil {
-		log.Errorf("nodes(%s): failed to get updating record for device %s(%v)", h.reqId, dev.Name, err)
-		return false
+func (h *helper) hasUpdatingReqs(dev nodes.BlockDevice) bool {
+	for _, collection := range nodes.ReqDeviceCollections {
+		count, err := h.mongo.GetCount(
+			nodes.Db,
+			collection,
+			bson.M{
+				"hostname": h.node,
+				"device":   fmt.Sprintf("/dev/%s", dev.Name),
+			},
+		)
+		if err != nil {
+			log.Errorf("nodes(%s): failed to get updating record for device %s(%v)", h.reqId, dev.Name, err)
+			continue
+		}
+
+		if count > 0 {
+			return true
+		}
 	}
 
-	return count > 0
+	return false
 }

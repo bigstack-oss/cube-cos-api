@@ -15,6 +15,7 @@ const (
 	Pending              = "pending"
 	Updating             = "updating"
 	Repairing            = "repairing"
+	Processing           = "processing"
 	Syncing              = "syncing"
 	Checking             = "checking"
 	CheckingAndRepairing = "checkingAndRepairing"

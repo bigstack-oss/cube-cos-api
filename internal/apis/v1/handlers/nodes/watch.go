@@ -3,12 +3,12 @@ package nodes
 import (
 	"errors"
 	"net/http"
-	"reflect"
 	"slices"
 	"sync"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/gin-gonic/gin"
 	json "github.com/json-iterator/go"
 )
@@ -36,7 +36,7 @@ func streamData(h *helper, data any) {
 	}
 
 	watcher := watcher{helper: *h, dataChan: make(dataChan)}
-	addWatcher(watcher)
+	setWatcher(watcher)
 	defer removeWatcher(watcher)
 
 	sendFirstData(h.c, flusher, data)
@@ -50,9 +50,15 @@ func streamingWatcher() {
 			continue
 		}
 
+		change, shutdown := changes.Get()
+		if shutdown {
+			return
+		}
+
 		stream.Lock()
 		for _, w := range stream.Watchers {
-			data, err := streamDataByHandler(&w.helper)
+			data, err := streamDataByHandler(&w.helper, change)
+			changes.Done(change)
 			if err != nil {
 				continue
 			}
@@ -67,14 +73,14 @@ func streamingWatcher() {
 	}
 }
 
-func streamDataByHandler(h *helper) (any, error) {
+func streamDataByHandler(h *helper, change nodes.Change) (any, error) {
 	switch h.handler {
 	case "listNodes":
 		return h.listNodes()
 	case "getNode":
 		return h.getNode()
 	case "listNodeDevices":
-		return h.listNodeDevices()
+		return h.listNodeDevices(change.UseCacheInStream)
 	}
 
 	return nil, errors.New("no internal function supported")
@@ -85,7 +91,7 @@ func setChunkedTransfer(c *gin.Context) {
 	c.Writer.Header().Set("Transfer-Encoding", "chunked")
 }
 
-func addWatcher(w watcher) {
+func setWatcher(w watcher) {
 	stream.Lock()
 	stream.Watchers = append(stream.Watchers, w)
 	stream.Unlock()
@@ -96,7 +102,7 @@ func removeWatcher(watcherToRemove watcher) {
 	defer stream.Unlock()
 
 	for i, watcher := range stream.Watchers {
-		if !reflect.DeepEqual(watcher, watcherToRemove) {
+		if watcher.reqId != watcherToRemove.reqId {
 			continue
 		}
 

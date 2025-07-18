@@ -34,6 +34,11 @@ var (
 
 	serviceList = sync.Mutex{}
 	nodeList    = sync.Mutex{}
+
+	ReqDeviceCollections = []string{
+		ReqDeviceCollection,
+		ReqOsdCollection,
+	}
 )
 
 type Node struct {
@@ -65,6 +70,11 @@ type Node struct {
 	UptimeSeconds float64          `json:"uptimeSeconds" yaml:"uptimeSeconds" bson:"uptimeSeconds"`
 
 	Labels map[string]string `json:"labels,omitempty" yaml:"labels,omitempty" bson:"labels,omitempty"`
+}
+
+type Change struct {
+	UseCacheInStream bool   `json:"useCacheInStream" yaml:"useCacheInStream" bson:"useCacheInStream"`
+	Handler          string `json:"handler" yaml:"handler" bson:"handler"`
 }
 
 func (n *Node) IsLocal() bool {

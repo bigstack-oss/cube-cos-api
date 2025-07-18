@@ -290,7 +290,7 @@ func listNodeDevices(c *gin.Context) {
 		return
 	}
 
-	devices, err := h.listNodeDevices()
+	devices, err := h.listNodeDevices(false)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return

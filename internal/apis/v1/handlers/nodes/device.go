@@ -15,13 +15,47 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
+	"k8s.io/client-go/util/workqueue"
 )
 
 var (
 	lastDeviceList = sync.Map{}
+	changes        = workqueue.NewTyped[nodes.Change]()
 )
 
-func (h *helper) listNodeDevices() ([]nodes.BlockDevice, error) {
+func (h *helper) listNodeDevices(useCache bool) ([]nodes.BlockDevice, error) {
+	if !useCache {
+		return h.listNonCachedDevices()
+	}
+
+	devices, err := h.listCachedDevices()
+	if err == nil {
+		return devices, nil
+	}
+
+	return h.listNonCachedDevices()
+}
+
+func (h *helper) listCachedDevices() ([]nodes.BlockDevice, error) {
+	cachedDevices, found := lastDeviceList.Load(h.node)
+	if !found {
+		err := fmt.Errorf("no cached devices found %s", h.node)
+		log.Errorf("nodes(%s): %v", h.reqId, err)
+		return nil, err
+	}
+
+	if len(cachedDevices.([]nodes.BlockDevice)) == 0 {
+		err := fmt.Errorf("no cached devices found for node %s", h.node)
+		log.Errorf("nodes(%s): %v", h.reqId, err)
+		return nil, err
+	}
+
+	devices := cachedDevices.([]nodes.BlockDevice)
+	h.syncUpdatingBlockDevices(&devices)
+	return devices, nil
+}
+
+func (h *helper) listNonCachedDevices() ([]nodes.BlockDevice, error) {
 	var err error
 	blockDevs := []nodes.BlockDevice{}
 
@@ -113,7 +147,6 @@ func (h *helper) syncCephOsds(blockDevs *[]nodes.BlockDevice) error {
 	for i, blockDev := range *blockDevs {
 		cephDev, found := cephDevs[blockDev.Name]
 		if !found {
-			// (*blockDevs)[i].Osd = nodes.Osd{Daemons: []nodes.Deamon{}}
 			h.setOsdNotFoundInfo(&(*blockDevs)[i])
 			continue
 		}
