@@ -6,7 +6,7 @@ import (
 )
 
 func (h *helper) updateDeviceTask() error {
-	changes.Add(nodes.Change{UseCacheInStream: false, Handler: h.handler})
+	changes.Add(nodes.Change{UseCacheInStream: false})
 	return h.mongo.DeleteOne(
 		nodes.Db,
 		nodes.ReqDeviceCollection,
@@ -18,7 +18,7 @@ func (h *helper) updateDeviceTask() error {
 }
 
 func (h *helper) updateOsdTask() error {
-	changes.Add(nodes.Change{UseCacheInStream: false, Handler: h.handler})
+	changes.Add(nodes.Change{UseCacheInStream: false})
 	return h.mongo.DeleteOne(
 		nodes.Db,
 		nodes.ReqOsdCollection,

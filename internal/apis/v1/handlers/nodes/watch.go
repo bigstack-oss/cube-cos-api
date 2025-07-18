@@ -40,17 +40,14 @@ func streamData(h *helper, data any) {
 	defer removeWatcher(watcher)
 
 	sendFirstData(h.c, flusher, data)
+	go runConnectionKeeper(h.c, flusher)
 	streamingData(h.c, flusher, watcher)
 }
 
 func streamingWatcher() {
 	for {
-		if len(stream.Watchers) == 0 {
-			wait.Seconds(2)
-			continue
-		}
-
 		change, shutdown := changes.Get()
+		changes.Done(change)
 		if shutdown {
 			return
 		}
@@ -58,14 +55,8 @@ func streamingWatcher() {
 		stream.Lock()
 		for _, w := range stream.Watchers {
 			data, err := streamDataByHandler(&w.helper, change)
-			changes.Done(change)
-			if err != nil {
-				continue
-			}
-
-			select {
-			case w.dataChan <- data:
-			default:
+			if err == nil {
+				w.dataChan <- data
 			}
 		}
 
@@ -115,6 +106,19 @@ func sendFirstData(c *gin.Context, flusher http.Flusher, nodes any) {
 	c.Writer.Write(streamingResp(nodes))
 	c.Writer.Write([]byte("\n"))
 	flusher.Flush()
+}
+
+func runConnectionKeeper(c *gin.Context, flusher http.Flusher) {
+	for {
+		wait.Seconds(10)
+		select {
+		case <-c.Request.Context().Done():
+			return
+		default:
+			c.Writer.Write([]byte("\n"))
+			flusher.Flush()
+		}
+	}
 }
 
 func streamingData(c *gin.Context, flusher http.Flusher, watcher watcher) {

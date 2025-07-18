@@ -73,8 +73,7 @@ type Node struct {
 }
 
 type Change struct {
-	UseCacheInStream bool   `json:"useCacheInStream" yaml:"useCacheInStream" bson:"useCacheInStream"`
-	Handler          string `json:"handler" yaml:"handler" bson:"handler"`
+	UseCacheInStream bool `json:"useCacheInStream" yaml:"useCacheInStream" bson:"useCacheInStream"`
 }
 
 func (n *Node) IsLocal() bool {

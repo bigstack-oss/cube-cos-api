@@ -151,7 +151,7 @@ func (h *helper) saveTemporaryNodeDetails() error {
 }
 
 func (h *helper) upsertDeviceReqRecord() {
-	changes.Add(nodes.Change{UseCacheInStream: true, Handler: h.handler})
+	changes.Add(nodes.Change{UseCacheInStream: true})
 	err := h.mongo.UpdateOne(
 		nodes.Db,
 		nodes.ReqDeviceCollection,
@@ -170,7 +170,7 @@ func (h *helper) upsertDeviceReqRecord() {
 }
 
 func (h *helper) upsertOsdReqRecord() {
-	changes.Add(nodes.Change{UseCacheInStream: true, Handler: h.handler})
+	changes.Add(nodes.Change{UseCacheInStream: true})
 	err := h.mongo.UpdateOne(
 		nodes.Db,
 		nodes.ReqOsdCollection,
