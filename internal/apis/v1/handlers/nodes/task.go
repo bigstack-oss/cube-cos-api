@@ -11,7 +11,7 @@ func (h *helper) updateDeviceTask() error {
 		nodes.ReqDeviceCollection,
 		bson.M{
 			"hostname": h.node,
-			"device":   h.device,
+			"device":   h.deviceReqOpts.Device,
 		},
 	)
 }
