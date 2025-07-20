@@ -1,8 +1,6 @@
-package notfications
+package notifications
 
 import (
-	ostime "time"
-
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
@@ -16,7 +14,7 @@ type helper struct {
 	handler string
 
 	period *time.Period
-	past   *ostime.Time
+	past   string
 	limit  int
 }
 

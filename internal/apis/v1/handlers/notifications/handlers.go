@@ -1,4 +1,4 @@
-package notfications
+package notifications
 
 import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"

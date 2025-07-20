@@ -6,7 +6,6 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	ping "github.com/prometheus-community/pro-bing"
 	log "go-micro.dev/v5/logger"
@@ -187,24 +186,6 @@ func (h *helper) upsertOsdReqRecord() {
 			err,
 		)
 	}
-}
-
-func (h *helper) insertNotification(notify nodes.Notify) {
-	err := h.mongo.Insert(
-		notifications.Db,
-		notifications.ToastCollection,
-		bson.M{"$set": notify.Payload},
-	)
-	if err == nil {
-		return
-	}
-
-	log.Errorf(
-		"nodes(%s): failed to insert notification for %v(%v)",
-		h.reqId,
-		notify.Payload,
-		err,
-	)
 }
 
 func (h *helper) syncUpdatingBlockDevices(blockDevs *[]nodes.BlockDevice) {

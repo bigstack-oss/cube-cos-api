@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"strconv"
+	"strings"
 	ostime "time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
@@ -11,22 +12,22 @@ import (
 )
 
 type DeviceReqOpts struct {
-	ReqId    string `json:"reqId"`
-	Notify   `json:"notify"`
-	Hostname string             `json:"host"`
-	Device   string             `json:"device"`
-	Class    string             `json:"class"`
-	Status   status.BlockDevice `json:"status"`
+	ReqId    string `json:"reqId" bson:"reqId"`
+	Notify   `json:"notify" bson:"-"`
+	Hostname string             `json:"hostname" bson:"hostname"`
+	Device   string             `json:"device" bson:"device"`
+	Class    string             `json:"class" bson:"class"`
+	Status   status.BlockDevice `json:"status" `
 }
 
 type OsdReqOpts struct {
-	Hostname string `json:"host"`
-	OsdId    string `json:"osdId"`
-	ReqId    string `json:"reqId"`
-	Notify   `json:"notify"`
-	Device   string     `json:"device"`
-	Reweight float64    `json:"reweight"`
-	Status   status.Osd `json:"status"`
+	Hostname string `json:"hostname" bson:"hostname"`
+	OsdId    string `json:"osdId" bson:"osdId"`
+	ReqId    string `json:"reqId" bson:"reqId"`
+	Notify   `json:"notify" bson:"-"`
+	Device   string     `json:"device" bson:"device"`
+	Reweight float64    `json:"reweight" bson:"reweight"`
+	Status   status.Osd `json:"status" bson:"status"`
 }
 
 func (d *DeviceReqOpts) SetAdding() {
@@ -36,10 +37,12 @@ func (d *DeviceReqOpts) SetAdding() {
 
 func (d *DeviceReqOpts) SetUpdating() {
 	d.Status.IsProcessing = true
-	switch d.Class {
-	case blockdevice.SSD:
+
+	if strings.EqualFold(d.Class, blockdevice.SSD) {
 		d.Status.Desired = status.Promoted
-	case blockdevice.HDD:
+	}
+
+	if strings.EqualFold(d.Class, blockdevice.HDD) {
 		d.Status.Desired = status.Demoted
 	}
 }

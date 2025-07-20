@@ -177,6 +177,7 @@ func (h *helper) parsePromoteOrDemoteOptions() error {
 
 	h.deviceReqOpts.ReqId = h.reqId
 	h.deviceReqOpts.Hostname = h.node
+	h.deviceReqOpts.Class = strings.ToLower(h.deviceReqOpts.Class)
 	h.deviceReqOpts.Device = fmt.Sprintf("/dev/%s", h.device)
 	h.deviceReqOpts.SetUpdating()
 	return nil

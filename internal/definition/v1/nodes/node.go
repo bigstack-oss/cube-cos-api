@@ -222,12 +222,7 @@ func GetController() (*Node, error) {
 }
 
 func GetVirutalIpController() (*Node, error) {
-	nodes, err := GetControlNodes()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, node := range nodes {
+	for _, node := range List() {
 		if node.IsVirtualIpOwner {
 			return &node, nil
 		}

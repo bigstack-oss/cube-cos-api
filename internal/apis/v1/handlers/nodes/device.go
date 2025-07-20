@@ -25,7 +25,7 @@ var (
 
 func (h *helper) listNodeDevices(opts nodes.DeviceListOpts) ([]nodes.BlockDevice, error) {
 	if opts.Notify.Changes {
-		defer h.insertNotification(opts.Notify)
+		defer cubecos.InsertNotification(opts.Notify.Payload)
 	}
 
 	if !opts.UseCache {

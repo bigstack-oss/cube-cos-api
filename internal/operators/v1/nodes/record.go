@@ -10,17 +10,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (o *Operator) removeHostPendingReq() {
-	wait.Seconds(90)
+func (o *Operator) removeHostPendingReqs() {
 	h := mongo.GetGlobalHelper()
-	err := h.DeleteAll(
-		nodes.Db,
-		nodes.ReqCollection,
-		bson.M{"hostname": base.Hostname},
-	)
-	if err != nil {
-		log.Errorf("nodes: failed to reset pending requests for host %s: %v", base.Hostname, err)
-	}
+	h.DeleteAll(nodes.Db, nodes.ReqDeviceCollection, bson.M{"hostname": base.Hostname})
+	h.DeleteAll(nodes.Db, nodes.ReqOsdCollection, bson.M{"hostname": base.Hostname})
+
+	wait.Seconds(90)
+	h.DeleteAll(nodes.Db, nodes.ReqCollection, bson.M{"hostname": base.Hostname})
 }
 
 func (o *Operator) setIpmiEnablement(node *nodes.Node) {

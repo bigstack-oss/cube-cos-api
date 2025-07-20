@@ -42,7 +42,7 @@ func (o *Operator) handleDeviceExit(req nodes.DeviceReqOpts, err error) {
 func (o *Operator) reportDeviceTaskToController(req nodes.DeviceReqOpts) {
 	node, err := nodes.GetVirutalIpController()
 	if err != nil {
-		log.Errorf("nodes: failed to get controller nodes(%v)", err)
+		log.Errorf("nodes: %v", err)
 		return
 	}
 

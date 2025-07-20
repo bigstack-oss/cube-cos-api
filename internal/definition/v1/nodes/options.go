@@ -8,6 +8,6 @@ type DeviceListOpts struct {
 }
 
 type Notify struct {
-	Changes bool
-	Payload notifications.Notification
+	Changes bool                       `json:"changes" bson:"-"`
+	Payload notifications.Notification `json:"payload" bson:"payload"`
 }

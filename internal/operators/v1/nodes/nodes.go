@@ -37,7 +37,7 @@ func (o *Operator) Init() error {
 	o.ctx, o.cancel = context.WithCancel(context.Background())
 	go o.syncOrderSensitiveServices()
 	go o.periodicSyncNodes()
-	go o.removeHostPendingReq()
+	go o.removeHostPendingReqs()
 	return nil
 }
 

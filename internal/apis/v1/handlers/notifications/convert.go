@@ -1,4 +1,4 @@
-package notfications
+package notifications
 
 import (
 	ostime "time"
@@ -10,28 +10,28 @@ import (
 )
 
 func (h *helper) convertListOpts() (*notifications.ListOpts, error) {
-	start, err := ostime.Parse(time.FormatRFC3339, h.period.Start)
+	_, err := ostime.Parse(time.FormatRFC3339, h.period.Start)
 	if err != nil {
 		log.Errorf("notifications(%s): failed to convert start time(%v)", h.reqId, err)
 		return nil, err
 	}
 
-	stop, err := ostime.Parse(time.FormatRFC3339, h.period.Stop)
+	_, err = ostime.Parse(time.FormatRFC3339, h.period.Stop)
 	if err != nil {
 		log.Errorf("notifications(%s): failed to convert stop time(%v)", h.reqId, err)
 		return nil, err
 	}
 
-	opts := &notifications.ListOpts{Limit: int64(h.limit)}
+	opts := &notifications.ListOpts{Limit: int64(h.limit), Desending: true}
 	if queries.IsPeriodRequired(h.c) {
-		opts.Start = start
-		opts.Stop = stop
+		opts.Start = h.period.Start
+		opts.Stop = h.period.Stop
 		return opts, nil
 	}
 
 	if queries.IsPastRequired(h.c) {
-		opts.Start = *h.past
-		opts.Stop = ostime.Now().Local()
+		opts.Start = h.past
+		opts.Stop = time.LocalRFC3339(ostime.Now().Local())
 		return opts, nil
 	}
 

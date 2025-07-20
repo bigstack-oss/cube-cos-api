@@ -8,6 +8,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
 	"github.com/gin-gonic/gin"
@@ -53,6 +54,11 @@ func streamingWatcher() {
 			return
 		}
 
+		if len(stream.Watchers) == 0 {
+			syncNotificationDirectly(change)
+			continue
+		}
+
 		stream.Lock()
 		for _, w := range stream.Watchers {
 			data, err := streamDataByHandler(&w.helper, change)
@@ -63,6 +69,20 @@ func streamingWatcher() {
 
 		stream.Unlock()
 	}
+}
+
+func syncNotificationDirectly(change nodes.Change) {
+	if !change.NeedsNotification {
+		return
+	}
+
+	payload, found := notifications.GetCacheById(change.Id)
+	if !found {
+		return
+	}
+
+	cubecos.InsertNotification(payload)
+	notifications.DeleteCacheById(change.Id)
 }
 
 func streamDataByHandler(h *helper, change nodes.Change) (any, error) {

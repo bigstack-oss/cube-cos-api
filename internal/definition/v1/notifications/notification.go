@@ -2,10 +2,10 @@ package notifications
 
 import (
 	"sync"
-	"time"
 )
 
 const (
+	Module          = "notifications"
 	Db              = "notifications"
 	ToastCollection = "toasts"
 )
@@ -22,10 +22,10 @@ type Notification struct {
 }
 
 type ListOpts struct {
-	Limit     int64     `json:"limit"`
-	Desending bool      `json:"descending"`
-	Start     time.Time `json:"start"`
-	Stop      time.Time `json:"stop"`
+	Limit     int64  `json:"limit"`
+	Desending bool   `json:"descending"`
+	Start     string `json:"start"`
+	Stop      string `json:"stop"`
 }
 
 func GetCacheById(id string) (Notification, bool) {

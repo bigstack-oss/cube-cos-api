@@ -42,7 +42,7 @@ func (o *Operator) handleOsdExit(req nodes.OsdReqOpts, err error) {
 func (o *Operator) reportOsdToController(req nodes.OsdReqOpts) {
 	node, err := nodes.GetVirutalIpController()
 	if err != nil {
-		log.Errorf("nodes: failed to get controller nodes(%v)", err)
+		log.Errorf("nodes: %v", err)
 		return
 	}
 

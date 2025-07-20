@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
-	api "github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	datacenterapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/datacenters"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/events"
@@ -18,6 +17,7 @@ import (
 	meapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/me"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/metrics"
 	nodeapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/nodes"
+	notificationsapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/notifications"
 	opensearchapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/opensearch"
 	servicesapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/services"
 	settingsapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/settings"
@@ -37,6 +37,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/me"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/opensearch"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/services"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
@@ -75,9 +76,9 @@ func newGinRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Recovery())
-	router.Use(timeTracker)
+	router.Use(traceTime)
 	router.Use(filterReq)
-	router.Use(initReqInfo)
+	router.Use(initReqId)
 	router.Any("/live", checkLive())
 	router.Any("/saml/*any", saml.ServeAcs())
 	router.Use(verifyAuthToken())
@@ -95,7 +96,11 @@ func setRoleHandlersToRouter(router *gin.Engine, handlers []apis.Handler) {
 		urlParentPath := getUrlParentPath(h)
 		versionGroup := router.Group(urlParentPath)
 		versionGroup.Handle(h.Method, h.Path, h.Func)
-		log.Infof("register API: %s %s", h.Method, fmt.Sprintf("%s%s", urlParentPath, h.Path))
+		log.Infof(
+			"register API: %s %s",
+			h.Method,
+			fmt.Sprintf("%s%s", urlParentPath, h.Path),
+		)
 	}
 }
 
@@ -108,7 +113,7 @@ func getUrlParentPath(h apis.Handler) string {
 }
 
 func prepareApiHandlersByRole() {
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		base.DataCenters,
 		datacenterapi.Handlers,
 		nodes.RoleControl,
@@ -116,7 +121,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		services.ModuleName,
 		servicesapi.Handlers,
 		nodes.RoleControl,
@@ -124,7 +129,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		me.Module,
 		meapi.Handlers,
 		nodes.RoleControl,
@@ -132,7 +137,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		integration.Module,
 		integrations.Handlers,
 		nodes.RoleControl,
@@ -140,7 +145,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		health.Module,
 		healths.Handlers,
 		nodes.RoleControl,
@@ -150,7 +155,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		events.Module,
 		events.Handlers,
 		nodes.RoleControl,
@@ -158,7 +163,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		nodes.Module,
 		nodeapi.Handlers,
 		nodes.RoleControl,
@@ -168,7 +173,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		tunings.Module,
 		tuningapi.Handlers,
 		nodes.RoleControl,
@@ -178,7 +183,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		metric.Module,
 		metrics.Handlers,
 		nodes.RoleControl,
@@ -188,7 +193,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		auths.Tokens,
 		tokens.Handlers,
 		nodes.RoleControl,
@@ -196,7 +201,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		auths.Logout,
 		logout.Handlers,
 		nodes.RoleControl,
@@ -204,7 +209,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		licenses.Module,
 		licenseapi.Handlers,
 		nodes.RoleControl,
@@ -212,7 +217,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		triggers.Module,
 		triggerapi.Handlers,
 		nodes.RoleControl,
@@ -220,7 +225,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		support.Files,
 		supportfiles.Handlers,
 		nodes.RoleControl,
@@ -230,7 +235,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleModerator,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		grafana.Module,
 		grafanapi.Handlers,
 		nodes.RoleControl,
@@ -238,7 +243,7 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		opensearch.Module,
 		opensearchapi.Handlers,
 		nodes.RoleControl,
@@ -246,16 +251,24 @@ func prepareApiHandlersByRole() {
 		nodes.RoleEdgeCore,
 	)
 
-	api.RegisterHandlersToRoles(
+	apis.RegisterHandlersToRoles(
 		settings.Module,
 		settingsapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
 		nodes.RoleEdgeCore,
 	)
+
+	apis.RegisterHandlersToRoles(
+		notifications.Module,
+		notificationsapi.Handlers,
+		nodes.RoleControl,
+		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
+	)
 }
 
-func timeTracker(c *gin.Context) {
+func traceTime(c *gin.Context) {
 	start := time.Now()
 	c.Next()
 	elapsed := time.Since(start)
@@ -274,7 +287,7 @@ func timeTracker(c *gin.Context) {
 	)
 }
 
-func initReqInfo(c *gin.Context) {
+func initReqId(c *gin.Context) {
 	reqId := uuid.New().String()[:8]
 	c.Set("reqId", reqId)
 	c.Next()
@@ -378,7 +391,7 @@ func isTokenRequest(c *gin.Context) bool {
 }
 
 func registerHandlersByCurrentRole(router *gin.Engine) error {
-	roleHandlers := api.GetRoleHandlers(base.CurrentRole)
+	roleHandlers := apis.GetRoleHandlers(base.CurrentRole)
 	if len(roleHandlers) == 0 {
 		return fmt.Errorf("no handlers found for role(%s)", base.CurrentRole)
 	}
