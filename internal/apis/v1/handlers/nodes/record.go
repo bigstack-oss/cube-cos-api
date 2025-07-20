@@ -209,10 +209,12 @@ func (h *helper) insertNotification(notify nodes.Notify) {
 
 func (h *helper) syncUpdatingBlockDevices(blockDevs *[]nodes.BlockDevice) {
 	for i, dev := range *blockDevs {
-		if h.hasUpdatingReqs(dev) {
-			(*blockDevs)[i].Status.Current = status.Processing
-			(*blockDevs)[i].Status.IsProcessing = true
-			continue
+		if h.hasUpdatingDeviceReq(dev) {
+			h.syncUpdatingDevice(&(*blockDevs)[i])
+		}
+
+		if h.hasUpdatingOsdReq(dev) {
+			h.syncUpdatingOsd(&(*blockDevs)[i])
 		}
 	}
 }
@@ -221,25 +223,144 @@ func (h *helper) syncCachedBlockDevices(blockDevs []nodes.BlockDevice) {
 	lastDeviceList.Store(h.node, blockDevs)
 }
 
-func (h *helper) hasUpdatingReqs(dev nodes.BlockDevice) bool {
-	for _, collection := range nodes.ReqDeviceCollections {
-		count, err := h.mongo.GetCount(
-			nodes.Db,
-			collection,
-			bson.M{
-				"hostname": h.node,
-				"device":   fmt.Sprintf("/dev/%s", dev.Name),
-			},
-		)
-		if err != nil {
-			log.Errorf("nodes(%s): failed to get updating record for device %s(%v)", h.reqId, dev.Name, err)
-			continue
-		}
+func (h *helper) hasUpdatingDeviceReq(dev nodes.BlockDevice) bool {
+	count, err := h.mongo.GetCount(
+		nodes.Db,
+		nodes.ReqDeviceCollection,
+		bson.M{
+			"hostname": h.node,
+			"device":   fmt.Sprintf("/dev/%s", dev.Name),
+		},
+	)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get updating device req for %s(%v)", h.reqId, dev.Name, err)
+		return false
+	}
 
-		if count > 0 {
-			return true
+	return count > 0
+}
+
+func (h *helper) hasUpdatingOsdReq(dev nodes.BlockDevice) bool {
+	count, err := h.mongo.GetCount(
+		nodes.Db,
+		nodes.ReqOsdCollection,
+		bson.M{
+			"hostname": h.node,
+			"device":   fmt.Sprintf("/dev/%s", dev.Name),
+		},
+	)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get updating osd req for %s(%v)", h.reqId, dev.Name, err)
+		return false
+	}
+
+	return count > 0
+}
+
+func (h *helper) syncUpdatingDevice(dev *nodes.BlockDevice) {
+	dev.Status.Current = status.Processing
+	dev.Status.IsProcessing = true
+
+	update, err := h.getUpdatingDevice(dev)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get updating device req for %s(%v)", h.reqId, dev.Name, err)
+		return
+	}
+	if update.Class != "" {
+		dev.Class = update.Class
+	}
+}
+
+func (h *helper) syncUpdatingOsd(dev *nodes.BlockDevice) {
+	dev.Status.Current = status.Processing
+	dev.Status.IsProcessing = true
+
+	updates, err := h.getUpdatingOsds(dev)
+	if err != nil {
+		return
+	}
+
+	updatingMaxReweight := 0.0
+	for _, update := range updates {
+		if update.Reweight > updatingMaxReweight {
+			updatingMaxReweight = update.Reweight
 		}
 	}
 
-	return false
+	dev.Osd.Reweigth = updatingMaxReweight
+}
+
+func (h *helper) getUpdatingDevice(dev *nodes.BlockDevice) (*nodes.BlockDevice, error) {
+	doc, err := h.mongo.Get(
+		nodes.Db,
+		nodes.ReqDeviceCollection,
+		bson.M{
+			"hostname": h.node,
+			"device":   fmt.Sprintf("/dev/%s", dev.Name),
+		},
+	)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get updating device req for %s(%v)", h.reqId, dev.Name, err)
+		return nil, err
+	}
+	if doc == nil {
+		log.Warnf("nodes(%s): no updating device req found for %s", h.reqId, dev.Name)
+		return nil, err
+	}
+
+	device := &nodes.BlockDevice{}
+	err = doc.Decode(device)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to decode updating device req for %s(%v)", h.reqId, dev.Name, err)
+		return nil, err
+	}
+
+	return device, nil
+}
+
+func (h *helper) getUpdatingOsds(dev *nodes.BlockDevice) ([]nodes.OsdReqOpts, error) {
+	updates := []nodes.OsdReqOpts{}
+	for _, osd := range dev.Osd.Daemons {
+		update, err := h.getUpdatingOsd(dev.Name, osd.Id)
+		if err == nil {
+			updates = append(updates, *update)
+		}
+	}
+
+	if len(updates) == 0 {
+		err := fmt.Errorf("no updating osd req found for %s", dev.Name)
+		log.Warnf("nodes(%s): %v", h.reqId, err)
+		return updates, err
+	}
+
+	return updates, nil
+}
+
+func (h *helper) getUpdatingOsd(device, id string) (*nodes.OsdReqOpts, error) {
+	doc, err := h.mongo.Get(
+		nodes.Db,
+		nodes.ReqOsdCollection,
+		bson.M{
+			"hostname": h.node,
+			"device":   fmt.Sprintf("/dev/%s", device),
+			"osdId":    id,
+		},
+	)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get updating osd req for %s(%v)", h.reqId, device, err)
+		return nil, err
+	}
+	if doc == nil {
+		log.Warnf("nodes(%s): no updating osd req found for %s", h.reqId, device)
+		return nil, err
+	}
+
+	osd := &nodes.OsdReqOpts{}
+	err = doc.Decode(osd)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to decode updating osd req for %s(%v)", h.reqId, device, err)
+		return nil, err
+	}
+
+	return osd, nil
 }
