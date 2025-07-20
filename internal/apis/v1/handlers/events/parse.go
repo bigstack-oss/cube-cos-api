@@ -69,7 +69,7 @@ func (h *helper) parseEventAbstractParams() error {
 		return err
 	}
 
-	h.limit, err = queries.GetLimit(h.c)
+	h.limit, err = queries.GetLimit(h.c, 10)
 	if err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func (h *helper) parseEventRankParams() error {
 		return err
 	}
 
-	h.limit, err = queries.GetLimit(h.c)
+	h.limit, err = queries.GetLimit(h.c, 10)
 	if err != nil {
 		return err
 	}

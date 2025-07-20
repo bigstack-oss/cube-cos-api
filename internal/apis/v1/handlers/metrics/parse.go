@@ -86,7 +86,7 @@ func (h *helper) parseLimit() error {
 	}
 
 	var err error
-	h.limit, err = query.GetLimit(h.c)
+	h.limit, err = query.GetLimit(h.c, 10)
 	return err
 }
 

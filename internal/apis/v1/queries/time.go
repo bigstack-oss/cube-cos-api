@@ -48,6 +48,25 @@ func GetPast(c *gin.Context) (string, error) {
 	return query, nil
 }
 
+func GetPastTime(c *gin.Context) (*ostime.Time, error) {
+	past, err := GetPast(c)
+	if err != nil {
+		return nil, err
+	}
+
+	if past == "" {
+		past = "1h"
+	}
+
+	duration, err := duration.Str2Duration(past)
+	if err != nil {
+		return nil, fmt.Errorf("invalid 'past' duration: %s", past)
+	}
+
+	time := ostime.Now().Add(-duration)
+	return &time, nil
+}
+
 func GetAggregation(c *gin.Context) (bool, error) {
 	query := c.DefaultQuery("aggregate", "false")
 	aggregation, err := strconv.ParseBool(query)

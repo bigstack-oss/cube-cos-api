@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetLimit(c *gin.Context) (int, error) {
-	query := c.DefaultQuery("limit", "10")
+func GetLimit(c *gin.Context, defaultLimit int) (int, error) {
+	query := c.DefaultQuery("limit", strconv.Itoa(defaultLimit))
 	limit, err := strconv.Atoi(query)
 	if err != nil {
 		return 0, err
