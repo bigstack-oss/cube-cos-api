@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -12,17 +13,22 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/kubernetes"
 	bslog "github.com/bigstack-oss/bigstack-dependency-go/pkg/log"
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	bsmongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/auths/saml"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	"github.com/gophercloud/gophercloud/v2"
 	log "go-micro.dev/v5/logger"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -34,6 +40,11 @@ func initDependencies() error {
 	}
 
 	err = newAuthIdentities()
+	if err != nil {
+		return err
+	}
+
+	err = newDbHousekeeping()
 	if err != nil {
 		return err
 	}
@@ -148,6 +159,34 @@ func newAuthIdentities() error {
 	return nil
 }
 
+func newDbHousekeeping() error {
+	helper := bsmongo.GetGlobalHelper()
+	cli, err := helper.NewCollCli(
+		notifications.Db,
+		notifications.Toasts,
+	)
+	if err != nil {
+		log.Errorf("runtime: failed to create mongo client(%v)", err)
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
+	defer cancel()
+	_, err = cli.Indexes().CreateOne(
+		ctx,
+		mongo.IndexModel{
+			Keys:    bson.D{{Key: "time", Value: 1}},
+			Options: options.Index().SetExpireAfterSeconds(3600),
+		},
+	)
+	if err != nil {
+		log.Errorf("runtime: failed to create mongo index(%v)", err)
+		return err
+	}
+
+	return nil
+}
+
 func newDryRunFacility() error {
 	err := newTriggerDryRunFacility()
 	if err != nil {
@@ -172,13 +211,13 @@ func newGlobalLogHelper() error {
 
 func newGlobalMongoHelper() error {
 	opts := parseMongoOpts()
-	return mongo.NewGlobalHelper(
-		mongo.Uri(opts.Uri),
-		mongo.AuthEnable(opts.Auth.Enable),
-		mongo.AuthSource(opts.Auth.Source),
-		mongo.AuthUsername(opts.Auth.Username),
-		mongo.AuthPassword(opts.Auth.Password),
-		mongo.ReplicaSet(opts.ReplicaSet),
+	return bsmongo.NewGlobalHelper(
+		bsmongo.Uri(opts.Uri),
+		bsmongo.AuthEnable(opts.Auth.Enable),
+		bsmongo.AuthSource(opts.Auth.Source),
+		bsmongo.AuthUsername(opts.Auth.Username),
+		bsmongo.AuthPassword(opts.Auth.Password),
+		bsmongo.ReplicaSet(opts.ReplicaSet),
 	)
 }
 

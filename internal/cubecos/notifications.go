@@ -12,6 +12,21 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+func InsertNotification(notification notifications.Notification) error {
+	h := bsmongo.GetGlobalHelper()
+	err := h.Insert(
+		notifications.Db,
+		notifications.Toasts,
+		notification,
+	)
+	if err != nil {
+		log.Errorf("notifications: failed to insert notification(%v): %v", notification, err)
+		return err
+	}
+
+	return nil
+}
+
 func ListNotifications(opts notifications.ListOpts) ([]notifications.Notification, error) {
 	h := bsmongo.GetGlobalHelper()
 	c, err := h.GetQueryCursor(
