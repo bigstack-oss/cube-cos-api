@@ -30,7 +30,7 @@ func AddDevice(req nodes.DeviceReqOpts) error {
 	return nil
 }
 
-func UpdateDevice(req nodes.DeviceReqOpts) error {
+func PromoteOrDemoteDevice(req nodes.DeviceReqOpts) error {
 	promoteOrDemote := "ceph_osd_promote_disk"
 	if strings.EqualFold(req.Class, blockdevice.HDD) {
 		promoteOrDemote = "ceph_osd_demote_disk"

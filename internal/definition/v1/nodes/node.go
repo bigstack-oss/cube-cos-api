@@ -11,6 +11,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	"github.com/pkg/errors"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )
@@ -73,7 +74,9 @@ type Node struct {
 }
 
 type Change struct {
-	UseCacheInStream bool `json:"useCacheInStream" yaml:"useCacheInStream" bson:"useCacheInStream"`
+	Id                string
+	IsTaskInprogress  bool
+	NeedsNotification bool
 }
 
 func (n *Node) IsLocal() bool {
@@ -216,6 +219,23 @@ func GetController() (*Node, error) {
 	}
 
 	return &nodes[0], nil
+}
+
+func GetVirutalIpController() (*Node, error) {
+	nodes, err := GetControlNodes()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, node := range nodes {
+		if node.IsVirtualIpOwner {
+			return &node, nil
+		}
+	}
+
+	return nil, errors.New(
+		"failed to get virtual IP controller, no node is virtual IP owner",
+	)
 }
 
 func List() []Node {

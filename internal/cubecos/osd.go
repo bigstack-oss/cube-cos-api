@@ -10,7 +10,7 @@ import (
 )
 
 func RestartOsd(req nodes.OsdReqOpts) error {
-	service := fmt.Sprintf("ceph-osd@%s", strings.TrimPrefix(req.Id, "osd."))
+	service := fmt.Sprintf("ceph-osd@%s", strings.TrimPrefix(req.OsdId, "osd."))
 	out, err := exec.Command("systemctl", "restart", service).CombinedOutput()
 	if err != nil {
 		log.Errorf(
@@ -31,11 +31,11 @@ func RestartOsd(req nodes.OsdReqOpts) error {
 }
 
 func RemoveOsd(req nodes.OsdReqOpts) error {
-	out, err := exec.Command("hex_sdk", "ceph_osd_remove", req.Id, "force").CombinedOutput()
+	out, err := exec.Command("hex_sdk", "ceph_osd_remove", req.OsdId, "force").CombinedOutput()
 	if err != nil {
 		log.Errorf(
 			"hexSdk: failed to remove osd cmd %s(%v %s)",
-			req.Id, err, string(out),
+			req.OsdId, err, string(out),
 		)
 		return err
 	}
@@ -43,7 +43,7 @@ func RemoveOsd(req nodes.OsdReqOpts) error {
 	if !IsHexSdkSuccess(err) {
 		return fmt.Errorf(
 			"failed to remove osd %s(%v %s)",
-			req.Id, err, string(out),
+			req.OsdId, err, string(out),
 		)
 	}
 
@@ -52,11 +52,11 @@ func RemoveOsd(req nodes.OsdReqOpts) error {
 
 func ReweightOsd(req nodes.OsdReqOpts) error {
 	value := fmt.Sprintf("%f", req.Reweight)
-	out, err := exec.Command("ceph", "osd", "crush", "reweight", req.Id, value).CombinedOutput()
+	out, err := exec.Command("ceph", "osd", "crush", "reweight", req.OsdId, value).CombinedOutput()
 	if err != nil {
 		log.Errorf(
 			"hexSdk: failed to execute osd reweight cmd %s(%v %s)",
-			req.Id, err, string(out),
+			req.OsdId, err, string(out),
 		)
 		return err
 	}
@@ -64,7 +64,7 @@ func ReweightOsd(req nodes.OsdReqOpts) error {
 	if !IsHexSdkSuccess(err) {
 		return fmt.Errorf(
 			"failed to reweight osd %s(%v %s)",
-			req.Id, err, string(out),
+			req.OsdId, err, string(out),
 		)
 	}
 

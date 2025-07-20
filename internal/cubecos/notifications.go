@@ -16,7 +16,7 @@ func InsertNotification(notification notifications.Notification) error {
 	h := bsmongo.GetGlobalHelper()
 	err := h.Insert(
 		notifications.Db,
-		notifications.Toasts,
+		notifications.ToastCollection,
 		notification,
 	)
 	if err != nil {
@@ -31,7 +31,7 @@ func ListNotifications(opts notifications.ListOpts) ([]notifications.Notificatio
 	h := bsmongo.GetGlobalHelper()
 	c, err := h.GetQueryCursor(
 		notifications.Db,
-		notifications.Toasts,
+		notifications.ToastCollection,
 		genQueryFilter(opts),
 		genQueryOpts(opts),
 	)

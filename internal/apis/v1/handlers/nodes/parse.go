@@ -149,6 +149,7 @@ func (h *helper) parseCreateDeviceOptions() error {
 		return fmt.Errorf("device name should be provided")
 	}
 
+	h.deviceReqOpts.ReqId = h.reqId
 	h.deviceReqOpts.Hostname = h.node
 	h.deviceReqOpts.Device = fmt.Sprintf("/dev/%s", h.deviceReqOpts.Device)
 	h.deviceReqOpts.SetAdding()
@@ -174,6 +175,7 @@ func (h *helper) parsePromoteOrDemoteOptions() error {
 		)
 	}
 
+	h.deviceReqOpts.ReqId = h.reqId
 	h.deviceReqOpts.Hostname = h.node
 	h.deviceReqOpts.Device = fmt.Sprintf("/dev/%s", h.device)
 	h.deviceReqOpts.SetUpdating()
@@ -218,7 +220,7 @@ func (h *helper) parseRemoveDeviceOptions() error {
 		return fmt.Errorf("device name should be provided")
 	}
 
-	h.deviceReqOpts = nodes.DeviceReqOpts{}
+	h.deviceReqOpts = nodes.DeviceReqOpts{ReqId: h.reqId}
 	h.deviceReqOpts.Hostname = h.node
 	h.deviceReqOpts.Device = fmt.Sprintf("/dev/%s", h.device)
 	h.deviceReqOpts.SetRemoving()
@@ -241,10 +243,10 @@ func (h *helper) parseRestartOsdOptions() error {
 		return fmt.Errorf("failed to get device by osd id(%s): %v", h.osdId, err)
 	}
 
-	h.osdReqOpts = nodes.OsdReqOpts{}
+	h.osdReqOpts = nodes.OsdReqOpts{ReqId: h.reqId}
 	h.osdReqOpts.Device = fmt.Sprintf("/dev/%s", device.Dev)
 	h.osdReqOpts.Hostname = h.node
-	h.osdReqOpts.Id = h.osdId
+	h.osdReqOpts.OsdId = h.osdId
 	h.osdReqOpts.SetRestarting()
 	return nil
 }
@@ -265,10 +267,10 @@ func (h *helper) parseRemoveOsdOptions() error {
 		return fmt.Errorf("failed to get device by osd id(%s): %v", h.osdId, err)
 	}
 
-	h.osdReqOpts = nodes.OsdReqOpts{}
+	h.osdReqOpts = nodes.OsdReqOpts{ReqId: h.reqId}
 	h.osdReqOpts.Device = fmt.Sprintf("/dev/%s", device.Dev)
 	h.osdReqOpts.Hostname = h.node
-	h.osdReqOpts.Id = h.osdId
+	h.osdReqOpts.OsdId = h.osdId
 	h.osdReqOpts.SetRemoving()
 	return nil
 }
@@ -301,9 +303,10 @@ func (h *helper) parseUpdateOsdOptions() error {
 		return fmt.Errorf("failed to get device by osd id(%s): %v", h.osdId, err)
 	}
 
+	h.osdReqOpts.ReqId = h.reqId
 	h.osdReqOpts.Device = fmt.Sprintf("/dev/%s", device.Dev)
 	h.osdReqOpts.Hostname = h.node
-	h.osdReqOpts.Id = h.osdId
+	h.osdReqOpts.OsdId = h.osdId
 	h.osdReqOpts.SetReweighting()
 	return nil
 }
@@ -360,7 +363,7 @@ func (h *helper) setOsdReqOptses() error {
 		odsReqOpts := nodes.OsdReqOpts{
 			Device:   fmt.Sprintf("/dev/%s", device.Dev),
 			Hostname: h.node,
-			Id:       osd.Id,
+			OsdId:    osd.Id,
 			Reweight: h.osdReqOpts.Reweight,
 		}
 

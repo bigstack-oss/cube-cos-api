@@ -51,12 +51,12 @@ func (h *helper) delegateOsdReq() error {
 
 func (h *helper) operateLocalDevice() {
 	h.upsertDeviceReqRecord()
-	devReqQueue.Add(h.deviceReqOpts)
+	devReqQueue.Add(&h.deviceReqOpts)
 }
 
 func (h *helper) operateLocalOsd() {
 	h.upsertOsdReqRecord()
-	osdReqQueue.Add(h.osdReqOpts)
+	osdReqQueue.Add(&h.osdReqOpts)
 }
 
 func (h *helper) operateDeviceOnPeerNode() error {
@@ -151,11 +151,11 @@ func (h *helper) getUrlByHandler(node *nodes.Node) string {
 	case "removeNodeDevice":
 		return node.RemoveDeviceUrl(h.deviceReqOpts.Device)
 	case "restartNodeOsd":
-		return node.RestartOsdUrl(h.osdReqOpts.Id)
+		return node.RestartOsdUrl(h.osdReqOpts.OsdId)
 	case "removeNodeOsd":
-		return node.RemoveOsdUrl(h.osdReqOpts.Id)
+		return node.RemoveOsdUrl(h.osdReqOpts.OsdId)
 	case "updateNodeOsd":
-		return node.PatchOsdUrl(h.osdReqOpts.Id)
+		return node.PatchOsdUrl(h.osdReqOpts.OsdId)
 	default:
 		return node.GetDeviceUrl(h.deviceReqOpts.Device)
 	}

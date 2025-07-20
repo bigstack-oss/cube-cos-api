@@ -163,7 +163,7 @@ func newDbHousekeeping() error {
 	helper := bsmongo.GetGlobalHelper()
 	cli, err := helper.NewCollCli(
 		notifications.Db,
-		notifications.Toasts,
+		notifications.ToastCollection,
 	)
 	if err != nil {
 		log.Errorf("runtime: failed to create mongo client(%v)", err)

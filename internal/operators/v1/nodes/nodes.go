@@ -14,13 +14,13 @@ import (
 
 var (
 	module         = "node"
-	OsdReqQueue    workqueue.TypedInterface[nodes.OsdReqOpts]
-	DeviceReqQueue workqueue.TypedInterface[nodes.DeviceReqOpts]
+	OsdReqQueue    workqueue.TypedInterface[*nodes.OsdReqOpts]
+	DeviceReqQueue workqueue.TypedInterface[*nodes.DeviceReqOpts]
 )
 
 func init() {
-	OsdReqQueue = workqueue.NewTyped[nodes.OsdReqOpts]()
-	DeviceReqQueue = workqueue.NewTyped[nodes.DeviceReqOpts]()
+	OsdReqQueue = workqueue.NewTyped[*nodes.OsdReqOpts]()
+	DeviceReqQueue = workqueue.NewTyped[*nodes.DeviceReqOpts]()
 	service.RegisterOperator(module, &Operator{})
 }
 
@@ -77,8 +77,8 @@ func (o *Operator) handleOsdReqs() {
 				return
 			}
 
-			err := o.operateOsd(req)
-			o.handleOsdExit(req, err)
+			err := o.operateOsd(*req)
+			o.handleOsdExit(*req, err)
 			OsdReqQueue.Done(req)
 		}
 	}
@@ -95,8 +95,8 @@ func (o *Operator) handleDeviceReqs() {
 				return
 			}
 
-			err := o.operateDevice(req)
-			o.handleDeviceExit(req, err)
+			err := o.operateDevice(*req)
+			o.handleDeviceExit(*req, err)
 			DeviceReqQueue.Done(req)
 		}
 	}

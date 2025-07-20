@@ -23,16 +23,16 @@ func (o *Operator) operateOsd(req nodes.OsdReqOpts) error {
 	return fmt.Errorf(
 		"unknown desired action(%s) for node osd(%s)",
 		req.Status.Desired,
-		req.Id,
+		req.OsdId,
 	)
 }
 
 func (o *Operator) handleOsdExit(req nodes.OsdReqOpts, err error) {
 	if err != nil {
-		log.Errorf("nodes: failed to %s %s(%v)", req.Status.Desired, req.Id, err)
+		log.Errorf("nodes: failed to %s %s(%v)", req.Status.Desired, req.OsdId, err)
 		req.SetError()
 	} else {
-		log.Infof("nodes: %s %s successfully", req.Status.Desired, req.Id)
+		log.Infof("nodes: %s %s successfully", req.Status.Desired, req.OsdId)
 		req.SetCompleted()
 	}
 
@@ -40,7 +40,7 @@ func (o *Operator) handleOsdExit(req nodes.OsdReqOpts, err error) {
 }
 
 func (o *Operator) reportOsdToController(req nodes.OsdReqOpts) {
-	node, err := nodes.GetController()
+	node, err := nodes.GetVirutalIpController()
 	if err != nil {
 		log.Errorf("nodes: failed to get controller nodes(%v)", err)
 		return
@@ -52,7 +52,7 @@ func (o *Operator) reportOsdToController(req nodes.OsdReqOpts) {
 		SetBody(req).
 		Patch(node.UpdateOsdTaskUrl())
 	if err != nil {
-		log.Errorf("nodes: failed to send osd(%s) task update to %s(%v)", req.Id, node.Hostname, err)
+		log.Errorf("nodes: failed to send osd(%s) task update to %s(%v)", req.OsdId, node.Hostname, err)
 		return
 	}
 
@@ -60,7 +60,7 @@ func (o *Operator) reportOsdToController(req nodes.OsdReqOpts) {
 		log.Errorf(
 			"nodes: has error response from %s %s task update(%d %v)",
 			node.Hostname,
-			req.Id,
+			req.OsdId,
 			resp.StatusCode(),
 			string(resp.Body()),
 		)

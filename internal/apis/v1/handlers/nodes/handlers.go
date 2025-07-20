@@ -5,6 +5,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/nodes"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -290,7 +291,7 @@ func listNodeDevices(c *gin.Context) {
 		return
 	}
 
-	devices, err := h.listNodeDevices(false)
+	devices, err := h.listNodeDevices(nodes.DeviceListOpts{})
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return

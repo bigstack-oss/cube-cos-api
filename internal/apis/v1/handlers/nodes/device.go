@@ -23,8 +23,12 @@ var (
 	changes        = workqueue.NewTyped[nodes.Change]()
 )
 
-func (h *helper) listNodeDevices(useCache bool) ([]nodes.BlockDevice, error) {
-	if !useCache {
+func (h *helper) listNodeDevices(opts nodes.DeviceListOpts) ([]nodes.BlockDevice, error) {
+	if opts.Notify.Changes {
+		defer h.insertNotification(opts.Notify)
+	}
+
+	if !opts.UseCache {
 		return h.listNonCachedDevices()
 	}
 

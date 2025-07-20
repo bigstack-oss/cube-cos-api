@@ -33,6 +33,8 @@ const (
 	Added      = "added"
 	Removed    = "removed"
 	Updated    = "updated"
+	Promoted   = "promoted"
+	Demoted    = "demoted"
 	Reweighted = "reweighted"
 	Deleted    = "deleted"
 	Failed     = "failed"

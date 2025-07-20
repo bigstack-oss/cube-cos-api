@@ -9,6 +9,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
 	"github.com/gin-gonic/gin"
 	json "github.com/json-iterator/go"
 )
@@ -71,10 +72,31 @@ func streamDataByHandler(h *helper, change nodes.Change) (any, error) {
 	case "getNode":
 		return h.getNode()
 	case "listNodeDevices":
-		return h.listNodeDevices(change.UseCacheInStream)
+		opts := genDeviceStreamingOpts(change)
+		return h.listNodeDevices(opts)
 	}
 
 	return nil, errors.New("no internal function supported")
+}
+
+func genDeviceStreamingOpts(changes nodes.Change) nodes.DeviceListOpts {
+	useCache := false
+	if changes.IsTaskInprogress {
+		useCache = true
+	}
+
+	payload, found := notifications.GetCacheById(changes.Id)
+	if !found {
+		payload = notifications.Notification{}
+	}
+
+	return nodes.DeviceListOpts{
+		UseCache: useCache,
+		Notify: nodes.Notify{
+			Changes: changes.NeedsNotification,
+			Payload: payload,
+		},
+	}
 }
 
 func setChunkedTransfer(c *gin.Context) {

@@ -1,8 +1,18 @@
 package nodes
 
-import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+import (
+	"strconv"
+	ostime "time"
+
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
+)
 
 type DeviceReqOpts struct {
+	ReqId    string `json:"reqId"`
+	Notify   `json:"notify"`
 	Hostname string             `json:"host"`
 	Device   string             `json:"device"`
 	Class    string             `json:"class"`
@@ -10,8 +20,10 @@ type DeviceReqOpts struct {
 }
 
 type OsdReqOpts struct {
-	Hostname string     `json:"host"`
-	Id       string     `json:"id"`
+	Hostname string `json:"host"`
+	OsdId    string `json:"osdId"`
+	ReqId    string `json:"reqId"`
+	Notify   `json:"notify"`
 	Device   string     `json:"device"`
 	Reweight float64    `json:"reweight"`
 	Status   status.Osd `json:"status"`
@@ -23,8 +35,13 @@ func (d *DeviceReqOpts) SetAdding() {
 }
 
 func (d *DeviceReqOpts) SetUpdating() {
-	d.Status.Desired = status.Updated
 	d.Status.IsProcessing = true
+	switch d.Class {
+	case blockdevice.SSD:
+		d.Status.Desired = status.Promoted
+	case blockdevice.HDD:
+		d.Status.Desired = status.Demoted
+	}
 }
 
 func (d *DeviceReqOpts) SetRemoving() {
@@ -35,11 +52,47 @@ func (d *DeviceReqOpts) SetRemoving() {
 func (d *DeviceReqOpts) SetError() {
 	d.Status.Current = status.Error
 	d.Status.IsProcessing = false
+
+	d.SetDeviceNotification()
+	switch d.Status.Desired {
+	case status.Added:
+		d.Notify.Payload.Id = "DEV00001E"
+	case status.Promoted:
+		d.Notify.Payload.Id = "DEV00002E"
+		d.Notify.Payload.AdditionalInfo["class"] = d.Class
+	case status.Demoted:
+		d.Notify.Payload.Id = "DEV00003E"
+		d.Notify.Payload.AdditionalInfo["class"] = d.Class
+	case status.Removed:
+		d.Notify.Payload.Id = "DEV00004E"
+	}
 }
 
 func (d *DeviceReqOpts) SetCompleted() {
 	d.Status.Current = status.Ok
 	d.Status.IsProcessing = false
+
+	d.SetDeviceNotification()
+	switch d.Status.Desired {
+	case status.Added:
+		d.Notify.Payload.Id = "DEV00001I"
+	case status.Promoted:
+		d.Notify.Payload.Id = "DEV00002I"
+		d.Notify.Payload.AdditionalInfo["class"] = d.Class
+	case status.Demoted:
+		d.Notify.Payload.Id = "DEV00003I"
+		d.Notify.Payload.AdditionalInfo["class"] = d.Class
+	case status.Removed:
+		d.Notify.Payload.Id = "DEV00003I"
+	}
+}
+
+func (d *DeviceReqOpts) SetDeviceNotification() {
+	d.Notify.Changes = true
+	d.Notify.Payload = notifications.Notification{}
+	d.Notify.Payload.NodeName = d.Hostname
+	d.Notify.Payload.Time = time.LocalRFC3339(ostime.Now())
+	d.Notify.Payload.AdditionalInfo = map[string]string{"device": d.Device}
 }
 
 func (o *OsdReqOpts) SetRestarting() {
@@ -59,9 +112,40 @@ func (o *OsdReqOpts) SetReweighting() {
 
 func (o *OsdReqOpts) SetError() {
 	o.Status.Current = status.Error
+	o.Status.IsProcessing = false
+
+	o.SetOsdNotification()
+	switch o.Status.Desired {
+	case status.Restarted:
+		o.Notify.Payload.Id = "OSD00001E"
+	case status.Reweighted:
+		o.Notify.Payload.Id = "OSD00002E"
+		o.Notify.Payload.AdditionalInfo["reweight"] = strconv.FormatFloat(o.Reweight, 'f', -1, 64)
+	case status.Removed:
+		o.Notify.Payload.Id = "OSD00003E"
+	}
 }
 
 func (o *OsdReqOpts) SetCompleted() {
 	o.Status.Current = status.Ok
 	o.Status.IsProcessing = false
+
+	o.SetOsdNotification()
+	switch o.Status.Desired {
+	case status.Restarted:
+		o.Notify.Payload.Id = "OSD00001I"
+	case status.Reweighted:
+		o.Notify.Payload.Id = "OSD00002I"
+		o.Notify.Payload.AdditionalInfo["reweight"] = strconv.FormatFloat(o.Reweight, 'f', -1, 64)
+	case status.Removed:
+		o.Notify.Payload.Id = "OSD00003I"
+	}
+}
+
+func (d *OsdReqOpts) SetOsdNotification() {
+	d.Notify.Changes = true
+	d.Notify.Payload = notifications.Notification{}
+	d.Notify.Payload.NodeName = d.Hostname
+	d.Notify.Payload.Time = time.LocalRFC3339(ostime.Now())
+	d.Notify.Payload.AdditionalInfo = map[string]string{"osdId": d.OsdId}
 }

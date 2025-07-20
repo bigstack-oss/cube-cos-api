@@ -1,10 +1,17 @@
 package notifications
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 const (
-	Db     = "notifications"
-	Toasts = "toasts"
+	Db              = "notifications"
+	ToastCollection = "toasts"
+)
+
+var (
+	cache = sync.Map{}
 )
 
 type Notification struct {
@@ -19,4 +26,21 @@ type ListOpts struct {
 	Desending bool      `json:"descending"`
 	Start     time.Time `json:"start"`
 	Stop      time.Time `json:"stop"`
+}
+
+func GetCacheById(id string) (Notification, bool) {
+	notification, ok := cache.Load(id)
+	if ok {
+		return notification.(Notification), true
+	}
+
+	return Notification{}, false
+}
+
+func SetCacheById(id string, notification Notification) {
+	cache.Store(id, notification)
+}
+
+func DeleteCacheById(id string) {
+	cache.Delete(id)
 }

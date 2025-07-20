@@ -6,6 +6,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	ping "github.com/prometheus-community/pro-bing"
 	log "go-micro.dev/v5/logger"
@@ -151,11 +152,11 @@ func (h *helper) saveTemporaryNodeDetails() error {
 }
 
 func (h *helper) upsertDeviceReqRecord() {
-	changes.Add(nodes.Change{UseCacheInStream: true})
+	changes.Add(nodes.Change{IsTaskInprogress: true})
 	err := h.mongo.UpdateOne(
 		nodes.Db,
 		nodes.ReqDeviceCollection,
-		bson.M{"hostname": h.node},
+		bson.M{"hostname": h.node, "reqId": h.deviceReqOpts.ReqId},
 		bson.M{"$set": h.deviceReqOpts},
 		options.Update().SetUpsert(true),
 	)
@@ -170,11 +171,11 @@ func (h *helper) upsertDeviceReqRecord() {
 }
 
 func (h *helper) upsertOsdReqRecord() {
-	changes.Add(nodes.Change{UseCacheInStream: true})
+	changes.Add(nodes.Change{IsTaskInprogress: true})
 	err := h.mongo.UpdateOne(
 		nodes.Db,
 		nodes.ReqOsdCollection,
-		bson.M{"hostname": h.node},
+		bson.M{"hostname": h.node, "reqId": h.osdReqOpts.ReqId},
 		bson.M{"$set": h.osdReqOpts},
 		options.Update().SetUpsert(true),
 	)
@@ -187,6 +188,25 @@ func (h *helper) upsertOsdReqRecord() {
 		)
 	}
 }
+
+func (h *helper) insertNotification(notify nodes.Notify) {
+	err := h.mongo.Insert(
+		notifications.Db,
+		notifications.ToastCollection,
+		bson.M{"$set": notify.Payload},
+	)
+	if err == nil {
+		return
+	}
+
+	log.Errorf(
+		"nodes(%s): failed to insert notification for %v(%v)",
+		h.reqId,
+		notify.Payload,
+		err,
+	)
+}
+
 func (h *helper) syncUpdatingBlockDevices(blockDevs *[]nodes.BlockDevice) {
 	for i, dev := range *blockDevs {
 		if h.hasUpdatingReqs(dev) {

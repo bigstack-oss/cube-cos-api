@@ -14,8 +14,8 @@ func (o *Operator) operateDevice(req nodes.DeviceReqOpts) error {
 	switch req.Status.Desired {
 	case status.Added:
 		return cubecos.AddDevice(req)
-	case status.Updated:
-		return cubecos.UpdateDevice(req)
+	case status.Promoted, status.Demoted:
+		return cubecos.PromoteOrDemoteDevice(req)
 	case status.Removed:
 		return cubecos.RemoveDevice(req)
 	}
@@ -40,7 +40,7 @@ func (o *Operator) handleDeviceExit(req nodes.DeviceReqOpts, err error) {
 }
 
 func (o *Operator) reportDeviceTaskToController(req nodes.DeviceReqOpts) {
-	node, err := nodes.GetController()
+	node, err := nodes.GetVirutalIpController()
 	if err != nil {
 		log.Errorf("nodes: failed to get controller nodes(%v)", err)
 		return
