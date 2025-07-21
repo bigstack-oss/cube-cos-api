@@ -1764,7 +1764,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "The past time of the health to query, click 'try it out' to see a few options, but can specify with the 's'(second), 'm'(minute), 'h'(hour), and 'd'(day) suffix for other time ranges.",
+                        "description": "The past time of the notifications to query, click 'try it out' to see a few options, but can specify with the 's'(second), 'm'(minute), 'h'(hour), and 'd'(day) suffix for other time ranges.",
                         "example": "1h"
                     }
                 ],
@@ -18786,6 +18786,12 @@
             },
             "DEV00001I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18800,6 +18806,9 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18810,6 +18819,12 @@
             },
             "DEV00001E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18824,6 +18839,9 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18834,6 +18852,12 @@
             },
             "DEV00002I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18848,6 +18872,10 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device",
+                            "class"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18861,6 +18889,12 @@
             },
             "DEV00002E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18875,6 +18909,10 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device",
+                            "class"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18888,6 +18926,12 @@
             },
             "DEV00003I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18902,6 +18946,10 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device",
+                            "class"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18915,6 +18963,12 @@
             },
             "DEV00003E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18929,6 +18983,10 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device",
+                            "class"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18942,6 +19000,12 @@
             },
             "DEV00004I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18956,6 +19020,9 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18966,6 +19033,12 @@
             },
             "DEV00004E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18980,6 +19053,9 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18990,6 +19066,12 @@
             },
             "OSD00001I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -19004,6 +19086,9 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "osdId"
+                        ],
                         "properties": {
                             "osdId": {
                                 "type": "string"
@@ -19014,6 +19099,12 @@
             },
             "OSD00001E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -19028,6 +19119,9 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "osdId"
+                        ],
                         "properties": {
                             "osdId": {
                                 "type": "string"
@@ -19038,6 +19132,12 @@
             },
             "OSD00002I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -19052,6 +19152,10 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "osdId",
+                            "reweight"
+                        ],
                         "properties": {
                             "osdId": {
                                 "type": "string"
@@ -19065,6 +19169,12 @@
             },
             "OSD00002E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -19079,6 +19189,10 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "osdId",
+                            "reweight"
+                        ],
                         "properties": {
                             "osdId": {
                                 "type": "string"
@@ -19092,6 +19206,12 @@
             },
             "OSD00003I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -19106,6 +19226,9 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "osdId"
+                        ],
                         "properties": {
                             "osdId": {
                                 "type": "string"
@@ -19116,6 +19239,12 @@
             },
             "OSD00003E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -19130,6 +19259,9 @@
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "osdId"
+                        ],
                         "properties": {
                             "osdId": {
                                 "type": "string"

@@ -1768,7 +1768,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         },
-                        "description": "The past time of the health to query, click 'try it out' to see a few options, but can specify with the 's'(second), 'm'(minute), 'h'(hour), and 'd'(day) suffix for other time ranges.",
+                        "description": "The past time of the notifications to query, click 'try it out' to see a few options, but can specify with the 's'(second), 'm'(minute), 'h'(hour), and 'd'(day) suffix for other time ranges.",
                         "example": "1h"
                     }
                 ],
@@ -18790,6 +18790,12 @@ const docTemplate = `{
             },
             "DEV00001I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18804,6 +18810,9 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18814,6 +18823,12 @@ const docTemplate = `{
             },
             "DEV00001E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18828,6 +18843,9 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18838,6 +18856,12 @@ const docTemplate = `{
             },
             "DEV00002I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18852,6 +18876,10 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device",
+                            "class"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18865,6 +18893,12 @@ const docTemplate = `{
             },
             "DEV00002E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18879,6 +18913,10 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device",
+                            "class"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18892,6 +18930,12 @@ const docTemplate = `{
             },
             "DEV00003I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18906,6 +18950,10 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device",
+                            "class"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18919,6 +18967,12 @@ const docTemplate = `{
             },
             "DEV00003E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18933,6 +18987,10 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device",
+                            "class"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18946,6 +19004,12 @@ const docTemplate = `{
             },
             "DEV00004I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18960,6 +19024,9 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18970,6 +19037,12 @@ const docTemplate = `{
             },
             "DEV00004E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -18984,6 +19057,9 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "device"
+                        ],
                         "properties": {
                             "device": {
                                 "type": "string"
@@ -18994,6 +19070,12 @@ const docTemplate = `{
             },
             "OSD00001I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -19008,6 +19090,9 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "osdId"
+                        ],
                         "properties": {
                             "osdId": {
                                 "type": "string"
@@ -19018,6 +19103,12 @@ const docTemplate = `{
             },
             "OSD00001E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -19032,6 +19123,9 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "osdId"
+                        ],
                         "properties": {
                             "osdId": {
                                 "type": "string"
@@ -19042,6 +19136,12 @@ const docTemplate = `{
             },
             "OSD00002I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -19056,6 +19156,10 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "osdId",
+                            "reweight"
+                        ],
                         "properties": {
                             "osdId": {
                                 "type": "string"
@@ -19069,6 +19173,12 @@ const docTemplate = `{
             },
             "OSD00002E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -19083,6 +19193,10 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "osdId",
+                            "reweight"
+                        ],
                         "properties": {
                             "osdId": {
                                 "type": "string"
@@ -19096,6 +19210,12 @@ const docTemplate = `{
             },
             "OSD00003I": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -19110,6 +19230,9 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "osdId"
+                        ],
                         "properties": {
                             "osdId": {
                                 "type": "string"
@@ -19120,6 +19243,12 @@ const docTemplate = `{
             },
             "OSD00003E": {
                 "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
@@ -19134,6 +19263,9 @@ const docTemplate = `{
                     },
                     "additionalInfo": {
                         "type": "object",
+                        "required": [
+                            "osdId"
+                        ],
                         "properties": {
                             "osdId": {
                                 "type": "string"
