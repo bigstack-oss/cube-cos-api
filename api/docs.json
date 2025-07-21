@@ -1740,6 +1740,102 @@
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/notifications": {
+            "get": {
+                "operationId": "getNotifications",
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Retrieve the notifications",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/start"
+                    },
+                    {
+                        "$ref": "#/components/parameters/stop"
+                    },
+                    {
+                        "in": "query",
+                        "name": "past",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The past time of the health to query, click 'try it out' to see a few options, but can specify with the 's'(second), 'm'(minute), 'h'(hour), and 'd'(day) suffix for other time ranges.",
+                        "example": "1h"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the notifications successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetNotificationsResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Notifications",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "id": "DEV00002I",
+                                                    "nodeName": "example-node-0",
+                                                    "time": "2025-07-21T04:09:30+08:00",
+                                                    "additionalInfo": {
+                                                        "class": "SSD",
+                                                        "device": "/dev/sdb"
+                                                    }
+                                                },
+                                                {
+                                                    "id": "OSD00002E",
+                                                    "nodeName": "example-node-1",
+                                                    "time": "2025-07-21T04:09:30+08:00",
+                                                    "additionalInfo": {
+                                                        "osdId": "osd.1",
+                                                        "reweight": 0.75
+                                                    }
+                                                }
+                                            ],
+                                            "msg": "fetch notifications successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch notifications: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/healths": {
             "get": {
                 "operationId": "getHealths",
@@ -13396,6 +13492,35 @@
                     }
                 }
             },
+            "GetNotificationsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Notification"
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "fetch notifications successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
             "GetHealthsResponse": {
                 "type": "object",
                 "required": [
@@ -15423,7 +15548,7 @@
                                     "type": "string"
                                 },
                                 "class": {
-                        "$ref": "#/components/schemas/DeviceType"
+                                    "$ref": "#/components/schemas/DeviceType"
                                 },
                                 "type": {
                                     "type": "string"
@@ -18593,6 +18718,425 @@
                     "SSD",
                     "HDD"
                 ]
+            },
+            "Notification": {
+                "oneOf": [
+                    {
+                        "$ref": "#/components/schemas/DEV00001I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/DEV00001E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/DEV00002I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/DEV00002E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/DEV00003I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/DEV00003E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/DEV00004I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/DEV00004E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/OSD00001I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/OSD00001E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/OSD00002I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/OSD00002E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/OSD00003I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/OSD00003E"
+                    }
+                ],
+                "discriminator": {
+                    "propertyName": "id",
+                    "mapping": {
+                        "DEV00001I": "#/components/schemas/DEV00001I",
+                        "DEV00001E": "#/components/schemas/DEV00001E",
+                        "DEV00002I": "#/components/schemas/DEV00002I",
+                        "DEV00002E": "#/components/schemas/DEV00002E",
+                        "DEV00003I": "#/components/schemas/DEV00003I",
+                        "DEV00003E": "#/components/schemas/DEV00003E",
+                        "DEV00004I": "#/components/schemas/DEV00004I",
+                        "DEV00004E": "#/components/schemas/DEV00004E",
+                        "OSD00001I": "#/components/schemas/OSD00001I",
+                        "OSD00001E": "#/components/schemas/OSD00001E",
+                        "OSD00002I": "#/components/schemas/OSD00002I",
+                        "OSD00002E": "#/components/schemas/OSD00002E",
+                        "OSD00003I": "#/components/schemas/OSD00003I",
+                        "OSD00003E": "#/components/schemas/OSD00003E"
+                    }
+                }
+            },
+            "DEV00001I": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^DEV"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "device": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "DEV00001E": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^DEV"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "device": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "DEV00002I": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^DEV"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "device": {
+                                "type": "string"
+                            },
+                            "class": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "DEV00002E": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^DEV"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "device": {
+                                "type": "string"
+                            },
+                            "class": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "DEV00003I": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^DEV"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "device": {
+                                "type": "string"
+                            },
+                            "class": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "DEV00003E": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^DEV"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "device": {
+                                "type": "string"
+                            },
+                            "class": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "DEV00004I": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^DEV"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "device": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "DEV00004E": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^DEV"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "device": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "OSD00001I": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^OSD"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "osdId": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "OSD00001E": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^OSD"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "osdId": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "OSD00002I": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^OSD"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "osdId": {
+                                "type": "string"
+                            },
+                            "reweight": {
+                                "type": "number"
+                            }
+                        }
+                    }
+                }
+            },
+            "OSD00002E": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^OSD"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "osdId": {
+                                "type": "string"
+                            },
+                            "reweight": {
+                                "type": "number"
+                            }
+                        }
+                    }
+                }
+            },
+            "OSD00003I": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^OSD"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "osdId": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "OSD00003E": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^OSD"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "properties": {
+                            "osdId": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
             }
         }
     },
