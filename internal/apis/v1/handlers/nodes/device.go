@@ -137,7 +137,6 @@ func (h *helper) rawsToBlockDevices(raws []nodes.RawBlockDevice) []nodes.BlockDe
 
 	h.setBlockDeviceAvailability(&blockDevs, mountsMap)
 	h.setBlockDeviceStatus(&blockDevs)
-	h.setBlockPromotionDetails(&blockDevs)
 	return blockDevs
 }
 
@@ -163,6 +162,7 @@ func (h *helper) syncCephOsds(blockDevs *[]nodes.BlockDevice) error {
 		}
 	}
 
+	h.setBlockPromotionDetails(blockDevs)
 	return nil
 }
 

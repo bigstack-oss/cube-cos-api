@@ -25,7 +25,7 @@ func (h *helper) updateOsdTask() error {
 		nodes.Db,
 		nodes.ReqOsdCollection,
 		bson.M{
-			"hostname": h.deviceReqOpts.Hostname,
+			"hostname": h.osdReqOpts.Hostname,
 			"device":   h.osdReqOpts.Device,
 			"reqId":    h.osdReqOpts.ReqId,
 			"osdId":    h.osdReqOpts.OsdId,

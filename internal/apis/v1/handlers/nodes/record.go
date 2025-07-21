@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
@@ -248,7 +249,7 @@ func (h *helper) syncUpdatingDevice(dev *nodes.BlockDevice) {
 		return
 	}
 	if update.Class != "" {
-		dev.Class = update.Class
+		dev.Class = strings.ToUpper(update.Class)
 	}
 }
 
