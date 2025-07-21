@@ -62,10 +62,10 @@ func (d *DeviceReqOpts) SetError() {
 		d.Notify.Payload.Id = "DEV00001E"
 	case status.Promoted:
 		d.Notify.Payload.Id = "DEV00002E"
-		d.Notify.Payload.AdditionalInfo["class"] = d.Class
+		d.Notify.Payload.AdditionalInfo["class"] = strings.ToUpper(d.Class)
 	case status.Demoted:
 		d.Notify.Payload.Id = "DEV00003E"
-		d.Notify.Payload.AdditionalInfo["class"] = d.Class
+		d.Notify.Payload.AdditionalInfo["class"] = strings.ToUpper(d.Class)
 	case status.Removed:
 		d.Notify.Payload.Id = "DEV00004E"
 	}
@@ -81,10 +81,10 @@ func (d *DeviceReqOpts) SetCompleted() {
 		d.Notify.Payload.Id = "DEV00001I"
 	case status.Promoted:
 		d.Notify.Payload.Id = "DEV00002I"
-		d.Notify.Payload.AdditionalInfo["class"] = d.Class
+		d.Notify.Payload.AdditionalInfo["class"] = strings.ToUpper(d.Class)
 	case status.Demoted:
 		d.Notify.Payload.Id = "DEV00003I"
-		d.Notify.Payload.AdditionalInfo["class"] = d.Class
+		d.Notify.Payload.AdditionalInfo["class"] = strings.ToUpper(d.Class)
 	case status.Removed:
 		d.Notify.Payload.Id = "DEV00003I"
 	}

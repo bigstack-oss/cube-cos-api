@@ -166,21 +166,21 @@ func newDbHousekeeping() error {
 		notifications.ToastCollection,
 	)
 	if err != nil {
-		log.Errorf("runtime: failed to create mongo client(%v)", err)
+		log.Errorf("runtime: failed to create mongo client for ttl setup(%v)", err)
 		return err
 	}
 
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
 	defer cancel()
-	_, err = cli.Indexes().CreateOne(
-		ctx,
-		mongo.IndexModel{
-			Keys:    bson.D{{Key: "time", Value: 1}},
-			Options: options.Index().SetExpireAfterSeconds(3600),
-		},
-	)
+	sixHours := int32(3600 * 6)
+	ttlIndex := mongo.IndexModel{
+		Keys:    bson.D{{Key: "time", Value: 1}},
+		Options: options.Index().SetExpireAfterSeconds(sixHours),
+	}
+
+	_, err = cli.Indexes().CreateOne(ctx, ttlIndex)
 	if err != nil {
-		log.Errorf("runtime: failed to create mongo index(%v)", err)
+		log.Errorf("runtime: failed to create mongo ttl index(%v)", err)
 		return err
 	}
 
