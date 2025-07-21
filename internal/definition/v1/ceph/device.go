@@ -65,6 +65,14 @@ type HostDev struct {
 	Path string `json:"path"`
 }
 
+func IsIndexExistsError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	return strings.Contains(err.Error(), "index already exists")
+}
+
 func GetDeviceMapByHost(host string) (map[string]Device, error) {
 	raws, err := ListRawDevicesByHost(host)
 	if err != nil {

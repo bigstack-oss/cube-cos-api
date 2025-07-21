@@ -177,11 +177,14 @@ func newDbHousekeeping() error {
 		Keys:    bson.D{{Key: "time", Value: 1}},
 		Options: options.Index().SetExpireAfterSeconds(sixHours),
 	}
-
 	_, err = cli.Indexes().CreateOne(ctx, ttlIndex)
-	if err != nil {
-		log.Errorf("runtime: failed to create mongo ttl index(%v)", err)
-		return err
+	if err == nil {
+		return nil
+	}
+
+	if ceph.IsIndexExistsError(err) {
+		log.Warnf("runtime: ttl index already exists for %s(%v)", notifications.ToastCollection, err)
+		return nil
 	}
 
 	return nil
