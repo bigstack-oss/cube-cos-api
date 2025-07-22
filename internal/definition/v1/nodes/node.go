@@ -11,7 +11,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
-	"github.com/pkg/errors"
 	log "go-micro.dev/v5/logger"
 	"go-micro.dev/v5/registry"
 )
@@ -219,18 +218,6 @@ func GetController() (*Node, error) {
 	}
 
 	return &nodes[0], nil
-}
-
-func GetVirutalIpController() (*Node, error) {
-	for _, node := range List() {
-		if node.IsVirtualIpOwner {
-			return &node, nil
-		}
-	}
-
-	return nil, errors.New(
-		"failed to get virtual IP controller, no node is virtual IP owner",
-	)
 }
 
 func List() []Node {

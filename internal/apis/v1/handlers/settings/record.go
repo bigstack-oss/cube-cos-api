@@ -60,7 +60,7 @@ func (h *helper) updateSettingToPeerNode(node nodes.Node) {
 		SetQueryParam("clusterWise", "false").
 		SetBody(string(h.rawBody))
 
-	url := node.GenUrl() + h.c.Request.RequestURI
+	url := node.GenUrlString() + h.c.Request.RequestURI
 	resp, err := req.Execute(h.c.Request.Method, url)
 	if err != nil {
 		log.Errorf("settings: failed to update setting to peer node %s: %v", node.Hostname, err)

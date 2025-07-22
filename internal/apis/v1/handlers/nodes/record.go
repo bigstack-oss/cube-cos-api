@@ -152,7 +152,6 @@ func (h *helper) saveTemporaryNodeDetails() error {
 }
 
 func (h *helper) upsertDeviceReqRecord() {
-	defer changes.Add(nodes.Change{IsTaskInprogress: true})
 	err := h.mongo.UpdateOne(
 		nodes.Db,
 		nodes.ReqDeviceCollection,
@@ -171,7 +170,6 @@ func (h *helper) upsertDeviceReqRecord() {
 }
 
 func (h *helper) upsertOsdReqRecord() {
-	defer changes.Add(nodes.Change{IsTaskInprogress: true})
 	err := h.mongo.UpdateOne(
 		nodes.Db,
 		nodes.ReqOsdCollection,

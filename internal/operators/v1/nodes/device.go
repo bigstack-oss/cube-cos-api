@@ -40,7 +40,7 @@ func (o *Operator) handleDeviceExit(req nodes.DeviceReqOpts, err error) {
 }
 
 func (o *Operator) reportDeviceTaskToController(req nodes.DeviceReqOpts) {
-	node, err := nodes.GetVirutalIpController()
+	node, err := cubecos.GetVirutalIpController()
 	if err != nil {
 		log.Errorf("nodes: %v", err)
 		return
@@ -58,9 +58,8 @@ func (o *Operator) reportDeviceTaskToController(req nodes.DeviceReqOpts) {
 
 	if resp.IsError() {
 		log.Errorf(
-			"nodes: has error response from %s device task update(%d %v)",
+			"nodes: has error response from %s device task update(%v)",
 			node.Hostname,
-			resp.StatusCode(),
 			string(resp.Body()),
 		)
 	}

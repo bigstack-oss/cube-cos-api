@@ -40,7 +40,7 @@ func (o *Operator) handleOsdExit(req nodes.OsdReqOpts, err error) {
 }
 
 func (o *Operator) reportOsdToController(req nodes.OsdReqOpts) {
-	node, err := nodes.GetVirutalIpController()
+	node, err := cubecos.GetVirutalIpController()
 	if err != nil {
 		log.Errorf("nodes: %v", err)
 		return
@@ -58,10 +58,9 @@ func (o *Operator) reportOsdToController(req nodes.OsdReqOpts) {
 
 	if resp.IsError() {
 		log.Errorf(
-			"nodes: has error response from %s %s task update(%d %v)",
+			"nodes: has error response from %s %s task update(%v)",
 			node.Hostname,
 			req.OsdId,
-			resp.StatusCode(),
 			string(resp.Body()),
 		)
 	}

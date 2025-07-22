@@ -76,12 +76,6 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
-			Path:    "/nodes/:nodeName/devices/:device/osds",
-			Func:    updateNodeDeviceOsds,
-		},
-		{
-			Version: apis.V1,
-			Method:  http.MethodPatch,
 			Path:    "/nodes/:nodeName/devices/tasks",
 			Func:    updateDeviceTask,
 		},
@@ -389,32 +383,6 @@ func updateNodeDevice(c *gin.Context) {
 	bodies.SetAccepted(
 		c,
 		"the request of update node device is accepted and under processing",
-	)
-}
-
-func updateNodeDeviceOsds(c *gin.Context) {
-	h, err := initHelper(c, "updateNodeDeviceOsds")
-	if err != nil {
-		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
-		return
-	}
-
-	err = h.validateDeviceReq()
-	if err != nil {
-		bodies.SetBadRequest(c, err)
-		return
-	}
-
-	err = h.delegateOsdReqs()
-	if err != nil {
-		bodies.SetInternalServerError(c, err)
-		return
-	}
-
-	bodies.SetAccepted(
-		c,
-		"the request of updating node device osds is accepted and under processing",
 	)
 }
 

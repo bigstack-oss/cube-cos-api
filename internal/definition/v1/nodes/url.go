@@ -10,7 +10,14 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 )
 
-func (n *Node) GenUrl() string {
+func (n *Node) GenUrl() url.URL {
+	return url.URL{
+		Scheme: n.Protocol,
+		Host:   n.Address,
+	}
+}
+
+func (n *Node) GenUrlString() string {
 	u := url.URL{Scheme: n.Protocol, Host: n.Address}
 	return u.String()
 }

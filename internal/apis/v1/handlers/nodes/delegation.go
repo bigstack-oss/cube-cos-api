@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	nodes "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -15,6 +16,7 @@ var (
 )
 
 func (h *helper) delegateDeviceReq() error {
+	defer changes.Add(nodes.Change{IsTaskInprogress: true})
 	if nodes.IsLocal(h.node) {
 		h.operateLocalDevice()
 		return nil
@@ -23,24 +25,8 @@ func (h *helper) delegateDeviceReq() error {
 	return h.operateDeviceOnPeerNode()
 }
 
-func (h *helper) delegateOsdReqs() error {
-	for _, osdReqOpts := range h.osdReqOptses {
-		h.osdReqOpts = osdReqOpts
-		if nodes.IsLocal(h.node) {
-			h.operateLocalOsd()
-			continue
-		}
-
-		err := h.operateOsdOnPeerNode()
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (h *helper) delegateOsdReq() error {
+	defer changes.Add(nodes.Change{IsTaskInprogress: true})
 	if nodes.IsLocal(h.node) {
 		h.operateLocalOsd()
 		return nil
@@ -66,6 +52,7 @@ func (h *helper) operateDeviceOnPeerNode() error {
 		return err
 	}
 
+	h.deviceReqOpts.Device = strings.ReplaceAll(h.deviceReqOpts.Device, "/dev/", "")
 	http := http.GetGlobalHelper()
 	resp, err := http.R().
 		SetHeaders(nodes.GetSecretHeaders()).
@@ -81,8 +68,8 @@ func (h *helper) operateDeviceOnPeerNode() error {
 
 	if resp.IsError() {
 		err := fmt.Errorf(
-			"has error response from %s device req(%d %v)",
-			node.Hostname, resp.StatusCode(), string(resp.Body()),
+			"has error response from %s device req(%v)",
+			node.Hostname, string(resp.Body()),
 		)
 		log.Errorf("nodes(%s): %v", h.reqId, err)
 		return err
@@ -113,8 +100,8 @@ func (h *helper) operateOsdOnPeerNode() error {
 
 	if resp.IsError() {
 		err := fmt.Errorf(
-			"has error response from %s osd req(%d %v)",
-			node.Hostname, resp.StatusCode(), string(resp.Body()),
+			"has error response from %s osd req(%v)",
+			node.Hostname, string(resp.Body()),
 		)
 		log.Errorf("nodes(%s): %v", h.reqId, err)
 		return err

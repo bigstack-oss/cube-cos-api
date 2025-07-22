@@ -2,6 +2,7 @@ package cubecos
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -33,6 +34,21 @@ type Ip struct {
 	Provider   string `json:"provider"`
 	Overlay    string `json:"overlay"`
 	Storage    string `json:"storage"`
+}
+
+func GetVirutalIpController() (*nodes.Node, error) {
+	nodes := nodes.List()
+	syncVirutalIpOwner(&nodes)
+
+	for _, node := range nodes {
+		if node.IsVirtualIpOwner {
+			return &node, nil
+		}
+	}
+
+	return nil, errors.New(
+		"failed to get virtual IP controller, no node is virtual IP owner",
+	)
 }
 
 func GetSourceNodeMap() (map[string]nodes.Node, error) {
