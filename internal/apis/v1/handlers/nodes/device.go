@@ -199,15 +199,11 @@ func (h *helper) setPartitionMounts(mountsMap map[string][]string, rawDev nodes.
 }
 
 func (h *helper) setBlockDeviceAvailability(blockDevs *[]nodes.BlockDevice, mountsMap map[string][]string) {
-	partitionAvailability := h.genPartitionAvailability(mountsMap)
-
-	b, _ := json.Marshal(partitionAvailability)
-	log.Infof("%s", string(b))
-
-	parentDevAvailability := h.genParentDevAvailability(partitionAvailability)
+	rawAvailabilities := h.genRawAvailabilities(mountsMap)
+	devAvailabilities := h.converageDeviceAvailabilities(rawAvailabilities)
 
 	for i, blockDev := range *blockDevs {
-		availability, found := parentDevAvailability[blockDev.Name]
+		availability, found := devAvailabilities[blockDev.Name]
 		if found {
 			(*blockDevs)[i].Availability = availability
 		} else {
@@ -287,34 +283,39 @@ func (h *helper) convergeBlockStatuses(statuses []blockdevice.SmartCtl) status.B
 	return status
 }
 
-func (h *helper) genPartitionAvailability(mountMap map[string][]string) map[string]string {
-	statuses := map[string]string{}
+func (h *helper) genRawAvailabilities(mountMap map[string][]string) map[string][]string {
+	partAvailabilities := h.genPartitionAvailabilities(mountMap)
+	return h.genDeviceAvailabilities(partAvailabilities)
+}
+
+func (h *helper) genPartitionAvailabilities(mountMap map[string][]string) map[string]string {
+	availabilities := map[string]string{}
 	for partition, paths := range mountMap {
 		if len(paths) == 0 {
 			continue
 		}
 
 		if paths[0] == "" {
-			statuses[partition] = status.Available
+			availabilities[partition] = status.Available
 			continue
 		}
 
-		statuses[partition] = status.InUse
+		availabilities[partition] = status.InUse
 		if h.isRootDevice(paths) {
-			statuses[partition] = status.System
+			availabilities[partition] = status.System
 		}
 	}
 
-	return statuses
+	return availabilities
 }
 
 func (h *helper) isRootDevice(paths []string) bool {
 	return slices.Contains(paths, "/")
 }
 
-func (h *helper) genParentDevAvailability(partitionAvailability map[string]string) map[string]string {
-	partitionStatuses := map[string][]string{}
-	for partition, availability := range partitionAvailability {
+func (h *helper) genDeviceAvailabilities(statuses map[string]string) map[string][]string {
+	devStatuses := map[string][]string{}
+	for partition, availability := range statuses {
 		parent, err := h.getParentDev(partition)
 		if err != nil {
 			log.Errorf("nodes: failed to get parent device for %s(%v)", partition, err)
@@ -326,14 +327,18 @@ func (h *helper) genParentDevAvailability(partitionAvailability map[string]strin
 			continue
 		}
 
-		partitionStatuses[parent] = append(
-			partitionStatuses[parent],
+		devStatuses[parent] = append(
+			devStatuses[parent],
 			availability,
 		)
 	}
 
+	return devStatuses
+}
+
+func (h *helper) converageDeviceAvailabilities(deviceAvailabilties map[string][]string) map[string]string {
 	statuses := map[string]string{}
-	for parent, availabilities := range partitionStatuses {
+	for parent, availabilities := range deviceAvailabilties {
 		if slices.Contains(availabilities, status.System) {
 			statuses[parent] = status.System
 			continue
