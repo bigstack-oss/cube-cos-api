@@ -92,26 +92,21 @@ func streamDataByHandler(h *helper, change nodes.Change) (any, error) {
 	case "getNode":
 		return h.getNode()
 	case "listNodeDevices":
-		opts := genDeviceStreamingOpts(change)
+		opts := genDeviceListOpts(change)
 		return h.listNodeDevices(opts)
 	}
 
 	return nil, errors.New("no internal function supported")
 }
 
-func genDeviceStreamingOpts(changes nodes.Change) nodes.DeviceListOpts {
-	useCache := false
-	if changes.IsTaskInprogress {
-		useCache = true
-	}
-
+func genDeviceListOpts(changes nodes.Change) nodes.DeviceListOpts {
 	payload, found := notifications.GetCacheById(changes.Id)
 	if !found {
 		payload = notifications.Notification{}
 	}
 
 	return nodes.DeviceListOpts{
-		UseCache: useCache,
+		UseCache: changes.IsTaskInprogress,
 		Notify: nodes.Notify{
 			Changes: changes.NeedsNotification,
 			Payload: payload,

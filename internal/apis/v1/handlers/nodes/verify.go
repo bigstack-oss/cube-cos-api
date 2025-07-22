@@ -7,6 +7,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -78,7 +79,7 @@ func (h *helper) updateOnSameClass() bool {
 	}
 
 	for _, device := range devices {
-		if fmt.Sprintf("/dev/%s", device.Name) != h.deviceReqOpts.Device {
+		if blockdevice.WithDevPath(device.Name) != h.deviceReqOpts.Device {
 			continue
 		}
 

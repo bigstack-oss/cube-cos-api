@@ -13,7 +13,7 @@ import (
 func (o *Operator) operateOsd(req nodes.OsdReqOpts) error {
 	switch req.Status.Desired {
 	case status.Restarted:
-		return cubecos.RestartOsd(req)
+		return o.restartOsd(req)
 	case status.Reweighted:
 		return cubecos.ReweightOsd(req)
 	case status.Removed:
@@ -24,6 +24,19 @@ func (o *Operator) operateOsd(req nodes.OsdReqOpts) error {
 		"unknown desired action(%s) for node osd(%s)",
 		req.Status.Desired,
 		req.OsdId,
+	)
+}
+
+func (o *Operator) restartOsd(req nodes.OsdReqOpts) error {
+	err := cubecos.RestartOsd(req)
+	if err != nil {
+		return err
+	}
+
+	return cubecos.WaitOsdStatus(
+		req.OsdId,
+		status.Up,
+		300,
 	)
 }
 

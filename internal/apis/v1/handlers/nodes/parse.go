@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	nodes "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 )
@@ -151,7 +152,7 @@ func (h *helper) parseCreateDeviceOptions() error {
 
 	h.deviceReqOpts.ReqId = h.reqId
 	h.deviceReqOpts.Hostname = h.node
-	h.deviceReqOpts.Device = fmt.Sprintf("/dev/%s", h.deviceReqOpts.Device)
+	h.deviceReqOpts.Device = blockdevice.WithDevPath(h.deviceReqOpts.Device)
 	h.deviceReqOpts.SetAdding()
 	return nil
 }
@@ -178,7 +179,7 @@ func (h *helper) parsePromoteOrDemoteOptions() error {
 	h.deviceReqOpts.ReqId = h.reqId
 	h.deviceReqOpts.Hostname = h.node
 	h.deviceReqOpts.Class = strings.ToLower(h.deviceReqOpts.Class)
-	h.deviceReqOpts.Device = fmt.Sprintf("/dev/%s", h.device)
+	h.deviceReqOpts.Device = blockdevice.WithDevPath(h.device)
 	h.deviceReqOpts.SetUpdating()
 	return nil
 }
@@ -206,7 +207,7 @@ func (h *helper) parseUpdateDeviceOsdsOptions() error {
 		return fmt.Errorf("reweight should be between 0.0 ~ 1.0 and only allow two decimal places")
 	}
 
-	h.deviceReqOpts.Device = fmt.Sprintf("/dev/%s", h.device)
+	h.deviceReqOpts.Device = blockdevice.WithDevPath(h.device)
 	return h.setOsdReqOptses()
 }
 
@@ -223,7 +224,7 @@ func (h *helper) parseRemoveDeviceOptions() error {
 
 	h.deviceReqOpts = nodes.DeviceReqOpts{ReqId: h.reqId}
 	h.deviceReqOpts.Hostname = h.node
-	h.deviceReqOpts.Device = fmt.Sprintf("/dev/%s", h.device)
+	h.deviceReqOpts.Device = blockdevice.WithDevPath(h.device)
 	h.deviceReqOpts.SetRemoving()
 	return nil
 }
@@ -245,7 +246,7 @@ func (h *helper) parseRestartOsdOptions() error {
 	}
 
 	h.osdReqOpts = nodes.OsdReqOpts{ReqId: h.reqId}
-	h.osdReqOpts.Device = fmt.Sprintf("/dev/%s", device.Dev)
+	h.osdReqOpts.Device = blockdevice.WithDevPath(device.Dev)
 	h.osdReqOpts.Hostname = h.node
 	h.osdReqOpts.OsdId = h.osdId
 	h.osdReqOpts.SetRestarting()
@@ -269,7 +270,7 @@ func (h *helper) parseRemoveOsdOptions() error {
 	}
 
 	h.osdReqOpts = nodes.OsdReqOpts{ReqId: h.reqId}
-	h.osdReqOpts.Device = fmt.Sprintf("/dev/%s", device.Dev)
+	h.osdReqOpts.Device = blockdevice.WithDevPath(device.Dev)
 	h.osdReqOpts.Hostname = h.node
 	h.osdReqOpts.OsdId = h.osdId
 	h.osdReqOpts.SetRemoving()
@@ -305,7 +306,7 @@ func (h *helper) parseUpdateOsdOptions() error {
 	}
 
 	h.osdReqOpts.ReqId = h.reqId
-	h.osdReqOpts.Device = fmt.Sprintf("/dev/%s", device.Dev)
+	h.osdReqOpts.Device = blockdevice.WithDevPath(device.Dev)
 	h.osdReqOpts.Hostname = h.node
 	h.osdReqOpts.OsdId = h.osdId
 	h.osdReqOpts.SetReweighting()
@@ -362,7 +363,7 @@ func (h *helper) setOsdReqOptses() error {
 
 	for _, osd := range device.Osds {
 		odsReqOpts := nodes.OsdReqOpts{
-			Device:   fmt.Sprintf("/dev/%s", device.Dev),
+			Device:   blockdevice.WithDevPath(device.Dev),
 			Hostname: h.node,
 			OsdId:    osd.Id,
 			Reweight: h.osdReqOpts.Reweight,

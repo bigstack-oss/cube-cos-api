@@ -1,6 +1,7 @@
 package nodes
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
@@ -253,7 +255,12 @@ func (h *helper) syncBlockDeviceStatus(blockDevs *[]nodes.BlockDevice) *sync.Map
 }
 
 func (h *helper) getBlockDeviceStatus(blockDev nodes.BlockDevice) status.BlockDevice {
-	out, err := exec.Command("hex_sdk", "-f", "json", "ceph_osd_list", fmt.Sprintf("/dev/%s", blockDev.Name)).CombinedOutput()
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(120))
+	defer cancel()
+
+	out, err := exec.
+		CommandContext(ctx, "hex_sdk", "-f", "json", "ceph_osd_list", blockdevice.WithDevPath(blockDev.Name)).
+		CombinedOutput()
 	if err != nil {
 		log.Errorf("nodes: failed to get block device(%s) status(%v)", blockDev.Name, err)
 		return status.BlockDevice{Current: "failed"}

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	ping "github.com/prometheus-community/pro-bing"
@@ -209,7 +210,7 @@ func (h *helper) hasUpdatingDeviceReq(dev nodes.BlockDevice) bool {
 		nodes.ReqDeviceCollection,
 		bson.M{
 			"hostname": h.node,
-			"device":   fmt.Sprintf("/dev/%s", dev.Name),
+			"device":   blockdevice.WithDevPath(dev.Name),
 		},
 	)
 	if err != nil {
@@ -226,7 +227,7 @@ func (h *helper) hasUpdatingOsdReq(dev nodes.BlockDevice) bool {
 		nodes.ReqOsdCollection,
 		bson.M{
 			"hostname": h.node,
-			"device":   fmt.Sprintf("/dev/%s", dev.Name),
+			"device":   blockdevice.WithDevPath(dev.Name),
 		},
 	)
 	if err != nil {
@@ -276,7 +277,7 @@ func (h *helper) getUpdatingDevice(dev *nodes.BlockDevice) (*nodes.BlockDevice, 
 		nodes.ReqDeviceCollection,
 		bson.M{
 			"hostname": h.node,
-			"device":   fmt.Sprintf("/dev/%s", dev.Name),
+			"device":   blockdevice.WithDevPath(dev.Name),
 		},
 	)
 	if err != nil {
@@ -325,7 +326,7 @@ func (h *helper) getUpdatingOsd(device, id string) (*nodes.OsdReqOpts, error) {
 		nodes.ReqOsdCollection,
 		bson.M{
 			"hostname": h.node,
-			"device":   fmt.Sprintf("/dev/%s", device),
+			"device":   blockdevice.WithDevPath(device),
 			"osdId":    id,
 		},
 	)
