@@ -152,7 +152,7 @@ func (h *helper) saveTemporaryNodeDetails() error {
 }
 
 func (h *helper) upsertDeviceReqRecord() {
-	changes.Add(nodes.Change{IsTaskInprogress: true})
+	defer changes.Add(nodes.Change{IsTaskInprogress: true})
 	err := h.mongo.UpdateOne(
 		nodes.Db,
 		nodes.ReqDeviceCollection,
@@ -171,7 +171,7 @@ func (h *helper) upsertDeviceReqRecord() {
 }
 
 func (h *helper) upsertOsdReqRecord() {
-	changes.Add(nodes.Change{IsTaskInprogress: true})
+	defer changes.Add(nodes.Change{IsTaskInprogress: true})
 	err := h.mongo.UpdateOne(
 		nodes.Db,
 		nodes.ReqOsdCollection,
@@ -290,14 +290,17 @@ func (h *helper) getUpdatingDevice(dev *nodes.BlockDevice) (*nodes.BlockDevice, 
 		return nil, err
 	}
 
-	device := &nodes.BlockDevice{}
-	err = doc.Decode(device)
+	req := &nodes.DeviceReqOpts{}
+	err = doc.Decode(req)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to decode updating device req for %s(%v)", h.reqId, dev.Name, err)
 		return nil, err
 	}
 
-	return device, nil
+	return &nodes.BlockDevice{
+		Name:  req.Device,
+		Class: req.Class,
+	}, nil
 }
 
 func (h *helper) getUpdatingOsds(dev *nodes.BlockDevice) ([]nodes.OsdReqOpts, error) {

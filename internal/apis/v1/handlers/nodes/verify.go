@@ -71,6 +71,25 @@ func (h *helper) validateDeviceReq() error {
 	return err
 }
 
+func (h *helper) updateOnSameClass() bool {
+	devices, err := h.listCachedDevices()
+	if err != nil {
+		return false
+	}
+
+	for _, device := range devices {
+		if fmt.Sprintf("/dev/%s", device.Name) != h.deviceReqOpts.Device {
+			continue
+		}
+
+		if strings.EqualFold(device.Class, h.deviceReqOpts.Class) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (h *helper) validateOsdReq() error {
 	if !nodes.IsExist(h.node) {
 		err := fmt.Errorf("node(%s) does not exist", h.node)

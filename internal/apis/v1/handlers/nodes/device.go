@@ -200,6 +200,10 @@ func (h *helper) setPartitionMounts(mountsMap map[string][]string, rawDev nodes.
 
 func (h *helper) setBlockDeviceAvailability(blockDevs *[]nodes.BlockDevice, mountsMap map[string][]string) {
 	partitionAvailability := h.genPartitionAvailability(mountsMap)
+
+	b, _ := json.Marshal(partitionAvailability)
+	log.Infof("%s", string(b))
+
 	parentDevAvailability := h.genParentDevAvailability(partitionAvailability)
 
 	for i, blockDev := range *blockDevs {
@@ -285,9 +289,13 @@ func (h *helper) convergeBlockStatuses(statuses []blockdevice.SmartCtl) status.B
 
 func (h *helper) genPartitionAvailability(mountMap map[string][]string) map[string]string {
 	statuses := map[string]string{}
-
 	for partition, paths := range mountMap {
 		if len(paths) == 0 {
+			continue
+		}
+
+		if paths[0] == "" {
+			statuses[partition] = status.Available
 			continue
 		}
 
@@ -305,25 +313,38 @@ func (h *helper) isRootDevice(paths []string) bool {
 }
 
 func (h *helper) genParentDevAvailability(partitionAvailability map[string]string) map[string]string {
-	statuses := map[string]string{}
+	partitionStatuses := map[string][]string{}
 	for partition, availability := range partitionAvailability {
 		parent, err := h.getParentDev(partition)
 		if err != nil {
-			log.Errorf("nodes: failed to get parent device(%v)", err)
+			log.Errorf("nodes: failed to get parent device for %s(%v)", partition, err)
 			continue
 		}
 
-		val, found := statuses[parent]
-		if !found {
-			statuses[parent] = availability
+		if parent == "" {
+			log.Errorf("nodes: empty parent device for %s", partition)
 			continue
 		}
 
-		if val == status.System {
+		partitionStatuses[parent] = append(
+			partitionStatuses[parent],
+			availability,
+		)
+	}
+
+	statuses := map[string]string{}
+	for parent, availabilities := range partitionStatuses {
+		if slices.Contains(availabilities, status.System) {
+			statuses[parent] = status.System
 			continue
 		}
 
-		statuses[parent] = availability
+		if slices.Contains(availabilities, status.InUse) {
+			statuses[parent] = status.InUse
+			continue
+		}
+
+		statuses[parent] = status.Available
 	}
 
 	return statuses

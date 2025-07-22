@@ -375,6 +375,11 @@ func updateNodeDevice(c *gin.Context) {
 		return
 	}
 
+	if h.updateOnSameClass() {
+		bodies.SetOk(c, "the device is at the same class, no update needed", nil)
+		return
+	}
+
 	err = h.delegateDeviceReq()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
@@ -383,7 +388,7 @@ func updateNodeDevice(c *gin.Context) {
 
 	bodies.SetAccepted(
 		c,
-		"the request of promoting or demoting node device is accepted and under processing",
+		"the request of update node device is accepted and under processing",
 	)
 }
 
