@@ -156,7 +156,7 @@ func (h *helper) syncCephOsds(blockDevs *[]nodes.BlockDevice) error {
 			continue
 		}
 
-		(*blockDevs)[i].Class = h.convergeClass(cephDev.Osds)
+		(*blockDevs)[i].Class = h.convergeClass(blockDev, cephDev.Osds)
 		(*blockDevs)[i].Osd = nodes.Osd{
 			Pgs:      h.getTotalPgs(cephDev.Osds),
 			Reweigth: cephDev.Reweight,
@@ -168,7 +168,7 @@ func (h *helper) syncCephOsds(blockDevs *[]nodes.BlockDevice) error {
 	return nil
 }
 
-func (h *helper) convergeClass(osds []ceph.Osd) string {
+func (h *helper) convergeClass(blockDev nodes.BlockDevice, osds []ceph.Osd) string {
 	classes := []string{}
 	for _, osd := range osds {
 		if osd.DeviceClass != "" {
@@ -177,7 +177,7 @@ func (h *helper) convergeClass(osds []ceph.Osd) string {
 	}
 
 	if len(classes) == 0 {
-		return blockdevice.HDD
+		return blockDev.Type
 	}
 
 	if slices.Contains(classes, blockdevice.SSD) {
