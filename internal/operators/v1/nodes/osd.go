@@ -53,7 +53,7 @@ func (o *Operator) handleOsdExit(req nodes.OsdReqOpts, err error) {
 }
 
 func (o *Operator) reportOsdToController(req nodes.OsdReqOpts) {
-	node, err := cubecos.GetVirutalIpController()
+	node, err := cubecos.GetVirtualIpController()
 	if err != nil {
 		log.Errorf("nodes: %v", err)
 		return

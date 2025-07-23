@@ -36,9 +36,18 @@ type Ip struct {
 	Storage    string `json:"storage"`
 }
 
-func GetVirutalIpController() (*nodes.Node, error) {
+func GetVirtualIpController() (*nodes.Node, error) {
 	nodes := nodes.List()
+	if len(nodes) == 0 {
+		return nil, errors.New(
+			"no nodes found in the system",
+		)
+	}
+
 	syncVirutalIpOwner(&nodes)
+	if !base.IsHaEnabled {
+		return &nodes[0], nil
+	}
 
 	for _, node := range nodes {
 		if node.IsVirtualIpOwner {
