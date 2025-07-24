@@ -22,7 +22,7 @@ func (h *helper) convertListOpts() (*notifications.ListOpts, error) {
 		return nil, err
 	}
 
-	opts := &notifications.ListOpts{Limit: int64(h.limit), Desending: true}
+	opts := &notifications.ListOpts{Limit: int64(h.limit), Desending: false}
 	if queries.IsPeriodRequired(h.c) {
 		opts.Start = h.period.Start
 		opts.Stop = h.period.Stop
