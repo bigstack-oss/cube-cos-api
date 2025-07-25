@@ -6,6 +6,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
+	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 	"gopkg.in/yaml.v3"
 )
@@ -86,42 +87,25 @@ func DeleteTrigger(trigger triggers.CosSchema) error {
 }
 
 func GetPredefinedEvents() ([]events.Event, error) {
-	return []events.Event{
-		{
-			Type:     "system",
-			Id:       "KSN00001I",
-			Category: "KSN",
-			Severity: "INFO",
-		},
-		{
-			Type:     "system",
-			Id:       "CMP01001I",
-			Category: "CMP",
-			Severity: "INFO",
-		},
-		{
-			Type:     "host",
-			Id:       "ETH00001I",
-			Category: "ETH",
-			Severity: "INFO",
-		},
-		{
-			Type:     "host",
-			Id:       "CPU00002W",
-			Category: "CPU",
-			Severity: "WARNING",
-		},
-		{
-			Type:     "instance",
-			Id:       "CPU00004I",
-			Category: "CPU",
-			Severity: "INFO",
-		},
-		{
-			Type:     "instance",
-			Id:       "CPU00006C",
-			Category: "CPU",
-			Severity: "CTRITICAL",
-		},
-	}, nil
+	out, err := exec.Command("hex_sdk", "alert_get_event_list").CombinedOutput()
+	if err != nil {
+		err := fmt.Errorf("failed to execute predefined event list cmd(%v %s)", err, string(out))
+		log.Errorf("events: %v", err)
+		return nil, err
+	}
+
+	if !IsHexSdkSuccess(err) {
+		err := fmt.Errorf("failed to get predefined event list(%v %s)", err, string(out))
+		log.Errorf("events: %v", err)
+		return nil, err
+	}
+
+	events := []events.Event{}
+	err = json.Unmarshal(out, &events)
+	if err != nil {
+		log.Errorf("events: failed to unmarshal predefined event list(%v)", err)
+		return nil, err
+	}
+
+	return events, nil
 }

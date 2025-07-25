@@ -81,10 +81,11 @@ func (h *helper) listPredefinedEvents() ([]predefinedEvent, error) {
 	predefinedEvents := []predefinedEvent{}
 	for _, event := range events {
 		predefinedEvents = append(predefinedEvents, predefinedEvent{
-			Type:     event.Type,
-			Id:       event.Id,
-			Severity: event.Severity,
-			Category: event.Category,
+			Type:        event.Type,
+			Id:          event.Id,
+			Severity:    event.Severity,
+			Category:    event.Category,
+			Description: event.Message,
 		})
 	}
 

@@ -11,8 +11,9 @@ type data struct {
 }
 
 type predefinedEvent struct {
-	Type     string `json:"type"`
-	Id       string `json:"id"`
-	Severity string `json:"severity"`
-	Category string `json:"category"`
+	Type        string `json:"type"`
+	Id          string `json:"id"`
+	Severity    string `json:"severity"`
+	Category    string `json:"category"`
+	Description string `json:"description"`
 }

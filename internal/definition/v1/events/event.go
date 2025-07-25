@@ -46,6 +46,7 @@ type Event struct {
 	Category    string         `json:"category"`
 	Service     string         `json:"service"`
 	Metadata    map[string]any `json:"metadata"`
+	Message     string         `json:"message"`
 	Time        string         `json:"time"`
 }
 
