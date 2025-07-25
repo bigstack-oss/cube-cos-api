@@ -895,7 +895,24 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "PLC",
+                                    "BSP",
+                                    "RUG",
+                                    "KSN",
+                                    "CMP",
+                                    "CEP",
+                                    "NET",
+                                    "SRV",
+                                    "SDN",
+                                    "VRT",
+                                    "ETH",
+                                    "CPU",
+                                    "DSK",
+                                    "MEM",
+                                    "DEV"
+                                ]
                             }
                         },
                         "description": "The categories of the event to query.",
@@ -910,10 +927,9 @@ const docTemplate = `{
                             "items": {
                                 "type": "string",
                                 "enum": [
-                                    "Info",
-                                    "Warning",
-                                    "Critical",
-                                    "Error"
+                                    "INFO",
+                                    "WARNING",
+                                    "CRITICAL"
                                 ]
                             }
                         },
@@ -927,7 +943,57 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "PLC00001I",
+                                    "PLC00002I",
+                                    "BSP00001I",
+                                    "RUG00001I",
+                                    "KSN00001I",
+                                    "KSN00002I",
+                                    "CMP01001I",
+                                    "CMP01002I",
+                                    "CMP02001I",
+                                    "CMP02002I",
+                                    "CMP02003I",
+                                    "CEP00001I",
+                                    "CEP00002W",
+                                    "NET00001I",
+                                    "NET00002W",
+                                    "NET00003I",
+                                    "NET00004W",
+                                    "SRV00001I",
+                                    "SRV00002W",
+                                    "SRV00003C",
+                                    "SRV01001I",
+                                    "SRV01002I",
+                                    "SDN00001I",
+                                    "SDN00002I",
+                                    "VRT00001I",
+                                    "VRT00002W",
+                                    "VRT00003C",
+                                    "ETH00001I",
+                                    "ETH00002W",
+                                    "CPU00001I",
+                                    "CPU00002W",
+                                    "CPU00003C",
+                                    "DSK00001I",
+                                    "DSK00002W",
+                                    "DSK00003C",
+                                    "MEM00001I",
+                                    "MEM00002W",
+                                    "MEM00003C",
+                                    "DEV00001I",
+                                    "DEV00002W",
+                                    "CPU00004I",
+                                    "CPU00005W",
+                                    "CPU00006C",
+                                    "CPU00007I",
+                                    "MEM00004I",
+                                    "MEM00005W",
+                                    "MEM00006C",
+                                    "MEM00007I"
+                                ]
                             }
                         },
                         "description": "The ids of the event to query.",
@@ -950,39 +1016,24 @@ const docTemplate = `{
                                             "data": [
                                                 {
                                                     "type": "system",
-                                                    "id": "KSN00001I",
+                                                    "id": "PLC00001I",
                                                     "severity": "INFO",
-                                                    "category": "KSN"
+                                                    "category": "PLC",
+                                                    "description": "CubeCOS node policy is successfully applied"
                                                 },
                                                 {
                                                     "type": "system",
-                                                    "id": "CMP01001I",
+                                                    "id": "PLC00002I",
                                                     "severity": "INFO",
-                                                    "category": "CMP"
+                                                    "category": "PLC",
+                                                    "description": "CubeCOS cluster policy is successfully applied"
                                                 },
                                                 {
-                                                    "type": "host",
-                                                    "id": "ETH00001I",
+                                                    "type": "system",
+                                                    "id": "BSP00001I",
                                                     "severity": "INFO",
-                                                    "category": "ETH"
-                                                },
-                                                {
-                                                    "type": "host",
-                                                    "id": "CPU00002W",
-                                                    "severity": "WARNING",
-                                                    "category": "CPU"
-                                                },
-                                                {
-                                                    "type": "instance",
-                                                    "id": "CPU00004I",
-                                                    "severity": "INFO",
-                                                    "category": "CPU"
-                                                },
-                                                {
-                                                    "type": "instance",
-                                                    "id": "CPU00006C",
-                                                    "severity": "CTRITICAL",
-                                                    "category": "CPU"
+                                                    "category": "BSP",
+                                                    "description": "CubeCOS node bootstrapping is started"
                                                 }
                                             ],
                                             "msg": "fetch predefined events successfully",
@@ -13196,7 +13247,8 @@ const docTemplate = `{
                                         "type",
                                         "id",
                                         "severity",
-                                        "category"
+                                        "category",
+                                        "description"
                                     ],
                                     "properties": {
                                         "type": {
@@ -13209,6 +13261,9 @@ const docTemplate = `{
                                             "type": "string"
                                         },
                                         "category": {
+                                            "type": "string"
+                                        },
+                                        "description": {
                                             "type": "string"
                                         }
                                     }
