@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	datacenterapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/datacenters"
@@ -318,6 +319,14 @@ func verifyAuthToken() gin.HandlerFunc {
 			return
 		}
 
+		if isValidOpenstackToken(c) {
+			c.Set("isTokenValid", true)
+			c.Set("authType", auths.Openstack)
+			c.Set("authUser", c.ClientIP())
+			c.Next()
+			return
+		}
+
 		oidcToken := parseOidcToken(c)
 		claims, err := oidc.VerifyToken(oidcToken)
 		if err == nil {
@@ -366,6 +375,17 @@ func parseOidcToken(c *gin.Context) string {
 func isValidInternalToken(c *gin.Context, token string) bool {
 	node := c.GetHeader("Node")
 	return token == nodes.GenToken(node)
+}
+
+func isValidOpenstackToken(c *gin.Context) bool {
+	token := c.GetHeader("X-Auth-Token")
+	if token == "" {
+		return false
+	}
+
+	h := openstack.GetGlobalHelper()
+	err := h.ValidToken(token)
+	return err == nil
 }
 
 func conditionalSaml() gin.HandlerFunc {

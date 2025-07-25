@@ -10,9 +10,10 @@ const (
 	Tokens = "tokens"
 	Logout = "logout"
 
-	Saml = "saml"
-	Oidc = "oidc"
-	None = "none"
+	Saml      = "saml"
+	Oidc      = "oidc"
+	Openstack = "openstack"
+	None      = "none"
 )
 
 var (
