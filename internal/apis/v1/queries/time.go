@@ -17,20 +17,20 @@ func GetPeriod(c *gin.Context) (*time.Period, error) {
 	}
 
 	timeStart := c.DefaultQuery("start", time.RFC3339(-24*ostime.Hour))
-	start, err := ostime.Parse(time.FormatRFC3339, timeStart)
+	_, err := ostime.Parse(time.FormatRFC3339, timeStart)
 	if err != nil {
 		return nil, fmt.Errorf("'start' time format should be aligned with RFC3339: %s", timeStart)
 	}
 
 	timeStop := c.DefaultQuery("stop", time.NowRFC3339())
-	stop, err := ostime.Parse(time.FormatRFC3339, timeStop)
+	_, err = ostime.Parse(time.FormatRFC3339, timeStop)
 	if err != nil {
 		return nil, fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", timeStop)
 	}
 
 	return &time.Period{
-		Start: time.UTC(start),
-		Stop:  time.UTC(stop),
+		Start: timeStart,
+		Stop:  timeStop,
 	}, nil
 }
 
