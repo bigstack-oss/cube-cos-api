@@ -251,3 +251,9 @@ func (n *Node) DeleteModuleRepairingTaskUrl(module string) string {
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/healths/tasks/repairing/%s", base.DataCenterName, module)
 	return u.String()
 }
+
+func (n *Node) UpdateImageTaskUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/images/tasks", base.DataCenterName)
+	return u.String()
+}

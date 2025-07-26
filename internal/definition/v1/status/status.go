@@ -30,6 +30,7 @@ const (
 
 	Completed  = "completed"
 	Created    = "created"
+	Imported   = "imported"
 	Added      = "added"
 	Removed    = "removed"
 	Updated    = "updated"

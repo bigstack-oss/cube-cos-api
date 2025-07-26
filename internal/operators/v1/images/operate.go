@@ -1,0 +1,72 @@
+package images
+
+import (
+	"fmt"
+
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	log "go-micro.dev/v5/logger"
+)
+
+func (o *Operator) operate(req images.ReqOpts) error {
+	if req.Status == nil {
+		return fmt.Errorf("status is required for image request")
+	}
+
+	switch req.Status.Desired {
+	case status.Imported:
+		return o.importImage(req)
+	}
+
+	return fmt.Errorf(
+		"unknown desired action(%s) for image %s",
+		req.Status.Desired,
+		req.Name,
+	)
+}
+
+func (o *Operator) importImage(req images.ReqOpts) error {
+	opts := req.GenCreateOpts()
+	return cubecos.ImportImage(opts)
+}
+
+func (o *Operator) handleExit(req images.ReqOpts, err error) {
+	if err != nil {
+		log.Errorf("images: failed to %s %s(%v)", req.Status.Desired, req.Name, err)
+		req.SetError()
+	} else {
+		log.Infof("images: %s %s successfully", req.Status.Desired, req.Name)
+		req.SetCompleted()
+	}
+
+	o.reportToController(req)
+}
+
+func (o *Operator) reportToController(req images.ReqOpts) {
+	node, err := cubecos.GetVirtualIpController()
+	if err != nil {
+		log.Errorf("images: %v", err)
+		return
+	}
+
+	h := http.GetGlobalHelper()
+	resp, err := h.R().
+		SetHeaders(nodes.GetSecretHeaders()).
+		SetBody(req).
+		Patch(node.UpdateImageTaskUrl())
+	if err != nil {
+		log.Errorf("images: failed to send image(%s) task update to %s(%v)", req.Name, node.Hostname, err)
+		return
+	}
+
+	if resp.IsError() {
+		log.Errorf(
+			"images: has error response from %s image task update(%v)",
+			node.Hostname,
+			string(resp.Body()),
+		)
+	}
+}

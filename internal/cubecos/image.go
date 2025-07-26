@@ -2,8 +2,8 @@ package cubecos
 
 import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 
-func GetReservedImages() []images.Reserved {
-	return []images.Reserved{
+func GetReservedImages() []images.ReqOpts {
+	return []images.ReqOpts{
 		{
 			File:                        "amphora-x64-haproxy-yoga.qcow2",
 			Name:                        "amphora-x64-haproxy",
@@ -23,4 +23,10 @@ func GetReservedImages() []images.Reserved {
 			Visibility:                  "private",
 		},
 	}
+}
+
+func ImportImage(opts images.CreateOpts) error {
+	// This function would contain the logic to import an image based on the provided options.
+	// For now, we just return nil to indicate success.
+	return nil
 }

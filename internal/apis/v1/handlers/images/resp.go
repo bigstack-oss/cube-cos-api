@@ -5,12 +5,12 @@ import (
 )
 
 type materials struct {
-	ReservedImages []images.Reserved `json:"reservedImages"`
-	Projects       []Project         `json:"projects"`
-	Oses           []string          `json:"oses"`
-	Destinations   []string          `json:"destinations"`
-	Domains        []string          `json:"domains"`
-	Visibilities   []string          `json:"visibilities"`
+	ReservedImages []images.ReqOpts `json:"reservedImages"`
+	Projects       []Project        `json:"projects"`
+	Oses           []string         `json:"oses"`
+	Destinations   []string         `json:"destinations"`
+	Domains        []string         `json:"domains"`
+	Visibilities   []string         `json:"visibilities"`
 }
 
 type Project struct {

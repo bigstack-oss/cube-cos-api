@@ -18,6 +18,12 @@ var (
 			Path:    "/images/materials",
 			Func:    listImageMaterials,
 		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/images",
+			Func:    importImage,
+		},
 	}
 )
 
@@ -40,5 +46,26 @@ func listImageMaterials(c *gin.Context) {
 		c,
 		"fetch image materials successfully",
 		materials,
+	)
+}
+
+func importImage(c *gin.Context) {
+	h, err := initHelper(c, "importImage")
+	if err != nil {
+		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.validateImportReq()
+	if err != nil {
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	h.delegateImageReq()
+	bodies.SetAccepted(
+		c,
+		"the request of importing image is accepted and under processing",
 	)
 }
