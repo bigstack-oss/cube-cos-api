@@ -12,6 +12,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/events"
 	grafanapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/healths"
+	imagesapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/integrations"
 	licenseapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/logout"
@@ -33,6 +34,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/health"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/me"
@@ -263,6 +265,14 @@ func prepareApiHandlersByRole() {
 	apis.RegisterHandlersToRoles(
 		notifications.Module,
 		notificationsapi.Handlers,
+		nodes.RoleControl,
+		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
+	)
+
+	apis.RegisterHandlersToRoles(
+		images.Module,
+		imagesapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
 		nodes.RoleEdgeCore,

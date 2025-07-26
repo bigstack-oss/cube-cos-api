@@ -123,6 +123,12 @@ type Osd struct {
 	IsProcessing bool   `json:"isProcessing" bson:"isProcessing"`
 }
 
+type Image struct {
+	Current      string `json:"current,omitempty" bson:"current"`
+	Desired      string `json:"-" bson:"desired"`
+	IsProcessing bool   `json:"isProcessing" bson:"isProcessing"`
+}
+
 func NewHealthOk() *Health {
 	return &Health{Current: Ok}
 }
