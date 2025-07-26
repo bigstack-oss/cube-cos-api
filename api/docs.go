@@ -12483,6 +12483,124 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/datacenters/{dataCenter}/images/materials": {
+            "get": {
+                "operationId": "listMaterials",
+                "tags": [
+                    "Images"
+                ],
+                "summary": "List materials",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List materials successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListImageMaterialsResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Materials list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "reservedImages": [
+                                                    {
+                                                        "file": "amphora-x64-haproxy-yoga.qcow2",
+                                                        "name": "amphora-x64-haproxy",
+                                                        "os": "Ubuntu",
+                                                        "destination": "CubeStorage",
+                                                        "domain": "default",
+                                                        "sourceFromAnotherHypervisor": false,
+                                                        "visibility": "private"
+                                                    },
+                                                    {
+                                                        "file": "manila-service-image_yoga.qcow2",
+                                                        "name": "manila-service-image",
+                                                        "os": "Ubuntu",
+                                                        "destination": "CubeStorage",
+                                                        "domain": "default",
+                                                        "sourceFromAnotherHypervisor": false,
+                                                        "visibility": "private"
+                                                    }
+                                                ],
+                                                "projects": [
+                                                    {
+                                                        "name": "admin",
+                                                        "domain": "default",
+                                                        "enabled": true,
+                                                        "description": "Bootstrap project for initializing the cloud."
+                                                    },
+                                                    {
+                                                        "name": "example-project",
+                                                        "domain": "default",
+                                                        "enabled": true,
+                                                        "description": "Example project"
+                                                    }
+                                                ],
+                                                "oses": [
+                                                    "CentOS",
+                                                    "Fedora",
+                                                    "Ubuntu",
+                                                    "Debian",
+                                                    "Windows",
+                                                    "Rocky",
+                                                    "FreeBSD",
+                                                    "CoreOS",
+                                                    "Arch",
+                                                    "Others"
+                                                ],
+                                                "destinations": [
+                                                    "CubeStorage"
+                                                ],
+                                                "domains": [
+                                                    "default"
+                                                ],
+                                                "visibility": [
+                                                    "public",
+                                                    "private"
+                                                ]
+                                            },
+                                            "msg": "fetch image materials successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list image materials: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -18031,6 +18149,110 @@ const docTemplate = `{
                     },
                     "status": {
                         "type": "string"
+                    }
+                }
+            },
+            "ListImageMaterialsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "reservedImages",
+                            "projects",
+                            "oses",
+                            "destinations",
+                            "domains",
+                            "visibilities"
+                        ],
+                        "properties": {
+                            "reservedImages": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "file",
+                                        "name",
+                                        "os",
+                                        "destination",
+                                        "domain",
+                                        "sourceFromAnotherHypervisor",
+                                        "visibility"
+                                    ],
+                                    "properties": {
+                                        "file": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "os": {
+                                            "type": "string"
+                                        },
+                                        "destination": {
+                                            "type": "string"
+                                        },
+                                        "domain": {
+                                            "type": "string"
+                                        },
+                                        "sourceFromAnotherHypervisor": {
+                                            "type": "boolean"
+                                        },
+                                        "visibility": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "projects": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "oses": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "destinations": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "domains": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "visibilities": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "materials retrieved successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
                     }
                 }
             },
