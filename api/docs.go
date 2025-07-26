@@ -12486,11 +12486,11 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/images/materials": {
             "get": {
-                "operationId": "listMaterials",
+                "operationId": "listImageMaterials",
                 "tags": [
                     "Images"
                 ],
-                "summary": "List materials",
+                "summary": "List image materials",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -12498,7 +12498,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "List materials successfully",
+                        "description": "List image materials successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -12506,7 +12506,7 @@ const docTemplate = `{
                                 },
                                 "examples": {
                                     "example": {
-                                        "summary": "Materials list",
+                                        "summary": "Image material list",
                                         "value": {
                                             "code": 200,
                                             "data": {

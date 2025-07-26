@@ -172,7 +172,7 @@ func (h *helper) checkEmails() error {
 	}
 
 	for _, email := range h.applyOpts.ApplyResponse.Emails {
-		if !h.hasFoundEmailInMatirial(email) {
+		if !h.hasFoundEmailInMaterials(email) {
 			return fmt.Errorf(
 				"email %s for trigger %s is not found in settings",
 				email,
@@ -224,7 +224,7 @@ func (h *helper) checkBashScript(script string) error {
 	return nil
 }
 
-func (h *helper) hasFoundEmailInMatirial(email string) bool {
+func (h *helper) hasFoundEmailInMaterials(email string) bool {
 	for _, e := range h.materials.Response.Emails {
 		if e.Address == email {
 			return true

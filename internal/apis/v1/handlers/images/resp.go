@@ -10,7 +10,7 @@ type materials struct {
 	Oses           []string          `json:"oses"`
 	Destinations   []string          `json:"destinations"`
 	Domains        []string          `json:"domains"`
-	Visibilities   []string          `json:"visibility"`
+	Visibilities   []string          `json:"visibilities"`
 }
 
 type Project struct {
