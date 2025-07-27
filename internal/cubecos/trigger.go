@@ -72,7 +72,14 @@ func ApplyTrigger(trigger triggers.CosSchema) error {
 }
 
 func DeleteTrigger(trigger triggers.CosSchema) error {
-	out, err := exec.Command("hex_sdk", "alert_delete_trigger", trigger.Name).CombinedOutput()
+	body := map[string]string{"name": trigger.Name}
+	bytes, err := json.Marshal(body)
+	if err != nil {
+		log.Errorf("triggers: failed to marshal trigger name %s(%v)", trigger.Name, err)
+		return err
+	}
+
+	out, err := exec.Command("hex_sdk", "alert_delete_trigger", string(bytes)).CombinedOutput()
 	if err != nil {
 		log.Errorf("triggers: failed to delete trigger value: %v(%s)", err, string(out))
 		return err
