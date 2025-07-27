@@ -12601,6 +12601,162 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/datacenters/{dataCenter}/images": {
+            "post": {
+                "operationId": "importImage",
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Improt an image",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "image",
+                                    "file",
+                                    "name",
+                                    "os",
+                                    "destination",
+                                    "domain",
+                                    "project",
+                                    "sourceFromAnotherHypervisor",
+                                    "visibility"
+                                ],
+                                "properties": {
+                                    "image": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "description": "The image file to import"
+                                    },
+                                    "file": {
+                                        "type": "string",
+                                        "description": "The file name of the image to import"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The name of the image to import"
+                                    },
+                                    "os": {
+                                        "type": "string",
+                                        "description": "The OS of the image to import",
+                                        "enum": [
+                                            "CentOS",
+                                            "Fedora",
+                                            "Ubuntu",
+                                            "Debian",
+                                            "Windows",
+                                            "Rocky",
+                                            "FreeBSD",
+                                            "CoreOS",
+                                            "Arch",
+                                            "Others"
+                                        ]
+                                    },
+                                    "destination": {
+                                        "type": "string",
+                                        "description": "The destination of the image to import"
+                                    },
+                                    "domain": {
+                                        "type": "string",
+                                        "description": "The domain of the image to import"
+                                    },
+                                    "project": {
+                                        "type": "string",
+                                        "description": "The project of the image to import"
+                                    },
+                                    "sourceFromAnotherHypervisor": {
+                                        "type": "boolean",
+                                        "description": "Whether the image is from another hypervisor"
+                                    },
+                                    "visibility": {
+                                        "type": "string",
+                                        "description": "The visibility of the image to import",
+                                        "enum": [
+                                            "public",
+                                            "private"
+                                        ]
+                                    }
+                                }
+                            },
+                            "example": {
+                                "image": "<image file to upload",
+                                "file": "example-image.qcow2",
+                                "name": "example image",
+                                "os": "Ubuntu",
+                                "destination": "CubeStorage",
+                                "domain": "default",
+                                "project": "admin",
+                                "sourceFromAnotherHypervisor": false,
+                                "visibility": "private"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Image import accepted and under processing",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 202
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "image import accepted and under processing"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to import image: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
