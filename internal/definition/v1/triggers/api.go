@@ -2,6 +2,7 @@ package triggers
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -49,6 +50,7 @@ type ApiSchema struct {
 	Name        string `json:"name" yaml:"name" bson:"name"`
 	IsBuiltIn   bool   `json:"isBuiltIn" yaml:"-" bson:"isBuiltIn"`
 	Description string `json:"description" yaml:"description" bson:"description"`
+	Topic       string `json:"topic" yaml:"topic" bson:"topic"`
 	Match       string `json:"-" yaml:"match"`
 
 	Attributes `json:"attributes" yaml:"attributes" bson:"attributes"`
@@ -62,13 +64,15 @@ type ApiSchema struct {
 func (a *ApiSchema) ToCosSchema() CosSchema {
 	return CosSchema{
 		Name:        builtInNameMap[a.Name],
+		Enabled:     a.Enabled,
 		Description: a.Description,
+		Topic:       a.Topic,
 		Match:       a.GenMatchRule(),
 		WriteResponses: WriteResponses{
 			Emails: a.GenEmailList(),
 			Slacks: a.GenSlackList(),
+			Execs:  a.GenExecsList(),
 		},
-		Enabled: a.Enabled,
 	}
 }
 
@@ -92,6 +96,15 @@ func (a *ApiSchema) GenSlackList() []string {
 	}
 
 	return slacks
+}
+
+func (a *ApiSchema) GenExecsList() []string {
+	execs := []string{}
+	if a.Response.Script.FilePath != "" {
+		execs = append(execs, a.Response.Script.FilePath)
+	}
+
+	return execs
 }
 
 func (a *ApiSchema) SetOk() {
@@ -193,6 +206,11 @@ func (a *ApiSchema) SetResponses(resp ApplyResponse) {
 			slack.ApiChannel{URL: s, Enabled: true},
 		)
 	}
+
+	a.Response.Script.FilePath = fmt.Sprintf(
+		"%s.shell",
+		filepath.Base(a.Response.Script.FilePath),
+	)
 }
 
 func (a *ApiSchema) HasEmailRecipients() bool {

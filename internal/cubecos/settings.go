@@ -1,6 +1,8 @@
 package cubecos
 
 import (
+	"context"
+	"fmt"
 	"os/exec"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
@@ -305,6 +307,39 @@ func checkSettingReturnError(err error) error {
 	if exitErr.ExitCode() != 0 {
 		log.Errorf("settings: failed to get setting exit code(%d)", exitErr.ExitCode())
 		return errors.ErrSdkExecutionFailure
+	}
+
+	return nil
+}
+
+func ApplyScript(scriptFiles []string) error {
+	if len(scriptFiles) == 0 {
+		return nil
+	}
+
+	for _, scriptFile := range scriptFiles {
+		ctx, cancel := context.WithTimeout(wait.CtxMinutes(180))
+		defer cancel()
+
+		body := map[string]string{"name": scriptFile}
+		bytes, err := json.Marshal(body)
+		if err != nil {
+			log.Errorf("settings: failed to marshal script file %s(%v)", scriptFile, err)
+			return err
+		}
+
+		out, err := exec.CommandContext(ctx, "hex_sdk", "alert_put_setting_receiver_exec_shell", string(bytes)).CombinedOutput()
+		if err != nil {
+			err := fmt.Errorf("failed to execute the script apply cmd %s(%v %s)", scriptFile, err, string(out))
+			log.Errorf("settings: %v", err)
+			return err
+		}
+
+		if !IsHexSdkSuccess(err) {
+			err := fmt.Errorf("failed to apply script %s(%v %s)", scriptFile, err, string(out))
+			log.Errorf("settings: %v", err)
+			return err
+		}
 	}
 
 	return nil

@@ -6,6 +6,7 @@ func (h *helper) setCreationReq() {
 	req := triggers.ApiSchema{Attributes: h.applyOpts.Attributes}
 	req.Name = h.applyOpts.Name
 	req.Description = h.applyOpts.Description
+	req.Topic = "events"
 	req.SetMatchRule()
 	req.SetResponses(h.applyOpts.ApplyResponse)
 	req.Enabled = true

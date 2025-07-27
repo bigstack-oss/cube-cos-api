@@ -25,6 +25,11 @@ func (o *Operator) operateReq(trigger triggers.ApiSchema) error {
 
 func (o *Operator) updateTrigger(trigger triggers.ApiSchema) error {
 	cosTrigger := trigger.ToCosSchema()
+	err := o.syncScripts(trigger, cosTrigger)
+	if err != nil {
+		return err
+	}
+
 	return cubecos.ApplyTrigger(cosTrigger)
 }
 
