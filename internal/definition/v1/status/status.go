@@ -14,6 +14,8 @@ const (
 	Adding               = "adding"
 	Pending              = "pending"
 	Updating             = "updating"
+	Uploading            = "uploading"
+	Importing            = "importing"
 	Repairing            = "repairing"
 	Processing           = "processing"
 	Syncing              = "syncing"
@@ -125,9 +127,10 @@ type Osd struct {
 }
 
 type Image struct {
-	Current      string `json:"current,omitempty" bson:"current"`
-	Desired      string `json:"-" bson:"desired"`
-	IsProcessing bool   `json:"isProcessing" bson:"isProcessing"`
+	Current        string  `json:"current,omitempty" bson:"current"`
+	Desired        string  `json:"-" bson:"desired"`
+	IsProcessing   bool    `json:"isProcessing" bson:"isProcessing"`
+	UploadProgress float64 `json:"progress,omitempty" bson:"progress"`
 }
 
 func NewHealthOk() *Health {

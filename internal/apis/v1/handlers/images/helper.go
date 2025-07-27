@@ -2,6 +2,7 @@ package images
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
@@ -10,21 +11,24 @@ import (
 )
 
 type helper struct {
-	c       *gin.Context
-	mongo   *mongo.Helper
-	reqId   string
-	handler string
+	c         *gin.Context
+	mongo     *mongo.Helper
+	openstack *openstack.Helper
+	reqId     string
+	handler   string
 
-	page  *pages.Page
-	watch bool
+	reqOpts images.ReqOpts
+	page    *pages.Page
+	watch   bool
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{
-		c:       c,
-		mongo:   mongo.GetGlobalHelper(),
-		reqId:   queries.GetReqId(c),
-		handler: handler,
+		c:         c,
+		mongo:     mongo.GetGlobalHelper(),
+		openstack: openstack.GetGlobalHelper(),
+		reqId:     queries.GetReqId(c),
+		handler:   handler,
 	}
 
 	return h, h.parseParamsByHandler()

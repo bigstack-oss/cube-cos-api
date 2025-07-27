@@ -35,19 +35,22 @@ type ReqOpts struct {
 	Os                          string        `json:"os" bson:"os"`
 	Destination                 string        `json:"destination" bson:"destination"`
 	Domain                      string        `json:"domain" bson:"domain"`
+	Project                     string        `json:"project" bson:"project"`
 	SourceFromAnotherHypervisor bool          `json:"sourceFromAnotherHypervisor" bson:"sourceFromAnotherHypervisor"`
 	Visibility                  string        `json:"visibility" bson:"visibility"`
 	Status                      *status.Image `json:"status,omitempty" bson:"status,omitempty"`
 }
 
 type CreateOpts struct {
-	Dir         string `json:"dir"`
-	File        string `json:"file"`
-	Name        string `json:"name"`
-	Destination string `json:"destination"`
-	Domain      string `json:"domain"`
-	PoolType    string `json:"poolType"`
-	Visibility  string `json:"visibility"`
+	Dir            string `json:"dir"`
+	File           string `json:"file"`
+	Name           string `json:"name"`
+	Destination    string `json:"destination"`
+	Domain         string `json:"domain"`
+	Project        string `json:"project"`
+	PoolType       string `json:"poolType"`
+	AttributesType string `json:"attributesType,omitempty"`
+	Visibility     string `json:"visibility"`
 }
 
 func (r *ReqOpts) GenCreateOpts() CreateOpts {
@@ -57,13 +60,14 @@ func (r *ReqOpts) GenCreateOpts() CreateOpts {
 	}
 
 	return CreateOpts{
-		Dir:         GlanceDir,
-		File:        r.File,
-		Name:        r.Name,
-		Destination: r.Destination,
-		Domain:      r.Domain,
-		PoolType:    poolType,
-		Visibility:  r.Visibility,
+		Dir:            GlanceDir,
+		File:           r.File,
+		Name:           r.Name,
+		AttributesType: "default",
+		Destination:    r.Destination,
+		Domain:         r.Domain,
+		PoolType:       poolType,
+		Visibility:     r.Visibility,
 	}
 }
 
@@ -83,4 +87,24 @@ func (r *ReqOpts) SetError() {
 
 	r.Status.Current = status.Error
 	r.Status.IsProcessing = false
+}
+
+func (r *ReqOpts) SetUploading() {
+	if r.Status == nil {
+		r.Status = &status.Image{}
+	}
+
+	r.Status.Current = status.Uploading
+	r.Status.IsProcessing = true
+	r.Status.UploadProgress = 0
+}
+
+func (r *ReqOpts) SetImporting() {
+	if r.Status == nil {
+		r.Status = &status.Image{}
+	}
+
+	r.Status.Current = status.Importing
+	r.Status.IsProcessing = true
+	r.Status.UploadProgress = 100
 }

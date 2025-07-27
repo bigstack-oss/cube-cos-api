@@ -57,7 +57,13 @@ func importImage(c *gin.Context) {
 		return
 	}
 
-	err = h.validateImportReq()
+	err = h.validateReq()
+	if err != nil {
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	err = h.saveUploadImage()
 	if err != nil {
 		bodies.SetBadRequest(c, err)
 		return
