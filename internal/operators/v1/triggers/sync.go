@@ -8,32 +8,51 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 )
 
-func (o *Operator) operateReq(trigger triggers.ApiSchema) error {
-	switch trigger.Status.Desired {
+func (o *Operator) operateReq(req triggers.ReqOpts) error {
+	switch req.Status.Desired {
 	case status.Updated:
-		return o.updateTrigger(trigger)
+		return o.updateTrigger(req)
 	case status.Deleted:
-		return o.deleteTrigger(trigger)
+		return o.deleteTrigger(req)
 	}
 
 	return fmt.Errorf(
 		"unknown desired action(%s) for trigger(%s)",
-		trigger.Status.Desired,
-		trigger.Name,
+		req.Status.Desired,
+		req.Name,
 	)
 }
 
-func (o *Operator) updateTrigger(trigger triggers.ApiSchema) error {
-	cosTrigger := trigger.ToCosSchema()
-	err := o.syncScripts(trigger, cosTrigger)
+func (o *Operator) updateTrigger(req triggers.ReqOpts) error {
+	// cosTrigger := trigger.ToCosSchema()
+
+	err := o.syncScripts(req.ReqResponse.Script)
 	if err != nil {
 		return err
 	}
 
-	return cubecos.ApplyTrigger(cosTrigger)
+	trigger := o.convertToTrigger(req)
+	return cubecos.ApplyTrigger(trigger)
 }
 
-func (o *Operator) deleteTrigger(trigger triggers.ApiSchema) error {
-	cosTrigger := trigger.ToCosSchema()
-	return cubecos.DeleteTrigger(cosTrigger)
+func (o *Operator) deleteTrigger(req triggers.ReqOpts) error {
+	return cubecos.DeleteTrigger(
+		triggers.Trigger{Name: req.Name},
+	)
+}
+
+func (o *Operator) convertToTrigger(req triggers.ReqOpts) triggers.Trigger {
+	return triggers.Trigger{
+		Name:        req.Name,
+		Enabled:     req.Enabled,
+		Description: req.Description,
+		Match:       req.GenMatchRule(),
+		Responses: triggers.Responses{
+			Emails: req.ReqResponse.Emails,
+			Slacks: req.ReqResponse.Slacks,
+			Execs: triggers.Execs{
+				Shells: []string{req.ReqResponse.Script.Name + ".shell"},
+			},
+		},
+	}
 }

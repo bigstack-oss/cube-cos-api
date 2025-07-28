@@ -28,14 +28,14 @@ func IsTriggerExist(name string) bool {
 	return false
 }
 
-func GetTriggers() ([]triggers.CosSchema, error) {
+func GetTriggers() ([]triggers.Trigger, error) {
 	out, err := exec.Command("hex_sdk", "alert_get_trigger").CombinedOutput()
 	if err != nil {
 		log.Errorf("triggers: failed to get trigger value: %s", string(out))
 		return nil, err
 	}
 
-	triggers := []triggers.CosSchema{}
+	triggers := []triggers.Trigger{}
 	err = yaml.Unmarshal(out, &triggers)
 	if err != nil {
 		log.Errorf("triggers: failed to unmarshal trigger value(%v)", err)
@@ -50,7 +50,7 @@ func GetTriggers() ([]triggers.CosSchema, error) {
 	return triggers, nil
 }
 
-func ApplyTrigger(trigger triggers.CosSchema) error {
+func ApplyTrigger(trigger triggers.Trigger) error {
 	b, err := trigger.Bytes()
 	if err != nil {
 		log.Errorf("triggers: failed to get trigger bytes(%v)", err)
@@ -71,7 +71,7 @@ func ApplyTrigger(trigger triggers.CosSchema) error {
 	return nil
 }
 
-func DeleteTrigger(trigger triggers.CosSchema) error {
+func DeleteTrigger(trigger triggers.Trigger) error {
 	body := map[string]string{"name": trigger.Name}
 	bytes, err := json.Marshal(body)
 	if err != nil {

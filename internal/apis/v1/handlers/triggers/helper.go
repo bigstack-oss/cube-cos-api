@@ -5,6 +5,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/kubernetes"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
@@ -19,17 +20,22 @@ type helper struct {
 	reqId   string
 	handler string
 
+	mongo      mongo.Helper
 	http       http.Helper
 	kubernetes kubernetes.Helper
 
-	trigger               triggers.ApiSchema
-	materials             *materials
-	verifyScript          map[string]string
-	applyOpts             triggers.ApplyOptions
-	toggle                triggers.Toggle
-	rawBody               []byte
-	isClusterWiseRequired bool
-	page                  *pages.Page
+	// trigger      triggers.ApiSchema
+	materials    *materials
+	verifyScript map[string]string
+
+	reqOpts triggers.ReqOpts
+	// trigger triggers.Trigger
+
+	toggle               triggers.Toggle
+	rawBody              []byte
+	requireClusterUpdate bool
+
+	page *pages.Page
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
@@ -37,6 +43,7 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 		c:          c,
 		reqId:      queries.GetReqId(c),
 		handler:    handler,
+		mongo:      *mongo.GetGlobalHelper(),
 		http:       *http.GetGlobalHelper(),
 		kubernetes: *kubernetes.GetGlobalHelper(),
 		rawBody:    bodies.ParseReq(c),
@@ -110,12 +117,8 @@ func (h *helper) getTrigger(name string) (*triggers.ApiSchema, error) {
 }
 
 func (h *helper) checkTaskUpdateReq() error {
-	if h.trigger.Name == "" {
-		return fmt.Errorf("trigger id is required")
-	}
-
-	if h.trigger.Status == nil {
-		return fmt.Errorf("trigger status is required")
+	if h.reqOpts.Name == "" {
+		return fmt.Errorf("trigger name is required")
 	}
 
 	return nil

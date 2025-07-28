@@ -2,11 +2,9 @@ package triggers
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 )
 
 func (h *helper) parseParamsByHandler() error {
@@ -64,16 +62,22 @@ func (h *helper) parseScriptVerifyParams() error {
 }
 
 func (h *helper) parseCreateParams() error {
-	err := h.c.ShouldBindJSON(&h.applyOpts)
+	err := h.c.ShouldBindJSON(&h.reqOpts)
 	if err != nil {
 		return err
 	}
 
-	if h.applyOpts.Name == "" {
+	if h.reqOpts.Name == "" {
 		return errors.New("trigger name is required")
 	}
 
-	return h.checkMaterials()
+	err = h.checkMaterials()
+	if err != nil {
+		return err
+	}
+
+	h.reqOpts.SetUpdating()
+	return nil
 }
 
 func (h *helper) parseUpdateParams() error {
@@ -82,7 +86,7 @@ func (h *helper) parseUpdateParams() error {
 		return err
 	}
 
-	h.isClusterWiseRequired = queries.ParseClusterWise(h.c)
+	h.requireClusterUpdate = queries.ParseClusterWise(h.c)
 	return nil
 }
 
@@ -101,7 +105,7 @@ func (h *helper) parseToggleParams() error {
 		return errors.New("trigger does not exist")
 	}
 
-	h.isClusterWiseRequired = queries.ParseClusterWise(h.c)
+	h.requireClusterUpdate = queries.ParseClusterWise(h.c)
 	return nil
 }
 
@@ -115,15 +119,15 @@ func (h *helper) parseTriggerEnablement() error {
 		return err
 	}
 
-	name := h.c.Param("triggerName")
-	trigger, found := triggers.Get(name)
-	if !found {
-		return fmt.Errorf("trigger %s not found", h.trigger.Name)
-	}
+	// name := h.c.Param("triggerName")
+	// trigger, found := triggers.Get(name)
+	// if !found {
+	// 	return fmt.Errorf("trigger %s not found", h.trigger.Name)
+	// }
 
-	h.trigger = *trigger
-	h.trigger.IsReportRequired = h.isClusterWiseRequired
-	h.trigger.Enabled = h.toggle.Enable
-	h.trigger.SetUpdating()
+	// h.trigger = *trigger
+	// h.trigger.IsReportRequired = h.requireClusterUpdate
+	// h.trigger.Enabled = h.toggle.Enable
+	// h.trigger.SetUpdating()
 	return nil
 }

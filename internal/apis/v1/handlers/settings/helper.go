@@ -20,24 +20,24 @@ type helper struct {
 	mongo *bsmongo.Helper
 	http  *http.Helper
 
-	task                  *settings.Setting
-	trial                 *email.Trial
-	emailSender           string
-	recipientEmail        string
-	slackChannel          string
-	rawBody               []byte
-	isClusterWiseRequired bool
+	task                 *settings.Setting
+	trial                *email.Trial
+	emailSender          string
+	recipientEmail       string
+	slackChannel         string
+	rawBody              []byte
+	requireClusterUpdate bool
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{
-		c:                     c,
-		reqId:                 queries.GetReqId(c),
-		handler:               handler,
-		mongo:                 bsmongo.GetGlobalHelper(),
-		http:                  http.GetGlobalHelper(),
-		isClusterWiseRequired: queries.ParseClusterWise(c),
-		rawBody:               bodies.ParseReq(c),
+		c:                    c,
+		reqId:                queries.GetReqId(c),
+		handler:              handler,
+		mongo:                bsmongo.GetGlobalHelper(),
+		http:                 http.GetGlobalHelper(),
+		requireClusterUpdate: queries.ParseClusterWise(c),
+		rawBody:              bodies.ParseReq(c),
 	}
 
 	return h, h.parseParamsByHandler()
@@ -57,9 +57,9 @@ func (h *helper) listSettings() (*settings.Api, error) {
 	return &setting, nil
 }
 
-func (h *helper) updateToAllControllers() {
+func (h *helper) updateToControllers() {
 	h.updateLocal()
-	if h.isClusterWiseRequired {
+	if h.requireClusterUpdate {
 		h.updatePeerControllers()
 	}
 }

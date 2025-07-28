@@ -10,36 +10,36 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 )
 
-func (o *Operator) syncScripts(apiTrigger triggers.ApiSchema, cosTrigger triggers.CosSchema) error {
-	err := o.applyScriptOnFs(apiTrigger)
+func (o *Operator) syncScripts(script triggers.Script) error {
+	err := o.applyScriptOnFs(script)
 	if err != nil {
-		log.Errorf("triggers: failed to apply script on fs %s(%v)", apiTrigger.FilePath, err)
+		log.Errorf("triggers: failed to apply script on fs %s(%v)", script.Name, err)
 		return err
 	}
 
-	err = cubecos.ApplyScript(cosTrigger.WriteResponses.Execs)
+	err = cubecos.ApplyScript([]string{script.Name})
 	if err != nil {
-		log.Errorf("triggers: failed to apply script %s(%v)", apiTrigger.FilePath, err)
+		log.Errorf("triggers: failed to apply script %s(%v)", script.Name, err)
 		return err
 	}
 
 	return nil
 }
 
-func (o *Operator) applyScriptOnFs(trigger triggers.ApiSchema) error {
-	if trigger.FilePath == "" {
+func (o *Operator) applyScriptOnFs(script triggers.Script) error {
+	if script.Name == "" {
 		return nil
 	}
 
-	bytes, err := base64.StdEncoding.DecodeString(trigger.Content)
+	bytes, err := base64.StdEncoding.DecodeString(script.Content)
 	if err != nil {
-		log.Errorf("triggers: failed to decode script content %s(%v)", trigger.Content, err)
+		log.Errorf("triggers: failed to decode script content %s(%v)", script.Content, err)
 		return err
 	}
 
-	err = os.WriteFile(trigger.FilePath, bytes, 0755)
+	err = os.WriteFile(script.Name, bytes, 0755)
 	if err != nil {
-		log.Errorf("triggers: failed to write script file %s(%v)", trigger.FilePath, err)
+		log.Errorf("triggers: failed to write script file %s(%v)", script.Name, err)
 		return err
 	}
 

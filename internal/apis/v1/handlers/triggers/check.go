@@ -35,7 +35,7 @@ func (h *helper) checkMaterials() error {
 
 func (h *helper) checkAttributes() error {
 	if h.allAttributesAreEmpty() {
-		return fmt.Errorf("trigger %s has no attributes", h.applyOpts.Name)
+		return fmt.Errorf("trigger %s has no attributes", h.reqOpts.Name)
 	}
 
 	var err error
@@ -87,19 +87,19 @@ func (h *helper) checkResponse() error {
 }
 
 func (h *helper) allAttributesAreEmpty() bool {
-	return len(h.applyOpts.Attributes.AlertTypes) == 0 &&
-		len(h.applyOpts.Attributes.Severities) == 0 &&
-		len(h.applyOpts.Attributes.Categories) == 0 &&
-		len(h.applyOpts.Attributes.EventIds) == 0
+	return len(h.reqOpts.Attribute.AlertTypes) == 0 &&
+		len(h.reqOpts.Attribute.Severities) == 0 &&
+		len(h.reqOpts.Attribute.Categories) == 0 &&
+		len(h.reqOpts.Attribute.EventIds) == 0
 }
 
 func (h *helper) hasInvalidEventIds() error {
-	for _, eventId := range h.applyOpts.Attributes.EventIds {
+	for _, eventId := range h.reqOpts.Attribute.EventIds {
 		if !slices.Contains(h.materials.Attribute.EventIds, eventId) {
 			return fmt.Errorf(
 				"invalid event id %s for trigger %s",
 				eventId,
-				h.applyOpts.Name,
+				h.reqOpts.Name,
 			)
 		}
 	}
@@ -108,12 +108,12 @@ func (h *helper) hasInvalidEventIds() error {
 }
 
 func (h *helper) hasInvalidSeverities() error {
-	for _, severity := range h.applyOpts.Attributes.Severities {
-		if !slices.Contains(h.materials.Attribute.Severities, severity) {
+	for _, severity := range h.reqOpts.Attribute.Severities {
+		if !slices.Contains(h.materials.Attribute.Severities, strings.ToUpper(severity)) {
 			return fmt.Errorf(
 				"invalid severity %s for trigger %s",
 				severity,
-				h.applyOpts.Name,
+				h.reqOpts.Name,
 			)
 		}
 	}
@@ -122,12 +122,12 @@ func (h *helper) hasInvalidSeverities() error {
 }
 
 func (h *helper) hasInvaliadAlertTypes() error {
-	for _, alertType := range h.applyOpts.Attributes.AlertTypes {
+	for _, alertType := range h.reqOpts.Attribute.AlertTypes {
 		if !slices.Contains(h.materials.Attribute.AlertTypes, alertType) {
 			return fmt.Errorf(
 				"invalid alert type %s for trigger %s",
 				alertType,
-				h.applyOpts.Name,
+				h.reqOpts.Name,
 			)
 		}
 	}
@@ -136,12 +136,12 @@ func (h *helper) hasInvaliadAlertTypes() error {
 }
 
 func (h *helper) hasInvalidCategories() error {
-	for _, category := range h.applyOpts.Attributes.Categories {
+	for _, category := range h.reqOpts.Attribute.Categories {
 		if !slices.Contains(h.materials.Attribute.Categories, category) {
 			return fmt.Errorf(
 				"invalid category %s for trigger %s",
 				category,
-				h.applyOpts.Name,
+				h.reqOpts.Name,
 			)
 		}
 	}
@@ -150,33 +150,33 @@ func (h *helper) hasInvalidCategories() error {
 }
 
 func (h *helper) checkScript() error {
-	if h.applyOpts.ApplyResponse.Script.Content == "" {
+	if h.reqOpts.ReqResponse.Script.Content == "" {
 		return nil
 	}
 
-	if h.applyOpts.ApplyResponse.Script.FilePath == "" {
-		return fmt.Errorf("script file path is required for trigger %s", h.applyOpts.Name)
+	if h.reqOpts.ReqResponse.Script.Name == "" {
+		return fmt.Errorf("script file path is required for trigger %s", h.reqOpts.Name)
 	}
 
-	err := h.checkBashScript(h.applyOpts.ApplyResponse.Script.Content)
+	err := h.checkBashScript(h.reqOpts.ReqResponse.Script.Content)
 	if err != nil {
-		return fmt.Errorf("failed to verify script for trigger %s: %w", h.applyOpts.Name, err)
+		return fmt.Errorf("failed to verify script for trigger %s: %w", h.reqOpts.Name, err)
 	}
 
 	return nil
 }
 
 func (h *helper) checkEmails() error {
-	if len(h.applyOpts.ApplyResponse.Emails) == 0 {
+	if len(h.reqOpts.ReqResponse.Emails) == 0 {
 		return nil
 	}
 
-	for _, email := range h.applyOpts.ApplyResponse.Emails {
+	for _, email := range h.reqOpts.ReqResponse.Emails {
 		if !h.hasFoundEmailInMaterials(email) {
 			return fmt.Errorf(
 				"email %s for trigger %s is not found in settings",
 				email,
-				h.applyOpts.Name,
+				h.reqOpts.Name,
 			)
 		}
 	}
@@ -185,16 +185,16 @@ func (h *helper) checkEmails() error {
 }
 
 func (h *helper) checkSlackChannels() error {
-	if len(h.applyOpts.ApplyResponse.Slacks) == 0 {
+	if len(h.reqOpts.ReqResponse.Slacks) == 0 {
 		return nil
 	}
 
-	for _, slack := range h.applyOpts.ApplyResponse.Slacks {
+	for _, slack := range h.reqOpts.ReqResponse.Slacks {
 		if !h.hasFoundSlackInMaterial(slack) {
 			return fmt.Errorf(
 				"slack url %s for trigger %s is not found in settings",
 				slack,
-				h.applyOpts.Name,
+				h.reqOpts.Name,
 			)
 		}
 	}
@@ -211,13 +211,13 @@ func (h *helper) checkBashScript(script string) error {
 	script = string(decodedBytes)
 	lines := strings.Split(script, "\n")
 	if len(lines) == 0 {
-		return fmt.Errorf("script for trigger %s is empty", h.applyOpts.Name)
+		return fmt.Errorf("script for trigger %s is empty", h.reqOpts.Name)
 	}
 
 	if !strings.HasPrefix(lines[0], "#!/bin/bash") && !strings.HasPrefix(lines[0], "#!/usr/bin/env bash") {
 		return fmt.Errorf(
 			"script for trigger %s must start with a shebang line",
-			h.applyOpts.Name,
+			h.reqOpts.Name,
 		)
 	}
 

@@ -156,7 +156,7 @@ func updateTitlePrefix(c *gin.Context) {
 		return
 	}
 
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"title prefix update request successfully",
@@ -175,7 +175,7 @@ func createEmailSender(c *gin.Context) {
 		return
 	}
 
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"email sender created successfully",
@@ -253,7 +253,7 @@ func patchEmailSender(c *gin.Context) {
 
 	h.resetAccessVerification()
 	h.updateEmailSenderRecord()
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"email sender update requested successfully",
@@ -273,7 +273,7 @@ func deleteEmailSender(c *gin.Context) {
 		return
 	}
 
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"email sender deletion requested successfully",
@@ -298,7 +298,7 @@ func createEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"email recipient created successfully",
@@ -364,7 +364,7 @@ func patchEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"email recipient updated successfully",
@@ -384,7 +384,7 @@ func deleteEmailRecipient(c *gin.Context) {
 		return
 	}
 
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"email recipient updated successfully",
@@ -409,7 +409,7 @@ func createSlackChannel(c *gin.Context) {
 		return
 	}
 
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"slack channel creation requested successfully",
@@ -467,7 +467,7 @@ func putSlackChannel(c *gin.Context) {
 		return
 	}
 
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"slack channel updated successfully",
@@ -487,7 +487,7 @@ func deleteSlackChannel(c *gin.Context) {
 		return
 	}
 
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"slack channel deleted successfully",

@@ -10,12 +10,12 @@ import (
 )
 
 var (
-	ReqQueue workqueue.Interface
+	ReqQueue workqueue.TypedInterface[*triggers.ReqOpts]
 	module   = "triggers"
 )
 
 func init() {
-	ReqQueue = workqueue.New()
+	ReqQueue = workqueue.NewTyped[*triggers.ReqOpts]()
 	service.RegisterOperator(module, NewOperator())
 }
 
@@ -49,9 +49,8 @@ func (o *Operator) Run() {
 			return
 		}
 
-		trigger := req.(*triggers.ApiSchema)
-		err := o.operateReq(*trigger)
-		o.handleExit(*trigger, err)
+		err := o.operateReq(req)
+		o.handleExit(req, err)
 
 		ReqQueue.Done(req)
 	}

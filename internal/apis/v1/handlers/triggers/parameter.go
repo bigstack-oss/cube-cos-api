@@ -16,11 +16,11 @@ func (h *helper) parseTrigger() error {
 		return errors.New("trigger does not exist")
 	}
 
-	err := h.c.ShouldBindJSON(&h.applyOpts)
+	err := h.c.ShouldBindJSON(&h.reqOpts)
 	if err != nil {
 		return err
 	}
 
-	h.trigger.Name = name
+	h.reqOpts.Name = name
 	return nil
 }

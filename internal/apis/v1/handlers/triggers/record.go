@@ -17,15 +17,15 @@ func (h *helper) addReqRecord() {
 	err := mongo.UpdateOne(
 		triggers.DB,
 		triggers.ReqCollection,
-		bson.M{"name": h.trigger.Name},
-		bson.M{"$set": h.trigger},
+		bson.M{"name": h.reqOpts.Name},
+		bson.M{"$set": h.reqOpts},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
 		log.Errorf(
 			"triggers(%s): failed to sync trigger record for %s(%v)",
 			h.reqId,
-			h.trigger.Name,
+			h.reqOpts.Name,
 			err,
 		)
 	}
@@ -36,7 +36,7 @@ func (h *helper) updateTaskStatus() error {
 	return mongo.DeleteOne(
 		triggers.DB,
 		triggers.ReqCollection,
-		bson.M{"name": h.trigger.Name},
+		bson.M{"name": h.reqOpts.Name},
 	)
 }
 
@@ -74,19 +74,19 @@ func (h *helper) getUpdateRecord(trigger triggers.ApiSchema) (*triggers.ApiSchem
 	return schema, nil
 }
 
-func (h *helper) updateToAllControllers() {
+func (h *helper) updateToControllers() {
 	h.delegateToLocal()
-	if h.isClusterWiseRequired {
-		h.delegateToPeerControlNodes()
-	}
+	// if h.requireClusterUpdate {
+	// 	h.delegateToPeerControlNodes()
+	// }
 }
 
 func (h *helper) delegateToLocal() {
-	if h.isClusterWiseRequired {
+	if h.requireClusterUpdate {
 		h.addReqRecord()
 	}
 
-	reqQueue.Add(&h.trigger)
+	reqQueue.Add(&h.reqOpts)
 }
 
 func (h *helper) delegateToPeerControlNodes() {

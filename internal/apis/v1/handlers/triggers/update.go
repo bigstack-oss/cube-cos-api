@@ -18,7 +18,7 @@ func (h *helper) syncUpdatingInfo(trigger *triggers.ApiSchema) {
 }
 
 func (h *helper) syncUpdatingPayload(trigger *triggers.ApiSchema, record *triggers.ApiSchema) {
-	trigger.Attributes = record.Attributes
+	trigger.Attribute = record.Attribute
 	trigger.Types = record.Types
 	trigger.Response = record.Response
 	trigger.Enabled = record.Enabled

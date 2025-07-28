@@ -166,13 +166,12 @@ func createTrigger(c *gin.Context) {
 		return
 	}
 
-	if h.isTriggerExist(h.applyOpts.Name) {
-		bodies.SetConflict(c, fmt.Errorf("trigger %s already exists", h.applyOpts.Name))
+	if h.isTriggerExist(h.reqOpts.Name) {
+		bodies.SetConflict(c, fmt.Errorf("trigger %s already exists", h.reqOpts.Name))
 		return
 	}
 
-	h.setCreationReq()
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"trigger creation request received",
@@ -188,7 +187,7 @@ func updateTrigger(c *gin.Context) {
 	}
 
 	h.setUpdateReq()
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"the requset of applying trigger is accepted successfully",
@@ -204,7 +203,7 @@ func deleteTrigger(c *gin.Context) {
 	}
 
 	h.setDeletionReq()
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"trigger deletion request received",
@@ -226,7 +225,7 @@ func enableOrDisableTrigger(c *gin.Context) {
 		return
 	}
 
-	h.updateToAllControllers()
+	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
 		"tuning enable or disable request received",
@@ -258,6 +257,6 @@ func updateTriggerTask(c *gin.Context) {
 	bodies.SetOk(
 		c,
 		"trigger status updated",
-		h.trigger,
+		nil,
 	)
 }

@@ -53,8 +53,8 @@ type ApiSchema struct {
 	Topic       string `json:"topic" yaml:"topic" bson:"topic"`
 	Match       string `json:"-" yaml:"match"`
 
-	Attributes `json:"attributes" yaml:"attributes" bson:"attributes"`
-	Response   `json:"response" yaml:"response" bson:"response"`
+	Attribute `json:"attribute" yaml:"attribute" bson:"attribute"`
+	Response  `json:"response" yaml:"response" bson:"response"`
 
 	Enabled          bool            `json:"enabled" yaml:"enabled" bson:"enabled"`
 	Status           *status.Trigger `json:"status" yaml:"-" bson:"status"`
@@ -100,8 +100,8 @@ func (a *ApiSchema) GenSlackList() []string {
 
 func (a *ApiSchema) GenExecsList() []string {
 	execs := []string{}
-	if a.Response.Script.FilePath != "" {
-		execs = append(execs, a.Response.Script.FilePath)
+	if a.Response.Script.Name != "" {
+		execs = append(execs, a.Response.Script.Name)
 	}
 
 	return execs
@@ -160,20 +160,20 @@ func (a *ApiSchema) SetMatchRule() {
 func (a *ApiSchema) GenMatchRule() string {
 	andRules := []string{}
 
-	if len(a.Attributes.AlertTypes) > 0 {
-		andRules = append(andRules, GenOrRule("type", a.Attributes.AlertTypes))
+	if len(a.Attribute.AlertTypes) > 0 {
+		andRules = append(andRules, GenOrRule("type", a.Attribute.AlertTypes))
 	}
 
-	if len(a.Attributes.EventIds) > 0 {
-		andRules = append(andRules, GenOrRule("id", a.Attributes.EventIds))
+	if len(a.Attribute.EventIds) > 0 {
+		andRules = append(andRules, GenOrRule("id", a.Attribute.EventIds))
 	}
 
-	if len(a.Attributes.Severities) > 0 {
-		andRules = append(andRules, GenOrRule("severity", a.Attributes.Severities))
+	if len(a.Attribute.Severities) > 0 {
+		andRules = append(andRules, GenOrRule("severity", a.Attribute.Severities))
 	}
 
-	if len(a.Attributes.Categories) > 0 {
-		andRules = append(andRules, GenOrRule("category", a.Attributes.Categories))
+	if len(a.Attribute.Categories) > 0 {
+		andRules = append(andRules, GenOrRule("category", a.Attribute.Categories))
 	}
 
 	return strings.Join(andRules, " AND ")
@@ -192,7 +192,7 @@ func GenOrRule(key string, attrs []string) string {
 	return fmt.Sprintf(`(%s)`, orRule)
 }
 
-func (a *ApiSchema) SetResponses(resp ApplyResponse) {
+func (a *ApiSchema) SetResponses(resp ReqResponse) {
 	for _, e := range resp.Emails {
 		a.Response.Emails = append(
 			a.Response.Emails,
@@ -207,9 +207,10 @@ func (a *ApiSchema) SetResponses(resp ApplyResponse) {
 		)
 	}
 
-	a.Response.Script.FilePath = fmt.Sprintf(
+	a.Response.Script.Content = resp.Script.Content
+	a.Response.Script.Name = fmt.Sprintf(
 		"%s.shell",
-		filepath.Base(a.Response.Script.FilePath),
+		filepath.Base(resp.Script.Name),
 	)
 }
 
@@ -312,13 +313,6 @@ type Response struct {
 	Script `json:"script" yaml:"script" bson:"script"`
 	Slacks []slack.ApiChannel `json:"slacks" yaml:"slacks" bson:"slacks"`
 	Emails []email.Recipient  `json:"emails" yaml:"emails" bson:"emails"`
-}
-
-type Attribute struct {
-	Name    string `json:"name"`
-	Type    string `json:"type"`
-	Value   any    `json:"value"`
-	Enabled bool   `json:"enabled"`
 }
 
 func Get(name string) (*ApiSchema, bool) {
