@@ -13,7 +13,8 @@ type ReqOpts struct {
 	Enabled     bool   `json:"enabled" bson:"enabled"`
 	Description string `json:"description" bson:"description"`
 	Attribute   `json:"attribute" bson:"attribute"`
-	ReqResponse `json:"response" bson:"response"`
+	Response    `json:"response" bson:"response"`
+	Nodes       []string       `json:"nodes" bson:"nodes"`
 	Status      status.Trigger `json:"status" bson:"status"`
 }
 
@@ -24,7 +25,7 @@ type Attribute struct {
 	Categories []string `json:"categories" bson:"categories"`
 }
 
-type ReqResponse struct {
+type Response struct {
 	Script `json:"script" bson:"script"`
 	Emails []string `json:"emails" bson:"emails"`
 	Slacks []string `json:"slacks" bson:"slacks"`
@@ -33,6 +34,11 @@ type ReqResponse struct {
 type Script struct {
 	Name    string `json:"name" bson:"name"`
 	Content string `json:"content" bson:"content"`
+}
+
+type Toggle struct {
+	Enable bool     `json:"enable" yaml:"enable"`
+	Nodes  []string `json:"nodes" yaml:"nodes"`
 }
 
 func (r *ReqOpts) SetUpdating() {
@@ -53,6 +59,16 @@ func (r *ReqOpts) SetDeleting() {
 		UpdatedAt:  time.Now().Local().Format(time.RFC3339),
 		IsDeleting: true,
 	}
+}
+
+func (r *ReqOpts) SetCompleted() {
+	r.Status.Current = status.Completed
+	r.Status.IsCreating = false
+}
+
+func (r *ReqOpts) SetError() {
+	r.Status.Current = status.Error
+	r.Status.IsDeleting = false
 }
 
 func (r *ReqOpts) GenMatchRule() string {

@@ -36,6 +36,15 @@ type Ip struct {
 	Storage    string `json:"storage"`
 }
 
+func IsVirtualIpOwner(hostname string) bool {
+	node, err := GetVirtualIpController()
+	if err != nil {
+		return false
+	}
+
+	return node.Hostname == hostname
+}
+
 func GetVirtualIpController() (*nodes.Node, error) {
 	nodes := nodes.List()
 	if len(nodes) == 0 {

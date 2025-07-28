@@ -9,9 +9,13 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 )
 
-func (h *helper) isTriggerExist(trigger string) bool {
+func (h *helper) isRequestFromVirtualIp() bool {
+	return len(h.reqOpts.Nodes) != 0
+}
+
+func (h *helper) isTriggerExist(name string) bool {
 	for _, t := range triggers.List() {
-		if t.Name == trigger {
+		if t.Name == name {
 			return true
 		}
 	}
@@ -150,15 +154,15 @@ func (h *helper) hasInvalidCategories() error {
 }
 
 func (h *helper) checkScript() error {
-	if h.reqOpts.ReqResponse.Script.Content == "" {
+	if h.reqOpts.Response.Script.Content == "" {
 		return nil
 	}
 
-	if h.reqOpts.ReqResponse.Script.Name == "" {
+	if h.reqOpts.Response.Script.Name == "" {
 		return fmt.Errorf("script file path is required for trigger %s", h.reqOpts.Name)
 	}
 
-	err := h.checkBashScript(h.reqOpts.ReqResponse.Script.Content)
+	err := h.checkBashScript(h.reqOpts.Response.Script.Content)
 	if err != nil {
 		return fmt.Errorf("failed to verify script for trigger %s: %w", h.reqOpts.Name, err)
 	}
@@ -167,11 +171,11 @@ func (h *helper) checkScript() error {
 }
 
 func (h *helper) checkEmails() error {
-	if len(h.reqOpts.ReqResponse.Emails) == 0 {
+	if len(h.reqOpts.Response.Emails) == 0 {
 		return nil
 	}
 
-	for _, email := range h.reqOpts.ReqResponse.Emails {
+	for _, email := range h.reqOpts.Response.Emails {
 		if !h.hasFoundEmailInMaterials(email) {
 			return fmt.Errorf(
 				"email %s for trigger %s is not found in settings",
@@ -185,11 +189,11 @@ func (h *helper) checkEmails() error {
 }
 
 func (h *helper) checkSlackChannels() error {
-	if len(h.reqOpts.ReqResponse.Slacks) == 0 {
+	if len(h.reqOpts.Response.Slacks) == 0 {
 		return nil
 	}
 
-	for _, slack := range h.reqOpts.ReqResponse.Slacks {
+	for _, slack := range h.reqOpts.Response.Slacks {
 		if !h.hasFoundSlackInMaterial(slack) {
 			return fmt.Errorf(
 				"slack url %s for trigger %s is not found in settings",
@@ -225,7 +229,7 @@ func (h *helper) checkBashScript(script string) error {
 }
 
 func (h *helper) hasFoundEmailInMaterials(email string) bool {
-	for _, e := range h.materials.Response.Emails {
+	for _, e := range h.materials.materialResp.Emails {
 		if e.Address == email {
 			return true
 		}
@@ -235,7 +239,7 @@ func (h *helper) hasFoundEmailInMaterials(email string) bool {
 }
 
 func (h *helper) hasFoundSlackInMaterial(slackUrl string) bool {
-	for _, s := range h.materials.Response.Slacks {
+	for _, s := range h.materials.materialResp.Slacks {
 		if s.Url == slackUrl {
 			return true
 		}

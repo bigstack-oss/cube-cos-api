@@ -18,9 +18,13 @@ func IsTriggerExist(name string) bool {
 		return false
 	}
 
-	cosName := triggers.GetBuiltInNameMap()
+	builtInName := triggers.GetBuiltInNameMap()
 	for _, trigger := range list {
-		if trigger.Name == cosName[name] {
+		if trigger.Name == name {
+			return true
+		}
+
+		if trigger.Name == builtInName[name] {
 			return true
 		}
 	}

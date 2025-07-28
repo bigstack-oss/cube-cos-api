@@ -49,10 +49,13 @@ func (o *Operator) Run() {
 			return
 		}
 
-		err := o.operateReq(req)
-		o.handleExit(req, err)
-
 		ReqQueue.Done(req)
+		if req == nil {
+			continue
+		}
+
+		err := o.operateReq(*req)
+		o.handleExit(*req, err)
 	}
 }
 

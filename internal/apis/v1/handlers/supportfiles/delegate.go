@@ -25,7 +25,7 @@ func (h *helper) delegateSupportFileReq() {
 		}
 
 		if node.IsLocal() {
-			h.delegateToLocal()
+			h.updateToLocal()
 			continue
 		}
 
@@ -81,7 +81,7 @@ func (h *helper) genFilSetGroup() string {
 	)
 }
 
-func (h *helper) delegateToLocal() {
+func (h *helper) updateToLocal() {
 	h.addReqRecord(h.file)
 	reqQueue.Add(&h.file)
 }

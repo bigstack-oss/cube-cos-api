@@ -5,16 +5,15 @@ import (
 	"sort"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 )
 
-func (h *helper) sortTriggers(triggers *[]triggers.ApiSchema) {
+func (h *helper) sortTriggers(triggers *[]triggerResp) {
 	sort.Slice(*triggers, func(i, j int) bool {
 		return (*triggers)[i].Name < (*triggers)[j].Name
 	})
 }
 
-func (h *helper) paginateTriggers(triggerList []triggers.ApiSchema) []triggers.ApiSchema {
+func (h *helper) paginateTriggers(triggerList []triggerResp) []triggerResp {
 	if !h.page.IsRequired() {
 		return triggerList
 	}
@@ -24,7 +23,7 @@ func (h *helper) paginateTriggers(triggerList []triggers.ApiSchema) []triggers.A
 	return triggerList[left:right]
 }
 
-func (h *helper) genPageInfo(triggerList []triggers.ApiSchema) pages.Page {
+func (h *helper) genPageInfo(triggerList []triggerResp) pages.Page {
 	if !h.page.IsRequired() {
 		return pages.Page{
 			Total:          1,

@@ -31,9 +31,8 @@ type helper struct {
 	reqOpts triggers.ReqOpts
 	// trigger triggers.Trigger
 
-	toggle               triggers.Toggle
-	rawBody              []byte
-	requireClusterUpdate bool
+	toggle  triggers.Toggle
+	rawBody []byte
 
 	page *pages.Page
 }
@@ -64,8 +63,8 @@ func (h *helper) listMaterials() (*materials, error) {
 	}
 
 	return &materials{
-		Attribute: *attribute,
-		Response:  *response,
+		Attribute:    *attribute,
+		materialResp: *response,
 	}, nil
 }
 
@@ -90,10 +89,15 @@ func (h *helper) verifyMaterialScript() (string, error) {
 }
 
 func (h *helper) listTriggers() (*triggerPage, error) {
-	list := []triggers.ApiSchema{}
+	list := []triggerResp{}
 	for _, trigger := range triggers.List() {
-		h.syncUpdatingInfo(&trigger)
-		list = append(list, trigger)
+		resp := h.convertTrigger(trigger)
+
+		h.syncBuiltInInfo(&resp)
+		h.syncResponseTypes(&resp)
+		h.syncUpdatingInfo(&resp)
+
+		list = append(list, resp)
 	}
 
 	h.sortTriggers(&list)
@@ -103,10 +107,11 @@ func (h *helper) listTriggers() (*triggerPage, error) {
 	}, nil
 }
 
-func (h *helper) getTrigger(name string) (*triggers.ApiSchema, error) {
+func (h *helper) getTrigger(name string) (*triggerResp, error) {
 	for _, trigger := range triggers.List() {
 		if trigger.Name == name {
-			return &trigger, nil
+			resp := h.convertTrigger(trigger)
+			return &resp, nil
 		}
 	}
 
@@ -124,7 +129,7 @@ func (h *helper) checkTaskUpdateReq() error {
 	return nil
 }
 
-func (h *helper) getAttribute() (*Attribute, error) {
+func (h *helper) getAttribute() (*triggers.Attribute, error) {
 	events, err := cubecos.GetPredefinedEvents()
 	if err != nil {
 		log.Errorf("triggers(%s): failed to get predefined events(%v)", h.reqId, err)
@@ -155,7 +160,7 @@ func (h *helper) getAttribute() (*Attribute, error) {
 		return nil, err
 	}
 
-	return &Attribute{
+	return &triggers.Attribute{
 		EventIds:   eventIds,
 		AlertTypes: alertTypes,
 		Severities: severities,
@@ -163,18 +168,19 @@ func (h *helper) getAttribute() (*Attribute, error) {
 	}, nil
 }
 
-func (h *helper) getResponse() (*Response, error) {
+func (h *helper) getResponse() (*materialResp, error) {
 	notifications, err := h.getNotifications()
 	if err != nil {
 		return nil, err
 	}
 
-	return &Response{
-		Script: Script{
-			Type:        "Bash",
+	return &materialResp{
+		ScriptType: ScriptType{
+			Language:    "Bash",
 			Environment: "Alpine Linux",
 		},
-		Notifications: *notifications,
+		Emails: notifications.Emails,
+		Slacks: notifications.Slacks,
 	}, nil
 }
 

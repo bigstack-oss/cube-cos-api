@@ -89,3 +89,7 @@ func Boot() string {
 	bootTime := time.Unix(int64(bootDuration), 0)
 	return ISO8601Z(bootTime)
 }
+
+func TimeISO8601Z(t time.Time) string {
+	return t.Format(FormatISO8601Z)
+}

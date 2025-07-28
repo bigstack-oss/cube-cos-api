@@ -1,6 +1,16 @@
 package triggers
 
-import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
+	log "go-micro.dev/v5/logger"
+)
 
 func (h *helper) GetAlertTypes(events []events.Event) ([]string, error) {
 	alertTypes := []string{}
@@ -84,4 +94,58 @@ func (h *helper) GetEventIds(events []events.Event) ([]string, error) {
 	}
 
 	return eventIds, nil
+}
+
+func (h *helper) convertTrigger(trigger triggers.Trigger) triggerResp {
+	return triggerResp{
+		Name:        trigger.Name,
+		Description: trigger.Description,
+		Attribute:   trigger.ParseAttributes(),
+		Response:    h.convertResponse(trigger),
+		Enabled:     trigger.Enabled,
+		Status:      &status.Trigger{},
+		Topic:       trigger.Topic,
+	}
+}
+
+func (h *helper) convertResponse(trigger triggers.Trigger) Response {
+	emails := []Email{}
+	for _, email := range trigger.Emails {
+		emails = append(
+			emails, Email{
+				Address: email.Address,
+				Note:    email.Note,
+			},
+		)
+	}
+
+	slacks := []Slack{}
+	for _, slack := range trigger.Slacks {
+		slacks = append(
+			slacks, Slack{
+				Name:        slack.Channel,
+				Url:         slack.URL,
+				Description: slack.Description,
+			},
+		)
+	}
+
+	script := triggers.Script{}
+	for _, shell := range trigger.Execs.Shells {
+		file, err := os.ReadFile(filepath.Join("/var/response", fmt.Sprintf("%s.shell", shell)))
+		if err != nil {
+			log.Errorf("triggers(%s): failed to read script file %s(%v)", h.reqId, shell, err)
+			continue
+		}
+
+		filename := strings.ReplaceAll(shell, ".shell", "")
+		script.Name = filename
+		script.Content = string(file)
+	}
+
+	return Response{
+		Script: script,
+		Emails: emails,
+		Slacks: slacks,
+	}
 }

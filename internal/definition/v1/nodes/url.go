@@ -7,7 +7,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 )
 
 func (n *Node) GenUrl() url.URL {
@@ -108,11 +107,15 @@ func (n *Node) PatchTuningTaskUrl() string {
 	return u.String()
 }
 
-func (n *Node) PatchTriggerTaskUrl(trigger triggers.ApiSchema) string {
-	u := url.URL{}
-	u.Scheme = n.Protocol
-	u.Host = n.Address
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/triggers/tasks/%s", base.DataCenterName, trigger.Name)
+func (n *Node) PostTriggerUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/triggers", base.DataCenterName)
+	return u.String()
+}
+
+func (n *Node) PatchTriggerTaskUrl(name string) string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/triggers/tasks/%s", base.DataCenterName, name)
 	return u.String()
 }
 

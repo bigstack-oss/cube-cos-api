@@ -34,10 +34,11 @@ type Trigger struct {
 	Topic       string `json:"topic"`
 	Match       string `json:"match"`
 	Description string `json:"description"`
-	// Emails      []email.Recipient  `json:"emails"`
-	// Slacks      []slack.CosChannel `json:"slacks"`
-	Responses `json:"responses"`
-	// Execs       `json:"execs"`
+	Responses   `json:"responses"`
+
+	Emails []email.Recipient  `json:"emails"`
+	Slacks []slack.CosChannel `json:"slacks"`
+	Execs  `json:"execs"`
 }
 
 type Responses struct {
@@ -55,22 +56,24 @@ func (t *Trigger) Bytes() ([]byte, error) {
 	return json.Marshal(t)
 }
 
-func (t *Trigger) ToApiSchema() ApiSchema {
-	return ApiSchema{
-		Name:        t.Name,
-		Description: t.Description,
-		Match:       t.Match,
-		Attribute:   t.ConvertToApiAttributes(),
-		Response: Response{
-			Emails: t.ConvertToApiEmails(),
-			Slacks: t.ConvertToApiSlacks(),
-		},
-		Enabled: t.Enabled,
-	}
-}
+// func (t *Trigger) ToApiSchema() ApiSchema {
+// 	return ApiSchema{
+// 		Name:        t.Name,
+// 		Description: t.Description,
+// 		Match:       t.Match,
+// 		Attribute:   t.ConvertToApiAttributes(),
+// 		Response: Response{
+// 			Emails: t.ConvertToApiEmails(),
+// 			Slacks: t.ConvertToApiSlacks(),
+// 		},
+// 		Enabled: t.Enabled,
+// 	}
+// }
 
-func (t *Trigger) ConvertToApiAttributes() Attribute {
-	// to match the "field" == "value"
+// note:
+// the regexp.MustCompile(`"([^"]+)"\s*==\s*"([^"]+)"`) is used to
+// match the attribute pairs -> "field" == "value"
+func (t *Trigger) ParseAttributes() Attribute {
 	regex := regexp.MustCompile(`"([^"]+)"\s*==\s*"([^"]+)"`)
 	matches := regex.FindAllStringSubmatch(t.Match, -1)
 	attrs := Attribute{
@@ -103,7 +106,7 @@ func (t *Trigger) ConvertToApiEmails() []email.Recipient {
 	for _, e := range t.Emails {
 		emails = append(
 			emails,
-			email.Recipient{Address: e, Enabled: true},
+			email.Recipient{Address: e.Address, Enabled: true},
 		)
 	}
 
@@ -115,21 +118,21 @@ func (t *Trigger) ConvertToApiSlacks() []slack.ApiChannel {
 	for _, s := range t.Slacks {
 		slacks = append(
 			slacks,
-			slack.ApiChannel{URL: s, Enabled: true},
+			slack.ApiChannel{URL: s.URL, Enabled: true},
 		)
 	}
 
 	return slacks
 }
 
-func isValidAttrPair(attrPair []string) bool {
-	return len(attrPair) == 2
-}
+// func isValidAttrPair(attrPair []string) bool {
+// 	return len(attrPair) == 2
+// }
 
-func isBuiltInTrigger(name string) bool {
-	_, found := builtInNameMap[name]
-	return found
-}
+// func isBuiltInTrigger(name string) bool {
+// 	_, found := builtInNameMap[name]
+// 	return found
+// }
 
 func (t *Trigger) GenMatchRule(req ReqOpts) string {
 	andRules := []string{}

@@ -24,15 +24,14 @@ func (o *Operator) operateReq(req triggers.ReqOpts) error {
 }
 
 func (o *Operator) updateTrigger(req triggers.ReqOpts) error {
-	// cosTrigger := trigger.ToCosSchema()
-
-	err := o.syncScripts(req.ReqResponse.Script)
+	err := o.syncScripts(req.Response.Script)
 	if err != nil {
 		return err
 	}
 
-	trigger := o.convertToTrigger(req)
-	return cubecos.ApplyTrigger(trigger)
+	return cubecos.ApplyTrigger(
+		o.convertToTrigger(req),
+	)
 }
 
 func (o *Operator) deleteTrigger(req triggers.ReqOpts) error {
@@ -46,12 +45,13 @@ func (o *Operator) convertToTrigger(req triggers.ReqOpts) triggers.Trigger {
 		Name:        req.Name,
 		Enabled:     req.Enabled,
 		Description: req.Description,
+		Topic:       "events",
 		Match:       req.GenMatchRule(),
 		Responses: triggers.Responses{
-			Emails: req.ReqResponse.Emails,
-			Slacks: req.ReqResponse.Slacks,
+			Emails: req.Response.Emails,
+			Slacks: req.Response.Slacks,
 			Execs: triggers.Execs{
-				Shells: []string{req.ReqResponse.Script.Name + ".shell"},
+				Shells: []string{req.Response.Script.Name},
 			},
 		},
 	}

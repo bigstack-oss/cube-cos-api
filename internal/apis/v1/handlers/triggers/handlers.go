@@ -167,14 +167,15 @@ func createTrigger(c *gin.Context) {
 	}
 
 	if h.isTriggerExist(h.reqOpts.Name) {
-		bodies.SetConflict(c, fmt.Errorf("trigger %s already exists", h.reqOpts.Name))
+		err := fmt.Errorf("trigger %s already exists", h.reqOpts.Name)
+		bodies.SetConflict(c, err)
 		return
 	}
 
 	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
-		"trigger creation request received",
+		"the requset of applying trigger is accepted successfully",
 	)
 }
 
@@ -186,7 +187,12 @@ func updateTrigger(c *gin.Context) {
 		return
 	}
 
-	h.setUpdateReq()
+	if !h.isTriggerExist(h.reqOpts.Name) {
+		err := fmt.Errorf("trigger %s does not exist", h.reqOpts.Name)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
 	h.updateToControllers()
 	bodies.SetAccepted(
 		c,
@@ -202,7 +208,12 @@ func deleteTrigger(c *gin.Context) {
 		return
 	}
 
-	h.setDeletionReq()
+	if !h.isTriggerExist(h.reqOpts.Name) {
+		err := fmt.Errorf("trigger %s does not exist", h.reqOpts.Name)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
 	h.updateToControllers()
 	bodies.SetAccepted(
 		c,

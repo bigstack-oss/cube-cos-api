@@ -2,6 +2,7 @@ package triggers
 
 import (
 	"encoding/base64"
+	"fmt"
 	"os"
 
 	log "go-micro.dev/v5/logger"
@@ -37,7 +38,8 @@ func (o *Operator) applyScriptOnFs(script triggers.Script) error {
 		return err
 	}
 
-	err = os.WriteFile(script.Name, bytes, 0755)
+	path := fmt.Sprintf("/var/response/%s.shell", script.Name)
+	err = os.WriteFile(path, bytes, 0755)
 	if err != nil {
 		log.Errorf("triggers: failed to write script file %s(%v)", script.Name, err)
 		return err

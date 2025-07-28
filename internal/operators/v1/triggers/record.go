@@ -7,21 +7,19 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (o *Operator) handleExit(trigger triggers.ApiSchema, err error) {
+func (o *Operator) handleExit(req triggers.ReqOpts, err error) {
 	if err != nil {
-		log.Errorf("triggers: failed to %s %s(%v)", trigger.Status.Desired, trigger.Name, err)
-		trigger.SetError()
+		log.Errorf("triggers: failed to %s %s(%v)", req.Status.Desired, req.Name, err)
+		req.SetError()
 	} else {
-		log.Infof("triggers: %s %s successfully", trigger.Status.Desired, trigger.Name)
-		trigger.SetCompleted()
+		log.Infof("triggers: %s %s successfully", req.Status.Desired, req.Name)
+		req.SetCompleted()
 	}
 
-	if trigger.IsReportRequired {
-		o.reportToController(trigger)
-	}
+	o.reportToController(req)
 }
 
-func (o *Operator) reportToController(trigger triggers.ApiSchema) {
+func (o *Operator) reportToController(req triggers.ReqOpts) {
 	node, err := nodes.GetController()
 	if err != nil {
 		log.Errorf("triggers: failed to get controller nodes(%v)", err)
@@ -31,17 +29,17 @@ func (o *Operator) reportToController(trigger triggers.ApiSchema) {
 	h := http.GetGlobalHelper()
 	resp, err := h.R().
 		SetHeaders(nodes.GetSecretHeaders()).
-		SetBody(trigger.GenTaskUpdate()).
-		Patch(node.PatchTriggerTaskUrl(trigger))
+		SetBody(req).
+		Patch(node.PatchTriggerTaskUrl(req.Name))
 	if err != nil {
-		log.Errorf("triggers: failed to send trigger %s to %s(%v)", trigger.Name, node.Hostname, err)
+		log.Errorf("triggers: failed to send trigger %s to %s(%v)", req.Name, node.Hostname, err)
 		return
 	}
 
 	if resp.IsError() {
 		log.Errorf(
 			"triggers: failed to send trigger %s to %s(%s)",
-			trigger.Name,
+			req.Name,
 			node.Hostname,
 			string(resp.Body()),
 		)

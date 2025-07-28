@@ -36,6 +36,16 @@ func (c *Cos) HasRecipient(address string) bool {
 	return false
 }
 
+func (c *Cos) GetEmail(email string) (*email.Recipient, bool) {
+	for _, recipient := range c.Receiver.Emails {
+		if recipient.Address == email {
+			return &recipient, true
+		}
+	}
+
+	return nil, false
+}
+
 func (c *Cos) GetSlackUrlByName(name string) string {
 	for _, slack := range c.Receiver.Slacks {
 		if slack.Channel == name {
@@ -44,6 +54,16 @@ func (c *Cos) GetSlackUrlByName(name string) string {
 	}
 
 	return ""
+}
+
+func (c *Cos) GetSlack(url string) (*slack.CosChannel, bool) {
+	for _, slack := range c.Receiver.Slacks {
+		if slack.URL == url {
+			return &slack, true
+		}
+	}
+
+	return nil, false
 }
 
 func (c *Cos) HasSlack(channel slack.CosChannel) bool {

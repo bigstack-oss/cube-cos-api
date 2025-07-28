@@ -12,18 +12,18 @@ const (
 )
 
 var (
-	list = atomic.Pointer[[]ApiSchema]{}
+	list = atomic.Pointer[[]Trigger]{}
 )
 
-func SyncList(triggers []ApiSchema) {
+func SyncList(triggers []Trigger) {
 	list.Swap(&triggers)
 }
 
-func List() []ApiSchema {
-	schema := list.Load()
-	if schema == nil {
-		return []ApiSchema{}
+func List() []Trigger {
+	trigger := list.Load()
+	if trigger == nil {
+		return []Trigger{}
 	}
 
-	return *schema
+	return *trigger
 }
