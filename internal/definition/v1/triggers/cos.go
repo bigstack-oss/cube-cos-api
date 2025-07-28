@@ -11,23 +11,6 @@ import (
 	json "github.com/json-iterator/go"
 )
 
-// type Trigger struct {
-// 	Name        string             `json:"name"`
-// 	Enabled     bool               `json:"enabled"`
-// 	Topic       string             `json:"topic"`
-// 	Match       string             `json:"match"`
-// 	Description string             `json:"description"`
-// 	Emails      []email.Recipient  `json:"emails"`
-// 	Slacks      []slack.CosChannel `json:"slacks"`
-// 	Responses   `json:"responses"`
-// }
-
-// type Responses struct {
-// 	Emails []string `json:"emails"`
-// 	Slacks []string `json:"slacks"`
-// 	Execs  `json:"execs"`
-// }
-
 type Trigger struct {
 	Name        string `json:"name"`
 	Enabled     bool   `json:"enabled"`
@@ -55,20 +38,6 @@ type Execs struct {
 func (t *Trigger) Bytes() ([]byte, error) {
 	return json.Marshal(t)
 }
-
-// func (t *Trigger) ToApiSchema() ApiSchema {
-// 	return ApiSchema{
-// 		Name:        t.Name,
-// 		Description: t.Description,
-// 		Match:       t.Match,
-// 		Attribute:   t.ConvertToApiAttributes(),
-// 		Response: Response{
-// 			Emails: t.ConvertToApiEmails(),
-// 			Slacks: t.ConvertToApiSlacks(),
-// 		},
-// 		Enabled: t.Enabled,
-// 	}
-// }
 
 // note:
 // the regexp.MustCompile(`"([^"]+)"\s*==\s*"([^"]+)"`) is used to
@@ -124,15 +93,6 @@ func (t *Trigger) ConvertToApiSlacks() []slack.ApiChannel {
 
 	return slacks
 }
-
-// func isValidAttrPair(attrPair []string) bool {
-// 	return len(attrPair) == 2
-// }
-
-// func isBuiltInTrigger(name string) bool {
-// 	_, found := builtInNameMap[name]
-// 	return found
-// }
 
 func (t *Trigger) GenMatchRule(req ReqOpts) string {
 	andRules := []string{}

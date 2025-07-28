@@ -24,15 +24,11 @@ type helper struct {
 	http       http.Helper
 	kubernetes kubernetes.Helper
 
-	// trigger      triggers.ApiSchema
 	materials    *materials
 	verifyScript map[string]string
-
-	reqOpts triggers.ReqOpts
-	// trigger triggers.Trigger
-
-	toggle  triggers.Toggle
-	rawBody []byte
+	reqOpts      triggers.ReqOpts
+	toggle       triggers.Toggle
+	rawBody      []byte
 
 	page *pages.Page
 }
