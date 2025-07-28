@@ -16,13 +16,15 @@ func GetPeriod(c *gin.Context) (*time.Period, error) {
 		return nil, fmt.Errorf("'past' and 'start'/'stop' cannot be used together")
 	}
 
-	timeStart := c.DefaultQuery("start", time.RFC3339(-24*ostime.Hour))
+	defaultStart := time.LocalRFC3339AddDuration(ostime.Now().Local(), -24*ostime.Hour)
+	timeStart := c.DefaultQuery("start", defaultStart)
 	_, err := ostime.Parse(time.FormatRFC3339, timeStart)
 	if err != nil {
 		return nil, fmt.Errorf("'start' time format should be aligned with RFC3339: %s", timeStart)
 	}
 
-	timeStop := c.DefaultQuery("stop", time.NowRFC3339())
+	defaultStop := time.LocalRFC3339(ostime.Now())
+	timeStop := c.DefaultQuery("stop", defaultStop)
 	_, err = ostime.Parse(time.FormatRFC3339, timeStop)
 	if err != nil {
 		return nil, fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", timeStop)
