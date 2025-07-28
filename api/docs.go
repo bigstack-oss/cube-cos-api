@@ -10170,25 +10170,23 @@ const docTemplate = `{
                                                     ]
                                                 },
                                                 "response": {
-                                                    "scriptTypes": {
-                                                        "type": "Bash",
+                                                    "scriptType": {
+                                                        "language": "Bash",
                                                         "environment": "Alpine Linux"
                                                     },
-                                                    "notifications": {
-                                                        "emails": [
-                                                            {
-                                                                "address": "example-user@bigstack.co",
-                                                                "note": "example email recipient"
-                                                            }
-                                                        ],
-                                                        "slacks": [
-                                                            {
-                                                                "name": "Example slack channel",
-                                                                "url": "https://example.slack.com/archives/exmpale-token-abc",
-                                                                "description": "example slack channel"
-                                                            }
-                                                        ]
-                                                    }
+                                                    "emails": [
+                                                        {
+                                                            "address": "example-user@bigstack.co",
+                                                            "note": "example email recipient"
+                                                        }
+                                                    ],
+                                                    "slacks": [
+                                                        {
+                                                            "name": "Example slack channel",
+                                                            "url": "https://example.slack.com/archives/exmpale-token-abc",
+                                                            "description": "example slack channel"
+                                                        }
+                                                    ]
                                                 }
                                             },
                                             "msg": "fetched trigger materials successfully",
@@ -10413,7 +10411,7 @@ const docTemplate = `{
                                                         "name": "Administrative Level Notification",
                                                         "isBuiltIn": true,
                                                         "description": "Configure how you are going to be notified for system events and host alerts, including levels 'warning', 'error', and 'critical'.",
-                                                        "attributes": {
+                                                        "attribute": {
                                                             "alertTypes": [
                                                                 "system",
                                                                 "host",
@@ -10442,7 +10440,7 @@ const docTemplate = `{
                                                                 "slack"
                                                             ],
                                                             "script": {
-                                                                "filePath": "/tmp/example.sh",
+                                                                "name": "example-script",
                                                                 "content": "IyEvYmluL2Jhc2gKCmN1cmwgaHR0cDovL2V4YW1wbGUuY29tICR7IHN0YXR1cyA9ICdzdWNjZXNzJzsgfQ=="
                                                             },
                                                             "slacks": [
@@ -10473,7 +10471,7 @@ const docTemplate = `{
                                                         "name": "Instance Level Notification",
                                                         "isBuiltIn": true,
                                                         "description": "Configure how you are going to be notified for instance alerts, including levels 'warning', and 'critical'.",
-                                                        "attributes": {
+                                                        "attribute": {
                                                             "alertTypes": [
                                                                 "system",
                                                                 "host",
@@ -10502,7 +10500,7 @@ const docTemplate = `{
                                                                 "slack"
                                                             ],
                                                             "script": {
-                                                                "filePath": "/tmp/example.sh",
+                                                                "name": "example-script",
                                                                 "content": "IyEvYmluL2Jhc2gKCmN1cmwgaHR0cDovL2V4YW1wbGUuY29tICR7IHN0YXR1cyA9ICdzdWNjZXNzJzsgfQ=="
                                                             },
                                                             "slacks": [
@@ -10635,17 +10633,15 @@ const docTemplate = `{
                                         },
                                         "response": {
                                             "script": {
-                                                "filePath": "/tmp/example.sh",
+                                                "name": "example-script",
                                                 "content": "IyEvYmluL2Jhc2gKCmN1cmwgaHR0cDovL2V4YW1wbGUuY29tICR7IHN0YXR1cyA9ICdzdWNjZXNzJzsgfQ=="
                                             },
-                                            "notifications": {
-                                                "emails": [
-                                                    "example-user@bigstack.co"
-                                                ],
-                                                "slacks": [
-                                                    "https://hooks.slack.com/services/T00000000/B00000000/XXXXX"
-                                                ]
-                                            }
+                                            "emails": [
+                                                "example-user@bigstack.co"
+                                            ],
+                                            "slacks": [
+                                                "https://hooks.slack.com/services/T00000000/B00000000/XXXXX"
+                                            ]
                                         }
                                     }
                                 }
@@ -10757,7 +10753,7 @@ const docTemplate = `{
                                                 "name": "Administrative Level Notification",
                                                 "isBuiltIn": true,
                                                 "description": "Configure how you are going to be notified for system events and host alerts, including levels 'warning', 'error', and 'critical'.",
-                                                "attributes": {
+                                                "attribute": {
                                                     "alertTypes": [
                                                         "system",
                                                         "host",
@@ -10786,28 +10782,25 @@ const docTemplate = `{
                                                         "slack"
                                                     ],
                                                     "script": {
-                                                        "filePath": "/tmp/example.sh",
+                                                        "name": "example-script",
                                                         "content": "IyEvYmluL2Jhc2gKCmN1cmwgaHR0cDovL2V4YW1wbGUuY29tICR7IHN0YXR1cyA9ICdzdWNjZXNzJzsgfQ=="
                                                     },
                                                     "slacks": [
                                                         {
                                                             "name": "example-slack-channel-0",
                                                             "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
-                                                            "description": "example slack channel 1",
-                                                            "enabled": false
+                                                            "description": "example slack channel 1"
                                                         },
                                                         {
                                                             "name": "example-slack-channel-1",
                                                             "url": "https://hooks.slack.com/services/<hookHash>/<hookHash>/<hookHash>",
-                                                            "description": "example slack channel 2",
-                                                            "enabled": false
+                                                            "description": "example slack channel 2"
                                                         }
                                                     ],
                                                     "emails": [
                                                         {
                                                             "address": "example.user@example.com",
-                                                            "note": "example email recipient",
-                                                            "enabled": false
+                                                            "note": "example email recipient"
                                                         }
                                                     ]
                                                 },
@@ -10896,7 +10889,7 @@ const docTemplate = `{
                                 "example": {
                                     "summary": "Trigger update request",
                                     "value": {
-                                        "attributes": {
+                                        "attribute": {
                                             "alertTypes": [
                                                 "system",
                                                 "host"
@@ -10916,7 +10909,7 @@ const docTemplate = `{
                                         "description": "example-update-description",
                                         "response": {
                                             "script": {
-                                                "filePath": "/tmp/example-update.sh",
+                                                "name": "example-script",
                                                 "content": "IyEvYmluL2Jhc2gKCmN1cmwgaHR0cDovL2V4YW1wbGUuY29tICR7IHN0YXR1cyA9ICd1cGRhdGVkJzsgfQ=="
                                             },
                                             "slacks": [
@@ -13509,38 +13502,31 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "type": "object",
-                        "required": [
-                            "events"
-                        ],
-                        "properties": {
-                            "events": {
-                                "type": "array",
-                                "items": {
-                                    "required": [
-                                        "type",
-                                        "id",
-                                        "severity",
-                                        "category",
-                                        "description"
-                                    ],
-                                    "properties": {
-                                        "type": {
-                                            "type": "string"
-                                        },
-                                        "id": {
-                                            "type": "string"
-                                        },
-                                        "severity": {
-                                            "type": "string"
-                                        },
-                                        "category": {
-                                            "type": "string"
-                                        },
-                                        "description": {
-                                            "type": "string"
-                                        }
-                                    }
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "type",
+                                "id",
+                                "severity",
+                                "category",
+                                "description"
+                            ],
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                },
+                                "id": {
+                                    "type": "string"
+                                },
+                                "severity": {
+                                    "type": "string"
+                                },
+                                "category": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
                                 }
                             }
                         }
@@ -17445,39 +17431,36 @@ const docTemplate = `{
                         ],
                         "properties": {
                             "attribute": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "required": [
-                                        "alertTypes",
-                                        "severities",
-                                        "categories",
-                                        "eventIds"
-                                    ],
-                                    "properties": {
-                                        "alertTypes": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "severities": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "categories": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "eventIds": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
+                                "type": "object",
+                                "required": [
+                                    "alertTypes",
+                                    "severities",
+                                    "categories",
+                                    "eventIds"
+                                ],
+                                "properties": {
+                                    "alertTypes": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "severities": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "categories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "eventIds": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
                                         }
                                     }
                                 }
@@ -17485,76 +17468,62 @@ const docTemplate = `{
                             "response": {
                                 "type": "object",
                                 "required": [
-                                    "scriptTypes",
-                                    "notifications"
+                                    "scriptType",
+                                    "emails",
+                                    "slacks"
                                 ],
                                 "properties": {
-                                    "scriptTypes": {
+                                    "scriptType": {
                                         "type": "object",
                                         "required": [
-                                            "types",
-                                            "environments"
+                                            "language",
+                                            "environment"
                                         ],
                                         "properties": {
-                                            "types": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
+                                            "language": {
+                                                "type": "string"
                                             },
-                                            "environments": {
-                                                "type": "array",
-                                                "items": {
+                                            "environment": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "slacks": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "name",
+                                                "url",
+                                                "description"
+                                            ],
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "url": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
                                                     "type": "string"
                                                 }
                                             }
                                         }
                                     },
-                                    "notifications": {
-                                        "type": "object",
-                                        "required": [
-                                            "slacks",
-                                            "emails"
-                                        ],
-                                        "properties": {
-                                            "slacks": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "object",
-                                                    "required": [
-                                                        "name",
-                                                        "url",
-                                                        "description"
-                                                    ],
-                                                    "properties": {
-                                                        "name": {
-                                                            "type": "string"
-                                                        },
-                                                        "url": {
-                                                            "type": "string"
-                                                        },
-                                                        "description": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            "emails": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "object",
-                                                    "required": [
-                                                        "address",
-                                                        "note"
-                                                    ],
-                                                    "properties": {
-                                                        "address": {
-                                                            "type": "string"
-                                                        },
-                                                        "note": {
-                                                            "type": "string"
-                                                        }
-                                                    }
+                                    "emails": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "address",
+                                                "note"
+                                            ],
+                                            "properties": {
+                                                "address": {
+                                                    "type": "string"
+                                                },
+                                                "note": {
+                                                    "type": "string"
                                                 }
                                             }
                                         }
@@ -17635,7 +17604,7 @@ const docTemplate = `{
                                         "name",
                                         "isBuiltIn",
                                         "description",
-                                        "attributes",
+                                        "attribute",
                                         "response",
                                         "status",
                                         "enabled"
@@ -17650,7 +17619,7 @@ const docTemplate = `{
                                         "description": {
                                             "type": "string"
                                         },
-                                        "attributes": {
+                                        "attribute": {
                                             "type": "object",
                                             "required": [
                                                 "alertTypes",
@@ -17703,11 +17672,11 @@ const docTemplate = `{
                                                 "script": {
                                                     "type": "object",
                                                     "required": [
-                                                        "filePath",
+                                                        "name",
                                                         "content"
                                                     ],
                                                     "properties": {
-                                                        "filePath": {
+                                                        "name": {
                                                             "type": "string"
                                                         },
                                                         "content": {
@@ -17812,7 +17781,7 @@ const docTemplate = `{
                             "name",
                             "isBuiltIn",
                             "description",
-                            "attributes",
+                            "attribute",
                             "response",
                             "enabled"
                         ],
@@ -17826,7 +17795,7 @@ const docTemplate = `{
                             "description": {
                                 "type": "string"
                             },
-                            "attributes": {
+                            "attribute": {
                                 "type": "object",
                                 "required": [
                                     "alertTypes",
@@ -17936,7 +17905,6 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "name",
-                    "description",
                     "attribute",
                     "response"
                 ],
@@ -17986,17 +17954,18 @@ const docTemplate = `{
                         "type": "object",
                         "required": [
                             "script",
-                            "notifications"
+                            "emails",
+                            "slacks"
                         ],
                         "properties": {
                             "script": {
                                 "type": "object",
                                 "required": [
-                                    "filePath",
+                                    "name",
                                     "content"
                                 ],
                                 "properties": {
-                                    "filePath": {
+                                    "name": {
                                         "type": "string"
                                     },
                                     "content": {
@@ -18005,25 +17974,16 @@ const docTemplate = `{
                                     }
                                 }
                             },
-                            "notifications": {
-                                "type": "object",
-                                "required": [
-                                    "slacks",
-                                    "emails"
-                                ],
-                                "properties": {
-                                    "slacks": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "emails": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    }
+                            "emails": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "slacks": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
                                 }
                             }
                         }
@@ -18052,12 +18012,11 @@ const docTemplate = `{
             "UpdateTriggerRequest": {
                 "type": "object",
                 "required": [
-                    "attributes",
-                    "response",
-                    "description"
+                    "attribute",
+                    "response"
                 ],
                 "properties": {
-                    "attributes": {
+                    "attribute": {
                         "type": "object",
                         "required": [
                             "alertTypes",
@@ -18103,28 +18062,11 @@ const docTemplate = `{
                             "script": {
                                 "type": "object",
                                 "required": [
-                                    "script",
-                                    "filePath",
+                                    "name",
                                     "content"
                                 ],
                                 "properties": {
-                                    "script": {
-                                        "type": "object",
-                                        "required": [
-                                            "filePath",
-                                            "content"
-                                        ],
-                                        "properties": {
-                                            "filePath": {
-                                                "type": "string"
-                                            },
-                                            "content": {
-                                                "type": "string",
-                                                "description": "Base64 encoded script content"
-                                            }
-                                        }
-                                    },
-                                    "filePath": {
+                                    "name": {
                                         "type": "string"
                                     },
                                     "content": {

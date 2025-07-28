@@ -207,7 +207,7 @@ func (h *helper) GetEmails() ([]Email, error) {
 		return nil, err
 	}
 
-	emails := make([]Email, len(receipients))
+	emails := []Email{}
 	for _, receipient := range receipients {
 		if receipient.Address == "" {
 			continue
@@ -228,9 +228,9 @@ func (h *helper) GetSlacks() ([]Slack, error) {
 		return nil, err
 	}
 
-	slacks := make([]Slack, len(channels))
+	slacks := []Slack{}
 	for _, channel := range channels {
-		if channel.Channel == "" || channel.URL == "" {
+		if channel.URL == "" {
 			continue
 		}
 
