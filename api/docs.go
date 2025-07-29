@@ -10464,7 +10464,7 @@ const docTemplate = `{
                                                             ]
                                                         },
                                                         "status": {
-                                                            "isUpdating": false
+                                                            "isProcessing": false
                                                         },
                                                         "enabled": false
                                                     },
@@ -10484,9 +10484,9 @@ const docTemplate = `{
                                                                 "CPU00002W"
                                                             ],
                                                             "severities": [
-                                                                "Warning",
+                                                                "WARNING",
                                                                 "Error",
-                                                                "Critical"
+                                                                "CRITICAL"
                                                             ],
                                                             "categories": [
                                                                 "DEV",
@@ -10524,7 +10524,7 @@ const docTemplate = `{
                                                             ]
                                                         },
                                                         "status": {
-                                                            "isUpdating": false
+                                                            "isProcessing": false
                                                         },
                                                         "enabled": false
                                                     }
@@ -10766,9 +10766,9 @@ const docTemplate = `{
                                                         "CPU00002W"
                                                     ],
                                                     "severities": [
-                                                        "Warning",
-                                                        "Error",
-                                                        "Critical"
+                                                        "WARNING",
+                                                        "ERROR",
+                                                        "CRITICAL"
                                                     ],
                                                     "categories": [
                                                         "DEV",
@@ -10804,6 +10804,10 @@ const docTemplate = `{
                                                             "note": "example email recipient"
                                                         }
                                                     ]
+                                                },
+                                                "status": {
+                                                    "current": "ok",
+                                                    "isProcessing": false
                                                 },
                                                 "enabled": false
                                             },
@@ -17690,152 +17694,7 @@ const docTemplate = `{
                             "triggers": {
                                 "type": "array",
                                 "items": {
-                                    "type": "object",
-                                    "required": [
-                                        "name",
-                                        "isBuiltIn",
-                                        "description",
-                                        "attribute",
-                                        "response",
-                                        "status",
-                                        "enabled"
-                                    ],
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "isBuiltIn": {
-                                            "type": "boolean"
-                                        },
-                                        "description": {
-                                            "type": "string"
-                                        },
-                                        "attribute": {
-                                            "type": "object",
-                                            "required": [
-                                                "alertTypes",
-                                                "severities",
-                                                "categories",
-                                                "eventIds"
-                                            ],
-                                            "properties": {
-                                                "alertTypes": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "severities": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "categories": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "eventIds": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "response": {
-                                            "type": "object",
-                                            "required": [
-                                                "types",
-                                                "script",
-                                                "slacks",
-                                                "emails"
-                                            ],
-                                            "properties": {
-                                                "types": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "script": {
-                                                    "type": "object",
-                                                    "required": [
-                                                        "name",
-                                                        "content"
-                                                    ],
-                                                    "properties": {
-                                                        "name": {
-                                                            "type": "string"
-                                                        },
-                                                        "content": {
-                                                            "type": "string",
-                                                            "description": "Base64 encoded script content"
-                                                        }
-                                                    }
-                                                },
-                                                "slacks": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "required": [
-                                                            "name",
-                                                            "url",
-                                                            "description"
-                                                        ],
-                                                        "properties": {
-                                                            "name": {
-                                                                "type": "string"
-                                                            },
-                                                            "url": {
-                                                                "type": "string"
-                                                            },
-                                                            "description": {
-                                                                "type": "string"
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                "emails": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "required": [
-                                                            "address",
-                                                            "note"
-                                                        ],
-                                                        "properties": {
-                                                            "address": {
-                                                                "type": "string"
-                                                            },
-                                                            "note": {
-                                                                "type": "string"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "status": {
-                                            "type": "object",
-                                            "required": [
-                                                "isUpdating"
-                                            ],
-                                            "properties": {
-                                                "current": {
-                                                    "type": "string"
-                                                },
-                                                "isUpdating": {
-                                                    "type": "boolean"
-                                                }
-                                            }
-                                        },
-                                        "enabled": {
-                                            "type": "boolean"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/Trigger"
                                 }
                             },
                             "page": {
@@ -17867,120 +17726,7 @@ const docTemplate = `{
                         "example": 200
                     },
                     "data": {
-                        "type": "object",
-                        "required": [
-                            "name",
-                            "isBuiltIn",
-                            "description",
-                            "attribute",
-                            "response",
-                            "enabled"
-                        ],
-                        "properties": {
-                            "name": {
-                                "type": "string"
-                            },
-                            "isBuiltIn": {
-                                "type": "boolean"
-                            },
-                            "description": {
-                                "type": "string"
-                            },
-                            "attribute": {
-                                "type": "object",
-                                "required": [
-                                    "alertTypes",
-                                    "severities",
-                                    "categories",
-                                    "eventIds"
-                                ],
-                                "properties": {
-                                    "alertTypes": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "severities": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "categories": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "eventIds": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            },
-                            "response": {
-                                "type": "object",
-                                "required": [
-                                    "types",
-                                    "slacks",
-                                    "emails"
-                                ],
-                                "properties": {
-                                    "types": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "slacks": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "object",
-                                            "required": [
-                                                "name",
-                                                "url",
-                                                "description"
-                                            ],
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "url": {
-                                                    "type": "string"
-                                                },
-                                                "description": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "emails": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "object",
-                                            "required": [
-                                                "address",
-                                                "note"
-                                            ],
-                                            "properties": {
-                                                "address": {
-                                                    "type": "string"
-                                                },
-                                                "note": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "enabled": {
-                                "type": "boolean"
-                            }
-                        }
+                        "$ref": "#/components/schemas/Trigger"
                     },
                     "msg": {
                         "type": "string",
@@ -19053,6 +18799,142 @@ const docTemplate = `{
                                 "type": "boolean"
                             }
                         }
+                    }
+                }
+            },
+            "Trigger": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "isBuiltIn",
+                    "description",
+                    "attribute",
+                    "response",
+                    "enabled"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "isBuiltIn": {
+                        "type": "boolean"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "attribute": {
+                        "type": "object",
+                        "required": [
+                            "alertTypes",
+                            "severities",
+                            "categories",
+                            "eventIds"
+                        ],
+                        "properties": {
+                            "alertTypes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "severities": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "categories": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "eventIds": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "response": {
+                        "type": "object",
+                        "required": [
+                            "types",
+                            "slacks",
+                            "emails"
+                        ],
+                        "properties": {
+                            "types": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "script",
+                                        "email",
+                                        "slack"
+                                    ]
+                                }
+                            },
+                            "slacks": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "name",
+                                        "url",
+                                        "description"
+                                    ],
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "url": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "emails": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "address",
+                                        "note"
+                                    ],
+                                    "properties": {
+                                        "address": {
+                                            "type": "string"
+                                        },
+                                        "note": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "status": {
+                        "type": "object",
+                        "required": [
+                            "current",
+                            "isProcessing"
+                        ],
+                        "properties": {
+                            "current": {
+                                "type": "string"
+                            },
+                            "isProcessing": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "enabled": {
+                        "type": "boolean"
                     }
                 }
             },

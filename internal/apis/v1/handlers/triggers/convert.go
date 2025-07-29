@@ -5,7 +5,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	log "go-micro.dev/v5/logger"
@@ -108,27 +112,58 @@ func (h *helper) convertTrigger(trigger triggers.Trigger) triggerResp {
 }
 
 func (h *helper) convertResponse(trigger triggers.Trigger) Response {
-	emails := []Email{}
-	for _, email := range trigger.Emails {
-		emails = append(
-			emails, Email{
-				Address: email.Address,
-				Note:    email.Note,
-			},
-		)
+	settings, err := cubecos.GetAlertSetting()
+	if err != nil {
+		log.Warnf("triggers(%s): failed to get alert settings(%v)", h.reqId, err)
 	}
 
-	slacks := []Slack{}
-	for _, slack := range trigger.Slacks {
-		slacks = append(
-			slacks, Slack{
-				Name:        slack.Channel,
-				Url:         slack.URL,
-				Description: slack.Description,
-			},
-		)
+	return Response{
+		Script: h.parseScriptDetails(trigger),
+		Emails: h.parseEmailDetails(settings, trigger.Emails),
+		Slacks: h.parseSlackDetails(settings, trigger.Slacks),
+	}
+}
+
+func (h *helper) parseEmailDetails(settings *settings.Cos, emails []email.Recipient) []Email {
+	list := []Email{}
+	for _, email := range emails {
+		e := Email{Address: email.Address}
+		if settings == nil {
+			list = append(list, e)
+			continue
+		}
+
+		email, found := settings.GetEmail(email.Address)
+		if found {
+			e.Note = email.Note
+			list = append(list, e)
+		}
 	}
 
+	return list
+}
+
+func (h *helper) parseSlackDetails(settings *settings.Cos, slacks []slack.CosChannel) []Slack {
+	list := []Slack{}
+	for _, slack := range slacks {
+		s := Slack{Url: slack.URL}
+		if settings == nil {
+			list = append(list, s)
+			continue
+		}
+
+		slack, found := settings.GetSlack(s.Url)
+		if found {
+			s.Name = slack.Channel
+			s.Description = slack.Description
+			list = append(list, s)
+		}
+	}
+
+	return list
+}
+
+func (h *helper) parseScriptDetails(trigger triggers.Trigger) triggers.Script {
 	script := triggers.Script{}
 	for _, shell := range trigger.Execs.Shells {
 		path := filepath.Join("/var/response", fmt.Sprintf("%s.shell", shell.Name))
@@ -142,9 +177,5 @@ func (h *helper) convertResponse(trigger triggers.Trigger) Response {
 		script.Content = string(file)
 	}
 
-	return Response{
-		Script: script,
-		Emails: emails,
-		Slacks: slacks,
-	}
+	return script
 }
