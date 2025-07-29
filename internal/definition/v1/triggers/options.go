@@ -3,7 +3,6 @@ package triggers
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -46,8 +45,6 @@ func (r *ReqOpts) SetUpdating() {
 	r.Status = status.Trigger{
 		Current:      status.Updating,
 		Desired:      status.Updated,
-		CreatedAt:    time.Now().Local().Format(time.RFC3339),
-		UpdatedAt:    time.Now().Local().Format(time.RFC3339),
 		IsProcessing: true,
 	}
 }
@@ -56,8 +53,6 @@ func (r *ReqOpts) SetDeleting() {
 	r.Status = status.Trigger{
 		Current:      status.Deleting,
 		Desired:      status.Deleted,
-		CreatedAt:    time.Now().Local().Format(time.RFC3339),
-		UpdatedAt:    time.Now().Local().Format(time.RFC3339),
 		IsProcessing: true,
 	}
 }

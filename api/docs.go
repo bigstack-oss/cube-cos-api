@@ -1122,7 +1122,7 @@ const docTemplate = `{
                                             "data": {
                                                 "system": {
                                                     "severities": [
-                                                        "Critical",
+                                                        "CRITICAL",
                                                         "Info",
                                                         "Warning"
                                                     ],
@@ -10424,9 +10424,9 @@ const docTemplate = `{
                                                                 "CPU00002W"
                                                             ],
                                                             "severities": [
-                                                                "Warning",
-                                                                "Error",
-                                                                "Critical"
+                                                                "INFO",
+                                                                "WARNING",
+                                                                "CRITICAL"
                                                             ],
                                                             "categories": [
                                                                 "DEV",
@@ -10464,6 +10464,7 @@ const docTemplate = `{
                                                             ]
                                                         },
                                                         "status": {
+                                                            "current": "ok",
                                                             "isProcessing": false
                                                         },
                                                         "enabled": false
@@ -10623,7 +10624,7 @@ const docTemplate = `{
                                                 "system"
                                             ],
                                             "severities": [
-                                                "Critical"
+                                                "CRITICAL"
                                             ],
                                             "categories": [
                                                 "CPU"
