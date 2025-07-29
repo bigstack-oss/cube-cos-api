@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
@@ -76,14 +77,14 @@ func (r *ReqOpts) GenMatchRule() string {
 	if len(r.Attribute.AlertTypes) > 0 {
 		andRules = append(
 			andRules,
-			r.GenOrRule("type", r.Attribute.AlertTypes),
+			r.GenOrRule("name()", r.Attribute.AlertTypes),
 		)
 	}
 
 	if len(r.Attribute.EventIds) > 0 {
 		andRules = append(
 			andRules,
-			r.GenOrRule("id", r.Attribute.EventIds),
+			r.GenOrRule("key", r.Attribute.EventIds),
 		)
 	}
 
@@ -110,9 +111,20 @@ func (r *ReqOpts) GenMatchRule() string {
 func (r *ReqOpts) GenOrRule(key string, attrs []string) string {
 	rule := []string{}
 	for _, attr := range attrs {
+		switch key {
+		case "name()":
+			attr = strings.ToLower(attr)
+		case "key":
+			attr = strings.ToUpper(attr)
+		case "severity":
+			attr = events.GetSeverityShortName(attr)
+		case "category":
+			attr = strings.ToUpper(attr)
+		}
+
 		rule = append(
 			rule,
-			fmt.Sprintf(`%q == %q`, key, attr),
+			fmt.Sprintf(`%q == '%s'`, key, attr),
 		)
 	}
 
