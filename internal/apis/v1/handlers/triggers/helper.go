@@ -96,6 +96,7 @@ func (h *helper) listTriggers() (*triggerPage, error) {
 		list = append(list, resp)
 	}
 
+	h.addCreatingTriggers(&list)
 	h.sortTriggers(&list)
 	return &triggerPage{
 		Triggers: h.paginateTriggers(list),

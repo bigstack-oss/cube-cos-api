@@ -41,6 +41,14 @@ type Toggle struct {
 	Nodes  []string `json:"nodes" yaml:"nodes"`
 }
 
+func (r *ReqOpts) SetCreating() {
+	r.Status = status.Trigger{
+		Current:      status.Creating,
+		Desired:      status.Created,
+		IsProcessing: true,
+	}
+}
+
 func (r *ReqOpts) SetUpdating() {
 	r.Status = status.Trigger{
 		Current:      status.Updating,

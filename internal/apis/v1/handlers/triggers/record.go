@@ -1,18 +1,22 @@
 package triggers
 
 import (
+	"context"
 	"encoding/json"
 	"maps"
 	"net/http"
 
 	bsmongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	"github.com/mohae/deepcopy"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -159,4 +163,98 @@ func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
 
 	maps.Copy(headerMap, nodes.GetSecretHeaders())
 	return headerMap
+}
+
+func (h *helper) addCreatingTriggers(list *[]triggerResp) {
+	if !h.hasCreatingTriggers() {
+		return
+	}
+
+	creatings, err := h.getCreatingTriggers()
+	if err != nil {
+		return
+	}
+
+	for _, creating := range creatings {
+		*list = append(*list, triggerResp{
+			Name:        creating.Name,
+			Description: creating.Description,
+			Enabled:     creating.Enabled,
+			Response:    Response{Types: h.getCreatingResponseTypes(creating)},
+			Status:      &creating.Status,
+		})
+	}
+}
+
+func (h *helper) hasCreatingTriggers() bool {
+	count, err := h.mongo.GetCount(
+		triggers.DB,
+		triggers.ReqCollection,
+		bson.M{"status.current": status.Creating},
+	)
+	if err != nil {
+		log.Errorf("triggers(%s): failed to get creating triggers count: %v", h.reqId, err)
+		return false
+	}
+
+	return count > 0
+}
+
+func (h *helper) getCreatingTriggers() ([]triggers.ReqOpts, error) {
+	cursor, err := h.mongo.GetQueryCursor(
+		triggers.DB,
+		triggers.ReqCollection,
+		bson.M{"status.current": status.Creating},
+	)
+	if err != nil {
+		log.Errorf("triggers(%s): failed to get creating triggers(%v)", h.reqId, err)
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	defer cancel()
+	defer cursor.Close(ctx)
+	return h.parseCreatingTriggers(cursor)
+}
+
+func (h *helper) parseCreatingTriggers(c *mongo.Cursor) ([]triggers.ReqOpts, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	defer cancel()
+	reqs := []triggers.ReqOpts{}
+
+	for c.Next(ctx) {
+		reqOpts := &triggers.ReqOpts{}
+		err := c.Decode(reqOpts)
+		if err != nil {
+			log.Warnf("triggers(%s): failed to decode creating trigger record(%v)", h.reqId, err)
+			continue
+		}
+
+		reqs = append(reqs, *reqOpts)
+	}
+
+	err := c.Err()
+	if err != nil {
+		log.Errorf("triggers(%s): error while iterating creating triggers(%v)", h.reqId, err)
+		return nil, err
+	}
+
+	return reqs, nil
+}
+
+func (h *helper) getCreatingResponseTypes(record triggers.ReqOpts) []string {
+	types := []string{}
+	if len(record.Response.Emails) > 0 {
+		types = append(types, "email")
+	}
+
+	if len(record.Response.Slacks) > 0 {
+		types = append(types, "slack")
+	}
+
+	if record.Response.Script.Name != "" {
+		types = append(types, "script")
+	}
+
+	return types
 }

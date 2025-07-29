@@ -10,7 +10,7 @@ import (
 
 func (o *Operator) operateReq(req triggers.ReqOpts) error {
 	switch req.Status.Desired {
-	case status.Updated:
+	case status.Created, status.Updated:
 		return o.updateTrigger(req)
 	case status.Deleted:
 		return o.deleteTrigger(req)

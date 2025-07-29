@@ -17,7 +17,9 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListParams()
 	case "verifyMaterialScript":
 		return h.parseScriptVerifyParams()
-	case "createTrigger", "updateTrigger":
+	case "createTrigger":
+		return h.parseCreateParams()
+	case "updateTrigger":
 		return h.parseUpdateParams()
 	case "deleteTrigger":
 		return h.parseDeleteparams()
@@ -67,7 +69,7 @@ func (h *helper) parseScriptVerifyParams() error {
 // do not use the h.c.ShouldBindJSON() to parse the request body,
 // because it will remove the content in the request body after unmarshalling.
 // we need to keep the raw body for later req delegation to peer nodes.
-func (h *helper) parseUpdateParams() error {
+func (h *helper) parseCreateParams() error {
 	bytes := bodies.ParseReq(h.c)
 	err := json.Unmarshal(bytes, &h.reqOpts)
 	if err != nil {
@@ -76,6 +78,32 @@ func (h *helper) parseUpdateParams() error {
 	}
 
 	h.reqOpts.Enabled = true
+	if h.reqOpts.Name == "" {
+		return errors.New("trigger name is required")
+	}
+
+	err = h.checkMaterials()
+	if err != nil {
+		log.Errorf("triggers(%s): failed to check materials: %v", h.reqId, err)
+		return err
+	}
+
+	h.reqOpts.SetCreating()
+	return nil
+}
+
+// note:
+// do not use the h.c.ShouldBindJSON() to parse the request body,
+// because it will remove the content in the request body after unmarshalling.
+// we need to keep the raw body for later req delegation to peer nodes.
+func (h *helper) parseUpdateParams() error {
+	bytes := bodies.ParseReq(h.c)
+	err := json.Unmarshal(bytes, &h.reqOpts)
+	if err != nil {
+		log.Errorf("triggers(%s): failed to parse request body: %v", h.reqId, err)
+		return err
+	}
+
 	if h.reqOpts.Name == "" {
 		return errors.New("trigger name is required")
 	}

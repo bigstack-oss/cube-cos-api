@@ -1119,8 +1119,8 @@
                                                 "system": {
                                                     "severities": [
                                                         "CRITICAL",
-                                                        "Info",
-                                                        "Warning"
+                                                        "INFO",
+                                                        "WARNING"
                                                     ],
                                                     "categories": [
                                                         "KSN",
@@ -10482,7 +10482,7 @@
                                                             ],
                                                             "severities": [
                                                                 "WARNING",
-                                                                "Error",
+                                                                "INFO",
                                                                 "CRITICAL"
                                                             ],
                                                             "categories": [
@@ -10897,8 +10897,8 @@
                                                 "host"
                                             ],
                                             "severities": [
-                                                "Warning",
-                                                "Error"
+                                                "WARNING",
+                                                "INFO"
                                             ],
                                             "categories": [
                                                 "CPU",
@@ -13092,8 +13092,7 @@
                         "networkTrafficOut"
                     ]
                 },
-                "description": "The type of metric to query, the value can be 'cpuUsage', 'memoryUsage', 'diskUsage', 'diskBandwidth', 'diskIops', 'diskLatency', 'diskReadIops', 'diskWriteIops', 'networkTrafficIn', or 'networkTrafficOut'.",
-                "example": 1
+                "description": "The type of metric to query, the value can be 'cpuUsage', 'memoryUsage', 'diskUsage', 'diskBandwidth', 'diskIops', 'diskLatency', 'diskReadIops', 'diskWriteIops', 'networkTrafficIn', or 'networkTrafficOut'."
             },
             "viewType": {
                 "in": "path",
@@ -13107,8 +13106,7 @@
                         "rank"
                     ]
                 },
-                "description": "The type of view to query, the value can be only 'summary', 'history', or 'rank'.",
-                "example": 1
+                "description": "The type of view to query, the value can be only 'summary', 'history', or 'rank'."
             },
             "entityType": {
                 "in": "path",

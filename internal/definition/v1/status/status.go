@@ -81,10 +81,10 @@ type Tuning struct {
 
 type Trigger struct {
 	Current string `json:"current,omitempty" bson:"current"`
-	Desired string `json:"desired,omitempty" bson:"desired"`
+	Desired string `json:"-" bson:"desired"`
 
-	CreatedAt string `json:"createdAt,omitzero" bson:"createdAt"`
-	UpdatedAt string `json:"updatedAt,omitzero" bson:"updatedAt"`
+	CreatedAt string `json:"-" bson:"createdAt"`
+	UpdatedAt string `json:"-" bson:"updatedAt"`
 
 	IsProcessing bool `json:"isProcessing" bson:"isProcessing"`
 }

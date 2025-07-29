@@ -1123,8 +1123,8 @@ const docTemplate = `{
                                                 "system": {
                                                     "severities": [
                                                         "CRITICAL",
-                                                        "Info",
-                                                        "Warning"
+                                                        "INFO",
+                                                        "WARNING"
                                                     ],
                                                     "categories": [
                                                         "KSN",
@@ -10486,7 +10486,7 @@ const docTemplate = `{
                                                             ],
                                                             "severities": [
                                                                 "WARNING",
-                                                                "Error",
+                                                                "INFO",
                                                                 "CRITICAL"
                                                             ],
                                                             "categories": [
@@ -10901,8 +10901,8 @@ const docTemplate = `{
                                                 "host"
                                             ],
                                             "severities": [
-                                                "Warning",
-                                                "Error"
+                                                "WARNING",
+                                                "INFO"
                                             ],
                                             "categories": [
                                                 "CPU",
@@ -13096,8 +13096,7 @@ const docTemplate = `{
                         "networkTrafficOut"
                     ]
                 },
-                "description": "The type of metric to query, the value can be 'cpuUsage', 'memoryUsage', 'diskUsage', 'diskBandwidth', 'diskIops', 'diskLatency', 'diskReadIops', 'diskWriteIops', 'networkTrafficIn', or 'networkTrafficOut'.",
-                "example": 1
+                "description": "The type of metric to query, the value can be 'cpuUsage', 'memoryUsage', 'diskUsage', 'diskBandwidth', 'diskIops', 'diskLatency', 'diskReadIops', 'diskWriteIops', 'networkTrafficIn', or 'networkTrafficOut'."
             },
             "viewType": {
                 "in": "path",
@@ -13111,8 +13110,7 @@ const docTemplate = `{
                         "rank"
                     ]
                 },
-                "description": "The type of view to query, the value can be only 'summary', 'history', or 'rank'.",
-                "example": 1
+                "description": "The type of view to query, the value can be only 'summary', 'history', or 'rank'."
             },
             "entityType": {
                 "in": "path",
