@@ -19,7 +19,7 @@ func (h *helper) syncUpdatingTrigger(trigger, updating *triggerResp) {
 	trigger.Response = updating.Response
 	trigger.Enabled = updating.Enabled
 	trigger.Description = updating.Description
-	trigger.Status.IsUpdating = updating.Status.IsUpdating
+	trigger.Status.IsProcessing = updating.Status.IsProcessing
 	trigger.Status.Current = updating.Status.Current
 	trigger.Status.UpdatedAt = updating.Status.UpdatedAt
 }

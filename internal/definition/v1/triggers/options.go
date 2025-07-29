@@ -44,32 +44,32 @@ type Toggle struct {
 
 func (r *ReqOpts) SetUpdating() {
 	r.Status = status.Trigger{
-		Current:    status.Updating,
-		Desired:    status.Updated,
-		CreatedAt:  time.Now().Local().Format(time.RFC3339),
-		UpdatedAt:  time.Now().Local().Format(time.RFC3339),
-		IsUpdating: true,
+		Current:      status.Updating,
+		Desired:      status.Updated,
+		CreatedAt:    time.Now().Local().Format(time.RFC3339),
+		UpdatedAt:    time.Now().Local().Format(time.RFC3339),
+		IsProcessing: true,
 	}
 }
 
 func (r *ReqOpts) SetDeleting() {
 	r.Status = status.Trigger{
-		Current:    status.Deleting,
-		Desired:    status.Deleted,
-		CreatedAt:  time.Now().Local().Format(time.RFC3339),
-		UpdatedAt:  time.Now().Local().Format(time.RFC3339),
-		IsDeleting: true,
+		Current:      status.Deleting,
+		Desired:      status.Deleted,
+		CreatedAt:    time.Now().Local().Format(time.RFC3339),
+		UpdatedAt:    time.Now().Local().Format(time.RFC3339),
+		IsProcessing: true,
 	}
 }
 
 func (r *ReqOpts) SetCompleted() {
 	r.Status.Current = status.Completed
-	r.Status.IsCreating = false
+	r.Status.IsProcessing = false
 }
 
 func (r *ReqOpts) SetError() {
 	r.Status.Current = status.Error
-	r.Status.IsDeleting = false
+	r.Status.IsProcessing = false
 }
 
 func (r *ReqOpts) GenMatchRule() string {

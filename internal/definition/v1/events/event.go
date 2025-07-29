@@ -93,13 +93,13 @@ func GetFilterConditions() []string {
 func GetSeverityFullName(severity string) string {
 	switch strings.ToLower(severity) {
 	case "c":
-		return "Critical"
+		return "CRITICAL"
 	case "w":
-		return "Warning"
+		return "WARNING"
 	case "e":
-		return "Error"
+		return "ERROR"
 	case "i":
-		return "Info"
+		return "INFO"
 	}
 
 	return severity

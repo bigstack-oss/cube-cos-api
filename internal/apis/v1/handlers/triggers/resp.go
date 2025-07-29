@@ -83,8 +83,8 @@ type Slack struct {
 
 func (t *triggerResp) SetOk() {
 	t.Status = &status.Trigger{
-		Current:    status.Ok,
-		IsUpdating: false,
+		Current:      status.Ok,
+		IsProcessing: false,
 	}
 
 	bootDuration, err := host.BootTime()
@@ -124,6 +124,7 @@ func (h *helper) syncBuiltInInfo(resp *triggerResp) {
 	if found {
 		resp.Name = details.Name
 		resp.IsBuiltIn = details.IsBuiltIn
+		resp.Description = details.Description
 	}
 }
 

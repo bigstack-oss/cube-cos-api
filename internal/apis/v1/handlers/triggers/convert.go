@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -132,14 +131,14 @@ func (h *helper) convertResponse(trigger triggers.Trigger) Response {
 
 	script := triggers.Script{}
 	for _, shell := range trigger.Execs.Shells {
-		file, err := os.ReadFile(filepath.Join("/var/response", fmt.Sprintf("%s.shell", shell)))
+		path := filepath.Join("/var/response", fmt.Sprintf("%s.shell", shell.Name))
+		file, err := os.ReadFile(path)
 		if err != nil {
-			log.Errorf("triggers(%s): failed to read script file %s(%v)", h.reqId, shell, err)
+			log.Errorf("triggers(%s): failed to read script file %s(%v)", h.reqId, shell.Name, err)
 			continue
 		}
 
-		filename := strings.ReplaceAll(shell, ".shell", "")
-		script.Name = filename
+		script.Name = shell.Name
 		script.Content = string(file)
 	}
 

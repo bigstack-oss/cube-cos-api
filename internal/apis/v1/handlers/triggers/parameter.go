@@ -4,14 +4,23 @@ import (
 	"errors"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 )
 
 func (h *helper) parseTriggerName() string {
-	return h.c.Param("triggerName")
+	name := h.c.Param("triggerName")
+	builtInMap := triggers.GetBuiltInNameMap()
+
+	builtInName, found := builtInMap[name]
+	if found {
+		return builtInName
+	}
+
+	return name
 }
 
 func (h *helper) parseTrigger() error {
-	name := h.c.Param("triggerName")
+	name := h.parseTriggerName()
 	if !cubecos.IsTriggerExist(name) {
 		return errors.New("trigger does not exist")
 	}

@@ -7,6 +7,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/script"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	json "github.com/json-iterator/go"
 )
@@ -21,7 +22,7 @@ type Trigger struct {
 
 	Emails []email.Recipient  `json:"emails"`
 	Slacks []slack.CosChannel `json:"slacks"`
-	Execs  `json:"execs"`
+	Execs  script.Execs       `json:"execs"`
 }
 
 type Responses struct {
@@ -32,7 +33,6 @@ type Responses struct {
 
 type Execs struct {
 	Shells []string `json:"shells"`
-	Bins   []string `json:"bins"`
 }
 
 func (t *Trigger) Bytes() ([]byte, error) {
@@ -56,9 +56,9 @@ func (t *Trigger) ParseAttributes() Attribute {
 		key := strings.TrimSpace(match[1])
 		val := strings.TrimSpace(match[2])
 		switch key {
-		case "type":
+		case "name()":
 			attrs.AlertTypes = append(attrs.AlertTypes, val)
-		case "id":
+		case "key":
 			attrs.EventIds = append(attrs.EventIds, val)
 		case "severity":
 			attrs.Severities = append(attrs.Severities, events.GetSeverityFullName(val))

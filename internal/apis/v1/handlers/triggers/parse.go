@@ -92,13 +92,22 @@ func (h *helper) parseUpdateParams() error {
 
 func (h *helper) parseDeleteparams() error {
 	name := h.c.Param("triggerName")
+	builtInMap := triggers.GetBuiltInNameMap()
+	_, found := builtInMap[name]
+	if found {
+		return fmt.Errorf(
+			"trigger %s is a built-in trigger and cannot be deleted",
+			name,
+		)
+	}
+
 	h.reqOpts.Name = name
 	h.reqOpts.SetDeleting()
 	return nil
 }
 
 func (h *helper) parseToggleParams() error {
-	name := h.c.Param("triggerName")
+	name := h.parseTriggerName()
 	h.reqOpts.Name = name
 	h.reqOpts.SetUpdating()
 	return nil
@@ -114,7 +123,7 @@ func (h *helper) parseTriggerEnablement() error {
 		return err
 	}
 
-	name := h.c.Param("triggerName")
+	name := h.parseTriggerName()
 	trigger, found := triggers.Get(name)
 	if !found {
 		return fmt.Errorf("trigger %s not found", name)

@@ -8,7 +8,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
-	"gopkg.in/yaml.v3"
 )
 
 func IsTriggerExist(name string) bool {
@@ -40,7 +39,7 @@ func GetTriggers() ([]triggers.Trigger, error) {
 	}
 
 	triggers := []triggers.Trigger{}
-	err = yaml.Unmarshal(out, &triggers)
+	err = json.Unmarshal(out, &triggers)
 	if err != nil {
 		log.Errorf("triggers: failed to unmarshal trigger value(%v)", err)
 		return nil, err
