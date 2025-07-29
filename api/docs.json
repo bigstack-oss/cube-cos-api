@@ -12592,6 +12592,107 @@
             }
         },
         "/api/v1/datacenters/{dataCenter}/images": {
+            "get": {
+                "operationId": "listImages",
+                "tags": [
+                    "Images"
+                ],
+                "summary": "List images",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/watch"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageSize"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageNum"
+                    },
+                    {
+                        "$ref": "#/components/parameters/keyword"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List images successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListImagesResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Image list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "id": "763655de-1cfc-45d4-b67c-5579ea43a6e1",
+                                                    "name": "example image 0",
+                                                    "os": "ubuntu",
+                                                    "destination": "CubeStorage",
+                                                    "domainName": "default",
+                                                    "projectName": "admin",
+                                                    "visibilityType": "public",
+                                                    "createdAt": "2025-07-27T13:08:53+08:00",
+                                                    "status": {
+                                                        "cuurent": "active",
+                                                        "isProcessing": false
+                                                    }
+                                                },
+                                                {
+                                                    "id": "a5218f3c-47df-4ba2-ad41-5e9a50816e6c",
+                                                    "name": "example image 2",
+                                                    "os": "ubuntu",
+                                                    "destination": "CubeStorage",
+                                                    "domainName": "default",
+                                                    "projectName": "admin",
+                                                    "visibilityType": "public",
+                                                    "createdAt": "2025-07-29T13:08:53+08:00",
+                                                    "status": {
+                                                        "cuurent": "importing",
+                                                        "isProcessing": true,
+                                                        "processPercent": 50.98
+                                                    }
+                                                }
+                                            ],
+                                            "msg": "fetch image list successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list images: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "operationId": "importImage",
                 "tags": [
@@ -12675,17 +12776,6 @@
                                         ]
                                     }
                                 }
-                            },
-                            "example": {
-                                "image": "<image file to upload",
-                                "file": "example-image.qcow2",
-                                "name": "example image",
-                                "os": "Ubuntu",
-                                "destination": "CubeStorage",
-                                "domain": "default",
-                                "project": "admin",
-                                "sourceFromAnotherHypervisor": false,
-                                "visibility": "private"
                             }
                         }
                     }
@@ -18280,6 +18370,7 @@
                                         "os",
                                         "destination",
                                         "domain",
+                                        "project",
                                         "sourceFromAnotherHypervisor",
                                         "visibility"
                                     ],
@@ -18297,6 +18388,9 @@
                                             "type": "string"
                                         },
                                         "domain": {
+                                            "type": "string"
+                                        },
+                                        "project": {
                                             "type": "string"
                                         },
                                         "sourceFromAnotherHypervisor": {
@@ -18343,6 +18437,80 @@
                     "msg": {
                         "type": "string",
                         "example": "materials retrieved successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "ListImagesResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "id",
+                                "name",
+                                "os",
+                                "destination",
+                                "domain",
+                                "project",
+                                "visibility",
+                                "sizeMiB",
+                                "createdAt",
+                                "status"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "os": {
+                                    "type": "string"
+                                },
+                                "destination": {
+                                    "type": "string"
+                                },
+                                "domain": {
+                                    "type": "string"
+                                },
+                                "project": {
+                                    "type": "string"
+                                },
+                                "visibility": {
+                                    "type": "string",
+                                    "enum": [
+                                        "public",
+                                        "private",
+                                        "shared",
+                                        "community",
+                                        "unknown"
+                                    ]
+                                },
+                                "createdAt": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "images retrieved successfully"
                     },
                     "status": {
                         "type": "string",

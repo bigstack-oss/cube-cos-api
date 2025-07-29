@@ -8,17 +8,20 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
+	log "go-micro.dev/v5/logger"
 )
 
 type helper struct {
 	c         *gin.Context
-	mongo     *mongo.Helper
-	openstack *openstack.Helper
 	reqId     string
 	handler   string
+	mongo     *mongo.Helper
+	openstack *openstack.Helper
 
 	reqOpts images.ReqOpts
+
 	page    *pages.Page
+	keyword string
 	watch   bool
 }
 
@@ -53,4 +56,15 @@ func (h *helper) listMaterials() (*materials, error) {
 		Destinations:   images.Destinations,
 		Visibilities:   images.Visibilitise,
 	}, nil
+}
+
+func (h *helper) listImages() ([]images.Image, error) {
+	images, err := h.listConvertedImages()
+	if err != nil {
+		log.Errorf("images(%s): failed to list converted images(%v)", h.reqId, err)
+		return nil, err
+	}
+
+	images = h.filterImages(images)
+	return images, nil
 }

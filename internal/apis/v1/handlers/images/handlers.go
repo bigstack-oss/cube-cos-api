@@ -24,6 +24,12 @@ var (
 			Path:    "/images",
 			Func:    importImage,
 		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/images",
+			Func:    listImages,
+		},
 	}
 )
 
@@ -73,5 +79,27 @@ func importImage(c *gin.Context) {
 	bodies.SetAccepted(
 		c,
 		"the request of importing image is accepted and under processing",
+	)
+}
+
+func listImages(c *gin.Context) {
+	h, err := initHelper(c, "listImages")
+	if err != nil {
+		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	images, err := h.listImages()
+	if err != nil {
+		log.Errorf("images(%s): failed to list images(%v)", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"fetch images successfully",
+		images,
 	)
 }

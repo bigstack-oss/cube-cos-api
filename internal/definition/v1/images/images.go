@@ -1,6 +1,8 @@
 package images
 
-import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+import (
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+)
 
 const (
 	Module = "images"
@@ -27,6 +29,19 @@ var (
 		"Others",
 	}
 )
+
+type Image struct {
+	Id          string       `json:"id"`
+	Name        string       `json:"name"`
+	Os          string       `json:"os"`
+	Destination string       `json:"destination"`
+	Domain      string       `json:"domain"`
+	Project     string       `json:"project"`
+	Visibility  string       `json:"visibility"`
+	SizeMiB     int64        `json:"sizeMiB"`
+	CreatedAt   string       `json:"createdAt"`
+	Status      status.Image `json:"status"`
+}
 
 type ReqOpts struct {
 	Id                          string        `json:"id,omitempty" bson:"id"`
@@ -96,7 +111,7 @@ func (r *ReqOpts) SetUploading() {
 
 	r.Status.Current = status.Uploading
 	r.Status.IsProcessing = true
-	r.Status.UploadProgress = 0
+	r.Status.ProcessPercent = 0
 }
 
 func (r *ReqOpts) SetImporting() {
@@ -106,5 +121,5 @@ func (r *ReqOpts) SetImporting() {
 
 	r.Status.Current = status.Importing
 	r.Status.IsProcessing = true
-	r.Status.UploadProgress = 100
+	r.Status.ProcessPercent = 100
 }

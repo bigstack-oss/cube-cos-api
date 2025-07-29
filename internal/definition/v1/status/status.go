@@ -130,7 +130,7 @@ type Image struct {
 	Current        string  `json:"current,omitempty" bson:"current"`
 	Desired        string  `json:"-" bson:"desired"`
 	IsProcessing   bool    `json:"isProcessing" bson:"isProcessing"`
-	UploadProgress float64 `json:"progress,omitempty" bson:"progress"`
+	ProcessPercent float64 `json:"processPercent,omitempty" bson:"processPercent,omitempty"`
 }
 
 func NewHealthOk() *Health {
