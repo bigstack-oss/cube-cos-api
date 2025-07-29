@@ -7,6 +7,13 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
 )
 
+func (h *helper) noFilterSpecified() bool {
+	return !h.isTypesRequired() &&
+		!h.isSeveritiesRequired() &&
+		!h.isCategoriesRequired() &&
+		!h.isEventIdsRequired()
+}
+
 func (h *helper) addFilters(query influx.Query) influx.Query {
 	if h.isIdRequired() {
 		query.Filter(h.genFilter("key", h.eventId))

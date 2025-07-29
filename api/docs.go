@@ -862,6 +862,7 @@ const docTemplate = `{
         "/api/v1/datacenters/{dataCenter}/events/predefined": {
             "get": {
                 "operationId": "getPredefinedEvents",
+                "description": "Please note that if the 'types', 'categories', 'severities', or 'ids' query parameters are not specified, then 'NO' any predefined events will be returned.",
                 "tags": [
                     "Events"
                 ],
@@ -12643,7 +12644,7 @@ const docTemplate = `{
                                                     "visibilityType": "public",
                                                     "createdAt": "2025-07-27T13:08:53+08:00",
                                                     "status": {
-                                                        "cuurent": "active",
+                                                        "current": "active",
                                                         "isProcessing": false
                                                     }
                                                 },
@@ -12657,7 +12658,7 @@ const docTemplate = `{
                                                     "visibilityType": "public",
                                                     "createdAt": "2025-07-29T13:08:53+08:00",
                                                     "status": {
-                                                        "cuurent": "importing",
+                                                        "current": "importing",
                                                         "isProcessing": true,
                                                         "processPercent": 50.98
                                                     }
@@ -12702,7 +12703,7 @@ const docTemplate = `{
                 "tags": [
                     "Images"
                 ],
-                "summary": "Improt an image",
+                "summary": "Import an image",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"

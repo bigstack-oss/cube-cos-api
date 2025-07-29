@@ -73,6 +73,10 @@ func (h *helper) listEvents() (*data, error) {
 }
 
 func (h *helper) listPredefinedEvents() ([]predefinedEvent, error) {
+	if h.noFilterSpecified() {
+		return []predefinedEvent{}, nil
+	}
+
 	events, err := cubecos.GetPredefinedEvents()
 	if err != nil {
 		return nil, err
