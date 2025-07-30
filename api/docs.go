@@ -18877,6 +18877,22 @@ const docTemplate = `{
                                     ]
                                 }
                             },
+                            "script": {
+                                "type": "object",
+                                "required": [
+                                    "name",
+                                    "content"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "description": "require the Base64 encoded string"
+                                    }
+                                }
+                            },
                             "slacks": {
                                 "type": "array",
                                 "items": {
