@@ -12,6 +12,8 @@ func (o *Operator) operateReq(req triggers.ReqOpts) error {
 	switch req.Status.Desired {
 	case status.Created, status.Updated:
 		return o.updateTrigger(req)
+	case status.Toggled:
+		return o.toggleTrigger(req)
 	case status.Deleted:
 		return o.deleteTrigger(req)
 	}
@@ -29,6 +31,12 @@ func (o *Operator) updateTrigger(req triggers.ReqOpts) error {
 		return err
 	}
 
+	return cubecos.ApplyTrigger(
+		o.convertToTrigger(req),
+	)
+}
+
+func (o *Operator) toggleTrigger(req triggers.ReqOpts) error {
 	return cubecos.ApplyTrigger(
 		o.convertToTrigger(req),
 	)

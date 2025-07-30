@@ -58,6 +58,14 @@ func (r *ReqOpts) SetUpdating() {
 	}
 }
 
+func (r *ReqOpts) SetToggling() {
+	r.Status = status.Trigger{
+		Current:      status.Updating,
+		Desired:      status.Toggled,
+		IsProcessing: true,
+	}
+}
+
 func (r *ReqOpts) SetDeleting() {
 	r.Status = status.Trigger{
 		Current:      status.Deleting,

@@ -143,6 +143,25 @@ func (h *helper) parseEmailDetails(settings *settings.Cos, emails []email.Recipi
 	return list
 }
 
+func (h *helper) parseEmails(settings *settings.Cos, emails []string) []Email {
+	list := []Email{}
+	for _, email := range emails {
+		e := Email{Address: email}
+		if settings == nil {
+			list = append(list, e)
+			continue
+		}
+
+		email, found := settings.GetEmail(e.Address)
+		if found {
+			e.Note = email.Note
+			list = append(list, e)
+		}
+	}
+
+	return list
+}
+
 func (h *helper) parseSlackDetails(settings *settings.Cos, slacks []slack.CosChannel) []Slack {
 	list := []Slack{}
 	for _, slack := range slacks {
@@ -178,4 +197,24 @@ func (h *helper) parseScriptDetails(trigger triggers.Trigger) triggers.Script {
 	}
 
 	return script
+}
+
+func (h *helper) parseSlacks(settings *settings.Cos, slacks []string) []Slack {
+	list := []Slack{}
+	for _, slack := range slacks {
+		s := Slack{Url: slack}
+		if settings == nil {
+			list = append(list, s)
+			continue
+		}
+
+		slack, found := settings.GetSlack(s.Url)
+		if found {
+			s.Name = slack.Channel
+			s.Description = slack.Description
+			list = append(list, s)
+		}
+	}
+
+	return list
 }

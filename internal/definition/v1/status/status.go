@@ -33,6 +33,7 @@ const (
 	Completed  = "completed"
 	Created    = "created"
 	Imported   = "imported"
+	Toggled    = "toggled"
 	Added      = "added"
 	Removed    = "removed"
 	Updated    = "updated"

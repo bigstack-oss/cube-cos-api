@@ -106,6 +106,7 @@ func (h *helper) parseUpdateParams() error {
 	}
 
 	h.reqOpts.Id = h.reqId
+	h.reqOpts.Name = h.parseTriggerName()
 	if h.reqOpts.Name == "" {
 		return errors.New("trigger name is required")
 	}
@@ -138,9 +139,7 @@ func (h *helper) parseDeleteparams() error {
 }
 
 func (h *helper) parseToggleParams() error {
-	name := h.parseTriggerName()
-	h.reqOpts.Name = name
-	h.reqOpts.SetUpdating()
+	h.reqOpts.Name = h.parseTriggerName()
 	return nil
 }
 
@@ -174,7 +173,7 @@ func (h *helper) parseTriggerEnablement() error {
 		Slacks: h.convertSlackStringSlice(trigger),
 	}
 
-	h.reqOpts.SetUpdating()
+	h.reqOpts.SetToggling()
 	return nil
 }
 

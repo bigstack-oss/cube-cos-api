@@ -51,7 +51,7 @@ func (h *helper) hasUpdatingRecord(trigger triggerResp) bool {
 		triggers.ReqCollection,
 		bson.M{
 			"name":           trigger.Name,
-			"status.current": bson.M{"$in": []string{status.Updating, status.Deleting}},
+			"status.current": bson.M{"$in": bson.A{status.Updating, status.Deleting}},
 		},
 	)
 	if err != nil {
@@ -61,22 +61,24 @@ func (h *helper) hasUpdatingRecord(trigger triggerResp) bool {
 	return count > 0
 }
 
-func (h *helper) getUpdatingRecord(trigger triggerResp) (*triggerResp, error) {
+func (h *helper) getUpdatingRecord(trigger triggerResp) (*triggers.ReqOpts, error) {
 	record, err := h.mongo.Get(
 		triggers.DB,
 		triggers.ReqCollection,
 		bson.M{
 			"name":           trigger.Name,
-			"status.current": bson.M{"$in": []string{status.Updating, status.Deleting}},
+			"status.current": bson.M{"$in": bson.A{status.Updating, status.Deleting}},
 		},
 	)
 	if err != nil {
+		log.Errorf("triggers(%s): failed to get updating trigger record(%v)", h.reqId, err)
 		return nil, err
 	}
 
-	resp := &triggerResp{}
+	resp := &triggers.ReqOpts{}
 	err = record.Decode(resp)
 	if err != nil {
+		log.Warnf("triggers(%s): failed to decode updating trigger record(%v)", h.reqId, err)
 		return nil, err
 	}
 
@@ -186,13 +188,10 @@ func (h *helper) addCreatingTriggers(list *[]triggerResp) {
 	}
 
 	for _, creating := range creatings {
-		*list = append(*list, triggerResp{
-			Name:        creating.Name,
-			Description: creating.Description,
-			Enabled:     creating.Enabled,
-			Response:    Response{Types: h.getCreatingResponseTypes(creating)},
-			Status:      &creating.Status,
-		})
+		resp := h.convertReqOptsToResp(creating)
+		if resp != nil {
+			*list = append(*list, *resp)
+		}
 	}
 }
 
