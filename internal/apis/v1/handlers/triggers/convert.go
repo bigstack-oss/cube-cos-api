@@ -124,6 +124,24 @@ func (h *helper) convertResponse(trigger triggers.Trigger) Response {
 	}
 }
 
+func (h *helper) convertToEmailRecipients(emails []string) []email.Recipient {
+	recipients := []email.Recipient{}
+	for _, e := range emails {
+		recipients = append(recipients, email.Recipient{Address: e})
+	}
+
+	return recipients
+}
+
+func (h *helper) convertToSlackChannels(slacks []string) []slack.CosChannel {
+	channels := []slack.CosChannel{}
+	for _, s := range slacks {
+		channels = append(channels, slack.CosChannel{URL: s})
+	}
+
+	return channels
+}
+
 func (h *helper) parseEmailDetails(settings *settings.Cos, emails []email.Recipient) []Email {
 	list := []Email{}
 	for _, email := range emails {
@@ -134,25 +152,6 @@ func (h *helper) parseEmailDetails(settings *settings.Cos, emails []email.Recipi
 		}
 
 		email, found := settings.GetEmail(email.Address)
-		if found {
-			e.Note = email.Note
-			list = append(list, e)
-		}
-	}
-
-	return list
-}
-
-func (h *helper) parseEmails(settings *settings.Cos, emails []string) []Email {
-	list := []Email{}
-	for _, email := range emails {
-		e := Email{Address: email}
-		if settings == nil {
-			list = append(list, e)
-			continue
-		}
-
-		email, found := settings.GetEmail(e.Address)
 		if found {
 			e.Note = email.Note
 			list = append(list, e)
@@ -185,7 +184,7 @@ func (h *helper) parseSlackDetails(settings *settings.Cos, slacks []slack.CosCha
 func (h *helper) parseScriptDetails(trigger triggers.Trigger) triggers.Script {
 	script := triggers.Script{}
 	for _, shell := range trigger.Execs.Shells {
-		path := filepath.Join("/var/response", fmt.Sprintf("%s.shell", shell.Name))
+		path := filepath.Join(settings.ScriptDir, fmt.Sprintf("%s.shell", shell.Name))
 		file, err := os.ReadFile(path)
 		if err != nil {
 			log.Errorf("triggers(%s): failed to read script file %s(%v)", h.reqId, shell.Name, err)
@@ -197,24 +196,4 @@ func (h *helper) parseScriptDetails(trigger triggers.Trigger) triggers.Script {
 	}
 
 	return script
-}
-
-func (h *helper) parseSlacks(settings *settings.Cos, slacks []string) []Slack {
-	list := []Slack{}
-	for _, slack := range slacks {
-		s := Slack{Url: slack}
-		if settings == nil {
-			list = append(list, s)
-			continue
-		}
-
-		slack, found := settings.GetSlack(s.Url)
-		if found {
-			s.Name = slack.Channel
-			s.Description = slack.Description
-			list = append(list, s)
-		}
-	}
-
-	return list
 }

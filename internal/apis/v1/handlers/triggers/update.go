@@ -28,6 +28,8 @@ func (h *helper) convertReqOptsToResp(req triggers.ReqOpts) *triggerResp {
 		return nil
 	}
 
+	emails := h.convertToEmailRecipients(req.Emails)
+	slacks := h.convertToSlackChannels(req.Slacks)
 	return &triggerResp{
 		Name:        req.Name,
 		Attribute:   req.Attribute,
@@ -35,10 +37,10 @@ func (h *helper) convertReqOptsToResp(req triggers.ReqOpts) *triggerResp {
 		Enabled:     req.Enabled,
 		Status:      &req.Status,
 		Response: Response{
-			Types:  h.getCreatingResponseTypes(req),
+			Types:  h.getResponseTypesFromReq(req),
 			Script: req.Script,
-			Emails: h.parseEmails(settings, req.Emails),
-			Slacks: h.parseSlacks(settings, req.Slacks),
+			Emails: h.parseEmailDetails(settings, emails),
+			Slacks: h.parseSlackDetails(settings, slacks),
 		},
 	}
 }

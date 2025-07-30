@@ -14,6 +14,7 @@ const (
 	ReqCollection = "requests"
 	PolicyDir     = "/etc/policies/alert_setting"
 	PolicyV1      = "/etc/policies/alert_setting/alert_setting1_0.yml"
+	ScriptDir     = "/var/response"
 
 	MaxRecipientCount = 10
 	MaxSlackCount     = 10

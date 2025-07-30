@@ -251,7 +251,7 @@ func (h *helper) parseCreatingTriggers(c *mongo.Cursor) ([]triggers.ReqOpts, err
 	return reqs, nil
 }
 
-func (h *helper) getCreatingResponseTypes(record triggers.ReqOpts) []string {
+func (h *helper) getResponseTypesFromReq(record triggers.ReqOpts) []string {
 	types := []string{}
 	if len(record.Response.Emails) > 0 {
 		types = append(types, "email")
