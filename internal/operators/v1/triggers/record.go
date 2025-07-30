@@ -1,7 +1,6 @@
 package triggers
 
 import (
-	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	log "go-micro.dev/v5/logger"
@@ -26,11 +25,10 @@ func (o *Operator) reportToController(req triggers.ReqOpts) {
 		return
 	}
 
-	h := http.GetGlobalHelper()
-	resp, err := h.R().
+	resp, err := o.http.R().
 		SetHeaders(nodes.GetSecretHeaders()).
 		SetBody(req).
-		Patch(node.PatchTriggerTaskUrl(req.Name))
+		Patch(node.PatchTriggerTaskUrl())
 	if err != nil {
 		log.Errorf("triggers: failed to send trigger %s to %s(%v)", req.Name, node.Hostname, err)
 		return

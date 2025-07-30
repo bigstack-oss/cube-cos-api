@@ -77,6 +77,7 @@ func (h *helper) parseCreateParams() error {
 		return err
 	}
 
+	h.reqOpts.Id = h.reqId
 	h.reqOpts.Enabled = true
 	if h.reqOpts.Name == "" {
 		return errors.New("trigger name is required")
@@ -104,6 +105,7 @@ func (h *helper) parseUpdateParams() error {
 		return err
 	}
 
+	h.reqOpts.Id = h.reqId
 	if h.reqOpts.Name == "" {
 		return errors.New("trigger name is required")
 	}
@@ -129,6 +131,7 @@ func (h *helper) parseDeleteparams() error {
 		)
 	}
 
+	h.reqOpts.Id = h.reqId
 	h.reqOpts.Name = name
 	h.reqOpts.SetDeleting()
 	return nil
@@ -142,7 +145,7 @@ func (h *helper) parseToggleParams() error {
 }
 
 func (h *helper) parseTaskParams() error {
-	return h.parseTrigger()
+	return h.c.ShouldBindJSON(&h.reqOpts)
 }
 
 func (h *helper) parseTriggerEnablement() error {

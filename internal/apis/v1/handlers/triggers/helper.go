@@ -91,7 +91,7 @@ func (h *helper) listTriggers() (*triggerPage, error) {
 
 		h.syncBuiltInInfo(&resp)
 		h.syncResponseTypes(&resp)
-		h.syncUpdatingInfo(&resp)
+		h.syncInProgressInfo(&resp)
 
 		list = append(list, resp)
 	}

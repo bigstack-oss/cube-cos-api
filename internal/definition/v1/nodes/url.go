@@ -113,9 +113,15 @@ func (n *Node) PostTriggerUrl() string {
 	return u.String()
 }
 
-func (n *Node) PatchTriggerTaskUrl(name string) string {
+func (n *Node) UpdateTriggerUrl(trigger string) string {
 	u := n.GenUrl()
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/triggers/tasks/%s", base.DataCenterName, name)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/triggers/%s", base.DataCenterName, trigger)
+	return u.String()
+}
+
+func (n *Node) PatchTriggerTaskUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/triggers/tasks", base.DataCenterName)
 	return u.String()
 }
 

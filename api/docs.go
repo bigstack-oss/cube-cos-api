@@ -10525,6 +10525,7 @@ const docTemplate = `{
                                                             ]
                                                         },
                                                         "status": {
+                                                            "current": "ok",
                                                             "isProcessing": false
                                                         },
                                                         "enabled": false
@@ -18860,6 +18861,7 @@ const docTemplate = `{
                         "type": "object",
                         "required": [
                             "types",
+                            "script",
                             "slacks",
                             "emails"
                         ],
@@ -18925,7 +18927,13 @@ const docTemplate = `{
                         ],
                         "properties": {
                             "current": {
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "ok",
+                                    "creating",
+                                    "updating",
+                                    "deleting"
+                                ]
                             },
                             "isProcessing": {
                                 "type": "boolean"

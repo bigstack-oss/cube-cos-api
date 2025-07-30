@@ -10521,6 +10521,7 @@
                                                             ]
                                                         },
                                                         "status": {
+                                                            "current": "ok",
                                                             "isProcessing": false
                                                         },
                                                         "enabled": false
@@ -18856,6 +18857,7 @@
                         "type": "object",
                         "required": [
                             "types",
+                            "script",
                             "slacks",
                             "emails"
                         ],
@@ -18921,7 +18923,13 @@
                         ],
                         "properties": {
                             "current": {
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "ok",
+                                    "creating",
+                                    "updating",
+                                    "deleting"
+                                ]
                             },
                             "isProcessing": {
                                 "type": "boolean"

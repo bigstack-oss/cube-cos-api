@@ -6,7 +6,6 @@ import (
 	"maps"
 	"net/http"
 
-	bsmongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
@@ -21,8 +20,7 @@ import (
 )
 
 func (h *helper) addReqRecord() {
-	mongo := bsmongo.GetGlobalHelper()
-	err := mongo.UpdateOne(
+	err := h.mongo.UpdateOne(
 		triggers.DB,
 		triggers.ReqCollection,
 		bson.M{"name": h.reqOpts.Name},
@@ -40,20 +38,21 @@ func (h *helper) addReqRecord() {
 }
 
 func (h *helper) updateTaskStatus() error {
-	mongo := bsmongo.GetGlobalHelper()
-	return mongo.DeleteOne(
+	return h.mongo.DeleteOne(
 		triggers.DB,
 		triggers.ReqCollection,
-		bson.M{"name": h.reqOpts.Name},
+		bson.M{"id": h.reqOpts.Id},
 	)
 }
 
-func (h *helper) hasUpdateHistory(trigger triggerResp) bool {
-	mongo := bsmongo.GetGlobalHelper()
-	count, err := mongo.GetCount(
+func (h *helper) hasUpdatingRecord(trigger triggerResp) bool {
+	count, err := h.mongo.GetCount(
 		triggers.DB,
 		triggers.ReqCollection,
-		bson.M{"name": trigger.Name},
+		bson.M{
+			"name":           trigger.Name,
+			"status.current": bson.M{"$in": []string{status.Updating, status.Deleting}},
+		},
 	)
 	if err != nil {
 		return false
@@ -62,12 +61,14 @@ func (h *helper) hasUpdateHistory(trigger triggerResp) bool {
 	return count > 0
 }
 
-func (h *helper) getUpdateRecord(trigger triggerResp) (*triggerResp, error) {
-	mongo := bsmongo.GetGlobalHelper()
-	record, err := mongo.Get(
+func (h *helper) getUpdatingRecord(trigger triggerResp) (*triggerResp, error) {
+	record, err := h.mongo.Get(
 		triggers.DB,
 		triggers.ReqCollection,
-		bson.M{"name": trigger.Name},
+		bson.M{
+			"name":           trigger.Name,
+			"status.current": bson.M{"$in": []string{status.Updating, status.Deleting}},
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -96,7 +97,7 @@ func (h *helper) updateToLocal() {
 }
 
 func (h *helper) updateToPeerTriggers() {
-	if h.isRequestFromVirtualIp() {
+	if !cubecos.IsVirtualIpOwner(base.Hostname) {
 		return
 	}
 
@@ -117,7 +118,7 @@ func (h *helper) updatePeerTrigger(node nodes.Node) error {
 		return nil
 	}
 
-	url := node.PostTriggerUrl()
+	url := h.getTriggerUrlByHandler(node)
 	req := h.http.R().
 		SetHeaders(h.convertHeadersToMap(h.c.Request.Header)).
 		SetBody(string(reqOpts))
@@ -139,6 +140,15 @@ func (h *helper) updatePeerTrigger(node nodes.Node) error {
 	}
 
 	return nil
+}
+
+func (h *helper) getTriggerUrlByHandler(node nodes.Node) string {
+	switch h.handler {
+	case "createTrigger":
+		return node.PostTriggerUrl()
+	default:
+		return node.UpdateTriggerUrl(h.reqOpts.Name)
+	}
 }
 
 func (h *helper) genPeerTriggerReq(hostname string) ([]byte, error) {

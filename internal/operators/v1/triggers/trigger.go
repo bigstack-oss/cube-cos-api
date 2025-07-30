@@ -1,6 +1,7 @@
 package triggers
 
 import (
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
@@ -20,6 +21,7 @@ func init() {
 }
 
 type Operator struct {
+	http   *http.Helper
 	policy *fsnotify.Watcher
 }
 
@@ -32,6 +34,7 @@ func (o *Operator) Name() string {
 }
 
 func (o *Operator) Init() error {
+	o.http = http.GetGlobalHelper()
 	err := o.initPolicyWatcher()
 	if err != nil {
 		return err

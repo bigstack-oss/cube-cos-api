@@ -1,12 +1,12 @@
 package triggers
 
-func (h *helper) syncUpdatingInfo(trigger *triggerResp) {
+func (h *helper) syncInProgressInfo(trigger *triggerResp) {
 	trigger.SetOk()
-	if !h.hasUpdateHistory(*trigger) {
+	if !h.hasUpdatingRecord(*trigger) {
 		return
 	}
 
-	updating, err := h.getUpdateRecord(*trigger)
+	updating, err := h.getUpdatingRecord(*trigger)
 	if err != nil {
 		return
 	}

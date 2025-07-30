@@ -9,6 +9,7 @@ import (
 )
 
 type ReqOpts struct {
+	Id          string `json:"id" bson:"id"`
 	Name        string `json:"name" bson:"name"`
 	Enabled     bool   `json:"enabled" bson:"enabled"`
 	Description string `json:"description" bson:"description"`

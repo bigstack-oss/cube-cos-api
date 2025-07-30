@@ -65,7 +65,7 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
-			Path:    "/triggers/tasks/:triggerName",
+			Path:    "/triggers/tasks",
 			Func:    updateTriggerTask,
 		},
 	}
