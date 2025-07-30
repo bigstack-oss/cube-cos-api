@@ -119,6 +119,12 @@ func (n *Node) UpdateTriggerUrl(trigger string) string {
 	return u.String()
 }
 
+func (n *Node) ToggleTriggerUrl(trigger string) string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/triggers/%s/enable", base.DataCenterName, trigger)
+	return u.String()
+}
+
 func (n *Node) PatchTriggerTaskUrl() string {
 	u := n.GenUrl()
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/triggers/tasks", base.DataCenterName)

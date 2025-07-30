@@ -9,10 +9,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 )
 
-func (h *helper) isRequestFromVirtualIp() bool {
-	return len(h.reqOpts.Nodes) != 0
-}
-
 func (h *helper) isTriggerExist(name string) bool {
 	for _, t := range triggers.List() {
 		if t.Name == name {
@@ -29,7 +25,7 @@ func (h *helper) checkMaterials() error {
 		return err
 	}
 
-	err = h.checkResponse()
+	err = h.checkResponses()
 	if err != nil {
 		return err
 	}
@@ -71,7 +67,7 @@ func (h *helper) checkAttributes() error {
 	return nil
 }
 
-func (h *helper) checkResponse() error {
+func (h *helper) checkResponses() error {
 	err := h.checkScript()
 	if err != nil {
 		return err

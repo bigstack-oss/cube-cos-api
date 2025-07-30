@@ -26,7 +26,7 @@ func (h *helper) parseParamsByHandler() error {
 	case "enableOrDisableTrigger":
 		return h.parseToggleParams()
 	case "updateTriggerTask":
-		return h.parseTaskParams()
+		return h.parseUpdateTaskParams()
 	default:
 		return nil
 	}
@@ -107,6 +107,7 @@ func (h *helper) parseUpdateParams() error {
 
 	h.reqOpts.Id = h.reqId
 	h.reqOpts.Name = h.parseTriggerName()
+	h.reqOpts.Enabled = h.getTriggerEnablement()
 	if h.reqOpts.Name == "" {
 		return errors.New("trigger name is required")
 	}
@@ -140,11 +141,7 @@ func (h *helper) parseDeleteparams() error {
 
 func (h *helper) parseToggleParams() error {
 	h.reqOpts.Name = h.parseTriggerName()
-	return nil
-}
-
-func (h *helper) parseTaskParams() error {
-	return h.c.ShouldBindJSON(&h.reqOpts)
+	return h.parseTriggerEnablement()
 }
 
 func (h *helper) parseTriggerEnablement() error {
@@ -177,6 +174,10 @@ func (h *helper) parseTriggerEnablement() error {
 	return nil
 }
 
+func (h *helper) parseUpdateTaskParams() error {
+	return h.c.ShouldBindJSON(&h.reqOpts)
+}
+
 func (h *helper) convertEmailStringSlice(trigger *triggers.Trigger) []string {
 	emails := []string{}
 	for _, email := range trigger.Emails {
@@ -193,4 +194,13 @@ func (h *helper) convertSlackStringSlice(trigger *triggers.Trigger) []string {
 	}
 
 	return slacks
+}
+
+func (h *helper) getTriggerEnablement() bool {
+	trigger, found := triggers.Get(h.reqOpts.Name)
+	if !found {
+		return false
+	}
+
+	return trigger.Enabled
 }

@@ -229,13 +229,6 @@ func enableOrDisableTrigger(c *gin.Context) {
 		return
 	}
 
-	err = h.parseTriggerEnablement()
-	if err != nil {
-		log.Errorf("tunings(%s): failed to parse tuning req(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
-		return
-	}
-
 	h.updateToControllers()
 	bodies.SetAccepted(
 		c,

@@ -148,6 +148,8 @@ func (h *helper) getTriggerUrlByHandler(node nodes.Node) string {
 	switch h.handler {
 	case "createTrigger":
 		return node.PostTriggerUrl()
+	case "enableOrDisableTrigger":
+		return node.ToggleTriggerUrl(h.reqOpts.Name)
 	default:
 		return node.UpdateTriggerUrl(h.reqOpts.Name)
 	}
