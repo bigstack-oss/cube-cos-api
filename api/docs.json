@@ -3017,6 +3017,170 @@
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/integrations/applications": {
+            "get": {
+                "operationId": "getIntegratedApplications",
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Retrieve the list of integrated applications",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the list of integrated applications successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetIntegratedApplicationsResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Integrated applications",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "name": "keycloak",
+                                                    "isHeaderShortcutEnabled": true,
+                                                    "description": "Keycloak Dashboard",
+                                                    "isBuiltIn": true,
+                                                    "url": "https://example-datat-center.host:10443/auth/admin"
+                                                },
+                                                {
+                                                    "name": "openstack",
+                                                    "isHeaderShortcutEnabled": true,
+                                                    "description": "OpenStack Dashboard",
+                                                    "isBuiltIn": true,
+                                                    "url": "https://example-datat-center.host:9999/base/overview"
+                                                },
+                                                {
+                                                    "name": "rancher",
+                                                    "isHeaderShortcutEnabled": true,
+                                                    "description": "Rancher Dashboard",
+                                                    "isBuiltIn": true,
+                                                    "url": "https://example-datat-center.host:10443"
+                                                },
+                                                {
+                                                    "name": "ceph",
+                                                    "isHeaderShortcutEnabled": true,
+                                                    "description": "Ceph Dashboard",
+                                                    "isBuiltIn": true,
+                                                    "url": "https://example-datat-center.host:7443/ceph/#/dashboard"
+                                                }
+                                            ],
+                                            "msg": "fetch integrated applications successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch integrated applications: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/integrations/storages": {
+            "get": {
+                "operationId": "getIntegratedStorages",
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Retrieve the list of integrated storages",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the list of integrated storages successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetIntegratedStoragesResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Integrated storages",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "name": "CubeStorage",
+                                                    "type": "built-in",
+                                                    "vendor": "CubeCOS",
+                                                    "managementIp": "10.32.45.1",
+                                                    "updatedAt": "2025-07-31T16:33:06+08:00",
+                                                    "isDefault": true,
+                                                    "status": {
+                                                        "current": "ok",
+                                                        "isProcessing": false
+                                                    }
+                                                }
+                                            ],
+                                            "msg": "fetch integrated storages successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch integrated applications: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/licenses": {
             "get": {
                 "operationId": "getLicenses",
@@ -14391,6 +14555,144 @@
                     "msg": {
                         "type": "string",
                         "example": "fetch integrations successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "GetIntegratedApplicationsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "isHeaderShortcutEnabled",
+                                "description",
+                                "isBuiltIn",
+                                "url"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "openstack"
+                                },
+                                "isHeaderShortcutEnabled": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "example": "openstack dashboard"
+                                },
+                                "isBuiltIn": {
+                                    "type": "boolean",
+                                    "example": true
+                                },
+                                "url": {
+                                    "type": "string",
+                                    "example": "https://10.10.10.10/skyline"
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "fetch integrated applications successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "GetIntegratedStoragesResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "type",
+                                "isDefault",
+                                "vendor",
+                                "managementIp",
+                                "updatedAt",
+                                "status"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "isDefault": {
+                                    "type": "boolean"
+                                },
+                                "vendor": {
+                                    "type": "string"
+                                },
+                                "managementIp": {
+                                    "type": "string"
+                                },
+                                "updatedAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                "status": {
+                                    "type": "object",
+                                    "required": [
+                                        "current",
+                                        "isProcessing"
+                                    ],
+                                    "properties": {
+                                        "current": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ok",
+                                                "integrating",
+                                                "updating",
+                                                "deleting"
+                                            ]
+                                        },
+                                        "isProcessing": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }       
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "fetch integrated applications successfully"
                     },
                     "status": {
                         "type": "string",

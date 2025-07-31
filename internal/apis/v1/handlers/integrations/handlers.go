@@ -15,15 +15,35 @@ var (
 			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/integrations",
-			Func:    getIntegrations,
+			Func:    listApplications,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/integrations/applications",
+			Func:    listApplications,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/integrations/storages",
+			Func:    listStorages,
 		},
 	}
 )
 
-func getIntegrations(c *gin.Context) {
+func listApplications(c *gin.Context) {
 	bodies.SetOk(
 		c,
-		"fetch integrations successfully",
-		cubecos.ListBuiltInIntegrations(),
+		"fetch integrated applications successfully",
+		cubecos.ListBuiltInApplications(),
+	)
+}
+
+func listStorages(c *gin.Context) {
+	bodies.SetOk(
+		c,
+		"fetch integrated storages successfully",
+		cubecos.ListBuiltInStorages(),
 	)
 }

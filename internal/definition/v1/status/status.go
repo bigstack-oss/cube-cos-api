@@ -133,6 +133,11 @@ type Image struct {
 	ProcessPercent float64 `json:"processPercent,omitempty" bson:"processPercent"`
 }
 
+type Integration struct {
+	Current      string `json:"current,omitempty" bson:"current"`
+	IsProcessing bool   `json:"isProcessing" bson:"isProcessing"`
+}
+
 func NewHealthOk() *Health {
 	return &Health{Current: Ok}
 }

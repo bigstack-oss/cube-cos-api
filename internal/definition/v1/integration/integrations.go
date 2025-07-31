@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
 const (
@@ -22,6 +23,28 @@ type Service struct {
 	Description             string `json:"description"`
 	IsBuiltIn               bool   `json:"isBuiltIn"`
 	Url                     string `json:"url"`
+}
+
+//	{
+//	    "name": "cubeStorage",
+//	    "type": "built-in",
+//	    "vendor": "testintegration",
+//	    "managementIp": "",
+//	    "updatedAt": "2023-10-01T12:00:00+08:00",
+//	    "isDefault": true,
+//	    "status": {
+//	        "current": "active",
+//	        "isProcessing": false
+//	    }
+//	}
+type Storage struct {
+	Name         string             `json:"name"`
+	Type         string             `json:"type"` // built-in, third-party
+	Vendor       string             `json:"vendor"`
+	ManagementIp string             `json:"managementIp"`
+	UpdatedAt    string             `json:"updatedAt"`
+	IsDefault    bool               `json:"isDefault"`
+	Status       status.Integration `json:"status"`
 }
 
 func GetCommonServices() []Service {
