@@ -20,12 +20,13 @@ type dataChan chan any
 type watcher struct {
 	helper
 	dataChan
+	isWatchStopped bool
 }
 
 var (
 	stream = struct {
 		sync.Mutex
-		Watchers []watcher
+		Watchers []*watcher
 	}{}
 )
 
@@ -37,7 +38,7 @@ func streamData(h *helper, data any) {
 		return
 	}
 
-	watcher := watcher{helper: *h, dataChan: make(dataChan)}
+	watcher := &watcher{helper: *h, dataChan: make(dataChan)}
 	setWatcher(watcher)
 	defer removeWatcher(watcher)
 
@@ -54,24 +55,34 @@ func streamingWatcher() {
 			return
 		}
 
-		if len(stream.Watchers) == 0 {
-			syncNotificationDirectly(change)
-			continue
-		}
+		sendNotification(change)
+		waitWatchers()
 
-		stream.Lock()
 		for _, w := range stream.Watchers {
 			data, err := streamDataByHandler(&w.helper, change)
-			if err == nil {
-				w.dataChan <- data
+			if err != nil {
+				continue
 			}
-		}
+			if w.isWatchStopped {
+				continue
+			}
 
-		stream.Unlock()
+			w.dataChan <- data
+		}
 	}
 }
 
-func syncNotificationDirectly(change nodes.Change) {
+func waitWatchers() {
+	for range 60 {
+		if len(stream.Watchers) != 0 {
+			return
+		}
+
+		wait.Seconds(1)
+	}
+}
+
+func sendNotification(change nodes.Change) {
 	if !change.NeedsNotification {
 		return
 	}
@@ -119,13 +130,13 @@ func setChunkedTransfer(c *gin.Context) {
 	c.Writer.Header().Set("Transfer-Encoding", "chunked")
 }
 
-func setWatcher(w watcher) {
+func setWatcher(w *watcher) {
 	stream.Lock()
+	defer stream.Unlock()
 	stream.Watchers = append(stream.Watchers, w)
-	stream.Unlock()
 }
 
-func removeWatcher(watcherToRemove watcher) {
+func removeWatcher(watcherToRemove *watcher) {
 	stream.Lock()
 	defer stream.Unlock()
 
@@ -158,7 +169,7 @@ func runConnectionKeeper(c *gin.Context, flusher http.Flusher) {
 	}
 }
 
-func streamingData(c *gin.Context, flusher http.Flusher, watcher watcher) {
+func streamingData(c *gin.Context, flusher http.Flusher, watcher *watcher) {
 	ctx := c.Request.Context()
 	for {
 		select {
@@ -168,6 +179,8 @@ func streamingData(c *gin.Context, flusher http.Flusher, watcher watcher) {
 			flusher.Flush()
 		case <-ctx.Done():
 			bodies.SetOk(c, "nodes watching is stopped successfully", nil)
+			watcher.isWatchStopped = true
+			close(watcher.dataChan)
 			return
 		}
 	}

@@ -3,6 +3,7 @@ package nodes
 import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
+	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -37,18 +38,19 @@ func (h *helper) syncDeviceChanges() {
 	opts := h.deviceReqOpts
 	notifications.SetCacheById(opts.ReqId, opts.Notify.Payload)
 	changes.Add(nodes.Change{
-		Id:                h.deviceReqOpts.ReqId,
+		Id:                opts.ReqId,
 		IsTaskInprogress:  false,
-		NeedsNotification: opts.Notify.Changes,
+		NeedsNotification: true,
 	})
 }
 
 func (h *helper) syncOsdChanges() {
+	log.Infof("send osd changes to watchers")
 	opts := h.osdReqOpts
 	notifications.SetCacheById(opts.ReqId, opts.Notify.Payload)
 	changes.Add(nodes.Change{
-		Id:                h.osdReqOpts.ReqId,
+		Id:                opts.ReqId,
 		IsTaskInprogress:  false,
-		NeedsNotification: opts.Notify.Changes,
+		NeedsNotification: true,
 	})
 }
