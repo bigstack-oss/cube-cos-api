@@ -25,21 +25,9 @@ type Service struct {
 	Url                     string `json:"url"`
 }
 
-//	{
-//	    "name": "cubeStorage",
-//	    "type": "built-in",
-//	    "vendor": "testintegration",
-//	    "managementIp": "",
-//	    "updatedAt": "2023-10-01T12:00:00+08:00",
-//	    "isDefault": true,
-//	    "status": {
-//	        "current": "active",
-//	        "isProcessing": false
-//	    }
-//	}
 type Storage struct {
 	Name         string             `json:"name"`
-	Type         string             `json:"type"` // built-in, third-party
+	Type         string             `json:"type"`
 	Vendor       string             `json:"vendor"`
 	ManagementIp string             `json:"managementIp"`
 	UpdatedAt    string             `json:"updatedAt"`
