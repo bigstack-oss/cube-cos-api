@@ -13,6 +13,10 @@ import (
 )
 
 func (o *Operator) syncScripts(script triggers.Script) error {
+	if script.Name == "" {
+		return nil
+	}
+
 	err := o.applyScriptOnFs(script)
 	if err != nil {
 		log.Errorf("triggers: failed to apply script on fs %s(%v)", script.Name, err)

@@ -11,7 +11,7 @@ func (h *helper) syncUploadRecord() error {
 		images.Db,
 		images.ReqCollection,
 		bson.M{"name": h.reqOpts.Name, "file": h.reqOpts.File, "project": h.reqOpts.Project, "domain": h.reqOpts.Domain},
-		h.reqOpts,
+		bson.M{"$set": h.reqOpts},
 		options.Update().SetUpsert(true),
 	)
 }

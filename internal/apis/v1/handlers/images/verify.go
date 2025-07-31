@@ -8,80 +8,26 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (h *helper) validateReq() error {
-	err := h.checkEmptyValues()
-	if err != nil {
-		return err
-	}
-
-	return h.validateValues()
-}
-
-func (h *helper) checkEmptyValues() error {
-	if h.reqOpts.File == "" {
-		err := fmt.Errorf("file is required for import image")
-		log.Errorf("images(%s): %v", h.reqId, err)
-		return err
-	}
-
-	if h.reqOpts.Name == "" {
-		err := fmt.Errorf("name is required for import image")
-		log.Errorf("images(%s): %v", h.reqId, err)
-		return err
-	}
-
-	if h.reqOpts.Project == "" {
-		err := fmt.Errorf("project is required for import image")
-		log.Errorf("images(%s): %v", h.reqId, err)
-		return err
-	}
-
-	if h.reqOpts.Domain == "" {
-		err := fmt.Errorf("domain is required for import image")
-		log.Errorf("images(%s): %v", h.reqId, err)
-		return err
-	}
-
-	if h.reqOpts.Os == "" {
-		err := fmt.Errorf("os is required for import image")
-		log.Errorf("images(%s): %v", h.reqId, err)
-		return err
-	}
-
-	if h.reqOpts.Destination == "" {
-		err := fmt.Errorf("destination is required for import image")
-		log.Errorf("images(%s): %v", h.reqId, err)
-		return err
-	}
-
-	if h.reqOpts.Visibility == "" {
-		err := fmt.Errorf("visibility is required for import image")
-		log.Errorf("images(%s): %v", h.reqId, err)
-	}
-
-	return nil
-}
-
 func (h *helper) validateValues() error {
-	if h.isImageValid() {
+	if h.isImageExist() {
 		err := fmt.Errorf("image %s already exists", h.reqOpts.Name)
 		log.Errorf("images(%s): %v", h.reqId, err)
 		return err
 	}
 
-	if h.isProjectValid() {
+	if !h.isProjectExists() {
 		err := fmt.Errorf("invalid project %s", h.reqOpts.Project)
 		log.Errorf("images(%s): %v", h.reqId, err)
 		return err
 	}
 
-	if h.isDomainValid() {
+	if !h.isDomainExists() {
 		err := fmt.Errorf("invalid domain %s", h.reqOpts.Domain)
 		log.Errorf("images(%s): %v", h.reqId, err)
 		return err
 	}
 
-	if h.isVisibilityValid() {
+	if !h.isVisibilityValid() {
 		err := fmt.Errorf("invalid visibility %s", h.reqOpts.Visibility)
 		log.Errorf("images(%s): %v", h.reqId, err)
 		return err
@@ -90,7 +36,7 @@ func (h *helper) validateValues() error {
 	return nil
 }
 
-func (h *helper) isImageValid() bool {
+func (h *helper) isImageExist() bool {
 	isExists, err := h.openstack.IsImageExist(h.reqOpts.Name)
 	if err != nil {
 		return false
@@ -99,7 +45,7 @@ func (h *helper) isImageValid() bool {
 	return isExists
 }
 
-func (h *helper) isProjectValid() bool {
+func (h *helper) isProjectExists() bool {
 	isExists, err := h.openstack.IsProjectExists(h.reqOpts.Project)
 	if err != nil {
 		return false
@@ -108,7 +54,7 @@ func (h *helper) isProjectValid() bool {
 	return isExists
 }
 
-func (h *helper) isDomainValid() bool {
+func (h *helper) isDomainExists() bool {
 	isExists, err := h.openstack.IsDomainExists(h.reqOpts.Domain)
 	if err != nil {
 		return false

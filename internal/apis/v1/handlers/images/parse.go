@@ -1,6 +1,8 @@
 package images
 
 import (
+	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,10 +29,46 @@ func (h *helper) parseParamsByHandler() error {
 }
 
 func (h *helper) parseImportParams() error {
-	err := h.c.ShouldBind(&h.reqOpts)
+	_, err := h.c.FormFile("image")
 	if err != nil {
-		log.Errorf("images(%s): failed to parse image import params(%v)", h.reqId, err)
-		return err
+		return fmt.Errorf("failed to get form file for image(%v)", err)
+	}
+
+	h.reqOpts.Id = h.reqId
+	h.reqOpts.File = h.c.DefaultPostForm("file", "")
+	if h.reqOpts.File == "" {
+		return fmt.Errorf("file is required")
+	}
+
+	h.reqOpts.Name = h.c.DefaultPostForm("name", "")
+	if h.reqOpts.Name == "" {
+		return fmt.Errorf("name is required")
+	}
+
+	h.reqOpts.Os = h.c.DefaultPostForm("os", "")
+	if h.reqOpts.Os == "" {
+		return fmt.Errorf("os is required")
+	}
+
+	h.reqOpts.Destination = h.c.DefaultPostForm("destination", "")
+	if h.reqOpts.Destination == "" {
+		return fmt.Errorf("destination is required")
+	}
+
+	h.reqOpts.Domain = h.c.DefaultPostForm("domain", "")
+	if h.reqOpts.Domain == "" {
+		return fmt.Errorf("domain is required")
+	}
+
+	h.reqOpts.Project = h.c.DefaultPostForm("project", "")
+	if h.reqOpts.Project == "" {
+		return fmt.Errorf("project is required")
+	}
+
+	h.reqOpts.SourceFromAnotherHypervisor = h.c.DefaultPostForm("sourceFromAnotherHypervisor", "false") == "true"
+	h.reqOpts.Visibility = h.c.DefaultPostForm("visibility", "private")
+	if h.reqOpts.Visibility == "" {
+		return fmt.Errorf("visibility is required")
 	}
 
 	h.reqOpts.SetUploading()
@@ -74,23 +112,70 @@ func (h *helper) parseKeyword() {
 }
 
 func (h *helper) saveUploadImage() error {
-	image, err := h.c.FormFile("image")
-	if err != nil {
-		log.Errorf("images(%s): %v", h.reqId, err)
-		return err
-	}
+	// image, err := h.c.FormFile("image")
+	// if err != nil {
+	// 	log.Errorf("images(%s): %v", h.reqId, err)
+	// 	return err
+	// }
 
-	err = h.syncUploadRecord()
+	err := h.syncUploadRecord()
 	if err != nil {
 		log.Errorf("images(%s): failed to insert upload record for image %s(%v)", h.reqId, h.reqOpts.File, err)
 		return err
 	}
 
-	doneChan := make(chan error, 1)
-	go h.runProgressWatcher(doneChan)
-	doneChan <- h.c.SaveUploadedFile(image, images.GlanceDir)
-	close(doneChan)
+	done := make(chan error, 1)
+	go h.runProgressWatcher(done)
+	// done <- h.c.SaveUploadedFile(
+	// 	image,
+	// 	filepath.Join(images.GlanceDir, h.reqOpts.File),
+	// )
+
+	done <- h.SaveUploadedFile(
+		filepath.Join(images.GlanceDir, h.reqOpts.File),
+	)
+	close(done)
 	return err
+}
+
+func (h *helper) SaveUploadedFile(file string) error {
+	reader, err := h.c.Request.MultipartReader()
+	if err != nil {
+		log.Errorf("images(%s): failed to get multipart reader(%v)", h.reqId, err)
+		return err
+	}
+
+	for {
+		part, err := reader.NextPart()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Errorf("images(%s): failed to read next part(%v)", h.reqId, err)
+			return err
+		}
+
+		if part.FormName() != "image" {
+			continue
+		}
+
+		out, err := os.Create(file)
+		if err != nil {
+			log.Errorf("images(%s): failed to create file %s(%v)", h.reqId, file, err)
+			return err
+		}
+
+		defer out.Close()
+		_, err = io.Copy(out, part)
+		if err != nil {
+			log.Errorf("images(%s): failed to copy file %s(%v)", h.reqId, file, err)
+			return err
+		}
+
+		return nil
+	}
+
+	return fmt.Errorf("no image file found in the request")
 }
 
 func (h *helper) runProgressWatcher(done <-chan error) {

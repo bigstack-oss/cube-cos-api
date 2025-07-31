@@ -10,7 +10,7 @@ const (
 	Db            = "images"
 	ReqCollection = "requsets"
 
-	GlanceDir              = "/mnt/cephfs/glance/images"
+	GlanceDir              = "/mnt/cephfs/glance"
 	CubeDefinedOs          = "CubeDefinedOs"
 	CubeDefinedDestination = "CubeDefinedDestination"
 )
@@ -112,6 +112,7 @@ func (r *ReqOpts) SetUploading() {
 	}
 
 	r.Status.Current = status.Uploading
+	r.Status.Desired = status.Uploaded
 	r.Status.IsProcessing = true
 	r.Status.ProcessPercent = 0
 }
@@ -122,6 +123,7 @@ func (r *ReqOpts) SetImporting() {
 	}
 
 	r.Status.Current = status.Importing
+	r.Status.Desired = status.Imported
 	r.Status.IsProcessing = true
-	r.Status.ProcessPercent = 100
+	r.Status.ProcessPercent = 0
 }

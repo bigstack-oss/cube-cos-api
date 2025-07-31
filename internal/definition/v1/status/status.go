@@ -35,6 +35,7 @@ const (
 	Imported   = "imported"
 	Toggled    = "toggled"
 	Added      = "added"
+	Uploaded   = "uploaded"
 	Removed    = "removed"
 	Updated    = "updated"
 	Promoted   = "promoted"
@@ -129,7 +130,7 @@ type Image struct {
 	Current        string  `json:"current,omitempty" bson:"current"`
 	Desired        string  `json:"-" bson:"desired"`
 	IsProcessing   bool    `json:"isProcessing" bson:"isProcessing"`
-	ProcessPercent float64 `json:"processPercent,omitempty" bson:"processPercent,omitempty"`
+	ProcessPercent float64 `json:"processPercent,omitempty" bson:"processPercent"`
 }
 
 func NewHealthOk() *Health {
