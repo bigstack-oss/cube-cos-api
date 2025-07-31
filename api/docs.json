@@ -12873,80 +12873,104 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "name": "file",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Name of the file to store"
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Human-readable name of the image"
+                    },
+                    {
+                        "name": "os",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "CentOS",
+                                "Fedora",
+                                "Ubuntu",
+                                "Debian",
+                                "Windows",
+                                "Rocky",
+                                "FreeBSD",
+                                "CoreOS",
+                                "Arch",
+                                "Others"
+                            ]
+                        },
+                        "description": "Operating system of the image"
+                    },
+                    {
+                        "name": "destination",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Target storage destination. Refer the GET /images/materials endpoint for available options"
+                    },
+                    {
+                        "name": "domain",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Domain name for the project"
+                    },
+                    {
+                        "name": "project",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Project name or ID"
+                    },
+                    {
+                        "name": "sourceFromAnotherHypervisor",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether the source image comes from another hypervisor"
+                    },
+                    {
+                        "name": "visibility",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "private",
+                                "public"
+                            ]
+                        },
+                        "description": "Visibility setting for the image"
                     }
                 ],
                 "requestBody": {
+                    "description": "for example, in the CURL, the image binary should be set by the '--data-binary' option like '--data-binary @/path/to/your-image'.",
                     "required": true,
                     "content": {
-                        "multipart/form-data": {
+                        "application/octet-stream": {
                             "schema": {
-                                "type": "object",
-                                "required": [
-                                    "image",
-                                    "file",
-                                    "name",
-                                    "os",
-                                    "destination",
-                                    "domain",
-                                    "project",
-                                    "sourceFromAnotherHypervisor",
-                                    "visibility"
-                                ],
-                                "properties": {
-                                    "image": {
-                                        "type": "string",
-                                        "format": "binary",
-                                        "description": "The image file to import"
-                                    },
-                                    "file": {
-                                        "type": "string",
-                                        "description": "The file name of the image to import"
-                                    },
-                                    "name": {
-                                        "type": "string",
-                                        "description": "The name of the image to import"
-                                    },
-                                    "os": {
-                                        "type": "string",
-                                        "description": "The OS of the image to import",
-                                        "enum": [
-                                            "CentOS",
-                                            "Fedora",
-                                            "Ubuntu",
-                                            "Debian",
-                                            "Windows",
-                                            "Rocky",
-                                            "FreeBSD",
-                                            "CoreOS",
-                                            "Arch",
-                                            "Others"
-                                        ]
-                                    },
-                                    "destination": {
-                                        "type": "string",
-                                        "description": "The destination of the image to import"
-                                    },
-                                    "domain": {
-                                        "type": "string",
-                                        "description": "The domain of the image to import"
-                                    },
-                                    "project": {
-                                        "type": "string",
-                                        "description": "The project of the image to import"
-                                    },
-                                    "sourceFromAnotherHypervisor": {
-                                        "type": "boolean",
-                                        "description": "Whether the image is from another hypervisor"
-                                    },
-                                    "visibility": {
-                                        "type": "string",
-                                        "description": "The visibility of the image to import",
-                                        "enum": [
-                                            "public",
-                                            "private"
-                                        ]
-                                    }
-                                }
+                                "type": "string",
+                                "format": "binary"
                             }
                         }
                     }
@@ -14686,7 +14710,7 @@
                                             "type": "boolean"
                                         }
                                     }
-                                }       
+                                }
                             }
                         }
                     },
