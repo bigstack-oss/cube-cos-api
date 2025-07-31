@@ -167,7 +167,7 @@ func (h *helper) parseOs(properties map[string]any) string {
 		return ""
 	}
 
-	os, ok := properties["cube_defined_os"].(string)
+	os, ok := properties[images.CubeDefinedOs].(string)
 	if !ok || os == "" {
 		return ""
 	}
@@ -180,7 +180,7 @@ func (h *helper) parseDestination(properties map[string]any) string {
 		return ""
 	}
 
-	destination, ok := properties["cube_defined_destination"].(string)
+	destination, ok := properties[images.CubeDefinedDestination].(string)
 	if !ok || destination == "" {
 		return ""
 	}

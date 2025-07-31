@@ -10,7 +10,9 @@ const (
 	Db            = "images"
 	ReqCollection = "requsets"
 
-	GlanceDir = "/mnt/cephfs/glance/images"
+	GlanceDir              = "/mnt/cephfs/glance/images"
+	CubeDefinedOs          = "CubeDefinedOs"
+	CubeDefinedDestination = "CubeDefinedDestination"
 )
 
 var (

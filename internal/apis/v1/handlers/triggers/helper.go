@@ -108,6 +108,9 @@ func (h *helper) getTrigger(name string) (*triggerResp, error) {
 	for _, trigger := range triggers.List() {
 		if trigger.Name == name {
 			resp := h.convertTrigger(trigger)
+			h.syncBuiltInInfo(&resp)
+			h.syncResponseTypes(&resp)
+			h.syncInProgressInfo(&resp)
 			return &resp, nil
 		}
 	}

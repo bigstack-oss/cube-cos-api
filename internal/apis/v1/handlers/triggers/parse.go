@@ -133,8 +133,26 @@ func (h *helper) parseDeleteparams() error {
 		)
 	}
 
+	trigger, found := triggers.Get(name)
+	if !found {
+		return fmt.Errorf("trigger %s not found", name)
+	}
+
+	resp := h.convertTrigger(*trigger)
 	h.reqOpts.Id = h.reqId
-	h.reqOpts.Name = name
+	h.reqOpts.Name = resp.Name
+	h.reqOpts.Enabled = h.toggle.Enable
+	h.reqOpts.Description = resp.Description
+	h.reqOpts.Attribute = resp.Attribute
+	h.reqOpts.Response = triggers.Response{
+		Script: triggers.Script{
+			Name:    resp.Response.Script.Name,
+			Content: resp.Response.Script.Content,
+		},
+		Emails: h.convertEmailStringSlice(trigger),
+		Slacks: h.convertSlackStringSlice(trigger),
+	}
+
 	h.reqOpts.SetDeleting()
 	return nil
 }
