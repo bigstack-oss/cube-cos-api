@@ -8,6 +8,7 @@ import (
 	"strings"
 	ostime "time"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
@@ -29,46 +30,41 @@ func (h *helper) parseParamsByHandler() error {
 }
 
 func (h *helper) parseImportParams() error {
-	_, err := h.c.FormFile("image")
-	if err != nil {
-		return fmt.Errorf("failed to get form file for image(%v)", err)
-	}
-
 	h.reqOpts.Id = h.reqId
-	h.reqOpts.File = h.c.DefaultPostForm("file", "")
+	h.reqOpts.File = h.c.DefaultQuery("file", "")
 	if h.reqOpts.File == "" {
-		return fmt.Errorf("file is required")
+		return fmt.Errorf("file parameter is required")
 	}
 
-	h.reqOpts.Name = h.c.DefaultPostForm("name", "")
+	h.reqOpts.Name = h.c.DefaultQuery("name", "")
 	if h.reqOpts.Name == "" {
-		return fmt.Errorf("name is required")
+		return fmt.Errorf("name parameter is required")
 	}
 
-	h.reqOpts.Os = h.c.DefaultPostForm("os", "")
+	h.reqOpts.Os = h.c.DefaultQuery("os", "")
 	if h.reqOpts.Os == "" {
-		return fmt.Errorf("os is required")
+		return fmt.Errorf("os parameter is required")
 	}
 
-	h.reqOpts.Destination = h.c.DefaultPostForm("destination", "")
+	h.reqOpts.Destination = h.c.DefaultQuery("destination", "")
 	if h.reqOpts.Destination == "" {
-		return fmt.Errorf("destination is required")
+		return fmt.Errorf("destination parameter is required")
 	}
 
-	h.reqOpts.Domain = h.c.DefaultPostForm("domain", "")
+	h.reqOpts.Domain = h.c.DefaultQuery("domain", "")
 	if h.reqOpts.Domain == "" {
-		return fmt.Errorf("domain is required")
+		return fmt.Errorf("domain parameter is required")
 	}
 
-	h.reqOpts.Project = h.c.DefaultPostForm("project", "")
+	h.reqOpts.Project = h.c.DefaultQuery("project", "")
 	if h.reqOpts.Project == "" {
-		return fmt.Errorf("project is required")
+		return fmt.Errorf("project parameter is required")
 	}
 
-	h.reqOpts.SourceFromAnotherHypervisor = h.c.DefaultPostForm("sourceFromAnotherHypervisor", "false") == "true"
-	h.reqOpts.Visibility = h.c.DefaultPostForm("visibility", "private")
+	h.reqOpts.SourceFromAnotherHypervisor = h.c.DefaultQuery("sourceFromAnotherHypervisor", "false") == "true"
+	h.reqOpts.Visibility = h.c.DefaultQuery("visibility", "")
 	if h.reqOpts.Visibility == "" {
-		return fmt.Errorf("visibility is required")
+		return fmt.Errorf("visibility parameter is required")
 	}
 
 	h.reqOpts.SetUploading()
@@ -112,73 +108,39 @@ func (h *helper) parseKeyword() {
 }
 
 func (h *helper) saveUploadImage() error {
-	// image, err := h.c.FormFile("image")
-	// if err != nil {
-	// 	log.Errorf("images(%s): %v", h.reqId, err)
-	// 	return err
-	// }
-
 	err := h.syncUploadRecord()
 	if err != nil {
 		log.Errorf("images(%s): failed to insert upload record for image %s(%v)", h.reqId, h.reqOpts.File, err)
 		return err
 	}
 
+	dstPath := filepath.Join(images.GlanceDir, h.reqOpts.File)
 	done := make(chan error, 1)
-	go h.runProgressWatcher(done)
-	// done <- h.c.SaveUploadedFile(
-	// 	image,
-	// 	filepath.Join(images.GlanceDir, h.reqOpts.File),
-	// )
+	go h.runProgressWatcher(done, dstPath)
+	done <- h.SaveUploadedFile(dstPath)
 
-	done <- h.SaveUploadedFile(
-		filepath.Join(images.GlanceDir, h.reqOpts.File),
-	)
 	close(done)
-	return err
+	return nil
 }
 
-func (h *helper) SaveUploadedFile(file string) error {
-	reader, err := h.c.Request.MultipartReader()
+func (h *helper) SaveUploadedFile(path string) error {
+	out, err := os.Create(path)
 	if err != nil {
-		log.Errorf("images(%s): failed to get multipart reader(%v)", h.reqId, err)
+		log.Errorf("images(%s): failed to image file %s(%v)", h.reqId, path, err)
 		return err
 	}
 
-	for {
-		part, err := reader.NextPart()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Errorf("images(%s): failed to read next part(%v)", h.reqId, err)
-			return err
-		}
-
-		if part.FormName() != "image" {
-			continue
-		}
-
-		out, err := os.Create(file)
-		if err != nil {
-			log.Errorf("images(%s): failed to create file %s(%v)", h.reqId, file, err)
-			return err
-		}
-
-		defer out.Close()
-		_, err = io.Copy(out, part)
-		if err != nil {
-			log.Errorf("images(%s): failed to copy file %s(%v)", h.reqId, file, err)
-			return err
-		}
-
-		return nil
+	defer out.Close()
+	_, err = io.Copy(out, h.c.Request.Body)
+	if err != nil {
+		log.Errorf("images(%s): failed to do image streaming copy %s(%v)", h.reqId, path, err)
+		return err
 	}
 
-	return fmt.Errorf("no image file found in the request")
+	return nil
 }
 
-func (h *helper) runProgressWatcher(done <-chan error) {
+func (h *helper) runProgressWatcher(done <-chan error, dstPath string) {
 	for {
 		select {
 		case err, ok := <-done:
@@ -189,38 +151,30 @@ func (h *helper) runProgressWatcher(done <-chan error) {
 			h.syncUploadResult(err)
 			return
 		case <-ostime.After(2 * ostime.Second):
-			h.syncUploadProgress()
+			h.syncUploadProgress(dstPath)
 		}
 	}
 }
 
-func (h *helper) syncUploadProgress() {
-	file, err := h.c.FormFile("image")
-	if err != nil {
-		log.Errorf("images(%s): failed to get form file for image %s(%v)", h.reqId, h.reqOpts.File, err)
-		return
-	}
-
-	totalSize := file.Size
+func (h *helper) syncUploadProgress(dstPath string) {
+	totalSize := h.c.Request.ContentLength
 	if totalSize <= 0 {
 		log.Errorf("images(%s): total size for image %s is zero", h.reqId, h.reqOpts.File)
 		return
 	}
 
-	path := filepath.Join(images.GlanceDir, h.reqOpts.File)
-	upload, err := os.Stat(path)
+	upload, err := os.Stat(dstPath)
 	if err != nil {
-		log.Errorf("images(%s): failed to get file info for %s(%v)", h.reqId, path, err)
+		log.Errorf("images(%s): failed to get file info for %s(%v)", h.reqId, dstPath, err)
 		return
 	}
 
 	precent := float64(upload.Size()) / float64(totalSize) * 100
-	h.reqOpts.Status.ProcessPercent = precent
 	err = h.mongo.UpdateOne(
 		images.Db,
 		images.ReqCollection,
 		bson.M{"name": h.reqOpts.Name, "file": h.reqOpts.File, "project": h.reqOpts.Project, "domain": h.reqOpts.Domain},
-		bson.M{"status.uploadProgress": precent},
+		bson.M{"$set": bson.M{"status.uploadProgress": math.RoundDown(precent, 2)}},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
