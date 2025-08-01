@@ -16,7 +16,7 @@ func (o *Operator) operate(req *images.ReqOpts) error {
 	}
 
 	switch req.Status.Desired {
-	case status.Uploaded:
+	case status.Imported:
 		return o.importImage(req)
 	}
 

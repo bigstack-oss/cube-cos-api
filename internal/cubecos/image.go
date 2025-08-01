@@ -1,7 +1,6 @@
 package cubecos
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"fmt"
@@ -12,7 +11,12 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
+	"github.com/creack/pty"
 	log "go-micro.dev/v5/logger"
+)
+
+var (
+	regexPrecent = regexp.MustCompile(`\[[= >]+\]\s+(\d+)%`)
 )
 
 func GetReservedImages() []images.ReqOpts {
@@ -49,19 +53,13 @@ func ImportImage(opts *images.CreateOpts) error {
 		opts.Domain, opts.Project, opts.PoolType, opts.Visibility,
 	)
 
-	stdout, err := cmd.StderrPipe()
-	cmd.Stdout = cmd.Stderr
-	if err != nil {
-		log.Errorf("images: failed to get stdout pipe(%v)", err)
-		return err
-	}
-
-	err = cmd.Start()
+	stdout, err := pty.Start(cmd)
 	if err != nil {
 		log.Errorf("images: failed to start command(%v)", err)
 		return err
 	}
 
+	defer stdout.Close()
 	traceImportProgress(opts, stdout)
 	err = cmd.Wait()
 	if err != nil {
@@ -78,40 +76,54 @@ func ImportImage(opts *images.CreateOpts) error {
 }
 
 func traceImportProgress(opts *images.CreateOpts, stdout io.Reader) {
-	reader := bufio.NewReader(stdout)
-	buffer := bytes.Buffer{}
-	if opts.StreamingLogs != nil {
-		defer close(opts.StreamingLogs)
-	}
+	buf := bytes.Buffer{}
+	last := float64(0)
 
 	for {
-		bytes, err := reader.ReadByte()
-		if err == io.EOF {
+		tmp := make([]byte, 1)
+		n, err := stdout.Read(tmp)
+		if err != nil || n == 0 {
 			break
 		}
-		if err != nil {
-			log.Errorf("images: failed to read byte from image %s import stdout(%v)", opts.Name, err)
-			return
-		}
 
-		if bytes != '\r' {
-			buffer.WriteByte(bytes)
+		bytes := tmp[0]
+		if bytes == '\n' {
+			buf.Reset()
 			continue
 		}
 
-		line := buffer.String()
-		buffer.Reset()
-		regex := regexp.MustCompile(`\(([\d.]+)\/100%`)
-		match := regex.FindStringSubmatch(line)
-		if len(match) <= 1 {
+		if bytes == '\r' {
+			streamImportProgress(&buf, &last, &opts.StreamingLogs)
+			buf.Reset()
 			continue
 		}
 
-		if opts.StreamingLogs != nil {
-			progress, err := strconv.ParseFloat(match[1], 64)
-			if err == nil {
-				opts.StreamingLogs <- progress
-			}
-		}
+		buf.WriteByte(bytes)
+	}
+}
+
+func streamImportProgress(buf *bytes.Buffer, last *float64, streamingLogs *chan float64) {
+	if streamingLogs == nil {
+		return
+	}
+
+	line := buf.String()
+	if len(line) <= 0 {
+		return
+	}
+
+	matches := regexPrecent.FindStringSubmatch(line)
+	if len(matches) < 2 {
+		return
+	}
+
+	percent, err := strconv.ParseFloat(matches[1], 64)
+	if err != nil {
+		return
+	}
+
+	if percent != *last {
+		*last = percent
+		*streamingLogs <- percent
 	}
 }

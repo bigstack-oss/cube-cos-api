@@ -8,6 +8,7 @@ require (
 	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250729044547-5f8858b927f3
 	github.com/blevesearch/bleve/v2 v2.4.4
 	github.com/coreos/go-oidc v2.3.0+incompatible
+	github.com/creack/pty v1.1.24
 	github.com/crewjam/saml v0.4.14
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fsnotify/fsnotify v1.8.0
@@ -30,6 +31,8 @@ require (
 	go-micro.dev/v5 v5.3.0
 	go.mongodb.org/mongo-driver v1.17.2
 	gopkg.in/yaml.v3 v3.0.1
+	k8s.io/api v0.33.2
+	k8s.io/apimachinery v0.33.2
 	k8s.io/client-go v0.33.2
 )
 
@@ -175,9 +178,7 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	k8s.io/api v0.33.2 // indirect
 	k8s.io/apiextensions-apiserver v0.33.2 // indirect
-	k8s.io/apimachinery v0.33.2 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20250318190949-c8a335a9a2ff // indirect
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
