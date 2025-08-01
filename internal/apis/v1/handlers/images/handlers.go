@@ -30,6 +30,12 @@ var (
 			Path:    "/images",
 			Func:    listImages,
 		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/images/tasks",
+			Func:    updateImageTask,
+		},
 	}
 )
 
@@ -52,6 +58,28 @@ func listImageMaterials(c *gin.Context) {
 		c,
 		"fetch image materials successfully",
 		materials,
+	)
+}
+
+func listImages(c *gin.Context) {
+	h, err := initHelper(c, "listImages")
+	if err != nil {
+		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	images, err := h.listImages()
+	if err != nil {
+		log.Errorf("images(%s): failed to list images(%v)", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"fetch images successfully",
+		images,
 	)
 }
 
@@ -82,24 +110,24 @@ func importImage(c *gin.Context) {
 	)
 }
 
-func listImages(c *gin.Context) {
-	h, err := initHelper(c, "listImages")
+func updateImageTask(c *gin.Context) {
+	h, err := initHelper(c, "updateImageTask")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err)
 		return
 	}
 
-	images, err := h.listImages()
+	err = h.updateImageTask()
 	if err != nil {
-		log.Errorf("images(%s): failed to list images(%v)", h.reqId, err)
+		log.Errorf("images(%s): failed to update image task(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 
 	bodies.SetOk(
 		c,
-		"fetch images successfully",
-		images,
+		"image task is updated successfully",
+		nil,
 	)
 }

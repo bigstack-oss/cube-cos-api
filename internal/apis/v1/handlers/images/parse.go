@@ -24,6 +24,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseImportParams()
 	case "listImages":
 		return h.parseListParams()
+	case "updateImageTask":
+		return h.parseUpdateTaskParams()
 	default:
 		return nil
 	}
@@ -84,6 +86,10 @@ func (h *helper) parseListParams() error {
 
 	h.parseKeyword()
 	return nil
+}
+
+func (h *helper) parseUpdateTaskParams() error {
+	return h.c.ShouldBindJSON(&h.reqOpts)
 }
 
 func (h *helper) parsePage() error {
@@ -174,7 +180,7 @@ func (h *helper) syncUploadProgress(dstPath string) {
 		images.Db,
 		images.ReqCollection,
 		bson.M{"name": h.reqOpts.Name, "file": h.reqOpts.File, "project": h.reqOpts.Project, "domain": h.reqOpts.Domain},
-		bson.M{"$set": bson.M{"status.uploadProgress": math.RoundDown(precent, 2)}},
+		bson.M{"$set": bson.M{"status.processPercent": math.RoundDown(precent, 2)}},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
@@ -189,7 +195,6 @@ func (h *helper) syncUploadResult(err error) {
 		h.reqOpts.SetError()
 	} else {
 		log.Infof("images(%s): successfully saved uploaded image %s", h.reqId, h.reqOpts.File)
-		h.reqOpts.SetImporting()
 	}
 
 	err = h.syncUploadRecord()

@@ -59,15 +59,16 @@ type ReqOpts struct {
 }
 
 type CreateOpts struct {
-	Dir            string `json:"dir"`
-	File           string `json:"file"`
-	Name           string `json:"name"`
-	Destination    string `json:"destination"`
-	Domain         string `json:"domain"`
-	Project        string `json:"project"`
-	PoolType       string `json:"poolType"`
-	AttributesType string `json:"attributesType,omitempty"`
-	Visibility     string `json:"visibility"`
+	Dir            string       `json:"dir"`
+	File           string       `json:"file"`
+	Name           string       `json:"name"`
+	Destination    string       `json:"destination"`
+	Domain         string       `json:"domain"`
+	Project        string       `json:"project"`
+	PoolType       string       `json:"poolType"`
+	AttributesType string       `json:"attributesType,omitempty"`
+	Visibility     string       `json:"visibility"`
+	StreamingLogs  chan float64 `json:"streaming,omitempty"`
 }
 
 func (r *ReqOpts) GenCreateOpts() CreateOpts {
@@ -85,6 +86,7 @@ func (r *ReqOpts) GenCreateOpts() CreateOpts {
 		Domain:         r.Domain,
 		PoolType:       poolType,
 		Visibility:     r.Visibility,
+		StreamingLogs:  make(chan float64),
 	}
 }
 

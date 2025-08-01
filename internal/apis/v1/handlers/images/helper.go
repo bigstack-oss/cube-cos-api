@@ -7,6 +7,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -67,4 +68,13 @@ func (h *helper) listImages() ([]images.Image, error) {
 
 	images = h.filterImages(images)
 	return images, nil
+}
+
+func (h *helper) updateImageTask() error {
+	switch h.reqOpts.Status.Current {
+	case status.Error, status.Completed:
+		return h.removePendingReq()
+	default:
+		return h.updatePendingReq()
+	}
 }
