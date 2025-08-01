@@ -10452,6 +10452,7 @@
                                         "summary": "Trigger script verification result",
                                         "value": {
                                             "code": 200,
+                                            "data": "Hello\n",
                                             "msg": "trigger script verified successfully",
                                             "status": "ok"
                                         }
@@ -10470,6 +10471,10 @@
                                         "code": {
                                             "type": "integer",
                                             "example": 400
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "example": ""
                                         },
                                         "msg": {
                                             "type": "string",
@@ -10495,6 +10500,10 @@
                                             "type": "integer",
                                             "example": 401
                                         },
+                                        "data": {
+                                            "type": "string",
+                                            "example": ""
+                                        },
                                         "msg": {
                                             "type": "string",
                                             "example": "invalid_grant: Invalid user credentials"
@@ -10518,6 +10527,10 @@
                                         "code": {
                                             "type": "integer",
                                             "example": 500
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "example": ""
                                         },
                                         "msg": {
                                             "type": "string",
@@ -12952,7 +12965,7 @@
                     {
                         "name": "visibility",
                         "in": "query",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -12960,7 +12973,7 @@
                                 "public"
                             ]
                         },
-                        "description": "Visibility setting for the image"
+                        "description": "Visibility setting for the image(only required when sourceFromAnotherHypervisor is false)."
                     }
                 ],
                 "requestBody": {
@@ -17963,6 +17976,7 @@
                 "type": "object",
                 "required": [
                     "code",
+                    "data",
                     "msg",
                     "status"
                 ],
@@ -17970,6 +17984,10 @@
                     "code": {
                         "type": "integer",
                         "example": 200
+                    },
+                    "data": {
+                        "type": "string",
+                        "example": "Hello\n"
                     },
                     "msg": {
                         "type": "string",

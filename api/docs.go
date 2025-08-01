@@ -10456,6 +10456,7 @@ const docTemplate = `{
                                         "summary": "Trigger script verification result",
                                         "value": {
                                             "code": 200,
+                                            "data": "Hello\n",
                                             "msg": "trigger script verified successfully",
                                             "status": "ok"
                                         }
@@ -10474,6 +10475,10 @@ const docTemplate = `{
                                         "code": {
                                             "type": "integer",
                                             "example": 400
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "example": ""
                                         },
                                         "msg": {
                                             "type": "string",
@@ -10499,6 +10504,10 @@ const docTemplate = `{
                                             "type": "integer",
                                             "example": 401
                                         },
+                                        "data": {
+                                            "type": "string",
+                                            "example": ""
+                                        },
                                         "msg": {
                                             "type": "string",
                                             "example": "invalid_grant: Invalid user credentials"
@@ -10522,6 +10531,10 @@ const docTemplate = `{
                                         "code": {
                                             "type": "integer",
                                             "example": 500
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "example": ""
                                         },
                                         "msg": {
                                             "type": "string",
@@ -12956,7 +12969,7 @@ const docTemplate = `{
                     {
                         "name": "visibility",
                         "in": "query",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "string",
                             "enum": [
@@ -12964,7 +12977,7 @@ const docTemplate = `{
                                 "public"
                             ]
                         },
-                        "description": "Visibility setting for the image"
+                        "description": "Visibility setting for the image(only required when sourceFromAnotherHypervisor is false)."
                     }
                 ],
                 "requestBody": {
@@ -17967,6 +17980,7 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "code",
+                    "data",
                     "msg",
                     "status"
                 ],
@@ -17974,6 +17988,10 @@ const docTemplate = `{
                     "code": {
                         "type": "integer",
                         "example": 200
+                    },
+                    "data": {
+                        "type": "string",
+                        "example": "Hello\n"
                     },
                     "msg": {
                         "type": "string",
