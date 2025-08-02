@@ -56,6 +56,7 @@ type ReqOpts struct {
 	Project                     string        `json:"project" bson:"project"`
 	SourceFromAnotherHypervisor bool          `json:"sourceFromAnotherHypervisor" bson:"sourceFromAnotherHypervisor"`
 	Visibility                  string        `json:"visibility" bson:"visibility"`
+	SizeMiB                     int64         `json:"sizeMiB" bson:"sizeMiB"`
 	Status                      *status.Image `json:"status,omitempty" bson:"status,omitempty"`
 }
 

@@ -69,6 +69,7 @@ func (h *helper) parseImportParams() error {
 		return fmt.Errorf("visibility parameter is required")
 	}
 
+	h.reqOpts.SizeMiB = int64(math.RoundDown(float64(h.c.Request.ContentLength/1024/1024), 4))
 	h.reqOpts.SetUploading()
 	return nil
 }

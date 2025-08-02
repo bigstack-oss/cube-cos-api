@@ -46,7 +46,7 @@ func streamData(h *helper, data any) {
 	defer removeWatcher(watcher)
 
 	sendFirstData(h.c, flusher, data)
-	go runConnectionKeeper(h.c, flusher)
+	go periodicUpdateData(h.c)
 	streamingData(h.c, flusher, watcher)
 }
 
@@ -130,15 +130,14 @@ func sendFirstData(c *gin.Context, flusher http.Flusher, images any) {
 	flusher.Flush()
 }
 
-func runConnectionKeeper(c *gin.Context, flusher http.Flusher) {
+func periodicUpdateData(c *gin.Context) {
 	for {
-		wait.Seconds(10)
+		wait.Seconds(5)
 		select {
 		case <-c.Request.Context().Done():
 			return
 		default:
-			c.Writer.Write([]byte("\n"))
-			flusher.Flush()
+			changes.Add(images.Change{})
 		}
 	}
 }
