@@ -9,9 +9,11 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/creack/pty"
+	opsimage "github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -74,6 +76,17 @@ func ImportImage(opts *images.CreateOpts) error {
 	}
 
 	return nil
+}
+
+func SetImageProperties(name string, opts opsimage.UpdateOpts) error {
+	h := openstack.GetGlobalHelper()
+	image, err := h.GetImageByName(name)
+	if err != nil {
+		log.Errorf("images: failed to get image %s(%v)", name, err)
+		return err
+	}
+
+	return h.UpdateImageProperty(image.ID, opts)
 }
 
 func traceImportProgress(opts *images.CreateOpts, stdout io.Reader) {

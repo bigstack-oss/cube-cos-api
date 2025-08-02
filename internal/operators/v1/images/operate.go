@@ -7,6 +7,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	opsimage "github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -30,7 +31,29 @@ func (o *Operator) operate(req *images.ReqOpts) error {
 func (o *Operator) importImage(req *images.ReqOpts) error {
 	opts := req.GenCreateOpts()
 	go o.syncProgressToController(req, &opts.StreamingLogs)
-	return cubecos.ImportImage(&opts)
+	err := cubecos.ImportImage(&opts)
+	if err != nil {
+		return err
+	}
+
+	updateOpts := o.genImageCustomProperties(req)
+	cubecos.SetImageProperties(req.Name, updateOpts)
+	return nil
+}
+
+func (o *Operator) genImageCustomProperties(req *images.ReqOpts) opsimage.UpdateOpts {
+	return opsimage.UpdateOpts{
+		opsimage.UpdateImageProperty{
+			Op:    opsimage.AddOp,
+			Name:  images.CubeDefinedOs,
+			Value: req.Os,
+		},
+		opsimage.UpdateImageProperty{
+			Op:    opsimage.AddOp,
+			Name:  images.CubeDefinedDestination,
+			Value: req.Destination,
+		},
+	}
 }
 
 func (o *Operator) syncProgressToController(req *images.ReqOpts, streamingLogs *chan float64) {
