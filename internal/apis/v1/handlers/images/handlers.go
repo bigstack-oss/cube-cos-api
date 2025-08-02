@@ -32,6 +32,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/images.csv",
+			Func:    listImageAsCsv,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/images/tasks",
 			Func:    updateImageTask,
@@ -81,6 +87,24 @@ func listImages(c *gin.Context) {
 		"fetch images successfully",
 		images,
 	)
+}
+
+func listImageAsCsv(c *gin.Context) {
+	h, err := initHelper(c, "listImagesAsCsv")
+	if err != nil {
+		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err)
+		return
+	}
+
+	csv, err := h.listImagesAsCsv()
+	if err != nil {
+		log.Errorf("images(%s): failed to list images(%v)", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	csv.Flush()
 }
 
 func importImage(c *gin.Context) {

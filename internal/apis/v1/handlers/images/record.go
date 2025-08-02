@@ -7,6 +7,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+func (h *helper) updateImageTask() error {
+	switch h.reqOpts.Status.Current {
+	case status.Error, status.Completed:
+		return h.removePendingReq()
+	default:
+		return h.updatePendingReq()
+	}
+}
+
 func (h *helper) syncUploadRecord() error {
 	return h.mongo.UpdateOne(
 		images.Db,

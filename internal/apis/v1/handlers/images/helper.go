@@ -1,13 +1,14 @@
 package images
 
 import (
+	"encoding/csv"
+
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -70,11 +71,14 @@ func (h *helper) listImages() ([]images.Image, error) {
 	return images, nil
 }
 
-func (h *helper) updateImageTask() error {
-	switch h.reqOpts.Status.Current {
-	case status.Error, status.Completed:
-		return h.removePendingReq()
-	default:
-		return h.updatePendingReq()
+func (h *helper) listImagesAsCsv() (*csv.Writer, error) {
+	list, err := h.listImages()
+	if err != nil {
+		return nil, err
 	}
+
+	h.c.Header("Content-Description", "File Transfer")
+	h.c.Header("Content-Disposition", `attachment; filename="data.csv"`)
+	h.c.Header("Content-Type", "text/csv")
+	return h.convertToCsv(list), nil
 }

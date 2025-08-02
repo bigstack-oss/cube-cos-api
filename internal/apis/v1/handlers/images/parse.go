@@ -22,7 +22,7 @@ func (h *helper) parseParamsByHandler() error {
 	switch h.handler {
 	case "importImage":
 		return h.parseImportParams()
-	case "listImages":
+	case "listImages", "listImagesAsCsv":
 		return h.parseListParams()
 	case "updateImageTask":
 		return h.parseUpdateTaskParams()
