@@ -6,7 +6,6 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
@@ -51,7 +50,7 @@ func (h *helper) listMaterials() (*materials, error) {
 	}
 
 	return &materials{
-		ReservedImages: cubecos.GetReservedImages(),
+		ReservedImages: images.GetReserved(),
 		Projects:       projects,
 		Domains:        dominas,
 		Oses:           images.Oses,

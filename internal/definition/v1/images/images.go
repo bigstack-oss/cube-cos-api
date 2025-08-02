@@ -1,6 +1,8 @@
 package images
 
 import (
+	"strings"
+
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
@@ -31,6 +33,35 @@ var (
 		"Arch",
 		"Others",
 	}
+
+	reservedImages = []ReqOpts{
+		{
+			Name:                        "amphora-x64-haproxy",
+			Os:                          "Ubuntu",
+			Destination:                 "CubeStorage",
+			Domain:                      "default",
+			Project:                     "admin",
+			SourceFromAnotherHypervisor: false,
+			Visibility:                  "private",
+			Reserved: Reserved{
+				Prefix: "amphora-",
+				Type:   "lb",
+			},
+		},
+		{
+			Name:                        "manila-service-image",
+			Os:                          "Ubuntu",
+			Destination:                 "CubeStorage",
+			Domain:                      "default",
+			Project:                     "admin",
+			SourceFromAnotherHypervisor: false,
+			Visibility:                  "private",
+			Reserved: Reserved{
+				Prefix: "manila-",
+				Type:   "fs",
+			},
+		},
+	}
 )
 
 type Image struct {
@@ -58,6 +89,7 @@ type ReqOpts struct {
 	Visibility                  string        `json:"visibility" bson:"visibility"`
 	SizeMiB                     int64         `json:"sizeMiB" bson:"sizeMiB"`
 	Status                      *status.Image `json:"status,omitempty" bson:"status,omitempty"`
+	Reserved                    `json:"-" bson:"-"`
 }
 
 type CreateOpts struct {
@@ -71,6 +103,12 @@ type CreateOpts struct {
 	AttributesType string       `json:"attributesType,omitempty"`
 	Visibility     string       `json:"visibility"`
 	StreamingLogs  chan float64 `json:"streaming,omitempty"`
+	ReservedType   string       `json:"-"`
+}
+
+type Reserved struct {
+	Prefix string `json:"-" bson:"-"`
+	Type   string `json:"-" bson:"-"`
 }
 
 type Change struct {
@@ -95,6 +133,7 @@ func (r *ReqOpts) GenCreateOpts() CreateOpts {
 		PoolType:       poolType,
 		Visibility:     visibility,
 		StreamingLogs:  make(chan float64),
+		ReservedType:   r.Reserved.Type,
 	}
 }
 
@@ -152,4 +191,18 @@ func (i *Image) GenSearchableObject() Image {
 			IsProcessing: i.Status.IsProcessing,
 		},
 	}
+}
+
+func GetReserved() []ReqOpts {
+	return reservedImages
+}
+
+func GetReservedInfo(name string) (*ReqOpts, bool) {
+	for _, img := range reservedImages {
+		if strings.HasPrefix(name, img.Reserved.Prefix) {
+			return &img, true
+		}
+	}
+
+	return nil, false
 }

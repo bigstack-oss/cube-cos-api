@@ -33,43 +33,16 @@ func (h *helper) parseParamsByHandler() error {
 
 func (h *helper) parseImportParams() error {
 	h.reqOpts.Id = h.reqId
-	h.reqOpts.File = h.c.DefaultQuery("file", "")
-	if h.reqOpts.File == "" {
-		return fmt.Errorf("file parameter is required")
+	err := h.syncReqOpts()
+	if err != nil {
+		return err
 	}
 
-	h.reqOpts.Name = h.c.DefaultQuery("name", "")
-	if h.reqOpts.Name == "" {
-		return fmt.Errorf("name parameter is required")
+	reserved, found := images.GetReservedInfo(h.reqOpts.File)
+	if found {
+		h.overrideReqOpts(*reserved)
 	}
 
-	h.reqOpts.Os = h.c.DefaultQuery("os", "")
-	if h.reqOpts.Os == "" {
-		return fmt.Errorf("os parameter is required")
-	}
-
-	h.reqOpts.Destination = h.c.DefaultQuery("destination", "")
-	if h.reqOpts.Destination == "" {
-		return fmt.Errorf("destination parameter is required")
-	}
-
-	h.reqOpts.Domain = h.c.DefaultQuery("domain", "")
-	if h.reqOpts.Domain == "" {
-		return fmt.Errorf("domain parameter is required")
-	}
-
-	h.reqOpts.Project = h.c.DefaultQuery("project", "")
-	if h.reqOpts.Project == "" {
-		return fmt.Errorf("project parameter is required")
-	}
-
-	h.reqOpts.SourceFromAnotherHypervisor = h.c.DefaultQuery("sourceFromAnotherHypervisor", "false") == "true"
-	h.reqOpts.Visibility = h.c.DefaultQuery("visibility", "")
-	if h.reqOpts.Visibility == "" {
-		return fmt.Errorf("visibility parameter is required")
-	}
-
-	h.reqOpts.SizeMiB = int64(math.RoundDown(float64(h.c.Request.ContentLength/1024/1024), 4))
 	h.reqOpts.SetUploading()
 	return nil
 }
@@ -304,4 +277,52 @@ func (h *helper) parseStatus(status opsimage.ImageStatus) string {
 	default:
 		return "unknown"
 	}
+}
+
+func (h *helper) syncReqOpts() error {
+	h.reqOpts.File = h.c.DefaultQuery("file", "")
+	if h.reqOpts.File == "" {
+		return fmt.Errorf("file parameter is required")
+	}
+
+	h.reqOpts.Name = h.c.DefaultQuery("name", "")
+	if h.reqOpts.Name == "" {
+		return fmt.Errorf("name parameter is required")
+	}
+
+	h.reqOpts.Os = h.c.DefaultQuery("os", "")
+	if h.reqOpts.Os == "" {
+		return fmt.Errorf("os parameter is required")
+	}
+
+	h.reqOpts.Destination = h.c.DefaultQuery("destination", "")
+	if h.reqOpts.Destination == "" {
+		return fmt.Errorf("destination parameter is required")
+	}
+
+	h.reqOpts.Domain = h.c.DefaultQuery("domain", "")
+	if h.reqOpts.Domain == "" {
+		return fmt.Errorf("domain parameter is required")
+	}
+
+	h.reqOpts.Project = h.c.DefaultQuery("project", "")
+	if h.reqOpts.Project == "" {
+		return fmt.Errorf("project parameter is required")
+	}
+
+	h.reqOpts.SourceFromAnotherHypervisor = h.c.DefaultQuery("sourceFromAnotherHypervisor", "false") == "true"
+	h.reqOpts.Visibility = h.c.DefaultQuery("visibility", "private")
+	h.reqOpts.SizeMiB = int64(math.RoundDown(float64(h.c.Request.ContentLength/1024/1024), 4))
+	return nil
+}
+
+func (h *helper) overrideReqOpts(override images.ReqOpts) {
+	h.reqOpts.Name = override.Name
+	h.reqOpts.Os = override.Os
+	h.reqOpts.Destination = override.Destination
+	h.reqOpts.Domain = override.Domain
+	h.reqOpts.Project = override.Project
+	h.reqOpts.SourceFromAnotherHypervisor = override.SourceFromAnotherHypervisor
+	h.reqOpts.Visibility = override.Visibility
+	h.reqOpts.Reserved = override.Reserved
 }
