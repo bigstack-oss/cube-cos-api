@@ -35,7 +35,7 @@ var (
 )
 
 func init() {
-	go streamingWatcher()
+	go streamWatchers()
 }
 
 func getDataCenterSummary(c *gin.Context) {

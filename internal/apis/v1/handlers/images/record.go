@@ -1,16 +1,25 @@
 package images
 
 import (
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+func (h *helper) sendChangeEvent() {
+	changes.Add(images.Change{Id: h.reqOpts.Id})
+}
+
 func (h *helper) updateImageTask() error {
+	defer h.sendChangeEvent()
+
 	switch h.reqOpts.Status.Current {
 	case status.Error, status.Completed:
-		return h.removePendingReq()
+		err := h.removePendingReq()
+		wait.Seconds(1)
+		return err
 	default:
 		return h.updatePendingReq()
 	}

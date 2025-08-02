@@ -107,7 +107,7 @@ var (
 )
 
 func init() {
-	go streamingWatcher()
+	go streamWatchers()
 }
 
 func listNodes(c *gin.Context) {

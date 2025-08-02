@@ -47,7 +47,7 @@ var (
 )
 
 func init() {
-	go streamingWatcher()
+	go streamWatchers()
 }
 
 func listEvents(c *gin.Context) {

@@ -1,4 +1,4 @@
-package nodes
+package images
 
 import (
 	"errors"
@@ -8,19 +8,22 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/gin-gonic/gin"
 	json "github.com/json-iterator/go"
+	"k8s.io/client-go/util/workqueue"
+)
+
+var (
+	changes = workqueue.NewTyped[images.Change]()
 )
 
 type dataChan chan any
 
 type watcher struct {
 	helper
-	dataChan
 	isWatchStopped bool
+	dataChan
 }
 
 var (
@@ -55,20 +58,25 @@ func streamWatchers() {
 			return
 		}
 
-		sendNotification(change)
 		waitWatchers()
+		syncWatchers()
+	}
+}
 
-		for _, w := range stream.Watchers {
-			data, err := streamDataByHandler(&w.helper, change)
-			if err != nil {
-				continue
-			}
-			if w.isWatchStopped {
-				continue
-			}
+func syncWatchers() {
+	stream.Lock()
+	defer stream.Unlock()
 
-			w.dataChan <- data
+	for _, w := range stream.Watchers {
+		data, err := streamDataByHandler(&w.helper)
+		if err != nil {
+			continue
 		}
+		if w.isWatchStopped {
+			continue
+		}
+
+		w.dataChan <- data
 	}
 }
 
@@ -82,47 +90,13 @@ func waitWatchers() {
 	}
 }
 
-func sendNotification(change nodes.Change) {
-	if !change.NeedsNotification {
-		return
-	}
-
-	payload, found := notifications.GetCacheById(change.Id)
-	if !found {
-		return
-	}
-
-	cubecos.InsertNotification(payload)
-	notifications.DeleteCacheById(change.Id)
-}
-
-func streamDataByHandler(h *helper, change nodes.Change) (any, error) {
+func streamDataByHandler(h *helper) (any, error) {
 	switch h.handler {
-	case "listNodes":
-		return h.listNodes()
-	case "getNode":
-		return h.getNode()
-	case "listNodeDevices":
-		opts := genDeviceListOpts(change)
-		return h.listNodeDevices(opts)
+	case "listImages":
+		return h.listImages()
 	}
 
 	return nil, errors.New("no internal function supported")
-}
-
-func genDeviceListOpts(changes nodes.Change) nodes.DeviceListOpts {
-	payload, found := notifications.GetCacheById(changes.Id)
-	if !found {
-		payload = notifications.Notification{}
-	}
-
-	return nodes.DeviceListOpts{
-		UseCache: changes.IsTaskInprogress,
-		Notify: nodes.Notify{
-			Changes: changes.NeedsNotification,
-			Payload: payload,
-		},
-	}
 }
 
 func setChunkedTransfer(c *gin.Context) {
@@ -150,8 +124,8 @@ func removeWatcher(watcherToRemove *watcher) {
 	}
 }
 
-func sendFirstData(c *gin.Context, flusher http.Flusher, nodes any) {
-	c.Writer.Write(streamingResp(nodes))
+func sendFirstData(c *gin.Context, flusher http.Flusher, images any) {
+	c.Writer.Write(streamingResp(images))
 	c.Writer.Write([]byte("\n"))
 	flusher.Flush()
 }
@@ -173,12 +147,12 @@ func streamingData(c *gin.Context, flusher http.Flusher, watcher *watcher) {
 	ctx := c.Request.Context()
 	for {
 		select {
-		case nodes := <-watcher.dataChan:
-			c.Writer.Write(streamingResp(nodes))
+		case images := <-watcher.dataChan:
+			c.Writer.Write(streamingResp(images))
 			c.Writer.Write([]byte("\n"))
 			flusher.Flush()
 		case <-ctx.Done():
-			bodies.SetOk(c, "nodes watching is stopped successfully", nil)
+			bodies.SetOk(c, "images watching is stopped successfully", nil)
 			watcher.isWatchStopped = true
 			close(watcher.dataChan)
 			return

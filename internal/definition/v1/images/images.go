@@ -72,6 +72,10 @@ type CreateOpts struct {
 	StreamingLogs  chan float64 `json:"streaming,omitempty"`
 }
 
+type Change struct {
+	Id string
+}
+
 func (r *ReqOpts) GenCreateOpts() CreateOpts {
 	poolType := "glance-images"
 	visibility := r.Visibility

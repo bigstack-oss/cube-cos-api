@@ -27,7 +27,7 @@ var (
 	}{}
 )
 
-func streamingWatcher() {
+func streamWatchers() {
 	for {
 		wait.Seconds(2)
 		if len(stream.Watchers) == 0 {

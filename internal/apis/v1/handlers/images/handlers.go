@@ -45,6 +45,10 @@ var (
 	}
 )
 
+func init() {
+	go streamWatchers()
+}
+
 func listImageMaterials(c *gin.Context) {
 	h, err := initHelper(c, "listMaterials")
 	if err != nil {
@@ -79,6 +83,11 @@ func listImages(c *gin.Context) {
 	if err != nil {
 		log.Errorf("images(%s): failed to list images(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	if h.watch {
+		streamData(h, *images)
 		return
 	}
 
