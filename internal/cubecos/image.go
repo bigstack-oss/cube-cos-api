@@ -16,7 +16,8 @@ import (
 )
 
 var (
-	regexPrecent = regexp.MustCompile(`\[[= >]+\]\s+(\d+)%`)
+	imageProgress  = regexp.MustCompile(`\[[= >]+\]\s+(\d+)%`)
+	volumeProgress = regexp.MustCompile(`Importing image:\s+(\d+)%\s+complete`)
 )
 
 func GetReservedImages() []images.ReqOpts {
@@ -93,7 +94,9 @@ func traceImportProgress(opts *images.CreateOpts, stdout io.Reader) {
 		}
 
 		if bytes == '\r' {
-			streamImportProgress(&buf, &last, &opts.StreamingLogs)
+			streamImportProgress(
+				opts.PoolType, &buf, &last, &opts.StreamingLogs,
+			)
 			buf.Reset()
 			continue
 		}
@@ -102,7 +105,7 @@ func traceImportProgress(opts *images.CreateOpts, stdout io.Reader) {
 	}
 }
 
-func streamImportProgress(buf *bytes.Buffer, last *float64, streamingLogs *chan float64) {
+func streamImportProgress(poolType string, buf *bytes.Buffer, last *float64, streamingLogs *chan float64) {
 	if streamingLogs == nil {
 		return
 	}
@@ -112,7 +115,13 @@ func streamImportProgress(buf *bytes.Buffer, last *float64, streamingLogs *chan 
 		return
 	}
 
-	matches := regexPrecent.FindStringSubmatch(line)
+	matches := []string{}
+	switch poolType {
+	case "glance-images":
+		matches = imageProgress.FindStringSubmatch(line)
+	case "cinder-volumes":
+		matches = volumeProgress.FindStringSubmatch(line)
+	}
 	if len(matches) < 2 {
 		return
 	}

@@ -73,8 +73,10 @@ type CreateOpts struct {
 
 func (r *ReqOpts) GenCreateOpts() CreateOpts {
 	poolType := "glance-images"
+	visibility := r.Visibility
 	if r.SourceFromAnotherHypervisor {
 		poolType = "cinder-volumes"
+		visibility = "public"
 	}
 
 	return CreateOpts{
@@ -85,7 +87,7 @@ func (r *ReqOpts) GenCreateOpts() CreateOpts {
 		Destination:    r.Destination,
 		Domain:         r.Domain,
 		PoolType:       poolType,
-		Visibility:     r.Visibility,
+		Visibility:     visibility,
 		StreamingLogs:  make(chan float64),
 	}
 }
