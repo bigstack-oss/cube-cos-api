@@ -1,6 +1,7 @@
 package images
 
 import (
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
@@ -130,4 +131,20 @@ func (r *ReqOpts) SetImporting() {
 	r.Status.Desired = status.Imported
 	r.Status.IsProcessing = true
 	r.Status.ProcessPercent = 0
+}
+
+func (i *Image) GenSearchableObject() Image {
+	return Image{
+		Id:          search.NormalizedKeyword(i.Id),
+		Name:        search.NormalizedKeyword(i.Name),
+		Os:          search.NormalizedKeyword(i.Os),
+		Destination: search.NormalizedKeyword(i.Destination),
+		Domain:      search.NormalizedKeyword(i.Domain),
+		Project:     search.NormalizedKeyword(i.Project),
+		Visibility:  search.NormalizedKeyword(i.Visibility),
+		Status: status.Image{
+			Current:      search.NormalizedKeyword(i.Status.Current),
+			IsProcessing: i.Status.IsProcessing,
+		},
+	}
 }

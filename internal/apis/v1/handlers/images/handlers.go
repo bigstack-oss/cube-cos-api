@@ -20,12 +20,6 @@ var (
 		},
 		{
 			Version: apis.V1,
-			Method:  http.MethodPost,
-			Path:    "/images",
-			Func:    importImage,
-		},
-		{
-			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/images",
 			Func:    listImages,
@@ -35,6 +29,12 @@ var (
 			Method:  http.MethodGet,
 			Path:    "/images.csv",
 			Func:    listImageAsCsv,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/images",
+			Func:    importImage,
 		},
 		{
 			Version: apis.V1,

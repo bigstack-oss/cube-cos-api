@@ -20,10 +20,10 @@ import (
 
 func (h *helper) parseParamsByHandler() error {
 	switch h.handler {
-	case "importImage":
-		return h.parseImportParams()
 	case "listImages", "listImagesAsCsv":
 		return h.parseListParams()
+	case "importImage":
+		return h.parseImportParams()
 	case "updateImageTask":
 		return h.parseUpdateTaskParams()
 	default:

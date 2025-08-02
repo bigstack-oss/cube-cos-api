@@ -60,7 +60,7 @@ func (h *helper) listMaterials() (*materials, error) {
 	}, nil
 }
 
-func (h *helper) listImages() ([]images.Image, error) {
+func (h *helper) listImages() (*imagePage, error) {
 	images, err := h.listConvertedImages()
 	if err != nil {
 		log.Errorf("images(%s): failed to list converted images(%v)", h.reqId, err)
@@ -68,7 +68,11 @@ func (h *helper) listImages() ([]images.Image, error) {
 	}
 
 	images = h.filterImages(images)
-	return images, nil
+	h.sortimages(&images)
+	return &imagePage{
+		Images: h.paginateImages(images),
+		Page:   h.genPageInfo(images),
+	}, nil
 }
 
 func (h *helper) listImagesAsCsv() (*csv.Writer, error) {
@@ -80,5 +84,5 @@ func (h *helper) listImagesAsCsv() (*csv.Writer, error) {
 	h.c.Header("Content-Description", "File Transfer")
 	h.c.Header("Content-Disposition", `attachment; filename="data.csv"`)
 	h.c.Header("Content-Type", "text/csv")
-	return h.convertToCsv(list), nil
+	return h.convertToCsv(list.Images), nil
 }
