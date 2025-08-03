@@ -121,15 +121,23 @@ func (h *helper) parseDiskTag(attachments []opsvolumes.Attachment) string {
 
 func (h *helper) parseAttachedTo(attachments []opsvolumes.Attachment) string {
 	for _, attachment := range attachments {
-		if attachment.ServerID != "" {
-			return fmt.Sprintf(
-				"%s on %s",
-				attachment.Device, attachment.HostName,
-			)
+		if attachment.ServerID == "" {
+			continue
 		}
+
+		server, err := h.openstack.GetServer(attachment.ServerID)
+		if err != nil {
+			log.Errorf("volumes(%s): failed to get server by id %s(%v)", h.reqId, attachment.ServerID, err)
+			continue
+		}
+
+		return fmt.Sprintf(
+			"%s on %s",
+			attachment.Device, server.Name,
+		)
 	}
 
-	return "unknown"
+	return ""
 }
 
 func (h *helper) parseSizeToMiB(gib int) int64 {
