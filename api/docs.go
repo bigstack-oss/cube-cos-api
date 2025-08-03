@@ -12816,37 +12816,45 @@ const docTemplate = `{
                                         "summary": "Image list",
                                         "value": {
                                             "code": 200,
-                                            "data": [
-                                                {
-                                                    "id": "763655de-1cfc-45d4-b67c-5579ea43a6e1",
-                                                    "name": "example image 0",
-                                                    "os": "ubuntu",
-                                                    "destination": "CubeStorage",
-                                                    "domainName": "default",
-                                                    "projectName": "admin",
-                                                    "visibilityType": "public",
-                                                    "createdAt": "2025-07-27T13:08:53+08:00",
-                                                    "status": {
-                                                        "current": "active",
-                                                        "isProcessing": false
+                                            "data": {
+                                                "images": [
+                                                    {
+                                                        "id": "763655de-1cfc-45d4-b67c-5579ea43a6e1",
+                                                        "name": "example image 0",
+                                                        "os": "Ubuntu",
+                                                        "destination": "CubeStorage",
+                                                        "domainName": "default",
+                                                        "projectName": "admin",
+                                                        "visibilityType": "public",
+                                                        "createdAt": "2025-07-27T13:08:53+08:00",
+                                                        "status": {
+                                                            "current": "active",
+                                                            "isProcessing": false
+                                                        }
+                                                    },
+                                                    {
+                                                        "id": "a5218f3c-47df-4ba2-ad41-5e9a50816e6c",
+                                                        "name": "example image 1",
+                                                        "os": "Ubuntu",
+                                                        "destination": "CubeStorage",
+                                                        "domainName": "default",
+                                                        "projectName": "admin",
+                                                        "visibilityType": "private",
+                                                        "createdAt": "2025-07-29T13:08:53+08:00",
+                                                        "status": {
+                                                            "current": "importing",
+                                                            "isProcessing": true,
+                                                            "processPercent": 50.98
+                                                        }
                                                     }
-                                                },
-                                                {
-                                                    "id": "a5218f3c-47df-4ba2-ad41-5e9a50816e6c",
-                                                    "name": "example image 2",
-                                                    "os": "ubuntu",
-                                                    "destination": "CubeStorage",
-                                                    "domainName": "default",
-                                                    "projectName": "admin",
-                                                    "visibilityType": "public",
-                                                    "createdAt": "2025-07-29T13:08:53+08:00",
-                                                    "status": {
-                                                        "current": "importing",
-                                                        "isProcessing": true,
-                                                        "processPercent": 50.98
-                                                    }
+                                                ],
+                                                "page": {
+                                                    "total": 1,
+                                                    "number": 1,
+                                                    "size": 2,
+                                                    "totalItemCount": 2
                                                 }
-                                            ],
+                                            },
                                             "msg": "fetch image list successfully",
                                             "status": "ok"
                                         }
@@ -12981,7 +12989,7 @@ const docTemplate = `{
                     }
                 ],
                 "requestBody": {
-                    "description": "for example, in the CURL, the image binary should be set by the '--data-binary' option like '--data-binary @/path/to/your-image'.",
+                    "description": "for example, in the CURL, the image binary should be set by the '--data-binary' option like '--data-binary @/path/to/small-image' or '-T /path/to/large-image'.",
                     "required": true,
                     "content": {
                         "application/octet-stream": {
@@ -13036,6 +13044,69 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to import image: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/images.csv": {
+            "get": {
+                "operationId": "listImagesAsCsv",
+                "tags": [
+                    "Images"
+                ],
+                "summary": "List images as CSV",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/watch"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageSize"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageNum"
+                    },
+                    {
+                        "$ref": "#/components/parameters/keyword"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List image as CSV format successfully",
+                        "content": {
+                            "text/csv": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list images as CSV: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -18553,53 +18624,93 @@ const docTemplate = `{
                         "example": 200
                     },
                     "data": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "required": [
-                                "id",
-                                "name",
-                                "os",
-                                "destination",
-                                "domain",
-                                "project",
-                                "visibility",
-                                "sizeMiB",
-                                "createdAt",
-                                "status"
-                            ],
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "os": {
-                                    "type": "string"
-                                },
-                                "destination": {
-                                    "type": "string"
-                                },
-                                "domain": {
-                                    "type": "string"
-                                },
-                                "project": {
-                                    "type": "string"
-                                },
-                                "visibility": {
-                                    "type": "string",
-                                    "enum": [
-                                        "public",
-                                        "private",
-                                        "shared",
-                                        "community",
-                                        "unknown"
-                                    ]
-                                },
-                                "createdAt": {
-                                    "type": "string"
+                        "type": "object",
+                        "required": [
+                            "images",
+                            "page"
+                        ],
+                        "properties": {
+                            "images": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "id",
+                                        "name",
+                                        "os",
+                                        "destination",
+                                        "domain",
+                                        "project",
+                                        "visibility",
+                                        "sizeMiB",
+                                        "createdAt",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "os": {
+                                            "type": "string"
+                                        },
+                                        "destination": {
+                                            "type": "string"
+                                        },
+                                        "domain": {
+                                            "type": "string"
+                                        },
+                                        "project": {
+                                            "type": "string"
+                                        },
+                                        "visibility": {
+                                            "type": "string",
+                                            "enum": [
+                                                "public",
+                                                "private",
+                                                "shared",
+                                                "community",
+                                                "unknown"
+                                            ]
+                                        },
+                                        "createdAt": {
+                                            "type": "string"
+                                        },
+                                        "sizeMiB": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "object",
+                                            "required": [
+                                                "current",
+                                                "isProcessing"
+                                            ],
+                                            "properties": {
+                                                "current": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "uploading",
+                                                        "importing",
+                                                        "active",
+                                                        "deleting",
+                                                        "error"
+                                                    ]
+                                                },
+                                                "isProcessing": {
+                                                    "type": "boolean"
+                                                },
+                                                "processPercent": {
+                                                    "type": "number"
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
+                            },
+                            "page": {
+                                "$ref": "#/components/schemas/Page"
                             }
                         }
                     },
