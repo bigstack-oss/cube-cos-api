@@ -13069,9 +13069,6 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "$ref": "#/components/parameters/watch"
-                    },
-                    {
                         "$ref": "#/components/parameters/pageSize"
                     },
                     {
