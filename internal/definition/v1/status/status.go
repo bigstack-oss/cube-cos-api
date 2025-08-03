@@ -130,7 +130,7 @@ type Image struct {
 	Current        string  `json:"current,omitempty" bson:"current"`
 	Desired        string  `json:"-" bson:"desired"`
 	IsProcessing   bool    `json:"isProcessing" bson:"isProcessing"`
-	ProcessPercent float64 `json:"processPercent,omitempty" bson:"processPercent"`
+	ProcessPercent float64 `json:"processPercent" bson:"processPercent"`
 }
 
 type Integration struct {
