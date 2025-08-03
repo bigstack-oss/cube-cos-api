@@ -186,11 +186,16 @@ func (h *helper) parseOs(properties map[string]any) string {
 	}
 
 	os, ok := properties[images.CubeDefinedOs].(string)
-	if !ok || os == "" {
-		return ""
+	if ok && os != "" {
+		return os
 	}
 
-	return os
+	os, ok = properties[images.DefaultOsDistro].(string)
+	if ok && os != "" {
+		return os
+	}
+
+	return "other"
 }
 
 func (h *helper) parseDestination(properties map[string]any) string {
@@ -199,11 +204,11 @@ func (h *helper) parseDestination(properties map[string]any) string {
 	}
 
 	destination, ok := properties[images.CubeDefinedDestination].(string)
-	if !ok || destination == "" {
-		return ""
+	if ok && destination != "" {
+		return destination
 	}
 
-	return destination
+	return "unknown"
 }
 
 func (h *helper) parseProjectName(id string) string {

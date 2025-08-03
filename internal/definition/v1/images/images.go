@@ -14,8 +14,9 @@ const (
 	ReqCollection = "requsets"
 
 	GlanceDir              = "/mnt/cephfs/glance"
-	CubeDefinedOs          = "CubeDefinedOs"
-	CubeDefinedDestination = "CubeDefinedDestination"
+	DefaultOsDistro        = "os_distro"
+	CubeDefinedOs          = "cubeDefinedOs"
+	CubeDefinedDestination = "cubeDefinedDestination"
 )
 
 var (
