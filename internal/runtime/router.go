@@ -27,6 +27,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tokens"
 	triggerapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/triggers"
 	tuningapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/tunings"
+	volumesapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/volumes"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/auths/oidc"
 	"github.com/bigstack-oss/cube-cos-api/internal/auths/saml"
@@ -47,6 +48,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/volumes"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/micro/plugins/v5/server/http"
@@ -273,6 +275,14 @@ func prepareApiHandlersByRole() {
 	apis.RegisterHandlersToRoles(
 		images.Module,
 		imagesapi.Handlers,
+		nodes.RoleControl,
+		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
+	)
+
+	apis.RegisterHandlersToRoles(
+		volumes.Module,
+		volumesapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
 		nodes.RoleEdgeCore,

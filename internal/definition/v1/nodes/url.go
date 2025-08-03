@@ -272,3 +272,9 @@ func (n *Node) UpdateImageTaskUrl() string {
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/images/tasks", base.DataCenterName)
 	return u.String()
 }
+
+func (n *Node) UpdateVolumeImageTaskUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/volumes/images/tasks", base.DataCenterName)
+	return u.String()
+}
