@@ -43,9 +43,8 @@ func (h *helper) parseListParams() error {
 		return err
 	}
 
-	h.parseProject()
 	h.parseKeyword()
-	return nil
+	return h.parseProject()
 }
 
 func (h *helper) parseConvertImageParams() error {

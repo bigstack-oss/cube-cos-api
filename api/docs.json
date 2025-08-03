@@ -12896,92 +12896,28 @@
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "name": "file",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Name of the file to store"
+                        "$ref": "#/components/parameters/file"
                     },
                     {
-                        "name": "name",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Human-readable name of the image"
+                        "$ref": "#/components/parameters/name"
                     },
                     {
-                        "name": "os",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "CentOS",
-                                "Fedora",
-                                "Ubuntu",
-                                "Debian",
-                                "Windows",
-                                "Rocky",
-                                "FreeBSD",
-                                "CoreOS",
-                                "Arch",
-                                "Others"
-                            ]
-                        },
-                        "description": "Operating system of the image"
+                        "$ref": "#/components/parameters/os"
                     },
                     {
-                        "name": "destination",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Target storage destination. Refer the GET /images/materials endpoint for available options"
+                        "$ref": "#/components/parameters/destination"
                     },
                     {
-                        "name": "domain",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Domain name for the project"
+                        "$ref": "#/components/parameters/domain"
                     },
                     {
-                        "name": "project",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Project name or ID"
+                        "$ref": "#/components/parameters/project"
                     },
                     {
-                        "name": "sourceFromAnotherHypervisor",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "description": "Whether the source image comes from another hypervisor"
+                        "$ref": "#/components/parameters/sourceFromAnotherHypervisor"
                     },
                     {
-                        "name": "visibility",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "private",
-                                "public"
-                            ]
-                        },
-                        "description": "Visibility setting for the image(only required when sourceFromAnotherHypervisor is false)."
+                        "$ref": "#/components/parameters/visibility"
                     }
                 ],
                 "requestBody": {
@@ -13112,6 +13048,290 @@
                     }
                 }
             }
+        },
+        "/api/v1/datacenters/{dataCenter}/volumes": {
+            "get": {
+                "operationId": "listVolumes",
+                "tags": [
+                    "Volumes"
+                ],
+                "summary": "List volumes",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/project"
+                    },
+                    {
+                        "$ref": "#/components/parameters/watch"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageSize"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageNum"
+                    },
+                    {
+                        "$ref": "#/components/parameters/keyword"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List volumes successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListVolumesResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Volume list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "volumes": [
+                                                    {
+                                                        "id": "763655de-1cfc-45d4-b67c-5579ea43a6e1",
+                                                        "name": "example volume 0",
+                                                        "type": "CubeStorage",
+                                                        "diskTag": "os disk",
+                                                        "attachedTo": "/dev/sda on example-vm-0",
+                                                        "bootable": true,
+                                                        "shared": false,
+                                                        "sizeMiB": 40960,
+                                                        "createdAt": "2025-07-27T13:08:53+08:00",
+                                                        "status": {
+                                                            "current": "active",
+                                                            "isProcessing": false
+                                                        }
+                                                    },
+                                                    {
+                                                        "id": "888955de-4ghu-5325-1734-5579ea43a6e2",
+                                                        "name": "example volume 1",
+                                                        "type": "CubeStorage",
+                                                        "diskTag": "data disk",
+                                                        "attachedTo": "",
+                                                        "bootable": false,
+                                                        "shared": false,
+                                                        "sizeMiB": 20480,
+                                                        "createdAt": "2025-07-27T13:08:53+08:00",
+                                                        "status": {
+                                                            "current": "importing",
+                                                            "isProcessing": true,
+                                                            "processPercent": 50.98
+                                                        }
+                                                    }
+                                                ],
+                                                "page": {
+                                                    "total": 1,
+                                                    "number": 1,
+                                                    "size": 2,
+                                                    "totalItemCount": 2
+                                                }
+                                            },
+                                            "msg": "fetch volume list successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list volumes: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/volumes.csv": {
+            "get": {
+                "operationId": "listVolumesAsCsv",
+                "tags": [
+                    "Volumes"
+                ],
+                "summary": "List volumes as CSV",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/project"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageSize"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageNum"
+                    },
+                    {
+                        "$ref": "#/components/parameters/keyword"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List volume as CSV format successfully",
+                        "content": {
+                            "text/csv": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list volumes as CSV: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/volumes/images": {
+            "post": {
+                "operationId": "convertImageToVolume",
+                "tags": [
+                    "Volumes"
+                ],
+                "summary": "Import a volume from an image",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/file"
+                    },
+                    {
+                        "$ref": "#/components/parameters/name"
+                    },
+                    {
+                        "$ref": "#/components/parameters/os"
+                    },
+                    {
+                        "$ref": "#/components/parameters/destination"
+                    },
+                    {
+                        "$ref": "#/components/parameters/domain"
+                    },
+                    {
+                        "$ref": "#/components/parameters/project"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sourceFromAnotherHypervisor"
+                    },
+                    {
+                        "$ref": "#/components/parameters/visibility"
+                    }
+                ],
+                "requestBody": {
+                    "description": "for example, in the CURL, the image binary should be set by the '--data-binary' option like '--data-binary @/path/to/small-image' or '-T /path/to/large-image'.",
+                    "required": true,
+                    "content": {
+                        "application/octet-stream": {
+                            "schema": {
+                                "type": "string",
+                                "format": "binary"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Image volume convertion accepted and under processing",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 202
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "image volume convertion accepted and under processing"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to convert image to volume: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -13142,6 +13362,16 @@
                     "type": "string"
                 },
                 "example": "example-node-0"
+            },
+            "project": {
+                "in": "query",
+                "name": "project",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The project name to filter volumes",
+                "example": "example-project"
             },
             "deviceName": {
                 "in": "path",
@@ -13431,6 +13661,85 @@
                 },
                 "description": "The name of the trigger to operate",
                 "example": "Administrative Level Notification"
+            },
+            "file": {
+                "name": "file",
+                "in": "query",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "Name of the file to store"
+            },
+            "name": {
+                "name": "name",
+                "in": "query",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "Human-readable name of the image"
+            },
+            "os": {
+                "name": "os",
+                "in": "query",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "enum": [
+                        "CentOS",
+                        "Fedora",
+                        "Ubuntu",
+                        "Debian",
+                        "Windows",
+                        "Rocky",
+                        "FreeBSD",
+                        "CoreOS",
+                        "Arch",
+                        "Others"
+                    ]
+                },
+                "description": "Operating system of the image"
+            },
+            "destination": {
+                "name": "destination",
+                "in": "query",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "Target storage destination. Refer the GET /images/materials endpoint for available options"
+            },
+            "domain": {
+                "name": "domain",
+                "in": "query",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "Domain name for the project"
+            },
+            "sourceFromAnotherHypervisor": {
+                "name": "sourceFromAnotherHypervisor",
+                "in": "query",
+                "required": true,
+                "schema": {
+                    "type": "boolean"
+                },
+                "description": "Whether the source image comes from another hypervisor"
+            },
+            "visibility": {
+                "name": "visibility",
+                "in": "query",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "enum": [
+                        "private",
+                        "public"
+                    ]
+                },
+                "description": "Visibility setting for the image(only required when sourceFromAnotherHypervisor is false)."
             }
         },
         "schemas": {
@@ -18710,6 +19019,116 @@
                     "msg": {
                         "type": "string",
                         "example": "images retrieved successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "ListVolumesResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "volumes",
+                            "page"
+                        ],
+                        "properties": {
+                            "volumes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "id",
+                                        "name",
+                                        "type",
+                                        "diskTag",
+                                        "attachedTo",
+                                        "bootable",
+                                        "shared",
+                                        "createdAt",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "diskTag": {
+                                            "type": "string",
+                                            "enum": [
+                                                "os disk",
+                                                "data disk"
+                                            ]
+                                        },
+                                        "attachedTo": {
+                                            "type": "string"
+                                        },
+                                        "bootable": {
+                                            "type": "boolean"
+                                        },
+                                        "shared": {
+                                            "type": "boolean"
+                                        },
+                                        "sizeMiB": {
+                                            "type": "number"
+                                        },
+                                        "createdAt": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "object",
+                                            "required": [
+                                                "current",
+                                                "isProcessing"
+                                            ],
+                                            "properties": {
+                                                "current": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "uploading",
+                                                        "importing",
+                                                        "active",
+                                                        "deleting",
+                                                        "error"
+                                                    ]
+                                                },
+                                                "isProcessing": {
+                                                    "type": "boolean"
+                                                },
+                                                "processPercent": {
+                                                    "type": "number"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "page": {
+                                "$ref": "#/components/schemas/Page"
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "volumes retrieved successfully"
                     },
                     "status": {
                         "type": "string",

@@ -21,7 +21,7 @@ func (o *Operator) operateImageConvertion(req *images.ReqOpts) error {
 	}
 
 	return fmt.Errorf(
-		"unknown desired action(%s) for converting image %s",
+		"unknown desired action(%s) for converting image to volume %s",
 		req.Status.Desired,
 		req.Name,
 	)
@@ -45,7 +45,7 @@ func (o *Operator) syncProgressToController(req *images.ReqOpts, streamingLogs *
 		}
 
 		req.Status.ProcessPercent = progress
-		o.reportVolumeConvertionTaskToController(req)
+		o.reportImageConvertionTaskToController(req)
 	}
 }
 
@@ -58,10 +58,10 @@ func (o *Operator) handleExit(req *images.ReqOpts, err error) {
 		req.SetCompleted()
 	}
 
-	o.reportVolumeConvertionTaskToController(req)
+	o.reportImageConvertionTaskToController(req)
 }
 
-func (o *Operator) reportVolumeConvertionTaskToController(req *images.ReqOpts) {
+func (o *Operator) reportImageConvertionTaskToController(req *images.ReqOpts) {
 	node, err := cubecos.GetVirtualIpController()
 	if err != nil {
 		log.Errorf("volumes: failed to report %s result to control(%v)", req.Name, err)
