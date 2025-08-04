@@ -79,13 +79,13 @@ func RemoveDevice(req nodes.DeviceReqOpts) error {
 }
 
 func GetOsdsByHostDevice(req nodes.DeviceReqOpts) ([]ceph.Osd, error) {
-	deviceMap, err := ceph.GetDeviceMapByHost(req.Hostname)
+	devMap, err := ceph.GetDeviceMapByHost(req.Hostname)
 	if err != nil {
 		return nil, err
 	}
 
-	dev := blockdevice.WithDevPath(req.Device)
-	device, found := deviceMap[dev]
+	dev := blockdevice.WithoutDevPath(req.Device)
+	device, found := devMap[dev]
 	if !found {
 		return nil, fmt.Errorf(
 			"device %s not found on host %s",

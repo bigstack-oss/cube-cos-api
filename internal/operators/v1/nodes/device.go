@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -31,7 +32,9 @@ func (o *Operator) addDevice(req nodes.DeviceReqOpts) error {
 	maxRetries := 3
 	for range maxRetries {
 		err := cubecos.AddDevice(req)
-		if err == nil {
+		if err != nil {
+			wait.Seconds(3)
+		} else {
 			return nil
 		}
 	}
