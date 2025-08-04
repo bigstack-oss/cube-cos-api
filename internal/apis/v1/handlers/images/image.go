@@ -46,7 +46,7 @@ func (h *helper) convertToImages(list []opsimage.Image) []images.Image {
 }
 
 func (h *helper) syncProcessingImages(images *[]images.Image) {
-	if !h.hasProcessingImages(*images) {
+	if !h.hasProcessingImages() {
 		return
 	}
 
@@ -62,13 +62,9 @@ func (h *helper) syncProcessingImages(images *[]images.Image) {
 	}
 
 	for _, processing := range processings {
-		if processing.Status.Current == status.Uploading {
-			*images = append(*images, processing)
-			continue
-		}
-
 		updateIdx, found := existings[processing.Name]
 		if !found {
+			*images = append(*images, processing)
 			continue
 		}
 

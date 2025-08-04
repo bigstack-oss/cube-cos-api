@@ -68,11 +68,7 @@ func (h *helper) updatePendingReq() error {
 	)
 }
 
-func (h *helper) hasProcessingImages(list []images.Image) bool {
-	if len(list) == 0 {
-		return false
-	}
-
+func (h *helper) hasProcessingImages() bool {
 	count, err := h.mongo.GetCount(
 		images.Db,
 		images.ReqCollection,

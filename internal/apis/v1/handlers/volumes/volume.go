@@ -66,7 +66,7 @@ func (h *helper) convertToVolumes(list []opsvolumes.Volume) []volumes.Volume {
 }
 
 func (h *helper) syncProcessingVolumes(volumes *[]volumes.Volume) {
-	if !h.hasProcessingVolumes(*volumes) {
+	if !h.hasProcessingVolumes() {
 		return
 	}
 
@@ -82,13 +82,14 @@ func (h *helper) syncProcessingVolumes(volumes *[]volumes.Volume) {
 	}
 
 	for _, processing := range processings {
-		if processing.Status.Current == status.Uploading {
-			*volumes = append(*volumes, processing)
-			continue
-		}
+		// if processing.Status.Current == status.Uploading {
+		// 	*volumes = append(*volumes, processing)
+		// 	continue
+		// }
 
 		updateIdx, found := existings[processing.Name]
 		if !found {
+			*volumes = append(*volumes, processing)
 			continue
 		}
 

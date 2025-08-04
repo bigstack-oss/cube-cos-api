@@ -69,11 +69,7 @@ func (h *helper) updatePendingReq() error {
 	)
 }
 
-func (h *helper) hasProcessingVolumes(list []volumes.Volume) bool {
-	if len(list) == 0 {
-		return false
-	}
-
+func (h *helper) hasProcessingVolumes() bool {
 	count, err := h.mongo.GetCount(
 		volumes.Db,
 		volumes.ImageToVolumeReqCollection,
