@@ -30,7 +30,7 @@ func AddDevice(req nodes.DeviceReqOpts) error {
 		)
 	}
 
-	return waitDeviceToBeAdded(req)
+	return WaitDeviceToBeAdded(req, 180)
 }
 
 func PromoteOrDemoteDevice(req nodes.DeviceReqOpts) error {
@@ -102,8 +102,8 @@ func GetOsdsByHostDevice(req nodes.DeviceReqOpts) ([]ceph.Osd, error) {
 	return device.Osds, nil
 }
 
-func waitDeviceToBeAdded(req nodes.DeviceReqOpts) error {
-	for range 120 {
+func WaitDeviceToBeAdded(req nodes.DeviceReqOpts, timeout int) error {
+	for range timeout {
 		wait.Seconds(1)
 
 		osds, err := GetOsdsByHostDevice(req)

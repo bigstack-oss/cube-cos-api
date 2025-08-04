@@ -13,7 +13,7 @@ import (
 func (o *Operator) operateDevice(req nodes.DeviceReqOpts) error {
 	switch req.Status.Desired {
 	case status.Added:
-		return cubecos.AddDevice(req)
+		return o.addDevice(req)
 	case status.Promoted, status.Demoted:
 		return cubecos.PromoteOrDemoteDevice(req)
 	case status.Removed:
@@ -24,6 +24,21 @@ func (o *Operator) operateDevice(req nodes.DeviceReqOpts) error {
 		"unknown desired action(%s) for node device(%s)",
 		req.Status.Desired,
 		req.Device,
+	)
+}
+
+func (o *Operator) addDevice(req nodes.DeviceReqOpts) error {
+	maxRetries := 3
+	for range maxRetries {
+		err := cubecos.AddDevice(req)
+		if err == nil {
+			return nil
+		}
+	}
+
+	return fmt.Errorf(
+		"failed to add device %s after %d retries",
+		req.Device, maxRetries,
 	)
 }
 
