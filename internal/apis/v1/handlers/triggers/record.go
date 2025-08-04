@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"maps"
 	"net/http"
+	"slices"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
@@ -38,10 +39,15 @@ func (h *helper) addReqRecord() {
 }
 
 func (h *helper) updateTaskStatus() error {
-	return h.mongo.DeleteOne(
+	return h.mongo.UpdateOne(
 		triggers.DB,
 		triggers.ReqCollection,
 		bson.M{"id": h.reqOpts.Id},
+		bson.M{
+			"$set": bson.M{
+				"status.isProcessing": h.reqOpts.Status.IsProcessing,
+			},
+		},
 	)
 }
 
@@ -189,7 +195,17 @@ func (h *helper) addCreatingTriggers(list *[]triggerResp) {
 		return
 	}
 
+	existings := []string{}
+	for _, trigger := range *list {
+		existings = append(existings, trigger.Name)
+	}
+
 	for _, creating := range creatings {
+		if slices.Contains(existings, creating.Name) {
+			h.removeFinishedRequest(creating)
+			continue
+		}
+
 		resp := h.convertReqOptsToResp(creating)
 		if resp != nil {
 			*list = append(*list, *resp)
@@ -268,4 +284,16 @@ func (h *helper) getResponseTypesFromReq(record triggers.ReqOpts) []string {
 	}
 
 	return types
+}
+
+func (h *helper) removeFinishedRequest(req triggers.ReqOpts) {
+	err := h.mongo.DeleteOne(
+		triggers.DB,
+		triggers.ReqCollection,
+		bson.M{"id": req.Id},
+	)
+	if err != nil {
+		log.Errorf("triggers(%s): failed to remove finished request %s(%v)", h.reqId, req.Name, err)
+		return
+	}
 }
