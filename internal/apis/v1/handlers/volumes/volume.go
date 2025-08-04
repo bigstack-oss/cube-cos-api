@@ -82,11 +82,6 @@ func (h *helper) syncProcessingVolumes(volumes *[]volumes.Volume) {
 	}
 
 	for _, processing := range processings {
-		// if processing.Status.Current == status.Uploading {
-		// 	*volumes = append(*volumes, processing)
-		// 	continue
-		// }
-
 		updateIdx, found := existings[processing.Name]
 		if !found {
 			*volumes = append(*volumes, processing)
