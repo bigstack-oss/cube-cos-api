@@ -2,7 +2,6 @@ package triggers
 
 import (
 	"encoding/base64"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -43,7 +42,7 @@ func (o *Operator) applyScriptOnFs(script triggers.Script) error {
 		return err
 	}
 
-	path := filepath.Join(settings.ScriptDir, fmt.Sprintf("%s.shell", script.Name))
+	path := filepath.Join(settings.ScriptDir, script.Name)
 	err = os.WriteFile(path, bytes, 0755)
 	if err != nil {
 		log.Errorf("triggers: failed to write script file %s(%v)", script.Name, err)

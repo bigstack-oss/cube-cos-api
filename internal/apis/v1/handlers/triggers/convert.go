@@ -1,7 +1,6 @@
 package triggers
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -184,7 +183,7 @@ func (h *helper) parseSlackDetails(settings *settings.Cos, slacks []slack.CosCha
 func (h *helper) parseScriptDetails(trigger triggers.Trigger) triggers.Script {
 	script := triggers.Script{}
 	for _, shell := range trigger.Execs.Shells {
-		path := filepath.Join(settings.ScriptDir, fmt.Sprintf("%s.shell", shell.Name))
+		path := filepath.Join(settings.ScriptDir, shell.Name)
 		file, err := os.ReadFile(path)
 		if err != nil {
 			log.Errorf("triggers(%s): failed to read script file %s(%v)", h.reqId, shell.Name, err)
