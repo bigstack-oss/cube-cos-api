@@ -59,7 +59,6 @@ func (n *Node) GetTuningUrl() string {
 func (n *Node) GetSettingUrl(path string) string {
 	u := url.URL{Scheme: n.Protocol, Host: n.Address}
 	u.Path = path
-	u.RawQuery = "clusterWise=false"
 	return u.String()
 }
 

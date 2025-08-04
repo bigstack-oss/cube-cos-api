@@ -6,6 +6,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	"github.com/gin-gonic/gin"
@@ -31,13 +32,12 @@ type helper struct {
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{
-		c:                    c,
-		reqId:                queries.GetReqId(c),
-		handler:              handler,
-		mongo:                bsmongo.GetGlobalHelper(),
-		http:                 http.GetGlobalHelper(),
-		requireClusterUpdate: queries.ParseClusterWise(c),
-		rawBody:              bodies.ParseReq(c),
+		c:       c,
+		reqId:   queries.GetReqId(c),
+		handler: handler,
+		mongo:   bsmongo.GetGlobalHelper(),
+		http:    http.GetGlobalHelper(),
+		rawBody: bodies.ParseReq(c),
 	}
 
 	return h, h.parseParamsByHandler()
@@ -59,7 +59,7 @@ func (h *helper) listSettings() (*settings.Api, error) {
 
 func (h *helper) updateToControllers() {
 	h.updateLocal()
-	if h.requireClusterUpdate {
+	if cubecos.IsVirtualIpOwner(base.Hostname) {
 		h.updatePeerControllers()
 	}
 }

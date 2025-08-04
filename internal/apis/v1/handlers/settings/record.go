@@ -57,7 +57,6 @@ func (h *helper) updatePeerControllers() {
 func (h *helper) updateSettingToPeerNode(node nodes.Node) {
 	req := h.http.R().
 		SetHeaders(h.convertHeadersToMap(h.c.Request.Header)).
-		SetQueryParam("clusterWise", "false").
 		SetBody(string(h.rawBody))
 
 	url := node.GenUrlString() + h.c.Request.RequestURI

@@ -202,7 +202,7 @@ func (h *helper) addCreatingTriggers(list *[]triggerResp) {
 
 	for _, creating := range creatings {
 		if slices.Contains(existings, creating.Name) {
-			h.removeFinishedRequest(creating)
+			h.removeFinishedRequest(creating.Id)
 			continue
 		}
 
@@ -286,14 +286,14 @@ func (h *helper) getResponseTypesFromReq(record triggers.ReqOpts) []string {
 	return types
 }
 
-func (h *helper) removeFinishedRequest(req triggers.ReqOpts) {
+func (h *helper) removeFinishedRequest(reqId string) {
 	err := h.mongo.DeleteOne(
 		triggers.DB,
 		triggers.ReqCollection,
-		bson.M{"id": req.Id},
+		bson.M{"id": reqId},
 	)
 	if err != nil {
-		log.Errorf("triggers(%s): failed to remove finished request %s(%v)", h.reqId, req.Name, err)
+		log.Errorf("triggers(%s): failed to remove finished request %s(%v)", h.reqId, err)
 		return
 	}
 }

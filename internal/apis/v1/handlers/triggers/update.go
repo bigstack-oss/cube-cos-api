@@ -17,6 +17,11 @@ func (h *helper) syncInProgressInfo(trigger *triggerResp) {
 		return
 	}
 
+	if !req.Status.IsProcessing {
+		h.removeFinishedRequest(req.Id)
+		return
+	}
+
 	updating := h.convertReqOptsToResp(*req)
 	h.syncUpdatingTrigger(trigger, updating)
 }
