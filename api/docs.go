@@ -18997,11 +18997,15 @@ const docTemplate = `{
                                                 "current": {
                                                     "type": "string",
                                                     "enum": [
+                                                        "queued",
+                                                        "saving",
                                                         "uploading",
                                                         "importing",
                                                         "active",
-                                                        "deleting",
-                                                        "error"
+                                                        "deactivated",
+                                                        "killed",
+                                                        "deleted",
+                                                        "pending_delete"
                                                     ]
                                                 },
                                                 "isProcessing": {
@@ -19109,9 +19113,15 @@ const docTemplate = `{
                                                     "enum": [
                                                         "uploading",
                                                         "importing",
-                                                        "active",
+                                                        "available",
+                                                        "creating",
+                                                        "attaching",
+                                                        "detaching",
                                                         "deleting",
-                                                        "error"
+                                                        "reserved",
+                                                        "maintenance",
+                                                        "backing-up",
+                                                        "restoring-backup"
                                                     ]
                                                 },
                                                 "isProcessing": {
