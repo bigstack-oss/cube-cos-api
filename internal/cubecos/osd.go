@@ -52,6 +52,17 @@ func WaitOsdStatus(id, status string, timeout int) error {
 	)
 }
 
+func WaitOsdsStatus(osds []ceph.Osd, status string, timeout int) error {
+	for _, osd := range osds {
+		err := WaitOsdStatus(osd.Id, status, timeout)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func RestartOsd(req nodes.OsdReqOpts) error {
 	service := fmt.Sprintf("ceph-osd@%s", strings.TrimPrefix(req.OsdId, "osd."))
 	out, err := exec.Command("systemctl", "restart", service).CombinedOutput()

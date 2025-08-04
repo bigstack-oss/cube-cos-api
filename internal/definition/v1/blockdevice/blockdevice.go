@@ -17,3 +17,15 @@ type SmartCtl struct {
 func WithDevPath(name string) string {
 	return fmt.Sprintf("/dev/%s", name)
 }
+
+func WithoutDevPath(name string) string {
+	if len(name) < 5 {
+		return name
+	}
+
+	if name[:5] == "/dev/" {
+		return name[5:]
+	}
+
+	return name
+}

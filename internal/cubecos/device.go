@@ -5,8 +5,11 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -27,7 +30,7 @@ func AddDevice(req nodes.DeviceReqOpts) error {
 		)
 	}
 
-	return nil
+	return waitDeviceToBeAdded(req)
 }
 
 func PromoteOrDemoteDevice(req nodes.DeviceReqOpts) error {
@@ -73,4 +76,54 @@ func RemoveDevice(req nodes.DeviceReqOpts) error {
 	}
 
 	return nil
+}
+
+func GetOsdsByHostDevice(req nodes.DeviceReqOpts) ([]ceph.Osd, error) {
+	deviceMap, err := ceph.GetDeviceMapByHost(req.Hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	dev := blockdevice.WithDevPath(req.Device)
+	device, found := deviceMap[dev]
+	if !found {
+		return nil, fmt.Errorf(
+			"device %s not found on host %s",
+			req.Device, req.Hostname,
+		)
+	}
+	if len(device.Osds) == 0 {
+		return nil, fmt.Errorf(
+			"device %s has no OSDs on host %s",
+			req.Device, req.Hostname,
+		)
+	}
+
+	return device.Osds, nil
+}
+
+func waitDeviceToBeAdded(req nodes.DeviceReqOpts) error {
+	for range 120 {
+		wait.Seconds(1)
+
+		osds, err := GetOsdsByHostDevice(req)
+		if err != nil {
+			continue
+		}
+
+		if len(osds) <= 0 {
+			continue
+		}
+
+		err = WaitOsdsStatus(osds, status.Up, 2)
+		if err == nil {
+			return nil
+		}
+	}
+
+	return fmt.Errorf(
+		"failed to wait device %s to be added on the %s after 120 seconds",
+		req.Device,
+		req.Hostname,
+	)
 }

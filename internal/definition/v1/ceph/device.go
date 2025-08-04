@@ -150,33 +150,6 @@ func GetDeviceByOsdId(host, id string) (*Device, error) {
 	)
 }
 
-func ListOsdsByHostDevice(host, device string) ([]Osd, error) {
-	out, err := exec.Command("ceph", "osd", "ls-by-device", device, "-f", "json").CombinedOutput()
-	if err != nil {
-		log.Errorf("ceph: failed to list osds by device %s(%v)", device, err)
-		return nil, err
-	}
-
-	rawOsds := []RawOsd{}
-	err = json.Unmarshal(out, &rawOsds)
-	if err != nil {
-		log.Errorf("ceph: failed to unmarshal osds by device %s(%v)", device, err)
-		return nil, err
-	}
-
-	if len(rawOsds) == 0 {
-		log.Errorf("ceph: no osds found for device %s on host %s", device, host)
-		return nil, nil
-	}
-
-	osds := []Osd{}
-	for _, raw := range rawOsds[0].Nodes {
-		osds = append(osds, convertToOsd(raw))
-	}
-
-	return osds, nil
-}
-
 func convertToDevices(raws []RawDevice) ([]Device, error) {
 	devices := []Device{}
 	for _, raw := range raws {
