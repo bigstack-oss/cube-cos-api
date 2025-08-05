@@ -20,6 +20,7 @@ const (
 	Processing           = "processing"
 	Syncing              = "syncing"
 	Checking             = "checking"
+	CheckDisabled        = "check disabled"
 	CheckingAndRepairing = "checkingAndRepairing"
 	Deleting             = "deleting"
 	Removing             = "removing"

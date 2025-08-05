@@ -18,9 +18,10 @@ const (
 
 var (
 	StatusOks = map[string]bool{
-		status.Ok:       true,
-		status.Checking: true,
-		status.Disabled: true,
+		status.Ok:            true,
+		status.Checking:      true,
+		status.CheckDisabled: true,
+		status.Disabled:      true,
 	}
 )
 
