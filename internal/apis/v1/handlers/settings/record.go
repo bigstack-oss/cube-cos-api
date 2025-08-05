@@ -168,8 +168,9 @@ func (h *helper) updateSettingTask() error {
 
 func (h *helper) genTaskFilter() bson.M {
 	return bson.M{
-		"type": h.task.Type,
-		"key":  h.task.Key,
+		"type":     h.task.Type,
+		"key":      h.task.Key,
+		"hostname": h.hostname,
 	}
 }
 

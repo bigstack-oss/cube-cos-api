@@ -120,7 +120,7 @@ var (
 		{
 			Version: apis.V1,
 			Method:  "PATCH",
-			Path:    "/settings/tasks",
+			Path:    "/settings/tasks/:nodeName",
 			Func:    updateSettingTask,
 		},
 	}
@@ -498,12 +498,6 @@ func updateSettingTask(c *gin.Context) {
 	h, err := initHelper(c, "updateSettingTask")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
-		return
-	}
-
-	err = h.parseTaskUpdate()
-	if err != nil {
 		bodies.SetBadRequest(c, err)
 		return
 	}

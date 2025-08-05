@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	log "go-micro.dev/v5/logger"
@@ -81,7 +82,8 @@ func (h *helper) hasUpdatingSlack() bool {
 		settings.DB,
 		settings.ReqCollection,
 		bson.M{
-			"type": "slackChannel",
+			"type":     "slackChannel",
+			"hostname": base.Hostname,
 			"$or": bson.A{
 				bson.M{"key": h.c.Param("channelName")},
 				bson.M{"slack.url": h.task.Slack.URL},

@@ -2,6 +2,7 @@ package settings
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,7 +13,10 @@ func (h *helper) addReqRecord(req settings.Setting) {
 	err := mongo.GetGlobalHelper().UpdateOne(
 		settings.DB,
 		settings.ReqCollection,
-		bson.M{"type": req.Type},
+		bson.M{
+			"type":     req.Type,
+			"hostname": base.Hostname,
+		},
 		h.genUpsertPayload(req),
 		options.Update().SetUpsert(true),
 	)
@@ -45,10 +49,11 @@ func (h *helper) genUpsertPayload(setting settings.Setting) bson.M {
 func genTitlePrefixUpdate(setting settings.Setting) bson.M {
 	return bson.M{
 		"$set": bson.M{
-			"type":   setting.Type,
-			"key":    setting.TitlePrefix.Value,
-			"value":  setting.Value,
-			"status": setting.Status,
+			"type":     setting.Type,
+			"hostname": base.Hostname,
+			"key":      setting.TitlePrefix.Value,
+			"value":    setting.Value,
+			"status":   setting.Status,
 		},
 	}
 }
@@ -56,10 +61,11 @@ func genTitlePrefixUpdate(setting settings.Setting) bson.M {
 func genEmailSenderUpdate(setting settings.Setting) bson.M {
 	return bson.M{
 		"$set": bson.M{
-			"type":   setting.Type,
-			"key":    setting.Sender.Host,
-			"sender": setting.Sender,
-			"status": setting.Status,
+			"type":     setting.Type,
+			"hostname": base.Hostname,
+			"key":      setting.Sender.Host,
+			"sender":   setting.Sender,
+			"status":   setting.Status,
 		},
 	}
 }
@@ -68,6 +74,7 @@ func genEmailRecipientUpdate(setting settings.Setting) bson.M {
 	return bson.M{
 		"$set": bson.M{
 			"type":      setting.Type,
+			"hostname":  base.Hostname,
 			"key":       setting.Key,
 			"recipient": setting.Recipient,
 			"status":    setting.Status,
@@ -78,10 +85,11 @@ func genEmailRecipientUpdate(setting settings.Setting) bson.M {
 func genSlackChannelUpdate(setting settings.Setting) bson.M {
 	return bson.M{
 		"$set": bson.M{
-			"type":   setting.Type,
-			"key":    setting.Key,
-			"slack":  setting.Slack,
-			"status": setting.Status,
+			"type":     setting.Type,
+			"hostname": base.Hostname,
+			"key":      setting.Key,
+			"slack":    setting.Slack,
+			"status":   setting.Status,
 		},
 	}
 }

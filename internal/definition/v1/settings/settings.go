@@ -21,10 +21,9 @@ const (
 )
 
 type Setting struct {
-	Type             string `json:"type" bson:"type"`
-	Key              string `json:"key" bson:"key"`
-	Value            any    `json:"value" bson:"value"`
-	IsReportRequired bool   `json:"-" bson:"-"`
+	Type  string `json:"type" bson:"type"`
+	Key   string `json:"key" bson:"key"`
+	Value any    `json:"value" bson:"value"`
 
 	*TitlePrefix     `json:"titlePrefix,omitempty" bson:"titlePrefix,omitempty"`
 	*email.Sender    `json:"sender,omitempty" bson:"sender,omitempty"`

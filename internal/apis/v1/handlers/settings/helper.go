@@ -21,13 +21,13 @@ type helper struct {
 	mongo *bsmongo.Helper
 	http  *http.Helper
 
-	task                 *settings.Setting
-	trial                *email.Trial
-	emailSender          string
-	recipientEmail       string
-	slackChannel         string
-	rawBody              []byte
-	requireClusterUpdate bool
+	task           *settings.Setting
+	hostname       string
+	trial          *email.Trial
+	emailSender    string
+	recipientEmail string
+	slackChannel   string
+	rawBody        []byte
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {

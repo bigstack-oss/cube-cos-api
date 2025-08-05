@@ -2,6 +2,7 @@ package settings
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	log "go-micro.dev/v5/logger"
@@ -16,15 +17,13 @@ func (o *Operator) handleExit(setting settings.Setting, err error) {
 		setting.SetCompleted()
 	}
 
-	if setting.IsReportRequired {
-		o.reportToController(setting)
-	}
+	o.reportToController(setting)
 }
 
 func (o *Operator) reportToController(setting settings.Setting) {
-	node, err := nodes.GetController()
+	node, err := cubecos.GetVirtualIpController()
 	if err != nil {
-		log.Errorf("settings: failed to get controller nodes(%v)", err)
+		log.Errorf("triggers: failed to report %s result to control(%v)", setting.Type, err)
 		return
 	}
 

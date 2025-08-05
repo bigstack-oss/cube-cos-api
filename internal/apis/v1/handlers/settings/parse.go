@@ -1,6 +1,8 @@
 package settings
 
 import (
+	"fmt"
+
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
@@ -38,6 +40,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.initSlackChannelPatchParams()
 	case "deleteSlackChannel":
 		return h.initSlackChannelDeleteParams()
+	case "updateSettingTask":
+		return h.parseTaskUpdate()
 	default:
 		return nil
 	}
@@ -53,8 +57,6 @@ func (h *helper) initTitlePrefixUpdateParams() error {
 	h.task.Key = h.task.TitlePrefix.Value
 	h.task.Value = h.task.TitlePrefix.Value
 	h.task.SetUpdating()
-	h.task.IsReportRequired = h.requireClusterUpdate
-
 	return nil
 }
 
@@ -78,8 +80,6 @@ func (h *helper) initEmailSenderCreateParams() error {
 
 	h.task.Key = h.task.Sender.Host
 	h.task.SetUpdating()
-	h.task.IsReportRequired = h.requireClusterUpdate
-
 	return nil
 }
 
@@ -119,8 +119,6 @@ func (h *helper) initEmailSenderPatchParams() error {
 	h.task.Sender.Password = h.parsePassword()
 	h.task.Sender.ResetAccessVerification()
 	h.task.SetUpdating()
-	h.task.IsReportRequired = h.requireClusterUpdate
-
 	return nil
 }
 
@@ -149,8 +147,6 @@ func (h *helper) initEmailSenderDeleteParams() error {
 	h.task = &settings.Setting{Type: "emailSender", Key: host}
 	h.task.Sender = &email.Sender{Host: host}
 	h.task.SetDeleting()
-	h.task.IsReportRequired = h.requireClusterUpdate
-
 	return nil
 }
 
@@ -171,8 +167,6 @@ func (h *helper) initEmailRecipientCreateParams() error {
 
 	h.task.Key = h.task.Recipient.Address
 	h.task.SetCreating()
-	h.task.IsReportRequired = h.requireClusterUpdate
-
 	return nil
 }
 
@@ -198,7 +192,6 @@ func (h *helper) initEmailRecipientPatchParams() error {
 	}
 
 	h.task.SetUpdating()
-	h.task.IsReportRequired = h.requireClusterUpdate
 	if h.task.Recipient.Address == "" {
 		h.task.Recipient.Address = recipientEmail
 	}
@@ -215,8 +208,6 @@ func (h *helper) initEmailRecipientDeleteParams() error {
 	h.task = &settings.Setting{Type: "emailRecipient", Key: recipientEmail}
 	h.task.Recipient = &email.Recipient{Address: recipientEmail}
 	h.task.SetDeleting()
-	h.task.IsReportRequired = h.requireClusterUpdate
-
 	return nil
 }
 
@@ -234,7 +225,6 @@ func (h *helper) initSlackChannelDeleteParams() error {
 
 	h.task = &settings.Setting{Type: "slackChannel", Key: channel}
 	h.task.SetDeleting()
-	h.task.IsReportRequired = h.requireClusterUpdate
 	h.task.Slack = &slack.ApiChannel{
 		Name: channel,
 		URL:  policy.GetSlackUrlByName(channel),
@@ -253,8 +243,6 @@ func (h *helper) initSlackChannelCreateParams() error {
 
 	h.task.Key = h.task.Slack.URL
 	h.task.SetCreating()
-	h.task.IsReportRequired = h.requireClusterUpdate
-
 	return nil
 }
 
@@ -286,7 +274,6 @@ func (h *helper) initSlackChannelPatchParams() error {
 	}
 
 	h.task.SetUpdating()
-	h.task.IsReportRequired = h.requireClusterUpdate
 	if h.task.Slack.Name == "" {
 		h.task.Slack.Name = channel
 	}
@@ -303,6 +290,13 @@ func (h *helper) parseTaskUpdate() error {
 
 	if h.task.Type == "" {
 		log.Errorf("settings(%s): %s", h.reqId, errors.ErrAlertSettingTaskTypeIsEmpty.Error())
+		return err
+	}
+
+	h.hostname = h.c.Param("nodeName")
+	if h.hostname == "" {
+		err := fmt.Errorf("hostname cannot be empty for setting task update")
+		log.Errorf("settings(%s): %v", h.reqId, err)
 		return err
 	}
 

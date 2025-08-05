@@ -158,7 +158,7 @@ func (n *Node) PatchSettingTaskUrl(setting settings.Setting) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol
 	u.Host = n.Address
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/settings/tasks", base.DataCenterName)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/settings/tasks/%s", base.DataCenterName, base.Hostname)
 	return u.String()
 }
 
