@@ -12,6 +12,10 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
+const (
+	Ok = "HEALTH_OK"
+)
+
 type Device struct {
 	Dev      string  `json:"dev"`
 	Class    string  `json:"class"`
@@ -63,6 +67,31 @@ type HostDev struct {
 	Host string `json:"host"`
 	Dev  string `json:"dev"`
 	Path string `json:"path"`
+}
+
+type Summary struct {
+	Health `json:"health"`
+}
+
+type Health struct {
+	Status string `json:"status"`
+}
+
+func IsHealthy() bool {
+	out, err := exec.Command("ceph", "-s", "-f", "json").CombinedOutput()
+	if err != nil {
+		log.Errorf("ceph: failed to execute health command(%v)", err)
+		return false
+	}
+
+	summary := Summary{}
+	err = json.Unmarshal(out, &summary)
+	if err != nil {
+		log.Errorf("ceph: failed to unmarshal health summary(%v)", err)
+		return false
+	}
+
+	return summary.Health.Status == Ok
 }
 
 func IsIndexExistsError(err error) bool {

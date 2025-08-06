@@ -164,7 +164,7 @@ func (h *helper) syncCephOsds(blockDevs *[]nodes.BlockDevice) error {
 		}
 	}
 
-	h.setBlockPromotionDetails(blockDevs)
+	h.setPromotionDetails(blockDevs)
 	return nil
 }
 
@@ -244,8 +244,17 @@ func (h *helper) setBlockDeviceStatus(blockDevs *[]nodes.BlockDevice) {
 	}
 }
 
-func (h *helper) setBlockPromotionDetails(blockDevs *[]nodes.BlockDevice) {
+func (h *helper) setPromotionDetails(blockDevs *[]nodes.BlockDevice) {
+	isCephHealthy := ceph.IsHealthy()
+
 	for i, blockDev := range *blockDevs {
+		if !isCephHealthy {
+			(*blockDevs)[i].Status.IsPromotable = false
+			(*blockDevs)[i].Status.IsDemotable = false
+			(*blockDevs)[i].Status.Description = "ceph is not healthy, cannot promote or demote"
+			continue
+		}
+
 		if strings.EqualFold(blockDev.Class, blockdevice.SSD) {
 			(*blockDevs)[i].Status.IsPromotable = false
 			(*blockDevs)[i].Status.IsDemotable = true

@@ -456,10 +456,12 @@ func genTimeDuration(past string) string {
 
 func parseHealthCheck(c *api.QueryTableResult, checks *[]health.Check) error {
 	for c.Next() {
-		*checks = append(
-			*checks,
-			genHealthCheckByRecord(c.Record()),
-		)
+		check := genHealthCheckByRecord(c.Record())
+		if check.Status == status.Checking {
+			continue
+		}
+
+		*checks = append(*checks, check)
 	}
 	if c.Err() != nil {
 		return c.Err()
