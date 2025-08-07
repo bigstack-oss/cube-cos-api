@@ -38,7 +38,9 @@ func (h *helper) listDomains() ([]string, error) {
 
 	domains := []string{}
 	for _, opsDomain := range opsDomains {
-		domains = append(domains, opsDomain.ID)
+		domains = append(
+			domains, opsDomain.Name,
+		)
 	}
 
 	return domains, nil
