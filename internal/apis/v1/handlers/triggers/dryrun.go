@@ -17,6 +17,17 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+func (h *helper) isMaxDryRunReached() bool {
+	h.kubernetes.SetJobClient(triggers.DryRunNamespace)
+	jobs, err := h.kubernetes.ListJobs(metav1.ListOptions{})
+	if err != nil {
+		log.Errorf("triggers(%s): failed to list dry run jobs(%v)", h.reqId, err)
+		return false
+	}
+
+	return len(jobs.Items) >= triggers.MaxDryRunJobs
+}
+
 func (h *helper) getScriptName() string {
 	return fmt.Sprintf("%s-script", h.reqId)
 }

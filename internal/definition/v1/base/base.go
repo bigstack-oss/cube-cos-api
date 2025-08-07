@@ -96,3 +96,11 @@ func IsSuccessCode(err error) bool {
 
 	return result.ExitCode() == 0
 }
+
+func GenApiDocUrl() string {
+	return fmt.Sprintf(
+		"https://%s/api/v1/datacenters/%s/apidocs/index.html",
+		DataCenterVip,
+		DataCenterName,
+	)
+}

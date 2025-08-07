@@ -18,6 +18,7 @@ func getLocalDataCenter() base.DataCenter {
 		UtcTimeZone: time.LocalZone,
 		Additional: base.Additional{
 			HelpUrl:           base.DataCenterHelpUrl,
+			V1ApiDocUrl:       base.GenApiDocUrl(),
 			NodeLicenseStatus: getNodeLicenseStatus(),
 		},
 	}

@@ -7,6 +7,7 @@ import (
 const (
 	Module = "triggers"
 
+	MaxDryRunJobs   = 15
 	DryRunNamespace = "triggers-scripts-dry-run"
 	DryRunOciImage  = "localhost:5080/bigstack/shell:latest"
 )

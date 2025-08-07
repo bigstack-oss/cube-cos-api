@@ -22,7 +22,7 @@ type DataCenter struct {
 
 type Additional struct {
 	HelpUrl           string `json:"helpUrl,omitempty" bson:"helpUrl"`
-	V1ApiDocUrl       string `json:"v1ApiDoc,omitempty" bson:"v1ApiDoc"`
+	V1ApiDocUrl       string `json:"v1ApiDocUrl,omitempty" bson:"v1ApiDocUrl"`
 	NodeLicenseStatus `json:"nodeLicenseStatus" bson:"nodeLicenseStatus"`
 }
 

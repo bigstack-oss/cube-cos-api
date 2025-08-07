@@ -101,6 +101,13 @@ func verifyMaterialScript(c *gin.Context) {
 		return
 	}
 
+	if h.isMaxDryRunReached() {
+		err := fmt.Errorf("maximum dry run limit reached, please try again later")
+		log.Errorf("triggers(%s): %v", h.reqId, err)
+		bodies.SetTooManyRequests(c, err)
+		return
+	}
+
 	result, err := h.verifyMaterialScript()
 	if err != nil {
 		bodies.SetBadRequest(c, err)

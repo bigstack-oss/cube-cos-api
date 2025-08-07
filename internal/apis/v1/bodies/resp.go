@@ -142,6 +142,17 @@ func SetConflict(c *gin.Context, err error) {
 	)
 }
 
+func SetTooManyRequests(c *gin.Context, err error) {
+	c.JSON(
+		http.StatusTooManyRequests,
+		gin.H{
+			Code:   http.StatusTooManyRequests,
+			Status: "too many requests",
+			Msg:    err.Error(),
+		},
+	)
+}
+
 func SetInternalServerError(c *gin.Context, err error) {
 	c.JSON(
 		http.StatusInternalServerError,
