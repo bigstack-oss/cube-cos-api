@@ -172,10 +172,10 @@ func newDbHousekeeping() error {
 
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
 	defer cancel()
-	sixHours := int32(3600 * 6)
+	oneMonth := int32(3600 * 24 * 30)
 	ttlIndex := mongo.IndexModel{
 		Keys:    bson.D{{Key: "time", Value: 1}},
-		Options: options.Index().SetExpireAfterSeconds(sixHours),
+		Options: options.Index().SetExpireAfterSeconds(oneMonth),
 	}
 	_, err = cli.Indexes().CreateOne(ctx, ttlIndex)
 	if err == nil {

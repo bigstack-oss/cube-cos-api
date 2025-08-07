@@ -68,6 +68,7 @@ func NewGlobalAuth(opts Options) error {
 
 	spMetadataUrl := GenServiceProviderMetadataUrl(opts)
 	SpAuth, err = samlsp.New(samlsp.Options{
+		CookieName:         "cos_token",
 		EntityID:           spMetadataUrl.String(),
 		URL:                genRootUrl(opts),
 		DefaultRedirectURI: "/",
