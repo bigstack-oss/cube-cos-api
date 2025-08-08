@@ -126,6 +126,7 @@ const docTemplate = `{
                                                     "utcTimeZone": "+00:00",
                                                     "additional": {
                                                         "helpUrl": "https://www.bigstack.co/contact-us",
+                                                        "v1ApiDocUrl": "https://example-virtual-ip/api/v1/datacenters/example-datacenter/apidocs/index.html",
                                                         "nodeLicenseStatus": {
                                                             "valid": 3,
                                                             "expired": 0,
@@ -211,6 +212,7 @@ const docTemplate = `{
                                                 "utcTimeZone": "+00:00",
                                                 "additional": {
                                                     "helpUrl": "https://www.bigstack.co/contact-us",
+                                                    "v1ApiDocUrl": "https://example-virtual-ip/api/v1/datacenters/example-datacenter/apidocs/index.html",
                                                     "nodeLicenseStatus": {
                                                         "valid": 3,
                                                         "expired": 0,
@@ -240,6 +242,7 @@ const docTemplate = `{
                                                 "utcTimeZone": "+00:00",
                                                 "additional": {
                                                     "helpUrl": "https://www.bigstack.co/contact-us",
+                                                    "v1ApiDocUrl": "https://example-virtual-ip/api/v1/datacenters/example-datacenter/apidocs/index.html",
                                                     "nodeLicenseStatus": {
                                                         "valid": 3,
                                                         "expired": 0,
@@ -13794,93 +13797,7 @@ const docTemplate = `{
                     "data": {
                         "type": "array",
                         "items": {
-                            "type": "object",
-                            "required": [
-                                "type",
-                                "name",
-                                "roles",
-                                "version",
-                                "virtualIp",
-                                "isHaEnabled",
-                                "isLocal",
-                                "utcTimeZone",
-                                "additional"
-                            ],
-                            "properties": {
-                                "type": {
-                                    "type": "string",
-                                    "enum": [
-                                        "cloud",
-                                        "edge"
-                                    ]
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "roles": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string",
-                                        "enum": [
-                                            "control-converged",
-                                            "control",
-                                            "compute",
-                                            "storage",
-                                            "edge-core",
-                                            "moderator"
-                                        ]
-                                    }
-                                },
-                                "version": {
-                                    "type": "string"
-                                },
-                                "virtualIp": {
-                                    "type": "string"
-                                },
-                                "isHaEnabled": {
-                                    "type": "boolean"
-                                },
-                                "isLocal": {
-                                    "type": "boolean"
-                                },
-                                "utcTimeZone": {
-                                    "type": "string"
-                                },
-                                "additional": {
-                                    "type": "object",
-                                    "required": [
-                                        "helpUrl",
-                                        "nodeLicenseStatus"
-                                    ],
-                                    "properties": {
-                                        "helpUrl": {
-                                            "type": "string"
-                                        },
-                                        "nodeLicenseStatus": {
-                                            "type": "object",
-                                            "required": [
-                                                "valid",
-                                                "expired",
-                                                "unlicense"
-                                            ],
-                                            "properties": {
-                                                "valid": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "expired": {
-                                                    "type": "integer",
-                                                    "example": 0
-                                                },
-                                                "unlicense": {
-                                                    "type": "integer",
-                                                    "example": 0
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            "$ref": "#/components/schemas/DataCenter"
                         }
                     },
                     "msg": {
@@ -13907,93 +13824,7 @@ const docTemplate = `{
                         "example": 200
                     },
                     "data": {
-                        "type": "object",
-                        "required": [
-                            "type",
-                            "name",
-                            "roles",
-                            "version",
-                            "virtualIp",
-                            "isHaEnabled",
-                            "isLocal",
-                            "utcTimeZone",
-                            "additional"
-                        ],
-                        "properties": {
-                            "type": {
-                                "type": "string",
-                                "enum": [
-                                    "cloud",
-                                    "edge"
-                                ]
-                            },
-                            "name": {
-                                "type": "string"
-                            },
-                            "roles": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string",
-                                    "enum": [
-                                        "control-converged",
-                                        "control",
-                                        "compute",
-                                        "storage",
-                                        "edge-core",
-                                        "moderator"
-                                    ]
-                                }
-                            },
-                            "version": {
-                                "type": "string"
-                            },
-                            "virtualIp": {
-                                "type": "string"
-                            },
-                            "isHaEnabled": {
-                                "type": "boolean"
-                            },
-                            "isLocal": {
-                                "type": "boolean"
-                            },
-                            "utcTimeZone": {
-                                "type": "string"
-                            },
-                            "additional": {
-                                "type": "object",
-                                "required": [
-                                    "helpUrl",
-                                    "nodeLicenseStatus"
-                                ],
-                                "properties": {
-                                    "helpUrl": {
-                                        "type": "string"
-                                    },
-                                    "nodeLicenseStatus": {
-                                        "type": "object",
-                                        "required": [
-                                            "valid",
-                                            "expired",
-                                            "unlicense"
-                                        ],
-                                        "properties": {
-                                            "valid": {
-                                                "type": "integer",
-                                                "example": 1
-                                            },
-                                            "expired": {
-                                                "type": "integer",
-                                                "example": 0
-                                            },
-                                            "unlicense": {
-                                                "type": "integer",
-                                                "example": 0
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        "$ref": "#/components/schemas/DataCenter"
                     },
                     "msg": {
                         "type": "string",
@@ -19349,6 +19180,99 @@ const docTemplate = `{
                     "totalItemCount": {
                         "type": "integer",
                         "example": 1
+                    }
+                }
+            },
+            "DataCenter": {
+                "type": "object",
+                "required": [
+                    "type",
+                    "name",
+                    "roles",
+                    "version",
+                    "virtualIp",
+                    "isHaEnabled",
+                    "isLocal",
+                    "utcTimeZone",
+                    "additional"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "cloud",
+                            "edge"
+                        ]
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "control-converged",
+                                "control",
+                                "compute",
+                                "storage",
+                                "edge-core",
+                                "moderator"
+                            ]
+                        }
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "virtualIp": {
+                        "type": "string"
+                    },
+                    "isHaEnabled": {
+                        "type": "boolean"
+                    },
+                    "isLocal": {
+                        "type": "boolean"
+                    },
+                    "utcTimeZone": {
+                        "type": "string"
+                    },
+                    "additional": {
+                        "type": "object",
+                        "required": [
+                            "helpUrl",
+                            "v1ApiDocUrl",
+                            "nodeLicenseStatus"
+                        ],
+                        "properties": {
+                            "helpUrl": {
+                                "type": "string"
+                            },
+                            "v1ApiDocUrl": {
+                                "type": "string"
+                            },
+                            "nodeLicenseStatus": {
+                                "type": "object",
+                                "required": [
+                                    "valid",
+                                    "expired",
+                                    "unlicense"
+                                ],
+                                "properties": {
+                                    "valid": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "expired": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "unlicense": {
+                                        "type": "integer",
+                                        "example": 0
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             },
