@@ -10336,7 +10336,34 @@
                                                 "response": {
                                                     "scriptType": {
                                                         "language": "Bash",
-                                                        "environment": "Alpine Linux"
+                                                        "environment": "Alpine Linux",
+                                                        "builtInVariable": {
+                                                            "name": "EVENT",
+                                                            "type": "object",
+                                                            "description": "the 'case sensitive' event env variable that triggered the action",
+                                                            "value": {
+                                                                "id": "alert id string",
+                                                                "message": "alert message, from the TICKscript",
+                                                                "details": "user-defined HTML content for a more detailed message",
+                                                                "duration": "an integer value in seconds",
+                                                                "level": "OK or INFO or WARNING or CRITICAL",
+                                                                "previousLevel": "OK or INFO or WARNING or CRITICAL",
+                                                                "recoverable": "bool value like true or false",
+                                                                "data": {
+                                                                    "time": "YYYY-MM-DDTHH:MM:SSZ",
+                                                                    "name": "measurement name",
+                                                                    "group": "group by tags concatenated",
+                                                                    "tags": {
+                                                                        "tag_key_1": "tag value 1",
+                                                                        "tag_key_2": "tag value 2"
+                                                                    },
+                                                                    "fields": {
+                                                                        "field_key_1": "some integer value",
+                                                                        "field_key_2": "some string value"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
                                                     },
                                                     "emails": [
                                                         {
@@ -18115,7 +18142,8 @@
                                         "type": "object",
                                         "required": [
                                             "language",
-                                            "environment"
+                                            "environment",
+                                            "builtInVariable"
                                         ],
                                         "properties": {
                                             "language": {
@@ -18123,6 +18151,96 @@
                                             },
                                             "environment": {
                                                 "type": "string"
+                                            },
+                                            "builtInVariable": {
+                                                "type": "object",
+                                                "required": [
+                                                    "name",
+                                                    "type",
+                                                    "description",
+                                                    "value"
+                                                ],
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    },
+                                                    "value": {
+                                                        "type": "object",
+                                                        "required": [
+                                                            "id",
+                                                            "message",
+                                                            "details",
+                                                            "duration",
+                                                            "level",
+                                                            "previousLevel",
+                                                            "recoverable",
+                                                            "data"
+                                                        ],
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "message": {
+                                                                "type": "string"
+                                                            },
+                                                            "details": {
+                                                                "type": "string"
+                                                            },
+                                                            "duration": {
+                                                                "type": "integer"
+                                                            },
+                                                            "level": {
+                                                                "type": "string"
+                                                            },
+                                                            "previousLevel": {
+                                                                "type": "string"
+                                                            },
+                                                            "recoverable": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "data": {
+                                                                "type": "object",
+                                                                "required": [
+                                                                    "time",
+                                                                    "name",
+                                                                    "group",
+                                                                    "tags",
+                                                                    "fields"
+                                                                ],
+                                                                "properties": {
+                                                                    "time": {
+                                                                        "type": "string",
+                                                                        "format": "date-time"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "group": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "tags": {
+                                                                        "type": "object",
+                                                                        "additionalProperties": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "fields": {
+                                                                        "type": "object",
+                                                                        "additionalProperties": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     },

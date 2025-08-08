@@ -23,6 +23,30 @@ var (
 			Description: `Configure how you are going to be notified for instance alerts, including levels 'warning', and 'critical'.`,
 		},
 	}
+
+	builtInVariable = map[string]any{
+		"id":            "alert id string",
+		"message":       "alert message, from the TICKscript",
+		"details":       "user-defined HTML content for a more detailed message",
+		"time":          "YYYY-MM-DDTHH:MM:SSZ",
+		"duration":      "an integer value in seconds",
+		"level":         "OK or INFO or WARNING or CRITICAL",
+		"previousLevel": "OK or INFO or WARNING or CRITICAL",
+		"recoverable":   "bool value like true or false",
+		"data": map[string]any{
+			"time":  "YYYY-MM-DDTHH:MM:SSZ",
+			"name":  "measurement name",
+			"group": "group by tags concatenated",
+			"tags": map[string]any{
+				"tag_key_1": "tag value 1",
+				"tag_key_2": "tag value 2",
+			},
+			"fields": map[string]any{
+				"field_key_1": "some integer value",
+				"field_key_2": "some string value",
+			},
+		},
+	}
 )
 
 type triggerPage struct {
@@ -61,8 +85,16 @@ type Response struct {
 }
 
 type ScriptType struct {
-	Language    string `json:"language"`
-	Environment string `json:"environment"`
+	Language        string `json:"language"`
+	Environment     string `json:"environment"`
+	BuiltInVariable `json:"builtInVariables"`
+}
+
+type BuiltInVariable struct {
+	Name        string         `json:"name"`
+	Type        string         `json:"type"`
+	Description string         `json:"description"`
+	Value       map[string]any `json:"value"`
 }
 
 type Notifications struct {

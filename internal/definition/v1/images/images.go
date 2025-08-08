@@ -90,7 +90,7 @@ type ReqOpts struct {
 	Visibility                  string        `json:"visibility" bson:"visibility"`
 	SizeMiB                     int64         `json:"sizeMiB" bson:"sizeMiB"`
 	Status                      *status.Image `json:"status,omitempty" bson:"status,omitempty"`
-	Reserved                    `json:"-" bson:"-"`
+	Reserved                    `json:"reserved" bson:"-"`
 }
 
 type CreateOpts struct {
@@ -108,7 +108,7 @@ type CreateOpts struct {
 }
 
 type Reserved struct {
-	Prefix string `json:"-" bson:"-"`
+	Prefix string `json:"prefix" bson:"-"`
 	Type   string `json:"-" bson:"-"`
 }
 

@@ -178,6 +178,12 @@ func (h *helper) getResponse() (*materialResp, error) {
 		ScriptType: ScriptType{
 			Language:    "Bash",
 			Environment: "Alpine Linux",
+			BuiltInVariable: BuiltInVariable{
+				Name:        "EVENT",
+				Type:        "object",
+				Description: "the 'case sensitive' event env variable that triggered the action",
+				Value:       builtInVariable,
+			},
 		},
 		Emails: notifications.Emails,
 		Slacks: notifications.Slacks,
