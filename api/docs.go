@@ -1825,6 +1825,15 @@ const docTemplate = `{
                         },
                         "description": "The past time of the notifications to query, click 'try it out' to see a few options, but can specify with the 's'(second), 'm'(minute), 'h'(hour), and 'd'(day) suffix for other time ranges.",
                         "example": "1h"
+                    },
+                    {
+                        "$ref": "#/components/parameters/keyword"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageNum"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageSize"
                     }
                 ],
                 "responses": {
@@ -1840,26 +1849,44 @@ const docTemplate = `{
                                         "summary": "Notifications",
                                         "value": {
                                             "code": 200,
-                                            "data": [
-                                                {
-                                                    "id": "DEV00002I",
-                                                    "nodeName": "example-node-0",
-                                                    "time": "2025-07-21T04:09:30+08:00",
-                                                    "additionalInfo": {
-                                                        "class": "SSD",
-                                                        "device": "/dev/sdb"
+                                            "data": {
+                                                "notifications": [
+                                                    {
+                                                        "id": "DEV00002I",
+                                                        "nodeName": "example-node-0",
+                                                        "time": "2025-07-21T04:09:30+08:00",
+                                                        "additionalInfo": {
+                                                            "class": "SSD",
+                                                            "device": "/dev/sdb"
+                                                        }
+                                                    },
+                                                    {
+                                                        "id": "DEV00002E",
+                                                        "nodeName": "example-node-0",
+                                                        "time": "2025-07-21T04:09:30+08:00",
+                                                        "additionalInfo": {
+                                                            "class": "SSD",
+                                                            "device": "/dev/sdb",
+                                                            "description": "cannot promote disk while ceph is recovering"
+                                                        }
+                                                    },
+                                                    {
+                                                        "id": "OSD00002E",
+                                                        "nodeName": "example-node-1",
+                                                        "time": "2025-07-21T04:09:30+08:00",
+                                                        "additionalInfo": {
+                                                            "osdId": "osd.1",
+                                                            "reweight": 0.75
+                                                        }
                                                     }
-                                                },
-                                                {
-                                                    "id": "OSD00002E",
-                                                    "nodeName": "example-node-1",
-                                                    "time": "2025-07-21T04:09:30+08:00",
-                                                    "additionalInfo": {
-                                                        "osdId": "osd.1",
-                                                        "reweight": 0.75
-                                                    }
+                                                ],
+                                                "page": {
+                                                    "pageNum": 1,
+                                                    "pageSize": 10,
+                                                    "total": 3,
+                                                    "totalPage": 1
                                                 }
-                                            ],
+                                            },
                                             "msg": "fetch notifications successfully",
                                             "status": "ok"
                                         }
@@ -14356,9 +14383,21 @@ const docTemplate = `{
                         "example": 200
                     },
                     "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Notification"
+                        "type": "object",
+                        "required": [
+                            "notifications",
+                            "page"
+                        ],
+                        "properties": {
+                            "notifications": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Notification"
+                                }
+                            },
+                            "page": {
+                                "$ref": "#/components/schemas/Page"
+                            }
                         }
                     },
                     "msg": {
@@ -20221,6 +20260,9 @@ const docTemplate = `{
                         "properties": {
                             "device": {
                                 "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
                             }
                         }
                     }
@@ -20294,6 +20336,9 @@ const docTemplate = `{
                                 "type": "string"
                             },
                             "class": {
+                                "type": "string"
+                            },
+                            "description": {
                                 "type": "string"
                             }
                         }
@@ -20369,6 +20414,9 @@ const docTemplate = `{
                             },
                             "class": {
                                 "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
                             }
                         }
                     }
@@ -20435,6 +20483,9 @@ const docTemplate = `{
                         "properties": {
                             "device": {
                                 "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
                             }
                         }
                     }
@@ -20500,6 +20551,9 @@ const docTemplate = `{
                         ],
                         "properties": {
                             "osdId": {
+                                "type": "string"
+                            },
+                            "description": {
                                 "type": "string"
                             }
                         }
@@ -20575,6 +20629,9 @@ const docTemplate = `{
                             },
                             "reweight": {
                                 "type": "number"
+                            },
+                            "description": {
+                                "type": "string"
                             }
                         }
                     }
@@ -20640,6 +20697,9 @@ const docTemplate = `{
                         ],
                         "properties": {
                             "osdId": {
+                                "type": "string"
+                            },
+                            "description": {
                                 "type": "string"
                             }
                         }
