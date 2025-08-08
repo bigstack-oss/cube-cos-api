@@ -48,7 +48,7 @@ func (o *Operator) addDevice(req nodes.DeviceReqOpts) error {
 func (o *Operator) handleDeviceExit(req nodes.DeviceReqOpts, err error) {
 	if err != nil {
 		log.Errorf("nodes: failed to %s %s(%v)", req.Status.Desired, req.Device, err)
-		req.SetError()
+		req.SetError(err.Error())
 	} else {
 		log.Infof("nodes: %s %s successfully", req.Status.Desired, req.Device)
 		req.SetCompleted()

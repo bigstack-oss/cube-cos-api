@@ -112,7 +112,7 @@ func (h *helper) searchNodes(nodes []nodes.Node) (*bleve.SearchResult, error) {
 	}
 
 	defer searcher.Close()
-	key := search.NormalizedKeyword(h.keyword)
+	key := search.NormalizeKeyword(h.keyword)
 	return searcher.Search(search.WildcardQuery(key))
 }
 

@@ -113,17 +113,17 @@ func (t *Tuning) GenerateId() string {
 
 func (t *Tuning) GenSearchableOject() Tuning {
 	tuning := Tuning{
-		Name:        search.NormalizedKeyword(t.Name),
-		Value:       search.NormalizedKeyword(fmt.Sprintf("%v", t.Value)),
-		Description: search.NormalizedKeyword(t.Description),
+		Name:        search.NormalizeKeyword(t.Name),
+		Value:       search.NormalizeKeyword(fmt.Sprintf("%v", t.Value)),
+		Description: search.NormalizeKeyword(t.Description),
 		Enabled:     t.Enabled,
-		Status:      &status.Tuning{UpdatedAt: search.NormalizedKeyword(t.Status.UpdatedAt)},
+		Status:      &status.Tuning{UpdatedAt: search.NormalizeKeyword(t.Status.UpdatedAt)},
 	}
 
 	for _, host := range t.Hosts {
 		tuning.Hosts = append(
 			tuning.Hosts,
-			nodes.Host{Name: search.NormalizedKeyword(host.Name)},
+			nodes.Host{Name: search.NormalizeKeyword(host.Name)},
 		)
 	}
 

@@ -31,17 +31,17 @@ type Change struct {
 
 func (v *Volume) GenSearchableObject() Volume {
 	return Volume{
-		Id:         search.NormalizedKeyword(v.Id),
-		Name:       search.NormalizedKeyword(v.Name),
-		Type:       search.NormalizedKeyword(v.Type),
-		DiskTag:    search.NormalizedKeyword(v.DiskTag),
-		AttachedTo: search.NormalizedKeyword(v.AttachedTo),
+		Id:         search.NormalizeKeyword(v.Id),
+		Name:       search.NormalizeKeyword(v.Name),
+		Type:       search.NormalizeKeyword(v.Type),
+		DiskTag:    search.NormalizeKeyword(v.DiskTag),
+		AttachedTo: search.NormalizeKeyword(v.AttachedTo),
 		Bootable:   v.Bootable,
 		Shared:     v.Shared,
 		SizeMiB:    v.SizeMiB,
-		CreatedAt:  search.NormalizedKeyword(v.CreatedAt),
+		CreatedAt:  search.NormalizeKeyword(v.CreatedAt),
 		Status: status.Volume{
-			Current:      search.NormalizedKeyword(v.Status.Current),
+			Current:      search.NormalizeKeyword(v.Status.Current),
 			IsProcessing: v.Status.IsProcessing,
 		},
 	}

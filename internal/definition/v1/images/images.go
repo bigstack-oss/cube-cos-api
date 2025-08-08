@@ -180,15 +180,15 @@ func (r *ReqOpts) SetImporting() {
 
 func (i *Image) GenSearchableObject() Image {
 	return Image{
-		Id:          search.NormalizedKeyword(i.Id),
-		Name:        search.NormalizedKeyword(i.Name),
-		Os:          search.NormalizedKeyword(i.Os),
-		Destination: search.NormalizedKeyword(i.Destination),
-		Domain:      search.NormalizedKeyword(i.Domain),
-		Project:     search.NormalizedKeyword(i.Project),
-		Visibility:  search.NormalizedKeyword(i.Visibility),
+		Id:          search.NormalizeKeyword(i.Id),
+		Name:        search.NormalizeKeyword(i.Name),
+		Os:          search.NormalizeKeyword(i.Os),
+		Destination: search.NormalizeKeyword(i.Destination),
+		Domain:      search.NormalizeKeyword(i.Domain),
+		Project:     search.NormalizeKeyword(i.Project),
+		Visibility:  search.NormalizeKeyword(i.Visibility),
 		Status: status.Image{
-			Current:      search.NormalizedKeyword(i.Status.Current),
+			Current:      search.NormalizeKeyword(i.Status.Current),
 			IsProcessing: i.Status.IsProcessing,
 		},
 	}

@@ -108,7 +108,7 @@ func (h *helper) searchTunings(tunings []tunings.Tuning) (*bleve.SearchResult, e
 	}
 
 	defer searcher.Close()
-	keyword := search.NormalizedKeyword(h.keyword)
+	keyword := search.NormalizeKeyword(h.keyword)
 	return searcher.Search(search.WildcardQuery(keyword))
 }
 

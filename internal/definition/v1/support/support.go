@@ -61,8 +61,8 @@ type Source struct {
 
 func (f *FileSet) GenSearchableObject() FileSet {
 	set := FileSet{
-		Name:        search.NormalizedKeyword(f.Name),
-		Description: search.NormalizedKeyword(f.Description),
+		Name:        search.NormalizeKeyword(f.Name),
+		Description: search.NormalizeKeyword(f.Description),
 		SizeMiB:     f.SizeMiB,
 		Status:      f.Status,
 	}
@@ -90,9 +90,9 @@ func (f *File) IsCreating() bool {
 
 func (f *File) GenSearchableObject() File {
 	return File{
-		Name:        search.NormalizedKeyword(f.Name),
-		Description: search.NormalizedKeyword(f.Description),
-		Group:       search.NormalizedKeyword(f.Group),
+		Name:        search.NormalizeKeyword(f.Name),
+		Description: search.NormalizeKeyword(f.Description),
+		Group:       search.NormalizeKeyword(f.Group),
 		SizeMiB:     f.SizeMiB,
 		Status:      f.Status,
 	}

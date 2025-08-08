@@ -4,12 +4,94 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	ostime "time"
 
+	bserrors "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	"github.com/gin-gonic/gin"
 	duration "github.com/xhit/go-str2duration"
 )
+
+func GetReqId(c *gin.Context) string {
+	id, found := c.Get("reqId")
+	if !found {
+		return ""
+	}
+
+	return id.(string)
+}
+
+func GetKeyword(c *gin.Context) string {
+	keyword := c.DefaultQuery("keyword", "")
+	return strings.ToLower(keyword)
+}
+
+func GetLimit(c *gin.Context, defaultLimit int) (int, error) {
+	query := c.DefaultQuery("limit", strconv.Itoa(defaultLimit))
+	limit, err := strconv.Atoi(query)
+	if err != nil {
+		return 0, err
+	}
+
+	if limit <= 0 {
+		return 0, bserrors.ErrLimitInvalid
+	}
+
+	return limit, nil
+}
+
+func GetPage(c *gin.Context) (*pages.Page, error) {
+	if !IsPageRequired(c) {
+		return &pages.Page{}, nil
+	}
+
+	num := c.DefaultQuery("pageNum", "")
+	if num == "" {
+		return nil, fmt.Errorf("pageNum should be provided if pageSize is provided")
+	}
+
+	size := c.DefaultQuery("pageSize", "")
+	if size == "" {
+		return nil, fmt.Errorf("pageSize should be provided if pageNum is provided")
+	}
+
+	var err error
+	page := &pages.Page{}
+	page.Number, err = strconv.Atoi(num)
+	if err != nil {
+		return nil, fmt.Errorf("pageNum should be an integer: %s", num)
+	}
+
+	page.Size, err = strconv.Atoi(size)
+	if err != nil {
+		return nil, fmt.Errorf("pageSize should be an integer: %s", size)
+	}
+
+	if page.Number <= 0 {
+		return nil, fmt.Errorf("pageNum should be greater than 0 if pageSize is provided")
+	}
+
+	if page.Size <= 0 {
+		return nil, fmt.Errorf("pageSize should be greater than 0 if pageNum is provided")
+	}
+
+	return page, nil
+}
+
+func IsPageRequired(c *gin.Context) bool {
+	return c.DefaultQuery("pageNum", "") != "" || c.DefaultQuery("pageSize", "") != ""
+}
+
+func ParseRecordRequire(c *gin.Context) bool {
+	val, found := c.GetQuery("isRecordRequired")
+	if !found {
+		return true
+	}
+
+	return val == "true"
+}
 
 func GetPeriod(c *gin.Context) (*time.Period, error) {
 	if ArePeriodAndPastRequired(c) {

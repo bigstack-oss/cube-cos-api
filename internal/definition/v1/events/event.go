@@ -147,13 +147,13 @@ func (e *Event) SetSearchIndex() {
 func (e *Event) GenSearchableObject() Event {
 	return Event{
 		SearchIndex: e.SearchIndex,
-		Type:        search.NormalizedKeyword(e.Type),
-		Id:          search.NormalizedKeyword(e.Id),
-		Severity:    search.NormalizedKeyword(e.Severity),
-		Description: search.NormalizedKeyword(e.Description),
-		Host:        search.NormalizedKeyword(e.Host),
-		Category:    search.NormalizedKeyword(e.Category),
-		Service:     search.NormalizedKeyword(e.Service),
+		Type:        search.NormalizeKeyword(e.Type),
+		Id:          search.NormalizeKeyword(e.Id),
+		Severity:    search.NormalizeKeyword(e.Severity),
+		Description: search.NormalizeKeyword(e.Description),
+		Host:        search.NormalizeKeyword(e.Host),
+		Category:    search.NormalizeKeyword(e.Category),
+		Service:     search.NormalizeKeyword(e.Service),
 		Metadata:    maps.Clone(e.Metadata),
 		Time:        e.Time,
 	}

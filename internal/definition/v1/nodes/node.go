@@ -109,15 +109,15 @@ func (n *Node) IsUnlicensed() bool {
 // in the M2, we will try to deep dive into the bleve and see if we can find a better way to do this
 func (n *Node) GenSearchableObject() Node {
 	return Node{
-		Hostname:     search.NormalizedKeyword(n.Hostname) + search.NormalizedKeyword(n.Status),
-		Role:         search.NormalizedKeyword(n.Role),
-		Address:      search.NormalizedKeyword(n.Address),
-		Ip:           search.NormalizedKeyword(n.Ip),
-		StorageIP:    search.NormalizedKeyword(n.StorageIP),
-		ManagementIP: search.NormalizedKeyword(n.ManagementIP),
+		Hostname:     search.NormalizeKeyword(n.Hostname) + search.NormalizeKeyword(n.Status),
+		Role:         search.NormalizeKeyword(n.Role),
+		Address:      search.NormalizeKeyword(n.Address),
+		Ip:           search.NormalizeKeyword(n.Ip),
+		StorageIP:    search.NormalizeKeyword(n.StorageIP),
+		ManagementIP: search.NormalizeKeyword(n.ManagementIP),
 		License: licenses.License{
 			Expiry: licenses.Expiry{
-				Date: search.NormalizedKeyword(n.License.Expiry.Date),
+				Date: search.NormalizeKeyword(n.License.Expiry.Date),
 			},
 		},
 	}

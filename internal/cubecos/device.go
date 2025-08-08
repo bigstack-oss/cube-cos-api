@@ -41,10 +41,8 @@ func PromoteOrDemoteDevice(req nodes.DeviceReqOpts) error {
 
 	out, err := exec.Command("hex_sdk", promoteOrDemote, req.Device).CombinedOutput()
 	if err != nil {
-		log.Errorf(
-			"hexSdk: failed to execute device update cmd %s(%v %s)",
-			req.Device, err, string(out),
-		)
+		err = fmt.Errorf("%v %s", err, string(out))
+		log.Errorf("hexSdk: failed to execute device update cmd %s(%s)", req.Device, err)
 		return err
 	}
 

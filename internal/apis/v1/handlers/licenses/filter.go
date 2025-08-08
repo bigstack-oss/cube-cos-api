@@ -119,7 +119,7 @@ func (h *helper) searchLicenses(list []licenses.License) (*bleve.SearchResult, e
 	}
 
 	defer searcher.Close()
-	keyword := search.NormalizedKeyword(h.keyword)
+	keyword := search.NormalizeKeyword(h.keyword)
 	return searcher.Search(search.WildcardQuery(keyword))
 }
 
@@ -163,7 +163,7 @@ func (h *helper) searchAttachments(attachments []licenses.Attachment) (*bleve.Se
 	}
 
 	defer searcher.Close()
-	key := search.NormalizedKeyword(h.keyword)
+	key := search.NormalizeKeyword(h.keyword)
 	return searcher.Search(search.WildcardQuery(key))
 }
 

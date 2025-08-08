@@ -133,17 +133,17 @@ func (l *License) IsValid() bool {
 // we've tried a few different init settings, but the result is not as expected as always
 // currenlty, the only way we found is to convert all the string to lower case and inject to searcher
 func (l *License) GenSearchableObject() License {
-	l.Type = search.NormalizedKeyword(l.Type)
-	l.Name = search.NormalizedKeyword(l.Name)
-	l.Product.Name = search.NormalizedKeyword(l.Product.Name)
-	l.Product.Feature = search.NormalizedKeyword(l.Product.Feature)
-	l.Serial = search.NormalizedKeyword(l.Serial)
-	l.SupportPlan = search.NormalizedKeyword(l.SupportPlan)
-	l.Issue.By = search.NormalizedKeyword(l.Issue.By)
-	l.Issue.To = search.NormalizedKeyword(l.Issue.To)
-	l.Issue.Hardware = search.NormalizedKeyword(l.Issue.Hardware)
+	l.Type = search.NormalizeKeyword(l.Type)
+	l.Name = search.NormalizeKeyword(l.Name)
+	l.Product.Name = search.NormalizeKeyword(l.Product.Name)
+	l.Product.Feature = search.NormalizeKeyword(l.Product.Feature)
+	l.Serial = search.NormalizeKeyword(l.Serial)
+	l.SupportPlan = search.NormalizeKeyword(l.SupportPlan)
+	l.Issue.By = search.NormalizeKeyword(l.Issue.By)
+	l.Issue.To = search.NormalizeKeyword(l.Issue.To)
+	l.Issue.Hardware = search.NormalizeKeyword(l.Issue.Hardware)
 	for i := range l.Hosts {
-		l.Hosts[i] = search.NormalizedKeyword(l.Hosts[i])
+		l.Hosts[i] = search.NormalizeKeyword(l.Hosts[i])
 	}
 
 	return *l
@@ -151,11 +151,11 @@ func (l *License) GenSearchableObject() License {
 
 func (a *Attachment) GenSearchableObject() Attachment {
 	return Attachment{
-		SerialNumber: search.NormalizedKeyword(a.SerialNumber),
-		Hostname:     search.NormalizedKeyword(a.Hostname),
-		Role:         search.NormalizedKeyword(a.Role),
-		Product:      search.NormalizedKeyword(a.Product),
-		Status:       search.NormalizedKeyword(a.Status),
+		SerialNumber: search.NormalizeKeyword(a.SerialNumber),
+		Hostname:     search.NormalizeKeyword(a.Hostname),
+		Role:         search.NormalizeKeyword(a.Role),
+		Product:      search.NormalizeKeyword(a.Product),
+		Status:       search.NormalizeKeyword(a.Status),
 	}
 }
 

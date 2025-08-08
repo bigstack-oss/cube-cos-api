@@ -52,9 +52,10 @@ func (d *DeviceReqOpts) SetRemoving() {
 	d.Status.IsProcessing = true
 }
 
-func (d *DeviceReqOpts) SetError() {
+func (d *DeviceReqOpts) SetError(msg string) {
 	d.Status.Current = status.Error
 	d.Status.IsProcessing = false
+	d.Status.Description = msg
 
 	d.SetDeviceNotification()
 	switch d.Status.Desired {

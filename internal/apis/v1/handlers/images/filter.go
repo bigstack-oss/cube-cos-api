@@ -50,7 +50,7 @@ func (h *helper) searchImages(list []images.Image) (*bleve.SearchResult, error) 
 	}
 
 	defer searcher.Close()
-	key := search.NormalizedKeyword(h.keyword)
+	key := search.NormalizeKeyword(h.keyword)
 	return searcher.Search(search.WildcardQuery(key))
 }
 

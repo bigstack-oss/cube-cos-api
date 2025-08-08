@@ -2,6 +2,10 @@ package notifications
 
 import "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 
+func (h *helper) isKeywordRequired() bool {
+	return h.keyword != ""
+}
+
 func (h *helper) parseListNotificationParams() error {
 	var err error
 	h.limit, err = queries.GetLimit(h.c, 100)
@@ -19,5 +23,11 @@ func (h *helper) parseListNotificationParams() error {
 		return err
 	}
 
+	h.page, err = queries.GetPage(h.c)
+	if err != nil {
+		return err
+	}
+
+	h.keyword = queries.GetKeyword(h.c)
 	return nil
 }

@@ -15,7 +15,7 @@ func New() (bleve.Index, error) {
 	return bleve.NewMemOnly(mapping)
 }
 
-func NormalizedKeyword(keyword string) string {
+func NormalizeKeyword(keyword string) string {
 	keyword = strings.ToLower(keyword)
 	return strings.NewReplacer(
 		" ", "",
@@ -30,6 +30,19 @@ func NormalizedKeyword(keyword string) string {
 		"/", "",
 		"%", "",
 	).Replace(keyword)
+}
+
+func NormalizeMap(m map[string]string) map[string]string {
+	if m == nil {
+		return nil
+	}
+
+	normalized := make(map[string]string, len(m))
+	for k, v := range m {
+		normalized[NormalizeKeyword(k)] = NormalizeKeyword(v)
+	}
+
+	return normalized
 }
 
 func WrapWilcard(keyword string) string {
