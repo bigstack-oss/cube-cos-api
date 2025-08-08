@@ -87,7 +87,7 @@ type Response struct {
 type ScriptType struct {
 	Language        string `json:"language"`
 	Environment     string `json:"environment"`
-	BuiltInVariable `json:"builtInVariables"`
+	BuiltInVariable `json:"builtInVariable"`
 }
 
 type BuiltInVariable struct {
