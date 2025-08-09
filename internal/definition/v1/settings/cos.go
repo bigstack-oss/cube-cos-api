@@ -91,23 +91,31 @@ func (c *Cos) IsRecipientEqual(recipient email.Recipient) bool {
 }
 
 func (c *Cos) ToApiSchema() Api {
-	senders := []email.Sender{}
-	if c.Sender.Email.Host != "" {
-		senders = append(senders, c.Sender.Email.ToApiSchema())
-	}
-
 	return Api{
 		TitlePrefix: TitlePrefix{
 			Value: c.TitlePrefix,
 		},
 		Email: email.Options{
-			Senders:    senders,
+			Senders:    c.convertSenderToApi(),
 			Recipients: c.Receiver.Emails,
 		},
 		Slack: slack.Options{
 			Channels: convertToApiChannels(c.Receiver.Slacks),
 		},
 	}
+}
+
+func (c *Cos) convertSenderToApi() []email.Sender {
+	senders := []email.Sender{}
+	if c.Sender.Email == nil {
+		return senders
+	}
+
+	if c.Sender.Email.Host != "" {
+		senders = append(senders, c.Sender.Email.ToApiSchema())
+	}
+
+	return senders
 }
 
 func GetCosSchema() *Cos {

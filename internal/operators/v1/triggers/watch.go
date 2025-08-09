@@ -3,6 +3,7 @@ package triggers
 import (
 	"fmt"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
@@ -59,11 +60,27 @@ func (o *Operator) checkTriggers(event fsnotify.Event) {
 }
 
 func (o *Operator) syncTriggers() {
-	troggers, err := cubecos.GetTriggers()
+	list, err := o.tryGetTriggers()
 	if err != nil {
 		log.Errorf("triggers: failed to sync triggers(%v)", err)
 		return
 	}
 
-	triggers.SyncList(troggers)
+	triggers.SyncList(list)
+}
+
+func (o *Operator) tryGetTriggers() ([]triggers.Trigger, error) {
+	for range 60 {
+		list, err := cubecos.GetTriggers()
+		if err == nil {
+			return list, nil
+		}
+
+		log.Errorf("triggers: failed to get triggers, retrying(%v)", err)
+		wait.Seconds(3)
+	}
+
+	return nil, fmt.Errorf(
+		"triggers: failed to get triggers after retries",
+	)
 }
