@@ -1,8 +1,7 @@
 <!-- PROJECT LOGO -->
 <br/>
 <div align="left">
-  <img src="./assets/images/panel/api.png" alt="Logo" width="" height="">
-  </p>
+  <h2 align="left">🧬 CubeCOS API </h2>
 </div>
 
 [![License][License-Image]][License-Url] [![made-with-Go][Go-Made-Image]][Go-Made-Url] [![Go][Go-Report-Image]][Go-Report-Url] [![GitHub issues][Github-Issue-Image]][Github-Issue-Url] [![GitHub last commit (branch)][GitHub-Last-Commit-Image]][GitHub-Last-Commit-Url]
@@ -12,7 +11,7 @@
 <br/>
 <br/>
 
-## ▎Overview
+## 🥽 Overview
 
 The cube-cos api is a central communication mechanism in the CubeCOS written in [Go]. Each node has its own cube-cos api and discover peer nodes by [MDNS] for cross-node communication.
 
@@ -26,7 +25,7 @@ Additionally, there’re 14+ apis in the CubeCOS, the cube-cos api is just one o
 <br/>
 <br/>
 
-## ▎Community
+## 🧑‍💻 Community
 
 - [License](./LICENSE)
 - [Contributing](./CONTRIBUTING.md)
@@ -37,7 +36,7 @@ Additionally, there’re 14+ apis in the CubeCOS, the cube-cos api is just one o
 <br/>
 <br/>
 
-## ▎License
+## 📄 License
 
 Copyright (c) 2025 [Bigstack co., ltd](https://bigstack.co/)
 
