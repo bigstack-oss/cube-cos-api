@@ -12746,22 +12746,26 @@ const docTemplate = `{
                                             "data": {
                                                 "reservedImages": [
                                                     {
-                                                        "file": "amphora-x64-haproxy-yoga.qcow2",
                                                         "name": "amphora-x64-haproxy",
                                                         "os": "Ubuntu",
                                                         "destination": "CubeStorage",
                                                         "domain": "default",
                                                         "sourceFromAnotherHypervisor": false,
-                                                        "visibility": "private"
+                                                        "visibility": "private",
+                                                        "reserved": {
+                                                            "prefix": "amphora-"
+                                                        }
                                                     },
                                                     {
-                                                        "file": "manila-service-image_yoga.qcow2",
                                                         "name": "manila-service-image",
                                                         "os": "Ubuntu",
                                                         "destination": "CubeStorage",
                                                         "domain": "default",
                                                         "sourceFromAnotherHypervisor": false,
-                                                        "visibility": "private"
+                                                        "visibility": "private",
+                                                        "reserved": {
+                                                            "prefix": "manila-"
+                                                        }
                                                     }
                                                 ],
                                                 "projects": [
@@ -18825,19 +18829,16 @@ const docTemplate = `{
                                 "items": {
                                     "type": "object",
                                     "required": [
-                                        "file",
                                         "name",
                                         "os",
                                         "destination",
                                         "domain",
                                         "project",
                                         "sourceFromAnotherHypervisor",
-                                        "visibility"
+                                        "visibility",
+                                        "reserved"
                                     ],
                                     "properties": {
-                                        "file": {
-                                            "type": "string"
-                                        },
                                         "name": {
                                             "type": "string"
                                         },
@@ -18858,6 +18859,17 @@ const docTemplate = `{
                                         },
                                         "visibility": {
                                             "type": "string"
+                                        },
+                                        "reserved": {
+                                            "type": "object",
+                                            "required": [
+                                                "prefix"
+                                            ],
+                                            "properties": {
+                                                "prefix": {
+                                                    "type": "string"
+                                                }
+                                            }
                                         }
                                     }
                                 }

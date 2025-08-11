@@ -1,5 +1,4 @@
 <!-- PROJECT LOGO -->
-<br/>
 <div align="left">
   <h2 align="left">🧬 CubeCOS API </h2>
 </div>
