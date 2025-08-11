@@ -80,7 +80,7 @@ type Image struct {
 
 type ReqOpts struct {
 	Id                          string        `json:"id,omitempty" bson:"id"`
-	File                        string        `json:"file" bson:"file"`
+	File                        string        `json:"file,omitempty" bson:"file"`
 	Name                        string        `json:"name" bson:"name"`
 	Os                          string        `json:"os" bson:"os"`
 	Destination                 string        `json:"destination" bson:"destination"`
