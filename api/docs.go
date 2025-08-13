@@ -13420,7 +13420,7 @@ const docTemplate = `{
                 "tags": [
                     "Firmwares"
                 ],
-                "summary": "Upload an firmware",
+                "summary": "Upload a firmware",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
