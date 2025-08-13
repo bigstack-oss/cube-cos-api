@@ -15,3 +15,8 @@
 
 ### Test results (optional)
 
+1). make sure the api docs have been updated
+
+<br/>
+
+2). make sure the api works properly
