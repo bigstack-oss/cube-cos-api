@@ -124,6 +124,14 @@ const docTemplate = `{
                                                     "isLocal": true,
                                                     "isHaEnabled": false,
                                                     "utcTimeZone": "+00:00",
+                                                    "firmware": {
+                                                        "version": "Cube Appliance 3.1.0",
+                                                        "updatedAt": "2025-08-08T19:51:40+08:00"
+                                                    },
+                                                    "fixpack": {
+                                                        "version": "Cube Fixpack 2025-08-10",
+                                                        "updatedAt": "2025-08-10T19:51:40+08:00"
+                                                    },
                                                     "additional": {
                                                         "helpUrl": "https://www.bigstack.co/contact-us",
                                                         "v1ApiDocUrl": "https://example-virtual-ip/api/v1/datacenters/example-datacenter/apidocs/index.html",
@@ -210,6 +218,14 @@ const docTemplate = `{
                                                 "isLocal": true,
                                                 "isHaEnabled": false,
                                                 "utcTimeZone": "+00:00",
+                                                    "firmware": {
+                                                        "version": "Cube Appliance 3.1.0",
+                                                        "updatedAt": "2025-08-08T19:51:40+08:00"
+                                                    },
+                                                    "fixpack": {
+                                                        "version": "Cube Fixpack 2025-08-10",
+                                                        "updatedAt": "2025-08-10T19:51:40+08:00"
+                                                    },
                                                 "additional": {
                                                     "helpUrl": "https://www.bigstack.co/contact-us",
                                                     "v1ApiDocUrl": "https://example-virtual-ip/api/v1/datacenters/example-datacenter/apidocs/index.html",
@@ -19362,6 +19378,8 @@ const docTemplate = `{
                     "virtualIp",
                     "isHaEnabled",
                     "isLocal",
+                    "firmware",
+                    "fixpack",
                     "utcTimeZone",
                     "additional"
                 ],
@@ -19401,6 +19419,12 @@ const docTemplate = `{
                     },
                     "isLocal": {
                         "type": "boolean"
+                    },
+                    "firmware": {
+                        "$ref": "#/components/schemas/SystemVersionDetails"
+                    },
+                    "fixpack": {
+                        "$ref": "#/components/schemas/SystemVersionDetails"
                     },
                     "utcTimeZone": {
                         "type": "string"
@@ -19442,6 +19466,22 @@ const docTemplate = `{
                                 }
                             }
                         }
+                    }
+                }
+            },
+            "SystemVersionDetails": {
+                "type": "object",
+                "required": [
+                    "version",
+                    "updatedAt"
+                ],
+                "properties": {
+                    "version": {
+                        "type": "string"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
                     }
                 }
             },
