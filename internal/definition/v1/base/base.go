@@ -24,6 +24,7 @@ var (
 	BoardSerial              string
 	DataCenterName           string
 	DataCenterVersion        string
+	DataCenterUpdatedAt      string
 	DataCenterNumericVersion string
 	DataCenterVip            string
 	HostID                   string

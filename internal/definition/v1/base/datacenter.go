@@ -8,26 +8,33 @@ const (
 )
 
 type DataCenter struct {
-	Type        string   `json:"type" bson:"type"`
-	Id          string   `json:"id,omitempty" bson:"id"`
-	Name        string   `json:"name" bson:"name"`
-	Roles       []string `json:"roles" bson:"roles"`
-	Version     string   `json:"version" bson:"version"`
-	VirtualIp   string   `json:"virtualIp" bson:"virtualIp"`
-	IsLocal     bool     `json:"isLocal" bson:"isLocal"`
-	IsHaEnabled bool     `json:"isHaEnabled" bson:"isHaEnabled"`
-	UtcTimeZone string   `json:"utcTimeZone,omitempty" bson:"utcTimeZone"`
-	Additional  `json:"additional" bson:"additional"`
+	Type        string   `json:"type"`
+	Id          string   `json:"id,omitempty"`
+	Name        string   `json:"name"`
+	Roles       []string `json:"roles"`
+	Version     string   `json:"version"`
+	VirtualIp   string   `json:"virtualIp"`
+	IsLocal     bool     `json:"isLocal"`
+	IsHaEnabled bool     `json:"isHaEnabled"`
+	UtcTimeZone string   `json:"utcTimeZone,omitempty"`
+	Firmware    System   `json:"firmware"`
+	Fixpack     System   `json:"fixpack"`
+	Additional  `json:"additional"`
 }
 
 type Additional struct {
-	HelpUrl           string `json:"helpUrl,omitempty" bson:"helpUrl"`
-	V1ApiDocUrl       string `json:"v1ApiDocUrl,omitempty" bson:"v1ApiDocUrl"`
-	NodeLicenseStatus `json:"nodeLicenseStatus" bson:"nodeLicenseStatus"`
+	HelpUrl           string `json:"helpUrl,omitempty"`
+	V1ApiDocUrl       string `json:"v1ApiDocUrl,omitempty"`
+	NodeLicenseStatus `json:"nodeLicenseStatus"`
 }
 
 type NodeLicenseStatus struct {
-	Valid     int `json:"valid" bson:"valid"`
-	Expired   int `json:"expired" bson:"expired"`
-	Unlicense int `json:"unlicense" bson:"unlicense"`
+	Valid     int `json:"valid"`
+	Expired   int `json:"expired"`
+	Unlicense int `json:"unlicense"`
+}
+
+type System struct {
+	Version   string `json:"version"`
+	UpdatedAt string `json:"updatedAt"`
 }

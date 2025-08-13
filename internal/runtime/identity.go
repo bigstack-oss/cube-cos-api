@@ -87,6 +87,12 @@ func initIdentities() error {
 		return err
 	}
 
+	base.DataCenterUpdatedAt, err = cubecos.GetLastUpdateTime()
+	if err != nil {
+		log.Errorf("runtime: failed to get data center last update time(%v)", err)
+		return err
+	}
+
 	base.SerialNumber, err = cubecos.GetSystemSerial()
 	if err != nil {
 		log.Warnf("runtime: failed to get system serial(%v)", err)
