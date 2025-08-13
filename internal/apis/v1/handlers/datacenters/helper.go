@@ -11,16 +11,19 @@ func getLocalDataCenter() base.DataCenter {
 		Type:        datacenter.GetType(),
 		Roles:       datacenter.GetAllowRoles(),
 		Name:        base.DataCenterName,
-		Version:     base.DataCenterVersion,
+		Version:     base.DataCenterFirmwareVersion,
 		VirtualIp:   base.DataCenterVip,
 		IsLocal:     true,
 		IsHaEnabled: base.IsHaEnabled,
 		UtcTimeZone: time.LocalZone,
 		Firmware: base.System{
-			Version:   base.DataCenterVersion,
-			UpdatedAt: base.DataCenterUpdatedAt,
+			Version:   base.DataCenterFirmwareVersion,
+			UpdatedAt: base.DataCenterFirmwareUpdatedAt,
 		},
-		Fixpack: base.System{},
+		Fixpack: base.System{
+			Version:   base.DataCenterFixpackVersion,
+			UpdatedAt: base.DataCenterFixpackUpdatedAt,
+		},
 		Additional: base.Additional{
 			HelpUrl:           base.DataCenterHelpUrl,
 			V1ApiDocUrl:       base.GenApiDocUrl(),

@@ -49,7 +49,7 @@ func (h *helper) groupFileSet(files []support.File) map[string]*support.FileSet 
 
 func (h *helper) genSupportFileSet(file support.File) *support.FileSet {
 	return &support.FileSet{
-		Name:        fmt.Sprintf("%s Support File Set %s", base.DataCenterVersion, file.Status.CreatedAt),
+		Name:        fmt.Sprintf("%s Support File Set %s", base.DataCenterFirmwareVersion, file.Status.CreatedAt),
 		Description: file.Description,
 		SizeMiB:     0,
 		Files:       []support.File{},

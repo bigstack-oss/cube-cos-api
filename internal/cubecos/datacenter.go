@@ -62,7 +62,7 @@ func GetDataCenterName() (string, error) {
 	return GetTuningValue(CubeSysController)
 }
 
-func GetDataCenterVersion() (string, error) {
+func GetDataCenterFirmwareVersion() (string, error) {
 	desc, err := ReadSettingSys(SysProductDescription)
 	if err != nil {
 		return "", err
@@ -76,7 +76,15 @@ func GetDataCenterVersion() (string, error) {
 	return fmt.Sprintf("%s %s", desc, version), nil
 }
 
-func GetLastUpdateTime() (string, error) {
+func GetDataCenterFixpackVersion() (string, error) {
+	return "", nil
+}
+
+func GetDataCenterFixpackUpdatedAt() (string, error) {
+	return "", nil
+}
+
+func GetFirmwareLastUpdatedAt() (string, error) {
 	partition, err := GetActivePartition()
 	if err != nil {
 		return "", err

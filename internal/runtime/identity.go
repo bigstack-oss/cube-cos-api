@@ -75,7 +75,7 @@ func initIdentities() error {
 		return err
 	}
 
-	base.DataCenterVersion, err = cubecos.GetDataCenterVersion()
+	base.DataCenterFirmwareVersion, err = cubecos.GetDataCenterFirmwareVersion()
 	if err != nil {
 		log.Errorf("runtime: failed to get data center version(%v)", err)
 		return err
@@ -87,9 +87,21 @@ func initIdentities() error {
 		return err
 	}
 
-	base.DataCenterUpdatedAt, err = cubecos.GetLastUpdateTime()
+	base.DataCenterFirmwareUpdatedAt, err = cubecos.GetFirmwareLastUpdatedAt()
 	if err != nil {
 		log.Errorf("runtime: failed to get data center last update time(%v)", err)
+		return err
+	}
+
+	base.DataCenterFixpackVersion, err = cubecos.GetDataCenterFixpackVersion()
+	if err != nil {
+		log.Errorf("runtime: failed to get data center fixpack version(%v)", err)
+		return err
+	}
+
+	base.DataCenterFixpackUpdatedAt, err = cubecos.GetDataCenterFixpackVersion()
+	if err != nil {
+		log.Errorf("runtime: failed to get data center fixpack version(%v)", err)
 		return err
 	}
 

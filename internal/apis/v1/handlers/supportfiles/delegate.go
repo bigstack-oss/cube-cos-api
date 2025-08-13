@@ -76,7 +76,7 @@ func (h *helper) setSupportFileReq() {
 func (h *helper) genFilSetGroup() string {
 	return fmt.Sprintf(
 		"%s Support File Set %s",
-		base.DataCenterVersion,
+		base.DataCenterFirmwareVersion,
 		h.fileReq.CreatedAt,
 	)
 }
