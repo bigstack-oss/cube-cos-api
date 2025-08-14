@@ -3,6 +3,7 @@ package firmwares
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
@@ -36,4 +37,17 @@ func (h *helper) verifyFirmwareAndMd5() (*integrityResult, error) {
 	}
 
 	return result, nil
+}
+
+func (h *helper) setValidFirmware() error {
+	srcPath := filepath.Join(firmwares.TmpUploadDir, h.file)
+	dstPath := filepath.Join(firmwares.UpdateDir, h.file)
+
+	err := os.Rename(srcPath, dstPath)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to move firmware file from %s to %s (%v)", h.reqId, srcPath, dstPath, err)
+		return err
+	}
+
+	return nil
 }

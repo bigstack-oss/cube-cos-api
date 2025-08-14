@@ -107,6 +107,12 @@ func verfiyFirmwareAndMd5Sum(c *gin.Context) {
 		return
 	}
 
+	err = h.setValidFirmware()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
 	bodies.SetOk(
 		c,
 		"Firmware and MD5 sum verified successfully",

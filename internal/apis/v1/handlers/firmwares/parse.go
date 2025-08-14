@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	log "go-micro.dev/v5/logger"
@@ -16,6 +17,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseUploadFirmwareParams()
 	case "uploadFirmwareMd5Sum":
 		return h.parseUploadMd5Params()
+	case "verfiyFirmwareAndMd5Sum":
+		return h.parseVerificationParams()
 	default:
 		return nil
 	}
@@ -33,6 +36,28 @@ func (h *helper) parseUploadFirmwareParams() error {
 func (h *helper) parseUploadMd5Params() error {
 	h.file = firmwares.DefaultMd5File
 	return nil
+}
+
+func (h *helper) parseVerificationParams() error {
+	entries, err := os.ReadDir(firmwares.TmpUploadDir)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to read tmp upload directory %s(%v)", h.reqId, firmwares.TmpUploadDir, err)
+		return err
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		file := filepath.Join(firmwares.TmpUploadDir, entry.Name())
+		if strings.HasSuffix(file, ".pkg") {
+			h.file = entry.Name()
+			return nil
+		}
+	}
+
+	return fmt.Errorf("no firmware file found in %s", firmwares.TmpUploadDir)
 }
 
 func (h *helper) saveUploadFile() error {
