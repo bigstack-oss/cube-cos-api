@@ -12,6 +12,7 @@ const (
 	FormatISO8601Z = "2006-01-02T15:04:05+00:00"
 	FormatRFC3339  = time.RFC3339
 	FormatRFC3339Z = "2006-01-02T15:04:05Z07:00"
+	FormatFirmware = "20060102-1504 TZ:-0700"
 )
 
 var (

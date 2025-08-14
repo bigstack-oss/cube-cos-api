@@ -3,8 +3,10 @@ package firmwares
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
+	log "go-micro.dev/v5/logger"
 )
 
 type helper struct {
@@ -26,4 +28,18 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 	}
 
 	return h, h.parseParamsByHandler()
+}
+
+func (h *helper) listFirmwares() (*firmwarePage, error) {
+	firmwares, err := cubecos.ListFirmwares()
+	if err != nil {
+		log.Errorf("images(%s): failed to list converted images(%v)", h.reqId, err)
+		return nil, err
+	}
+
+	h.sortFirmwares(&firmwares)
+	return &firmwarePage{
+		Firmwares: h.paginateFirmwares(firmwares),
+		Page:      h.genPageInfo(firmwares),
+	}, nil
 }

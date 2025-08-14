@@ -146,6 +146,13 @@ type Integration struct {
 	IsProcessing bool   `json:"isProcessing" bson:"isProcessing"`
 }
 
+type Firmware struct {
+	Current      string `json:"current,omitempty" bson:"current"`
+	IsUpdatable  bool   `json:"isUpdatable" bson:"isUpdatable"`
+	IsProcessing bool   `json:"isProcessing" bson:"isProcessing"`
+	Description  string `json:"description,omitempty" bson:"description"`
+}
+
 func NewHealthOk() *Health {
 	return &Health{Current: Ok}
 }

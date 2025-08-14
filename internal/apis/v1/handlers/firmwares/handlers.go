@@ -14,6 +14,12 @@ var (
 	Handlers = []apis.Handler{
 		{
 			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/firmwares",
+			Func:    listFirmwares,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/firmwares",
 			Func:    uploadFirmware,
@@ -32,6 +38,27 @@ var (
 		},
 	}
 )
+
+func listFirmwares(c *gin.Context) {
+	h, err := initHelper(c, "listFirmwares")
+	if err != nil {
+		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	firmwares, err := h.listFirmwares()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"List of firmwares",
+		firmwares,
+	)
+}
 
 func uploadFirmware(c *gin.Context) {
 	h, err := initHelper(c, "uploadFirmware")

@@ -7,12 +7,15 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	log "go-micro.dev/v5/logger"
 )
 
 func (h *helper) parseParamsByHandler() error {
 	switch h.handler {
+	case "listFirmwares":
+		return h.parseListParams()
 	case "uploadFirmware":
 		return h.parseUploadFirmwareParams()
 	case "uploadFirmwareMd5Sum":
@@ -22,6 +25,17 @@ func (h *helper) parseParamsByHandler() error {
 	default:
 		return nil
 	}
+}
+
+func (h *helper) parseListParams() error {
+	var err error
+	h.page, err = queries.GetPage(h.c)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to get page parameters (%v)", h.reqId, err)
+		return err
+	}
+
+	return nil
 }
 
 func (h *helper) parseUploadFirmwareParams() error {
