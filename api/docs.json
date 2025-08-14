@@ -13565,6 +13565,132 @@
                     }
                 }
             }
+        },
+        "/api/v1/datacenters/{dataCenter}/firmwares/md5sum/verify": {
+            "post": {
+                "operationId": "vierfyFirmwareMd5Sum",
+                "tags": [
+                    "Firmwares"
+                ],
+                "summary": "Verify the firmware MD5 sum",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Firmware and MD5 sum verified successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "data",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "firmwareMd5": {
+                                                    "type": "string",
+                                                    "example": "c18ce9ddf80b065004152b6f2e609ff8"
+                                                },
+                                                "expectedMd5": {
+                                                    "type": "string",
+                                                    "example": "c18ce9ddf80b065004152b6f2e609ff8"
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "Firmware and MD5 sum verified successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "data",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "firmwareMd5": {
+                                                    "type": "string",
+                                                    "example": "vvvwewegrehnfxcvxhn52b6wefh4123g"
+                                                },
+                                                "expectedMd5": {
+                                                    "type": "string",
+                                                    "example": "c18ce9ddf80b065004152b6f2e609ff8"
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to verify firmware md5: bad request"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to upload firmware md5: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
