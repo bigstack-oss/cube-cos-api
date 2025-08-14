@@ -7,12 +7,13 @@ import (
 )
 
 const (
-	FormatBmc      = "Mon Jan 2 15:04:05 2006"
-	FormatISO8601  = "2006-01-02T15:04:05"
-	FormatISO8601Z = "2006-01-02T15:04:05+00:00"
-	FormatRFC3339  = time.RFC3339
-	FormatRFC3339Z = "2006-01-02T15:04:05Z07:00"
-	FormatFirmware = "20060102-1504 TZ:-0700"
+	FormatBmc         = "Mon Jan 2 15:04:05 2006"
+	FormatISO8601     = "2006-01-02T15:04:05"
+	FormatISO8601Z    = "2006-01-02T15:04:05+00:00"
+	FormatRFC3339     = time.RFC3339
+	FormatRFC3339Z    = "2006-01-02T15:04:05Z07:00"
+	FormatFirmware    = "20060102-1504 TZ:-0700"
+	FormatFirmwarePkg = "20060102-1504"
 )
 
 var (

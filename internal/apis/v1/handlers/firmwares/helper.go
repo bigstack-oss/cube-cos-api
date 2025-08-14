@@ -33,7 +33,7 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 func (h *helper) listFirmwares() (*firmwarePage, error) {
 	firmwares, err := cubecos.ListFirmwares()
 	if err != nil {
-		log.Errorf("images(%s): failed to list converted images(%v)", h.reqId, err)
+		log.Errorf("firmwares(%s): failed to list firmwares(%v)", h.reqId, err)
 		return nil, err
 	}
 
