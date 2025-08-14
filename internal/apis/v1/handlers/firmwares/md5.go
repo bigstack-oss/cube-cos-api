@@ -9,7 +9,7 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (h *helper) syncFirmwareMd5Sum() error {
+func (h *helper) syncFirmwareMd5() error {
 	path := path.Join(firmwares.TmpUploadDir, h.file)
 	sum, err := md5.GenByFile(path)
 	if err != nil {

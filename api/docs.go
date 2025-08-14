@@ -13497,6 +13497,78 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/datacenters/{dataCenter}/firmwares/md5sum": {
+            "post": {
+                "operationId": "uploadFirmwareMd5Sum",
+                "tags": [
+                    "Firmwares"
+                ],
+                "summary": "Upload a firmware MD5 sum",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/applicationOctetStream"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Firmware MD5 uploaded successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "Firmware MD5 uploaded successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to upload firmware md5: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -20838,6 +20910,20 @@ const docTemplate = `{
                             "description": {
                                 "type": "string"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "requestBodies": {
+            "applicationOctetStream": {
+                "description": "for example, in the CURL, the firmware pkg should be set by the '-T /path/to/firmware'.",
+                "required": true,
+                "content": {
+                    "application/octet-stream": {
+                        "schema": {
+                            "type": "string",
+                            "format": "binary"
                         }
                     }
                 }

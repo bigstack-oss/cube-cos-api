@@ -13,13 +13,15 @@ import (
 func (h *helper) parseParamsByHandler() error {
 	switch h.handler {
 	case "uploadFirmware":
-		return h.parseUploadParams()
+		return h.parseUploadFirmwareParams()
+	case "uploadFirmwareMd5Sum":
+		return h.parseUploadMd5Params()
 	default:
 		return nil
 	}
 }
 
-func (h *helper) parseUploadParams() error {
+func (h *helper) parseUploadFirmwareParams() error {
 	h.file = h.c.DefaultQuery("file", "")
 	if h.file == "" {
 		return fmt.Errorf("file parameter is required")
@@ -28,18 +30,23 @@ func (h *helper) parseUploadParams() error {
 	return nil
 }
 
-func (h *helper) saveUploadFirmware() error {
+func (h *helper) parseUploadMd5Params() error {
+	h.file = firmwares.DefaultMd5File
+	return nil
+}
+
+func (h *helper) saveUploadFile() error {
 	path := filepath.Join(firmwares.TmpUploadDir, h.file)
 	out, err := os.Create(path)
 	if err != nil {
-		log.Errorf("firmwares(%s): failed to create firmware file %s(%v)", h.reqId, path, err)
+		log.Errorf("firmwares(%s): failed to create %s %s(%v)", path, h.reqId, path, err)
 		return err
 	}
 
 	defer out.Close()
 	_, err = io.Copy(out, h.c.Request.Body)
 	if err != nil {
-		log.Errorf("firmwares(%s): failed to do firmware streaming copy %s(%v)", h.reqId, path, err)
+		log.Errorf("firmwares(%s): failed to do %s streaming copy %s(%v)", path, h.reqId, path, err)
 		return err
 	}
 

@@ -4,5 +4,6 @@ const (
 	Module = "firmwares"
 
 	TmpUploadDir       = "/tmp/firmwares"
-	TmpPreCalculateMd5 = "/tmp/firmwares/md5sum"
+	TmpPreCalculateMd5 = "/tmp/firmwares/precalculate.md5"
+	DefaultMd5File     = "/tmp/firmwares/md5"
 )
