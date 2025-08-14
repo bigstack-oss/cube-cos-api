@@ -218,14 +218,14 @@ const docTemplate = `{
                                                 "isLocal": true,
                                                 "isHaEnabled": false,
                                                 "utcTimeZone": "+00:00",
-                                                    "firmware": {
-                                                        "version": "Cube Appliance 3.1.0",
-                                                        "updatedAt": "2025-08-08T19:51:40+08:00"
-                                                    },
-                                                    "fixpack": {
-                                                        "version": "Cube Fixpack 2025-08-10",
-                                                        "updatedAt": "2025-08-10T19:51:40+08:00"
-                                                    },
+                                                "firmware": {
+                                                    "version": "Cube Appliance 3.1.0",
+                                                    "updatedAt": "2025-08-08T19:51:40+08:00"
+                                                },
+                                                "fixpack": {
+                                                    "version": "Cube Fixpack 2025-08-10",
+                                                    "updatedAt": "2025-08-10T19:51:40+08:00"
+                                                },
                                                 "additional": {
                                                     "helpUrl": "https://www.bigstack.co/contact-us",
                                                     "v1ApiDocUrl": "https://example-virtual-ip/api/v1/datacenters/example-datacenter/apidocs/index.html",
@@ -13415,6 +13415,90 @@ const docTemplate = `{
             }
         },
         "/api/v1/datacenters/{dataCenter}/firmwares": {
+            "get": {
+                "operationId": "listFirmwares",
+                "tags": [
+                    "Firmwares"
+                ],
+                "summary": "List a firmware",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageNum"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageSize"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List firmwares successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListFirmwaresResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Firmware list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "firmwares": [
+                                                    {
+                                                        "version": "CUBE Appliance 3.1.0 f45c719",
+                                                        "releaseNotes": "",
+                                                        "updatedAt": "2025-08-11T09:09:00+08:00",
+                                                        "status": {
+                                                            "current": "available",
+                                                            "isUpdatable": true,
+                                                            "isProcessing": false
+                                                        }
+                                                    }
+                                                ],
+                                                "page": {
+                                                    "total": 1,
+                                                    "number": 1,
+                                                    "size": 2,
+                                                    "totalItemCount": 2
+                                                }
+                                            },
+                                            "msg": "fetch firmware list successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list firmware: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "operationId": "uploadFirmware",
                 "tags": [
@@ -19445,6 +19529,86 @@ const docTemplate = `{
                     "status": {
                         "type": "string",
                         "example": "ok"
+                    }
+                }
+            },
+            "ListFirmwaresResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "firmwares",
+                            "page"
+                        ],
+                        "properties": {
+                            "firmwares": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "version",
+                                        "releaseNotes",
+                                        "updatedAt",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "version": {
+                                            "type": "string"
+                                        },
+                                        "releaseNotes": {
+                                            "type": "string"
+                                        },
+                                        "updatedAt": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "status": {
+                                            "type": "object",
+                                            "required": [
+                                                "current",
+                                                "isUpdatable",
+                                                "isProcessing"
+                                            ],
+                                            "properties": {
+                                                "current": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "available",
+                                                        "processing",
+                                                        "updated"
+                                                    ]
+                                                },
+                                                "isUpdatable": {
+                                                    "type": "boolean"
+                                                },
+                                                "isProcessing": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "page": {
+                                "$ref": "#/components/schemas/Page"
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
                     }
                 }
             },
