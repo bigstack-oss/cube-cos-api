@@ -14,6 +14,7 @@ const (
 	FormatRFC3339Z    = "2006-01-02T15:04:05Z07:00"
 	FormatFirmware    = "20060102-1504 TZ:-0700"
 	FormatFirmwarePkg = "20060102-1504"
+	FormatFixpack     = "02 Jan 2006 15:04:05"
 )
 
 var (

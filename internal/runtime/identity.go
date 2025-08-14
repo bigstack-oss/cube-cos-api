@@ -87,7 +87,7 @@ func initIdentities() error {
 		return err
 	}
 
-	base.DataCenterFirmwareUpdatedAt, err = cubecos.GetFirmwareLastUpdatedAt()
+	base.DataCenterFirmwareUpdatedAt, err = cubecos.GetFirmwaretUpdatedAt()
 	if err != nil {
 		log.Errorf("runtime: failed to get data center last update time(%v)", err)
 		return err
@@ -95,14 +95,12 @@ func initIdentities() error {
 
 	base.DataCenterFixpackVersion, err = cubecos.GetDataCenterFixpackVersion()
 	if err != nil {
-		log.Errorf("runtime: failed to get data center fixpack version(%v)", err)
-		return err
+		log.Warnf("runtime: failed to get data center fixpack version(%v)", err)
 	}
 
-	base.DataCenterFixpackUpdatedAt, err = cubecos.GetDataCenterFixpackVersion()
+	base.DataCenterFixpackUpdatedAt, err = cubecos.GetDataCenterFixpackUpdatedAt()
 	if err != nil {
-		log.Errorf("runtime: failed to get data center fixpack version(%v)", err)
-		return err
+		log.Warnf("runtime: failed to get data center fixpack version(%v)", err)
 	}
 
 	base.SerialNumber, err = cubecos.GetSystemSerial()

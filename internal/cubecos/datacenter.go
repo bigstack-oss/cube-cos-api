@@ -12,6 +12,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
+	log "go-micro.dev/v5/logger"
 )
 
 func GetSystemSeed() (string, error) {
@@ -77,14 +78,60 @@ func GetDataCenterFirmwareVersion() (string, error) {
 }
 
 func GetDataCenterFixpackVersion() (string, error) {
-	return "", nil
+	fixpack, err := GetDataCenterLastInstalledFixpack()
+	if err != nil {
+		return "", err
+	}
+
+	version := fixpack[1]
+	return version, nil
 }
 
 func GetDataCenterFixpackUpdatedAt() (string, error) {
-	return "", nil
+	fixpack, err := GetDataCenterLastInstalledFixpack()
+	if err != nil {
+		return "", err
+	}
+
+	updatedAt := fixpack[0]
+	t, err := ostime.Parse(time.FormatFixpack, updatedAt)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse fixpack updatedAt(%s %v)", updatedAt, err)
+	}
+
+	return time.LocalRFC3339(t), nil
 }
 
-func GetFirmwareLastUpdatedAt() (string, error) {
+func GetDataCenterLastInstalledFixpack() ([]string, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
+	defer cancel()
+
+	out, err := exec.CommandContext(ctx, "hex_config", "fixpack_get_history").Output()
+	if err != nil {
+		err = fmt.Errorf("failed to get data center fixpack version(%v %s)", err, string(out))
+		log.Errorf("datacenter: %v", err)
+		return nil, err
+	}
+
+	if len(out) == 0 {
+		err := fmt.Errorf("data center fixpack version is empty")
+		log.Errorf("datacenter: %v", err)
+		return nil, err
+	}
+
+	lines := strings.Split(string(out), "\n")
+	line := lines[len(lines)-2]
+	segments := strings.Split(line, "|")
+	if len(segments) < 7 {
+		err := fmt.Errorf("invalid fixpack version format: %s", line)
+		log.Errorf("datacenter: %v", err)
+		return nil, err
+	}
+
+	return segments, nil
+}
+
+func GetFirmwaretUpdatedAt() (string, error) {
 	partition, err := GetActivePartition()
 	if err != nil {
 		return "", err
