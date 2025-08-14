@@ -72,13 +72,13 @@ func verifyLicense(c *gin.Context) {
 
 	license, err := h.storeVerifyLicense()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	result, err := cubecos.VerifyLicense(license)
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -93,20 +93,20 @@ func importClusterLicense(c *gin.Context) {
 	h, err := initHelper(c, "importClusterLicense")
 	if err != nil {
 		log.Errorf("license(%s): failed to init helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	path, err := h.storeImportLicense()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	err = cubecos.ImportClusterLicense(path)
 	if err != nil {
 		log.Errorf("license(%s): failed to import cluster license: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -122,7 +122,7 @@ func importHostLicense(c *gin.Context) {
 	h, err := initHelper(c, "importHostLicense")
 	if err != nil {
 		log.Errorf("license(%s): failed to init helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -145,7 +145,7 @@ func listAttachments(c *gin.Context) {
 	h, err := initHelper(c, "listAttachments")
 	if err != nil {
 		log.Errorf("license(%s): failed to init helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 

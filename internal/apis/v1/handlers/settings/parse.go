@@ -161,7 +161,7 @@ func (h *helper) initEmailRecipientCreateParams() error {
 	err = email.CheckFormat(h.task.Recipient.Address)
 	if err != nil {
 		log.Errorf("settings(%s): invalid email format: %v", h.reqId, err)
-		bodies.SetBadRequest(h.c, err)
+		bodies.SetBadRequest(h.c, err, nil)
 		return err
 	}
 

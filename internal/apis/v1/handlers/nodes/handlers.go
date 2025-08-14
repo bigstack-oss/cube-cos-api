@@ -114,7 +114,7 @@ func listNodes(c *gin.Context) {
 	h, err := initHelper(c, "listNodes")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -141,7 +141,7 @@ func getNode(c *gin.Context) {
 	h, err := initHelper(c, "getNode")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -168,7 +168,7 @@ func verifyNodeIpmi(c *gin.Context) {
 	h, err := initHelper(c, "verifyNodeIpmi")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -182,7 +182,7 @@ func verifyNodeIpmi(c *gin.Context) {
 	err = h.checkBoardSerialConsistency(info)
 	if err != nil {
 		log.Errorf("nodes(%s): board serial mismatch(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -197,7 +197,7 @@ func setNodeIpmi(c *gin.Context) {
 	h, err := initHelper(c, "setNodeIpmi")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -211,7 +211,7 @@ func setNodeIpmi(c *gin.Context) {
 	err = h.checkBoardSerialConsistency(info)
 	if err != nil {
 		log.Errorf("nodes(%s): board serial mismatch(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -233,7 +233,7 @@ func ipmiOperateNode(c *gin.Context) {
 	h, err := initHelper(c, "ipmiOperateNode")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -259,7 +259,7 @@ func disconnectNodeIpmi(c *gin.Context) {
 	h, err := initHelper(c, "disconnectNodeIpmi")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -281,7 +281,7 @@ func listNodeDevices(c *gin.Context) {
 	h, err := initHelper(c, "listNodeDevices")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -307,13 +307,13 @@ func addNodeDevice(c *gin.Context) {
 	h, err := initHelper(c, "addNodeDevice")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	err = h.validateDeviceReq()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -333,13 +333,13 @@ func removeNodeDevice(c *gin.Context) {
 	h, err := initHelper(c, "removeNodeDevice")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	err = h.validateDeviceReq()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -359,13 +359,13 @@ func updateNodeDevice(c *gin.Context) {
 	h, err := initHelper(c, "updateNodeDevice")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	err = h.validateDeviceReq()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -390,13 +390,13 @@ func restartNodeOsd(c *gin.Context) {
 	h, err := initHelper(c, "restartNodeOsd")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	err = h.validateOsdReq()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -416,13 +416,13 @@ func removeNodeOsd(c *gin.Context) {
 	h, err := initHelper(c, "removeNodeOsd")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	err = h.validateOsdReq()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -442,13 +442,13 @@ func updateNodeOsd(c *gin.Context) {
 	h, err := initHelper(c, "updateNodeOsd")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	err = h.validateOsdReq()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -468,7 +468,7 @@ func updateDeviceTask(c *gin.Context) {
 	h, err := initHelper(c, "updateDeviceTask")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -490,7 +490,7 @@ func updateOsdTask(c *gin.Context) {
 	h, err := initHelper(c, "updateOsdTask")
 	if err != nil {
 		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 

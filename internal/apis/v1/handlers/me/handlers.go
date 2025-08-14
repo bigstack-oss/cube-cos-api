@@ -25,7 +25,7 @@ func getMe(c *gin.Context) {
 	username, err := getUsername(c)
 	if err != nil {
 		log.Errorf("me(%s): %v", queries.GetReqId(c), err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 	}
 
 	bodies.SetOk(

@@ -24,6 +24,12 @@ var (
 			Path:    "/firmwares/md5sum",
 			Func:    uploadFirmwareMd5Sum,
 		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/firmwares/md5sum/verify",
+			Func:    verfiyFirmwareAndMd5Sum,
+		},
 	}
 )
 
@@ -31,7 +37,7 @@ func uploadFirmware(c *gin.Context) {
 	h, err := initHelper(c, "uploadFirmware")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -43,7 +49,7 @@ func uploadFirmware(c *gin.Context) {
 
 	err = h.saveUploadFile()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -64,7 +70,7 @@ func uploadFirmwareMd5Sum(c *gin.Context) {
 	h, err := initHelper(c, "uploadFirmwareMd5Sum")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -76,7 +82,7 @@ func uploadFirmwareMd5Sum(c *gin.Context) {
 
 	err = h.saveUploadFile()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -84,5 +90,26 @@ func uploadFirmwareMd5Sum(c *gin.Context) {
 		c,
 		"Firmware MD5 sum uploaded successfully",
 		nil,
+	)
+}
+
+func verfiyFirmwareAndMd5Sum(c *gin.Context) {
+	h, err := initHelper(c, "verfiyFirmwareAndMd5Sum")
+	if err != nil {
+		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	result, err := h.verifyFirmwareAndMd5()
+	if err != nil {
+		bodies.SetBadRequest(c, err, result)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"Firmware and MD5 sum verified successfully",
+		result,
 	)
 }

@@ -130,7 +130,7 @@ func listSettings(c *gin.Context) {
 	h, err := initHelper(c, "listSettings")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -152,7 +152,7 @@ func updateTitlePrefix(c *gin.Context) {
 	h, err := initHelper(c, "updateTitlePrefix")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -166,7 +166,7 @@ func updateTitlePrefix(c *gin.Context) {
 func createEmailSender(c *gin.Context) {
 	h, err := initHelper(c, "createEmailSender")
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -185,7 +185,7 @@ func createEmailSender(c *gin.Context) {
 func tryEmailSender(c *gin.Context) {
 	h, err := initHelper(c, "tryEmailSender")
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -196,7 +196,7 @@ func tryEmailSender(c *gin.Context) {
 		return
 	}
 	if len(senders) == 0 {
-		bodies.SetBadRequest(c, errors.New("no email senders found"))
+		bodies.SetBadRequest(c, errors.New("no email senders found"), nil)
 		return
 	}
 
@@ -242,12 +242,12 @@ func patchEmailSender(c *gin.Context) {
 	h, err := initHelper(c, "patchEmailSender")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	if !h.isSenderExist(h.emailSender) {
-		bodies.SetBadRequest(c, errors.New("sender not found"))
+		bodies.SetBadRequest(c, errors.New("sender not found"), nil)
 		return
 	}
 
@@ -264,12 +264,12 @@ func deleteEmailSender(c *gin.Context) {
 	h, err := initHelper(c, "deleteEmailSender")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	if !h.isSenderExist(h.task.Sender.Host) {
-		bodies.SetBadRequest(c, errors.New("sender not found"))
+		bodies.SetBadRequest(c, errors.New("sender not found"), nil)
 		return
 	}
 
@@ -284,12 +284,12 @@ func createEmailRecipient(c *gin.Context) {
 	h, err := initHelper(c, "createEmailRecipient")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	if h.hitRecipientLimit() {
-		bodies.SetBadRequest(c, errors.New("recipient 10 limit reached"))
+		bodies.SetBadRequest(c, errors.New("recipient 10 limit reached"), nil)
 		return
 	}
 
@@ -309,7 +309,7 @@ func tryEmailRecipient(c *gin.Context) {
 	h, err := initHelper(c, "tryEmailRecipient")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -353,14 +353,14 @@ func patchEmailRecipient(c *gin.Context) {
 	h, err := initHelper(c, "patchEmailRecipient")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	err = h.checkRecipientUpdate()
 	if err != nil {
 		log.Errorf("settings(%s): failed to update email recipient: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -375,12 +375,12 @@ func deleteEmailRecipient(c *gin.Context) {
 	h, err := initHelper(c, "deleteEmailRecipient")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	if !h.isRecipientExist(h.c.Param("recipientEmail")) {
-		bodies.SetBadRequest(c, errors.New("recipient not found"))
+		bodies.SetBadRequest(c, errors.New("recipient not found"), nil)
 		return
 	}
 
@@ -395,12 +395,12 @@ func createSlackChannel(c *gin.Context) {
 	h, err := initHelper(c, "createSlackChannel")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	if h.hitSlackLimit() {
-		bodies.SetBadRequest(c, errors.New("slack 10 limit reached"))
+		bodies.SetBadRequest(c, errors.New("slack 10 limit reached"), nil)
 		return
 	}
 
@@ -420,7 +420,7 @@ func trySlackChannel(c *gin.Context) {
 	h, err := initHelper(c, "trySlackChannel")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -458,12 +458,12 @@ func putSlackChannel(c *gin.Context) {
 	h, err := initHelper(c, "putSlackChannel")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	if !h.isSlackChannlExist() {
-		bodies.SetBadRequest(c, errors.New("channel not found"))
+		bodies.SetBadRequest(c, errors.New("channel not found"), nil)
 		return
 	}
 
@@ -478,12 +478,12 @@ func deleteSlackChannel(c *gin.Context) {
 	h, err := initHelper(c, "deleteSlackChannel")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	if !h.isSlackChannlExist() {
-		bodies.SetBadRequest(c, errors.New("channel not found"))
+		bodies.SetBadRequest(c, errors.New("channel not found"), nil)
 		return
 	}
 
@@ -498,7 +498,7 @@ func updateSettingTask(c *gin.Context) {
 	h, err := initHelper(c, "updateSettingTask")
 	if err != nil {
 		log.Errorf("settings(%s): failed to init request helper: %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 

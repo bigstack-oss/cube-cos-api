@@ -87,7 +87,7 @@ func createSupportFile(c *gin.Context) {
 	err = h.checkHostValidation()
 	if err != nil {
 		log.Errorf("supportFiles(%s): failed to delegate support file request(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 

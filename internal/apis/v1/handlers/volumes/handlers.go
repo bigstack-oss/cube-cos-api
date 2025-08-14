@@ -47,7 +47,7 @@ func listVolumes(c *gin.Context) {
 	h, err := initHelper(c, "listVolumes")
 	if err != nil {
 		log.Errorf("volumes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -74,7 +74,7 @@ func listVolumeAsCsv(c *gin.Context) {
 	h, err := initHelper(c, "listVolumesAsCsv")
 	if err != nil {
 		log.Errorf("volumes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -92,19 +92,19 @@ func convertImageToVolume(c *gin.Context) {
 	h, err := initHelper(c, "convertImageToVolume")
 	if err != nil {
 		log.Errorf("volumes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	err = h.validateImageConvertionValues()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	err = h.saveUploadImage()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -119,7 +119,7 @@ func updateImageConvertionTask(c *gin.Context) {
 	h, err := initHelper(c, "updateImageConvertionTask")
 	if err != nil {
 		log.Errorf("volumes(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 

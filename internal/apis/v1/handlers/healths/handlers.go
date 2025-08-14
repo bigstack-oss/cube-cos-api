@@ -66,7 +66,7 @@ func getHealthSummary(c *gin.Context) {
 	h, err := initHelper(c, "getHealthSummary")
 	if err != nil {
 		log.Errorf("healths(%s): %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -93,7 +93,7 @@ func checkAndRepairAllModules(c *gin.Context) {
 	h, err := initHelper(c, "checkAndRepairAllModules")
 	if err != nil {
 		log.Errorf("healths(%s): %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -115,7 +115,7 @@ func forceRepairModule(c *gin.Context) {
 	h, err := initHelper(c, "forceRepairModule")
 	if err != nil {
 		log.Errorf("healths(%s): %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -137,7 +137,7 @@ func genServiceHealthHistory(c *gin.Context) {
 	h, err := initHelper(c, "genServiceHealthHistory")
 	if err != nil {
 		log.Errorf("healths(%s): %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -158,7 +158,7 @@ func getModuleHealthHistory(c *gin.Context) {
 	h, err := initHelper(c, "getModuleHealthHistory")
 	if err != nil {
 		log.Errorf("healths(%s): %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -179,7 +179,7 @@ func deleteCheckRepairTask(c *gin.Context) {
 	h, err := initHelper(c, "deleteCheckRepairTask")
 	if err != nil {
 		log.Errorf("healths(%s): %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -201,7 +201,7 @@ func deleteModuleRepairTask(c *gin.Context) {
 	h, err := initHelper(c, "deleteModuleRepairTask")
 	if err != nil {
 		log.Errorf("healths(%s): %v", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 

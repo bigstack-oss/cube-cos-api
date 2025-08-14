@@ -54,7 +54,7 @@ func listEvents(c *gin.Context) {
 	h, err := initHelper(c, "listEvents")
 	if err != nil {
 		log.Errorf("events(%s): %v", queries.GetReqId(c), err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -80,7 +80,7 @@ func listPredefinedEvents(c *gin.Context) {
 	h, err := initHelper(c, "listPredefinedEvents")
 	if err != nil {
 		log.Errorf("events(%s): %v", queries.GetReqId(c), err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -102,7 +102,7 @@ func listEventAbstract(c *gin.Context) {
 	h, err := initHelper(c, "listEventAbstract")
 	if err != nil {
 		log.Errorf("events(%s): %v", queries.GetReqId(c), err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -129,7 +129,7 @@ func getEventRank(c *gin.Context) {
 	h, err := initHelper(c, "getEventRank")
 	if err != nil {
 		log.Errorf("events(%s): %v", queries.GetReqId(c), err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -156,7 +156,7 @@ func getEventFilterConditions(c *gin.Context) {
 	h, err := initHelper(c, "getEventFilterConditions")
 	if err != nil {
 		log.Errorf("events(%s): %v", queries.GetReqId(c), err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 

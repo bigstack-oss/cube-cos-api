@@ -64,7 +64,7 @@ func watchTunings(h *helper, data *tuningPage) {
 	setChunkedTransfer(h.c)
 	flusher, ok := h.c.Writer.(http.Flusher)
 	if !ok {
-		bodies.SetBadRequest(h.c, errors.New("http chunked transfer is not supported"))
+		bodies.SetBadRequest(h.c, errors.New("http chunked transfer is not supported"), nil)
 		return
 	}
 

@@ -22,7 +22,7 @@ func ListNotifications(c *gin.Context) {
 	h, err := initHepler(c, "listNotifications")
 	if err != nil {
 		log.Errorf("notifications(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 

@@ -75,7 +75,7 @@ func listMaterials(c *gin.Context) {
 	h, err := initHelper(c, "listMaterials")
 	if err != nil {
 		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -97,7 +97,7 @@ func verifyMaterialScript(c *gin.Context) {
 	h, err := initHelper(c, "verifyMaterialScript")
 	if err != nil {
 		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -110,7 +110,7 @@ func verifyMaterialScript(c *gin.Context) {
 
 	result, err := h.verifyMaterialScript()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -125,7 +125,7 @@ func listTriggers(c *gin.Context) {
 	h, err := initHelper(c, "listTriggers")
 	if err != nil {
 		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -147,14 +147,14 @@ func getTrigger(c *gin.Context) {
 	h, err := initHelper(c, "getTrigger")
 	if err != nil {
 		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	trigger, err := h.getTrigger(h.parseTriggerName())
 	if err != nil {
 		log.Errorf("triggers(%s): failed to getTrigger(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -169,7 +169,7 @@ func createTrigger(c *gin.Context) {
 	h, err := initHelper(c, "createTrigger")
 	if err != nil {
 		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -190,13 +190,13 @@ func updateTrigger(c *gin.Context) {
 	h, err := initHelper(c, "updateTrigger")
 	if err != nil {
 		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	if !h.isTriggerExist(h.reqOpts.Name) {
 		err := fmt.Errorf("trigger %s does not exist", h.reqOpts.Name)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -211,13 +211,13 @@ func deleteTrigger(c *gin.Context) {
 	h, err := initHelper(c, "deleteTrigger")
 	if err != nil {
 		log.Errorf("triggers(%s): failed to initHelper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	if !h.isTriggerExist(h.reqOpts.Name) {
 		err := fmt.Errorf("trigger %s does not exist", h.reqOpts.Name)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -232,7 +232,7 @@ func enableOrDisableTrigger(c *gin.Context) {
 	h, err := initHelper(c, "enableOrDisableTrigger")
 	if err != nil {
 		log.Errorf("tunings(%s): failed to init request helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -247,14 +247,14 @@ func updateTriggerTask(c *gin.Context) {
 	h, err := initHelper(c, "updateTriggerTask")
 	if err != nil {
 		log.Errorf("triggers(%s): failed to init request helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	err = h.checkTaskUpdateReq()
 	if err != nil {
 		log.Errorf("triggers(%s): failed to check trigger(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 

@@ -98,14 +98,15 @@ func SetRedirect(c *gin.Context, redirectUrl string) {
 	)
 }
 
-func SetBadRequest(c *gin.Context, err error) {
+func SetBadRequest(c *gin.Context, err error, data any) {
+	resp := gin.H{Code: http.StatusBadRequest, Status: "bad request", Msg: err.Error()}
+	if data != nil {
+		resp[Data] = data
+	}
+
 	c.JSON(
-		http.StatusBadRequest,
-		gin.H{
-			Code:   http.StatusBadRequest,
-			Status: "bad request",
-			Msg:    err.Error(),
-		},
+		http.StatusOK,
+		resp,
 	)
 }
 

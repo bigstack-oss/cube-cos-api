@@ -53,7 +53,7 @@ func listImageMaterials(c *gin.Context) {
 	h, err := initHelper(c, "listMaterials")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -75,7 +75,7 @@ func listImages(c *gin.Context) {
 	h, err := initHelper(c, "listImages")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -102,7 +102,7 @@ func listImageAsCsv(c *gin.Context) {
 	h, err := initHelper(c, "listImagesAsCsv")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -120,19 +120,19 @@ func importImage(c *gin.Context) {
 	h, err := initHelper(c, "importImage")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	err = h.validateValues()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
 	err = h.saveUploadImage()
 	if err != nil {
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
@@ -147,7 +147,7 @@ func updateImageTask(c *gin.Context) {
 	h, err := initHelper(c, "updateImageTask")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 

@@ -26,7 +26,7 @@ func createToken(c *gin.Context) {
 	user, err := parseUserBody(c)
 	if err != nil {
 		log.Errorf("tokens(%s): failed to parse user: %v", queries.GetReqId(c), err)
-		bodies.SetBadRequest(c, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
