@@ -12,23 +12,9 @@ import (
 )
 
 func (h *helper) verifyFirmwareAndMd5() (*integrityResult, error) {
-	prePath := filepath.Join(firmwares.TmpUploadDir, firmwares.TmpPreCalculateMd5)
-	precalculated, err := os.ReadFile(prePath)
+	result, err := h.parseMd5Data()
 	if err != nil {
-		log.Errorf("firmwares(%s): failed to read precalculated md5 %s(%v)", h.reqId, prePath, err)
-		return nil, err
-	}
-
-	defaultPath := filepath.Join(firmwares.TmpUploadDir, firmwares.DefaultMd5File)
-	expected, err := os.ReadFile(defaultPath)
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to read md5 file %s(%v)", h.reqId, defaultPath, err)
-		return nil, err
-	}
-
-	result := &integrityResult{
-		FirmwareMd5: strings.Trim(string(precalculated), "\n"),
-		ExpectedMd5: strings.Trim(string(expected), "\n"),
+		return result, err
 	}
 
 	if !strings.Contains(result.ExpectedMd5, result.FirmwareMd5) {
