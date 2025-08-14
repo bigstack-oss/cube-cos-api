@@ -10,9 +10,10 @@ import (
 )
 
 func (h *helper) resetTmpFirmwareArtifacts() error {
-	err := os.Remove(firmwares.TmpPreCalculateMd5)
+	path := filepath.Join(firmwares.TmpUploadDir, firmwares.TmpPreCalculateMd5)
+	err := os.Remove(path)
 	if err != nil {
-		log.Errorf("firmwares(%s): failed to clean up precalculated m5d %s(%v)", h.reqId, firmwares.TmpPreCalculateMd5, err)
+		log.Errorf("firmwares(%s): failed to clean up precalculated m5d %s(%v)", h.reqId, path, err)
 		return err
 	}
 
@@ -43,9 +44,15 @@ func (h *helper) resetTmpFirmwareArtifacts() error {
 }
 
 func (h *helper) resetTmpFirmwareMd5() error {
-	err := os.Remove(firmwares.DefaultMd5File)
+	path := filepath.Join(firmwares.TmpUploadDir, firmwares.DefaultMd5File)
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return nil
+	}
+
+	err = os.Remove(path)
 	if err != nil {
-		log.Errorf("firmwares(%s): failed to reset tmp firmware m5d %s(%v)", h.reqId, firmwares.DefaultMd5File, err)
+		log.Errorf("firmwares(%s): failed to reset tmp firmware m5d %s(%v)", h.reqId, path, err)
 		return err
 	}
 
