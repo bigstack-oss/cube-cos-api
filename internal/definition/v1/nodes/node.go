@@ -66,8 +66,9 @@ type Node struct {
 	IpmiEnablement   `json:"ipmi" yaml:"ipmi" bson:"ipmi"`
 
 	License       licenses.License `json:"license" yaml:"license,omitempty" bson:"license,omitempty"`
-	Status        string           `json:"status" yaml:"status" bson:"status" default:"down"`
-	UptimeSeconds float64          `json:"uptimeSeconds" yaml:"uptimeSeconds" bson:"uptimeSeconds"`
+	Firmware      `json:"firmware" yaml:"firmware,omitempty" bson:"firmware,omitempty"`
+	Status        string  `json:"status" yaml:"status" bson:"status" default:"down"`
+	UptimeSeconds float64 `json:"uptimeSeconds" yaml:"uptimeSeconds" bson:"uptimeSeconds"`
 
 	Labels map[string]string `json:"labels,omitempty" yaml:"labels,omitempty" bson:"labels,omitempty"`
 }
@@ -146,7 +147,11 @@ func New(node *registry.Node) Node {
 		Protocol:     node.Metadata["protocol"],
 		Ip:           node.Metadata["ip"],
 		Hostname:     node.Metadata["hostname"],
-		Address:      node.Address,
+		Firmware: Firmware{
+			Active:   node.Metadata["activeFirmware"],
+			Inactive: node.Metadata["inactiveFirmware"],
+		},
+		Address: node.Address,
 		Labels: map[string]string{
 			"isGpuEnabled": node.Metadata["isGpuEnabled"],
 		},

@@ -13920,14 +13920,7 @@
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "in": "path",
-                        "name": "version",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "The version of the firmware to delete",
-                        "example": "CUBE Appliance 3.1.0 f45c719"
+                        "$ref": "#/components/parameters/version"
                     }
                 ],
                 "responses": {
@@ -14015,6 +14008,97 @@
                     }
                 }
             }
+        },
+        "/api/v1/datacenters/{dataCenter}/firmwares/{version}/updatableNodes": {
+            "get": {
+                "operationId": "listUpdatableNodes",
+                "tags": [
+                    "Firmwares"
+                ],
+                "summary": "List nodes that can be updated to the specified firmware version",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of updatable nodes successfully retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListUpdatableNodesResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Updatable node list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "name": "example-node-0",
+                                                    "firmware": {
+                                                        "active": "Cube Appliance 3.1.0",
+                                                        "inactive": "Cube Appliance 3.1.0"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "example-node-1",
+                                                    "firmware": {
+                                                        "active": "Cube Appliance 3.1.0",
+                                                        "inactive": "Cube Appliance 3.1.0"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "example-node-2",
+                                                    "firmware": {
+                                                        "active": "Cube Appliance 3.1.0",
+                                                        "inactive": "Cube Appliance 3.1.0"
+                                                    }
+                                                }
+                                            ],
+                                            "msg": "fetch updatable nodes successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list updatable nodes: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -14035,6 +14119,16 @@
                 },
                 "description": "The name of the data center to operate",
                 "example": "example-data-center"
+            },
+            "version": {
+                "in": "path",
+                "name": "version",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The version of the firmware to delete",
+                "example": "CUBE Appliance 3.1.0 f45c719"
             },
             "nodeName": {
                 "name": "nodeName",
@@ -19860,6 +19954,56 @@
                             },
                             "page": {
                                 "$ref": "#/components/schemas/Page"
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ListUpdatableNodesResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "firmware"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "firmware": {
+                                    "type": "object",
+                                    "required": [
+                                        "active",
+                                        "inactive"
+                                    ],
+                                    "properties": {
+                                        "active": {
+                                            "type": "string"
+                                        },
+                                        "inactive": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
                             }
                         }
                     },

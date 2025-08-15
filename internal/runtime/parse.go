@@ -121,15 +121,17 @@ func newNodeMetadata() error {
 	}
 
 	base.NodeMetadata = map[string]string{
-		"role":         base.CurrentRole,
-		"hostname":     base.Hostname,
-		"dataCenter":   base.DataCenterName,
-		"nodeID":       base.HostID,
-		"serialNumber": base.SerialNumber,
-		"boardSerial":  base.BoardSerial,
-		"protocol":     conf.Opts.Kind,
-		"ip":           base.ManagementIp,
-		"isGpuEnabled": fmt.Sprintf("%t", base.IsGpuEnabled),
+		"role":             base.CurrentRole,
+		"hostname":         base.Hostname,
+		"dataCenter":       base.DataCenterName,
+		"nodeID":           base.HostID,
+		"serialNumber":     base.SerialNumber,
+		"boardSerial":      base.BoardSerial,
+		"activeFirmware":   base.ActiveFirmwareVersion,
+		"inactiveFirmware": base.InactiveFirmwareVersion,
+		"protocol":         conf.Opts.Kind,
+		"ip":               base.ManagementIp,
+		"isGpuEnabled":     fmt.Sprintf("%t", base.IsGpuEnabled),
 	}
 
 	return nil

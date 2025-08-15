@@ -38,6 +38,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/firmwares/:version/updatableNodes",
+			Func:    listUpdatableNodes,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodDelete,
 			Path:    "/firmwares/:version",
 			Func:    deleteFirmware,
@@ -123,6 +129,27 @@ func uploadFirmwareMd5Sum(c *gin.Context) {
 		c,
 		"Firmware MD5 sum uploaded successfully",
 		nil,
+	)
+}
+
+func listUpdatableNodes(c *gin.Context) {
+	h, err := initHelper(c, "listUpdatableNodes")
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	nodes, err := h.listUpdatableNodes()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"List of updatable nodes",
+		nodes,
 	)
 }
 

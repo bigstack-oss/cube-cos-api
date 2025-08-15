@@ -76,7 +76,7 @@ func (h *helper) setSupportFileReq() {
 func (h *helper) genFilSetGroup() string {
 	return fmt.Sprintf(
 		"%s Support File Set %s",
-		base.DataCenterFirmwareVersion,
+		base.ActiveFirmwareVersion,
 		h.fileReq.CreatedAt,
 	)
 }
@@ -92,7 +92,7 @@ func (h *helper) tunePeer(node *nodes.Node) error {
 	http := http.GetGlobalHelper()
 	resp, err := http.R().SetHeaders(nodes.GetSecretHeaders()).SetBody(body).Post(url)
 	if err != nil {
-		log.Errorf("supportFiles(%s): failed to create support file %s to %s: %v", h.reqId, h.file.Name, node.Id, err)
+		log.Errorf("supportFiles(%s): failed to create support file %s to %s: %v", h.reqId, h.file.Name, node.Hostname, err)
 		return err
 	}
 

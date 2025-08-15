@@ -19,33 +19,34 @@ const (
 )
 
 var (
-	SystemSeed                  string
-	ServiceDiscoveryIdentity    string
-	BoardSerial                 string
-	DataCenterName              string
-	DataCenterFirmwareVersion   string
-	DataCenterFirmwareUpdatedAt string
-	DataCenterFixpackVersion    string
-	DataCenterFixpackUpdatedAt  string
-	DataCenterNumericVersion    string
-	DataCenterVip               string
-	HostID                      string
-	Hostname                    string
-	SerialNumber                string
-	CurrentRole                 string
-	ListenIp                    string
-	ListenAddr                  string
-	ListenPort                  int
-	AdvertiseIp                 string
-	AdvertiseAddr               string
-	AdvertisePort               int
-	ManagementNet               string
-	ManagementIp                string
-	StorageNet                  string
-	StorageIP                   string
-	IsHaEnabled                 bool
-	IsGpuEnabled                bool
-	NodeMetadata                map[string]string
+	SystemSeed               string
+	ServiceDiscoveryIdentity string
+	BoardSerial              string
+	DataCenterName           string
+	ActiveFirmwareVersion    string
+	ActiveFirmwareUpdatedAt  string
+	InactiveFirmwareVersion  string
+	FixpackVersion           string
+	FixpackUpdatedAt         string
+	DataCenterNumericVersion string
+	DataCenterVip            string
+	HostID                   string
+	Hostname                 string
+	SerialNumber             string
+	CurrentRole              string
+	ListenIp                 string
+	ListenAddr               string
+	ListenPort               int
+	AdvertiseIp              string
+	AdvertiseAddr            string
+	AdvertisePort            int
+	ManagementNet            string
+	ManagementIp             string
+	StorageNet               string
+	StorageIP                string
+	IsHaEnabled              bool
+	IsGpuEnabled             bool
+	NodeMetadata             map[string]string
 )
 
 func GetMacAddr(netInterface string) (string, error) {

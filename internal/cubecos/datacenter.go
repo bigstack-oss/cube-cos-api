@@ -63,7 +63,7 @@ func GetDataCenterName() (string, error) {
 	return GetTuningValue(CubeSysController)
 }
 
-func GetDataCenterFirmwareVersion() (string, error) {
+func GetActiveFirmwareVersion() (string, error) {
 	desc, err := ReadSettingSys(SysProductDescription)
 	if err != nil {
 		return "", err
@@ -77,7 +77,23 @@ func GetDataCenterFirmwareVersion() (string, error) {
 	return fmt.Sprintf("%s %s", desc, version), nil
 }
 
-func GetDataCenterFixpackVersion() (string, error) {
+func GetInactiveFirmwareVersion() (string, error) {
+	active, err := GetActivePartition()
+	if err != nil {
+		return "", err
+	}
+
+	inactive := ""
+	if active == "1" {
+		inactive = "2"
+	} else {
+		inactive = "1"
+	}
+
+	return ReadPartitionFirmwareVersion(inactive)
+}
+
+func GetFixpackVersion() (string, error) {
 	fixpack, err := GetDataCenterLastInstalledFixpack()
 	if err != nil {
 		return "", err
@@ -87,7 +103,7 @@ func GetDataCenterFixpackVersion() (string, error) {
 	return version, nil
 }
 
-func GetDataCenterFixpackUpdatedAt() (string, error) {
+func GetFixpackUpdatedAt() (string, error) {
 	fixpack, err := GetDataCenterLastInstalledFixpack()
 	if err != nil {
 		return "", err
@@ -131,7 +147,7 @@ func GetDataCenterLastInstalledFixpack() ([]string, error) {
 	return segments, nil
 }
 
-func GetFirmwaretUpdatedAt() (string, error) {
+func GetActiveFirmwaretUpdatedAt() (string, error) {
 	partition, err := GetActivePartition()
 	if err != nil {
 		return "", err
@@ -164,6 +180,41 @@ func GetActivePartition() (string, error) {
 
 	activeNum := strings.TrimSpace(string(out))
 	return activeNum, nil
+}
+
+func ReadPartitionFirmwareVersion(partition string) (string, error) {
+	path := fmt.Sprintf("/boot/grub2/info%s", partition)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", fmt.Errorf("failed to read firmware version from %s(%v)", path, err)
+	}
+
+	if len(data) == 0 {
+		return "", fmt.Errorf("partition data is empty in %s", path)
+	}
+
+	lines := strings.Split(string(data), "\n")
+	if len(lines) == 0 {
+		return "", fmt.Errorf("no lines found in partition data")
+	}
+
+	for _, line := range lines {
+		if !strings.HasPrefix(line, "firmware_version") {
+			continue
+		}
+
+		parts := strings.Split(line, "=")
+		if len(parts) != 2 {
+			return "", fmt.Errorf("invalid install date format: %s", line)
+		}
+
+		version := strings.TrimSpace(parts[1])
+		return version, nil
+	}
+
+	return "", fmt.Errorf(
+		"install date not found in partition data",
+	)
 }
 
 func ReadPartitionInstallTimestamp(partition string) (int64, error) {

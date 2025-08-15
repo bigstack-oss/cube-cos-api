@@ -84,7 +84,7 @@ func (h *helper) tunePeer(node *nodes.Node, sent *atomic.Int32) {
 			h.genTuningUrlByHandler(node),
 		)
 	if err != nil {
-		log.Errorf("tunings(%s): failed to send %s to %s: %v", h.reqId, h.tuning.Name, node.Id, err)
+		log.Errorf("tunings(%s): failed to send %s to %s: %v", h.reqId, h.tuning.Name, node.Hostname, err)
 		return
 	}
 

@@ -10,6 +10,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -48,6 +49,26 @@ func (h *helper) listFirmwares() (*firmwarePage, error) {
 		Firmwares: h.paginateFirmwares(firmwares),
 		Page:      h.genPageInfo(firmwares),
 	}, nil
+}
+
+func (h *helper) listUpdatableNodes() ([]node, error) {
+	list := nodes.List()
+	if len(list) == 0 {
+		return nil, fmt.Errorf("no nodes found")
+	}
+
+	updatables := make([]node, 0, len(list))
+	for _, n := range list {
+		updatables = append(updatables, node{
+			Name: n.Hostname,
+			Firmware: nodes.Firmware{
+				Active:   n.Firmware.Active,
+				Inactive: n.Firmware.Inactive,
+			},
+		})
+	}
+
+	return updatables, nil
 }
 
 func (h *helper) deleteFirmware() error {

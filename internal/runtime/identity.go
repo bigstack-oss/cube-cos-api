@@ -75,32 +75,38 @@ func initIdentities() error {
 		return err
 	}
 
-	base.DataCenterFirmwareVersion, err = cubecos.GetDataCenterFirmwareVersion()
-	if err != nil {
-		log.Errorf("runtime: failed to get data center version(%v)", err)
-		return err
-	}
-
 	base.DataCenterNumericVersion, err = cubecos.GetDataCenterNumericVersion()
 	if err != nil {
 		log.Errorf("runtime: failed to get data center numeric version(%v)", err)
 		return err
 	}
 
-	base.DataCenterFirmwareUpdatedAt, err = cubecos.GetFirmwaretUpdatedAt()
+	base.ActiveFirmwareVersion, err = cubecos.GetActiveFirmwareVersion()
 	if err != nil {
-		log.Errorf("runtime: failed to get data center last update time(%v)", err)
+		log.Errorf("runtime: failed to get active firmware version(%v)", err)
 		return err
 	}
 
-	base.DataCenterFixpackVersion, err = cubecos.GetDataCenterFixpackVersion()
+	base.ActiveFirmwareUpdatedAt, err = cubecos.GetActiveFirmwaretUpdatedAt()
 	if err != nil {
-		log.Warnf("runtime: failed to get data center fixpack version(%v)", err)
+		log.Errorf("runtime: failed to get active firmware updated at(%v)", err)
+		return err
 	}
 
-	base.DataCenterFixpackUpdatedAt, err = cubecos.GetDataCenterFixpackUpdatedAt()
+	base.InactiveFirmwareVersion, err = cubecos.GetInactiveFirmwareVersion()
 	if err != nil {
-		log.Warnf("runtime: failed to get data center fixpack version(%v)", err)
+		log.Errorf("runtime: failed to get inactive firmware version(%v)", err)
+		return err
+	}
+
+	base.FixpackVersion, err = cubecos.GetFixpackVersion()
+	if err != nil {
+		log.Warnf("runtime: failed to get fixpack version(%v)", err)
+	}
+
+	base.FixpackUpdatedAt, err = cubecos.GetFixpackUpdatedAt()
+	if err != nil {
+		log.Warnf("runtime: failed to get fixpack version(%v)", err)
 	}
 
 	base.SerialNumber, err = cubecos.GetSystemSerial()
