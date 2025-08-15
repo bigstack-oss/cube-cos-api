@@ -39,7 +39,7 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodDelete,
-			Path:    "/firmwares/{version}",
+			Path:    "/firmwares/:version",
 			Func:    deleteFirmware,
 		},
 	}
