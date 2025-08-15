@@ -32,7 +32,7 @@ func (h *helper) setValidFirmware() error {
 	srcPath := filepath.Join(firmwares.TmpUploadDir, h.file)
 	dstPath := filepath.Join(firmwares.UpdateDir, h.file)
 
-	err := h.MoveFile(srcPath, dstPath)
+	err := h.moveFile(srcPath, dstPath)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to move firmware file from %s to %s (%v)", h.reqId, srcPath, dstPath, err)
 		return err
@@ -41,7 +41,7 @@ func (h *helper) setValidFirmware() error {
 	return nil
 }
 
-func (h *helper) MoveFile(srcPath, dstPath string) error {
+func (h *helper) moveFile(srcPath, dstPath string) error {
 	srcFile, err := os.Open(srcPath)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to open source file %s (%v)", h.reqId, srcPath, err)
