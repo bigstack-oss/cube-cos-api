@@ -51,14 +51,12 @@ func (h *helper) listFirmwares() (*firmwarePage, error) {
 }
 
 func (h *helper) deleteFirmware() error {
-	segments := strings.Split(h.file, " ")
-	if len(segments) < 4 {
-		return fmt.Errorf(
-			"invalid firmware version format: %s, expected format: CUBE Appliance <version> <hash>",
-			h.file,
-		)
+	err := h.checkFirmwarePattern()
+	if err != nil {
+		return err
 	}
 
+	segments := strings.Split(h.file, " ")
 	version := segments[2]
 	hash := segments[3]
 	entries, err := os.ReadDir(firmwares.UpdateDir)

@@ -11,6 +11,18 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
+func (h *helper) checkFirmwarePattern() error {
+	segments := strings.Split(h.file, " ")
+	if len(segments) < 4 {
+		return fmt.Errorf(
+			"invalid firmware version format: %s, expected format: CUBE Appliance <version> <hash>",
+			h.file,
+		)
+	}
+
+	return nil
+}
+
 func (h *helper) verifyFirmwareAndMd5() (*integrityResult, error) {
 	result, err := h.parseMd5Data()
 	if err != nil {

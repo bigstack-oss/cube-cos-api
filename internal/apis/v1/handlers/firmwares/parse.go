@@ -82,15 +82,7 @@ func (h *helper) parseDeleteFirmwareParams() error {
 		return fmt.Errorf("version parameter is required")
 	}
 
-	segments := strings.Split(h.file, " ")
-	if len(segments) < 4 {
-		return fmt.Errorf(
-			"invalid firmware version format: %s, expected format: CUBE Appliance <version> <hash>",
-			h.file,
-		)
-	}
-
-	return nil
+	return h.checkFirmwarePattern()
 }
 
 func (h *helper) saveUploadFile() error {
