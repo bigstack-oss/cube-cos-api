@@ -48,7 +48,7 @@ var (
 func listFirmwares(c *gin.Context) {
 	h, err := initHelper(c, "listFirmwares")
 	if err != nil {
-		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err, nil)
 		return
 	}
@@ -69,7 +69,7 @@ func listFirmwares(c *gin.Context) {
 func uploadFirmware(c *gin.Context) {
 	h, err := initHelper(c, "uploadFirmware")
 	if err != nil {
-		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err, nil)
 		return
 	}
@@ -102,7 +102,7 @@ func uploadFirmware(c *gin.Context) {
 func uploadFirmwareMd5Sum(c *gin.Context) {
 	h, err := initHelper(c, "uploadFirmwareMd5Sum")
 	if err != nil {
-		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err, nil)
 		return
 	}
@@ -129,7 +129,7 @@ func uploadFirmwareMd5Sum(c *gin.Context) {
 func verfiyFirmwareAndMd5Sum(c *gin.Context) {
 	h, err := initHelper(c, "verfiyFirmwareAndMd5Sum")
 	if err != nil {
-		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err, nil)
 		return
 	}
@@ -156,7 +156,7 @@ func verfiyFirmwareAndMd5Sum(c *gin.Context) {
 func deleteFirmware(c *gin.Context) {
 	h, err := initHelper(c, "deleteFirmware")
 	if err != nil {
-		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err, nil)
 		return
 	}
