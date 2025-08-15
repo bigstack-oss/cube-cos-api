@@ -13416,7 +13416,7 @@
                 "tags": [
                     "Firmwares"
                 ],
-                "summary": "List a firmware",
+                "summary": "List firmwares",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -13510,16 +13510,7 @@
                     }
                 ],
                 "requestBody": {
-                    "description": "for example, in the CURL, the firmware pkg should be set by the '-T /path/to/firmware'.",
-                    "required": true,
-                    "content": {
-                        "application/octet-stream": {
-                            "schema": {
-                                "type": "string",
-                                "format": "binary"
-                            }
-                        }
-                    }
+                    "$ref": "#/components/requestBodies/applicationOctetStream"
                 },
                 "responses": {
                     "200": {
@@ -13544,7 +13535,31 @@
                                         },
                                         "status": {
                                             "type": "string",
-                                            "example": "accepted"
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "firmware already exists and under md5 verifying"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
                                         }
                                     }
                                 }
@@ -13616,7 +13631,31 @@
                                         },
                                         "status": {
                                             "type": "string",
-                                            "example": "accepted"
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "md5 already exists and under verifying"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
                                         }
                                     }
                                 }
@@ -13699,7 +13738,7 @@
                                         },
                                         "status": {
                                             "type": "string",
-                                            "example": "accepted"
+                                            "example": "ok"
                                         }
                                     }
                                 }
@@ -13743,6 +13782,30 @@
                                         "status": {
                                             "type": "string",
                                             "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "md5 verification is already in progress"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
                                         }
                                     }
                                 }

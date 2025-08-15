@@ -13420,7 +13420,7 @@ const docTemplate = `{
                 "tags": [
                     "Firmwares"
                 ],
-                "summary": "List a firmware",
+                "summary": "List firmwares",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -13514,16 +13514,7 @@ const docTemplate = `{
                     }
                 ],
                 "requestBody": {
-                    "description": "for example, in the CURL, the firmware pkg should be set by the '-T /path/to/firmware'.",
-                    "required": true,
-                    "content": {
-                        "application/octet-stream": {
-                            "schema": {
-                                "type": "string",
-                                "format": "binary"
-                            }
-                        }
-                    }
+                    "$ref": "#/components/requestBodies/applicationOctetStream"
                 },
                 "responses": {
                     "200": {
@@ -13548,7 +13539,7 @@ const docTemplate = `{
                                         },
                                         "status": {
                                             "type": "string",
-                                            "example": "accepted"
+                                            "example": "ok"
                                         }
                                     }
                                 }
@@ -13620,7 +13611,7 @@ const docTemplate = `{
                                         },
                                         "status": {
                                             "type": "string",
-                                            "example": "accepted"
+                                            "example": "ok"
                                         }
                                     }
                                 }
@@ -13703,7 +13694,7 @@ const docTemplate = `{
                                         },
                                         "status": {
                                             "type": "string",
-                                            "example": "accepted"
+                                            "example": "ok"
                                         }
                                     }
                                 }
