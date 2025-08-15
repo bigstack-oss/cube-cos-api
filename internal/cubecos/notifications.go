@@ -53,8 +53,35 @@ func ListNotifications(opts notifications.ListOpts) ([]notifications.Notificatio
 	return parseNotifications(c)
 }
 
-func genQueryFilter(opts notifications.ListOpts) bson.M {
+func GetLastNotification() (*notifications.Notification, error) {
+	h := bsmongo.GetGlobalHelper()
+	c, err := h.GetQueryCursor(
+		notifications.Db,
+		notifications.ToastCollection,
+		bson.M{},
+		options.Find().SetSort(bson.D{{Key: "time", Value: -1}}).SetLimit(1),
+	)
+	if err != nil {
+		log.Errorf("notifications: failed to get last notification cursor: %v", err)
+		return nil, err
+	}
 
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
+	defer cancel()
+	defer c.Close(ctx)
+	list, err := parseNotifications(c)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(list) == 0 {
+		return nil, nil
+	}
+
+	return &list[0], nil
+}
+
+func genQueryFilter(opts notifications.ListOpts) bson.M {
 	return bson.M{
 		"time": bson.M{
 			"$gte": opts.Start,

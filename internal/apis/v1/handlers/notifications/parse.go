@@ -2,6 +2,15 @@ package notifications
 
 import "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 
+func (h *helper) parseParamByHandler() error {
+	switch h.handler {
+	case "listNotifications":
+		return h.parseListNotificationParams()
+	default:
+		return nil
+	}
+}
+
 func (h *helper) isKeywordRequired() bool {
 	return h.keyword != ""
 }

@@ -27,7 +27,7 @@ func initHepler(c *gin.Context, handler string) (*helper, error) {
 		handler: handler,
 	}
 
-	return &h, h.parseListNotificationParams()
+	return &h, h.parseParamByHandler()
 }
 
 func (h *helper) listNotifications() (*notificationPage, error) {
