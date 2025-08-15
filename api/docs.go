@@ -13546,6 +13546,30 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "firmware already exists and under md5 verifying"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
@@ -13612,6 +13636,30 @@ const docTemplate = `{
                                         "status": {
                                             "type": "string",
                                             "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "md5 already exists and under verifying"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
                                         }
                                     }
                                 }
@@ -13744,6 +13792,30 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "md5 verification is already in progress"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
@@ -13758,6 +13830,114 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to upload firmware md5: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/firmwares/{version}": {
+            "delete": {
+                "operationId": "deleteFirmware",
+                "tags": [
+                    "Firmwares"
+                ],
+                "summary": "Delete a firmware",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "in": "path",
+                        "name": "version",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The version of the firmware to delete",
+                        "example": "CUBE Appliance 3.1.0 f45c719"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Firmware deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "Firmware deleted successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "firmware CUBE Appliance 3.1.0 f45c719 not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to delete firmware: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
