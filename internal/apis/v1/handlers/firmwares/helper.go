@@ -1,9 +1,15 @@
 package firmwares
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -42,4 +48,54 @@ func (h *helper) listFirmwares() (*firmwarePage, error) {
 		Firmwares: h.paginateFirmwares(firmwares),
 		Page:      h.genPageInfo(firmwares),
 	}, nil
+}
+
+func (h *helper) deleteFirmware() error {
+	segments := strings.Split(h.file, " ")
+	if len(segments) < 4 {
+		return fmt.Errorf(
+			"invalid firmware version format: %s, expected format: CUBE Appliance <version> <hash>",
+			h.file,
+		)
+	}
+
+	version := segments[2]
+	hash := segments[3]
+	entries, err := os.ReadDir(firmwares.UpdateDir)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to read update directory %s(%v)", h.reqId, firmwares.UpdateDir, err)
+		return err
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		file := filepath.Join(firmwares.UpdateDir, entry.Name())
+		if !strings.HasSuffix(file, ".pkg") {
+			continue
+		}
+
+		if !strings.Contains(file, version) {
+			continue
+		}
+
+		if !strings.Contains(file, hash) {
+			continue
+		}
+
+		err = os.Remove(file)
+		if err == nil {
+			return nil
+		}
+
+		log.Errorf("firmwares(%s): failed to delete firmware file %s (%v)", h.reqId, file, err)
+		return err
+	}
+
+	return fmt.Errorf(
+		"firmware version %s not found",
+		version,
+	)
 }

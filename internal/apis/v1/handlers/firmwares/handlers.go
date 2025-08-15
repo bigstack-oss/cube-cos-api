@@ -36,6 +36,12 @@ var (
 			Path:    "/firmwares/md5sum/verify",
 			Func:    verfiyFirmwareAndMd5Sum,
 		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodDelete,
+			Path:    "/firmwares/{version}",
+			Func:    deleteFirmware,
+		},
 	}
 )
 
@@ -144,5 +150,26 @@ func verfiyFirmwareAndMd5Sum(c *gin.Context) {
 		c,
 		"Firmware and MD5 sum verified successfully",
 		result,
+	)
+}
+
+func deleteFirmware(c *gin.Context) {
+	h, err := initHelper(c, "deleteFirmware")
+	if err != nil {
+		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.deleteFirmware()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"Firmware deleted successfully",
+		nil,
 	)
 }

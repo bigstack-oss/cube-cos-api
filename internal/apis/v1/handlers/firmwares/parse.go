@@ -22,6 +22,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseUploadMd5Params()
 	case "verfiyFirmwareAndMd5Sum":
 		return h.parseVerificationParams()
+	case "deleteFirmware":
+		return h.parseDeleteFirmwareParams()
 	default:
 		return nil
 	}
@@ -72,6 +74,23 @@ func (h *helper) parseVerificationParams() error {
 	}
 
 	return fmt.Errorf("no firmware file found in %s", firmwares.TmpUploadDir)
+}
+
+func (h *helper) parseDeleteFirmwareParams() error {
+	h.file = h.c.Param("version")
+	if h.file == "" {
+		return fmt.Errorf("version parameter is required")
+	}
+
+	segments := strings.Split(h.file, " ")
+	if len(segments) < 4 {
+		return fmt.Errorf(
+			"invalid firmware version format: %s, expected format: CUBE Appliance <version> <hash>",
+			h.file,
+		)
+	}
+
+	return nil
 }
 
 func (h *helper) saveUploadFile() error {
