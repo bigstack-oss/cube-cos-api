@@ -62,16 +62,14 @@ func GetLastNotification(c *gin.Context) {
 		return
 	}
 
-	var data any
-	if notification != nil {
-		data = notification
-	} else {
-		data = map[string]any{}
+	msg := "fetch last notification successfully"
+	if notification == nil {
+		msg = "no last notification found"
 	}
 
 	bodies.SetOk(
 		c,
-		"fetch last notification successfully",
-		data,
+		msg,
+		notification,
 	)
 }

@@ -1858,7 +1858,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/GetNotificationsResponse"
+                                    "$ref": "#/components/schemas/ListNotificationsResponse"
                                 },
                                 "examples": {
                                     "example1": {
@@ -1925,6 +1925,75 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to fetch notifications: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/notifications/last": {
+            "get": {
+                "operationId": "getLastNotification",
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Retrieve the last notification",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the last notification successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetNotificationResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Last notification",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "id": "OSD00002E",
+                                                "nodeName": "example-node-1",
+                                                "time": "2025-07-21T04:09:30+08:00",
+                                                "additionalInfo": {
+                                                    "osdId": "osd.1",
+                                                    "reweight": 0.75
+                                                }
+                                            },
+                                            "msg": "fetch the last notification successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch the last notification: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -14926,7 +14995,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "GetNotificationsResponse": {
+            "ListNotificationsResponse": {
                 "type": "object",
                 "required": [
                     "code",
@@ -14964,6 +15033,29 @@ const docTemplate = `{
                     "status": {
                         "type": "string",
                         "example": "ok"
+                    }
+                }
+            },
+            "GetNotificationResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Notification"
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
                     }
                 }
             },

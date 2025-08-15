@@ -23,7 +23,7 @@ func (h *helper) paginateImages(images []images.Image) []images.Image {
 	return images[left:right]
 }
 
-func (h *helper) sortimages(images *[]images.Image) {
+func (h *helper) sortImages(images *[]images.Image) {
 	sort.Slice(*images, func(i, j int) bool {
 		return (*images)[i].CreatedAt > (*images)[j].CreatedAt
 	})

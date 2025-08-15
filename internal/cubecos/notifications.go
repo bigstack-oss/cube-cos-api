@@ -53,6 +53,10 @@ func ListNotifications(opts notifications.ListOpts) ([]notifications.Notificatio
 	return parseNotifications(c)
 }
 
+// note:
+// reason to not converge this function with ListNotifications is that
+// GetLastNotification is used to get the last notification only, so it does not need to consider the complicated query options like time fallback, sorting order,
+// reading size and so on which makes this function simpler and more efficient.
 func GetLastNotification() (*notifications.Notification, error) {
 	h := bsmongo.GetGlobalHelper()
 	c, err := h.GetQueryCursor(

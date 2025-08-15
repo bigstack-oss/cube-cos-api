@@ -66,7 +66,7 @@ func (h *helper) listImages() (*imagePage, error) {
 		return nil, err
 	}
 
-	h.sortimages(&images)
+	h.sortImages(&images)
 	images = h.filterImages(images)
 	return &imagePage{
 		Images: h.paginateImages(images),
