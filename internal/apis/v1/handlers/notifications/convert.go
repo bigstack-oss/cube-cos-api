@@ -22,17 +22,16 @@ func (h *helper) convertListOpts() (*notifications.ListOpts, error) {
 		return nil, err
 	}
 
-	opts := &notifications.ListOpts{Limit: int64(h.limit), Desending: false}
+	opts := &notifications.ListOpts{
+		Limit:     int64(h.limit),
+		Desending: false,
+		Start:     h.past,
+		Stop:      time.LocalRFC3339(ostime.Now().Local()),
+	}
+
 	if queries.IsPeriodRequired(h.c) {
 		opts.Start = h.period.Start
 		opts.Stop = h.period.Stop
-		return opts, nil
-	}
-
-	if queries.IsPastRequired(h.c) {
-		opts.Start = h.past
-		opts.Stop = time.LocalRFC3339(ostime.Now().Local())
-		return opts, nil
 	}
 
 	return opts, nil

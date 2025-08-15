@@ -2,6 +2,7 @@ package cubecos
 
 import (
 	"context"
+	"fmt"
 
 	bsmongo "github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
@@ -13,6 +14,12 @@ import (
 )
 
 func InsertNotification(notification notifications.Notification) error {
+	if notification.Id == "" {
+		err := fmt.Errorf("notification id is required for insertion")
+		log.Errorf("notifications: %v", err)
+		return err
+	}
+
 	h := bsmongo.GetGlobalHelper()
 	err := h.Insert(
 		notifications.Db,
@@ -47,6 +54,7 @@ func ListNotifications(opts notifications.ListOpts) ([]notifications.Notificatio
 }
 
 func genQueryFilter(opts notifications.ListOpts) bson.M {
+
 	return bson.M{
 		"time": bson.M{
 			"$gte": opts.Start,
