@@ -5532,14 +5532,7 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/watch"
                     },
                     {
-                        "name": "nodeName",
-                        "in": "path",
-                        "description": "The name of the node",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "example": "example-node-0"
+                        "$ref": "#/components/parameters/nodeName"
                     }
                 ],
                 "responses": {
@@ -5681,6 +5674,97 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to fetch node: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/reboot": {
+            "get": {
+                "operationId": "rebootNode",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Reboot the node",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "the reboot request received, the node is rebooting",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 202
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node reboot request received, the node is rebooting"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Node not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to reboot the node: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
