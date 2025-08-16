@@ -43,6 +43,12 @@ func (n *Node) GetNodeUrl() string {
 	return u.String()
 }
 
+func (n *Node) RebootNodeUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/reboot", n.DataCenter, n.Hostname)
+	return u.String()
+}
+
 func (n *Node) PostLicenseUrl() string {
 	u := url.URL{Scheme: n.Protocol, Host: n.Address}
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/licenses/hosts/%s", base.DataCenterName, n.Hostname)

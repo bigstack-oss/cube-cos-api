@@ -16,6 +16,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListOptions()
 	case "getNode", "getNodeIpmi", "disconnectNodeIpmi":
 		return h.parseGetOptions()
+	case "rebootNode":
+		return h.parseRebootOptions()
 	case "setNodeIpmi", "verifyNodeIpmi":
 		return h.parseSetOrVerifyOptions()
 	case "ipmiOperateNode":

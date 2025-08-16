@@ -78,6 +78,15 @@ func (h *helper) parseGetOptions() error {
 	return h.parseWatch()
 }
 
+func (h *helper) parseRebootOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("nodeName should be provided")
+	}
+
+	return nil
+}
+
 func (h *helper) listNodes() (*nodePage, error) {
 	nodes := cubecos.ListNodesWithTimeSensitiveInfo()
 	nodes = h.filterNodes(nodes)
@@ -110,6 +119,44 @@ func (h *helper) getNode() (*nodes.Node, error) {
 	}
 
 	return node, nil
+}
+
+func (h *helper) rebootNode() error {
+	node, err := nodes.Get(h.node)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get node(%v)", h.reqId, err)
+		return err
+	}
+
+	if node.IsLocal() {
+		return cubecos.GracefulReboot()
+	}
+
+	return h.rebootPeerNode()
+}
+
+func (h *helper) rebootPeerNode() error {
+	node, err := nodes.Get(h.node)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to get node to reboot(%s %v)", h.reqId, h.node, err)
+		return err
+	}
+
+	resp, err := h.http.R().
+		SetHeaders(nodes.GetSecretHeaders()).
+		Post(node.RebootNodeUrl())
+	if err != nil {
+		log.Errorf("nodes(%s): failed to reboot node %s(%v)", h.reqId, h.node, err)
+		return err
+	}
+
+	if resp.IsError() {
+		err := fmt.Errorf("failed to reboot node %s(%s)", h.node, resp.String())
+		log.Errorf("nodes(%s): %v", h.reqId, err)
+		return err
+	}
+
+	return nil
 }
 
 func (h *helper) getNodeIpmi() (*nodes.Ipmi, error) {

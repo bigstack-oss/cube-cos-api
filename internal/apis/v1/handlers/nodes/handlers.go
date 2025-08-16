@@ -27,6 +27,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/nodes/:nodeName/reboot",
+			Func:    rebootNode,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/nodes/:nodeName/ipmi",
 			Func:    setNodeIpmi,
@@ -161,6 +167,26 @@ func getNode(c *gin.Context) {
 		c,
 		"fetch node successfully",
 		node,
+	)
+}
+
+func rebootNode(c *gin.Context) {
+	h, err := initHelper(c, "rebootNode")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.rebootNode()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"the request of rebooting node is accepted and under processing",
 	)
 }
 
