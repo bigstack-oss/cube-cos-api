@@ -3,6 +3,7 @@ package cubecos
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 	ostime "time"
 
@@ -24,6 +25,24 @@ func ListFirmwares() ([]firmwares.Firmware, error) {
 	appendUninstalledFirmwares(&firmwares)
 
 	return firmwares, nil
+}
+
+// note:
+// please DO NOT use exec.CommandContext with timeout for hex_install
+// because the duration of firmware upgrade is not predictable from CubeCOS, and it may take a long time to complete.
+// use timeout might makes the situation to be worse.
+func UpgradeFirmware(req *firmwares.ReqOpts) error {
+	out, err := exec.Command("hex_install", "-v", "update", req.PkgPath).CombinedOutput()
+	if err != nil {
+		err := fmt.Errorf("failed to execute firmware upgrade %s(%v %s)", req.Version, err, string(out))
+		log.Errorf("firmwares: %v", err)
+	}
+
+	if !IsHexSdkSuccess(err) {
+		return fmt.Errorf("failed to upgrade firmware %s(%v %s)", req.Version, err, string(out))
+	}
+
+	return nil
 }
 
 func parseUpdateHistory() (*firmwares.Upadte, error) {

@@ -26,6 +26,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/firmwares",
+			Func:    updateFirmware,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/firmwares/md5sum",
 			Func:    uploadFirmwareMd5Sum,
@@ -101,6 +107,27 @@ func uploadFirmware(c *gin.Context) {
 	bodies.SetOk(
 		c,
 		"Firmware uploaded successfully",
+		nil,
+	)
+}
+
+func updateFirmware(c *gin.Context) {
+	h, err := initHelper(c, "updateFirmware")
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.updateFirmware()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"Firmware updated successfully",
 		nil,
 	)
 }

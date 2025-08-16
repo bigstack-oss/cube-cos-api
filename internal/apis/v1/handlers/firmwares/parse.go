@@ -18,6 +18,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListParams()
 	case "uploadFirmware":
 		return h.parseUploadFirmwareParams()
+	case "updateFirmware":
+		return h.parseUpdateParams()
 	case "uploadFirmwareMd5Sum":
 		return h.parseUploadMd5Params()
 	case "verfiyFirmwareAndMd5Sum":
@@ -46,6 +48,29 @@ func (h *helper) parseUploadFirmwareParams() error {
 		return fmt.Errorf("file parameter is required")
 	}
 
+	return nil
+}
+
+func (h *helper) parseUpdateParams() error {
+	err := h.c.ShouldBindJSON(&h.reqOpts)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to bind update request options (%v)", h.reqId, err)
+		return err
+	}
+
+	if h.reqOpts.Version == "" {
+		err := fmt.Errorf("version is required for firmware update")
+		log.Errorf("firmwares(%s): %v", h.reqId, err)
+		return err
+	}
+
+	h.reqOpts.PkgPath, err = h.findMatchedPkg(h.reqOpts.Version)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to find matched package for version %s (%v)", h.reqId, h.reqOpts.Version, err)
+		return err
+	}
+
+	h.reqOpts.SetProcessing()
 	return nil
 }
 

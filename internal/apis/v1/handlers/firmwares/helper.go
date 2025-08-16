@@ -22,8 +22,9 @@ type helper struct {
 	handler string
 	mongo   *mongo.Helper
 
-	file string
-	page *pages.Page
+	file    string
+	reqOpts firmwares.ReqOpts
+	page    *pages.Page
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
@@ -49,6 +50,12 @@ func (h *helper) listFirmwares() (*firmwarePage, error) {
 		Firmwares: h.paginateFirmwares(firmwares),
 		Page:      h.genPageInfo(firmwares),
 	}, nil
+}
+
+func (h *helper) updateFirmware() error {
+	// todo:
+	// deletgate to local and all nodes
+	return nil
 }
 
 func (h *helper) listUpdatableNodes() ([]node, error) {

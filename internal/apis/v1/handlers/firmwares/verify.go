@@ -23,6 +23,42 @@ func (h *helper) checkFirmwarePattern() error {
 	return nil
 }
 
+func (h *helper) findMatchedPkg(version string) (string, error) {
+	entries, err := os.ReadDir(firmwares.UpdateDir)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to read update directory %s(%v)", h.reqId, firmwares.UpdateDir, err)
+		return "", err
+	}
+
+	segments := strings.Split(version, " ")
+	if len(segments) < 3 {
+		return "", fmt.Errorf("invalid version format: %s", version)
+	}
+
+	version = segments[2]
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		file := filepath.Join(firmwares.UpdateDir, entry.Name())
+		if !strings.HasSuffix(file, ".pkg") {
+			continue
+		}
+
+		if !strings.Contains(file, version) {
+			continue
+		}
+
+		return file, nil
+	}
+
+	return "", fmt.Errorf(
+		"firmware version %s not found",
+		version,
+	)
+}
+
 func (h *helper) verifyFirmwareAndMd5() (*integrityResult, error) {
 	result, err := h.parseMd5Data()
 	if err != nil {

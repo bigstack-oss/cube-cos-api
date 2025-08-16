@@ -18,6 +18,7 @@ const (
 	Importing            = "importing"
 	Repairing            = "repairing"
 	Processing           = "processing"
+	Upgrading            = "upgrading"
 	Syncing              = "syncing"
 	Checking             = "checking"
 	CheckDisabled        = "check disabled"
@@ -37,6 +38,7 @@ const (
 	Toggled    = "toggled"
 	Added      = "added"
 	Uploaded   = "uploaded"
+	Upgraded   = "upgraded"
 	Removed    = "removed"
 	Updated    = "updated"
 	Promoted   = "promoted"
@@ -148,6 +150,7 @@ type Integration struct {
 
 type Firmware struct {
 	Current      string `json:"current,omitempty" bson:"current"`
+	Desired      string `json:"-" bson:"desired"`
 	IsUpdatable  bool   `json:"isUpdatable" bson:"isUpdatable"`
 	IsProcessing bool   `json:"isProcessing" bson:"isProcessing"`
 	Description  string `json:"description,omitempty" bson:"description"`

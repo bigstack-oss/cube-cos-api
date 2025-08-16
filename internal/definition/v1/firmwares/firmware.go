@@ -13,6 +13,14 @@ const (
 	UpdateHistory = "/var/appliance-db/update.history"
 )
 
+type ReqOpts struct {
+	Id          string          `json:"id"`
+	Version     string          `json:"version"`
+	PkgPath     string          `json:"pkgPath"`
+	AutoRolling bool            `json:"autoRolling"`
+	Status      status.Firmware `json:"status"`
+}
+
 type Firmware struct {
 	Version      string          `json:"version" bson:"version"`
 	ReleaseNotes string          `json:"releaseNotes" bson:"releaseNotes"`
@@ -33,4 +41,20 @@ type Raw struct {
 	Variant   string `yaml:"variant"`
 	BuiltAt   string `yaml:"built-at"`
 	CreatedAt string `yaml:"created-at"`
+}
+
+func (u *ReqOpts) SetProcessing() {
+	u.Status.Current = status.Upgrading
+	u.Status.Desired = status.Upgraded
+	u.Status.IsProcessing = true
+}
+
+func (u *ReqOpts) SetError() {
+	u.Status.Desired = status.Error
+	u.Status.IsProcessing = false
+}
+
+func (u *ReqOpts) SetCompleted() {
+	u.Status.Desired = status.Updated
+	u.Status.IsProcessing = false
 }
