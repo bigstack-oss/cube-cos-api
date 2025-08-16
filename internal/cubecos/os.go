@@ -10,6 +10,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
+	"golang.org/x/sys/unix"
 )
 
 func GetSystemSerial() (string, error) {
@@ -60,11 +61,12 @@ func GracefulReboot() error {
 		MoveVirtualIpOwner()
 	}
 
+	unix.Sync()
 	return Reboot()
 }
 
 func Reboot() error {
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(20))
 	defer cancel()
 
 	out, err := exec.CommandContext(ctx, "reboot").CombinedOutput()
