@@ -3,7 +3,12 @@ package fixpacks
 import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 
 const (
-	Module    = "fixpacks"
+	Module = "fixpacks"
+
+	TmpUploadDir       = "/tmp/fixpacks"
+	TmpPreCalculateMd5 = "precalculated.md5"
+	DefaultMd5File     = "md5"
+
 	UpdateDir = "/var/fixpack"
 )
 

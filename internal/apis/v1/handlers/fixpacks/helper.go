@@ -1,6 +1,11 @@
 package fixpacks
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
@@ -48,4 +53,42 @@ func (h *helper) listFixpacks() (*fixpacksPage, error) {
 		Fixpacks: h.paginateFixpacks(fixpackss),
 		Page:     h.genPageInfo(fixpackss),
 	}, nil
+}
+
+func (h *helper) deleteFixpack() error {
+	err := h.checkFixpackPattern()
+	if err != nil {
+		log.Errorf("fixpacks(%s): invalid fixpack file format (%v)", h.reqId, err)
+		return err
+	}
+
+	entries, err := os.ReadDir(fixpacks.UpdateDir)
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to read update directory %s(%v)", h.reqId, fixpacks.UpdateDir, err)
+		return err
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		file := filepath.Join(fixpacks.UpdateDir, entry.Name())
+		if !strings.HasSuffix(file, ".fixpack") {
+			continue
+		}
+
+		err = os.Remove(file)
+		if err == nil {
+			return nil
+		}
+
+		log.Errorf("fixpacks(%s): failed to delete fixpack file %s (%v)", h.reqId, file, err)
+		return err
+	}
+
+	return fmt.Errorf(
+		"fixpack version %s not found",
+		h.file,
+	)
 }
