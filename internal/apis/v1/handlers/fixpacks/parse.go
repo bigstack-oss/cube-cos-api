@@ -73,7 +73,7 @@ func (h *helper) parseVerificationParams() error {
 		}
 	}
 
-	return fmt.Errorf("no firmware file found in %s", fixpacks.TmpUploadDir)
+	return fmt.Errorf("no fixpack file found in %s", fixpacks.TmpUploadDir)
 }
 
 func (h *helper) parseDeleteFixpackParams() error {
