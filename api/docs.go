@@ -14788,8 +14788,8 @@ const docTemplate = `{
                 "schema": {
                     "type": "string"
                 },
-                "description": "The version of the firmware to delete",
-                "example": "CUBE Appliance 3.1.0 f45c719"
+                "description": "The version of the file to delete",
+                "example": "example-verion-0"
             },
             "nodeName": {
                 "name": "nodeName",
