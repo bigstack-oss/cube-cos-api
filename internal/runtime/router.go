@@ -11,6 +11,7 @@ import (
 	datacenterapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/datacenters"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/events"
 	firmwaresapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/firmwares"
+	fixpacksapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/fixpacks"
 	grafanapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/healths"
 	imagesapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/images"
@@ -35,6 +36,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/health"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
@@ -293,6 +295,14 @@ func prepareApiHandlersByRole() {
 	apis.RegisterHandlersToRoles(
 		firmwares.Module,
 		firmwaresapi.Handlers,
+		nodes.RoleControl,
+		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
+	)
+
+	apis.RegisterHandlersToRoles(
+		fixpacks.Module,
+		fixpacksapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleModerator,
 		nodes.RoleEdgeCore,

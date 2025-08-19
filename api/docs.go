@@ -14187,6 +14187,106 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/datacenters/{dataCenter}/fixpacks": {
+            "get": {
+                "operationId": "listFixpacks",
+                "tags": [
+                    "Fixpacks"
+                ],
+                "summary": "List fixpacks",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageNum"
+                    },
+                    {
+                        "$ref": "#/components/parameters/pageSize"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List fixpacks successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListFixpacksResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Fixpack list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "fixpacks": [
+                                                    {
+                                                        "version": "FIX_001",
+                                                        "note": "Diagnostic Tools",
+                                                        "updatedAt": "2025-08-19T19:37:20+08:00",
+                                                        "rebootRequired": false,
+                                                        "status": {
+                                                            "current": "installed",
+                                                            "isInstallable": false,
+                                                            "isRollbackable": false,
+                                                            "isProcessing": false
+                                                        }
+                                                    },
+                                                    {
+                                                        "version": "FIX_003",
+                                                        "note": "A sample fixpack that can not be removed and backs up hex_config",
+                                                        "updatedAt": "2025-08-14T22:59:57+08:00",
+                                                        "rebootRequired": false,
+                                                        "status": {
+                                                            "current": "installed",
+                                                            "isInstallable": false,
+                                                            "isRollbackable": false,
+                                                            "isProcessing": false
+                                                        }
+                                                    }
+                                                ],
+                                                "page": {
+                                                    "total": 1,
+                                                    "number": 1,
+                                                    "size": 2,
+                                                    "totalItemCount": 2
+                                                }
+                                            },
+                                            "msg": "fetch fixpack list successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list fixpack: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -20092,6 +20192,94 @@ const docTemplate = `{
                                         }
                                     }
                                 }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ListFixpacksResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "fixpacks",
+                            "page"
+                        ],
+                        "properties": {
+                            "fixpacks": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "version",
+                                        "note",
+                                        "updatedAt",
+                                        "rebootRequired",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "version": {
+                                            "type": "string"
+                                        },
+                                        "note": {
+                                            "type": "string"
+                                        },
+                                        "updatedAt": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "rebootRequired": {
+                                            "type": "boolean"
+                                        },
+                                        "status": {
+                                            "type": "object",
+                                            "required": [
+                                                "current",
+                                                "isInstallable",
+                                                "isRollbackable",
+                                                "isProcessing"
+                                            ],
+                                            "properties": {
+                                                "current": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "available",
+                                                        "installing",
+                                                        "installed"
+                                                    ]
+                                                },
+                                                "isInstallable": {
+                                                    "type": "boolean"
+                                                },
+                                                "isRollbackable": {
+                                                    "type": "boolean"
+                                                },
+                                                "isProcessing": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "page": {
+                                "$ref": "#/components/schemas/Page"
                             }
                         }
                     },
