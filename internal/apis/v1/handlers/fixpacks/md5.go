@@ -18,7 +18,7 @@ func (h *helper) syncFixpackMd5() error {
 		return err
 	}
 
-	path = filepath.Join(fixpacks.TmpUploadDir, fixpacks.DefaultMd5File)
+	path = filepath.Join(fixpacks.TmpUploadDir, fixpacks.TmpPreCalculateMd5)
 	err = os.WriteFile(path, []byte(sum), 0644)
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to write md5 sum to file %s(%v)", h.reqId, path, err)

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	log "go-micro.dev/v5/logger"
 )
@@ -77,12 +78,18 @@ func (h *helper) parseVerificationParams() error {
 }
 
 func (h *helper) parseDeleteFixpackParams() error {
-	h.file = h.c.Param("version")
-	if h.file == "" {
+	h.version = h.c.Param("version")
+	if h.version == "" {
 		return fmt.Errorf("version parameter is required")
 	}
 
-	return h.checkFixpackPattern()
+	found := false
+	h.file, found = cubecos.GetFixpackFileByVersion(h.version)
+	if !found {
+		return fmt.Errorf("fixpack version %s not found", h.version)
+	}
+
+	return nil
 }
 
 func (h *helper) saveUploadFile() error {

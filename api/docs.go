@@ -20765,6 +20765,9 @@ const docTemplate = `{
                                                 },
                                                 "isProcessing": {
                                                     "type": "boolean"
+                                                },
+                                                "isRemovable": {
+                                                    "type": "boolean"
                                                 }
                                             }
                                         }

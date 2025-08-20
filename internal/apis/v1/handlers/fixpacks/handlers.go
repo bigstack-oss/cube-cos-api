@@ -38,7 +38,7 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodDelete,
-			Path:    "/fixpacks",
+			Path:    "/fixpacks/:version",
 			Func:    deleteFixpack,
 		},
 	}

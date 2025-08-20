@@ -1,10 +1,7 @@
 package fixpacks
 
 import (
-	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
@@ -25,6 +22,7 @@ type helper struct {
 	mongo *mongo.Helper
 
 	file           string
+	version        string
 	installReqOpts fixpacks.InstallReqOpts
 	page           *pages.Page
 }
@@ -56,39 +54,11 @@ func (h *helper) listFixpacks() (*fixpacksPage, error) {
 }
 
 func (h *helper) deleteFixpack() error {
-	err := h.checkFixpackPattern()
+	err := os.Remove(h.file)
 	if err != nil {
-		log.Errorf("fixpacks(%s): invalid fixpack file format (%v)", h.reqId, err)
+		log.Errorf("fixpacks(%s): failed to delete fixpack file %s(%v)", h.reqId, h.file, err)
 		return err
 	}
 
-	entries, err := os.ReadDir(fixpacks.UpdateDir)
-	if err != nil {
-		log.Errorf("fixpacks(%s): failed to read update directory %s(%v)", h.reqId, fixpacks.UpdateDir, err)
-		return err
-	}
-
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-
-		file := filepath.Join(fixpacks.UpdateDir, entry.Name())
-		if !strings.HasSuffix(file, ".fixpack") {
-			continue
-		}
-
-		err = os.Remove(file)
-		if err == nil {
-			return nil
-		}
-
-		log.Errorf("fixpacks(%s): failed to delete fixpack file %s (%v)", h.reqId, file, err)
-		return err
-	}
-
-	return fmt.Errorf(
-		"fixpack version %s not found",
-		h.file,
-	)
+	return nil
 }
