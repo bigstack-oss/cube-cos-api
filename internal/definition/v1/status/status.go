@@ -154,6 +154,7 @@ type Firmware struct {
 	Desired      string `json:"-" bson:"desired"`
 	IsUpdatable  bool   `json:"isUpdatable" bson:"isUpdatable"`
 	IsProcessing bool   `json:"isProcessing" bson:"isProcessing"`
+	IsRemovable  bool   `json:"isRemovable" bson:"isRemovable"`
 	Description  string `json:"description,omitempty" bson:"description"`
 }
 

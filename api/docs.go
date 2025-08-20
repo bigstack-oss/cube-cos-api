@@ -13601,13 +13601,14 @@ const docTemplate = `{
                                             "data": {
                                                 "firmwares": [
                                                     {
-                                                        "version": "CUBE Appliance 3.1.0 f45c719",
-                                                        "releaseNotes": "",
+                                                        "version": "CUBE Appliance 3.1.0",
+                                                        "releaseNotes": "The CubeCOS 3.1.0(f45c719) firmware release since 2025-08-11T09:09:00+08:00",
                                                         "updatedAt": "2025-08-11T09:09:00+08:00",
                                                         "status": {
                                                             "current": "available",
                                                             "isUpdatable": true,
-                                                            "isProcessing": false
+                                                            "isProcessing": false,
+                                                            "isRemovable": true
                                                         }
                                                     }
                                                 ],
@@ -20591,7 +20592,8 @@ const docTemplate = `{
                                             "required": [
                                                 "current",
                                                 "isUpdatable",
-                                                "isProcessing"
+                                                "isProcessing",
+                                                "isRemovable"
                                             ],
                                             "properties": {
                                                 "current": {
@@ -20606,6 +20608,9 @@ const docTemplate = `{
                                                     "type": "boolean"
                                                 },
                                                 "isProcessing": {
+                                                    "type": "boolean"
+                                                },
+                                                "isRemovable": {
                                                     "type": "boolean"
                                                 }
                                             }

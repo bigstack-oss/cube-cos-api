@@ -20,7 +20,7 @@ func ListFirmwares() ([]firmwares.Firmware, error) {
 		return nil, err
 	}
 
-	firmwares := convertToFirmwares(update)
+	firmwares := convertHistoryToFirmwares(update)
 	firmwares = removeFreshInstalledFirmwares(firmwares)
 	appendUninstalledFirmwares(&firmwares)
 
@@ -62,14 +62,19 @@ func parseUpdateHistory() (*firmwares.Upadte, error) {
 	return update, nil
 }
 
-func convertToFirmwares(update *firmwares.Upadte) []firmwares.Firmware {
+func convertHistoryToFirmwares(update *firmwares.Upadte) []firmwares.Firmware {
 	firmwaresList := make([]firmwares.Firmware, 0, len(update.History))
 
 	for _, raw := range update.History {
+		date := convertRawTime(time.FormatFirmware, raw.CreatedAt)
 		firmwaresList = append(firmwaresList, firmwares.Firmware{
-			Version:   fmt.Sprintf("%s Appliance %s %s", raw.Image, raw.Version, raw.Variant),
-			UpdatedAt: convertRawTime(time.FormatFirmware, raw.CreatedAt),
-			Status:    status.Firmware{Current: status.Updated},
+			Version:      convertFirmwareVersion(raw.Version),
+			ReleaseNotes: convertReleaseNotes(raw.Version, raw.Variant, date),
+			UpdatedAt:    date,
+			Status: status.Firmware{
+				Current:     status.Updated,
+				IsRemovable: false,
+			},
 		})
 	}
 
@@ -135,12 +140,23 @@ func convertPkgNameToFirmware(pkgname string) (*firmwares.Firmware, error) {
 		return nil, err
 	}
 
+	date := convertRawTime(time.FormatFirmwarePkg, segment[2])
 	return &firmwares.Firmware{
-		Version:   fmt.Sprintf("%s Appliance %s %s", segment[0], segment[1], segment[3]),
-		UpdatedAt: convertRawTime(time.FormatFirmwarePkg, segment[2]),
+		Version:      convertFirmwareVersion(segment[1]),
+		ReleaseNotes: convertReleaseNotes(segment[1], segment[3], date),
+		UpdatedAt:    date,
 		Status: status.Firmware{
 			Current:     status.Available,
 			IsUpdatable: true,
+			IsRemovable: true,
 		},
 	}, nil
+}
+
+func convertFirmwareVersion(version string) string {
+	return fmt.Sprintf("Cube Appliance %s", version)
+}
+
+func convertReleaseNotes(version, variant, date string) string {
+	return fmt.Sprintf("The CubeCOS %s(%s) firmware release since %s", version, variant, date)
 }
