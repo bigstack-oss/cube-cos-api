@@ -152,8 +152,8 @@ func getFixpackInfo(file string) (*fixpacks.Raw, error) {
 	}
 
 	raw := &fixpacks.Raw{Details: string(info)}
-	lines := strings.Split(string(info), "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(string(info), "\n")
+	for line := range lines {
 		segment := strings.Split(line, "=")
 		if len(segment) < 2 {
 			continue

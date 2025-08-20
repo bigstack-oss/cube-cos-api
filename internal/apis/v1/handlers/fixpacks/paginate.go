@@ -25,7 +25,7 @@ func (h *helper) paginateFixpacks(list []fixpacks.Fixpack) []fixpacks.Fixpack {
 
 func (h *helper) sortFixpacks(list *[]fixpacks.Fixpack) {
 	sort.Slice(*list, func(i, j int) bool {
-		return (*list)[i].UpdatedAt > (*list)[j].UpdatedAt
+		return (*list)[i].Version < (*list)[j].Version
 	})
 }
 
