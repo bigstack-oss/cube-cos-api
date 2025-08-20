@@ -2,6 +2,7 @@ package cubecos
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -11,6 +12,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
+	"github.com/google/uuid"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -24,28 +26,30 @@ func ListFixpacks() ([]fixpacks.Fixpack, error) {
 		return nil, err
 	}
 
-	fixpacks, err := convertToFixpacks(out)
+	historyFixpacks, err := convertHistoryToFixpacks(out)
 	if err != nil {
 		log.Errorf("fixpacks: failed to convert fixpacks(%v)", err)
 		return nil, err
 	}
 
-	err = addUninstalledFixpacks(&fixpacks)
+	pkgFixpacks, err := convertPkgToFixpacks()
 	if err != nil {
-		log.Errorf("fixpacks: failed to add uninstalled fixpacks(%v)", err)
+		log.Errorf("fixpacks: failed to convert pkg to fixpacks(%v)", err)
 		return nil, err
 	}
 
-	return fixpacks, nil
+	return mergeFixpacks(
+		historyFixpacks,
+		pkgFixpacks,
+	), nil
 }
 
-func convertToFixpacks(out []byte) ([]fixpacks.Fixpack, error) {
+func convertHistoryToFixpacks(out []byte) ([]fixpacks.Fixpack, error) {
 	fixpacksList := []fixpacks.Fixpack{}
 	lines := strings.SplitSeq(string(out), "\n")
 	for line := range lines {
 		segments := strings.Split(line, "|")
 		if len(segments) < 6 {
-			log.Warnf("fixpacks: invalid fixpack line(%s)", line)
 			continue
 		}
 
@@ -62,11 +66,12 @@ func convertToFixpacks(out []byte) ([]fixpacks.Fixpack, error) {
 	return fixpacksList, nil
 }
 
-func addUninstalledFixpacks(list *[]fixpacks.Fixpack) error {
+func convertPkgToFixpacks() ([]fixpacks.Fixpack, error) {
+	list := []fixpacks.Fixpack{}
 	entries, err := os.ReadDir(fixpacks.UpdateDir)
 	if err != nil {
 		log.Errorf("fixpack(%s): failed to read update directory %s(%v)", fixpacks.UpdateDir, err)
-		return err
+		return nil, err
 	}
 
 	for _, entry := range entries {
@@ -79,9 +84,16 @@ func addUninstalledFixpacks(list *[]fixpacks.Fixpack) error {
 			continue
 		}
 
-		*list = append(*list, fixpacks.Fixpack{
-			Version: entry.Name(),
-			Note:    "Uninstalled fixpack",
+		info, err := getFixpackInfo(file)
+		if err != nil {
+			continue
+		}
+
+		list = append(list, fixpacks.Fixpack{
+			Version: info.Id,
+			Name:    info.Name,
+			Note:    info.Description,
+			Details: info.Details,
 			Status: status.Fixpack{
 				Current:       status.Available,
 				IsInstallable: true,
@@ -89,7 +101,34 @@ func addUninstalledFixpacks(list *[]fixpacks.Fixpack) error {
 		})
 	}
 
-	return nil
+	return list, nil
+}
+
+func mergeFixpacks(history, pkgs []fixpacks.Fixpack) []fixpacks.Fixpack {
+	merged := make(map[string]fixpacks.Fixpack)
+	for _, fixpack := range history {
+		merged[fixpack.Version] = fixpack
+	}
+
+	for _, pkg := range pkgs {
+		history, found := merged[pkg.Version]
+		if !found {
+			merged[pkg.Version] = pkg
+			continue
+		}
+
+		history.Name = pkg.Name
+		history.Note = pkg.Note
+		history.Details = pkg.Details
+		merged[pkg.Version] = history
+	}
+
+	fixpacks := make([]fixpacks.Fixpack, 0, len(merged))
+	for _, fixpack := range merged {
+		fixpacks = append(fixpacks, fixpack)
+	}
+
+	return fixpacks
 }
 
 func convertFixpackStatus(rollback, action string) status.Fixpack {
@@ -104,4 +143,90 @@ func convertFixpackStatus(rollback, action string) status.Fixpack {
 	}
 
 	return status
+}
+
+func getFixpackInfo(file string) (*fixpacks.Raw, error) {
+	info, err := parseFixpackInfo(file)
+	if err != nil {
+		return nil, err
+	}
+
+	raw := &fixpacks.Raw{Details: string(info)}
+	lines := strings.Split(string(info), "\n")
+	for _, line := range lines {
+		segment := strings.Split(line, "=")
+		if len(segment) < 2 {
+			continue
+		}
+
+		key := segment[0]
+		val := strings.ReplaceAll(segment[1], "\"", "")
+		switch key {
+		case "FIXPACK_ID":
+			raw.Id = val
+		case "FIXPACK_NAME":
+			raw.Name = val
+		case "SUPPORTED_FIRMWARES":
+			raw.SupportedFirmwares = strings.Split(val, ",")
+		case "FIXPACK_DESCRIPTION":
+			raw.Description = val
+		}
+	}
+
+	return raw, nil
+}
+
+func genTmpFixpackDir() (string, error) {
+	hash := uuid.New().String()[:8]
+	dir := fmt.Sprintf("/tmp/fixpack-%s", hash)
+	err := os.MkdirAll(dir, 0755)
+	if err != nil {
+		log.Errorf("fixpack: failed to create tmp fixpack dir %s(%v)", dir, err)
+		return "", err
+	}
+
+	return dir, nil
+}
+
+func parseFixpackInfo(file string) ([]byte, error) {
+	tmpDir, err := genTmpFixpackDir()
+	if err != nil {
+		return nil, err
+	}
+
+	defer unmountTmpDir(tmpDir)
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	defer cancel()
+
+	out, err := exec.CommandContext(ctx, "mount", file, tmpDir).CombinedOutput()
+	if err != nil {
+		err := fmt.Errorf("failed to mount fixpack %s(%v %s)", file, err, string(out))
+		log.Errorf("fixpack: %v", err)
+		return nil, err
+	}
+
+	infoPath := filepath.Join(tmpDir, "fixpack.info")
+	bytes, err := os.ReadFile(infoPath)
+	if err != nil {
+		err := fmt.Errorf("failed to read fixpack info(%v)", err)
+		log.Errorf("fixpack: %v", err)
+		return nil, err
+	}
+
+	return bytes, nil
+}
+
+func unmountTmpDir(tmpDir string) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	defer cancel()
+
+	out, err := exec.CommandContext(ctx, "umount", tmpDir).CombinedOutput()
+	if err != nil {
+		log.Errorf("fixpack: failed to unmount tmp dir %s(%v %s)", tmpDir, err, string(out))
+	}
+
+	err = os.RemoveAll(tmpDir)
+	if err != nil {
+		log.Errorf("fixpack: failed to remove tmp dir %s(%v)", tmpDir, err)
+	}
 }

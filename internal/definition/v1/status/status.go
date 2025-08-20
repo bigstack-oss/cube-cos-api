@@ -164,6 +164,7 @@ type Fixpack struct {
 	IsInstallable  bool   `json:"isInstallable" bson:"isInstallable"`
 	IsRollbackable bool   `json:"isRollbackable" bson:"isRollbackable"`
 	IsProcessing   bool   `json:"isProcessing" bson:"isProcessing"`
+	IsRemovable    bool   `json:"isRemovable" bson:"isRemovable"`
 	Description    string `json:"description,omitempty" bson:"description"`
 }
 
