@@ -14224,26 +14224,32 @@ const docTemplate = `{
                                                 "fixpacks": [
                                                     {
                                                         "version": "FIX_001",
-                                                        "note": "Diagnostic Tools",
+                                                        "name": "Need_Reboot",
+                                                        "note": "Test need reboot -- DO NOT DISTRIBUTE",
+                                                        "details": "FIXPACK_ID=\"FIX_001\"\nFIXPACK_NAME=\"Need_Reboot\"\nFIXPACK_DESCRIPTION=\"Test need reboot -- DO NOT DISTRIBUTE\"\n",
                                                         "updatedAt": "2025-08-19T19:37:20+08:00",
                                                         "rebootRequired": false,
                                                         "status": {
                                                             "current": "installed",
                                                             "isInstallable": false,
-                                                            "isRollbackable": false,
-                                                            "isProcessing": false
+                                                            "isRollbackable": true,
+                                                            "isProcessing": false,
+                                                            "isRemovable": false
                                                         }
                                                     },
                                                     {
-                                                        "version": "FIX_003",
-                                                        "note": "A sample fixpack that can not be removed and backs up hex_config",
-                                                        "updatedAt": "2025-08-14T22:59:57+08:00",
+                                                        "version": "FIX_002",
+                                                        "name": "Success",
+                                                        "note": "A sample fixpack that touches a single file and backups hex_config",
+                                                        "details": "FIXPACK_ID=\"FIX_002\"\nFIXPACK_NAME=\"Success\"\nFIXPACK_DESCRIPTION=\"A sample fixpack that touches a single file and backups hex_config\"\n",
+                                                        "updatedAt": "2025-08-14T22:58:44+08:00",
                                                         "rebootRequired": false,
                                                         "status": {
                                                             "current": "installed",
                                                             "isInstallable": false,
-                                                            "isRollbackable": false,
-                                                            "isProcessing": false
+                                                            "isRollbackable": true,
+                                                            "isProcessing": false,
+                                                            "isRemovable": false
                                                         }
                                                     }
                                                 ],
@@ -20706,7 +20712,9 @@ const docTemplate = `{
                                     "type": "object",
                                     "required": [
                                         "version",
+                                        "name",
                                         "note",
+                                        "details",
                                         "updatedAt",
                                         "rebootRequired",
                                         "status"
@@ -20715,7 +20723,13 @@ const docTemplate = `{
                                         "version": {
                                             "type": "string"
                                         },
+                                        "name": {
+                                            "type": "string"
+                                        },
                                         "note": {
+                                            "type": "string"
+                                        },
+                                        "details": {
                                             "type": "string"
                                         },
                                         "updatedAt": {
@@ -20731,7 +20745,8 @@ const docTemplate = `{
                                                 "current",
                                                 "isInstallable",
                                                 "isRollbackable",
-                                                "isProcessing"
+                                                "isProcessing",
+                                                "isRemovable"
                                             ],
                                             "properties": {
                                                 "current": {
