@@ -89,7 +89,7 @@ func (h *helper) continueInterruptedFirmwareUpdate() error {
 		cubecos.MoveVirtualIpOwner()
 	}
 
-	err = h.softRebootNode(node.Hostname)
+	err = cubecos.SoftRebootBySsh(node.Hostname)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to soft reboot node %s (%v)", h.reqId, node.Hostname, err)
 		return err

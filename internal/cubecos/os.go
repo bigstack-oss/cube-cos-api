@@ -6,10 +6,12 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ssh"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
+	cryptossh "golang.org/x/crypto/ssh"
 	"golang.org/x/sys/unix"
 )
 
@@ -73,6 +75,25 @@ func Reboot() error {
 	if err != nil {
 		err := fmt.Errorf("failed to reboot the system(%v %s)", err, string(out))
 		log.Errorf("os: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func SoftRebootBySsh(host string) error {
+	ssh, err := ssh.NewHelper(
+		ssh.Host(host),
+		ssh.User("root"),
+		ssh.HostKeyCallback(cryptossh.InsecureIgnoreHostKey()),
+	)
+	if err != nil {
+		return err
+	}
+
+	defer ssh.Close()
+	err = ssh.Run("echo YES | hex_cli -c reboot")
+	if err != nil {
 		return err
 	}
 

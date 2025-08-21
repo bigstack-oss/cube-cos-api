@@ -53,6 +53,26 @@ func (h *helper) listFixpacks() (*fixpacksPage, error) {
 	}, nil
 }
 
+func (h *helper) continueInterruptedFixpackUpdate() error {
+	node, err := cubecos.GetUpdateInterruptedNode()
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to get interrupted nodes (%v)", h.reqId, err)
+		return err
+	}
+
+	if node.IsVirtualIpOwner {
+		cubecos.MoveVirtualIpOwner()
+	}
+
+	err = cubecos.SoftRebootBySsh(node.Hostname)
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to soft reboot node %s (%v)", h.reqId, node.Hostname, err)
+		return err
+	}
+
+	return nil
+}
+
 func (h *helper) deleteFixpack() error {
 	err := os.Remove(h.file)
 	if err != nil {

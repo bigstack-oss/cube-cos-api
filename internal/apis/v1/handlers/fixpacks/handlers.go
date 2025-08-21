@@ -37,6 +37,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/fixpacks/continueAnyway",
+			Func:    continueInterruptedFixpackUpdate,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodDelete,
 			Path:    "/fixpacks/:version",
 			Func:    deleteFixpack,
@@ -149,6 +155,27 @@ func verfiyFixpackAndMd5Sum(c *gin.Context) {
 		c,
 		"Fixpack and MD5 sum verified successfully",
 		result,
+	)
+}
+
+func continueInterruptedFixpackUpdate(c *gin.Context) {
+	h, err := initHelper(c, "continueInterruptedFixpackUpdate")
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.continueInterruptedFixpackUpdate()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"Fixpack update continued successfully",
+		nil,
 	)
 }
 
