@@ -23,6 +23,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseUploadMd5Params()
 	case "verfiyFixpackAndMd5Sum":
 		return h.parseVerificationParams()
+	case "listUpdatableNodes":
+		return h.parseListUpdatableParams()
 	case "deleteFixpack":
 		return h.parseDeleteFixpackParams()
 	default:
@@ -74,7 +76,24 @@ func (h *helper) parseVerificationParams() error {
 		}
 	}
 
-	return fmt.Errorf("no fixpack file found in %s", fixpacks.TmpUploadDir)
+	return fmt.Errorf(
+		"no fixpack file found in %s",
+		fixpacks.TmpUploadDir,
+	)
+}
+
+func (h *helper) parseListUpdatableParams() error {
+	h.version = h.c.Param("version")
+	if h.version == "" {
+		return fmt.Errorf("version parameter is required")
+	}
+
+	_, found := cubecos.GetFixpackByVersion(h.version)
+	if !found {
+		return fmt.Errorf("fixpack version %s not found", h.version)
+	}
+
+	return nil
 }
 
 func (h *helper) parseDeleteFixpackParams() error {
@@ -84,7 +103,7 @@ func (h *helper) parseDeleteFixpackParams() error {
 	}
 
 	found := false
-	h.file, found = cubecos.GetFixpackFileByVersion(h.version)
+	h.file, found = cubecos.GetFixpackPathByVersion(h.version)
 	if !found {
 		return fmt.Errorf("fixpack version %s not found", h.version)
 	}

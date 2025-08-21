@@ -37,6 +37,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/fixpacks/:version/updatableNodes",
+			Func:    listUpdatableNodes,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/fixpacks/continueAnyway",
 			Func:    continueInterruptedFixpackUpdate,
@@ -155,6 +161,27 @@ func verfiyFixpackAndMd5Sum(c *gin.Context) {
 		c,
 		"Fixpack and MD5 sum verified successfully",
 		result,
+	)
+}
+
+func listUpdatableNodes(c *gin.Context) {
+	h, err := initHelper(c, "listUpdatableNodes")
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	nodes, err := h.listUpdatableNodes()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"List of updatable nodes",
+		nodes,
 	)
 }
 

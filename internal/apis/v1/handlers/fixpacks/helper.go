@@ -1,13 +1,16 @@
 package fixpacks
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -51,6 +54,35 @@ func (h *helper) listFixpacks() (*fixpacksPage, error) {
 		Fixpacks: h.paginateFixpacks(fixpackss),
 		Page:     h.genPageInfo(fixpackss),
 	}, nil
+}
+
+func (h *helper) listUpdatableNodes() ([]node, error) {
+	list := nodes.List()
+	if len(list) == 0 {
+		return nil, fmt.Errorf("no nodes found")
+	}
+
+	updatables := h.convertToUpdatableNodes(list)
+	updatables, err := h.filterUnsupportedNodes(updatables)
+	if err != nil {
+		return nil, err
+	}
+
+	h.sortUpdatableNodes(&updatables)
+	return updatables, nil
+}
+
+func (h *helper) convertToUpdatableNodes(list []nodes.Node) []node {
+	updatables := make([]node, 0, len(list))
+	for _, n := range list {
+		updatables = append(updatables, node{
+			Name:      n.Hostname,
+			Version:   n.Firmware.Active,
+			UpdatedAt: base.ActiveFirmwareUpdatedAt,
+		})
+	}
+
+	return updatables
 }
 
 func (h *helper) continueInterruptedFixpackUpdate() error {
