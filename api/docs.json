@@ -14165,7 +14165,7 @@
         },
         "/api/v1/datacenters/{dataCenter}/firmwares/{version}/updatableNodes": {
             "get": {
-                "operationId": "listUpdatableNodes",
+                "operationId": "listFirmwareUpdatableNodes",
                 "tags": [
                     "Firmwares"
                 ],
@@ -14889,6 +14889,120 @@
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to delete fixpack: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/fixpacks/{version}/updatableNodes": {
+            "get": {
+                "operationId": "listFixpackUpdatableNodes",
+                "tags": [
+                    "Fixpacks"
+                ],
+                "summary": "Get nodes that can be updated with the specified fixpack",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of nodes that can be updated with the specified fixpack",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListFixpackUpdatableNodesResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Updatable nodes",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "name": "cube451",
+                                                    "version": "Cube Appliance 3.1.0",
+                                                    "updatedAt": "2025-08-08T19:51:40+08:00"
+                                                },
+                                                {
+                                                    "name": "cube452",
+                                                    "version": "Cube Appliance 3.1.0",
+                                                    "updatedAt": "2025-08-08T19:51:40+08:00"
+                                                },
+                                                {
+                                                    "name": "cube453",
+                                                    "version": "Cube Appliance 3.1.0",
+                                                    "updatedAt": "2025-08-08T19:51:40+08:00"
+                                                }
+                                            ],
+                                            "msg": "Fetched updatable nodes successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "'FIX_001' not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list updatable nodes: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -20910,6 +21024,49 @@
                             },
                             "page": {
                                 "$ref": "#/components/schemas/Page"
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ListFixpackUpdatableNodesResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "version",
+                                "updatedAt"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "version": {
+                                    "type": "string"
+                                },
+                                "updatedAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                }
                             }
                         }
                     },
