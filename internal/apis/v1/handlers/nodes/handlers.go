@@ -27,8 +27,8 @@ var (
 		},
 		{
 			Version: apis.V1,
-			Method:  http.MethodGet,
-			Path:    "/nodes/:nodeName/reboot",
+			Method:  http.MethodPost,
+			Path:    "/nodes/:nodeName/softReboot",
 			Func:    rebootNode,
 		},
 		{

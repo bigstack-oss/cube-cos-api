@@ -69,7 +69,7 @@ func Reboot() error {
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(20))
 	defer cancel()
 
-	out, err := exec.CommandContext(ctx, "reboot").CombinedOutput()
+	out, err := exec.CommandContext(ctx, "bash", "-c", "echo YES | hex_cli -c reboot").CombinedOutput()
 	if err != nil {
 		err := fmt.Errorf("failed to reboot the system(%v %s)", err, string(out))
 		log.Errorf("os: %v", err)

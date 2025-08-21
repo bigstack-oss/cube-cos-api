@@ -78,6 +78,26 @@ func (h *helper) listUpdatableNodes() ([]node, error) {
 	return updatables, nil
 }
 
+func (h *helper) continueInterruptedFirmwareUpdate() error {
+	node, err := cubecos.GetUpdateInterruptedNode()
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to get interrupted nodes (%v)", h.reqId, err)
+		return err
+	}
+
+	if node.IsVirtualIpOwner {
+		cubecos.MoveVirtualIpOwner()
+	}
+
+	err = h.softRebootNode(node.Hostname)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to soft reboot node %s (%v)", h.reqId, node.Hostname, err)
+		return err
+	}
+
+	return nil
+}
+
 func (h *helper) deleteFirmware() error {
 	err := h.checkFirmwarePattern()
 	if err != nil {

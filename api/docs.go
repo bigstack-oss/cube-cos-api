@@ -5687,7 +5687,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/reboot": {
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/softReboot": {
             "get": {
                 "operationId": "rebootNode",
                 "tags": [

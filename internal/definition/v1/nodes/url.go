@@ -45,7 +45,7 @@ func (n *Node) GetNodeUrl() string {
 
 func (n *Node) RebootNodeUrl() string {
 	u := n.GenUrl()
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/reboot", n.DataCenter, n.Hostname)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/softReboot", n.DataCenter, n.Hostname)
 	return u.String()
 }
 

@@ -8,6 +8,7 @@ import (
 	ostime "time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	log "go-micro.dev/v5/logger"
@@ -43,6 +44,10 @@ func UpgradeFirmware(req *firmwares.ReqOpts) error {
 	}
 
 	return nil
+}
+
+func GetUpdateInterruptedNode() (*nodes.Node, error) {
+	return nil, fmt.Errorf("waiting COS to provide the SDK, so not implemented yet")
 }
 
 func parseUpdateHistory() (*firmwares.Upadte, error) {

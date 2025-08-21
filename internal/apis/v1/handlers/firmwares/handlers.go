@@ -50,6 +50,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/firmwares/continueAnyway",
+			Func:    continueInterruptedFirmwareUpdate,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodDelete,
 			Path:    "/firmwares/:version",
 			Func:    deleteFirmware,
@@ -177,6 +183,27 @@ func listUpdatableNodes(c *gin.Context) {
 		c,
 		"List of updatable nodes",
 		nodes,
+	)
+}
+
+func continueInterruptedFirmwareUpdate(c *gin.Context) {
+	h, err := initHelper(c, "continueInterruptedFirmwareUpdate")
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.continueInterruptedFirmwareUpdate()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"Firmware update continued successfully",
+		nil,
 	)
 }
 
