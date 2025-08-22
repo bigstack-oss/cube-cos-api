@@ -24,7 +24,7 @@ func (h *helper) convertListOpts() (*notifications.ListOpts, error) {
 
 	opts := &notifications.ListOpts{
 		Limit:     int64(h.limit),
-		Desending: false,
+		Desending: true,
 		Start:     h.past,
 		Stop:      time.LocalRFC3339(ostime.Now().Local()),
 	}
