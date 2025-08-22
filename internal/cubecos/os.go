@@ -3,6 +3,7 @@ package cubecos
 import (
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -14,6 +15,24 @@ import (
 	cryptossh "golang.org/x/crypto/ssh"
 	"golang.org/x/sys/unix"
 )
+
+const (
+	strictMarker = "/etc/appliance/state/strict_mode"
+)
+
+func IsInStrictMode() bool {
+	_, err := os.Stat(strictMarker)
+	if err == nil {
+		return true
+	}
+
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	log.Errorf("cubecos: failed to check strict mode marker file(%v)", err)
+	return true
+}
 
 func GetSystemSerial() (string, error) {
 	out, err := exec.Command("hex_sdk", "license_serial_get").Output()

@@ -7,9 +7,23 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	log "go-micro.dev/v5/logger"
 )
+
+func (h *helper) checkEnvConditions() error {
+	if cubecos.IsInStrictMode() {
+		return fmt.Errorf("env is in the strict mode, cannot proceed with fixpack operations")
+	}
+
+	if !ceph.IsHealthy() {
+		return fmt.Errorf("ceph is not healthy, cannot proceed with fixpack operations")
+	}
+
+	return nil
+}
 
 func (h *helper) checkFixpackPattern() error {
 	if strings.HasSuffix(h.file, ".fixpack") {

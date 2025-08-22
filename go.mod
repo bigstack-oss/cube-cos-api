@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.78.2
-	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250821044709-6f4644b79722
+	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250822090152-8b8fb4676c1e
 	github.com/blevesearch/bleve/v2 v2.4.4
 	github.com/coreos/go-oidc v2.3.0+incompatible
 	github.com/creack/pty v1.1.24
@@ -30,6 +30,8 @@ require (
 	github.com/xhit/go-str2duration v1.2.0
 	go-micro.dev/v5 v5.3.0
 	go.mongodb.org/mongo-driver v1.17.2
+	golang.org/x/crypto v0.39.0
+	golang.org/x/sys v0.33.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.33.2
 	k8s.io/apimachinery v0.33.2
@@ -120,6 +122,7 @@ require (
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
@@ -138,6 +141,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pkg/sftp v1.13.9 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/pquerna/cachecontrol v0.2.0 // indirect
 	github.com/russellhaering/goxmldsig v1.3.0 // indirect
@@ -162,12 +166,10 @@ require (
 	go.uber.org/ratelimit v0.2.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
-	golang.org/x/crypto v0.39.0 // indirect
 	golang.org/x/mod v0.25.0 // indirect
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/oauth2 v0.28.0 // indirect
 	golang.org/x/sync v0.15.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/term v0.32.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
 	golang.org/x/time v0.9.0 // indirect

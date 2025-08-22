@@ -25,6 +25,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseVerificationParams()
 	case "listUpdatableNodes":
 		return h.parseListUpdatableParams()
+	case "installFixpack":
+		return h.parseInstallParams()
 	case "deleteFixpack":
 		return h.parseDeleteFixpackParams()
 	default:
@@ -93,6 +95,25 @@ func (h *helper) parseListUpdatableParams() error {
 		return fmt.Errorf("fixpack version %s not found", h.version)
 	}
 
+	return nil
+}
+
+func (h *helper) parseInstallParams() error {
+	err := h.c.ShouldBindJSON(&h.reqOpts)
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to bind JSON for install parameters (%v)", h.reqId, err)
+		return err
+	}
+
+	path, found := cubecos.GetFixpackPathByVersion(h.reqOpts.Version)
+	if !found {
+		err := fmt.Errorf("fixpack %s not found", h.reqOpts.Version)
+		log.Errorf("fixpacks(%s): %v", h.reqId, err)
+		return err
+	}
+
+	h.reqOpts.Path = path
+	h.reqOpts.SetInstalling()
 	return nil
 }
 

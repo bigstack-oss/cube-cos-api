@@ -24,10 +24,10 @@ type helper struct {
 	http  *http.Helper
 	mongo *mongo.Helper
 
-	file           string
-	version        string
-	installReqOpts fixpacks.InstallReqOpts
-	page           *pages.Page
+	file    string
+	version string
+	reqOpts fixpacks.ReqOpts
+	page    *pages.Page
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
@@ -56,20 +56,30 @@ func (h *helper) listFixpacks() (*fixpacksPage, error) {
 	}, nil
 }
 
-func (h *helper) listUpdatableNodes() ([]node, error) {
+func (h *helper) listUpdatableNodes(version string) ([]node, error) {
 	list := nodes.List()
 	if len(list) == 0 {
 		return nil, fmt.Errorf("no nodes found")
 	}
 
 	updatables := h.convertToUpdatableNodes(list)
-	updatables, err := h.filterUnsupportedNodes(updatables)
+	updatables, err := h.filterUnsupportedNodes(updatables, version)
 	if err != nil {
 		return nil, err
 	}
 
 	h.sortUpdatableNodes(&updatables)
 	return updatables, nil
+}
+
+func (h *helper) installFixpack(updatables []node) error {
+	err := h.syncFixpack(updatables)
+	if err != nil {
+		return err
+	}
+
+	reqQueue.Add(&h.reqOpts)
+	return nil
 }
 
 func (h *helper) convertToUpdatableNodes(list []nodes.Node) []node {

@@ -104,6 +104,40 @@ func GetFixpackPathByVersion(version string) (string, bool) {
 	return "", false
 }
 
+func InstallFixpack(req *fixpacks.ReqOpts) error {
+	out, err := exec.Command("hex_sdk", "cube_cluster_run", "all", "hex_config", "fixpack", req.Path).CombinedOutput()
+	if err != nil {
+		err := fmt.Errorf("failed to execute the fixpack installation cmd %s(%v %s)", req.Version, err, string(out))
+		log.Errorf("fixpack: %v", err)
+		return err
+	}
+
+	if !IsHexSdkSuccess(err) {
+		err := fmt.Errorf("failed to install fixpack %s(%s)", req.Version, string(out))
+		log.Errorf("fixpack: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func RollbackFixpack() error {
+	out, err := exec.Command("hex_sdk", "cube_cluster_run", "all", "hex_config", "fixpack_rollback").CombinedOutput()
+	if err != nil {
+		err := fmt.Errorf("failed to execute the fixpack rollback cmd(%v %s)", err, string(out))
+		log.Errorf("fixpack: %v", err)
+		return err
+	}
+
+	if !IsHexSdkSuccess(err) {
+		err := fmt.Errorf("failed to rollback fixpack(%s)", string(out))
+		log.Errorf("fixpack: %v", err)
+		return err
+	}
+
+	return nil
+}
+
 func convertHistoryToFixpacks(out []byte) ([]fixpacks.Fixpack, error) {
 	fixpacksList := []fixpacks.Fixpack{}
 	lines := strings.SplitSeq(string(out), "\n")

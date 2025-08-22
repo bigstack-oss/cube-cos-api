@@ -43,6 +43,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/fixpacks",
+			Func:    installFixpack,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/fixpacks/continueAnyway",
 			Func:    continueInterruptedFixpackUpdate,
@@ -172,7 +178,7 @@ func listUpdatableNodes(c *gin.Context) {
 		return
 	}
 
-	nodes, err := h.listUpdatableNodes()
+	nodes, err := h.listUpdatableNodes(h.version)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
@@ -182,6 +188,38 @@ func listUpdatableNodes(c *gin.Context) {
 		c,
 		"List of updatable nodes",
 		nodes,
+	)
+}
+
+func installFixpack(c *gin.Context) {
+	h, err := initHelper(c, "installFixpack")
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.checkEnvConditions()
+	if err != nil {
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	nodes, err := h.listUpdatableNodes(h.reqOpts.Version)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	err = h.installFixpack(nodes)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"Fixpack installation started successfully",
 	)
 }
 

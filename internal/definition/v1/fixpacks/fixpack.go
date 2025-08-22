@@ -12,7 +12,10 @@ const (
 	UpdateDir = "/var/fixpack"
 )
 
-type InstallReqOpts struct {
+type ReqOpts struct {
+	Version string         `json:"version" bson:"version"`
+	Path    string         `json:"path" bson:"path"`
+	Status  status.Fixpack `json:"status" bson:"status"`
 }
 
 type Raw struct {
@@ -31,4 +34,26 @@ type Fixpack struct {
 	UpdatedAt      string         `json:"updatedAt"`
 	RebootRequired bool           `json:"rebootRequired"`
 	Status         status.Fixpack `json:"status"`
+}
+
+func (r *ReqOpts) SetCompleted() {
+	r.Status.Current = status.Completed
+	r.Status.IsProcessing = false
+}
+
+func (r *ReqOpts) SetError() {
+	r.Status.Current = status.Error
+	r.Status.IsProcessing = false
+}
+
+func (r *ReqOpts) SetInstalling() {
+	r.Status.Current = status.Installing
+	r.Status.Desired = status.Installed
+	r.Status.IsProcessing = true
+}
+
+func (r *ReqOpts) SetRollbacking() {
+	r.Status.Current = status.Rollbacking
+	r.Status.Desired = status.Rollbacked
+	r.Status.IsProcessing = true
 }

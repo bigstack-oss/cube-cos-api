@@ -8,10 +8,10 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (h *helper) filterUnsupportedNodes(nodes []node) ([]node, error) {
-	fixpack, found := cubecos.GetFixpackByVersion(h.version)
+func (h *helper) filterUnsupportedNodes(nodes []node, version string) ([]node, error) {
+	fixpack, found := cubecos.GetFixpackByVersion(version)
 	if !found {
-		err := fmt.Errorf("fixpack version %s not found", h.version)
+		err := fmt.Errorf("fixpack version %s not found", version)
 		log.Errorf("fixpack(%s): %s", h.reqId, err)
 		return nil, err
 	}
@@ -25,6 +25,13 @@ func (h *helper) filterUnsupportedNodes(nodes []node) ([]node, error) {
 		if slices.Contains(fixpack.SupportedFirmwares, node.Version) {
 			supported = append(supported, node)
 		}
+	}
+
+	if len(supported) == 0 {
+		return nil, fmt.Errorf(
+			"no nodes support fixpack version %s",
+			version,
+		)
 	}
 
 	return supported, nil
