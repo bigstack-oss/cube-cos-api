@@ -29,6 +29,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseInstallParams()
 	case "deleteFixpack":
 		return h.parseDeleteFixpackParams()
+	case "updateFixpackTask":
+		return h.parseUpdateFixpackTaskParams()
 	default:
 		return nil
 	}
@@ -127,6 +129,20 @@ func (h *helper) parseDeleteFixpackParams() error {
 	h.file, found = cubecos.GetFixpackPathByVersion(h.version)
 	if !found {
 		return fmt.Errorf("fixpack version %s not found", h.version)
+	}
+
+	return nil
+}
+
+func (h *helper) parseUpdateFixpackTaskParams() error {
+	err := h.c.ShouldBindJSON(&h.reqOpts)
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to bind JSON for update task parameters (%v)", h.reqId, err)
+		return err
+	}
+
+	if h.reqOpts.Hostname == "" {
+		return fmt.Errorf("hostname parameter is required")
 	}
 
 	return nil

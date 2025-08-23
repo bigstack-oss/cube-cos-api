@@ -59,6 +59,12 @@ var (
 			Path:    "/fixpacks/:version",
 			Func:    deleteFixpack,
 		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/fixpacks/tasks",
+			Func:    updateFixpackTask,
+		},
 	}
 )
 
@@ -261,6 +267,27 @@ func deleteFixpack(c *gin.Context) {
 	bodies.SetOk(
 		c,
 		"Fixpack deleted successfully",
+		nil,
+	)
+}
+
+func updateFixpackTask(c *gin.Context) {
+	h, err := initHelper(c, "updateFixpackTask")
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.updateFixpackTask()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"Fixpack task updated successfully",
 		nil,
 	)
 }

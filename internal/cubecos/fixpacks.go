@@ -105,7 +105,7 @@ func GetFixpackPathByVersion(version string) (string, bool) {
 }
 
 func InstallFixpack(req *fixpacks.ReqOpts) error {
-	out, err := exec.Command("hex_sdk", "cube_cluster_run", "all", "hex_config", "fixpack", req.Path).CombinedOutput()
+	out, err := exec.Command("hex_config", "fixpack", req.Path).CombinedOutput()
 	if err != nil {
 		err := fmt.Errorf("failed to execute the fixpack installation cmd %s(%v %s)", req.Version, err, string(out))
 		log.Errorf("fixpack: %v", err)
@@ -122,7 +122,7 @@ func InstallFixpack(req *fixpacks.ReqOpts) error {
 }
 
 func RollbackFixpack() error {
-	out, err := exec.Command("hex_sdk", "cube_cluster_run", "all", "hex_config", "fixpack_rollback").CombinedOutput()
+	out, err := exec.Command("hex_config", "fixpack_rollback").CombinedOutput()
 	if err != nil {
 		err := fmt.Errorf("failed to execute the fixpack rollback cmd(%v %s)", err, string(out))
 		log.Errorf("fixpack: %v", err)
@@ -139,7 +139,7 @@ func RollbackFixpack() error {
 }
 
 func convertHistoryToFixpacks(out []byte) ([]fixpacks.Fixpack, error) {
-	fixpacksList := []fixpacks.Fixpack{}
+	list := []fixpacks.Fixpack{}
 	lines := strings.SplitSeq(string(out), "\n")
 	for line := range lines {
 		segments := strings.Split(line, "|")
@@ -147,17 +147,15 @@ func convertHistoryToFixpacks(out []byte) ([]fixpacks.Fixpack, error) {
 			continue
 		}
 
-		fixpack := fixpacks.Fixpack{
+		list = append(list, fixpacks.Fixpack{
 			Version:   segments[1],
 			Note:      segments[5],
 			UpdatedAt: convertRawTime(time.FormatFixpack, segments[0]),
 			Status:    convertFixpackStatus(segments[3], segments[4]),
-		}
-
-		fixpacksList = append(fixpacksList, fixpack)
+		})
 	}
 
-	return fixpacksList, nil
+	return list, nil
 }
 
 func convertPkgToFixpacks() ([]fixpacks.Fixpack, error) {

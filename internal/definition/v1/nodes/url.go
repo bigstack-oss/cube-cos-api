@@ -290,6 +290,12 @@ func (n *Node) UpdateFirmwareTaskUrl() string {
 	return u.String()
 }
 
+func (n *Node) PatchFixpackUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/fixpacks", base.DataCenterName)
+	return u.String()
+}
+
 func (n *Node) UpdateFixpackTaskUrl() string {
 	u := n.GenUrl()
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/fixpacks/tasks", base.DataCenterName)

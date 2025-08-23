@@ -12,6 +12,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -78,7 +79,12 @@ func (h *helper) installFixpack(updatables []node) error {
 		return err
 	}
 
-	reqQueue.Add(&h.reqOpts)
+	h.delegateToLocal(updatables)
+	if !cubecos.IsVirtualIpOwner(base.Hostname) {
+		return nil
+	}
+
+	h.delegateToPeers(updatables)
 	return nil
 }
 
@@ -106,6 +112,13 @@ func (h *helper) continueInterruptedFixpackUpdate() error {
 		cubecos.MoveVirtualIpOwner()
 	}
 
+	// have to check if the fixpack is not required to be rebooted,
+	// then just delete the req record and return
+	// if !fixpack.IsRebootRequired() {
+	// 	h.deleteReqRecord()
+	// 	return nil
+	// }
+
 	err = cubecos.SoftRebootBySsh(node.Hostname)
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to soft reboot node %s (%v)", h.reqId, node.Hostname, err)
@@ -123,4 +136,15 @@ func (h *helper) deleteFixpack() error {
 	}
 
 	return nil
+}
+
+func (h *helper) updateFixpackTask() error {
+	switch h.reqOpts.Status.Current {
+	case status.Completed:
+		return h.deleteReqRecord()
+	case status.Error:
+		return h.markReqRecordAsFailed()
+	default:
+		return fmt.Errorf("invalid status: %s", h.reqOpts.Status.Current)
+	}
 }

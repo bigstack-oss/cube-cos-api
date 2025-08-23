@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.78.2
-	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250822090152-8b8fb4676c1e
+	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20250823172425-d4a7eef201df
 	github.com/blevesearch/bleve/v2 v2.4.4
 	github.com/coreos/go-oidc v2.3.0+incompatible
 	github.com/creack/pty v1.1.24

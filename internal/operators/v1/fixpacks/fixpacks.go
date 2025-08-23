@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	"github.com/bigstack-oss/cube-cos-api/internal/service"
 	"k8s.io/client-go/util/workqueue"
@@ -32,6 +33,7 @@ func (o *Operator) Name() string {
 func (o *Operator) Init() error {
 	o.ctx, o.cancel = context.WithCancel(context.Background())
 	o.http = http.GetGlobalHelper()
+	cubecos.RemoveHostPendingReq(fixpacks.Db, fixpacks.ReqCollection)
 	return nil
 }
 

@@ -3,7 +3,9 @@ package fixpacks
 import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 
 const (
-	Module = "fixpacks"
+	Module        = "fixpacks"
+	Db            = Module
+	ReqCollection = "requests"
 
 	TmpUploadDir       = "/tmp/fixpacks"
 	TmpPreCalculateMd5 = "precalculated.md5"
@@ -13,9 +15,10 @@ const (
 )
 
 type ReqOpts struct {
-	Version string         `json:"version" bson:"version"`
-	Path    string         `json:"path" bson:"path"`
-	Status  status.Fixpack `json:"status" bson:"status"`
+	Hostname string         `json:"hostname" bson:"hostname"`
+	Version  string         `json:"version" bson:"version"`
+	Path     string         `json:"path" bson:"path"`
+	Status   status.Fixpack `json:"status" bson:"status"`
 }
 
 type Raw struct {
