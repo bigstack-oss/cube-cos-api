@@ -14946,6 +14946,128 @@
             }
         },
         "/api/v1/datacenters/{dataCenter}/fixpacks/{version}": {
+            "get": {
+                "operationId": "getFixpackProgress",
+                "tags": [
+                    "Fixpacks"
+                ],
+                "summary": "Get the progress of a fixpack operation",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fixpack operation progress",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FixpackProgressResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Fixpack operation progress",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "host": "example-node-0",
+                                                    "phase": "",
+                                                    "status": {
+                                                        "current": "installing",
+                                                        "isProcessing": false,
+                                                        "processPercent": 50,
+                                                        "description": ""
+                                                    }
+                                                },
+                                                {
+                                                    "host": "example-node-1",
+                                                    "phase": "",
+                                                    "status": {
+                                                        "current": "installing",
+                                                        "isProcessing": false,
+                                                        "processPercent": 50,
+                                                        "description": ""
+                                                    }
+                                                },
+                                                {
+                                                    "host": "example-node-2",
+                                                    "phase": "",
+                                                    "status": {
+                                                        "current": "installing",
+                                                        "isProcessing": false,
+                                                        "processPercent": 50,
+                                                        "description": ""
+                                                    }
+                                                }
+                                            ],
+                                            "msg": "Fetched fixpack progress successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "'FIX_001' not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to get fixpack progress: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "'internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "delete": {
                 "operationId": "deleteFixpack",
                 "tags": [
@@ -21388,6 +21510,75 @@
                 ],
                 "properties": {
                     "version": {
+                        "type": "string"
+                    }
+                }
+            },
+            "FixpackProgressResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "host",
+                                "phase",
+                                "status"
+                            ],
+                            "properties": {
+                                "host": {
+                                    "type": "string"
+                                },
+                                "phase": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "object",
+                                    "required": [
+                                        "current",
+                                        "isProcessing",
+                                        "processPercent",
+                                        "description"
+                                    ],
+                                    "properties": {
+                                        "current": {
+                                            "type": "string",
+                                            "enum": [
+                                                "available",
+                                                "installing",
+                                                "installed",
+                                                "rolling back",
+                                                "failed"
+                                            ]
+                                        },
+                                        "isProcessing": {
+                                            "type": "boolean"
+                                        },
+                                        "processPercent": {
+                                            "type": "number"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
                         "type": "string"
                     }
                 }

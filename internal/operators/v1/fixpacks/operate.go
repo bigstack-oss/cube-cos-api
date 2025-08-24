@@ -28,7 +28,7 @@ func (o *Operator) operate(req *fixpacks.ReqOpts) error {
 func (o *Operator) handleExit(req *fixpacks.ReqOpts, err error) {
 	if err != nil {
 		log.Errorf("fixpacks: failed to %s %s(%v)", req.Status.Desired, req.Version, err)
-		req.SetError()
+		req.SetFailed()
 	} else {
 		log.Infof("fixpacks: %s %s successfully", req.Status.Desired, req.Version)
 		req.SetCompleted()

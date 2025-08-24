@@ -206,7 +206,7 @@ func (h *helper) updateFixpackTask() error {
 	switch h.reqOpts.Status.Current {
 	case status.Completed:
 		return h.deleteReqRecord()
-	case status.Error:
+	case status.Failed:
 		return h.markReqRecordAsFailed()
 	default:
 		return fmt.Errorf("invalid status: %s", h.reqOpts.Status.Current)

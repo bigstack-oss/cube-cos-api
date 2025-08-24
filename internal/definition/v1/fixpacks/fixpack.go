@@ -44,8 +44,8 @@ func (r *ReqOpts) SetCompleted() {
 	r.Status.IsProcessing = false
 }
 
-func (r *ReqOpts) SetError() {
-	r.Status.Current = status.Error
+func (r *ReqOpts) SetFailed() {
+	r.Status.Current = status.Failed
 	r.Status.IsProcessing = false
 }
 
