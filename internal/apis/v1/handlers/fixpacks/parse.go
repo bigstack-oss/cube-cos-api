@@ -10,6 +10,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -204,4 +205,15 @@ func (h *helper) saveUploadFile() error {
 	}
 
 	return nil
+}
+
+func (h *helper) getProgressByVersion(version string) (string, float64) {
+	current := status.Available
+	processPercent := float64(0)
+	if h.isVersionInstalled(version) {
+		current = status.Installed
+		processPercent = 100
+	}
+
+	return current, processPercent
 }

@@ -3,7 +3,6 @@ package fixpacks
 import (
 	"fmt"
 	"os"
-	"sort"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
@@ -16,7 +15,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type helper struct {
@@ -66,48 +64,16 @@ func (h *helper) listFixpackUpdateProgress(version string) ([]progress, error) {
 		return nil, err
 	}
 
-	current := status.Available
-	processPercent := float64(0)
-	if h.isVersionInstalled(version) {
-		current = status.Installed
-		processPercent = 100
-	}
-
+	current, processPercent := h.getProgressByVersion(version)
 	progresses := []progress{}
 	for _, node := range updatables {
-		progress := progress{
-			Host: node.Name,
-			Status: status.FixpackProgress{
-				Current:        current,
-				ProcessPercent: processPercent,
-			},
-		}
-
-		filter := bson.M{"hostname": node.Name, "status.current": status.Installing}
-		if h.hasInprogressRecord(filter) {
-			progress.Status.Current = status.Installing
-			progress.Status.IsProcessing = true
-			progress.Status.ProcessPercent = 50
-			progresses = append(progresses, progress)
-			continue
-		}
-
-		filter["status.current"] = status.RollingBack
-		if h.hasInprogressRecord(filter) {
-			progress.Status.Current = status.RollingBack
-			progress.Status.IsProcessing = true
-			progress.Status.ProcessPercent = 50
-			progresses = append(progresses, progress)
-			continue
-		}
-
-		progresses = append(progresses, progress)
+		progresses = append(
+			progresses,
+			h.syncProgress(node, current, processPercent),
+		)
 	}
 
-	sort.Slice(progresses, func(i, j int) bool {
-		return (progresses)[i].Host < (progresses)[j].Host
-	})
-
+	h.sortProgress(&progresses)
 	return progresses, nil
 }
 

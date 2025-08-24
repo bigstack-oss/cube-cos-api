@@ -1,6 +1,9 @@
 package fixpacks
 
-import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+import (
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	"go.mongodb.org/mongo-driver/bson"
+)
 
 type node struct {
 	Name      string `json:"name"`
@@ -12,4 +15,30 @@ type progress struct {
 	Host   string                 `json:"host"`
 	Phase  string                 `json:"phase"`
 	Status status.FixpackProgress `json:"status"`
+}
+
+func (h *helper) syncProgress(node node, current string, processPercent float64) progress {
+	progress := progress{
+		Host: node.Name,
+		Status: status.FixpackProgress{
+			Current:        current,
+			ProcessPercent: processPercent,
+		},
+	}
+
+	filter := bson.M{"hostname": node.Name, "status.current": status.Installing}
+	if h.hasInprogressRecord(filter) {
+		progress.Status.Current = status.Installing
+		progress.Status.IsProcessing = true
+		progress.Status.ProcessPercent = 50
+	}
+
+	filter["status.current"] = status.RollingBack
+	if h.hasInprogressRecord(filter) {
+		progress.Status.Current = status.RollingBack
+		progress.Status.IsProcessing = true
+		progress.Status.ProcessPercent = 50
+	}
+
+	return progress
 }
