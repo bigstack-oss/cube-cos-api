@@ -93,6 +93,10 @@ func Boot() string {
 	return ISO8601Z(bootTime)
 }
 
+func Fixpack(t time.Time) string {
+	return RFC3339Z(t)
+}
+
 func TimeISO8601Z(t time.Time) string {
 	return t.Format(FormatISO8601Z)
 }

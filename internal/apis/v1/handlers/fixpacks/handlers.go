@@ -50,6 +50,12 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
+			Path:    "/fixpacks/rollback",
+			Func:    rollbackFixpack,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
 			Path:    "/fixpacks/continueAnyway",
 			Func:    continueInterruptedFixpackUpdate,
 		},
@@ -226,6 +232,32 @@ func installFixpack(c *gin.Context) {
 	bodies.SetAccepted(
 		c,
 		"Fixpack installation started successfully",
+	)
+}
+
+func rollbackFixpack(c *gin.Context) {
+	h, err := initHelper(c, "rollbackFixpack")
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.checkEnvConditions()
+	if err != nil {
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.rollbackFixpack()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"Fixpack rollback started successfully",
 	)
 }
 

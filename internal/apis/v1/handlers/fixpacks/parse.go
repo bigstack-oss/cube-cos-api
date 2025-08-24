@@ -27,6 +27,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListUpdatableParams()
 	case "installFixpack":
 		return h.parseInstallParams()
+	case "rollbackFixpack":
+		return h.parseRollbackParams()
 	case "deleteFixpack":
 		return h.parseDeleteFixpackParams()
 	case "updateFixpackTask":
@@ -116,6 +118,10 @@ func (h *helper) parseInstallParams() error {
 
 	h.reqOpts.Path = path
 	h.reqOpts.SetInstalling()
+	return nil
+}
+
+func (h *helper) parseRollbackParams() error {
 	return nil
 }
 

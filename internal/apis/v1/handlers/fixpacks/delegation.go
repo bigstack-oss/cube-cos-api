@@ -139,7 +139,7 @@ func (h *helper) syncFixpackToPeerNode(node nodes.Node) error {
 		return err
 	}
 
-	authMethod, err := h.genSshAuth()
+	sshAuth, err := h.genSshAuth()
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func (h *helper) syncFixpackToPeerNode(node nodes.Node) error {
 	ssh, err := ssh.NewHelper(
 		ssh.Host(fmt.Sprintf("%s:22", node.Hostname)),
 		ssh.User("root"),
-		ssh.AuthMethod(authMethod),
+		ssh.AuthMethod(sshAuth),
 		ssh.HostKeyCallback(cryptossh.InsecureIgnoreHostKey()),
 	)
 	if err != nil {

@@ -133,7 +133,7 @@ func convertRawTime(layout, rawTime string) string {
 		return ""
 	}
 
-	return time.LocalRFC3339(t)
+	return time.Fixpack(t)
 }
 
 func convertPkgNameToFirmware(pkgname string) (*firmwares.Firmware, error) {

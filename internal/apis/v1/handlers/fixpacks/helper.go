@@ -88,6 +88,10 @@ func (h *helper) installFixpack(updatables []node) error {
 	return nil
 }
 
+func (h *helper) rollbackFixpack() error {
+	return nil
+}
+
 func (h *helper) convertToUpdatableNodes(list []nodes.Node) []node {
 	updatables := make([]node, 0, len(list))
 	for _, n := range list {

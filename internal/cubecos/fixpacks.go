@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
@@ -139,6 +140,16 @@ func RollbackFixpack() error {
 }
 
 func convertHistoryToFixpacks(out []byte) ([]fixpacks.Fixpack, error) {
+	fixpacks := parseHistoryFixpacks(out)
+
+	sort.Slice(fixpacks, func(i, j int) bool {
+		return (fixpacks)[i].UpdatedAt > (fixpacks)[j].UpdatedAt
+	})
+
+	return dedupFixpacks(fixpacks), nil
+}
+
+func parseHistoryFixpacks(out []byte) []fixpacks.Fixpack {
 	list := []fixpacks.Fixpack{}
 	lines := strings.SplitSeq(string(out), "\n")
 	for line := range lines {
@@ -155,7 +166,24 @@ func convertHistoryToFixpacks(out []byte) ([]fixpacks.Fixpack, error) {
 		})
 	}
 
-	return list, nil
+	return list
+}
+
+func dedupFixpacks(list []fixpacks.Fixpack) []fixpacks.Fixpack {
+	seen := make(map[string]fixpacks.Fixpack)
+	for _, fixpack := range list {
+		_, found := seen[fixpack.Version]
+		if !found {
+			seen[fixpack.Version] = fixpack
+		}
+	}
+
+	deduplicated := make([]fixpacks.Fixpack, 0, len(seen))
+	for _, fixpack := range seen {
+		deduplicated = append(deduplicated, fixpack)
+	}
+
+	return deduplicated
 }
 
 func convertPkgToFixpacks() ([]fixpacks.Fixpack, error) {
@@ -224,17 +252,17 @@ func mergeFixpacks(history, pkgs []fixpacks.Fixpack) []fixpacks.Fixpack {
 }
 
 func convertFixpackStatus(rollback, action string) status.Fixpack {
-	status := status.Fixpack{Current: "installed"}
-
+	s := status.Fixpack{Current: "installed"}
 	if strings.EqualFold(rollback, "yes") {
-		status.IsRollbackable = true
+		s.IsRollbackable = true
 	}
 
-	if strings.EqualFold(action, "installed") {
-		status.IsInstallable = false
+	if strings.EqualFold(action, "uninstalled") {
+		s.IsInstallable = true
+		s.Current = status.Available
 	}
 
-	return status
+	return s
 }
 
 func getFixpackInfo(file string) (*fixpacks.Raw, error) {
