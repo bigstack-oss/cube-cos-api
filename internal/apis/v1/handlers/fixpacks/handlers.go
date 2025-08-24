@@ -55,6 +55,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/fixpacks/:version",
+			Func:    listFixpackUpdateProgress,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/fixpacks/:version/rollback",
 			Func:    rollbackFixpack,
@@ -190,7 +196,7 @@ func listUpdatableNodes(c *gin.Context) {
 		return
 	}
 
-	nodes, err := h.listUpdatableNodes(h.version)
+	nodes, err := h.listUpdatableNodes(h.reqOpts.Version)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
@@ -232,6 +238,27 @@ func installFixpack(c *gin.Context) {
 	bodies.SetAccepted(
 		c,
 		"Fixpack installation started successfully",
+	)
+}
+
+func listFixpackUpdateProgress(c *gin.Context) {
+	h, err := initHelper(c, "listFixpackUpdateProgress")
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	progress, err := h.listFixpackUpdateProgress(h.reqOpts.Version)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"List of fixpack update progress",
+		progress,
 	)
 }
 

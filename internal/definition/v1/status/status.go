@@ -171,6 +171,13 @@ type Fixpack struct {
 	Description    string `json:"description,omitempty" bson:"description"`
 }
 
+type FixpackProgress struct {
+	Current        string  `json:"current" bson:"current"`
+	IsProcessing   bool    `json:"isProcessing" bson:"isProcessing"`
+	ProcessPercent float64 `json:"processPercent" bson:"processPercent"`
+	Description    string  `json:"description" bson:"description"`
+}
+
 func NewHealthOk() *Health {
 	return &Health{Current: Ok}
 }
