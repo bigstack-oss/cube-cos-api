@@ -28,7 +28,7 @@ const (
 	Removing             = "removing"
 	Expairing            = "expairing"
 	Fixing               = "fixing"
-	Rollbacking          = "rollbacking"
+	RollingBack          = "rollingBack"
 	PoweringOn           = "powering on"
 	PoweringOff          = "powering off"
 	PoweringCycle        = "powering cycle"

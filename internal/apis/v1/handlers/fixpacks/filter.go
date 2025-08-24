@@ -9,7 +9,7 @@ import (
 )
 
 func (h *helper) filterUnsupportedNodes(nodes []node, version string) ([]node, error) {
-	fixpack, found := cubecos.GetFixpackByVersion(version)
+	fixpack, found := cubecos.GetFixpackRawByVersion(version)
 	if !found {
 		err := fmt.Errorf("fixpack version %s not found", version)
 		log.Errorf("fixpack(%s): %s", h.reqId, err)

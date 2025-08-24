@@ -296,6 +296,12 @@ func (n *Node) PatchFixpackUrl() string {
 	return u.String()
 }
 
+func (n *Node) PostFixpackRollbackUrl(version string) string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/fixpacks/%s/rollback", base.DataCenterName, version)
+	return u.String()
+}
+
 func (n *Node) UpdateFixpackTaskUrl() string {
 	u := n.GenUrl()
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/fixpacks/tasks", base.DataCenterName)

@@ -94,7 +94,7 @@ func (h *helper) parseListUpdatableParams() error {
 		return fmt.Errorf("version parameter is required")
 	}
 
-	_, found := cubecos.GetFixpackByVersion(h.version)
+	_, found := cubecos.GetFixpackRawByVersion(h.version)
 	if !found {
 		return fmt.Errorf("fixpack version %s not found", h.version)
 	}
@@ -122,6 +122,23 @@ func (h *helper) parseInstallParams() error {
 }
 
 func (h *helper) parseRollbackParams() error {
+	h.reqOpts.Version = h.c.Param("version")
+	if h.reqOpts.Version == "" {
+		return fmt.Errorf("version parameter is required")
+	}
+
+	found := false
+	_, found = cubecos.GetFixpackRawByVersion(h.reqOpts.Version)
+	if !found {
+		return fmt.Errorf("fixpack version %s not found", h.reqOpts.Version)
+	}
+
+	err := h.checkRollback(h.reqOpts.Version)
+	if err != nil {
+		return err
+	}
+
+	h.reqOpts.SetRollingBack()
 	return nil
 }
 

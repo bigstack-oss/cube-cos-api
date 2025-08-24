@@ -88,7 +88,13 @@ func (h *helper) installFixpack(updatables []node) error {
 	return nil
 }
 
-func (h *helper) rollbackFixpack() error {
+func (h *helper) rollbackFixpack(updateds []node) error {
+	h.delegateToLocal(updateds)
+	if !cubecos.IsVirtualIpOwner(base.Hostname) {
+		return nil
+	}
+
+	h.delegateToPeers(updateds)
 	return nil
 }
 

@@ -55,8 +55,8 @@ func (r *ReqOpts) SetInstalling() {
 	r.Status.IsProcessing = true
 }
 
-func (r *ReqOpts) SetRollbacking() {
-	r.Status.Current = status.Rollbacking
+func (r *ReqOpts) SetRollingBack() {
+	r.Status.Current = status.RollingBack
 	r.Status.Desired = status.Rollbacked
 	r.Status.IsProcessing = true
 }

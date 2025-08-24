@@ -50,14 +50,14 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
-			Path:    "/fixpacks/rollback",
-			Func:    rollbackFixpack,
+			Path:    "/fixpacks/continueAnyway",
+			Func:    continueInterruptedFixpackUpdate,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
-			Path:    "/fixpacks/continueAnyway",
-			Func:    continueInterruptedFixpackUpdate,
+			Path:    "/fixpacks/:version/rollback",
+			Func:    rollbackFixpack,
 		},
 		{
 			Version: apis.V1,
@@ -249,7 +249,13 @@ func rollbackFixpack(c *gin.Context) {
 		return
 	}
 
-	err = h.rollbackFixpack()
+	nodes, err := h.listUpdatableNodes(h.reqOpts.Version)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	err = h.rollbackFixpack(nodes)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return

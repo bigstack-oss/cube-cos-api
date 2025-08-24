@@ -13,6 +13,19 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
+func (h *helper) checkRollback(version string) error {
+	fixpack, found := cubecos.GetFixpackByVersion(version)
+	if !found {
+		return fmt.Errorf("fixpack version %s not found", version)
+	}
+
+	if !fixpack.Status.IsRollbackable {
+		return fmt.Errorf("fixpack version %s is not rollbackable", version)
+	}
+
+	return nil
+}
+
 func (h *helper) checkEnvConditions() error {
 	if cubecos.IsInStrictMode() {
 		return fmt.Errorf("env is in the strict mode, cannot proceed with fixpack operations")

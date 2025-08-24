@@ -21,21 +21,21 @@ var (
 	reqQueue = fixpacks.ReqQueue
 )
 
-func (h *helper) delegateToLocal(updatables []node) {
-	for _, updatable := range updatables {
-		if nodes.IsLocal(updatable.Name) {
+func (h *helper) delegateToLocal(list []node) {
+	for _, node := range list {
+		if nodes.IsLocal(node.Name) {
 			reqQueue.Add(&h.reqOpts)
-			h.addReqRecord(updatable.Name)
+			h.addReqRecord(node.Name)
 			return
 		}
 	}
 }
 
-func (h *helper) delegateToPeers(updatables []node) {
-	for _, updatable := range updatables {
-		node, err := nodes.Get(updatable.Name)
+func (h *helper) delegateToPeers(list []node) {
+	for _, peer := range list {
+		node, err := nodes.Get(peer.Name)
 		if err != nil {
-			log.Warnf("fixpacks(%s): failed to get node %s (%v)", h.reqId, updatable.Name, err)
+			log.Warnf("fixpacks(%s): failed to get node %s (%v)", h.reqId, peer.Name, err)
 			continue
 		}
 
@@ -77,6 +77,8 @@ func (h *helper) getUrlByHandler(node nodes.Node) string {
 	switch h.handler {
 	case "installFixpack":
 		return node.PatchFixpackUrl()
+	case "rollbackFixpack":
+		return node.PostFixpackRollbackUrl(h.reqOpts.Version)
 	default:
 		return node.PatchFixpackUrl()
 	}

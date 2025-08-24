@@ -45,7 +45,22 @@ func ListFixpacks() ([]fixpacks.Fixpack, error) {
 	), nil
 }
 
-func GetFixpackByVersion(version string) (*fixpacks.Raw, bool) {
+func GetFixpackByVersion(version string) (*fixpacks.Fixpack, bool) {
+	fixpacks, err := ListFixpacks()
+	if err != nil {
+		return nil, false
+	}
+
+	for _, fixpack := range fixpacks {
+		if strings.EqualFold(fixpack.Version, version) {
+			return &fixpack, true
+		}
+	}
+
+	return nil, false
+}
+
+func GetFixpackRawByVersion(version string) (*fixpacks.Raw, bool) {
 	entries, err := os.ReadDir(fixpacks.UpdateDir)
 	if err != nil {
 		log.Errorf("fixpack(%s): failed to read update directory %s(%v)", fixpacks.UpdateDir, err)
