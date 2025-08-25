@@ -127,13 +127,13 @@ func appendUninstalledFirmwares(list *[]firmwares.Firmware) {
 }
 
 func convertRawTime(layout, rawTime string) string {
-	t, err := ostime.Parse(layout, rawTime)
+	t, err := ostime.ParseInLocation(layout, rawTime, time.LocalFixedZone)
 	if err != nil {
 		log.Errorf("firmwares: failed to parse time %s (%v)", rawTime, err)
 		return ""
 	}
 
-	return time.Fixpack(t)
+	return time.RFC3339Z(t)
 }
 
 func convertPkgNameToFirmware(pkgname string) (*firmwares.Firmware, error) {
