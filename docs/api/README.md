@@ -1,4 +1,4 @@
-## ▎Overiew
+## 🥽 Overiew
 
 The following guide is for anyone who want to see the comperhensive list for API usage.
 
@@ -8,13 +8,13 @@ Genearlly, there're two ways to find it out
 
 - Copy JSON to Swagger online editor
 
-You should be able to see the doc like the video below via either way
+You should be able to see the doc like the video below via either way -> [Video](../../assets/videos/api/interfaces.mov)
 
-[Video](../../assets/videos/api/interfaces.mov)
+Follow the video to interact with the API doc -> [Video](../../assets/videos/api/interaction.mov)
 
 <br/>
 
-## ▎Access on CubeCOS
+## 💻 Access on CubeCOS
 
 1). Log in your CubeCOS by UI
 
@@ -28,7 +28,7 @@ You should be able to see the doc like the video below via either way
 
 <br/>
 
-## ▎Swagger Online Editor
+## 🧪 Swagger Online Editor
 
 1). Copy the JSON content from [JSON](../../api/docs.json)
 
