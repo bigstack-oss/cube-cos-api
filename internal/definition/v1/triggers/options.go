@@ -134,10 +134,12 @@ func (r *ReqOpts) GenOrRule(key string, attrs []string) string {
 			attr = strings.ToUpper(attr)
 		}
 
-		rule = append(
-			rule,
-			fmt.Sprintf(`%q == '%s'`, key, attr),
-		)
+		switch key {
+		case "name()":
+			rule = append(rule, fmt.Sprintf("%s == '%s'", key, attr))
+		default:
+			rule = append(rule, fmt.Sprintf(`%q == '%s'`, key, attr))
+		}
 	}
 
 	orRule := strings.Join(rule, " OR ")
