@@ -55,9 +55,10 @@ func (d *DeviceReqOpts) SetRemoving() {
 func (d *DeviceReqOpts) SetError(msg string) {
 	d.Status.Current = status.Error
 	d.Status.IsProcessing = false
-	d.Status.Description = msg
 
 	d.SetDeviceNotification()
+	d.Notify.Payload.AdditionalInfo["description"] = msg
+
 	switch d.Status.Desired {
 	case status.Added:
 		d.Notify.Payload.Id = "DEV00001E"
