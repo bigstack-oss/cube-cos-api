@@ -119,7 +119,7 @@ func SoftRebootBySsh(host string) error {
 	return nil
 }
 
-func MoveVirtualIpOwner() {
+func MoveVirtualIpOwner() error {
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(5))
 	defer cancel()
 
@@ -127,8 +127,9 @@ func MoveVirtualIpOwner() {
 	if err != nil {
 		err := fmt.Errorf("failed to move virtual ip owner(%v %s)", err, string(out))
 		log.Errorf("os: %v", err)
-		return
+		return err
 	}
 
 	log.Infof("os: successfully moved virtual ip owner(%s)", string(out))
+	return nil
 }

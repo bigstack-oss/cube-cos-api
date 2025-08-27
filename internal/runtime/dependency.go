@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/Nerzal/gocloak/v13"
@@ -364,6 +365,25 @@ func newDefaultNodeToken() error {
 	auths.DefaultNodeToken = nodes.GenToken(base.Hostname)
 	if auths.DefaultNodeToken == "" {
 		return fmt.Errorf("failed to generate node token")
+	}
+
+	return flushDefaultNodeToken()
+}
+
+func flushDefaultNodeToken() error {
+	err := os.MkdirAll(base.VarRunCubeCosApiDir, 0755)
+	if err != nil {
+		if !os.IsExist(err) {
+			log.Errorf("runtime: failed to create dir for node token(%v)", err)
+			return err
+		}
+	}
+
+	path := fmt.Sprintf("%s/node_token", base.VarRunCubeCosApiDir)
+	err = os.WriteFile(path, []byte(auths.DefaultNodeToken), 0644)
+	if err != nil {
+		log.Errorf("runtime: failed to write node token to file(%v)", err)
+		return err
 	}
 
 	return nil
