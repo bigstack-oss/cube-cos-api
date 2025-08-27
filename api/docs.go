@@ -13918,7 +13918,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/firmwares/md5sum/verify": {
             "post": {
-                "operationId": "vierfyFirmwareMd5Sum",
+                "operationId": "verifyFirmwareMd5Sum",
                 "tags": [
                     "Firmwares"
                 ],
@@ -13948,6 +13948,10 @@ const docTemplate = `{
                                         },
                                         "data": {
                                             "type": "object",
+                                            "required": [
+                                                "firmwareMd5",
+                                                "expectedMd5"
+                                            ],
                                             "properties": {
                                                 "firmwareMd5": {
                                                     "type": "string",
@@ -14188,7 +14192,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ListUpdatableNodesResponse"
+                                    "$ref": "#/components/schemas/ListFirmwareUpdatableNodesResponse"
                                 },
                                 "examples": {
                                     "example1": {
@@ -14220,6 +14224,35 @@ const docTemplate = `{
                                             ],
                                             "msg": "fetch updatable nodes successfully",
                                             "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "'CUBE Appliance 3.1.0 f45c719' not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
                                         }
                                     }
                                 }
@@ -21314,7 +21347,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "ListUpdatableNodesResponse": {
+            "ListFirmwareUpdatableNodesResponse": {
                 "type": "object",
                 "required": [
                     "code",
