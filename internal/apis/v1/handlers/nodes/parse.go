@@ -22,6 +22,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseSetOrVerifyOptions()
 	case "ipmiOperateNode":
 		return h.parseIpmiOperateOptions()
+	case "drainNode":
+		return h.parseDrainOptions()
 	case "listNodeDevices":
 		return h.parseListDevicesOptions()
 	case "addNodeDevice":
@@ -72,6 +74,15 @@ func (h *helper) parseIpmiOperateOptions() error {
 
 	h.operation = strings.ToLower(h.c.Param("operation"))
 	return h.checkIpmiOperation()
+}
+
+func (h *helper) parseDrainOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("nodeName should be provided")
+	}
+
+	return nil
 }
 
 func (h *helper) parseKeyword() {

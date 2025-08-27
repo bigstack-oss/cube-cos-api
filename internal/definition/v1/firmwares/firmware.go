@@ -9,8 +9,9 @@ const (
 	TmpPreCalculateMd5 = "precalculated.md5"
 	DefaultMd5File     = "md5"
 
-	UpdateDir     = "/var/update"
-	UpdateHistory = "/var/appliance-db/update.history"
+	UpdateDir      = "/var/update"
+	UpdateHistory  = "/var/appliance-db/update.history"
+	UpdateProgress = "/var/run/cube-cos-api/progress.json"
 )
 
 type ReqOpts struct {

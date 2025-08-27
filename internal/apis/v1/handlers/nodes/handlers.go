@@ -57,6 +57,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/nodes/:nodeName/drain",
+			Func:    drainNode,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/nodes/:nodeName/devices",
 			Func:    listNodeDevices,
@@ -299,6 +305,28 @@ func disconnectNodeIpmi(c *gin.Context) {
 	bodies.SetOk(
 		c,
 		"the ipmi is successfully disconnected",
+		nil,
+	)
+}
+
+func drainNode(c *gin.Context) {
+	h, err := initHelper(c, "drainNode")
+	if err != nil {
+		log.Errorf("nodes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.drainNode()
+	if err != nil {
+		log.Errorf("nodes(%s): failed to drain node(%v)", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"the node is successfully drained",
 		nil,
 	)
 }

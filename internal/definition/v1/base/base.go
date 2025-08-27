@@ -14,7 +14,7 @@ import (
 const (
 	NetMajorInterface = "eth0"
 
-	VarRunCubeCosApiDir = "/var/run/cube_cos_api"
+	VarRunCubeCosApiDir = "/var/run/cube-cos-api"
 	DataCenterHelpUrl   = "https://www.bigstack.co/contact-us"
 	BoardSerialPath     = "/sys/class/dmi/id/board_serial"
 )
