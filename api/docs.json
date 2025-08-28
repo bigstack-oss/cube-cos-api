@@ -14182,38 +14182,41 @@
                                         "summary": "Firmware upgrade progress",
                                         "value": {
                                             "code": 200,
-                                            "data": [
-                                                {
-                                                    "host": "example-node-0",
-                                                    "phase": "paritioning",
-                                                    "status": {
-                                                        "current": "installing",
-                                                        "isProcessing": false,
-                                                        "processPercent": 75,
-                                                        "description": "swapping partition for Cube Appliance 3.1.0"
+                                            "data": {
+                                                "version": "CUBE Appliance 3.1.0",
+                                                "progresses": [
+                                                    {
+                                                        "host": "example-node-0",
+                                                        "phase": "paritioning",
+                                                        "status": {
+                                                            "current": "installing",
+                                                            "isProcessing": false,
+                                                            "processPercent": 75,
+                                                            "description": "swapping partition for Cube Appliance 3.1.0"
+                                                        }
+                                                    },
+                                                    {
+                                                        "host": "example-node-1",
+                                                        "phase": "",
+                                                        "status": {
+                                                            "current": "waiting",
+                                                            "isProcessing": false,
+                                                            "processPercent": 0,
+                                                            "description": ""
+                                                        }
+                                                    },
+                                                    {
+                                                        "host": "example-node-2",
+                                                        "phase": "",
+                                                        "status": {
+                                                            "current": "waiting",
+                                                            "isProcessing": false,
+                                                            "processPercent": 0,
+                                                            "description": ""
+                                                        }
                                                     }
-                                                },
-                                                {
-                                                    "host": "example-node-1",
-                                                    "phase": "",
-                                                    "status": {
-                                                        "current": "waiting",
-                                                        "isProcessing": false,
-                                                        "processPercent": 0,
-                                                        "description": ""
-                                                    }
-                                                },
-                                                {
-                                                    "host": "example-node-2",
-                                                    "phase": "",
-                                                    "status": {
-                                                        "current": "waiting",
-                                                        "isProcessing": false,
-                                                        "processPercent": 0,
-                                                        "description": ""
-                                                    }
-                                                }
-                                            ],
+                                                ]
+                                            },
                                             "msg": "fetch firmware upgrade progress successfully",
                                             "status": "ok"
                                         }
@@ -21618,47 +21621,59 @@
                         "type": "integer"
                     },
                     "data": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "required": [
-                                "host",
-                                "phase",
-                                "status"
-                            ],
-                            "properties": {
-                                "host": {
-                                    "type": "string"
-                                },
-                                "phase": {
-                                    "type": "string"
-                                },
-                                "status": {
+                        "type": "object",
+                        "required": [
+                            "version",
+                            "progresses"
+                        ],
+                        "properties": {
+                            "version": {
+                                "type": "string"
+                            },
+                            "progresses": {
+                                "type": "array",
+                                "items": {
                                     "type": "object",
                                     "required": [
-                                        "current",
-                                        "isProcessing",
-                                        "processPercent",
-                                        "description"
+                                        "host",
+                                        "phase",
+                                        "status"
                                     ],
                                     "properties": {
-                                        "current": {
-                                            "type": "string",
-                                            "enum": [
-                                                "waiting",
-                                                "installing",
-                                                "installed",
-                                                "failed"
-                                            ]
-                                        },
-                                        "isProcessing": {
-                                            "type": "boolean"
-                                        },
-                                        "processPercent": {
-                                            "type": "number"
-                                        },
-                                        "description": {
+                                        "host": {
                                             "type": "string"
+                                        },
+                                        "phase": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "object",
+                                            "required": [
+                                                "current",
+                                                "isProcessing",
+                                                "processPercent",
+                                                "description"
+                                            ],
+                                            "properties": {
+                                                "current": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "available",
+                                                        "installing",
+                                                        "installed",
+                                                        "failed"
+                                                    ]
+                                                },
+                                                "isProcessing": {
+                                                    "type": "boolean"
+                                                },
+                                                "processPercent": {
+                                                    "type": "number"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                }
+                                            }
                                         }
                                     }
                                 }

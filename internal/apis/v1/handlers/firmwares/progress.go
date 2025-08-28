@@ -18,7 +18,7 @@ type node struct {
 
 type upgrade struct {
 	Version    string     `json:"version"`
-	progresses []progress `json:"progresses"`
+	Progresses []progress `json:"progresses"`
 }
 
 type progress struct {

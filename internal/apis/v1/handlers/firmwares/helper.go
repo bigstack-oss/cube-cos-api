@@ -84,7 +84,7 @@ func (h *helper) getFirmwareUpgradeProgress() (*upgrade, error) {
 		return nil, err
 	}
 
-	h.sortUpgradeProgress(&upgrade.progresses)
+	h.sortUpgradeProgress(&upgrade.Progresses)
 	return upgrade, nil
 }
 
