@@ -12,15 +12,15 @@ type node struct {
 }
 
 type progress struct {
-	Host   string                 `json:"host"`
-	Phase  string                 `json:"phase"`
-	Status status.FixpackProgress `json:"status"`
+	Host   string                      `json:"host"`
+	Phase  string                      `json:"phase"`
+	Status status.SystemUpdateProgress `json:"status"`
 }
 
 func (h *helper) syncProgress(node node, current string, processPercent float64) progress {
 	progress := progress{
 		Host: node.Name,
-		Status: status.FixpackProgress{
+		Status: status.SystemUpdateProgress{
 			Current:        current,
 			ProcessPercent: processPercent,
 		},

@@ -171,7 +171,7 @@ type Fixpack struct {
 	Description    string `json:"description,omitempty" bson:"description"`
 }
 
-type FixpackProgress struct {
+type SystemUpdateProgress struct {
 	Current        string  `json:"current" bson:"current"`
 	IsProcessing   bool    `json:"isProcessing" bson:"isProcessing"`
 	ProcessPercent float64 `json:"processPercent" bson:"processPercent"`

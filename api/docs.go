@@ -14161,6 +14161,127 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/firmwares/upgradeProgress": {
+            "get": {
+                "operationId": "getFirmwareUpgradeProgress",
+                "tags": [
+                    "Firmwares"
+                ],
+                "summary": "Get firmware upgrade progress for all nodes",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Firmware upgrade progress retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetFirmwareUpgradeProgressResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Firmware upgrade progress",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "host": "example-node-0",
+                                                    "phase": "paritioning",
+                                                    "status": {
+                                                        "current": "installing",
+                                                        "isProcessing": false,
+                                                        "processPercent": 75,
+                                                        "description": "swapping partition for Cube Appliance 3.1.0"
+                                                    }
+                                                },
+                                                {
+                                                    "host": "example-node-1",
+                                                    "phase": "",
+                                                    "status": {
+                                                        "current": "waiting",
+                                                        "isProcessing": false,
+                                                        "processPercent": 0,
+                                                        "description": ""
+                                                    }
+                                                },
+                                                {
+                                                    "host": "example-node-2",
+                                                    "phase": "",
+                                                    "status": {
+                                                        "current": "waiting",
+                                                        "isProcessing": false,
+                                                        "processPercent": 0,
+                                                        "description": ""
+                                                    }
+                                                }
+                                            ],
+                                            "msg": "fetch firmware upgrade progress successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "no firmware upgrade in progress"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to get firmware upgrade progress: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/firmwares/{version}": {
             "delete": {
                 "operationId": "deleteFirmware",
@@ -15094,7 +15215,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/FixpackProgressResponse"
+                                    "$ref": "#/components/schemas/GetFixpackProgressResponse"
                                 },
                                 "examples": {
                                     "example1": {
@@ -21488,6 +21609,74 @@ const docTemplate = `{
                     }
                 }
             },
+            "GetFirmwareUpgradeProgressResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "host",
+                                "phase",
+                                "status"
+                            ],
+                            "properties": {
+                                "host": {
+                                    "type": "string"
+                                },
+                                "phase": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "object",
+                                    "required": [
+                                        "current",
+                                        "isProcessing",
+                                        "processPercent",
+                                        "description"
+                                    ],
+                                    "properties": {
+                                        "current": {
+                                            "type": "string",
+                                            "enum": [
+                                                "waiting",
+                                                "installing",
+                                                "installed",
+                                                "failed"
+                                            ]
+                                        },
+                                        "isProcessing": {
+                                            "type": "boolean"
+                                        },
+                                        "processPercent": {
+                                            "type": "number"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
             "ListFixpacksResponse": {
                 "type": "object",
                 "required": [
@@ -21642,7 +21831,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "FixpackProgressResponse": {
+            "GetFixpackProgressResponse": {
                 "type": "object",
                 "required": [
                     "code",

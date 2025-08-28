@@ -52,12 +52,6 @@ func (h *helper) listFirmwares() (*firmwarePage, error) {
 	}, nil
 }
 
-func (h *helper) updateFirmware() error {
-	// todo:
-	// deletgate to local and all nodes
-	return nil
-}
-
 func (h *helper) listUpdatableNodes() ([]node, error) {
 	list := nodes.List()
 	if len(list) == 0 {
@@ -76,6 +70,22 @@ func (h *helper) listUpdatableNodes() ([]node, error) {
 	}
 
 	return updatables, nil
+}
+
+func (h *helper) updateFirmware() error {
+	// todo:
+	// deletgate to local and all nodes
+	return nil
+}
+
+func (h *helper) getFirmwareUpgradeProgress() ([]progress, error) {
+	progresses, err := h.getUpgradeProgress()
+	if err != nil {
+		return nil, err
+	}
+
+	h.sortProgress(&progresses)
+	return progresses, nil
 }
 
 func (h *helper) continueInterruptedFirmwareUpdate() error {

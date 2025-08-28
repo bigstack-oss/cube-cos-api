@@ -1,6 +1,7 @@
 package firmwares
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
@@ -26,15 +27,21 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/firmwares/md5sum",
+			Func:    uploadFirmwareMd5Sum,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/firmwares",
 			Func:    updateFirmware,
 		},
 		{
 			Version: apis.V1,
-			Method:  http.MethodPost,
-			Path:    "/firmwares/md5sum",
-			Func:    uploadFirmwareMd5Sum,
+			Method:  http.MethodGet,
+			Path:    "/firmwares/upgradeProgress",
+			Func:    getFirmwareUpgradeProgress,
 		},
 		{
 			Version: apis.V1,
@@ -117,15 +124,15 @@ func uploadFirmware(c *gin.Context) {
 	)
 }
 
-func updateFirmware(c *gin.Context) {
-	h, err := initHelper(c, "updateFirmware")
+func listUpdatableNodes(c *gin.Context) {
+	h, err := initHelper(c, "listUpdatableNodes")
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
-	err = h.updateFirmware()
+	nodes, err := h.listUpdatableNodes()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
@@ -133,8 +140,8 @@ func updateFirmware(c *gin.Context) {
 
 	bodies.SetOk(
 		c,
-		"Firmware updated successfully",
-		nil,
+		"List of updatable nodes",
+		nodes,
 	)
 }
 
@@ -165,48 +172,6 @@ func uploadFirmwareMd5Sum(c *gin.Context) {
 	)
 }
 
-func listUpdatableNodes(c *gin.Context) {
-	h, err := initHelper(c, "listUpdatableNodes")
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err, nil)
-		return
-	}
-
-	nodes, err := h.listUpdatableNodes()
-	if err != nil {
-		bodies.SetInternalServerError(c, err)
-		return
-	}
-
-	bodies.SetOk(
-		c,
-		"List of updatable nodes",
-		nodes,
-	)
-}
-
-func continueInterruptedFirmwareUpdate(c *gin.Context) {
-	h, err := initHelper(c, "continueInterruptedFirmwareUpdate")
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err, nil)
-		return
-	}
-
-	err = h.continueInterruptedFirmwareUpdate()
-	if err != nil {
-		bodies.SetInternalServerError(c, err)
-		return
-	}
-
-	bodies.SetOk(
-		c,
-		"Firmware update continued successfully",
-		nil,
-	)
-}
-
 func verfiyFirmwareAndMd5Sum(c *gin.Context) {
 	h, err := initHelper(c, "verfiyFirmwareAndMd5Sum")
 	if err != nil {
@@ -231,6 +196,74 @@ func verfiyFirmwareAndMd5Sum(c *gin.Context) {
 		c,
 		"Firmware and MD5 sum verified successfully",
 		result,
+	)
+}
+
+func continueInterruptedFirmwareUpdate(c *gin.Context) {
+	h, err := initHelper(c, "continueInterruptedFirmwareUpdate")
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.continueInterruptedFirmwareUpdate()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"Firmware update continued successfully",
+		nil,
+	)
+}
+
+func updateFirmware(c *gin.Context) {
+	h, err := initHelper(c, "updateFirmware")
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.updateFirmware()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"Firmware updated successfully",
+		nil,
+	)
+}
+
+func getFirmwareUpgradeProgress(c *gin.Context) {
+	h, err := initHelper(c, "getFirmwareUpgradeProgress")
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	if !h.hasInprogressUpdate() {
+		bodies.SetNotFound(c, errors.New("no firmware upgrade in progress"))
+		return
+	}
+
+	progresses, err := h.getFirmwareUpgradeProgress()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"List of firmware upgrade progress",
+		progresses,
 	)
 }
 
