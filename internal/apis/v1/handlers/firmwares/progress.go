@@ -16,6 +16,11 @@ type node struct {
 	nodes.Firmware `json:"firmware"`
 }
 
+type upgrade struct {
+	Version    string     `json:"version"`
+	progresses []progress `json:"progresses"`
+}
+
 type progress struct {
 	Host   string                      `json:"host"`
 	Phase  string                      `json:"phase"`
@@ -40,24 +45,24 @@ func (h *helper) hasInprogressUpdate() bool {
 	return false
 }
 
-func (h *helper) getUpgradeProgress() ([]progress, error) {
+func (h *helper) getUpgradeDetails() (*upgrade, error) {
 	out, err := os.ReadFile(firmwares.UpdateProgress)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to read progress file(%v)", h.reqId, err)
 		return nil, err
 	}
 
-	progresses := []progress{}
-	err = json.Unmarshal(out, &progresses)
+	upgrade := &upgrade{}
+	err = json.Unmarshal(out, upgrade)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to unmarshal progress file(%v)", h.reqId, err)
 		return nil, err
 	}
 
-	return progresses, nil
+	return upgrade, nil
 }
 
-func (h *helper) sortProgress(progresses *[]progress) {
+func (h *helper) sortUpgradeProgress(progresses *[]progress) {
 	sort.Slice(*progresses, func(i, j int) bool {
 		return (*progresses)[i].Host < (*progresses)[j].Host
 	})

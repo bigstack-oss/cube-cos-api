@@ -78,14 +78,14 @@ func (h *helper) updateFirmware() error {
 	return nil
 }
 
-func (h *helper) getFirmwareUpgradeProgress() ([]progress, error) {
-	progresses, err := h.getUpgradeProgress()
+func (h *helper) getFirmwareUpgradeProgress() (*upgrade, error) {
+	upgrade, err := h.getUpgradeDetails()
 	if err != nil {
 		return nil, err
 	}
 
-	h.sortProgress(&progresses)
-	return progresses, nil
+	h.sortUpgradeProgress(&upgrade.progresses)
+	return upgrade, nil
 }
 
 func (h *helper) continueInterruptedFirmwareUpdate() error {
