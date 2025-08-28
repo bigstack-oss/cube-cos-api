@@ -156,12 +156,30 @@ func RollbackFixpack() error {
 
 func convertHistoryToFixpacks(out []byte) ([]fixpacks.Fixpack, error) {
 	fixpacks := parseHistoryFixpacks(out)
+	fixpacks = sortFixpacksByUpdatedAt(fixpacks)
+	fixpacks = deduplicateFixpacks(fixpacks)
+	return filterOutUninstalledFixpacks(fixpacks), nil
+}
 
+func sortFixpacksByUpdatedAt(fixpacks []fixpacks.Fixpack) []fixpacks.Fixpack {
 	sort.Slice(fixpacks, func(i, j int) bool {
 		return (fixpacks)[i].UpdatedAt > (fixpacks)[j].UpdatedAt
 	})
 
-	return dedupFixpacks(fixpacks), nil
+	return fixpacks
+}
+
+func filterOutUninstalledFixpacks(list []fixpacks.Fixpack) []fixpacks.Fixpack {
+	filtered := make([]fixpacks.Fixpack, 0, len(list))
+	for _, fixpack := range list {
+		if fixpack.Status.Current == status.Available {
+			continue
+		}
+
+		filtered = append(filtered, fixpack)
+	}
+
+	return filtered
 }
 
 func parseHistoryFixpacks(out []byte) []fixpacks.Fixpack {
@@ -184,7 +202,7 @@ func parseHistoryFixpacks(out []byte) []fixpacks.Fixpack {
 	return list
 }
 
-func dedupFixpacks(list []fixpacks.Fixpack) []fixpacks.Fixpack {
+func deduplicateFixpacks(list []fixpacks.Fixpack) []fixpacks.Fixpack {
 	seen := make(map[string]fixpacks.Fixpack)
 	for _, fixpack := range list {
 		_, found := seen[fixpack.Version]
@@ -230,8 +248,9 @@ func convertPkgToFixpacks() ([]fixpacks.Fixpack, error) {
 			Note:    info.Description,
 			Details: info.Details,
 			Status: status.Fixpack{
-				Current:       status.Available,
-				IsInstallable: true,
+				Current:        status.Available,
+				IsInstallable:  true,
+				IsRollbackable: true,
 			},
 		})
 	}
