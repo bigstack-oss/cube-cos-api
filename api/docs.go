@@ -13884,6 +13884,30 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "no interrupted firmware update found to continue"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
@@ -14194,7 +14218,7 @@ const docTemplate = `{
                                                         "phase": "paritioning",
                                                         "status": {
                                                             "current": "installing",
-                                                            "isProcessing": false,
+                                                            "isProcessing": true,
                                                             "processPercent": 75,
                                                             "description": "swapping partition for Cube Appliance 3.1.0"
                                                         }
@@ -14831,6 +14855,35 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "has on going fixpack operation, please wait until it finishes"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
@@ -14894,6 +14947,30 @@ const docTemplate = `{
                                         "status": {
                                             "type": "string",
                                             "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "no interrupted fixpack update found to continue"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
                                         }
                                     }
                                 }
@@ -15231,7 +15308,7 @@ const docTemplate = `{
                                                     "phase": "",
                                                     "status": {
                                                         "current": "installing",
-                                                        "isProcessing": false,
+                                                        "isProcessing": true,
                                                         "processPercent": 50,
                                                         "description": ""
                                                     }
@@ -15241,7 +15318,7 @@ const docTemplate = `{
                                                     "phase": "",
                                                     "status": {
                                                         "current": "installing",
-                                                        "isProcessing": false,
+                                                        "isProcessing": true,
                                                         "processPercent": 50,
                                                         "description": ""
                                                     }
@@ -15251,7 +15328,7 @@ const docTemplate = `{
                                                     "phase": "",
                                                     "status": {
                                                         "current": "installing",
-                                                        "isProcessing": false,
+                                                        "isProcessing": true,
                                                         "processPercent": 50,
                                                         "description": ""
                                                     }
@@ -21759,7 +21836,9 @@ const docTemplate = `{
                                                     "enum": [
                                                         "available",
                                                         "installing",
-                                                        "installed"
+                                                        "installed",
+                                                        "rolling back",
+                                                        "failed"
                                                     ]
                                                 },
                                                 "isInstallable": {
