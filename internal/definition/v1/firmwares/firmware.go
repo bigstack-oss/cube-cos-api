@@ -44,6 +44,17 @@ type Raw struct {
 	CreatedAt string `yaml:"created-at"`
 }
 
+type Upgrade struct {
+	Version    string     `json:"version"`
+	Progresses []Progress `json:"progresses"`
+}
+
+type Progress struct {
+	Host   string                      `json:"host"`
+	Phase  string                      `json:"phase"`
+	Status status.SystemUpdateProgress `json:"status"`
+}
+
 func (u *ReqOpts) SetProcessing() {
 	u.Status.Current = status.Upgrading
 	u.Status.Desired = status.Upgraded

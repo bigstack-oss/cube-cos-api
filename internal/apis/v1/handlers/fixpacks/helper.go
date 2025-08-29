@@ -57,24 +57,14 @@ func (h *helper) listFixpacks() (*fixpacksPage, error) {
 	}, nil
 }
 
-func (h *helper) listFixpackUpdateProgress(version string) ([]progress, error) {
-	updatables, err := h.listUpdatableNodes(version)
+func (h *helper) getFixpackUpdateProgress() (*update, error) {
+	update, err := h.getUpdateDetails()
 	if err != nil {
-		log.Errorf("fixpacks(%s): failed to list updatable nodes for fixpack %s(%v)", h.reqId, version, err)
 		return nil, err
 	}
 
-	current, processPercent := h.getProgressByVersion(version)
-	progresses := []progress{}
-	for _, node := range updatables {
-		progresses = append(
-			progresses,
-			h.syncProgress(node, current, processPercent),
-		)
-	}
-
-	h.sortProgress(&progresses)
-	return progresses, nil
+	h.sortUpdateProgress(&update.Progresses)
+	return update, nil
 }
 
 func (h *helper) listUpdatableNodes(version string) ([]node, error) {

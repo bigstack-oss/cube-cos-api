@@ -1,7 +1,6 @@
 package firmwares
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
@@ -207,6 +206,12 @@ func continueInterruptedFirmwareUpdate(c *gin.Context) {
 		return
 	}
 
+	err = h.checkConditionForContinue()
+	if err != nil {
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
 	err = h.continueInterruptedFirmwareUpdate()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
@@ -246,11 +251,6 @@ func getFirmwareUpgradeProgress(c *gin.Context) {
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err, nil)
-		return
-	}
-
-	if !h.hasInprogressUpdate() {
-		bodies.SetNotFound(c, errors.New("no firmware upgrade in progress"))
 		return
 	}
 

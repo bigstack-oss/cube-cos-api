@@ -20,7 +20,6 @@ import (
 func ListFixpacks() ([]fixpacks.Fixpack, error) {
 	ctx, canel := context.WithTimeout(wait.CtxSeconds(120))
 	defer canel()
-
 	out, err := exec.CommandContext(ctx, "hex_config", "fixpack_get_history").CombinedOutput()
 	if err != nil {
 		log.Errorf("fixpacks: failed to execute fixpack history cmd(%v)", err)
@@ -43,6 +42,38 @@ func ListFixpacks() ([]fixpacks.Fixpack, error) {
 		historyFixpacks,
 		pkgFixpacks,
 	), nil
+}
+
+func GetLastFixpackOperation() (*fixpacks.Fixpack, error) {
+	fixpacks, err := GetFixpackHistory()
+	if err != nil {
+		return nil, err
+	}
+
+	SortFixpackByTime(&fixpacks)
+	return &fixpacks[0], nil
+}
+
+func GetFixpackHistory() ([]fixpacks.Fixpack, error) {
+	ctx, canel := context.WithTimeout(wait.CtxSeconds(120))
+	defer canel()
+	out, err := exec.CommandContext(ctx, "hex_config", "fixpack_get_history").CombinedOutput()
+	if err != nil {
+		log.Errorf("fixpacks: failed to execute fixpack history cmd(%v)", err)
+		return nil, err
+	}
+
+	historyFixpacks, err := convertHistoryToFixpacks(out)
+	if err != nil {
+		log.Errorf("fixpacks: failed to convert fixpacks(%v)", err)
+		return nil, err
+	}
+
+	if len(historyFixpacks) == 0 {
+		return nil, fmt.Errorf("no fixpack history found")
+	}
+
+	return historyFixpacks, nil
 }
 
 func GetFixpackByVersion(version string) (*fixpacks.Fixpack, bool) {
@@ -152,6 +183,12 @@ func RollbackFixpack() error {
 	}
 
 	return nil
+}
+
+func SortFixpackByTime(list *[]fixpacks.Fixpack) {
+	sort.Slice(*list, func(i, j int) bool {
+		return (*list)[i].UpdatedAt > (*list)[j].UpdatedAt
+	})
 }
 
 func convertHistoryToFixpacks(out []byte) ([]fixpacks.Fixpack, error) {

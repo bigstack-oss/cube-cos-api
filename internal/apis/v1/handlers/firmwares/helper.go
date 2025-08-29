@@ -78,7 +78,8 @@ func (h *helper) updateFirmware() error {
 	return nil
 }
 
-func (h *helper) getFirmwareUpgradeProgress() (*upgrade, error) {
+func (h *helper) getFirmwareUpgradeProgress() (*firmwares.Upgrade, error) {
+	h.syncFirstTimeInstallationProgress()
 	upgrade, err := h.getUpgradeDetails()
 	if err != nil {
 		return nil, err

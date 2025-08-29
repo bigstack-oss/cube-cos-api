@@ -11,21 +11,21 @@ import (
 func (h *helper) syncRequestingRecord(list *[]fixpacks.Fixpack) {
 	for i, fixpack := range *list {
 		filter := bson.M{"version": fixpack.Version, "status.current": status.Installing}
-		if h.hasInprogressRecord(filter) {
+		if h.hasInprogressUpdate(filter) {
 			(*list)[i].Status.Current = status.Installing
 			(*list)[i].Status.IsProcessing = true
 			continue
 		}
 
 		filter["status.current"] = status.RollingBack
-		if h.hasInprogressRecord(filter) {
+		if h.hasInprogressUpdate(filter) {
 			(*list)[i].Status.Current = status.RollingBack
 			(*list)[i].Status.IsProcessing = true
 		}
 	}
 }
 
-func (h *helper) hasInprogressRecord(filter bson.M) bool {
+func (h *helper) hasInprogressUpdate(filter bson.M) bool {
 	count, err := h.mongo.GetCount(
 		fixpacks.Db,
 		fixpacks.ReqCollection,

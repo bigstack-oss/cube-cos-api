@@ -56,8 +56,8 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodGet,
-			Path:    "/fixpacks/:version",
-			Func:    listFixpackUpdateProgress,
+			Path:    "/fixpacks/updateProgress",
+			Func:    getFixpackUpdateProgress,
 		},
 		{
 			Version: apis.V1,
@@ -241,15 +241,15 @@ func installFixpack(c *gin.Context) {
 	)
 }
 
-func listFixpackUpdateProgress(c *gin.Context) {
-	h, err := initHelper(c, "listFixpackUpdateProgress")
+func getFixpackUpdateProgress(c *gin.Context) {
+	h, err := initHelper(c, "getFixpackUpdateProgress")
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 
-	progress, err := h.listFixpackUpdateProgress(h.reqOpts.Version)
+	progress, err := h.getFixpackUpdateProgress()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
@@ -298,6 +298,12 @@ func continueInterruptedFixpackUpdate(c *gin.Context) {
 	h, err := initHelper(c, "continueInterruptedFixpackUpdate")
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.checkConditionForContinue()
+	if err != nil {
 		bodies.SetBadRequest(c, err, nil)
 		return
 	}

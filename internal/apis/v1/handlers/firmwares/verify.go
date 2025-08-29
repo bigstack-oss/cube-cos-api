@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -112,4 +113,22 @@ func (h *helper) moveFile(srcPath, dstPath string) error {
 	}
 
 	return nil
+}
+
+func (h *helper) checkConditionForContinue() error {
+	upgrade, err := h.getFirmwareUpgradeProgress()
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to get firmware upgrade progress (%v)", h.reqId, err)
+		return err
+	}
+
+	for _, progress := range upgrade.Progresses {
+		if progress.Status.Current == status.Failed {
+			return nil
+		}
+	}
+
+	return fmt.Errorf(
+		"no interrupted firmware upgrade found to continue",
+	)
 }

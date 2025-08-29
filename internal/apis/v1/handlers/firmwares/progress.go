@@ -5,6 +5,7 @@ import (
 	"os"
 	"sort"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -16,43 +17,14 @@ type node struct {
 	nodes.Firmware `json:"firmware"`
 }
 
-type upgrade struct {
-	Version    string     `json:"version"`
-	Progresses []progress `json:"progresses"`
-}
-
-type progress struct {
-	Host   string                      `json:"host"`
-	Phase  string                      `json:"phase"`
-	Status status.SystemUpdateProgress `json:"status"`
-}
-
-func (h *helper) hasInprogressUpdate() bool {
-	_, err := os.Stat(firmwares.UpdateProgress)
-	if err == nil {
-		return true
-	}
-
-	if os.IsNotExist(err) {
-		return false
-	}
-
-	log.Errorf(
-		"firmwares(%s): failed to stat progress file(%v)",
-		h.reqId, err,
-	)
-
-	return false
-}
-
-func (h *helper) getUpgradeDetails() (*upgrade, error) {
+func (h *helper) getUpgradeDetails() (*firmwares.Upgrade, error) {
 	out, err := os.ReadFile(firmwares.UpdateProgress)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to read progress file(%v)", h.reqId, err)
 		return nil, err
 	}
 
-	upgrade := &upgrade{}
+	upgrade := &firmwares.Upgrade{}
 	err = json.Unmarshal(out, upgrade)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to unmarshal progress file(%v)", h.reqId, err)
@@ -62,8 +34,56 @@ func (h *helper) getUpgradeDetails() (*upgrade, error) {
 	return upgrade, nil
 }
 
-func (h *helper) sortUpgradeProgress(progresses *[]progress) {
+func (h *helper) sortUpgradeProgress(progresses *[]firmwares.Progress) {
 	sort.Slice(*progresses, func(i, j int) bool {
 		return (*progresses)[i].Host < (*progresses)[j].Host
 	})
+}
+
+func (h *helper) syncFirstTimeInstallationProgress() {
+	_, err := os.Stat(firmwares.UpdateProgress)
+	if err == nil {
+		return
+	}
+
+	if !os.IsNotExist(err) {
+		log.Errorf("firmwares: failed to stat firmware progress file(%v)", err)
+		return
+	}
+
+	f, err := os.Create(firmwares.UpdateProgress)
+	if err != nil {
+		log.Errorf("firmwares: failed to create firmware progress file(%v)", err)
+		return
+	}
+
+	defer f.Close()
+	version, err := cubecos.GetActiveFirmwareVersion()
+	if err != nil {
+		log.Errorf("firmwares: failed to get active firmware version(%v)", err)
+		return
+	}
+
+	upgrade := firmwares.Upgrade{Version: version}
+	for _, node := range nodes.List() {
+		upgrade.Progresses = append(upgrade.Progresses, firmwares.Progress{
+			Host: node.Hostname,
+			Status: status.SystemUpdateProgress{
+				Current:        status.Installed,
+				ProcessPercent: 100,
+			},
+		})
+	}
+
+	b, err := json.Marshal(upgrade)
+	if err != nil {
+		log.Errorf("firmwares: failed to marshal firmware progress(%v)", err)
+		return
+	}
+
+	_, err = f.Write(b)
+	if err != nil {
+		log.Errorf("firmwares: failed to write firmware progress(%v)", err)
+		return
+	}
 }

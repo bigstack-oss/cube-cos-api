@@ -10,7 +10,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -28,7 +27,7 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListUpdatableParams()
 	case "installFixpack":
 		return h.parseInstallParams()
-	case "listFixpackUpdateProgress":
+	case "getFixpackUpdateProgress":
 		return h.parseGetProgressParams()
 	case "rollbackFixpack":
 		return h.parseRollbackParams()
@@ -125,17 +124,6 @@ func (h *helper) parseInstallParams() error {
 }
 
 func (h *helper) parseGetProgressParams() error {
-	h.reqOpts.Version = h.c.Param("version")
-	if h.reqOpts.Version == "" {
-		return fmt.Errorf("version parameter is required")
-	}
-
-	found := false
-	_, found = cubecos.GetFixpackByVersion(h.reqOpts.Version)
-	if !found {
-		return fmt.Errorf("fixpack version %s not found", h.reqOpts.Version)
-	}
-
 	return h.parseListParams()
 }
 
@@ -205,15 +193,4 @@ func (h *helper) saveUploadFile() error {
 	}
 
 	return nil
-}
-
-func (h *helper) getProgressByVersion(version string) (string, float64) {
-	current := status.Available
-	processPercent := float64(0)
-	if h.isVersionInstalled(version) {
-		current = status.Installed
-		processPercent = 100
-	}
-
-	return current, processPercent
 }
