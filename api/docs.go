@@ -323,15 +323,39 @@ const docTemplate = `{
                                     "properties": {
                                         "code": {
                                             "type": "integer",
-                                            "example": 202 
+                                            "example": 202
                                         },
                                         "msg": {
                                             "type": "string",
                                             "example": "accepted to rollout data center by soft reboot successfully, processing"
                                         },
-                                        "status": { 
+                                        "status": {
                                             "type": "string",
                                             "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to rollout data center by soft reboot: another rollout operation is in progress"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
                                         }
                                     }
                                 }
@@ -15338,7 +15362,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/fixpacks/{version}": {
+        "/api/v1/datacenters/{dataCenter}/fixpacks/updateProgress": {
             "get": {
                 "operationId": "getFixpackProgress",
                 "tags": [
@@ -15355,80 +15379,54 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Fixpack operation progress",
+                        "description": "Fixpack update progress",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/GetFixpackProgressResponse"
+                                    "$ref": "#/components/schemas/GetFixpackUpdateProgressResponse"
                                 },
                                 "examples": {
                                     "example1": {
                                         "summary": "Fixpack operation progress",
                                         "value": {
                                             "code": 200,
-                                            "data": [
-                                                {
-                                                    "host": "example-node-0",
-                                                    "phase": "",
-                                                    "status": {
-                                                        "current": "installing",
-                                                        "isProcessing": true,
-                                                        "processPercent": 50,
-                                                        "description": ""
+                                            "data": {
+                                                "version": "FIX_001",
+                                                "progresses": [
+                                                    {
+                                                        "host": "example-node-0",
+                                                        "phase": "",
+                                                        "status": {
+                                                            "current": "installing",
+                                                            "isProcessing": true,
+                                                            "processPercent": 50,
+                                                            "description": ""
+                                                        }
+                                                    },
+                                                    {
+                                                        "host": "example-node-1",
+                                                        "phase": "",
+                                                        "status": {
+                                                            "current": "installing",
+                                                            "isProcessing": true,
+                                                            "processPercent": 50,
+                                                            "description": ""
+                                                        }
+                                                    },
+                                                    {
+                                                        "host": "example-node-2",
+                                                        "phase": "",
+                                                        "status": {
+                                                            "current": "installing",
+                                                            "isProcessing": true,
+                                                            "processPercent": 50,
+                                                            "description": ""
+                                                        }
                                                     }
-                                                },
-                                                {
-                                                    "host": "example-node-1",
-                                                    "phase": "",
-                                                    "status": {
-                                                        "current": "installing",
-                                                        "isProcessing": true,
-                                                        "processPercent": 50,
-                                                        "description": ""
-                                                    }
-                                                },
-                                                {
-                                                    "host": "example-node-2",
-                                                    "phase": "",
-                                                    "status": {
-                                                        "current": "installing",
-                                                        "isProcessing": true,
-                                                        "processPercent": 50,
-                                                        "description": ""
-                                                    }
-                                                }
-                                            ],
+                                                ]
+                                            },
                                             "msg": "Fetched fixpack progress successfully",
                                             "status": "ok"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "code",
-                                        "msg",
-                                        "status"
-                                    ],
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 404
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "'FIX_001' not found"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "not found"
                                         }
                                     }
                                 }
@@ -21989,7 +21987,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "GetFixpackProgressResponse": {
+            "GetFixpackUpdateProgressResponse": {
                 "type": "object",
                 "required": [
                     "code",
@@ -22002,48 +22000,60 @@ const docTemplate = `{
                         "type": "integer"
                     },
                     "data": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "required": [
-                                "host",
-                                "phase",
-                                "status"
-                            ],
-                            "properties": {
-                                "host": {
-                                    "type": "string"
-                                },
-                                "phase": {
-                                    "type": "string"
-                                },
-                                "status": {
+                        "type": "object",
+                        "required": [
+                            "version",
+                            "progresses"
+                        ],
+                        "properties": {
+                            "version": {
+                                "type": "string"
+                            },
+                            "progresses": {
+                                "type": "array",
+                                "items": {
                                     "type": "object",
                                     "required": [
-                                        "current",
-                                        "isProcessing",
-                                        "processPercent",
-                                        "description"
+                                        "host",
+                                        "phase",
+                                        "status"
                                     ],
                                     "properties": {
-                                        "current": {
-                                            "type": "string",
-                                            "enum": [
-                                                "available",
-                                                "installing",
-                                                "installed",
-                                                "rolling back",
-                                                "failed"
-                                            ]
-                                        },
-                                        "isProcessing": {
-                                            "type": "boolean"
-                                        },
-                                        "processPercent": {
-                                            "type": "number"
-                                        },
-                                        "description": {
+                                        "host": {
                                             "type": "string"
+                                        },
+                                        "phase": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "object",
+                                            "required": [
+                                                "current",
+                                                "isProcessing",
+                                                "processPercent",
+                                                "description"
+                                            ],
+                                            "properties": {
+                                                "current": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "available",
+                                                        "installing",
+                                                        "installed",
+                                                        "rolling back",
+                                                        "failed"
+                                                    ]
+                                                },
+                                                "isProcessing": {
+                                                    "type": "boolean"
+                                                },
+                                                "processPercent": {
+                                                    "type": "number"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                }
+                                            }
                                         }
                                     }
                                 }
