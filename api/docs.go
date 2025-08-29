@@ -14341,35 +14341,6 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "code",
-                                        "msg",
-                                        "status"
-                                    ],
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 404
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "no firmware upgrade in progress"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "not found"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
