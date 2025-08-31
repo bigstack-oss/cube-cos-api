@@ -230,6 +230,7 @@ func parseHistoryFixpacks(out []byte) []fixpacks.Fixpack {
 
 		list = append(list, fixpacks.Fixpack{
 			Version:   segments[1],
+			Action:    segments[4],
 			Note:      segments[5],
 			UpdatedAt: convertRawTime(time.FormatFixpack, segments[0]),
 			Status:    convertFixpackStatus(segments[3], segments[4]),

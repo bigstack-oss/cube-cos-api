@@ -31,6 +31,7 @@ type Raw struct {
 
 type Fixpack struct {
 	Version        string         `json:"version"`
+	Action         string         `json:"-"`
 	Name           string         `json:"name"`
 	Note           string         `json:"note"`
 	Details        string         `json:"details"`

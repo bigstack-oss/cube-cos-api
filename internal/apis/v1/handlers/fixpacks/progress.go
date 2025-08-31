@@ -19,6 +19,7 @@ type node struct {
 
 type update struct {
 	Version    string     `json:"version"`
+	Operation  string     `json:"operation"`
 	Progresses []progress `json:"progresses"`
 }
 
@@ -35,7 +36,11 @@ func (h *helper) getUpdateDetails() (*update, error) {
 	}
 
 	current, processPercent := h.getProgressByVersion(fixpack.Version)
-	update := update{Version: fixpack.Version}
+	update := update{
+		Version:   fixpack.Version,
+		Operation: h.convertOperationByAction(fixpack.Action),
+	}
+
 	for _, node := range nodes.List() {
 		update.Progresses = append(
 			update.Progresses,
@@ -44,6 +49,18 @@ func (h *helper) getUpdateDetails() (*update, error) {
 	}
 
 	return &update, nil
+}
+
+func (h *helper) convertOperationByAction(action string) string {
+	switch action {
+	case "install":
+		return "install"
+	case "uninstalled":
+		return "rollback"
+	}
+
+	log.Warnf("fixpacks(%s): unknown fixpack action %s, set operation to install by default", h.reqId, action)
+	return "install"
 }
 
 func (h *helper) syncProgress(node nodes.Node, current string, processPercent float64) progress {

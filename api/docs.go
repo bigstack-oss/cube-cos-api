@@ -15363,6 +15363,7 @@ const docTemplate = `{
                                             "code": 200,
                                             "data": {
                                                 "version": "FIX_001",
+                                                "operation": "install",
                                                 "progresses": [
                                                     {
                                                         "host": "example-node-0",
@@ -21642,7 +21643,8 @@ const docTemplate = `{
                                                     "enum": [
                                                         "available",
                                                         "processing",
-                                                        "updated"
+                                                        "updated",
+                                                        "failed"
                                                     ]
                                                 },
                                                 "isUpdatable": {
@@ -21871,7 +21873,8 @@ const docTemplate = `{
                                                         "installing",
                                                         "installed",
                                                         "rolling back",
-                                                        "failed"
+                                                        "install failed",
+                                                        "rollback failed"
                                                     ]
                                                 },
                                                 "isInstallable": {
@@ -21974,11 +21977,19 @@ const docTemplate = `{
                         "type": "object",
                         "required": [
                             "version",
+                            "operation",
                             "progresses"
                         ],
                         "properties": {
                             "version": {
                                 "type": "string"
+                            },
+                            "operation": {
+                                "type": "string",
+                                "enum": [
+                                    "install",
+                                    "rollback"
+                                ]
                             },
                             "progresses": {
                                 "type": "array",
@@ -22012,7 +22023,8 @@ const docTemplate = `{
                                                         "installing",
                                                         "installed",
                                                         "rolling back",
-                                                        "failed"
+                                                        "install failed",
+                                                        "rollback failed"
                                                     ]
                                                 },
                                                 "isProcessing": {
