@@ -15235,7 +15235,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "object",
                                             "properties": {
-                                                "firmwareMd5": {
+                                                "fixpackMd5": {
                                                     "type": "string",
                                                     "example": "vvvwewegrehnfxcvxhn52b6wefh4123g"
                                                 },
@@ -15266,7 +15266,6 @@ const docTemplate = `{
                                     "type": "object",
                                     "required": [
                                         "code",
-                                        "data",
                                         "msg",
                                         "status"
                                     ],
@@ -15274,19 +15273,6 @@ const docTemplate = `{
                                         "code": {
                                             "type": "integer",
                                             "example": 409
-                                        },
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "firmwareMd5": {
-                                                    "type": "string",
-                                                    "example": "vvvwewegrehnfxcvxhn52b6wefh4123g"
-                                                },
-                                                "expectedMd5": {
-                                                    "type": "string",
-                                                    "example": "c18ce9ddf80b065004152b6f2e609ff8"
-                                                }
-                                            }
                                         },
                                         "msg": {
                                             "type": "string",
