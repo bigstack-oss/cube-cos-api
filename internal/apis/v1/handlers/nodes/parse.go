@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	nodes "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -77,11 +78,7 @@ func (h *helper) parseIpmiOperateOptions() error {
 }
 
 func (h *helper) parseDrainOptions() error {
-	h.node = h.c.Param("nodeName")
-	if h.node == "" {
-		return fmt.Errorf("nodeName should be provided")
-	}
-
+	h.node = base.Hostname
 	return nil
 }
 

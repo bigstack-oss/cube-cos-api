@@ -58,7 +58,7 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
-			Path:    "/nodes/:nodeName/drain",
+			Path:    "/nodes/drain",
 			Func:    drainNode,
 		},
 		{
