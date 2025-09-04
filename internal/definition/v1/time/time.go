@@ -7,15 +7,15 @@ import (
 )
 
 const (
-	FormatBmc         = "Mon Jan 2 15:04:05 2006"
-	FormatISO8601     = "2006-01-02T15:04:05"
-	FormatISO8601Z    = "2006-01-02T15:04:05+00:00"
-	FormatRFC3339     = time.RFC3339
-	FormatRFC3339Z    = "2006-01-02T15:04:05Z07:00"
-	FormatRFC3339Nano = time.RFC3339Nano
-	FormatFirmware    = "20060102-1504 TZ:-0700"
-	FormatFirmwarePkg = "20060102-1504"
-	FormatFixpack     = "02 Jan 2006 15:04:05"
+	FormatBmc          = "Mon Jan 2 15:04:05 2006"
+	FormatISO8601      = "2006-01-02T15:04:05"
+	FormatISO8601Z     = "2006-01-02T15:04:05+00:00"
+	FormatRFC3339      = time.RFC3339
+	FormatRFC3339Z     = "2006-01-02T15:04:05Z07:00"
+	FormatRFC3339ZNano = time.RFC3339Nano
+	FormatFirmware     = "20060102-1504 TZ:-0700"
+	FormatFirmwarePkg  = "20060102-1504"
+	FormatFixpack      = "02 Jan 2006 15:04:05"
 )
 
 var (
@@ -68,7 +68,7 @@ func RFC3339Z(t time.Time) string {
 }
 
 func RFC3339ZNano(t time.Time) string {
-	return t.Format(FormatRFC3339Nano)
+	return t.Format(FormatRFC3339ZNano)
 }
 
 func NowRFC3339() string {
