@@ -14,7 +14,7 @@ pipeline {
 
         BLDSRV         = 'bldsrv_prod'
 
-        GITHUB_PAT     = 'github-PAT'
+        GITHUB_PAT     = 'Bigstack-CI-Bot-PAT'
         SLACK_CHANNEL  = "#${PROJ_NAME}-ci"
     }
 
