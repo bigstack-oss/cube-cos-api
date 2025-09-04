@@ -107,12 +107,14 @@ func SoftRebootBySsh(host string) error {
 		ssh.HostKeyCallback(cryptossh.InsecureIgnoreHostKey()),
 	)
 	if err != nil {
+		log.Errorf("os: failed to create ssh helper for soft reboot(%s)(%v)", host, err)
 		return err
 	}
 
 	defer ssh.Close()
 	err = ssh.Run("echo YES | hex_cli -c reboot")
 	if err != nil {
+		log.Errorf("os: failed to soft reboot the system %s(%v)", host, err)
 		return err
 	}
 

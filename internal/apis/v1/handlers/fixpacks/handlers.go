@@ -50,7 +50,7 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
-			Path:    "/fixpacks/continueAnyway",
+			Path:    "/fixpacks/continueAnyway/:nodeName",
 			Func:    continueInterruptedFixpackUpdate,
 		},
 		{

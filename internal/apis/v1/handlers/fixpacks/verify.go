@@ -34,6 +34,21 @@ func (h *helper) isVersionInstalled(version string) bool {
 	return false
 }
 
+func (h *helper) checkRebootRequirement() (bool, error) {
+	update, err := h.getFixpackUpdateProgress()
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to get fixpack update progress for checking reboot requirement(%v)", h.reqId, err)
+		return false, err
+	}
+
+	fixpack, found := cubecos.GetFixpackByVersion(update.Version)
+	if !found {
+		return false, fmt.Errorf("fixpack version %s not found", update.Version)
+	}
+
+	return fixpack.RebootRequired, nil
+}
+
 func (h *helper) checkRollback(version string) error {
 	fixpack, found := cubecos.GetFixpackByVersion(version)
 	if !found {

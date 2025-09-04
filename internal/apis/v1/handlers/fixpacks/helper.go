@@ -122,9 +122,9 @@ func (h *helper) convertToUpdatableNodes(list []nodes.Node) []node {
 }
 
 func (h *helper) continueInterruptedFixpackUpdate() error {
-	node, err := cubecos.GetUpdateInterruptedNode()
+	node, err := nodes.Get(h.reqOpts.Hostname)
 	if err != nil {
-		log.Errorf("fixpacks(%s): failed to get interrupted nodes (%v)", h.reqId, err)
+		log.Errorf("fixpacks(%s): failed to get node %s (%v)", h.reqId, h.reqOpts.Hostname, err)
 		return err
 	}
 
@@ -132,20 +132,18 @@ func (h *helper) continueInterruptedFixpackUpdate() error {
 		cubecos.MoveVirtualIpOwner()
 	}
 
-	// have to check if the fixpack is not required to be rebooted,
-	// then just delete the req record and return
-	// if !fixpack.IsRebootRequired() {
-	// 	h.deleteReqRecord()
-	// 	return nil
-	// }
-
-	err = cubecos.SoftRebootBySsh(node.Hostname)
+	shouldReboot, err := h.checkRebootRequirement()
 	if err != nil {
-		log.Errorf("fixpacks(%s): failed to soft reboot node %s (%v)", h.reqId, node.Hostname, err)
+		log.Errorf("fixpacks(%s): failed to check reboot requirement (%v)", h.reqId, err)
 		return err
 	}
 
-	return nil
+	h.deleteReqRecord()
+	if !shouldReboot {
+		return nil
+	}
+
+	return cubecos.SoftRebootBySsh(node.Hostname)
 }
 
 func (h *helper) deleteFixpack() error {

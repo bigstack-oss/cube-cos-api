@@ -14879,7 +14879,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/fixpacks/continueAnyway": {
+        "/api/v1/datacenters/{dataCenter}/fixpacks/continueAnyway/{nodeName}": {
             "post": {
                 "operationId": "continueInterruptedFixpackUpdate",
                 "tags": [
@@ -14889,6 +14889,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
                     }
                 ],
                 "responses": {
@@ -14934,7 +14937,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "no interrupted fixpack update found to continue"
+                                            "example": "node not found for continue fixpack update"
                                         },
                                         "status": {
                                             "type": "string",
@@ -15325,105 +15328,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "operationId": "deleteFixpack",
-                "tags": [
-                    "Fixpacks"
-                ],
-                "summary": "Delete a fixpack",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/dataCenter"
-                    },
-                    {
-                        "$ref": "#/components/parameters/version"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Fixpack deleted successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "code",
-                                        "msg",
-                                        "status"
-                                    ],
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 200
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "Fixpack deleted successfully"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "ok"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "code",
-                                        "msg",
-                                        "status"
-                                    ],
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 404
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "'FIX_001' not found"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "'FIX_001' not found"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 500
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "failed to delete fixpack: internal server error"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "internal server error"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
         },
         "/api/v1/datacenters/{dataCenter}/fixpacks/{version}/rollback": {
@@ -15686,6 +15590,107 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to list updatable nodes: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/fixpacks/{version}": {
+            "delete": {
+                "operationId": "deleteFixpack",
+                "tags": [
+                    "Fixpacks"
+                ],
+                "summary": "Delete a fixpack",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fixpack deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "Fixpack deleted successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "'FIX_001' not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to delete fixpack: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -21671,6 +21676,8 @@ const docTemplate = `{
                                                     "enum": [
                                                         "available",
                                                         "installing",
+                                                        "waitingReboot",
+                                                        "rebooting",
                                                         "installed",
                                                         "failed"
                                                     ]
@@ -21916,6 +21923,8 @@ const docTemplate = `{
                                                     "enum": [
                                                         "available",
                                                         "installing",
+                                                        "waitingReboot",
+                                                        "rebooting",
                                                         "installed",
                                                         "rolling back",
                                                         "install failed",
