@@ -216,7 +216,7 @@ func (h *helper) checkBashScript(script string) error {
 
 	if !strings.HasPrefix(lines[0], "#!/bin/bash") && !strings.HasPrefix(lines[0], "#!/usr/bin/env bash") {
 		return fmt.Errorf(
-			"script for trigger %s must start with a shebang line",
+			"script for trigger %s must start with a shebang line(#!/bin/bash or #!/usr/bin/env bash)",
 			h.reqOpts.Name,
 		)
 	}

@@ -105,7 +105,7 @@ func SetBadRequest(c *gin.Context, err error, data any) {
 	}
 
 	c.JSON(
-		http.StatusOK,
+		http.StatusBadRequest,
 		resp,
 	)
 }

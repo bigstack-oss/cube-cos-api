@@ -48,6 +48,11 @@ func (h *helper) parseScriptVerifyParams() error {
 		return err
 	}
 
+	err = h.checkBashScript(h.verifyScript["script"])
+	if err != nil {
+		return err
+	}
+
 	script, found := h.verifyScript["script"]
 	if !found {
 		return errors.New("script is required for verification")
