@@ -21675,7 +21675,8 @@
                                                         "waitingReboot",
                                                         "rebooting",
                                                         "installed",
-                                                        "failed"
+                                                        "failed",
+                                                        "resolved"
                                                     ]
                                                 },
                                                 "isProcessing": {
@@ -21924,7 +21925,8 @@
                                                         "installed",
                                                         "rolling back",
                                                         "install failed",
-                                                        "rollback failed"
+                                                        "rollback failed",
+                                                        "resolved"
                                                     ]
                                                 },
                                                 "isProcessing": {

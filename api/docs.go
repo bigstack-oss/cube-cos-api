@@ -21679,7 +21679,8 @@ const docTemplate = `{
                                                         "waitingReboot",
                                                         "rebooting",
                                                         "installed",
-                                                        "failed"
+                                                        "failed",
+                                                        "resolved"
                                                     ]
                                                 },
                                                 "isProcessing": {
@@ -21928,7 +21929,8 @@ const docTemplate = `{
                                                         "installed",
                                                         "rolling back",
                                                         "install failed",
-                                                        "rollback failed"
+                                                        "rollback failed",
+                                                        "resolved"
                                                     ]
                                                 },
                                                 "isProcessing": {
