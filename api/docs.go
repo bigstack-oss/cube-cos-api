@@ -2414,7 +2414,7 @@ const docTemplate = `{
                                                     "isRepairable": true,
                                                     "history": [
                                                         {
-                                                            "time": "2025-02-15T08:44:36+00:00",
+                                                            "time": "2025-02-15T08:44:36.882026422+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ng",
                                                             "error": {
@@ -2429,27 +2429,27 @@ const docTemplate = `{
                                                             }
                                                         },
                                                         {
-                                                            "time": "2025-02-15T08:49:36+00:00",
+                                                            "time": "2025-02-15T08:49:36.882026422+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T08:54:36+00:00",
+                                                            "time": "2025-02-15T08:54:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T08:59:36+00:00",
+                                                            "time": "2025-02-15T08:59:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:04:36+00:00",
+                                                            "time": "2025-02-15T09:04:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:09:36+00:00",
+                                                            "time": "2025-02-15T09:09:36.123566345+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ng",
                                                             "error": {
@@ -2464,27 +2464,27 @@ const docTemplate = `{
                                                             }
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:14:36+00:00",
+                                                            "time": "2025-02-15T09:14:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:19:36+00:00",
+                                                            "time": "2025-02-15T09:19:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:24:36+00:00",
+                                                            "time": "2025-02-15T09:24:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:29:36+00:00",
+                                                            "time": "2025-02-15T09:29:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:34:36+00:00",
+                                                            "time": "2025-02-15T09:34:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ng",
                                                             "error": {
@@ -2499,12 +2499,12 @@ const docTemplate = `{
                                                             }
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:39:36+00:00",
+                                                            "time": "2025-02-15T09:39:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:44:36+00:00",
+                                                            "time": "2025-02-15T09:44:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         }
@@ -2517,7 +2517,7 @@ const docTemplate = `{
                                                     "isRepairable": true,
                                                     "history": [
                                                         {
-                                                            "time": "2025-02-15T08:44:36+00:00",
+                                                            "time": "2025-02-15T08:44:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ng",
                                                             "error": {
@@ -2532,27 +2532,27 @@ const docTemplate = `{
                                                             }
                                                         },
                                                         {
-                                                            "time": "2025-02-15T08:49:36+00:00",
+                                                            "time": "2025-02-15T08:49:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T08:54:36+00:00",
+                                                            "time": "2025-02-15T08:54:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T08:59:36+00:00",
+                                                            "time": "2025-02-15T08:59:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:04:36+00:00",
+                                                            "time": "2025-02-15T09:04:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:09:36+00:00",
+                                                            "time": "2025-02-15T09:09:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ng",
                                                             "error": {
@@ -2567,27 +2567,27 @@ const docTemplate = `{
                                                             }
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:14:36+00:00",
+                                                            "time": "2025-02-15T09:14:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:19:36+00:00",
+                                                            "time": "2025-02-15T09:19:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:24:36+00:00",
+                                                            "time": "2025-02-15T09:24:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:29:36+00:00",
+                                                            "time": "2025-02-15T09:29:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:34:36+00:00",
+                                                            "time": "2025-02-15T09:34:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ng",
                                                             "error": {
@@ -2602,12 +2602,12 @@ const docTemplate = `{
                                                             }
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:39:36+00:00",
+                                                            "time": "2025-02-15T09:39:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         },
                                                         {
-                                                            "time": "2025-02-15T09:44:36+00:00",
+                                                            "time": "2025-02-15T09:44:36.123566344+00:00",
                                                             "hostname": "example-node-0",
                                                             "status": "ok"
                                                         }
@@ -2843,17 +2843,17 @@ const docTemplate = `{
                                                 "isRepairable": true,
                                                 "history": [
                                                     {
-                                                        "time": "2025-02-01T03:00:00+00:00",
+                                                        "time": "2025-02-01T03:00:00.882026422+00:00",
                                                         "hostname": "example-node-0",
                                                         "status": "ok"
                                                     },
                                                     {
-                                                        "time": "2025-02-01T02:55:00+00:00",
+                                                        "time": "2025-02-01T02:55:00.882026425+00:00",
                                                         "hostname": "example-node-0",
                                                         "status": "ok"
                                                     },
                                                     {
-                                                        "time": "2025-02-01T02:50:00+00:00",
+                                                        "time": "2025-02-01T02:50:00.882026422+00:00",
                                                         "hostname": "example-node-0",
                                                         "status": "ng",
                                                         "error": {
@@ -2868,7 +2868,7 @@ const docTemplate = `{
                                                         }
                                                     },
                                                     {
-                                                        "time": "2025-02-01T02:45:00+00:00",
+                                                        "time": "2025-02-01T02:45:00.882026422+00:00",
                                                         "hostname": "example-node-0",
                                                         "status": "ok"
                                                     }
