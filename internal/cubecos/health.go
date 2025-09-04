@@ -603,7 +603,7 @@ func parseTime(record *query.FluxRecord) string {
 		log.Debugf("healths: failed to parse date from record(%v)", err)
 	}
 
-	return time.RFC3339Z(date)
+	return time.RFC3339ZNano(date)
 }
 
 func parseNodes(record *query.FluxRecord) []string {

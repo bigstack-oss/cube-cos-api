@@ -12,6 +12,7 @@ const (
 	FormatISO8601Z    = "2006-01-02T15:04:05+00:00"
 	FormatRFC3339     = time.RFC3339
 	FormatRFC3339Z    = "2006-01-02T15:04:05Z07:00"
+	FormatRFC3339Nano = time.RFC3339Nano
 	FormatFirmware    = "20060102-1504 TZ:-0700"
 	FormatFirmwarePkg = "20060102-1504"
 	FormatFixpack     = "02 Jan 2006 15:04:05"
@@ -64,6 +65,10 @@ func RFC3339(duration time.Duration) string {
 
 func RFC3339Z(t time.Time) string {
 	return t.Format(FormatRFC3339Z)
+}
+
+func RFC3339ZNano(t time.Time) string {
+	return t.Format(FormatRFC3339Nano)
 }
 
 func NowRFC3339() string {
