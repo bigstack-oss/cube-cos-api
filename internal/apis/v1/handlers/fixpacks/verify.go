@@ -34,6 +34,63 @@ func (h *helper) getVersionStatus(version string) (string, error) {
 	)
 }
 
+func (h *helper) checkFixpackDuplication() error {
+	file := filepath.Join(fixpacks.TmpUploadDir, h.file)
+	if !strings.HasSuffix(file, ".fixpack") {
+		return fmt.Errorf("invalid fixpack file format: %s, expected .fixpack", h.file)
+	}
+
+	copyFile := filepath.Join(fixpacks.TmpUploadDir, h.file+".copy")
+	err := h.copyFile(file, copyFile)
+	if err != nil {
+		return err
+	}
+
+	defer os.Remove(copyFile)
+	info, err := cubecos.GetFixpackInfo(copyFile)
+	if err != nil {
+		return err
+	}
+
+	data, err := h.listFixpacks()
+	if err != nil {
+		return err
+	}
+
+	for _, fixpack := range data.Fixpacks {
+		if fixpack.Version == info.Id {
+			os.Remove(file)
+			return fmt.Errorf("fixpack version %s already exists", info.Id)
+		}
+	}
+
+	return nil
+}
+
+func (h *helper) copyFile(src, dst string) error {
+	srcFile, err := os.Open(src)
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to open source file %s (%v)", h.reqId, src, err)
+		return err
+	}
+
+	defer srcFile.Close()
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to create destination file %s (%v)", h.reqId, dst, err)
+		return err
+	}
+
+	defer dstFile.Close()
+	_, err = io.Copy(dstFile, srcFile)
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to copy file from %s to %s (%v)", h.reqId, src, dst, err)
+		return err
+	}
+
+	return nil
+}
+
 func (h *helper) checkRebootRequirement() (bool, error) {
 	update, err := h.getFixpackUpdateProgress()
 	if err != nil {

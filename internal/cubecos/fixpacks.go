@@ -110,7 +110,7 @@ func GetFixpackRawByVersion(version string) (*fixpacks.Raw, bool) {
 			continue
 		}
 
-		info, err := getFixpackInfo(file)
+		info, err := GetFixpackInfo(file)
 		if err != nil {
 			continue
 		}
@@ -140,7 +140,7 @@ func GetFixpackPathByVersion(version string) (string, bool) {
 			continue
 		}
 
-		info, err := getFixpackInfo(file)
+		info, err := GetFixpackInfo(file)
 		if err != nil {
 			continue
 		}
@@ -277,7 +277,7 @@ func convertPkgToFixpacks() ([]fixpacks.Fixpack, error) {
 			continue
 		}
 
-		info, err := getFixpackInfo(file)
+		info, err := GetFixpackInfo(file)
 		if err != nil {
 			continue
 		}
@@ -378,7 +378,7 @@ func isUnknownAction(action string) bool {
 		!strings.EqualFold(action, "uninstalled")
 }
 
-func getFixpackInfo(file string) (*fixpacks.Raw, error) {
+func GetFixpackInfo(file string) (*fixpacks.Raw, error) {
 	info, err := parseFixpackInfo(file)
 	if err != nil {
 		return nil, err

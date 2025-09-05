@@ -59,7 +59,7 @@ func (h *helper) parseUploadFixpackParams() error {
 		return fmt.Errorf("file parameter is required")
 	}
 
-	return nil
+	return h.parseListParams()
 }
 
 func (h *helper) parseUploadMd5Params() error {

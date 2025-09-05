@@ -121,6 +121,12 @@ func uploadFixpack(c *gin.Context) {
 		return
 	}
 
+	err = h.checkFixpackDuplication()
+	if err != nil {
+		bodies.SetConflict(c, err)
+		return
+	}
+
 	err = h.syncFixpackMd5()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
