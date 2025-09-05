@@ -352,9 +352,13 @@ func mergeFixpacks(history, pkgs []fixpacks.Fixpack) []fixpacks.Fixpack {
 }
 
 func convertFixpackStatus(rollback, action string) status.Fixpack {
-	s := status.Fixpack{Current: "installed"}
+	s := status.Fixpack{}
 	if strings.EqualFold(rollback, "yes") {
 		s.IsRollbackable = true
+	}
+
+	if strings.EqualFold(action, "installed") {
+		s.Current = status.Installed
 	}
 
 	if strings.EqualFold(action, "uninstalled") {
@@ -362,7 +366,16 @@ func convertFixpackStatus(rollback, action string) status.Fixpack {
 		s.Current = status.Available
 	}
 
+	if isUnknownAction(action) {
+		s.Current = status.Failed
+	}
+
 	return s
+}
+
+func isUnknownAction(action string) bool {
+	return !strings.EqualFold(action, "installed") &&
+		!strings.EqualFold(action, "uninstalled")
 }
 
 func getFixpackInfo(file string) (*fixpacks.Raw, error) {
@@ -391,13 +404,22 @@ func getFixpackInfo(file string) (*fixpacks.Raw, error) {
 		case "FIXPACK_DESCRIPTION":
 			raw.Description = val
 		case "REBOOT_REQUIRED":
-			raw.RebootRequired = strings.Split(val, ",")
+			raw.RebootRequired = parseRebootRequiredRoles(val)
 		case "ALLOW_ROLLBACK":
 			raw.AllowRollback = parseAllowRollback(val)
 		}
 	}
 
 	return raw, nil
+}
+
+func parseRebootRequiredRoles(val string) []string {
+	roles := []string{}
+	for _, role := range strings.Split(val, ",") {
+		roles = append(roles, strings.ToLower(strings.TrimSpace(role)))
+	}
+
+	return roles
 }
 
 func parseAllowRollback(val string) bool {

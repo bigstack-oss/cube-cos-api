@@ -3,6 +3,7 @@ package fixpacks
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -52,7 +53,7 @@ func (h *helper) getUpdateDetails() (*update, error) {
 }
 
 func (h *helper) convertOperationByAction(action string) string {
-	switch action {
+	switch strings.ToLower(action) {
 	case "install":
 		return "install"
 	case "uninstalled":
@@ -98,9 +99,27 @@ func (h *helper) sortUpdateProgress(progresses *[]progress) {
 func (h *helper) getProgressByVersion(version string) (string, float64) {
 	current := status.Available
 	processPercent := float64(0)
-	if h.isVersionInstalled(version) {
+	s, err := h.getVersionStatus(version)
+	if err != nil {
+		return current, processPercent
+	}
+
+	switch s {
+	case status.Installing:
+		current = status.Installing
+		processPercent = 50
+	case status.Installed:
 		current = status.Installed
 		processPercent = 100
+	case status.RollingBack:
+		current = status.RollingBack
+		processPercent = 50
+	case status.Failed:
+		current = status.Failed
+		processPercent = 50
+	case status.Available:
+		current = status.Available
+		processPercent = 0
 	}
 
 	return current, processPercent
@@ -114,6 +133,10 @@ func (h *helper) checkConditionForContinue() error {
 	}
 
 	for _, progress := range update.Progresses {
+		if progress.Host != h.reqOpts.Hostname {
+			continue
+		}
+
 		if progress.Status.Current == status.Failed {
 			return nil
 		}

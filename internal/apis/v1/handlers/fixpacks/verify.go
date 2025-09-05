@@ -14,11 +14,11 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (h *helper) isVersionInstalled(version string) bool {
+func (h *helper) getVersionStatus(version string) (string, error) {
 	fixpacks, err := h.listFixpacks()
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to list fixpack for checking installation(%v)", h.reqId, err)
-		return false
+		return "", err
 	}
 
 	for _, fixpack := range fixpacks.Fixpacks {
@@ -27,11 +27,14 @@ func (h *helper) isVersionInstalled(version string) bool {
 		}
 
 		if fixpack.Status.Current == status.Installed {
-			return true
+			return fixpack.Status.Current, nil
 		}
 	}
 
-	return false
+	return "", fmt.Errorf(
+		"fixpack version %s not found",
+		version,
+	)
 }
 
 func (h *helper) checkRebootRequirement() (bool, error) {
