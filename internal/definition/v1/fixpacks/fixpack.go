@@ -1,6 +1,8 @@
 package fixpacks
 
-import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+import (
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+)
 
 const (
 	Module        = "fixpacks"
@@ -25,6 +27,8 @@ type Raw struct {
 	Id                 string   `json:"id" bson:"id"`
 	Name               string   `json:"name" bson:"name"`
 	SupportedFirmwares []string `json:"supportedFirmwares" bson:"supportedFirmwares"`
+	RebootRequired     []string `json:"rebootRequired" bson:"rebootRequired"`
+	AllowRollback      bool     `json:"allowRollback" bson:"allowRollback"`
 	Description        string   `json:"description" bson:"description"`
 	Details            string   `json:"details"`
 }
@@ -37,6 +41,7 @@ type Fixpack struct {
 	Details        string         `json:"details"`
 	UpdatedAt      string         `json:"updatedAt"`
 	RebootRequired bool           `json:"rebootRequired"`
+	TargetNodes    []string       `json:"-"`
 	Status         status.Fixpack `json:"status"`
 }
 

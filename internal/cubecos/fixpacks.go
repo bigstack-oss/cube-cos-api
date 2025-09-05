@@ -7,10 +7,12 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	"github.com/google/uuid"
@@ -281,19 +283,42 @@ func convertPkgToFixpacks() ([]fixpacks.Fixpack, error) {
 		}
 
 		list = append(list, fixpacks.Fixpack{
-			Version: info.Id,
-			Name:    info.Name,
-			Note:    info.Description,
-			Details: info.Details,
+			Version:        info.Id,
+			Name:           info.Name,
+			Note:           info.Description,
+			Details:        info.Details,
+			RebootRequired: parseRebootRequired(info.RebootRequired),
+			TargetNodes:    parseRebootTargetNodes(info.RebootRequired),
 			Status: status.Fixpack{
 				Current:        status.Available,
 				IsInstallable:  true,
-				IsRollbackable: true,
+				IsRollbackable: info.AllowRollback,
 			},
 		})
 	}
 
 	return list, nil
+}
+
+func parseRebootRequired(list []string) bool {
+	return len(list) > 0
+}
+
+func parseRebootTargetNodes(roles []string) []string {
+	list := []string{}
+	for _, role := range roles {
+		nodes, err := nodes.GetNodesByRole(strings.ToLower(role))
+		if err != nil {
+			log.Warnf("fixpack: failed to get nodes by role %s(%v)", role, err)
+			continue
+		}
+
+		for _, n := range nodes {
+			list = append(list, n.Hostname)
+		}
+	}
+
+	return list
 }
 
 func mergeFixpacks(history, pkgs []fixpacks.Fixpack) []fixpacks.Fixpack {
@@ -312,6 +337,9 @@ func mergeFixpacks(history, pkgs []fixpacks.Fixpack) []fixpacks.Fixpack {
 		history.Name = pkg.Name
 		history.Note = pkg.Note
 		history.Details = pkg.Details
+		history.RebootRequired = pkg.RebootRequired
+		history.TargetNodes = pkg.TargetNodes
+		history.Status.IsRollbackable = pkg.Status.IsRollbackable
 		merged[pkg.Version] = history
 	}
 
@@ -362,10 +390,24 @@ func getFixpackInfo(file string) (*fixpacks.Raw, error) {
 			raw.SupportedFirmwares = strings.Split(val, ",")
 		case "FIXPACK_DESCRIPTION":
 			raw.Description = val
+		case "REBOOT_REQUIRED":
+			raw.RebootRequired = strings.Split(val, ",")
+		case "ALLOW_ROLLBACK":
+			raw.AllowRollback = parseAllowRollback(val)
 		}
 	}
 
 	return raw, nil
+}
+
+func parseAllowRollback(val string) bool {
+	boolVal, err := strconv.ParseBool(val)
+	if err != nil {
+		log.Warnf("fixpack: failed to parse allow rollback value %s(%v)", val, err)
+		boolVal = false
+	}
+
+	return boolVal
 }
 
 func genTmpFixpackDir() (string, error) {
