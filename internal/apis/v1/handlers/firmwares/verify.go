@@ -12,6 +12,26 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
+func (h *helper) checkFirmwareDuplication() (bool, error) {
+	entries, err := os.ReadDir(firmwares.UpdateDir)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to read firmware upload directory %s(%v)", h.reqId, firmwares.UpdateDir, err)
+		return false, err
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		if entry.Name() == h.file {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 func (h *helper) checkFirmwarePattern() error {
 	segments := strings.Split(h.file, " ")
 	if len(segments) < 4 {

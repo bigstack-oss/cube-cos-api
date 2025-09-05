@@ -115,7 +115,7 @@ func appendUninstalledFirmwares(list *[]firmwares.Firmware) {
 			continue
 		}
 
-		firmware, err := convertPkgNameToFirmware(entry.Name())
+		firmware, err := ConvertPkgNameToFirmware(entry.Name())
 		if err != nil {
 			continue
 		}
@@ -136,7 +136,7 @@ func convertRawTime(layout, rawTime string) string {
 	return time.RFC3339Z(t)
 }
 
-func convertPkgNameToFirmware(pkgname string) (*firmwares.Firmware, error) {
+func ConvertPkgNameToFirmware(pkgname string) (*firmwares.Firmware, error) {
 	pkgname = strings.TrimSuffix(pkgname, ".pkg")
 	segment := strings.Split(pkgname, "_")
 	if len(segment) < 3 {

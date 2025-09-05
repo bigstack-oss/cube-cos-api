@@ -1,6 +1,7 @@
 package firmwares
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
@@ -101,6 +102,16 @@ func uploadFirmware(c *gin.Context) {
 	err = h.resetTmpFirmwareArtifacts()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	duplicated, err := h.checkFirmwareDuplication()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+	if duplicated {
+		bodies.SetConflict(c, fmt.Errorf("file %s already exists", h.file))
 		return
 	}
 
