@@ -98,7 +98,10 @@ func (h *helper) parseVerificationParams() error {
 		}
 	}
 
-	return fmt.Errorf("no firmware file found in %s", firmwares.TmpUploadDir)
+	return fmt.Errorf(
+		"no firmware file found in %s",
+		firmwares.TmpUploadDir,
+	)
 }
 
 func (h *helper) parseDeleteFirmwareParams() error {

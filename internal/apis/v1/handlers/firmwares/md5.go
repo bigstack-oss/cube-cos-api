@@ -18,7 +18,7 @@ func (h *helper) syncFirmwareMd5() error {
 		return err
 	}
 
-	path = filepath.Join(firmwares.TmpUploadDir, firmwares.DefaultMd5File)
+	path = filepath.Join(firmwares.TmpUploadDir, firmwares.TmpPreCalculateMd5)
 	err = os.WriteFile(path, []byte(sum), 0644)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to write md5 sum to file %s(%v)", h.reqId, path, err)

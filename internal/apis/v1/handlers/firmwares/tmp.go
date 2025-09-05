@@ -10,10 +10,8 @@ import (
 )
 
 func (h *helper) resetTmpFirmwareArtifacts() error {
-	path := filepath.Join(firmwares.TmpUploadDir, firmwares.TmpPreCalculateMd5)
-	err := os.Remove(path)
+	err := h.syncTmpUploadDir()
 	if err != nil {
-		log.Errorf("firmwares(%s): failed to clean up precalculated m5d %s(%v)", h.reqId, path, err)
 		return err
 	}
 
@@ -29,7 +27,7 @@ func (h *helper) resetTmpFirmwareArtifacts() error {
 		}
 
 		file := filepath.Join(firmwares.TmpUploadDir, entry.Name())
-		if !strings.HasSuffix(file, ".pkg") {
+		if !strings.HasSuffix(file, ".pkg") && entry.Name() != firmwares.TmpPreCalculateMd5 {
 			continue
 		}
 
@@ -38,6 +36,25 @@ func (h *helper) resetTmpFirmwareArtifacts() error {
 			log.Errorf("firmwares(%s): failed to remove tmp firmware file %s(%v)", h.reqId, file, err)
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (h *helper) syncTmpUploadDir() error {
+	_, err := os.Stat(firmwares.TmpUploadDir)
+	if err == nil {
+		return nil
+	}
+
+	if !os.IsNotExist(err) {
+		return err
+	}
+
+	err = os.MkdirAll(firmwares.TmpUploadDir, 0755)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to create tmp upload directory %s(%v)", h.reqId, firmwares.TmpUploadDir, err)
+		return err
 	}
 
 	return nil

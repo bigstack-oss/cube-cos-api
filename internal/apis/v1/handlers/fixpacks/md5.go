@@ -1,6 +1,7 @@
 package fixpacks
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -40,7 +41,7 @@ func (h *helper) parseMd5Data() (*integrityResult, error) {
 	expected, err := os.ReadFile(path)
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to read md5 file %s(%v)", h.reqId, path, err)
-		return nil, err
+		return nil, errors.New("please upload the md5 file before verification")
 	}
 
 	return &integrityResult{
