@@ -15702,6 +15702,35 @@
                             }
                         }
                     },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "fixpack version 'FIX_001' is not removable"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
