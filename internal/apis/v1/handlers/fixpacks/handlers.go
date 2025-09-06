@@ -1,6 +1,7 @@
 package fixpacks
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
@@ -335,13 +336,13 @@ func deleteFixpack(c *gin.Context) {
 		return
 	}
 
-	if h.isFixpackExists() {
-		bodies.SetNotFound(c, err)
+	if !h.isFixpackExists() {
+		bodies.SetNotFound(c, fmt.Errorf("fixpack version %s not found", h.reqOpts.Version))
 		return
 	}
 
-	if h.isFixpackInstalled() {
-		bodies.SetConflict(c, err)
+	if !h.isFixpackRemovable() {
+		bodies.SetConflict(c, fmt.Errorf("fixpack version %s is not removable", h.reqOpts.Version))
 		return
 	}
 

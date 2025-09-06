@@ -10,7 +10,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -30,7 +29,7 @@ func (h *helper) isFixpackExists() bool {
 	return false
 }
 
-func (h *helper) isFixpackInstalled() bool {
+func (h *helper) isFixpackRemovable() bool {
 	list, err := h.listFixpacks()
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to list fixpack for checking existence(%v)", h.reqId, err)
@@ -42,9 +41,7 @@ func (h *helper) isFixpackInstalled() bool {
 			continue
 		}
 
-		if fixpack.Status.Current != status.Available {
-			return false
-		}
+		return fixpack.Status.IsRemovable
 	}
 
 	return false
