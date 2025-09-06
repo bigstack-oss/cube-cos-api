@@ -40,10 +40,11 @@ func ListFixpacks() ([]fixpacks.Fixpack, error) {
 		return nil, err
 	}
 
-	return mergeFixpacks(
-		historyFixpacks,
-		pkgFixpacks,
-	), nil
+	merged := mergeFixpacks(historyFixpacks, pkgFixpacks)
+	sortFixpackByVersion(&merged)
+	setInstallableStatus(&merged)
+	setRemovableStatus(&merged)
+	return merged, nil
 }
 
 func GetLastFixpackOperation() (*fixpacks.Fixpack, error) {
@@ -321,26 +322,22 @@ func parseRebootTargetNodes(roles []string) []string {
 	return list
 }
 
-func mergeFixpacks(history, pkgs []fixpacks.Fixpack) []fixpacks.Fixpack {
+func mergeFixpacks(histories, pkgs []fixpacks.Fixpack) []fixpacks.Fixpack {
 	merged := make(map[string]fixpacks.Fixpack)
-	for _, fixpack := range history {
+	for _, fixpack := range pkgs {
 		merged[fixpack.Version] = fixpack
 	}
 
-	for _, pkg := range pkgs {
-		history, found := merged[pkg.Version]
+	for _, history := range histories {
+		pkg, found := merged[history.Version]
 		if !found {
-			merged[pkg.Version] = pkg
 			continue
 		}
 
-		history.Name = pkg.Name
-		history.Note = pkg.Note
-		history.Details = pkg.Details
-		history.RebootRequired = pkg.RebootRequired
-		history.TargetNodes = pkg.TargetNodes
-		history.Status.IsRollbackable = pkg.Status.IsRollbackable
-		merged[pkg.Version] = history
+		pkg.Status.Current = history.Status.Current
+		pkg.Status.IsInstallable = history.Status.IsInstallable
+		pkg.Status.IsProcessing = history.Status.IsProcessing
+		merged[pkg.Version] = pkg
 	}
 
 	fixpacks := make([]fixpacks.Fixpack, 0, len(merged))
@@ -349,6 +346,46 @@ func mergeFixpacks(history, pkgs []fixpacks.Fixpack) []fixpacks.Fixpack {
 	}
 
 	return fixpacks
+}
+
+func sortFixpackByVersion(list *[]fixpacks.Fixpack) {
+	sort.Slice(*list, func(i, j int) bool {
+		return (*list)[i].Version > (*list)[j].Version
+	})
+}
+
+func setInstallableStatus(fixpacks *[]fixpacks.Fixpack) {
+	if len(*fixpacks) == 0 {
+		return
+	}
+
+	for i := len(*fixpacks) - 1; i >= 0; i-- {
+		if (*fixpacks)[i].Status.Current == status.Available {
+			(*fixpacks)[i].Status.IsInstallable = true
+		} else {
+			(*fixpacks)[i].Status.IsInstallable = false
+		}
+
+		if i != len(*fixpacks)-1 {
+			(*fixpacks)[i].Status.IsInstallable = false
+		}
+	}
+}
+
+func setRemovableStatus(fixpacks *[]fixpacks.Fixpack) {
+	if len(*fixpacks) == 0 {
+		return
+	}
+
+	for i, fixpack := range *fixpacks {
+		if fixpack.Status.Current == status.Available {
+			(*fixpacks)[i].Status.IsRemovable = true
+		}
+
+		if i != 0 {
+			(*fixpacks)[i].Status.IsRemovable = false
+		}
+	}
 }
 
 func convertFixpackStatus(rollback, action string) status.Fixpack {

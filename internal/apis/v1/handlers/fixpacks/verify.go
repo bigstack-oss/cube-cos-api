@@ -10,8 +10,45 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 )
+
+func (h *helper) isFixpackExists() bool {
+	list, err := h.listFixpacks()
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to list fixpack for checking existence(%v)", h.reqId, err)
+		return false
+	}
+
+	for _, fixpack := range list.Fixpacks {
+		if fixpack.Version == h.reqOpts.Version {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (h *helper) isFixpackInstalled() bool {
+	list, err := h.listFixpacks()
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to list fixpack for checking existence(%v)", h.reqId, err)
+		return false
+	}
+
+	for _, fixpack := range list.Fixpacks {
+		if fixpack.Version != h.reqOpts.Version {
+			continue
+		}
+
+		if fixpack.Status.Current != status.Available {
+			return false
+		}
+	}
+
+	return false
+}
 
 func (h *helper) getVersionStatus(version string) (string, error) {
 	fixpacks, err := h.listFixpacks()

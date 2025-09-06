@@ -34,7 +34,7 @@ func (h *helper) parseParamsByHandler() error {
 	case "rollbackFixpack":
 		return h.parseRollbackParams()
 	case "deleteFixpack":
-		return h.parseDeleteFixpackParams()
+		return h.parseDeleteParams()
 	case "updateFixpackTask":
 		return h.parseUpdateFixpackTaskParams()
 	default:
@@ -159,7 +159,7 @@ func (h *helper) parseRollbackParams() error {
 	return nil
 }
 
-func (h *helper) parseDeleteFixpackParams() error {
+func (h *helper) parseDeleteParams() error {
 	h.reqOpts.Version = h.c.Param("version")
 	if h.reqOpts.Version == "" {
 		return fmt.Errorf("version parameter is required")
@@ -171,7 +171,7 @@ func (h *helper) parseDeleteFixpackParams() error {
 		return fmt.Errorf("fixpack version %s not found", h.reqOpts.Version)
 	}
 
-	return nil
+	return h.parseListParams()
 }
 
 func (h *helper) parseUpdateFixpackTaskParams() error {

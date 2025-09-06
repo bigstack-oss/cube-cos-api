@@ -49,7 +49,6 @@ func (h *helper) listFixpacks() (*fixpacksPage, error) {
 		return nil, err
 	}
 
-	h.sortFixpacks(&fixpackss)
 	h.syncRequestingRecord(&fixpackss)
 	return &fixpacksPage{
 		Fixpacks: h.paginateFixpacks(fixpackss),

@@ -335,6 +335,16 @@ func deleteFixpack(c *gin.Context) {
 		return
 	}
 
+	if h.isFixpackExists() {
+		bodies.SetNotFound(c, err)
+		return
+	}
+
+	if h.isFixpackInstalled() {
+		bodies.SetConflict(c, err)
+		return
+	}
+
 	err = h.deleteFixpack()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
