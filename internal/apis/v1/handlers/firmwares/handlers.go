@@ -7,6 +7,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/nodes"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -100,6 +101,19 @@ func uploadFirmware(c *gin.Context) {
 		return
 	}
 
+	err = h.checkIfHasProcessingPkg()
+	if err != nil {
+		bodies.SetConflict(c, err)
+		return
+	}
+
+	err = h.setPkgAs(status.Uploading)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	defer h.clearPkgBy(status.Uploading)
 	err = h.resetTmpFirmwareArtifacts()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
@@ -164,6 +178,19 @@ func uploadFirmwareMd5Sum(c *gin.Context) {
 		return
 	}
 
+	err = h.checkIfHasProcessingPkg()
+	if err != nil {
+		bodies.SetConflict(c, err)
+		return
+	}
+
+	err = h.setPkgAs(status.Uploading)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	defer h.clearPkgBy(status.Uploading)
 	err = h.resetTmpFirmwareMd5()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
@@ -191,6 +218,19 @@ func verfiyFirmwareAndMd5Sum(c *gin.Context) {
 		return
 	}
 
+	err = h.checkIfHasProcessingPkg()
+	if err != nil {
+		bodies.SetConflict(c, err)
+		return
+	}
+
+	err = h.setPkgAs(status.Verifying)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	defer h.clearPkgBy(status.Verifying)
 	result, err := h.verifyFirmwareAndMd5()
 	if err != nil {
 		bodies.SetBadRequest(c, err, result)

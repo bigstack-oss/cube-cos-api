@@ -146,8 +146,6 @@ func (h *helper) continueInterruptedFixpackUpdate() error {
 }
 
 func (h *helper) deleteFixpack() error {
-	// check if fixpack is installed, only can delete uninstalled fixpack
-	// have to remove the record from fixpack.history as well
 	err := os.Remove(h.file)
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to delete fixpack file %s(%v)", h.reqId, h.file, err)

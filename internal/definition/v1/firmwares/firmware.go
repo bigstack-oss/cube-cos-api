@@ -5,6 +5,9 @@ import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 const (
 	Module = "firmwares"
 
+	Db               = "firmwares"
+	UploadCollection = "upload"
+
 	TmpUploadDir       = "/tmp/firmwares"
 	TmpPreCalculateMd5 = "precalculated.md5"
 	DefaultMd5File     = "md5"
