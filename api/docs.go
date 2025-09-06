@@ -13801,7 +13801,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "firmware already exists and under md5 verifying"
+                                            "example": "there is a firmware in uploading status, please try again later"
                                         },
                                         "status": {
                                             "type": "string",
@@ -13990,7 +13990,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "md5 already exists and under verifying"
+                                            "example": "there is a firmware in uploading status, please try again later"
                                         },
                                         "status": {
                                             "type": "string",
@@ -14144,7 +14144,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "md5 verification is already in progress"
+                                            "example": "there is a firmware in uploading status, please try again later"
                                         },
                                         "status": {
                                             "type": "string",
