@@ -1,6 +1,7 @@
 package firmwares
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -117,11 +118,10 @@ func (h *helper) deleteFirmware() error {
 
 	segments := strings.Split(h.file, " ")
 	version := segments[2]
-	hash := segments[3]
 	entries, err := os.ReadDir(firmwares.UpdateDir)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to read update directory %s(%v)", h.reqId, firmwares.UpdateDir, err)
-		return err
+		return errors.New("has an error during reading internal fs space")
 	}
 
 	for _, entry := range entries {
@@ -135,10 +135,6 @@ func (h *helper) deleteFirmware() error {
 		}
 
 		if !strings.Contains(file, version) {
-			continue
-		}
-
-		if !strings.Contains(file, hash) {
 			continue
 		}
 

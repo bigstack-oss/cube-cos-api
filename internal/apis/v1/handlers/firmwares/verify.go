@@ -12,6 +12,50 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
+func (h *helper) isFirmwareExists() bool {
+	segments := strings.Split(h.file, " ")
+	version := segments[2]
+
+	list, err := h.listFirmwares()
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to list firmwares (%v)", h.reqId, err)
+		return false
+	}
+
+	for _, firmware := range list.Firmwares {
+		if strings.Contains(firmware.Version, version) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (h *helper) isFirmwareInstalled() bool {
+	segments := strings.Split(h.file, " ")
+	version := segments[2]
+
+	list, err := h.listFirmwares()
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to list firmwares (%v)", h.reqId, err)
+		return false
+	}
+
+	for _, firmware := range list.Firmwares {
+		if !strings.Contains(firmware.Version, version) {
+			continue
+		}
+
+		if firmware.Status.Current == status.Available {
+			return false
+		} else {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (h *helper) checkFirmwareDuplication() (bool, error) {
 	entries, err := os.ReadDir(firmwares.UpdateDir)
 	if err != nil {
@@ -34,9 +78,9 @@ func (h *helper) checkFirmwareDuplication() (bool, error) {
 
 func (h *helper) checkFirmwarePattern() error {
 	segments := strings.Split(h.file, " ")
-	if len(segments) < 4 {
+	if len(segments) < 3 {
 		return fmt.Errorf(
-			"invalid firmware version format: %s, expected format: CUBE Appliance <version> <hash>",
+			"invalid firmware version format: %s, expected format: CUBE Appliance <version>",
 			h.file,
 		)
 	}

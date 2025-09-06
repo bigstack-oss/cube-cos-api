@@ -1,6 +1,7 @@
 package firmwares
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -283,6 +284,16 @@ func deleteFirmware(c *gin.Context) {
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	if !h.isFirmwareExists() {
+		bodies.SetNotFound(c, errors.New("firmware not found"))
+		return
+	}
+
+	if h.isFirmwareInstalled() {
+		bodies.SetConflict(c, errors.New("cannot delete an installed firmware"))
 		return
 	}
 

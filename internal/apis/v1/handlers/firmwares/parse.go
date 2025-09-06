@@ -25,7 +25,7 @@ func (h *helper) parseParamsByHandler() error {
 	case "verfiyFirmwareAndMd5Sum":
 		return h.parseVerificationParams()
 	case "deleteFirmware":
-		return h.parseDeleteFirmwareParams()
+		return h.parseDeleteParams()
 	default:
 		return nil
 	}
@@ -104,10 +104,15 @@ func (h *helper) parseVerificationParams() error {
 	)
 }
 
-func (h *helper) parseDeleteFirmwareParams() error {
+func (h *helper) parseDeleteParams() error {
 	h.file = h.c.Param("version")
 	if h.file == "" {
 		return fmt.Errorf("version parameter is required")
+	}
+
+	err := h.parseListParams()
+	if err != nil {
+		return err
 	}
 
 	return h.checkFirmwarePattern()
