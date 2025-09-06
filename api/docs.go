@@ -14340,11 +14340,40 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "firmware CUBE Appliance 3.1.0 f45c719 not found"
+                                            "example": "firmware not found"
                                         },
                                         "status": {
                                             "type": "string",
                                             "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "cannot delete an installed firmware"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
                                         }
                                     }
                                 }
@@ -14455,7 +14484,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "'CUBE Appliance 3.1.0 f45c719' not found"
+                                            "example": "'CUBE Appliance 3.1.0' not found"
                                         },
                                         "status": {
                                             "type": "string",
