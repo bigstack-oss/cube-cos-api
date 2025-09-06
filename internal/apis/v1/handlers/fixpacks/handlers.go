@@ -6,6 +6,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -110,6 +111,19 @@ func uploadFixpack(c *gin.Context) {
 		return
 	}
 
+	err = h.checkIfHasProcessingPkg()
+	if err != nil {
+		bodies.SetConflict(c, err)
+		return
+	}
+
+	err = h.setPkgAs(status.Uploading)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	defer h.clearPkgBy(status.Uploading)
 	err = h.resetTmpFixpackArtifacts()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
@@ -149,6 +163,19 @@ func uploadFixpackMd5Sum(c *gin.Context) {
 		return
 	}
 
+	err = h.checkIfHasProcessingPkg()
+	if err != nil {
+		bodies.SetConflict(c, err)
+		return
+	}
+
+	err = h.setPkgAs(status.Uploading)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	defer h.clearPkgBy(status.Uploading)
 	err = h.resetTmpFixpackMd5()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
@@ -176,6 +203,19 @@ func verfiyFixpackAndMd5Sum(c *gin.Context) {
 		return
 	}
 
+	err = h.checkIfHasProcessingPkg()
+	if err != nil {
+		bodies.SetConflict(c, err)
+		return
+	}
+
+	err = h.setPkgAs(status.Verifying)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	defer h.clearPkgBy(status.Verifying)
 	result, err := h.verifyFixpackAndMd5()
 	if err != nil {
 		bodies.SetBadRequest(c, err, result)

@@ -15,6 +15,7 @@ const (
 	Pending              = "pending"
 	Updating             = "updating"
 	Uploading            = "uploading"
+	Verifying            = "verifying"
 	Importing            = "importing"
 	Installing           = "installing"
 	Repairing            = "repairing"

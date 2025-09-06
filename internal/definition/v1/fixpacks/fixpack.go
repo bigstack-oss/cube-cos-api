@@ -5,9 +5,10 @@ import (
 )
 
 const (
-	Module        = "fixpacks"
-	Db            = Module
-	ReqCollection = "requests"
+	Module           = "fixpacks"
+	Db               = Module
+	ReqCollection    = "requests"
+	UploadCollection = "upload"
 
 	TmpUploadDir       = "/tmp/fixpacks"
 	TmpPreCalculateMd5 = "precalculated.md5"
