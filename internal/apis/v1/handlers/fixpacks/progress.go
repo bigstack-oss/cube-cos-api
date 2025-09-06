@@ -54,7 +54,7 @@ func (h *helper) getUpdateDetails() (*update, error) {
 
 func (h *helper) convertOperationByAction(action string) string {
 	switch strings.ToLower(action) {
-	case "install":
+	case "installed":
 		return "install"
 	case "uninstalled":
 		return "rollback"

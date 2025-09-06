@@ -4,14 +4,8 @@ import (
 	"sort"
 )
 
-func (h *helper) sortUpdatableNodes(nodes *[]node) {
+func (h *helper) sortUpdatableNodesByHost(nodes *[]node) {
 	sort.Slice(*nodes, func(i, j int) bool {
-		return (*nodes)[i].UpdatedAt > (*nodes)[j].UpdatedAt
-	})
-}
-
-func (h *helper) sortProgress(progress *[]progress) {
-	sort.Slice(*progress, func(i, j int) bool {
-		return (*progress)[i].Host < (*progress)[j].Host
+		return (*nodes)[i].Name < (*nodes)[j].Name
 	})
 }

@@ -362,12 +362,18 @@ func setInstallableStatus(fixpacks *[]fixpacks.Fixpack) {
 	for i := len(*fixpacks) - 1; i >= 0; i-- {
 		if (*fixpacks)[i].Status.Current == status.Available {
 			(*fixpacks)[i].Status.IsInstallable = true
-		} else {
-			(*fixpacks)[i].Status.IsInstallable = false
 		}
 
-		if i != len(*fixpacks)-1 {
-			(*fixpacks)[i].Status.IsInstallable = false
+		previous := i + 1
+		isLast := previous > len(*fixpacks)-1
+		if isLast {
+			continue
+		}
+
+		previousIsInstalled := (*fixpacks)[previous].Status.Current == status.Installed
+		currentIsAvailable := (*fixpacks)[i].Status.Current == status.Available
+		if previousIsInstalled && currentIsAvailable {
+			(*fixpacks)[i].Status.IsInstallable = true
 		}
 	}
 }

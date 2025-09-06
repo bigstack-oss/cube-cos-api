@@ -165,17 +165,6 @@ func (h *helper) checkEnvConditions() error {
 	return nil
 }
 
-func (h *helper) checkFixpackPattern() error {
-	if strings.HasSuffix(h.file, ".fixpack") {
-		return nil
-	}
-
-	return fmt.Errorf(
-		"invalid fixpack file format: %s, expected .fixpack",
-		h.file,
-	)
-}
-
 func (h *helper) verifyFixpackAndMd5() (*integrityResult, error) {
 	result, err := h.parseMd5Data()
 	if err != nil {

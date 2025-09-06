@@ -78,7 +78,7 @@ func (h *helper) listUpdatableNodes(version string) ([]node, error) {
 		return nil, err
 	}
 
-	h.sortUpdatableNodes(&updatables)
+	h.sortUpdatableNodesByHost(&updatables)
 	return updatables, nil
 }
 

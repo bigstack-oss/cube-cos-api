@@ -296,17 +296,18 @@ func getFixpackUpdateProgress(c *gin.Context) {
 		return
 	}
 
-	update, err := h.getFixpackUpdateProgress()
-	if err != nil {
-		bodies.SetInternalServerError(c, err)
+	updateProgress, err := h.getFixpackUpdateProgress()
+	if err == nil {
+		bodies.SetOk(c, "List of fixpack update progress", updateProgress)
 		return
 	}
 
-	bodies.SetOk(
-		c,
-		"List of fixpack update progress",
-		update,
-	)
+	if err.Error() == "no fixpack history found" {
+		bodies.SetOk(c, "No fixpack update history found", &update{Progresses: []progress{}})
+		return
+	}
+
+	bodies.SetInternalServerError(c, err)
 }
 
 func rollbackFixpack(c *gin.Context) {
