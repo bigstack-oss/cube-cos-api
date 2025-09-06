@@ -14697,7 +14697,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "fixpack already exists and under md5 verifying"
+                                            "example": "there is a fixpack in uploading status, please try again later"
                                         },
                                         "status": {
                                             "type": "string",
@@ -15062,7 +15062,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "'FIX_001' already exists and under md5 verifying"
+                                            "example": "there is a fixpack in uploading status, please try again later"
                                         },
                                         "status": {
                                             "type": "string",
@@ -15217,7 +15217,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "'FIX_001' md5 verification is already in progress"
+                                            "example": "there is a fixpack in verifying status, please try again later"
                                         },
                                         "status": {
                                             "type": "string",
