@@ -21,6 +21,10 @@ var (
 		status.Ok:            true,
 		status.CheckDisabled: true,
 		status.Disabled:      true,
+		status.Checking:      true,
+	}
+	StatusOkDesciptions = []string{
+		"checking returns the last result",
 	}
 )
 
@@ -53,7 +57,17 @@ func RepairCollection() string {
 
 func (h *Check) IsOk() bool {
 	_, found := StatusOks[h.Status]
-	return found
+	if found {
+		return true
+	}
+
+	for _, desc := range StatusOkDesciptions {
+		if strings.Contains(strings.ToLower(h.Status), desc) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (h *Check) IsFix() bool {
