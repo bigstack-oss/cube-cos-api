@@ -121,6 +121,24 @@ func SoftRebootBySsh(host string) error {
 	return nil
 }
 
+func RolloutNodesByPowerCycle() error {
+	out, err := exec.Command("hex_sdk", "-d", "cube_cluster_power", "cycle").CombinedOutput()
+	if err != nil {
+		err := fmt.Errorf("failed to execute the cluster power cycle cmd(%v %s)", err, string(out))
+		log.Errorf("os: %v", err)
+		return err
+	}
+
+	if !IsHexSdkSuccess(err) {
+		err := fmt.Errorf("failed to rollout nodes by power cycle by hex sdk(%s)", string(out))
+		log.Errorf("os: %v", err)
+		return err
+	}
+
+	log.Infof("os: successfully rollout nodes by power cycle(%s)", string(out))
+	return nil
+}
+
 func MoveVirtualIpOwner() error {
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(5))
 	defer cancel()

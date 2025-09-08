@@ -35,7 +35,8 @@ func (h *helper) genListOpts() (*opsvolumes.ListOpts, error) {
 	}
 
 	return &opsvolumes.ListOpts{
-		TenantID: id,
+		AllTenants: true,
+		TenantID:   id,
 	}, nil
 }
 

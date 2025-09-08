@@ -57,7 +57,7 @@ func getDataCenter(c *gin.Context) {
 }
 
 func rolloutDataCenterBySoftReboot(c *gin.Context) {
-	err := cubecos.RolloutNodesBySoftReboot()
+	err := cubecos.RolloutNodesByPowerCycle()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return

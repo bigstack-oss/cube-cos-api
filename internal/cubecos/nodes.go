@@ -163,11 +163,6 @@ func IsGpuEnabled() (bool, error) {
 	return len(devices) > 0, nil
 }
 
-func RolloutNodesBySoftReboot() error {
-	// waiting for COS's new SDK to support the operation
-	return nil
-}
-
 func syncTimeSensitiveInfo(list *[]nodes.Node) {
 	syncLicense(list)
 	syncVirutalIpOwner(list)
