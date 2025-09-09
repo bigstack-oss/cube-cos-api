@@ -29,13 +29,13 @@ func ListStorages() ([]storages.Cinder, error) {
 	defer cancel()
 	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_get_storages").CombinedOutput()
 	if err != nil {
-		err := genIntegrationErr("function exec failure")
+		err := genIntegrationErr("storage exec failure")
 		log.Errorf("storage: %s (%s)", err.Error(), string(out))
 		return nil, err
 	}
 
 	if !IsHexSdkSuccess(err) {
-		err := genIntegrationErr("function output failure")
+		err := genIntegrationErr("storage output failure")
 		log.Errorf("storage: %s (%s)", err.Error(), string(out))
 		return nil, err
 	}
@@ -43,7 +43,34 @@ func ListStorages() ([]storages.Cinder, error) {
 	list := []storages.Cinder{}
 	err = json.Unmarshal(out, &list)
 	if err != nil {
-		err := genIntegrationErr("function parsing failure")
+		err := genIntegrationErr("storage parsing failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return nil, err
+	}
+
+	return list, nil
+}
+
+func ListModels() ([]storages.Model, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "host_get_models").CombinedOutput()
+	if err != nil {
+		err := genIntegrationErr("model exec failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return nil, err
+	}
+
+	if !IsHexSdkSuccess(err) {
+		err := genIntegrationErr("model output failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return nil, err
+	}
+
+	list := []storages.Model{}
+	err = json.Unmarshal(out, &list)
+	if err != nil {
+		err := genIntegrationErr("model parsing failure")
 		log.Errorf("storage: %s (%s)", err.Error(), string(out))
 		return nil, err
 	}

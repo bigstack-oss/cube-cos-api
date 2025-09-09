@@ -4,6 +4,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -34,4 +35,15 @@ func (h *helper) listStorages() ([]integration.Storage, error) {
 	storages := h.convertToStorages(cinders)
 	h.sortStorages(&storages)
 	return storages, nil
+}
+
+func (h *helper) listModels() ([]storages.Model, error) {
+	models, err := cubecos.ListModels()
+	if err != nil {
+		log.Errorf("integrations(%s): failed to list models (%v)", h.reqId, err)
+		return nil, err
+	}
+
+	h.sortModels(&models)
+	return models, nil
 }

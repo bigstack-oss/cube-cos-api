@@ -63,3 +63,9 @@ func (h *helper) sortStorages(storages *[]integration.Storage) {
 		return (*storages)[i].Name > (*storages)[j].Name
 	})
 }
+
+func (h *helper) sortModels(models *[]storages.Model) {
+	sort.Slice(*models, func(i, j int) bool {
+		return (*models)[i].Vendor > (*models)[j].Vendor
+	})
+}
