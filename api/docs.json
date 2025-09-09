@@ -3312,7 +3312,7 @@
         },
         "/api/v1/datacenters/{dataCenter}/integrations/storages": {
             "get": {
-                "operationId": "getIntegratedStorages",
+                "operationId": "listIntegratedStorages",
                 "tags": [
                     "Integrations"
                 ],
@@ -3328,7 +3328,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/GetIntegratedStoragesResponse"
+                                    "$ref": "#/components/schemas/ListIntegratedStoragesResponse"
                                 },
                                 "examples": {
                                     "example1": {
@@ -3371,6 +3371,179 @@
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to fetch integrated applications: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/integrations/storages/models": {
+            "get": {
+                "operationId": "listStorageModels",
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Retrieve the list of storage models",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the list of storage models successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListIntegratedStorageModelsResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Storage models",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "vendor": "Dell",
+                                                    "product": "PowerVault",
+                                                    "multipath": {
+                                                        "defaults": [
+                                                            {
+                                                                "key": "user_friendly_names",
+                                                                "value": "yes"
+                                                            }
+                                                        ],
+                                                        "blacklist": {
+                                                            "devnode": "sda",
+                                                            "devices": [
+                                                                {
+                                                                    "vendor": "Generic",
+                                                                    "product": "USB",
+                                                                    "settings": [
+                                                                        {
+                                                                            "key": "dev_loss_tmo",
+                                                                            "value": "10"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        },
+                                                        "blacklistExceptions": {
+                                                            "devnode": "sd[b-z]",
+                                                            "devices": [
+                                                                {
+                                                                    "vendor": "HP",
+                                                                    "product": "MSA",
+                                                                    "settings": [
+                                                                        {
+                                                                            "key": "polling_interval",
+                                                                            "value": "5"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        },
+                                                        "devices": [
+                                                            {
+                                                                "vendor": "EMC",
+                                                                "product": "VNX",
+                                                                "settings": [
+                                                                    {
+                                                                        "key": "no_path_retry",
+                                                                        "value": "fail"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "overrides": [
+                                                            {
+                                                                "key": "checker_timeout",
+                                                                "value": "30"
+                                                            }
+                                                        ],
+                                                        "multipaths": [
+                                                            {
+                                                                "wwid": "3600508b400105e210000900000490000",
+                                                                "settings": [
+                                                                    {
+                                                                        "key": "path_grouping_policy",
+                                                                        "value": "group_by_prio"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "storage": {
+                                                        "service": {
+                                                            "driverSection": [
+                                                                {
+                                                                    "key": "volume_driver",
+                                                                    "value": "cinder.volume.drivers.lvm.LVMVolumeDriver"
+                                                                }
+                                                            ],
+                                                            "extraSettings": [
+                                                                {
+                                                                    "sectionHeader": "DEFAULT",
+                                                                    "settings": [
+                                                                        {
+                                                                            "key": "enabled_backends",
+                                                                            "value": "lvm"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ],
+                                                            "extraConfigFiles": [
+                                                                {
+                                                                    "name": "test.conf",
+                                                                    "content": "ZmlsZSBjb250ZW50IGluIGJhc2U2NA=="
+                                                                }
+                                                            ]
+                                                        },
+                                                        "volumeType": {
+                                                            "settings": [
+                                                                {
+                                                                    "key": "volume_backend_name",
+                                                                    "value": "lvm"
+                                                                }
+                                                            ]
+                                                        },
+                                                        "image": {
+                                                            "useMultipath": true,
+                                                            "forceMultipath": true
+                                                        },
+                                                        "updateTime": "2025-09-09T10:30:00Z"
+                                                    }
+                                                }
+                                            ],
+                                            "msg": "fetch storage models successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch storage models: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -17332,7 +17505,7 @@
                     }
                 }
             },
-            "GetIntegratedStoragesResponse": {
+            "ListIntegratedStoragesResponse": {
                 "type": "object",
                 "required": [
                     "code",
@@ -17405,6 +17578,237 @@
                     "msg": {
                         "type": "string",
                         "example": "fetch integrated applications successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "ListIntegratedStorageModelsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "vendor",
+                                "product",
+                                "multipath",
+                                "storage"
+                            ],
+                            "properties": {
+                                "vendor": {
+                                    "type": "string"
+                                },
+                                "product": {
+                                    "type": "string"
+                                },
+                                "multipath": {
+                                    "type": "object",
+                                    "required": [
+                                        "defaults",
+                                        "blacklist",
+                                        "blacklistExceptions",
+                                        "devices",
+                                        "overrides",
+                                        "multipaths"
+                                    ],
+                                    "properties": {
+                                        "defaults": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/StorageKeyValuePair"
+                                            }
+                                        },
+                                        "blacklist": {
+                                            "type": "object",
+                                            "required": [
+                                                "devnode",
+                                                "devices"
+                                            ],
+                                            "properties": {
+                                                "devnode": {
+                                                    "type": "string"
+                                                },
+                                                "devices": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/StorageModelVenderSetting"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "blacklistExceptions": {
+                                            "type": "object",
+                                            "required": [
+                                                "devnode",
+                                                "devices"
+                                            ],
+                                            "properties": {
+                                                "devnode": {
+                                                    "type": "string"
+                                                },
+                                                "devices": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/StorageModelVenderSetting"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "devices": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/StorageModelVenderSetting"
+                                            }
+                                        },
+                                        "overrides": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/StorageKeyValuePair"
+                                            }
+                                        },
+                                        "multipaths": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": [
+                                                    "wwid",
+                                                    "settings"
+                                                ],
+                                                "properties": {
+                                                    "wwid": {
+                                                        "type": "string"
+                                                    },
+                                                    "settings": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "$ref": "#/components/schemas/StorageKeyValuePair"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "storage": {
+                                    "type": "object",
+                                    "required": [
+                                        "service",
+                                        "volumeType",
+                                        "image",
+                                        "updateTime"
+                                    ],
+                                    "properties": {
+                                        "service": {
+                                            "type": "object",
+                                            "required": [
+                                                "driverSection",
+                                                "extraSettings",
+                                                "extraConfigFiles"
+                                            ],
+                                            "properties": {
+                                                "driverSection": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/StorageKeyValuePair"
+                                                    }
+                                                },
+                                                "extraSettings": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "required": [
+                                                            "sectionHeader",
+                                                            "settings"
+                                                        ],
+                                                        "properties": {
+                                                            "sectionHeader": {
+                                                                "type": "string"
+                                                            },
+                                                            "settings": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "$ref": "#/components/schemas/StorageKeyValuePair"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "extraConfigFiles": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "required": [
+                                                            "name",
+                                                            "content"
+                                                        ],
+                                                        "properties": {
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "content": {
+                                                                "type": "string",
+                                                                "description": "Base64 encoded content of the config file"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "volumeType": {
+                                            "type": "object",
+                                            "required": [
+                                                "settings"
+                                            ],
+                                            "properties": {
+                                                "settings": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/StorageKeyValuePair"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "image": {
+                                            "type": "object",
+                                            "required": [
+                                                "useMultipath",
+                                                "forceMultipath"
+                                            ],
+                                            "properties": {
+                                                "useMultipath": {
+                                                    "type": "boolean"
+                                                },
+                                                "forceMultipath": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "updateTime": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "fetch integrated storage models successfully"
                     },
                     "status": {
                         "type": "string",
@@ -23093,6 +23497,43 @@
                         "OSD00002E": "#/components/schemas/OSD00002E",
                         "OSD00003I": "#/components/schemas/OSD00003I",
                         "OSD00003E": "#/components/schemas/OSD00003E"
+                    }
+                }
+            },
+            "StorageModelVenderSetting": {
+                "type": "object",
+                "required": [
+                    "vendor",
+                    "product",
+                    "settings"
+                ],
+                "properties": {
+                    "vendor": {
+                        "type": "string"
+                    },
+                    "product": {
+                        "type": "string"
+                    },
+                    "settings": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StorageKeyValuePair"
+                        }
+                    }
+                }
+            },
+            "StorageKeyValuePair": {
+                "type": "object",
+                "required": [
+                    "key",
+                    "value"
+                ],
+                "properties": {
+                    "key": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
                     }
                 }
             },

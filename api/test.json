@@ -1,0 +1,113 @@
+[
+    {
+        "vendor": "Dell",
+        "product": "PowerVault",
+        "multipath": {
+            "defaults": [
+                {
+                    "key": "user_friendly_names",
+                    "value": "yes"
+                }
+            ],
+            "blacklist": {
+                "devnode": "sda",
+                "devices": [
+                    {
+                        "vendor": "Generic",
+                        "product": "USB",
+                        "settings": [
+                            {
+                                "key": "dev_loss_tmo",
+                                "value": "10"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "blacklistExceptions": {
+                "devnode": "sd[b-z]",
+                "devices": [
+                    {
+                        "vendor": "HP",
+                        "product": "MSA",
+                        "settings": [
+                            {
+                                "key": "polling_interval",
+                                "value": "5"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "devices": [
+                {
+                    "vendor": "EMC",
+                    "product": "VNX",
+                    "settings": [
+                        {
+                            "key": "no_path_retry",
+                            "value": "fail"
+                        }
+                    ]
+                }
+            ],
+            "overrides": [
+                {
+                    "key": "checker_timeout",
+                    "value": "30"
+                }
+            ],
+            "multipaths": [
+                {
+                    "wwid": "3600508b400105e210000900000490000",
+                    "settings": [
+                        {
+                            "key": "path_grouping_policy",
+                            "value": "group_by_prio"
+                        }
+                    ]
+                }
+            ]
+        },
+        "storage": {
+            "service": {
+                "driverSection": [
+                    {
+                        "key": "volume_driver",
+                        "value": "cinder.volume.drivers.lvm.LVMVolumeDriver"
+                    }
+                ],
+                "extraSettings": [
+                    {
+                        "sectionHeader": "DEFAULT",
+                        "settings": [
+                            {
+                                "key": "enabled_backends",
+                                "value": "lvm"
+                            }
+                        ]
+                    }
+                ],
+                "extraConfigFiles": [
+                    {
+                        "name": "test.conf",
+                        "content": "ZmlsZSBjb250ZW50IGluIGJhc2U2NA=="
+                    }
+                ]
+            },
+            "volumeType": {
+                "settings": [
+                    {
+                        "key": "volume_backend_name",
+                        "value": "lvm"
+                    }
+                ]
+            },
+            "image": {
+                "useMultipath": true,
+                "forceMultipath": true
+            },
+            "updateTime": "2025-09-09T10:30:00Z"
+        }
+    }
+]
