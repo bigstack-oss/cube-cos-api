@@ -7,6 +7,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/gin-gonic/gin"
+	log "go-micro.dev/v5/logger"
 )
 
 var (
@@ -41,9 +42,22 @@ func listApplications(c *gin.Context) {
 }
 
 func listStorages(c *gin.Context) {
+	h, err := initHelper(c, "listStorages")
+	if err != nil {
+		log.Errorf("integrations(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	storages, err := h.listStorages()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
 	bodies.SetOk(
 		c,
 		"fetch integrated storages successfully",
-		cubecos.ListBuiltInStorages(),
+		storages,
 	)
 }

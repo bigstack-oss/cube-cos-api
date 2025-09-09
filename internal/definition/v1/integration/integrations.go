@@ -11,6 +11,12 @@ const (
 	Module = "integrations"
 )
 
+var (
+	BuiltInStorages = map[string]bool{
+		"CubeStorage": true,
+	}
+)
+
 // note:
 // the description of each integration is from https://www.bigstack.co/products/cubecos/feature
 // currently, cos has no the source text for it, but UI needs it, so we can only place it below for the time being.

@@ -1,8 +1,11 @@
 package cubecos
 
 import (
+	"bufio"
 	"errors"
+	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
@@ -10,10 +13,44 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
 	"github.com/dustin/go-humanize"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 )
+
+func IsDefaultStorage(name string) bool {
+	file, err := os.Open(storages.CinderConf)
+	if err != nil {
+		log.Errorf("storages: failed to read cinder conf file(%v)", err)
+		return false
+	}
+
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	defaultStorage := ""
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if !strings.HasPrefix(line, "default_volume_type") {
+			continue
+		}
+
+		segments := strings.SplitN(line, "=", 2)
+		if len(segments) != 2 {
+			continue
+		}
+
+		defaultStorage = strings.TrimSpace(segments[1])
+	}
+
+	err = scanner.Err()
+	if err != nil {
+		log.Errorf("storages: error reading cinder conf file(%v)", err)
+		return false
+	}
+
+	return defaultStorage == name
+}
 
 func GetCephUsage() metric.Space {
 	b, err := exec.Command("ceph", "df", "-f", "json").Output()
