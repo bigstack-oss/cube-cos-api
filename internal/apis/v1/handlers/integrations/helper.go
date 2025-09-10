@@ -39,6 +39,17 @@ func (h *helper) listStorages() ([]integration.Storage, error) {
 	return storages, nil
 }
 
+func (h *helper) listVendors() ([]string, error) {
+	vendors, err := cubecos.ListVendors()
+	if err != nil {
+		log.Errorf("integrations(%s): failed to list vendors (%v)", h.reqId, err)
+		return nil, err
+	}
+
+	h.sortVendors(&vendors)
+	return vendors, nil
+}
+
 func (h *helper) listModels() ([]storages.Model, error) {
 	models, err := cubecos.ListModels()
 	if err != nil {

@@ -40,6 +40,12 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodGet,
+			Path:    "/integrations/storages/vendors",
+			Func:    listVendors,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
 			Path:    "/integrations/storages/models",
 			Func:    listModels,
 		},
@@ -103,6 +109,27 @@ func getStorage(c *gin.Context) {
 		c,
 		"fetch integrated storage details successfully",
 		storage,
+	)
+}
+
+func listVendors(c *gin.Context) {
+	h, err := initHelper(c, "listVendors")
+	if err != nil {
+		log.Errorf("integrations(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	vendors, err := h.listVendors()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"fetch integrated storage vendors successfully",
+		vendors,
 	)
 }
 

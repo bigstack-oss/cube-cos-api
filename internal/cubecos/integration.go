@@ -83,6 +83,25 @@ func GetStorage(name string) (*storages.Cinder, error) {
 	)
 }
 
+func ListVendors() ([]string, error) {
+	models, err := ListModels()
+	if err != nil {
+		return nil, err
+	}
+
+	vendors := []string{}
+	isAdded := map[string]bool{}
+	for _, model := range models {
+		_, found := isAdded[model.Vendor]
+		if !found {
+			vendors = append(vendors, model.Vendor)
+			isAdded[model.Vendor] = true
+		}
+	}
+
+	return vendors, nil
+}
+
 func ListModels() ([]storages.Model, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
 	defer cancel()
