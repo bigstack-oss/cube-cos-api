@@ -1,6 +1,7 @@
 package integrations
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
@@ -29,6 +30,12 @@ var (
 			Method:  http.MethodGet,
 			Path:    "/integrations/storages",
 			Func:    listStorages,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/integrations/storages/:storageName",
+			Func:    getStorage,
 		},
 		{
 			Version: apis.V1,
@@ -65,6 +72,37 @@ func listStorages(c *gin.Context) {
 		c,
 		"fetch integrated storages successfully",
 		storages,
+	)
+}
+
+func getStorage(c *gin.Context) {
+	h, err := initHelper(c, "getStorage")
+	if err != nil {
+		log.Errorf("integrations(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	found, err := cubecos.CheckStorageExist(h.storageReqOpts.Name)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+	if !found {
+		bodies.SetNotFound(c, fmt.Errorf("storage %s not found", h.storageReqOpts.Name))
+		return
+	}
+
+	storage, err := cubecos.GetStorage(h.storageReqOpts.Name)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"fetch integrated storage details successfully",
+		storage,
 	)
 }
 

@@ -51,6 +51,38 @@ func ListStorages() ([]storages.Cinder, error) {
 	return list, nil
 }
 
+func CheckStorageExist(name string) (bool, error) {
+	storages, err := ListStorages()
+	if err != nil {
+		return false, err
+	}
+
+	for _, storage := range storages {
+		if storage.Name == name {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func GetStorage(name string) (*storages.Cinder, error) {
+	storages, err := ListStorages()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, storage := range storages {
+		if storage.Name == name {
+			return &storage, nil
+		}
+	}
+
+	return nil, fmt.Errorf(
+		"storage %s not found", name,
+	)
+}
+
 func ListModels() ([]storages.Model, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
 	defer cancel()

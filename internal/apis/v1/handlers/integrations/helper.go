@@ -13,6 +13,8 @@ type helper struct {
 	c       *gin.Context
 	reqId   string
 	handler string
+
+	storageReqOpts storages.ReqOpts
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {

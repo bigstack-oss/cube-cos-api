@@ -4,6 +4,10 @@ const (
 	CinderConf = "/etc/cinder/cinder.conf"
 )
 
+type ReqOpts struct {
+	Name string
+}
+
 type Cinder struct {
 	Name       string `json:"name" yaml:"name" bson:"name"`
 	IsExternal bool   `json:"isExternal" yaml:"isExternal" bson:"isExternal"`
