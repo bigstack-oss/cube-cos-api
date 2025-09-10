@@ -41,7 +41,7 @@ func ImportImage(opts *images.CreateOpts) error {
 		return err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("failed to import image %s(%v)", opts.Name, err)
 		return err
 	}

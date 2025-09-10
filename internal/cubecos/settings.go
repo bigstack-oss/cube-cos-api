@@ -335,7 +335,7 @@ func ApplyScript(scriptFiles []string) error {
 			return err
 		}
 
-		if !IsHexSdkSuccess(err) {
+		if !IsHexSuccessful(err) {
 			err := fmt.Errorf("failed to apply script %s(%v %s)", scriptFile, err, string(out))
 			log.Errorf("settings: %v", err)
 			return err

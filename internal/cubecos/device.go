@@ -23,7 +23,7 @@ func AddDevice(req nodes.DeviceReqOpts) error {
 		return err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		return fmt.Errorf(
 			"failed to add device %s(%v %s)",
 			req.Device, err, string(out),
@@ -46,7 +46,7 @@ func PromoteOrDemoteDevice(req nodes.DeviceReqOpts) error {
 		return err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		return fmt.Errorf(
 			"failed to update device %s(%v %s)",
 			req.Device, err, string(out),
@@ -66,7 +66,7 @@ func RemoveDevice(req nodes.DeviceReqOpts) error {
 		return err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		return fmt.Errorf(
 			"failed to remove device %s(%v %s)",
 			req.Device, err, string(out),

@@ -41,7 +41,7 @@ func GetSystemSerial() (string, error) {
 		return "", err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		return "", fmt.Errorf("failed to get system serial by hex sdk(%v)", err)
 	}
 
@@ -58,7 +58,7 @@ func IsExpectedEmptyStdOut(err error) bool {
 	return exitErr.ExitCode() == 255
 }
 
-func IsHexSdkSuccess(err error) bool {
+func IsHexSuccessful(err error) bool {
 	if err == nil {
 		return true
 	}
@@ -129,7 +129,7 @@ func RolloutNodesByPowerCycle() error {
 		return err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("failed to rollout nodes by power cycle by hex sdk(%s)", string(out))
 		log.Errorf("os: %v", err)
 		return err

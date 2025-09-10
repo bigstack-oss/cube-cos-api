@@ -45,7 +45,7 @@ func GetTriggers() ([]triggers.Trigger, error) {
 		return nil, err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("triggers: failed to apply trigger: %s", string(out))
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func ApplyTrigger(trigger triggers.Trigger) error {
 		return err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("triggers: failed to apply trigger: %s", string(out))
 		return err
 	}
@@ -88,7 +88,7 @@ func DeleteTrigger(trigger triggers.Trigger) error {
 		return err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("triggers: failed to delete trigger: %s", string(out))
 		return err
 	}
@@ -104,7 +104,7 @@ func GetPredefinedEvents() ([]events.Event, error) {
 		return nil, err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("failed to get predefined event list(%v %s)", err, string(out))
 		log.Errorf("events: %v", err)
 		return nil, err

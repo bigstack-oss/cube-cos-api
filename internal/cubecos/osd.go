@@ -23,7 +23,7 @@ func WaitOsdStatus(id, status string, timeout int) error {
 			continue
 		}
 
-		if !IsHexSdkSuccess(err) {
+		if !IsHexSuccessful(err) {
 			err := fmt.Errorf("failed to wait %s status(%v %s)", id, err, string(out))
 			log.Errorf("nodes: %v", err)
 			continue
@@ -74,7 +74,7 @@ func RestartOsd(req nodes.OsdReqOpts) error {
 		return err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		return fmt.Errorf(
 			"failed to restart osd %s(%v %s)",
 			service, err, string(out),
@@ -94,7 +94,7 @@ func RemoveOsd(req nodes.OsdReqOpts) error {
 		return err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		return fmt.Errorf(
 			"failed to remove osd %s(%v %s)",
 			req.OsdId, err, string(out),
@@ -115,7 +115,7 @@ func ReweightOsd(req nodes.OsdReqOpts) error {
 		return err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		return fmt.Errorf(
 			"failed to reweight osd %s(%v %s)",
 			req.OsdId, err, string(out),

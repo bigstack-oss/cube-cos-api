@@ -12,7 +12,7 @@ func GetOpenSearchRequestLink(requestId string) (string, error) {
 		return "", err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		return "", fmt.Errorf("failed to get openserach request link from cos: %s", string(out))
 	}
 

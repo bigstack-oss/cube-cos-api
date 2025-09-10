@@ -39,7 +39,7 @@ func UpgradeFirmware(req *firmwares.ReqOpts) error {
 		log.Errorf("firmwares: %v", err)
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		return fmt.Errorf("failed to upgrade firmware %s(%v %s)", req.Version, err, string(out))
 	}
 

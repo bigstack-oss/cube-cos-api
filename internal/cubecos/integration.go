@@ -34,7 +34,7 @@ func ListStorages() ([]storages.Cinder, error) {
 		return nil, err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		err := genIntegrationErr("storage output failure")
 		log.Errorf("storage: %s (%s)", err.Error(), string(out))
 		return nil, err
@@ -93,7 +93,7 @@ func ListModels() ([]storages.Model, error) {
 		return nil, err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		err := genIntegrationErr("model output failure")
 		log.Errorf("storage: %s (%s)", err.Error(), string(out))
 		return nil, err

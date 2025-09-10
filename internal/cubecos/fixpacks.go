@@ -162,7 +162,7 @@ func InstallFixpack(req *fixpacks.ReqOpts) error {
 		return err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("failed to install fixpack %s(%s)", req.Version, string(out))
 		log.Errorf("fixpack: %v", err)
 		return err
@@ -179,7 +179,7 @@ func RollbackFixpack() error {
 		return err
 	}
 
-	if !IsHexSdkSuccess(err) {
+	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("failed to rollback fixpack(%s)", string(out))
 		log.Errorf("fixpack: %v", err)
 		return err
