@@ -33,6 +33,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/integrations/storages",
+			Func:    createStorage,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/integrations/storages/:storageName",
 			Func:    getStorage,
@@ -48,6 +54,18 @@ var (
 			Method:  http.MethodGet,
 			Path:    "/integrations/storages/models",
 			Func:    listModels,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/integrations/storages/tasks",
+			Func:    updateStorageTask,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/integrations/storages/models/tasks",
+			Func:    updateModelTask,
 		},
 	}
 )
@@ -112,6 +130,31 @@ func getStorage(c *gin.Context) {
 	)
 }
 
+func createStorage(c *gin.Context) {
+	h, err := initHelper(c, "createStorage")
+	if err != nil {
+		log.Errorf("integrations(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	found, err := cubecos.CheckStorageExist(h.storageReqOpts.Name)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+	if found {
+		bodies.SetNotFound(c, fmt.Errorf("storage %s already exists", h.storageReqOpts.Name))
+		return
+	}
+
+	h.updateStorageToControllers()
+	bodies.SetAccepted(
+		c,
+		"create integrated storage successfully",
+	)
+}
+
 func listVendors(c *gin.Context) {
 	h, err := initHelper(c, "listVendors")
 	if err != nil {
@@ -151,5 +194,63 @@ func listModels(c *gin.Context) {
 		c,
 		"fetch integrated models successfully",
 		models,
+	)
+}
+
+func updateStorageTask(c *gin.Context) {
+	h, err := initHelper(c, "updateStorageTask")
+	if err != nil {
+		log.Errorf("storages(%s): failed to init request helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.checkTaskUpdateReq()
+	if err != nil {
+		log.Errorf("storages(%s): failed to check storage task(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.updateStorageTask()
+	if err != nil {
+		log.Errorf("storages(%s): failed to update storage status(%v)", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"storage status updated",
+		nil,
+	)
+}
+
+func updateModelTask(c *gin.Context) {
+	h, err := initHelper(c, "updateModelTask")
+	if err != nil {
+		log.Errorf("storages(%s): failed to init request helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.checkTaskUpdateReq()
+	if err != nil {
+		log.Errorf("storages(%s): failed to check model task(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.updateModelTask()
+	if err != nil {
+		log.Errorf("storages(%s): failed to update model status(%v)", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"model status updated",
+		nil,
 	)
 }

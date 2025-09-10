@@ -1,6 +1,8 @@
 package integrations
 
 import (
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
@@ -14,7 +16,11 @@ type helper struct {
 	reqId   string
 	handler string
 
+	mongo *mongo.Helper
+	http  *http.Helper
+
 	storageReqOpts storages.ReqOpts
+	modelReqOpts   storages.ModelReqOpts
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
@@ -22,6 +28,7 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 		c:       c,
 		reqId:   queries.GetReqId(c),
 		handler: handler,
+		mongo:   mongo.GetGlobalHelper(),
 	}
 
 	return h, h.parseParamsByHandler()

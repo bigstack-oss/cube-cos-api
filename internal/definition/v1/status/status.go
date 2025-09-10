@@ -172,6 +172,20 @@ type Fixpack struct {
 	Description    string `json:"description,omitempty" bson:"description"`
 }
 
+type Storage struct {
+	Current      string `json:"current,omitempty" bson:"current"`
+	Desired      string `json:"-" bson:"desired"`
+	IsProcessing bool   `json:"isProcessing" bson:"isProcessing"`
+	UpdatedAt    string `json:"updatedAt,omitempty" bson:"updatedAt"`
+}
+
+type Model struct {
+	Current      string `json:"current,omitempty" bson:"current"`
+	Desired      string `json:"-" bson:"desired"`
+	IsProcessing bool   `json:"isProcessing" bson:"isProcessing"`
+	UpdatedAt    string `json:"updatedAt,omitempty" bson:"updatedAt"`
+}
+
 type SystemUpdateProgress struct {
 	Current        string  `json:"current" bson:"current"`
 	IsProcessing   bool    `json:"isProcessing" bson:"isProcessing"`

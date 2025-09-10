@@ -307,3 +307,33 @@ func (n *Node) UpdateFixpackTaskUrl() string {
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/fixpacks/tasks", base.DataCenterName)
 	return u.String()
 }
+
+func (n *Node) PostStorageUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages", base.DataCenterName)
+	return u.String()
+}
+
+func (n *Node) PatchStorageUrl(name string) string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages/%s", base.DataCenterName, name)
+	return u.String()
+}
+
+func (n *Node) DeleteStorageUrl(name string) string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages/%s", base.DataCenterName, name)
+	return u.String()
+}
+
+func (n *Node) UpdateStorageTaskUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages/tasks", base.DataCenterName)
+	return u.String()
+}
+
+func (n *Node) UpdateModelTaskUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages/models/tasks", base.DataCenterName)
+	return u.String()
+}

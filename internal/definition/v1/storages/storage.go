@@ -1,11 +1,28 @@
 package storages
 
+import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+
 const (
-	CinderConf = "/etc/cinder/cinder.conf"
+	Db                 = "storages"
+	ReqCollection      = "storageRequests"
+	ModelReqCollection = "modelRequests"
+	CinderConf         = "/etc/cinder/cinder.conf"
 )
 
 type ReqOpts struct {
-	Name string
+	ReqId    string `json:"reqId" bson:"reqId"`
+	Name     string `json:"name" bson:"name"`
+	Hostname string `json:"hostname" bson:"hostname"`
+	Cinder   `json:"cinder" bson:"cinder"`
+	Status   status.Storage `json:"status" bson:"status"`
+}
+
+type ModelReqOpts struct {
+	ReqId    string `json:"reqId" bson:"reqId"`
+	Name     string `json:"name" bson:"name"`
+	Hostname string `json:"hostname" bson:"hostname"`
+	Model    `json:"model" bson:"model"`
+	Status   status.Model `json:"status" bson:"status"`
 }
 
 type Cinder struct {
@@ -49,4 +66,42 @@ type VolumeType struct {
 type Image struct {
 	UseMultipath   bool `json:"useMultipath" yaml:"useMultipath" bson:"useMultipath"`
 	ForceMultipath bool `json:"forceMultipath" yaml:"forceMultipath" bson:"forceMultipath"`
+}
+
+func (r *ReqOpts) SetCreating() {
+	r.Status.Current = status.Creating
+	r.Status.Desired = status.Created
+	r.Status.IsProcessing = true
+}
+
+func (r *ReqOpts) SetUpdating() {
+	r.Status.Current = status.Updating
+	r.Status.Desired = status.Updated
+	r.Status.IsProcessing = true
+}
+
+func (r *ReqOpts) SetDeleting() {
+	r.Status.Current = status.Deleting
+	r.Status.Desired = status.Deleted
+	r.Status.IsProcessing = true
+}
+
+func (r *ReqOpts) SetCompleted() {
+	r.Status.Current = status.Completed
+	r.Status.IsProcessing = false
+}
+
+func (r *ReqOpts) SetFailed() {
+	r.Status.Current = status.Failed
+	r.Status.IsProcessing = false
+}
+
+func (m *ModelReqOpts) SetCompleted() {
+	m.Status.Current = status.Completed
+	m.Status.IsProcessing = false
+}
+
+func (m *ModelReqOpts) SetFailed() {
+	m.Status.Current = status.Failed
+	m.Status.IsProcessing = false
 }
