@@ -3519,11 +3519,11 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/integrations/storages/models": {
             "get": {
-                "operationId": "listStorageModels",
+                "operationId": "listIntegratedStorageModels",
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "Retrieve the list of storage models",
+                "summary": "Retrieve the list of integrated storage models",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -3531,7 +3531,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Retrieve the list of storage models successfully",
+                        "description": "Retrieve the list of integrated storage models successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3539,7 +3539,7 @@ const docTemplate = `{
                                 },
                                 "examples": {
                                     "example1": {
-                                        "summary": "Storage models",
+                                        "summary": "Integrated storage models",
                                         "value": {
                                             "code": 200,
                                             "data": [
@@ -3677,6 +3677,94 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to fetch storage models: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/integrations/storages/vendors": {
+            "get": {
+                "operationId": "listIntegratedStorageVendors",
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Retrieve the list of integrated storage vendors",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the list of integrated storage vendors successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "description": "Integrated storage vendors",
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "data",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Storage vendors",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                "NetApp",
+                                                "Dell"
+                                            ],
+                                            "msg": "fetch integrated storage vendors successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch integrated storage vendors: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
