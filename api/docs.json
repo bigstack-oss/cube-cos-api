@@ -3382,6 +3382,149 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "operationId": "createIntegratedStorage",
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Create an integrated storage",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateIntegratedStorageRequest"
+                            },
+                            "examples": {
+                                "example1": {
+                                    "summary": "Create integrated storage request",
+                                    "value": {
+                                        "asDefault": true,
+                                        "name": "example-storage",
+                                        "isExternal": false,
+                                        "device": {
+                                            "vendor": "Dell",
+                                            "product": "PowerVault ME4024"
+                                        },
+                                        "storage": {
+                                            "service": {
+                                                "driverSection": [
+                                                    {
+                                                        "key": "volume_driver",
+                                                        "value": "cinder.volume.drivers.rbd.RBDDriver"
+                                                    }
+                                                ],
+                                                "extraSettings": [
+                                                    {
+                                                        "sectionHeader": "DEFAULT",
+                                                        "settings": [
+                                                            {
+                                                                "key": "enabled_backends",
+                                                                "value": "ceph"
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "volumeType": {
+                                                "settings": [
+                                                    {
+                                                        "key": "volume_backend_name",
+                                                        "value": "ceph"
+                                                    }
+                                                ]
+                                            },
+                                            "image": {
+                                                "useMultipath": true,
+                                                "forceMultipath": true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Receive the request to create an integrated storage successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 202
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "receive the request to create an integrated storage successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "storage name example-storage already exists"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to create integrated storage: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/v1/datacenters/{dataCenter}/integrations/storages/{storageName}": {
@@ -17808,6 +17951,97 @@
                     "status": {
                         "type": "string",
                         "example": "ok"
+                    }
+                }
+            },
+            "CreateIntegratedStorageRequest": {
+                "type": "object",
+                "required": [
+                    "asDefault",
+                    "name",
+                    "isExternal",
+                    "device",
+                    "storage"
+                ],
+                "properties": {
+                    "asDefault": {
+                        "type": "boolean"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "isExternal": {
+                        "type": "boolean"
+                    },
+                    "device": {
+                        "type": "object",
+                        "required": [
+                            "vendor",
+                            "product"
+                        ],
+                        "properties": {
+                            "vendor": {
+                                "type": "string"
+                            },
+                            "product": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "storage": {
+                        "type": "object",
+                        "required": [
+                            "service",
+                            "volumeType",
+                            "image"
+                        ],
+                        "properties": {
+                            "service": {
+                                "type": "object",
+                                "required": [
+                                    "driverSection",
+                                    "extraSettings",
+                                    "extraConfigFiles"
+                                ],
+                                "properties": {
+                                    "driverSection": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/StorageKeyValuePair"
+                                        }
+                                    }
+                                }
+                            },
+                            "volumeType": {
+                                "type": "object",
+                                "required": [
+                                    "settings"
+                                ],
+                                "properties": {
+                                    "settings": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/StorageKeyValuePair"
+                                        }
+                                    }
+                                }
+                            },
+                            "image": {
+                                "type": "object",
+                                "required": [
+                                    "useMultipath",
+                                    "forceMultipath"
+                                ],
+                                "properties": {
+                                    "useMultipath": {
+                                        "type": "boolean"  
+                                    },
+                                    "forceMultipath": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             },
