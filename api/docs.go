@@ -3388,6 +3388,135 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/integrations/storages/{storageName}": {
+            "get": {
+                "operationId": "getIntegratedStorage",
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Retrieve the details of an integrated storage",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/storageName"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the details of an integrated storage successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetIntegratedStorageResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Integrated storage details",
+                                        "value": {
+                                            "code": 200,
+                                            "data": {
+                                                "name": "CubeStorage",
+                                                "isExternal": false,
+                                                "device": {
+                                                    "vendor": "Dell",
+                                                    "product": "PowerVault ME4024"
+                                                },
+                                                "storage": {
+                                                    "service": {
+                                                        "driverSection": [
+                                                            {
+                                                                "key": "volume_driver",
+                                                                "value": "cinder.volume.drivers.rbd.RBDDriver"
+                                                            }
+                                                        ],
+                                                        "extraSettings": [
+                                                            {
+                                                                "sectionHeader": "DEFAULT",
+                                                                "settings": [
+                                                                    {
+                                                                        "key": "enabled_backends",
+                                                                        "value": "ceph"
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "volumeType": {
+                                                        "settings": [
+                                                            {
+                                                                "key": "volume_backend_name",
+                                                                "value": "ceph"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "image": {
+                                                        "useMultipath": true,
+                                                        "forceMultipath": true
+                                                    },
+                                                    "updateTime": "2025-09-09T12:00:00+08:00"
+                                                }
+                                            },
+                                            "msg": "fetch integrated storage details successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "storage example-storage not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch integrated storage details: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/integrations/storages/models": {
             "get": {
                 "operationId": "listStorageModels",
@@ -16352,6 +16481,15 @@ const docTemplate = `{
                     ]
                 },
                 "description": "Visibility setting for the image(only required when sourceFromAnotherHypervisor is false)."
+            },
+            "storageName": {
+                "name": "storageName",
+                "in": "path",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The name of the integrated storage."
             }
         },
         "schemas": {
@@ -17588,6 +17726,139 @@ const docTemplate = `{
                         "example": "ok"
                     }
                 }
+            },
+            "GetIntegratedStorageResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "isExternal",
+                            "device",
+                            "storage"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "isExternal": {
+                                "type": "boolean"
+                            },
+                            "device": {
+                                "type": "object",
+                                "required": [
+                                    "vendor",
+                                    "product"
+                                ],
+                                "properties": {
+                                    "vendor": {
+                                        "type": "string"
+                                    },
+                                    "product": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "storage": {
+                                "type": "object",
+                                "required": [
+                                    "service",
+                                    "volumeType",
+                                    "image",
+                                    "updateTime"
+                                ],
+                                "properties": {
+                                    "service": {
+                                        "type": "object",
+                                        "required": [
+                                            "driverSection",
+                                            "extraSettings"
+                                        ],
+                                        "properties": {
+                                            "driverSection": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/StorageKeyValuePair"
+                                                }
+                                            },
+                                            "extraSettings": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "sectionHeader",
+                                                        "settings"
+                                                    ],
+                                                    "properties": {
+                                                        "sectionHeader": {
+                                                            "type": "string"
+                                                        },
+                                                        "settings": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/components/schemas/StorageKeyValuePair"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "volumeType": {
+                                        "type": "object",
+                                        "required": [
+                                            "settings"
+                                        ],
+                                        "properties": {
+                                            "settings": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/StorageKeyValuePair"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "image": {
+                                        "type": "object",
+                                        "required": [
+                                            "useMultipath",
+                                            "forceMultipath"
+                                        ],
+                                        "properties": {
+                                            "useMultipath": {
+                                                "type": "boolean"
+                                            },
+                                            "forceMultipath": {
+                                                "type": "boolean"
+                                            }
+                                        }
+                                    },
+                                    "updateTime": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }           
             },
             "ListIntegratedStorageModelsResponse": {
                 "type": "object",
