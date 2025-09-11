@@ -128,6 +128,25 @@ func CreateStorage(req storages.ReqOpts) error {
 	return nil
 }
 
+func DeleteStorage(name string) error {
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_delete_storage", name).CombinedOutput()
+	if err != nil {
+		err := genIntegrationErr("storage exec failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return err
+	}
+
+	if !IsHexSuccessful(err) {
+		err := genIntegrationErr("storage output failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return err
+	}
+
+	return nil
+}
+
 func ListVendors() ([]string, error) {
 	models, err := ListModels()
 	if err != nil {

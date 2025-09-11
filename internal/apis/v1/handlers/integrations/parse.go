@@ -13,6 +13,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseGetStorageParams()
 	case "createStorage":
 		return h.parseCreateStorageParams()
+	case "updateStorage":
+		return h.parseUpdateStorageParams()
 	case "updateStorageTask":
 		return h.parseUpdateStorageTaskOptions()
 	default:
@@ -42,6 +44,22 @@ func (h *helper) parseCreateStorageParams() error {
 	h.storageReqOpts.ReqId = h.reqId
 	h.storageReqOpts.Hostname = base.Hostname
 	h.storageReqOpts.SetCreating()
+	return nil
+}
+
+func (h *helper) parseUpdateStorageParams() error {
+	err := h.c.ShouldBindJSON(&h.storageReqOpts.Cinder)
+	if err != nil {
+		return err
+	}
+
+	if h.storageReqOpts.Name == "" {
+		return errors.New("storage name is required")
+	}
+
+	h.storageReqOpts.ReqId = h.reqId
+	h.storageReqOpts.Hostname = base.Hostname
+	h.storageReqOpts.SetUpdating()
 	return nil
 }
 
