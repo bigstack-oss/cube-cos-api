@@ -26,7 +26,16 @@ func (o *Operator) operateStorageReq(req storages.ReqOpts) error {
 }
 
 func (o *Operator) updateStorage(req storages.ReqOpts) error {
-	return nil
+	err := cubecos.CreateStorage(req)
+	if err != nil {
+		return err
+	}
+
+	if !req.Cinder.AsDefault {
+		return nil
+	}
+
+	return cubecos.SetDefaultStorage(req.Name)
 }
 
 func (o *Operator) deleteStorage(req storages.ReqOpts) error {

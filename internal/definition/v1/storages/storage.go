@@ -26,6 +26,7 @@ type ModelReqOpts struct {
 }
 
 type Cinder struct {
+	AsDefault  bool   `json:"asDefault" yaml:"asDefault" bson:"asDefault"`
 	Name       string `json:"name" yaml:"name" bson:"name"`
 	IsExternal bool   `json:"isExternal" yaml:"isExternal" bson:"isExternal"`
 	Device     `json:"device" yaml:"device" bson:"device"`

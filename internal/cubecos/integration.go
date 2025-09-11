@@ -13,6 +13,25 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
+func SetDefaultStorage(name string) error {
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_set_default_storage", name).CombinedOutput()
+	if err != nil {
+		err := genIntegrationErr("set default storage exec failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return err
+	}
+
+	if !IsHexSuccessful(err) {
+		err := genIntegrationErr("set default storage output failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return err
+	}
+
+	return nil
+}
+
 func ListBuiltInApplications() []integration.Service {
 	if !datacenter.IsCloudType() {
 		return integration.GetCommonServices()
@@ -81,6 +100,32 @@ func GetStorage(name string) (*storages.Cinder, error) {
 	return nil, fmt.Errorf(
 		"storage %s not found", name,
 	)
+}
+
+func CreateStorage(req storages.ReqOpts) error {
+	input, err := json.Marshal(req)
+	if err != nil {
+		err := genIntegrationErr("storage req parsing failure")
+		log.Errorf("storage: %s (%v)", err.Error(), err)
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_put_storage", string(input)).CombinedOutput()
+	if err != nil {
+		err := genIntegrationErr("storage exec failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return err
+	}
+
+	if !IsHexSuccessful(err) {
+		err := genIntegrationErr("storage output failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return err
+	}
+
+	return nil
 }
 
 func ListVendors() ([]string, error) {
