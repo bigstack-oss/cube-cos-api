@@ -3654,6 +3654,152 @@
                         }
                     }
                 }
+            },
+            "patch": {
+                "operationId": "updateIntegratedStorage",
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Update an integrated storage",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/storageName"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateIntegratedStorageRequest"
+                            },
+                            "examples": {
+                                "example1": {
+                                    "summary": "Update integrated storage request",
+                                    "value": {
+                                        "asDefault": true,
+                                        "storage": {
+                                            "service": {
+                                                "driverSection": [
+                                                    {
+                                                        "key": "volume_driver",
+                                                        "value": "cinder.volume.drivers.lvm.LVMVolumeDriver"
+                                                    }
+                                                ],
+                                                "extraSettings": [
+                                                    {
+                                                        "sectionHeader": "DEFAULT",
+                                                        "settings": [
+                                                            {
+                                                                "key": "enabled_backends",
+                                                                "value": "lvm"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "extraConfigFiles": [
+                                                    {
+                                                        "name": "test.conf",
+                                                        "content": "ZmlsZSBjb250ZW50IGluIGJhc2U2NA=="
+                                                    }
+                                                ]
+                                            },
+                                            "volumeType": {
+                                                "settings": [
+                                                    {
+                                                        "key": "volume_backend_name",
+                                                        "value": "lvm"
+                                                    }
+                                                ]
+                                            },
+                                            "image": {
+                                                "useMultipath": true,
+                                                "forceMultipath": true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Receive the request to update an integrated storage successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 202
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "receive the request to update an integrated storage successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "storage example-storage not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to update integrated storage: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/v1/datacenters/{dataCenter}/integrations/storages/models": {
