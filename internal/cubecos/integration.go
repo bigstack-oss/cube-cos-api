@@ -129,9 +129,17 @@ func CreateStorage(req storages.ReqOpts) error {
 }
 
 func DeleteStorage(name string) error {
+	nameMap := map[string]string{"name": name}
+	input, err := json.Marshal(nameMap)
+	if err != nil {
+		err := genIntegrationErr("storage req parsing failure")
+		log.Errorf("storage: %s (%v)", err.Error(), err)
+		return err
+	}
+
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
 	defer cancel()
-	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_delete_storage", name).CombinedOutput()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_delete_storage", string(input)).CombinedOutput()
 	if err != nil {
 		err := genIntegrationErr("storage exec failure")
 		log.Errorf("storage: %s (%s)", err.Error(), string(out))

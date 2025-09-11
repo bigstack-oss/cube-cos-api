@@ -15,7 +15,7 @@ func (o *Operator) operateStorageReq(req storages.ReqOpts) error {
 	case status.Created, status.Updated:
 		return o.updateStorage(req)
 	case status.Deleted:
-		return o.deleteStorage(req)
+		return cubecos.DeleteStorage(req.Name)
 	}
 
 	return fmt.Errorf(
@@ -36,10 +36,6 @@ func (o *Operator) updateStorage(req storages.ReqOpts) error {
 	}
 
 	return cubecos.SetDefaultStorage(req.Name)
-}
-
-func (o *Operator) deleteStorage(req storages.ReqOpts) error {
-	return nil
 }
 
 func (o *Operator) handleStorageExit(req storages.ReqOpts, err error) {
