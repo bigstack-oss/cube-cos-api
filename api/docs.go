@@ -3457,7 +3457,7 @@ const docTemplate = `{
                 },
                 "responses": {
                     "202": {
-                        "description": "Receive the request to integrate a storage successfully",
+                        "description": "Receive the request to integrate a storage successfully, processing",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3469,7 +3469,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "receive the request to integrate a storage successfully"
+                                            "example": "receive the request to integrate a storage successfully, processing"
                                         },
                                         "status": {
                                             "type": "string",
@@ -3732,7 +3732,7 @@ const docTemplate = `{
                 },
                 "responses": {
                     "202": {
-                        "description": "Receive the request to update an integrated storage successfully",
+                        "description": "Receive the request to update an integrated storage successfully, processing",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3744,7 +3744,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "receive the request to update an integrated storage successfully"
+                                            "example": "receive the request to update an integrated storage successfully, processing"
                                         },
                                         "status": {
                                             "type": "string",
@@ -3793,6 +3793,95 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to update integrated storage: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteIntegratedStorage",
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Delete an integrated storage",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/storageName"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Receive the request to delete an integrated storage successfully, processing",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 202
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "receive the request to delete an integrated storage successfully, processing"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "storage example-storage not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to delete integrated storage: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
