@@ -39,7 +39,7 @@ var (
 		},
 		{
 			Version: apis.V1,
-			Method:  http.MethodPost,
+			Method:  http.MethodPatch,
 			Path:    "/integrations/storages/:storageName",
 			Func:    updateStorage,
 		},
@@ -75,14 +75,20 @@ var (
 		},
 		{
 			Version: apis.V1,
-			Method:  http.MethodPatch,
-			Path:    "/integrations/storages/models/{:vendor}/{:product}",
+			Method:  http.MethodPut,
+			Path:    "/integrations/storages/models",
+			Func:    updateAllStorageModels,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPut,
+			Path:    "/integrations/storages/models/:vendor/:product",
 			Func:    updateStorageModel,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodDelete,
-			Path:    "/integrations/storages/models/{:vendor}/{:product}",
+			Path:    "/integrations/storages/models/:vendor/:product",
 			Func:    deleteStorageModel,
 		},
 		{
@@ -328,6 +334,21 @@ func createStorageModel(c *gin.Context) {
 	bodies.SetAccepted(
 		c,
 		"received create integrated storage model request successfully, processing",
+	)
+}
+
+func updateAllStorageModels(c *gin.Context) {
+	h, err := initHelper(c, "updateAllStorageModels")
+	if err != nil {
+		log.Errorf("integrations(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	h.updateAllStorageModelsToControllers()
+	bodies.SetAccepted(
+		c,
+		"received update all integrated storage models request successfully, processing",
 	)
 }
 

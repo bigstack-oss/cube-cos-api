@@ -19,8 +19,9 @@ type helper struct {
 	mongo *mongo.Helper
 	http  *http.Helper
 
-	storageReqOpts storages.ReqOpts
-	modelReqOpts   storages.ModelReqOpts
+	storageReqOpts    storages.ReqOpts
+	modelReqOpts      storages.ModelReqOpts
+	batchModelReqOpts []storages.ModelReqOpts
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {

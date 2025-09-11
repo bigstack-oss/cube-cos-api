@@ -115,6 +115,45 @@ func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
 	return headerMap
 }
 
+func (h *helper) updateAllStorageModelsToControllers() {
+	batchStorageModelReqOpts := h.initBatchStorageModelReqOpts()
+	for _, modelReqOpt := range batchStorageModelReqOpts {
+		h.modelReqOpts = modelReqOpt
+		h.updateStorageModelToControllers()
+	}
+}
+
+func (h *helper) initBatchStorageModelReqOpts() []defstorages.ModelReqOpts {
+	currents, err := h.listModels()
+	if err != nil {
+		log.Errorf("storages(%s): failed to list current storage models(%v)", h.reqId, err)
+		return nil
+	}
+
+	inited := []defstorages.ModelReqOpts{}
+	for _, modelReqOpts := range h.batchModelReqOpts {
+		found := false
+		for _, current := range currents {
+			if modelReqOpts.Vendor == current.Vendor && modelReqOpts.Product == current.Product {
+				found = true
+				break
+			}
+		}
+
+		modelReqOpts.ReqId = h.reqId
+		modelReqOpts.Hostname = base.Hostname
+		if found {
+			modelReqOpts.SetUpdating()
+		} else {
+			modelReqOpts.SetDeleting()
+		}
+
+		inited = append(inited, modelReqOpts)
+	}
+
+	return inited
+}
+
 func (h *helper) updateStorageModelToControllers() {
 	h.updateStorageModelToLocal()
 	h.updateStorageModelToPeers()

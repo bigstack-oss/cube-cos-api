@@ -1,6 +1,7 @@
 package integrations
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -23,6 +24,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseCreateStorageModelParams()
 	case "updateStorageModel":
 		return h.parseUpdateStorageModelParams()
+	case "updateAllStorageModels":
+		return h.parseUpdateAllStorageModelParams()
 	case "deleteStorageModel":
 		return h.parseDeleteStorageModelParams()
 	default:
@@ -138,6 +141,33 @@ func (h *helper) parseUpdateStorageModelParams() error {
 	h.modelReqOpts.ReqId = h.reqId
 	h.modelReqOpts.Hostname = base.Hostname
 	h.modelReqOpts.SetUpdating()
+	return nil
+}
+
+func (h *helper) parseUpdateAllStorageModelParams() error {
+	err := h.c.ShouldBindYAML(&h.batchModelReqOpts)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to parse batch storage model options(%v)",
+			err,
+		)
+	}
+
+	for _, reqOpts := range h.batchModelReqOpts {
+		b, err := json.Marshal(reqOpts)
+		if err != nil {
+			return fmt.Errorf("failed to marshal storage model options(%v)", err)
+		}
+
+		if reqOpts.Vendor == "" {
+			return fmt.Errorf("has empty vendor in the %s", string(b))
+		}
+
+		if reqOpts.Product == "" {
+			return fmt.Errorf("has empty product in the %s", string(b))
+		}
+	}
+
 	return nil
 }
 
