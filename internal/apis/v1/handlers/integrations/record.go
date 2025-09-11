@@ -34,7 +34,7 @@ func (h *helper) updateStorageTask() error {
 		storages.ReqCollection,
 		bson.M{
 			"hostname": h.storageReqOpts.Hostname,
-			"device":   h.storageReqOpts.Name,
+			"name":     h.storageReqOpts.Name,
 			"reqId":    h.storageReqOpts.ReqId,
 		},
 	)
@@ -46,7 +46,8 @@ func (h *helper) updateModelTask() error {
 		storages.ModelReqCollection,
 		bson.M{
 			"hostname": h.modelReqOpts.Hostname,
-			"device":   h.modelReqOpts.Name,
+			"vendor":   h.modelReqOpts.Vendor,
+			"product":  h.modelReqOpts.Product,
 			"reqId":    h.modelReqOpts.ReqId,
 		},
 	)

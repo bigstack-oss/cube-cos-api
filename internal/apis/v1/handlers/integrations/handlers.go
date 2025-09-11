@@ -69,6 +69,24 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/integrations/storages/models",
+			Func:    createStorageModel,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/integrations/storages/models/{:vendor}/{:product}",
+			Func:    updateStorageModel,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodDelete,
+			Path:    "/integrations/storages/models/{:vendor}/{:product}",
+			Func:    deleteStorageModel,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/integrations/storages/tasks",
 			Func:    updateStorageTask,
@@ -285,6 +303,81 @@ func updateStorageTask(c *gin.Context) {
 		c,
 		"storage status updated",
 		nil,
+	)
+}
+
+func createStorageModel(c *gin.Context) {
+	h, err := initHelper(c, "createStorageModel")
+	if err != nil {
+		log.Errorf("integrations(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	found, err := cubecos.CheckStorageModelExist(h.modelReqOpts.Vendor, h.modelReqOpts.Product)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+	if found {
+		bodies.SetConflict(c, fmt.Errorf("storage model '%s %s' already exists", h.modelReqOpts.Vendor, h.modelReqOpts.Product))
+		return
+	}
+
+	h.updateStorageModelToControllers()
+	bodies.SetAccepted(
+		c,
+		"received create integrated storage model request successfully, processing",
+	)
+}
+
+func updateStorageModel(c *gin.Context) {
+	h, err := initHelper(c, "updateStorageModel")
+	if err != nil {
+		log.Errorf("integrations(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	found, err := cubecos.CheckStorageModelExist(h.modelReqOpts.Vendor, h.modelReqOpts.Product)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+	if !found {
+		bodies.SetNotFound(c, fmt.Errorf("storage model '%s %s' not found", h.modelReqOpts.Vendor, h.modelReqOpts.Product))
+		return
+	}
+
+	h.updateStorageModelToControllers()
+	bodies.SetAccepted(
+		c,
+		"received update integrated storage model request successfully, processing",
+	)
+}
+
+func deleteStorageModel(c *gin.Context) {
+	h, err := initHelper(c, "deleteStorageModel")
+	if err != nil {
+		log.Errorf("integrations(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	found, err := cubecos.CheckStorageModelExist(h.modelReqOpts.Vendor, h.modelReqOpts.Product)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+	if !found {
+		bodies.SetNotFound(c, fmt.Errorf("storage model '%s %s' not found", h.modelReqOpts.Vendor, h.modelReqOpts.Product))
+		return
+	}
+
+	h.updateStorageModelToControllers()
+	bodies.SetAccepted(
+		c,
+		"received delete integrated storage model request successfully, processing",
 	)
 }
 

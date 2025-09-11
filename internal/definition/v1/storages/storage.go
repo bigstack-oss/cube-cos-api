@@ -19,7 +19,6 @@ type ReqOpts struct {
 
 type ModelReqOpts struct {
 	ReqId    string `json:"reqId" bson:"reqId"`
-	Name     string `json:"name" bson:"name"`
 	Hostname string `json:"hostname" bson:"hostname"`
 	Model    `json:"model" bson:"model"`
 	Status   status.Model `json:"status" bson:"status"`
@@ -95,6 +94,24 @@ func (r *ReqOpts) SetCompleted() {
 func (r *ReqOpts) SetFailed() {
 	r.Status.Current = status.Failed
 	r.Status.IsProcessing = false
+}
+
+func (m *ModelReqOpts) SetCreating() {
+	m.Status.Current = status.Creating
+	m.Status.Desired = status.Created
+	m.Status.IsProcessing = true
+}
+
+func (m *ModelReqOpts) SetUpdating() {
+	m.Status.Current = status.Updating
+	m.Status.Desired = status.Updated
+	m.Status.IsProcessing = true
+}
+
+func (m *ModelReqOpts) SetDeleting() {
+	m.Status.Current = status.Deleting
+	m.Status.Desired = status.Deleted
+	m.Status.IsProcessing = true
 }
 
 func (m *ModelReqOpts) SetCompleted() {

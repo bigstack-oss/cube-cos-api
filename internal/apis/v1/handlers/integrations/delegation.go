@@ -15,7 +15,8 @@ import (
 )
 
 var (
-	reqQueue = storages.ReqQueue
+	reqQueue      = storages.ReqQueue
+	modelReqQueue = storages.ModelReqQueue
 )
 
 func (h *helper) updateStorageToControllers() {
@@ -112,4 +113,88 @@ func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
 
 	maps.Copy(headerMap, nodes.GetSecretHeaders())
 	return headerMap
+}
+
+func (h *helper) updateStorageModelToControllers() {
+	h.updateStorageModelToLocal()
+	h.updateStorageModelToPeers()
+}
+
+func (h *helper) updateStorageModelToLocal() {
+	if cubecos.IsVirtualIpOwner(base.Hostname) {
+		h.addReqRecord()
+	}
+
+	reqQueue.Add(&h.storageReqOpts)
+}
+
+func (h *helper) updateStorageModelToPeers() {
+	if !cubecos.IsVirtualIpOwner(base.Hostname) {
+		return
+	}
+
+	nodes, err := nodes.GetPeerControls()
+	if err != nil {
+		log.Errorf("storages(%s): failed to get peer controller nodes: %v", h.reqId, err)
+		return
+	}
+
+	for _, node := range nodes {
+		h.updatePeerStorageModel(node)
+	}
+}
+
+func (h *helper) updatePeerStorageModel(node nodes.Node) error {
+	reqOpts, err := h.genPeerStorageModelReq(node.Hostname)
+	if err != nil {
+		return nil
+	}
+
+	url := h.getStorageModelUrlByHandler(node)
+	req := h.http.R().
+		SetHeaders(h.convertHeadersToMap(h.c.Request.Header)).
+		SetBody(string(reqOpts))
+	resp, err := req.Execute(h.c.Request.Method, url)
+	if err != nil {
+		log.Errorf(
+			"storages(%s): failed to update peer storage model %s(%v)",
+			h.reqId, node.Hostname, err,
+		)
+		return err
+	}
+
+	if resp.IsError() {
+		log.Errorf(
+			"storages(%s): has resp error during updating peer storage model on node %s(%s)",
+			h.reqId, node.Hostname, resp.String(),
+		)
+		return err
+	}
+
+	return nil
+}
+
+func (h *helper) getStorageModelUrlByHandler(node nodes.Node) string {
+	switch h.handler {
+	case "creaeteStorage":
+		return node.PostStorageModelUrl()
+	case "updateStorage":
+		return node.PatchStorageModelUrl(h.modelReqOpts.Vendor, h.modelReqOpts.Product)
+	case "deleteStorage":
+		return node.DeleteStorageModelUrl(h.modelReqOpts.Vendor, h.modelReqOpts.Product)
+	default:
+		return node.PostStorageModelUrl()
+	}
+}
+
+func (h *helper) genPeerStorageModelReq(hostname string) ([]byte, error) {
+	modelReqOpts := deepcopy.Copy(h.modelReqOpts).(defstorages.ModelReqOpts)
+	modelReqOpts.Hostname = hostname
+	req, err := json.Marshal(modelReqOpts)
+	if err != nil {
+		log.Errorf("storages(%s): failed to marshal storage model request for node %s(%v)", h.reqId, hostname, err)
+		return nil, err
+	}
+
+	return req, nil
 }

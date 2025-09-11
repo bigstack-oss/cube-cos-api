@@ -13,32 +13,25 @@ import (
 func (o *Operator) operateModelReq(req storages.ModelReqOpts) error {
 	switch req.Status.Desired {
 	case status.Created, status.Updated:
-		return o.updateModel(req)
+		return cubecos.UpdateStorageModel(req)
 	case status.Deleted:
-		return o.deleteModel(req)
+		return cubecos.DeleteStorageModel(req)
 	}
 
 	return fmt.Errorf(
-		"unknown desired action(%s) for model(%s)",
+		"unknown desired action(%s) for model(%s %s)",
 		req.Status.Desired,
-		req.Name,
+		req.Vendor,
+		req.Product,
 	)
-}
-
-func (o *Operator) updateModel(req storages.ModelReqOpts) error {
-	return nil
-}
-
-func (o *Operator) deleteModel(req storages.ModelReqOpts) error {
-	return nil
 }
 
 func (o *Operator) handleModelExit(req storages.ModelReqOpts, err error) {
 	if err != nil {
-		log.Errorf("storages: failed to %s %s(%v)", req.Status.Desired, req.Name, err)
+		log.Errorf("storages: failed to %s %s %s(%v)", req.Status.Desired, req.Vendor, req.Model, err)
 		req.SetFailed()
 	} else {
-		log.Infof("storages: %s %s successfully", req.Status.Desired, req.Name)
+		log.Infof("storages: %s %s %s successfully", req.Status.Desired, req.Vendor, req.Model)
 		req.SetCompleted()
 	}
 
@@ -48,7 +41,7 @@ func (o *Operator) handleModelExit(req storages.ModelReqOpts, err error) {
 func (o *Operator) reportModelToController(req storages.ModelReqOpts) {
 	node, err := cubecos.GetVirtualIpController()
 	if err != nil {
-		log.Errorf("storages: failed to report %s result to control(%v)", req.Name, err)
+		log.Errorf("storages: failed to report %s %s result to control(%v)", req.Vendor, req.Model, err)
 		return
 	}
 
@@ -57,14 +50,15 @@ func (o *Operator) reportModelToController(req storages.ModelReqOpts) {
 		SetBody(req).
 		Patch(node.UpdateModelTaskUrl())
 	if err != nil {
-		log.Errorf("storages: failed to send model %s to %s(%v)", req.Name, node.Hostname, err)
+		log.Errorf("storages: failed to send model %s %s to %s(%v)", req.Vendor, req.Model, node.Hostname, err)
 		return
 	}
 
 	if resp.IsError() {
 		log.Errorf(
-			"storages: failed to send model %s to %s(%s)",
-			req.Name,
+			"storages: failed to send model %s %s to %s(%s)",
+			req.Vendor,
+			req.Model,
 			node.Hostname,
 			string(resp.Body()),
 		)

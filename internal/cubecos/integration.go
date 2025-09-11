@@ -201,6 +201,74 @@ func ListModels() ([]storages.Model, error) {
 	return list, nil
 }
 
+func CheckStorageModelExist(vendor, product string) (bool, error) {
+	models, err := ListModels()
+	if err != nil {
+		return false, err
+	}
+
+	for _, m := range models {
+		if m.Vendor == vendor && m.Product == product {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func UpdateStorageModel(req storages.ModelReqOpts) error {
+	input, err := json.Marshal(req)
+	if err != nil {
+		err := genIntegrationErr("model req parsing failure")
+		log.Errorf("storage: %s (%v)", err.Error(), err)
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "host_put_model", string(input)).CombinedOutput()
+	if err != nil {
+		err := genIntegrationErr("model exec failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return err
+	}
+
+	if !IsHexSuccessful(err) {
+		err := genIntegrationErr("model output failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return err
+	}
+
+	return nil
+}
+
+func DeleteStorageModel(req storages.ModelReqOpts) error {
+	model := map[string]string{"vendor": req.Vendor, "product": req.Product}
+	input, err := json.Marshal(model)
+	if err != nil {
+		err := genIntegrationErr("model req parsing failure")
+		log.Errorf("storage: %s (%v)", err.Error(), err)
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "host_delete_model", string(input)).CombinedOutput()
+	if err != nil {
+		err := genIntegrationErr("model exec failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return err
+	}
+
+	if !IsHexSuccessful(err) {
+		err := genIntegrationErr("model output failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return err
+	}
+
+	return nil
+}
+
 func genIntegrationErr(description string) error {
 	return fmt.Errorf(
 		"cubecos has unexpected hex error, please contact support(%s)",
