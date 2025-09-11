@@ -320,6 +320,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -344,6 +349,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -368,6 +378,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -3462,6 +3477,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -3486,6 +3506,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -3510,6 +3535,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -3615,6 +3645,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -3639,6 +3674,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -3737,6 +3777,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -3761,6 +3806,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -3785,6 +3835,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -3826,6 +3881,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -3850,6 +3910,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -3874,6 +3939,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -4047,6 +4117,11 @@ const docTemplate = `{
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
                                     "properties": {
                                         "code": {
                                             "type": "integer",
@@ -4055,6 +4130,691 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to fetch storage models: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createIntegratedStorageModel",
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Create an integrated storage model",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateIntegratedStorageModelRequest"
+                            },
+                            "examples": {
+                                "example1": {
+                                    "summary": "Create integrated storage model request",
+                                    "value": {
+                                        "vendor": "Dell",
+                                        "product": "PowerVault",
+                                        "multipath": {
+                                            "defaults": [
+                                                {
+                                                    "key": "user_friendly_names",
+                                                    "value": "yes"
+                                                }
+                                            ],
+                                            "blacklist": {
+                                                "devnode": "sda",
+                                                "devices": [
+                                                    {
+                                                        "vendor": "Generic",
+                                                        "product": "USB",
+                                                        "settings": [
+                                                            {
+                                                                "key": "dev_loss_tmo",
+                                                                "value": "10"
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "blacklistExceptions": {
+                                                "devnode": "sd[b-z]",
+                                                "devices": [
+                                                    {
+                                                        "vendor": "HP",
+                                                        "product": "MSA",
+                                                        "settings": [
+                                                            {
+                                                                "key": "polling_interval",
+                                                                "value": "5"
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "devices": [
+                                                {
+                                                    "vendor": "EMC",
+                                                    "product": "VNX",
+                                                    "settings": [
+                                                        {
+                                                            "key": "no_path_retry",
+                                                            "value": "fail"
+                                                        }
+                                                    ]
+                                                }
+                                            ],
+                                            "overrides": [
+                                                {
+                                                    "key": "checker_timeout",
+                                                    "value": "30"
+                                                }
+                                            ],
+                                            "multipaths": [
+                                                {
+                                                    "wwid": "3600508b400105e210000900000490000",
+                                                    "settings": [
+                                                        {
+                                                            "key": "path_grouping_policy",
+                                                            "value": "group_by_prio"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "storage": {
+                                            "service": {
+                                                "driverSection": [
+                                                    {
+                                                        "key": "volume_driver",
+                                                        "value": "cinder.volume.drivers.lvm.LVMVolumeDriver"
+                                                    }
+                                                ],
+                                                "extraSettings": [
+                                                    {
+                                                        "sectionHeader": "DEFAULT",
+                                                        "settings": [
+                                                            {
+                                                                "key": "enabled_backends",
+                                                                "value": "lvm"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "extraConfigFiles": [
+                                                    {
+                                                        "name": "test.conf",
+                                                        "content": "ZmlsZSBjb250ZW50IGluIGJhc2U2NA=="
+                                                    }
+                                                ]
+                                            },
+                                            "volumeType": {
+                                                "settings": [
+                                                    {
+                                                        "key": "volume_backend_name",
+                                                        "value": "lvm"
+                                                    }
+                                                ]
+                                            },
+                                            "image": {
+                                                "useMultipath": true,
+                                                "forceMultipath": true
+                                            },
+                                            "updateTime": "2025-09-09T10:30:00Z"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Receive the request to create an integrated storage model successfully, processing",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 202
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "receive the request to create an integrated storage model successfully, processing"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "vendor and product are required fields"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "storage model Dell PowerVault already exists"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to create integrated storage model: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/integrations/storages/models/{vendorName}/{productName}": {
+            "delete": {
+                "operationId": "deleteIntegratedStorageModel",
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Delete an integrated storage model",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/vendorName"
+                    },
+                    {
+                        "$ref": "#/components/parameters/productName"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Receive the request to delete an integrated storage model successfully, processing",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 202
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "receive the request to delete an integrated storage model successfully, processing"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "storage model Dell PowerVault not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "storage model Dell PowerVault is in use by some integrated storages"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to delete integrated storage model: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "updateIntegratedStorageModel",
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Create an integrated storage model",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/vendorName"
+                    },
+                    {
+                        "$ref": "#/components/parameters/productName"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateIntegratedStorageModelRequest"
+                            },
+                            "examples": {
+                                "example1": {
+                                    "summary": "Update integrated storage model request",
+                                    "value": {
+                                        "vendor": "Dell",
+                                        "product": "PowerVault",
+                                        "multipath": {
+                                            "defaults": [
+                                                {
+                                                    "key": "user_friendly_names",
+                                                    "value": "yes"
+                                                }
+                                            ],
+                                            "blacklist": {
+                                                "devnode": "sda",
+                                                "devices": [
+                                                    {
+                                                        "vendor": "Generic",
+                                                        "product": "USB",
+                                                        "settings": [
+                                                            {
+                                                                "key": "dev_loss_tmo",
+                                                                "value": "10"
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "blacklistExceptions": {
+                                                "devnode": "sd[b-z]",
+                                                "devices": [
+                                                    {
+                                                        "vendor": "HP",
+                                                        "product": "MSA",
+                                                        "settings": [
+                                                            {
+                                                                "key": "polling_interval",
+                                                                "value": "5"
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "devices": [
+                                                {
+                                                    "vendor": "EMC",
+                                                    "product": "VNX",
+                                                    "settings": [
+                                                        {
+                                                            "key": "no_path_retry",
+                                                            "value": "fail"
+                                                        }
+                                                    ]
+                                                }
+                                            ],
+                                            "overrides": [
+                                                {
+                                                    "key": "checker_timeout",
+                                                    "value": "30"
+                                                }
+                                            ],
+                                            "multipaths": [
+                                                {
+                                                    "wwid": "3600508b400105e210000900000490000",
+                                                    "settings": [
+                                                        {
+                                                            "key": "path_grouping_policy",
+                                                            "value": "group_by_prio"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "storage": {
+                                            "service": {
+                                                "driverSection": [
+                                                    {
+                                                        "key": "volume_driver",
+                                                        "value": "cinder.volume.drivers.lvm.LVMVolumeDriver"
+                                                    }
+                                                ],
+                                                "extraSettings": [
+                                                    {
+                                                        "sectionHeader": "DEFAULT",
+                                                        "settings": [
+                                                            {
+                                                                "key": "enabled_backends",
+                                                                "value": "lvm"
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "extraConfigFiles": [
+                                                    {
+                                                        "name": "test.conf",
+                                                        "content": "ZmlsZSBjb250ZW50IGluIGJhc2U2NA=="
+                                                    }
+                                                ]
+                                            },
+                                            "volumeType": {
+                                                "settings": [
+                                                    {
+                                                        "key": "volume_backend_name",
+                                                        "value": "lvm"
+                                                    }
+                                                ]
+                                            },
+                                            "image": {
+                                                "useMultipath": true,
+                                                "forceMultipath": true
+                                            },
+                                            "updateTime": "2025-09-09T10:30:00Z"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Receive the request to update an integrated storage model successfully, processing",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 202
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "receive the request to update an integrated storage model successfully, processing"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "vendor and product are required fields"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "storage model Dell PowerVault not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "storage model Dell PowerVault is under processing, try again later"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to create integrated storage model: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -16038,9 +16798,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
-                    },
-                    {
-                        "$ref": "#/components/parameters/version"
                     }
                 ],
                 "responses": {
@@ -16949,13 +17706,33 @@ const docTemplate = `{
                 "description": "Visibility setting for the image(only required when sourceFromAnotherHypervisor is false)."
             },
             "storageName": {
-                "name": "storageName",
                 "in": "path",
+                "name": "storageName",
                 "required": true,
                 "schema": {
                     "type": "string"
                 },
                 "description": "The name of the integrated storage."
+            },
+            "vendorName": {
+                "in": "query",
+                "name": "vendorName",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The vendor name to filter models",
+                "example": "example-vendor"
+            },
+            "productName": {
+                "in": "query",
+                "name": "productName",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The product name to filter models",
+                "example": "example-product"
             }
         },
         "schemas": {
@@ -18273,7 +19050,7 @@ const docTemplate = `{
                                 ],
                                 "properties": {
                                     "useMultipath": {
-                                        "type": "boolean"  
+                                        "type": "boolean"
                                     },
                                     "forceMultipath": {
                                         "type": "boolean"
@@ -18415,7 +19192,13 @@ const docTemplate = `{
                     "status": {
                         "type": "string"
                     }
-                }           
+                }
+            },
+            "CreateIntegratedStorageModelRequest": {
+                "$ref": "#/components/schemas/StorageModel"
+            },
+            "UpdateIntegratedStorageModelRequest": {
+                "$ref": "#/components/schemas/StorageModel"
             },
             "ListIntegratedStorageModelsResponse": {
                 "type": "object",
@@ -24329,6 +25112,211 @@ const docTemplate = `{
                         "OSD00002E": "#/components/schemas/OSD00002E",
                         "OSD00003I": "#/components/schemas/OSD00003I",
                         "OSD00003E": "#/components/schemas/OSD00003E"
+                    }
+                }
+            },
+            "StorageModel": {
+                "type": "object",
+                "required": [
+                    "vendor",
+                    "product",
+                    "multipath",
+                    "storage"
+                ],
+                "properties": {
+                    "vendor": {
+                        "type": "string"
+                    },
+                    "product": {
+                        "type": "string"
+                    },
+                    "multipath": {
+                        "type": "object",
+                        "required": [
+                            "defaults",
+                            "blacklist",
+                            "blacklistExceptions",
+                            "devices",
+                            "overrides",
+                            "multipaths"
+                        ],
+                        "properties": {
+                            "defaults": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/StorageKeyValuePair"
+                                }
+                            },
+                            "blacklist": {
+                                "type": "object",
+                                "required": [
+                                    "devnode",
+                                    "devices"
+                                ],
+                                "properties": {
+                                    "devnode": {
+                                        "type": "string"
+                                    },
+                                    "devices": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/StorageModelVenderSetting"
+                                        }
+                                    }
+                                }
+                            },
+                            "blacklistExceptions": {
+                                "type": "object",
+                                "required": [
+                                    "devnode",
+                                    "devices"
+                                ],
+                                "properties": {
+                                    "devnode": {
+                                        "type": "string"
+                                    },
+                                    "devices": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/StorageModelVenderSetting"
+                                        }
+                                    }
+                                }
+                            },
+                            "devices": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/StorageModelVenderSetting"
+                                }
+                            },
+                            "overrides": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/StorageKeyValuePair"
+                                }
+                            },
+                            "multipaths": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "wwid",
+                                        "settings"
+                                    ],
+                                    "properties": {
+                                        "wwid": {
+                                            "type": "string"
+                                        },
+                                        "settings": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/StorageKeyValuePair"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "storage": {
+                        "type": "object",
+                        "required": [
+                            "service",
+                            "volumeType",
+                            "image",
+                            "updateTime"
+                        ],
+                        "properties": {
+                            "service": {
+                                "type": "object",
+                                "required": [
+                                    "driverSection",
+                                    "extraSettings",
+                                    "extraConfigFiles"
+                                ],
+                                "properties": {
+                                    "driverSection": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/StorageKeyValuePair"
+                                        }
+                                    },
+                                    "extraSettings": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "sectionHeader",
+                                                "settings"
+                                            ],
+                                            "properties": {
+                                                "sectionHeader": {
+                                                    "type": "string"
+                                                },
+                                                "settings": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/StorageKeyValuePair"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "extraConfigFiles": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "name",
+                                                "content"
+                                            ],
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "content": {
+                                                    "type": "string",
+                                                    "description": "Base64 encoded content of the config file"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "volumeType": {
+                                "type": "object",
+                                "required": [
+                                    "settings"
+                                ],
+                                "properties": {
+                                    "settings": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/StorageKeyValuePair"
+                                        }
+                                    }
+                                }
+                            },
+                            "image": {
+                                "type": "object",
+                                "required": [
+                                    "useMultipath",
+                                    "forceMultipath"
+                                ],
+                                "properties": {
+                                    "useMultipath": {
+                                        "type": "boolean"
+                                    },
+                                    "forceMultipath": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            },
+                            "updateTime": {
+                                "type": "string",
+                                "format": "date-time"
+                            }
+                        }
                     }
                 }
             },
