@@ -99,12 +99,9 @@ func (h *helper) parseUpdateStorageTaskOptions() error {
 }
 
 func (h *helper) parseCreateStorageModelParams() error {
-	err := h.c.ShouldBindYAML(&h.modelReqOpts)
+	err := h.loadStorageModel()
 	if err != nil {
-		return fmt.Errorf(
-			"failed to parse create storage model options(%v)",
-			err,
-		)
+		return fmt.Errorf("failed to load storage model req(%v)", err)
 	}
 
 	if h.modelReqOpts.Vendor == "" {
@@ -122,12 +119,9 @@ func (h *helper) parseCreateStorageModelParams() error {
 }
 
 func (h *helper) parseUpdateStorageModelParams() error {
-	err := h.c.ShouldBindYAML(&h.modelReqOpts)
+	err := h.loadStorageModel()
 	if err != nil {
-		return fmt.Errorf(
-			"failed to parse update storage model options(%v)",
-			err,
-		)
+		return fmt.Errorf("failed to load storage model req(%v)", err)
 	}
 
 	if h.modelReqOpts.Vendor == "" {
@@ -145,12 +139,9 @@ func (h *helper) parseUpdateStorageModelParams() error {
 }
 
 func (h *helper) parseUpdateAllStorageModelParams() error {
-	err := h.c.ShouldBindYAML(&h.batchModelReqOpts)
+	err := h.loadStorageModelList()
 	if err != nil {
-		return fmt.Errorf(
-			"failed to parse batch storage model options(%v)",
-			err,
-		)
+		return fmt.Errorf("failed to load storage model list(%v)", err)
 	}
 
 	for _, reqOpts := range h.batchModelReqOpts {

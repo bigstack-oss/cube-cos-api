@@ -164,7 +164,7 @@ func (h *helper) updateStorageModelToLocal() {
 		h.addReqRecord()
 	}
 
-	reqQueue.Add(&h.storageReqOpts)
+	modelReqQueue.Add(&h.modelReqOpts)
 }
 
 func (h *helper) updateStorageModelToPeers() {

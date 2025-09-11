@@ -7,6 +7,9 @@ const (
 	ReqCollection      = "storageRequests"
 	ModelReqCollection = "modelRequests"
 	CinderConf         = "/etc/cinder/cinder.conf"
+
+	TmpUploadedStorageModelList = "/tmp/storage-model-list.yaml"
+	TmpUploadedStorageModel     = "/tmp/storage-model.yaml"
 )
 
 type ReqOpts struct {
