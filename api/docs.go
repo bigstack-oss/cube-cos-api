@@ -3392,7 +3392,7 @@ const docTemplate = `{
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "Create an integrated storage",
+                "summary": "Integreate a storage",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -3457,7 +3457,7 @@ const docTemplate = `{
                 },
                 "responses": {
                     "202": {
-                        "description": "Receive the request to create an integrated storage successfully",
+                        "description": "Receive the request to integrate a storage successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3469,7 +3469,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "receive the request to create an integrated storage successfully"
+                                            "example": "receive the request to integrate a storage successfully"
                                         },
                                         "status": {
                                             "type": "string",
