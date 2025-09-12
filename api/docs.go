@@ -3561,6 +3561,207 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/integrations/storages/verify": {
+            "post": {
+                "operationId": "verifyStorageIntegration",
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Verify the connectivity of an external storage",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifyStorageIntegrationRequest"
+                            },
+                            "examples": {
+                                "example1": {
+                                    "summary": "Verify the connectivity of an external storage",
+                                    "value": {
+                                        "name": "example-storage",
+                                        "device": {
+                                            "vendor": "Dell",
+                                            "product": "PowerVault ME4024"
+                                        },
+                                        "storage": {
+                                            "service": {
+                                                "driverSection": [
+                                                    {
+                                                        "key": "volume_driver",
+                                                        "value": "cinder.volume.drivers.rbd.RBDDriver"
+                                                    }
+                                                ],
+                                                "extraSettings": [
+                                                    {
+                                                        "sectionHeader": "DEFAULT",
+                                                        "settings": [
+                                                            {
+                                                                "key": "enabled_backends",
+                                                                "value": "ceph"
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "volumeType": {
+                                                "settings": [
+                                                    {
+                                                        "key": "volume_backend_name",
+                                                        "value": "ceph"
+                                                    }
+                                                ]
+                                            },
+                                            "image": {
+                                                "useMultipath": true,
+                                                "forceMultipath": true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Verify the connectivity of an external storage successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "data",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "isCinderServiceUp": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "isTestVolumeSuccessful": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                }
+                                            }
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "verify the connectivity of an external storage successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "invalid request body: missing required field 'name'"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "storage name example-storage already exists"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to verify the storage connectivity: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/integrations/storages/{storageName}": {
             "get": {
                 "operationId": "getIntegratedStorage",
@@ -16727,7 +16928,6 @@ const docTemplate = `{
                                                 "progresses": [
                                                     {
                                                         "host": "example-node-0",
-                                                        "phase": "",
                                                         "status": {
                                                             "current": "installing",
                                                             "isProcessing": true,
@@ -16737,7 +16937,6 @@ const docTemplate = `{
                                                     },
                                                     {
                                                         "host": "example-node-1",
-                                                        "phase": "",
                                                         "status": {
                                                             "current": "installing",
                                                             "isProcessing": true,
@@ -16747,7 +16946,6 @@ const docTemplate = `{
                                                     },
                                                     {
                                                         "host": "example-node-2",
-                                                        "phase": "",
                                                         "status": {
                                                             "current": "installing",
                                                             "isProcessing": true,
@@ -18969,6 +19167,93 @@ const docTemplate = `{
                     }
                 }
             },
+            "VerifyStorageIntegrationRequest": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "isExternal",
+                    "device",
+                    "storage"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "isExternal": {
+                        "type": "boolean"
+                    },
+                    "device": {
+                        "type": "object",
+                        "required": [
+                            "vendor",
+                            "product"
+                        ],
+                        "properties": {
+                            "vendor": {
+                                "type": "string"
+                            },
+                            "product": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "storage": {
+                        "type": "object",
+                        "required": [
+                            "service",
+                            "volumeType",
+                            "image"
+                        ],
+                        "properties": {
+                            "service": {
+                                "type": "object",
+                                "required": [
+                                    "driverSection",
+                                    "extraSettings",
+                                    "extraConfigFiles"
+                                ],
+                                "properties": {
+                                    "driverSection": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/StorageKeyValuePair"
+                                        }
+                                    }
+                                }
+                            },
+                            "volumeType": {
+                                "type": "object",
+                                "required": [
+                                    "settings"
+                                ],
+                                "properties": {
+                                    "settings": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/StorageKeyValuePair"
+                                        }
+                                    }
+                                }
+                            },
+                            "image": {
+                                "type": "object",
+                                "required": [
+                                    "useMultipath",
+                                    "forceMultipath"
+                                ],
+                                "properties": {
+                                    "useMultipath": {
+                                        "type": "boolean"
+                                    },
+                                    "forceMultipath": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "GetIntegratedStorageResponse": {
                 "type": "object",
                 "required": [
@@ -19349,10 +19634,10 @@ const docTemplate = `{
             "CreateOrUpdateIntegreatedStorageModelsRequest": {
                 "type": "object",
                 "required": [
-                    "storageModels"
+                    "storageModel"
                 ],
                 "properties": {
-                    "storageModels": {
+                    "storageModel": {
                         "type": "string",
                         "format": "text",
                         "description": "The YAML content of a storage model"
@@ -23901,14 +24186,10 @@ const docTemplate = `{
                                     "type": "object",
                                     "required": [
                                         "host",
-                                        "phase",
                                         "status"
                                     ],
                                     "properties": {
                                         "host": {
-                                            "type": "string"
-                                        },
-                                        "phase": {
                                             "type": "string"
                                         },
                                         "status": {
