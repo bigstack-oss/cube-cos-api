@@ -71,6 +71,11 @@ type Image struct {
 	ForceMultipath bool `json:"forceMultipath" yaml:"forceMultipath" bson:"forceMultipath"`
 }
 
+type VerficationResult struct {
+	IsCinderServiceUp      bool `json:"isCinderServiceUp"`
+	IsTestVolumeSuccessful bool `json:"isTestVolumeSuccessful"`
+}
+
 func (r *ReqOpts) SetCreating() {
 	r.Status.Current = status.Creating
 	r.Status.Desired = status.Created

@@ -128,6 +128,41 @@ func CreateStorage(req storages.ReqOpts) error {
 	return nil
 }
 
+func VerifyStorage(name string) (*storages.VerficationResult, error) {
+	nameMap := map[string]string{"name": name}
+	input, err := json.Marshal(nameMap)
+	if err != nil {
+		err := genIntegrationErr("storage req parsing failure")
+		log.Errorf("storage: %s (%v)", err.Error(), err)
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(10))
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_test_storage", string(input)).CombinedOutput()
+	if err != nil {
+		err := genIntegrationErr("storage verify exec failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return nil, err
+	}
+
+	if !IsHexSuccessful(err) {
+		err := genIntegrationErr("storage verify output failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return nil, err
+	}
+
+	result := &storages.VerficationResult{}
+	err = json.Unmarshal(out, result)
+	if err != nil {
+		err := genIntegrationErr("storage verify parsing failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return nil, err
+	}
+
+	return result, err
+}
+
 func DeleteStorage(name string) error {
 	nameMap := map[string]string{"name": name}
 	input, err := json.Marshal(nameMap)

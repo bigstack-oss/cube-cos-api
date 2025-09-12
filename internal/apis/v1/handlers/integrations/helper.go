@@ -68,3 +68,29 @@ func (h *helper) listModels() ([]storages.Model, error) {
 	h.sortModels(&models)
 	return models, nil
 }
+
+func (h *helper) verifyStorage() (*storages.VerficationResult, error) {
+	err := cubecos.CreateStorage(h.storageReqOpts)
+	if err != nil {
+		log.Errorf("integrations(%s): failed to create storage (%v)", h.reqId, err)
+		return &storages.VerficationResult{
+			IsCinderServiceUp:      false,
+			IsTestVolumeSuccessful: false,
+		}, nil
+	}
+
+	defer func() {
+		err := cubecos.DeleteStorage(h.storageReqOpts.Name)
+		if err != nil {
+			log.Errorf("integrations(%s): failed to delete storage after verification (%v)", h.reqId, err)
+		}
+	}()
+
+	result, err := cubecos.VerifyStorage(h.storageReqOpts.Name)
+	if err != nil {
+		log.Errorf("integrations(%s): storage verification failed (%v)", h.reqId, err)
+		return result, err
+	}
+
+	return result, nil
+}

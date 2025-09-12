@@ -34,6 +34,12 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
+			Path:    "/integrations/storages/verify",
+			Func:    verifyStorage,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
 			Path:    "/integrations/storages",
 			Func:    createStorage,
 		},
@@ -163,6 +169,36 @@ func getStorage(c *gin.Context) {
 		c,
 		"fetch integrated storage details successfully",
 		storage,
+	)
+}
+
+func verifyStorage(c *gin.Context) {
+	h, err := initHelper(c, "verifyStorage")
+	if err != nil {
+		log.Errorf("integrations(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	found, err := cubecos.CheckStorageExist(h.storageReqOpts.Name)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+	if !found {
+		bodies.SetConflict(c, fmt.Errorf("storage %s already exists", h.storageReqOpts.Name))
+		return
+	}
+
+	verification, err := h.verifyStorage()
+	if err != nil {
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"verify integrated storage successfully",
+		verification,
 	)
 }
 

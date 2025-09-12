@@ -12,6 +12,8 @@ func (h *helper) parseParamsByHandler() error {
 	switch h.handler {
 	case "getStorage":
 		return h.parseGetStorageParams()
+	case "verifyStorage":
+		return h.parseVerifyStorageParams()
 	case "createStorage":
 		return h.parseCreateStorageParams()
 	case "updateStorage":
@@ -39,6 +41,21 @@ func (h *helper) parseGetStorageParams() error {
 		return errors.New("storage name is required")
 	}
 
+	return nil
+}
+
+func (h *helper) parseVerifyStorageParams() error {
+	err := h.c.ShouldBindJSON(&h.storageReqOpts.Cinder)
+	if err != nil {
+		return err
+	}
+
+	if h.storageReqOpts.Name == "" {
+		return errors.New("storage name is required")
+	}
+
+	h.storageReqOpts.ReqId = h.reqId
+	h.storageReqOpts.Hostname = base.Hostname
 	return nil
 }
 
