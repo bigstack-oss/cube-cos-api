@@ -3514,7 +3514,7 @@ const docTemplate = `{
                                     "properties": {
                                         "code": {
                                             "type": "integer",
-                                            "example": 400
+                                            "example": 409
                                         },
                                         "msg": {
                                             "type": "string",
@@ -3702,7 +3702,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "Bad Request",
+                        "description": "Conflict",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3715,7 +3715,7 @@ const docTemplate = `{
                                     "properties": {
                                         "code": {
                                             "type": "integer",
-                                            "example": 400
+                                            "example": 409
                                         },
                                         "msg": {
                                             "type": "string",
@@ -3791,6 +3791,7 @@ const docTemplate = `{
                                         "value": {
                                             "code": 200,
                                             "data": {
+                                                "asDefault": true,
                                                 "name": "CubeStorage",
                                                 "isExternal": false,
                                                 "device": {
@@ -4300,7 +4301,7 @@ const docTemplate = `{
                                                             "useMultipath": true,
                                                             "forceMultipath": true
                                                         },
-                                                        "updateTime": "2025-09-09T10:30:00Z"
+                                                        "updateTime": "2025-09-09T10:30:00+08:00"
                                                     }
                                                 }
                                             ],
@@ -4506,7 +4507,7 @@ const docTemplate = `{
                 },
                 "responses": {
                     "202": {
-                        "description": "Receive the request to create an integrated storage model successfully, processing",
+                        "description": "Receive the request to update the integrated storage models successfully, processing",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4523,7 +4524,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "receive the request to create an integrated storage model successfully, processing"
+                                            "example": "Receive the request to update the integrated storage models successfully, processing"
                                         },
                                         "status": {
                                             "type": "string",
@@ -4552,7 +4553,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "vendor and product are required fields"
+                                            "example": "some models's vendor or product are empty"
                                         },
                                         "status": {
                                             "type": "string",
@@ -4610,7 +4611,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to create integrated storage model: internal server error"
+                                            "example": "failed to update the integrated storage models: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -17821,9 +17822,9 @@ const docTemplate = `{
                 "description": "The name of the integrated storage."
             },
             "vendorName": {
-                "in": "query",
+                "in": "path",
                 "name": "vendorName",
-                "required": false,
+                "required": true,
                 "schema": {
                     "type": "string"
                 },
@@ -17831,9 +17832,9 @@ const docTemplate = `{
                 "example": "example-vendor"
             },
             "productName": {
-                "in": "query",
+                "in": "path",
                 "name": "productName",
-                "required": false,
+                "required": true,
                 "schema": {
                     "type": "string"
                 },
@@ -19270,12 +19271,16 @@ const docTemplate = `{
                     "data": {
                         "type": "object",
                         "required": [
+                            "asDefault",
                             "name",
                             "isExternal",
                             "device",
                             "storage"
                         ],
                         "properties": {
+                            "asDefault": {
+                                "type": "boolean"
+                            },
                             "name": {
                                 "type": "string"
                             },
