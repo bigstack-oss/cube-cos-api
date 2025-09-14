@@ -60,7 +60,7 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
-			Path:    "/firmwares/continueAnyway",
+			Path:    "/firmwares/continueAnyway/:nodeName",
 			Func:    continueInterruptedFirmwareUpdate,
 		},
 		{

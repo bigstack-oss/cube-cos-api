@@ -91,9 +91,9 @@ func (h *helper) getFirmwareUpgradeProgress() (*firmwares.Upgrade, error) {
 }
 
 func (h *helper) continueInterruptedFirmwareUpdate() error {
-	node, err := cubecos.GetUpdateInterruptedNode()
+	node, err := nodes.Get(h.reqOpts.Hostname)
 	if err != nil {
-		log.Errorf("firmwares(%s): failed to get interrupted nodes (%v)", h.reqId, err)
+		log.Errorf("fixpacks(%s): failed to get node %s (%v)", h.reqId, h.reqOpts.Hostname, err)
 		return err
 	}
 

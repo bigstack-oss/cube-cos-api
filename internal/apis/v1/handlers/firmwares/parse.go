@@ -24,6 +24,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseUploadMd5Params()
 	case "verfiyFirmwareAndMd5Sum":
 		return h.parseVerificationParams()
+	case "parseUpdateInterruptedParams":
+		return h.parseUpdateInterruptedParams()
 	case "deleteFirmware":
 		return h.parseDeleteParams()
 	default:
@@ -102,6 +104,15 @@ func (h *helper) parseVerificationParams() error {
 		"no firmware file found in %s",
 		firmwares.TmpUploadDir,
 	)
+}
+
+func (h *helper) parseUpdateInterruptedParams() error {
+	h.reqOpts.Hostname = h.c.Param("nodeName")
+	if h.reqOpts.Hostname == "" {
+		return fmt.Errorf("nodeName parameter is required")
+	}
+
+	return h.parseListParams()
 }
 
 func (h *helper) parseDeleteParams() error {

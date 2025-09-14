@@ -19,6 +19,7 @@ const (
 
 type ReqOpts struct {
 	Id          string          `json:"id"`
+	Hostname    string          `json:"hostname"`
 	Version     string          `json:"version"`
 	PkgPath     string          `json:"pkgPath"`
 	AutoRolling bool            `json:"autoRolling"`
