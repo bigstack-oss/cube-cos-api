@@ -132,6 +132,7 @@ func (r *ReqOpts) GenCreateOpts() CreateOpts {
 		Destination:    r.Destination,
 		Domain:         r.Domain,
 		PoolType:       poolType,
+		Project:        r.Project,
 		Visibility:     visibility,
 		StreamingLogs:  make(chan float64),
 		ReservedType:   r.Reserved.Type,
