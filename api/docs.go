@@ -15477,7 +15477,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/firmwares/continueAnyway": {
+        "/api/v1/datacenters/{dataCenter}/firmwares/continueAnyway/{nodeName}": {
             "post": {
                 "operationId": "continueInterruptedFirmwareUpdate",
                 "tags": [
@@ -15487,6 +15487,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
                     }
                 ],
                 "responses": {
@@ -23965,13 +23968,13 @@ const docTemplate = `{
                                                 "current": {
                                                     "type": "string",
                                                     "enum": [
-                                                        "available",
                                                         "installing",
                                                         "waitingReboot",
                                                         "rebooting",
                                                         "installed",
                                                         "failed",
-                                                        "resolved"
+                                                        "resolved",
+                                                        "succeeded"
                                                     ]
                                                 },
                                                 "isProcessing": {
