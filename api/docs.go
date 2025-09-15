@@ -3812,6 +3812,12 @@ const docTemplate = `{
                                                                     }
                                                                 ]
                                                             }
+                                                        ],
+                                                        "extraConfigFiles": [
+                                                            {
+                                                                "name": "test.conf",
+                                                                "content": "ZmlsZSBjb250ZW50IGluIGJhc2U2NA=="
+                                                            }
                                                         ]
                                                     },
                                                     "volumeType": {
@@ -19295,7 +19301,8 @@ const docTemplate = `{
                                         "type": "object",
                                         "required": [
                                             "driverSection",
-                                            "extraSettings"
+                                            "extraSettings",
+                                            "extraConfigFiles"
                                         ],
                                         "properties": {
                                             "driverSection": {
@@ -19321,6 +19328,25 @@ const docTemplate = `{
                                                             "items": {
                                                                 "$ref": "#/components/schemas/StorageKeyValuePair"
                                                             }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "extraConfigFiles": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "name",
+                                                        "content"
+                                                    ],
+                                                    "properties": {
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "content": {
+                                                            "type": "string",
+                                                            "description": "Base64 encoded content of the config file"
                                                         }
                                                     }
                                                 }
