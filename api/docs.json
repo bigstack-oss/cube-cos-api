@@ -3454,10 +3454,6 @@
                                                         "value": "ceph"
                                                     }
                                                 ]
-                                            },
-                                            "image": {
-                                                "useMultipath": true,
-                                                "forceMultipath": true
                                             }
                                         }
                                     }
@@ -3956,10 +3952,6 @@
                                                         "value": "lvm"
                                                     }
                                                 ]
-                                            },
-                                            "image": {
-                                                "useMultipath": true,
-                                                "forceMultipath": true
                                             }
                                         }
                                     }
@@ -19145,21 +19137,6 @@
                                         "items": {
                                             "$ref": "#/components/schemas/StorageKeyValuePair"
                                         }
-                                    }
-                                }
-                            },
-                            "image": {
-                                "type": "object",
-                                "required": [
-                                    "useMultipath",
-                                    "forceMultipath"
-                                ],
-                                "properties": {
-                                    "useMultipath": {
-                                        "type": "boolean"
-                                    },
-                                    "forceMultipath": {
-                                        "type": "boolean"
                                     }
                                 }
                             }

@@ -3458,10 +3458,6 @@ const docTemplate = `{
                                                         "value": "ceph"
                                                     }
                                                 ]
-                                            },
-                                            "image": {
-                                                "useMultipath": true,
-                                                "forceMultipath": true
                                             }
                                         }
                                     }
@@ -3960,10 +3956,6 @@ const docTemplate = `{
                                                         "value": "lvm"
                                                     }
                                                 ]
-                                            },
-                                            "image": {
-                                                "useMultipath": true,
-                                                "forceMultipath": true
                                             }
                                         }
                                     }
@@ -19149,21 +19141,6 @@ const docTemplate = `{
                                         "items": {
                                             "$ref": "#/components/schemas/StorageKeyValuePair"
                                         }
-                                    }
-                                }
-                            },
-                            "image": {
-                                "type": "object",
-                                "required": [
-                                    "useMultipath",
-                                    "forceMultipath"
-                                ],
-                                "properties": {
-                                    "useMultipath": {
-                                        "type": "boolean"
-                                    },
-                                    "forceMultipath": {
-                                        "type": "boolean"
                                     }
                                 }
                             }
