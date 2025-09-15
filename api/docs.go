@@ -3922,13 +3922,18 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CreateIntegratedStorageRequest"
+                                "$ref": "#/components/schemas/UpdateIntegratedStorageRequest"
                             },
                             "examples": {
                                 "example1": {
                                     "summary": "Update integrated storage request",
                                     "value": {
                                         "asDefault": true,
+                                        "isExternal": false,
+                                        "device": {
+                                            "vendor": "Dell",
+                                            "product": "PowerVault ME4024"
+                                        },
                                         "storage": {
                                             "service": {
                                                 "driverSection": [
@@ -19093,6 +19098,78 @@ const docTemplate = `{
                     },
                     "name": {
                         "type": "string"
+                    },
+                    "isExternal": {
+                        "type": "boolean"
+                    },
+                    "device": {
+                        "type": "object",
+                        "required": [
+                            "vendor",
+                            "product"
+                        ],
+                        "properties": {
+                            "vendor": {
+                                "type": "string"
+                            },
+                            "product": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "storage": {
+                        "type": "object",
+                        "required": [
+                            "service",
+                            "volumeType",
+                            "image"
+                        ],
+                        "properties": {
+                            "service": {
+                                "type": "object",
+                                "required": [
+                                    "driverSection",
+                                    "extraSettings",
+                                    "extraConfigFiles"
+                                ],
+                                "properties": {
+                                    "driverSection": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/StorageKeyValuePair"
+                                        }
+                                    }
+                                }
+                            },
+                            "volumeType": {
+                                "type": "object",
+                                "required": [
+                                    "settings"
+                                ],
+                                "properties": {
+                                    "settings": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/StorageKeyValuePair"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "UpdateIntegratedStorageRequest": {
+                "type": "object",
+                "required": [
+                    "asDefault",
+                    "isExternal",
+                    "device",
+                    "storage"
+                ],
+                "properties": {
+                    "asDefault": {
+                        "type": "boolean"
                     },
                     "isExternal": {
                         "type": "boolean"
