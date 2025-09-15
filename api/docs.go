@@ -19138,6 +19138,46 @@ const docTemplate = `{
                                         "items": {
                                             "$ref": "#/components/schemas/StorageKeyValuePair"
                                         }
+                                    },
+                                    "extraSettings": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "sectionHeader",
+                                                "settings"
+                                            ],
+                                            "properties": {
+                                                "sectionHeader": {
+                                                    "type": "string"
+                                                },
+                                                "settings": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/StorageKeyValuePair"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "extraConfigFiles": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "name",
+                                                "content"
+                                            ],
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "content": {
+                                                    "type": "string",   
+                                                    "description": "Base64 encoded content of the config file"
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             },
@@ -19209,6 +19249,46 @@ const docTemplate = `{
                                         "type": "array",
                                         "items": {
                                             "$ref": "#/components/schemas/StorageKeyValuePair"
+                                        }
+                                    },
+                                    "extraSettings": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "sectionHeader",
+                                                "settings"
+                                            ],
+                                            "properties": {
+                                                "sectionHeader": {
+                                                    "type": "string"
+                                                },
+                                                "settings": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/StorageKeyValuePair"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "extraConfigFiles": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "name",
+                                                "content"
+                                            ],
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "content": {
+                                                    "type": "string",
+                                                    "description": "Base64 encoded content of the config file"
+                                                }
+                                            }
                                         }
                                     }
                                 }
