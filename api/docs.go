@@ -3603,6 +3603,12 @@ const docTemplate = `{
                                                             }
                                                         ]
                                                     }
+                                                ],
+                                                "extraConfigFiles": [
+                                                    {
+                                                        "name": "test.conf",
+                                                        "content": "ZmlsZSBjb250ZW50IGluIGJhc2U2NA=="
+                                                    }
                                                 ]
                                             },
                                             "volumeType": {
@@ -19315,16 +19321,12 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "name",
-                    "isExternal",
                     "device",
                     "storage"
                 ],
                 "properties": {
                     "name": {
                         "type": "string"
-                    },
-                    "isExternal": {
-                        "type": "boolean"
                     },
                     "device": {
                         "type": "object",
