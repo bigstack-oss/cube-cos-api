@@ -19,6 +19,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseCreateStorageParams()
 	case "updateStorage":
 		return h.parseUpdateStorageParams()
+	case "setStorageAsDefault":
+		return h.parseSetDefaultStorageParams()
 	case "deleteStorage":
 		return h.parseDeleteStorageParams()
 	case "updateStorageTask":
@@ -103,6 +105,18 @@ func (h *helper) parseUpdateStorageParams() error {
 	h.storageReqOpts.ReqId = h.reqId
 	h.storageReqOpts.Hostname = base.Hostname
 	h.storageReqOpts.SetUpdating()
+	return nil
+}
+
+func (h *helper) parseSetDefaultStorageParams() error {
+	h.storageReqOpts.Name = h.c.Param("storageName")
+	if h.storageReqOpts.Name == "" {
+		return errors.New("storage name is required")
+	}
+
+	h.storageReqOpts.ReqId = h.reqId
+	h.storageReqOpts.Hostname = base.Hostname
+	h.storageReqOpts.SetSettingAsDefault()
 	return nil
 }
 

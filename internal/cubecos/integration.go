@@ -14,9 +14,17 @@ import (
 )
 
 func SetDefaultStorage(name string) error {
+	nameMap := map[string]string{"name": name}
+	input, err := json.Marshal(nameMap)
+	if err != nil {
+		err := genIntegrationErr("set default storage req parsing failure")
+		log.Errorf("storage: %s (%v)", err.Error(), err)
+		return err
+	}
+
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
 	defer cancel()
-	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_set_default_storage", name).CombinedOutput()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_set_default_storage", string(input)).CombinedOutput()
 	if err != nil {
 		err := genIntegrationErr("set default storage exec failure")
 		log.Errorf("storage: %s (%s)", err.Error(), string(out))

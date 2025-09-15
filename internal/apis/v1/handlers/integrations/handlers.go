@@ -51,6 +51,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/integrations/storages/:storageName/asDefault",
+			Func:    setStorageAsDefault,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodDelete,
 			Path:    "/integrations/storages/:storageName",
 			Func:    deleteStorage,
@@ -249,6 +255,31 @@ func updateStorage(c *gin.Context) {
 	bodies.SetAccepted(
 		c,
 		"received update integrated storage request successfully, processing",
+	)
+}
+
+func setStorageAsDefault(c *gin.Context) {
+	h, err := initHelper(c, "setStorageAsDefault")
+	if err != nil {
+		log.Errorf("integrations(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	found, err := cubecos.CheckStorageExist(h.storageReqOpts.Name)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+	if !found {
+		bodies.SetNotFound(c, fmt.Errorf("storage %s not found", h.storageReqOpts.Name))
+		return
+	}
+
+	h.updateStorageToControllers()
+	bodies.SetAccepted(
+		c,
+		"received set integrated storage as default request successfully, processing",
 	)
 }
 

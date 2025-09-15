@@ -88,6 +88,12 @@ func (r *ReqOpts) SetUpdating() {
 	r.Status.IsProcessing = true
 }
 
+func (r *ReqOpts) SetSettingAsDefault() {
+	r.Status.Current = status.SettingToDefault
+	r.Status.Desired = status.Defaulted
+	r.Status.IsProcessing = true
+}
+
 func (r *ReqOpts) SetDeleting() {
 	r.Status.Current = status.Deleting
 	r.Status.Desired = status.Deleted

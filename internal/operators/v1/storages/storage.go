@@ -14,6 +14,8 @@ func (o *Operator) operateStorageReq(req storages.ReqOpts) error {
 	switch req.Status.Desired {
 	case status.Created, status.Updated:
 		return o.updateStorage(req)
+	case status.Defaulted:
+		return cubecos.SetDefaultStorage(req.Name)
 	case status.Deleted:
 		return cubecos.DeleteStorage(req.Name)
 	}
