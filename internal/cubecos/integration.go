@@ -236,6 +236,23 @@ func ListModels() ([]storages.Model, error) {
 	return list, nil
 }
 
+func GetStorageModel(vendor, product string) (*storages.Model, error) {
+	models, err := ListModels()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, model := range models {
+		if model.Vendor == vendor && model.Product == product {
+			return &model, nil
+		}
+	}
+
+	return nil, fmt.Errorf(
+		"storage model %s-%s not found", vendor, product,
+	)
+}
+
 func CheckStorageModelExist(vendor, product string) (bool, error) {
 	models, err := ListModels()
 	if err != nil {

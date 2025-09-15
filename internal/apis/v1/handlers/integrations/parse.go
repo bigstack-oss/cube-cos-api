@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 )
 
@@ -69,8 +70,22 @@ func (h *helper) parseCreateStorageParams() error {
 		return errors.New("storage name is required")
 	}
 
+	if h.storageReqOpts.Device.Vendor == "" {
+		return errors.New("device vendor is required")
+	}
+
+	if h.storageReqOpts.Device.Product == "" {
+		return errors.New("device product is required")
+	}
+
+	model, err := cubecos.GetStorageModel(h.storageReqOpts.Device.Vendor, h.storageReqOpts.Device.Product)
+	if err != nil {
+		return fmt.Errorf("failed to get model image paths(%v)", err)
+	}
+
 	h.storageReqOpts.ReqId = h.reqId
 	h.storageReqOpts.Hostname = base.Hostname
+	h.storageReqOpts.Cinder.Storage.Image = model.Storage.Image
 	h.storageReqOpts.SetCreating()
 	return nil
 }

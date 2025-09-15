@@ -4,7 +4,7 @@ type Model struct {
 	Vendor    string `json:"vendor" yaml:"vendor" bson:"vendor"`
 	Product   string `json:"product" yaml:"product" bson:"product"`
 	Multipath `json:"multipath" yaml:"multipath" bson:"multipath"`
-	Storage   Storage `json:"storage" yaml:"storage" bson:"storage"`
+	Storage   `json:"storage" yaml:"storage" bson:"storage"`
 }
 
 type Multipath struct {
