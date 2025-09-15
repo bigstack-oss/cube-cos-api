@@ -3497,7 +3497,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "Bad Request",
+                        "description": "Conflict",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3518,7 +3518,7 @@ const docTemplate = `{
                                         },
                                         "status": {
                                             "type": "string",
-                                            "example": "bad request"
+                                            "example": "conflict"
                                         }
                                     }
                                 }
