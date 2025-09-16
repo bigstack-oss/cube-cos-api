@@ -66,3 +66,13 @@ func (h *helper) isDomainExists() bool {
 func (h *helper) isVisibilityValid() bool {
 	return slices.Contains(images.Visibilitise, h.reqOpts.Visibility)
 }
+
+func (h *helper) isImageOperatable() bool {
+	image, err := h.openstack.GetImage(h.reqOpts.Id)
+	if err != nil {
+		log.Errorf("images(%s): failed to get image %s(%v)", h.reqId, h.reqOpts.Id, err)
+		return false
+	}
+
+	return image.Status == "active"
+}

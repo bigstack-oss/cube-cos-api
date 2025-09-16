@@ -21,7 +21,6 @@ func (h *helper) listConvertedImages() ([]images.Image, error) {
 
 func (h *helper) convertToImages(list []opsimage.Image) []images.Image {
 	converted := []images.Image{}
-
 	for _, image := range list {
 		converted = append(
 			converted,
@@ -33,8 +32,10 @@ func (h *helper) convertToImages(list []opsimage.Image) []images.Image {
 				Domain:      h.parseDomain(image.Owner),
 				Project:     h.parseProjectName(image.Owner),
 				Visibility:  h.parseVisibility(image.Visibility),
+				DiskType:    image.DiskFormat,
 				SizeMiB:     h.parseSizeMiB(image.SizeBytes),
 				CreatedAt:   h.parseCreatedAt(image.CreatedAt),
+				Metadata:    image.Properties,
 				Status: status.Image{
 					Current: h.parseStatus(image.Status),
 				},

@@ -35,6 +35,13 @@ var (
 		"Others",
 	}
 
+	visibilities = map[string]bool{
+		"public":    true,
+		"private":   true,
+		"shared":    true,
+		"community": true,
+	}
+
 	reservedImages = []ReqOpts{
 		{
 			Name:                        "amphora-x64-haproxy",
@@ -66,16 +73,18 @@ var (
 )
 
 type Image struct {
-	Id          string       `json:"id"`
-	Name        string       `json:"name"`
-	Os          string       `json:"os"`
-	Destination string       `json:"destination"`
-	Domain      string       `json:"domain"`
-	Project     string       `json:"project"`
-	Visibility  string       `json:"visibility"`
-	SizeMiB     int64        `json:"sizeMiB"`
-	CreatedAt   string       `json:"createdAt"`
-	Status      status.Image `json:"status"`
+	Id          string         `json:"id"`
+	Name        string         `json:"name"`
+	Os          string         `json:"os"`
+	Destination string         `json:"destination"`
+	Domain      string         `json:"domain"`
+	Project     string         `json:"project"`
+	Visibility  string         `json:"visibility"`
+	SizeMiB     int64          `json:"sizeMiB"`
+	CreatedAt   string         `json:"createdAt"`
+	DiskType    string         `json:"diskType"`
+	Metadata    map[string]any `json:"metadata"`
+	Status      status.Image   `json:"status"`
 }
 
 type ReqOpts struct {
@@ -193,6 +202,11 @@ func (i *Image) GenSearchableObject() Image {
 			IsProcessing: i.Status.IsProcessing,
 		},
 	}
+}
+
+func IsVisibilityValid(visibility string) bool {
+	_, found := visibilities[visibility]
+	return found
 }
 
 func GetReserved() []ReqOpts {

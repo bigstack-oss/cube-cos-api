@@ -1,10 +1,12 @@
 package images
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/nodes"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -35,6 +37,12 @@ var (
 			Method:  http.MethodPost,
 			Path:    "/images",
 			Func:    importImage,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/images/:imageId",
+			Func:    updateImage,
 		},
 		{
 			Version: apis.V1,
@@ -140,6 +148,38 @@ func importImage(c *gin.Context) {
 	bodies.SetAccepted(
 		c,
 		"the request of importing image is accepted and under processing",
+	)
+}
+
+func updateImage(c *gin.Context) {
+	h, err := initHelper(c, "updateImage")
+	if err != nil {
+		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	if h.isImageExist() {
+		bodies.SetNotFound(c, fmt.Errorf("image %s is not found", h.reqOpts.Name))
+		return
+	}
+
+	if h.isImageOperatable() {
+		bodies.SetConflict(c, fmt.Errorf("image %s is under processing, cannot be updated", h.reqOpts.Name))
+		return
+	}
+
+	err = cubecos.UpdateImage(h.reqOpts.Id, h.genImageUpdateOpts())
+	if err != nil {
+		log.Errorf("images(%s): failed to update image(%v)", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"image is updated successfully",
+		nil,
 	)
 }
 

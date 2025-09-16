@@ -37,7 +37,7 @@ func (o *Operator) importImage(req *images.ReqOpts) error {
 	}
 
 	updateOpts := o.genImageCustomProperties(req)
-	cubecos.SetImageProperties(req.Name, updateOpts)
+	cubecos.SetImagePropertiesByName(req.Name, updateOpts)
 	return nil
 }
 
@@ -46,6 +46,11 @@ func (o *Operator) genImageCustomProperties(req *images.ReqOpts) opsimage.Update
 		opsimage.UpdateImageProperty{
 			Op:    opsimage.AddOp,
 			Name:  images.CubeDefinedOs,
+			Value: req.Os,
+		},
+		opsimage.UpdateImageProperty{
+			Op:    opsimage.AddOp,
+			Name:  images.DefaultOsDistro,
 			Value: req.Os,
 		},
 		opsimage.UpdateImageProperty{

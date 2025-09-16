@@ -24,6 +24,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListParams()
 	case "importImage":
 		return h.parseImportParams()
+	case "updateImage":
+		return h.parseUpdateParams()
 	case "updateImageTask":
 		return h.parseUpdateTaskParams()
 	default:
@@ -44,6 +46,32 @@ func (h *helper) parseImportParams() error {
 	}
 
 	h.reqOpts.SetUploading()
+	return nil
+}
+
+func (h *helper) parseUpdateParams() error {
+	h.reqOpts.Id = h.c.Param("imageId")
+	if h.reqOpts.Id == "" {
+		return fmt.Errorf("image id is required")
+	}
+
+	err := h.c.ShouldBindJSON(&h.reqOpts)
+	if err != nil {
+		return fmt.Errorf("data payload is invalid a JSON(%v)", err)
+	}
+
+	if h.reqOpts.Name == "" {
+		return fmt.Errorf("name parameter is required")
+	}
+
+	if h.reqOpts.Os == "" {
+		return fmt.Errorf("os parameter is required")
+	}
+
+	if images.IsVisibilityValid(h.reqOpts.Visibility) {
+		return fmt.Errorf("invalid visibility %s", h.reqOpts.Visibility)
+	}
+
 	return nil
 }
 
@@ -208,13 +236,13 @@ func (h *helper) parseDestination(properties map[string]any) string {
 		return destination
 	}
 
-	return "unknown"
+	return "CubeStorage"
 }
 
 func (h *helper) parseProjectName(id string) string {
 	project, err := h.openstack.GetProject(id)
 	if err != nil {
-		log.Errorf("images: failed to get project by id(%s): %v", id, err)
+		log.Warnf("images: failed to get project by id(%s): %v", id, err)
 		return "unknown"
 	}
 
@@ -224,7 +252,7 @@ func (h *helper) parseProjectName(id string) string {
 func (h *helper) parseDomain(id string) string {
 	project, err := h.openstack.GetProject(id)
 	if err != nil {
-		log.Errorf("images: failed to get project by id(%s): %v", id, err)
+		log.Warnf("images: failed to get project by id(%s): %v", id, err)
 		return "unknown"
 	}
 

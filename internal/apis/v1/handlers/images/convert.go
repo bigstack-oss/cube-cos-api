@@ -7,6 +7,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	opsimage "github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 )
 
 var (
@@ -44,4 +45,47 @@ func (h *helper) genStatusDesc(status status.Image) string {
 		"%s(%.2f%%)",
 		status.Current, status.ProcessPercent,
 	)
+}
+
+func (h *helper) genImageUpdateOpts() opsimage.UpdateOpts {
+	opts := opsimage.UpdateOpts{}
+	if h.reqOpts.Name != "" {
+		opts = append(opts, opsimage.ReplaceImageName{NewName: h.reqOpts.Name})
+	}
+
+	if h.reqOpts.Os != "" {
+		opts = append(opts, opsimage.UpdateImageProperty{
+			Op:    opsimage.ReplaceOp,
+			Name:  images.CubeDefinedOs,
+			Value: h.reqOpts.Os,
+		})
+		opts = append(opts, opsimage.UpdateImageProperty{
+			Op:    opsimage.ReplaceOp,
+			Name:  images.DefaultOsDistro,
+			Value: h.reqOpts.Os,
+		})
+	}
+
+	if h.reqOpts.Visibility != "" {
+		opts = append(opts, opsimage.UpdateVisibility{
+			Visibility: h.convertVisibility(h.reqOpts.Visibility),
+		})
+	}
+
+	return opts
+}
+
+func (h *helper) convertVisibility(visibility string) opsimage.ImageVisibility {
+	switch visibility {
+	case "public":
+		return "public"
+	case "private":
+		return "private"
+	case "shared":
+		return "shared"
+	case "community":
+		return "community"
+	default:
+		return "unknown"
+	}
 }

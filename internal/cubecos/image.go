@@ -70,7 +70,7 @@ func genImageArgs(opts *images.CreateOpts) []string {
 	}
 }
 
-func SetImageProperties(name string, opts opsimage.UpdateOpts) error {
+func SetImagePropertiesByName(name string, opts opsimage.UpdateOpts) error {
 	h := openstack.GetGlobalHelper()
 	image, err := h.GetImageByName(name)
 	if err != nil {
@@ -79,6 +79,11 @@ func SetImageProperties(name string, opts opsimage.UpdateOpts) error {
 	}
 
 	return h.UpdateImageProperty(image.ID, opts)
+}
+
+func UpdateImage(id string, opts opsimage.UpdateOpts) error {
+	h := openstack.GetGlobalHelper()
+	return h.UpdateImageProperty(id, opts)
 }
 
 func traceImportProgress(opts *images.CreateOpts, out io.Reader) {
