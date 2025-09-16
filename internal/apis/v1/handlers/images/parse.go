@@ -60,12 +60,12 @@ func (h *helper) parseUpdateParams() error {
 		return fmt.Errorf("data payload is invalid a JSON(%v)", err)
 	}
 
-	if h.reqOpts.Name == "" {
-		return fmt.Errorf("name parameter is required")
+	if h.reqOpts.Name == "" && h.reqOpts.Os == "" && h.reqOpts.Visibility == "" {
+		return fmt.Errorf("at least one field of name, os or visibility is required to update")
 	}
 
-	if h.reqOpts.Os == "" {
-		return fmt.Errorf("os parameter is required")
+	if h.reqOpts.Visibility == "" {
+		return nil
 	}
 
 	if !images.IsVisibilityValid(h.reqOpts.Visibility) {

@@ -15025,6 +15025,48 @@ const docTemplate = `{
                         "example": "763655de-1cfc-45d4-b67c-5579ea43a6e1"
                     }
                 ],
+                "requestBody": {
+                    "description": "At least one of the fields must be provided.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The new name of the image",
+                                        "example": "renamed-example-image"
+                                    },
+                                    "os": {
+                                        "type": "string",
+                                        "description": "The new operating system type of the image",
+                                        "example": "Ubuntu"
+                                    },
+                                    "visibility": {
+                                        "type": "string",
+                                        "description": "The new visibility type of the image, can be either 'public' or 'private'",
+                                        "enum": [
+                                            "public",
+                                            "private"
+                                        ],
+                                        "example": "private"
+                                    }
+                                }
+                            },
+                            "examples": {
+                                "example": {
+                                    "summary": "Update image request",
+                                    "value": {
+                                        "name": "renamed-example-image",
+                                        "os": "Ubuntu",
+                                        "visibility": "private"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Image updated successfully",
