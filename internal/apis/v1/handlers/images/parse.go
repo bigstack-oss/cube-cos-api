@@ -68,7 +68,7 @@ func (h *helper) parseUpdateParams() error {
 		return fmt.Errorf("os parameter is required")
 	}
 
-	if images.IsVisibilityValid(h.reqOpts.Visibility) {
+	if !images.IsVisibilityValid(h.reqOpts.Visibility) {
 		return fmt.Errorf("invalid visibility %s", h.reqOpts.Visibility)
 	}
 

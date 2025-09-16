@@ -37,7 +37,7 @@ func (h *helper) validateValues() error {
 }
 
 func (h *helper) isImageExist() bool {
-	isExists, err := h.openstack.IsImageExist(h.reqOpts.Name)
+	isExists, err := h.openstack.IsImageExist(h.reqOpts.Id)
 	if err != nil {
 		return false
 	}

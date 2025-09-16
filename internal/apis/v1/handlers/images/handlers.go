@@ -159,12 +159,12 @@ func updateImage(c *gin.Context) {
 		return
 	}
 
-	if h.isImageExist() {
+	if !h.isImageExist() {
 		bodies.SetNotFound(c, fmt.Errorf("image %s is not found", h.reqOpts.Name))
 		return
 	}
 
-	if h.isImageOperatable() {
+	if !h.isImageOperatable() {
 		bodies.SetConflict(c, fmt.Errorf("image %s is under processing, cannot be updated", h.reqOpts.Name))
 		return
 	}
