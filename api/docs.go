@@ -14836,7 +14836,25 @@ const docTemplate = `{
                                                         "domainName": "default",
                                                         "projectName": "admin",
                                                         "visibilityType": "public",
+                                                        "diskType": "raw",
                                                         "createdAt": "2025-07-27T13:08:53+08:00",
+                                                        "metadata": {
+                                                            "cubeDefinedDestination": "CubeStorage",
+                                                            "cubeDefinedOs": "Ubuntu",
+                                                            "direct_url": "rbd://c6e64c49-09cf-463b-9d1c-b6645b4b3b85/glance-images/59be046d-0199-407d-88d4-a833dbbd2420/snap",
+                                                            "hw_disk_bus": "scsi",
+                                                            "hw_input_bus": "virtio",
+                                                            "hw_machine_type": "q35",
+                                                            "hw_qemu_guest_agent": "yes",
+                                                            "hw_scsi_model": "virtio-scsi",
+                                                            "hw_video_model": "vga",
+                                                            "os_admin_user": "other",
+                                                            "os_distro": "Ubuntu",
+                                                            "os_hash_algo": "sha512",
+                                                            "os_hash_value": "7f6b1fcdca809920b3bbba6fdec139d9e47484548c4188fe4efa0bf2434a9f15f836e74100848e0e6f678400ca1e2f174f93826a0effcf16044e17d0bf7d7d66",
+                                                            "os_require_quiesce": "yes",
+                                                            "os_vers": "example image 0"
+                                                        },
                                                         "status": {
                                                             "current": "active",
                                                             "isProcessing": false
@@ -14851,6 +14869,23 @@ const docTemplate = `{
                                                         "projectName": "admin",
                                                         "visibilityType": "private",
                                                         "createdAt": "2025-07-29T13:08:53+08:00",
+                                                        "metadata": {
+                                                            "cubeDefinedDestination": "CubeStorage",
+                                                            "cubeDefinedOs": "Ubuntu",
+                                                            "direct_url": "rbd://c6e64c49-09cf-463b-9d1c-b6645b4b3b85/glance-images/59be046d-0199-407d-88d4-a833dbbd2420/snap",
+                                                            "hw_disk_bus": "scsi",
+                                                            "hw_input_bus": "virtio",
+                                                            "hw_machine_type": "q35",
+                                                            "hw_qemu_guest_agent": "yes",
+                                                            "hw_scsi_model": "virtio-scsi",
+                                                            "hw_video_model": "vga",
+                                                            "os_admin_user": "other",
+                                                            "os_distro": "Ubuntu",
+                                                            "os_hash_algo": "sha512",
+                                                            "os_hash_value": "9f6b1fcdca809920b3bbba6fdec139d9e47484548c4188fe4efa0bf2434a9f15f836e74100848e0e6f678400ca1e2f174f93826a0effcf16044e17d0bf7d7d66",
+                                                            "os_require_quiesce": "yes",
+                                                            "os_vers": "example image 1"
+                                                        },
                                                         "status": {
                                                             "current": "importing",
                                                             "isProcessing": true,
@@ -15110,7 +15145,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "name is required"
+                                            "example": "at least one of the fields must be provided"
                                         },
                                         "status": {
                                             "type": "string",
@@ -15139,6 +15174,30 @@ const docTemplate = `{
                                         "status": {
                                             "type": "string",
                                             "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "image is under processing, cannot be updated"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
                                         }
                                     }
                                 }
@@ -19335,7 +19394,7 @@ const docTemplate = `{
                                                     "type": "string"
                                                 },
                                                 "content": {
-                                                    "type": "string",   
+                                                    "type": "string",
                                                     "description": "Base64 encoded content of the config file"
                                                 }
                                             }
@@ -23900,6 +23959,8 @@ const docTemplate = `{
                                         "project",
                                         "visibility",
                                         "sizeMiB",
+                                        "diskType",
+                                        "metadata",
                                         "createdAt",
                                         "status"
                                     ],
@@ -23932,11 +23993,81 @@ const docTemplate = `{
                                                 "unknown"
                                             ]
                                         },
+                                        "diskType": {
+                                            "type": "string",
+                                            "enum": [
+                                                "raw",
+                                                "qcow2",
+                                                "vhd",
+                                                "vmdk",
+                                                "iso",
+                                                "unknown"
+                                            ]
+                                        },
                                         "createdAt": {
                                             "type": "string"
                                         },
                                         "sizeMiB": {
                                             "type": "number"
+                                        },
+                                        "metadata": {
+                                            "type": "object",
+                                            "description": "Free-form metadata; may be empty {}",
+                                            "properties": {
+                                                "cubeDefinedDestination": {
+                                                    "type": "string"
+                                                },
+                                                "cubeDefinedOs": {
+                                                    "type": "string"
+                                                },
+                                                "direct_url": {
+                                                    "type": "string"
+                                                },
+                                                "hw_disk_bus": {
+                                                    "type": "string"
+                                                },
+                                                "hw_input_bus": {
+                                                    "type": "string"
+                                                },
+                                                "hw_machine_type": {
+                                                    "type": "string"
+                                                },
+                                                "hw_qemu_guest_agent": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "yes",
+                                                        "no"
+                                                    ]
+                                                },
+                                                "hw_scsi_model": {
+                                                    "type": "string"
+                                                },
+                                                "hw_video_model": {
+                                                    "type": "string"
+                                                },
+                                                "os_admin_user": {
+                                                    "type": "string"
+                                                },
+                                                "os_distro": {
+                                                    "type": "string"
+                                                },
+                                                "os_hash_algo": {
+                                                    "type": "string"
+                                                },
+                                                "os_hash_value": {
+                                                    "type": "string"
+                                                },
+                                                "os_require_quiesce": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "yes",
+                                                        "no"
+                                                    ]
+                                                },
+                                                "os_vers": {
+                                                    "type": "string"
+                                                }
+                                            }
                                         },
                                         "status": {
                                             "type": "object",
