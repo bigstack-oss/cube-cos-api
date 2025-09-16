@@ -3145,96 +3145,6 @@
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/integrations": {
-            "get": {
-                "operationId": "getIntegrations",
-                "tags": [
-                    "Integrations"
-                ],
-                "summary": "Retrieve the list of integrated applications",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/dataCenter"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Retrieve the list of integrated applications successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GetIntegrationsResponse"
-                                },
-                                "examples": {
-                                    "example1": {
-                                        "summary": "Integrated applications",
-                                        "value": {
-                                            "code": 200,
-                                            "data": [
-                                                {
-                                                    "name": "keycloak",
-                                                    "isHeaderShortcutEnabled": true,
-                                                    "description": "Keycloak Dashboard",
-                                                    "isBuiltIn": true,
-                                                    "url": "https://example-datat-center.host:10443/auth/admin"
-                                                },
-                                                {
-                                                    "name": "openstack",
-                                                    "isHeaderShortcutEnabled": true,
-                                                    "description": "OpenStack Dashboard",
-                                                    "isBuiltIn": true,
-                                                    "url": "https://example-datat-center.host:9999/base/overview"
-                                                },
-                                                {
-                                                    "name": "rancher",
-                                                    "isHeaderShortcutEnabled": true,
-                                                    "description": "Rancher Dashboard",
-                                                    "isBuiltIn": true,
-                                                    "url": "https://example-datat-center.host:10443"
-                                                },
-                                                {
-                                                    "name": "ceph",
-                                                    "isHeaderShortcutEnabled": true,
-                                                    "description": "Ceph Dashboard",
-                                                    "isBuiltIn": true,
-                                                    "url": "https://example-datat-center.host:7443/ceph/#/dashboard"
-                                                }
-                                            ],
-                                            "msg": "fetch integrations successfully",
-                                            "status": "ok"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 500
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "failed to fetch integrations: internal server error"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "internal server error"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/datacenters/{dataCenter}/integrations/applications": {
             "get": {
                 "operationId": "getIntegratedApplications",
@@ -15089,6 +14999,133 @@
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/images/{imageId}": {
+            "patch": {
+                "operationId": "updateImage",
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Update an image",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "in": "path",
+                        "name": "imageId",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The id of the image",
+                        "example": "763655de-1cfc-45d4-b67c-5579ea43a6e1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Image updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "image updated successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "name is required"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "image not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to update image: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/images.csv": {
             "get": {
                 "operationId": "listImagesAsCsv",
@@ -19021,64 +19058,6 @@
                     },
                     "status": {
                         "type": "string"
-                    }
-                }
-            },
-            "GetIntegrationsResponse": {
-                "type": "object",
-                "required": [
-                    "code",
-                    "data",
-                    "msg",
-                    "status"
-                ],
-                "properties": {
-                    "code": {
-                        "type": "integer",
-                        "example": 200
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "required": [
-                                "name",
-                                "isHeaderShortcutEnabled",
-                                "description",
-                                "isBuiltIn",
-                                "url"
-                            ],
-                            "properties": {
-                                "name": {
-                                    "type": "string",
-                                    "example": "openstack"
-                                },
-                                "isHeaderShortcutEnabled": {
-                                    "type": "boolean",
-                                    "example": true
-                                },
-                                "description": {
-                                    "type": "string",
-                                    "example": "openstack dashboard"
-                                },
-                                "isBuiltIn": {
-                                    "type": "boolean",
-                                    "example": true
-                                },
-                                "url": {
-                                    "type": "string",
-                                    "example": "https://10.10.10.10/skyline"
-                                }
-                            }
-                        }
-                    },
-                    "msg": {
-                        "type": "string",
-                        "example": "fetch integrations successfully"
-                    },
-                    "status": {
-                        "type": "string",
-                        "example": "ok"
                     }
                 }
             },
