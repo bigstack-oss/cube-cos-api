@@ -49,8 +49,9 @@ type Raw struct {
 }
 
 type Upgrade struct {
-	Version    string     `json:"version"`
-	Progresses []Progress `json:"progresses"`
+	Version          string     `json:"version"`
+	IsRollingApplied bool       `json:"isRollingApplied"`
+	Progresses       []Progress `json:"progresses"`
 }
 
 type Progress struct {

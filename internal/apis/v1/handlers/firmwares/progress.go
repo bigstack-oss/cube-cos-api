@@ -64,7 +64,7 @@ func (h *helper) syncFirstTimeInstallationProgress() {
 		return
 	}
 
-	upgrade := firmwares.Upgrade{Version: version}
+	upgrade := firmwares.Upgrade{Version: version, IsRollingApplied: h.reqOpts.AutoRolling}
 	for _, node := range nodes.List() {
 		upgrade.Progresses = append(upgrade.Progresses, firmwares.Progress{
 			Host: node.Hostname,

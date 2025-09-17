@@ -16132,6 +16132,7 @@ const docTemplate = `{
                                             "code": 200,
                                             "data": {
                                                 "version": "CUBE Appliance 3.1.0",
+                                                "isRollingApplied": true,
                                                 "progresses": [
                                                     {
                                                         "host": "example-node-0",
@@ -24383,11 +24384,15 @@ const docTemplate = `{
                         "type": "object",
                         "required": [
                             "version",
+                            "isRollingApplied",
                             "progresses"
                         ],
                         "properties": {
                             "version": {
                                 "type": "string"
+                            },
+                            "isRollingApplied": {
+                                "type": "boolean"
                             },
                             "progresses": {
                                 "type": "array",
