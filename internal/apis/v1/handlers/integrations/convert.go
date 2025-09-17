@@ -25,7 +25,7 @@ func (h *helper) convertToStorages(cinders []storages.Cinder) []integration.Stor
 				ManagementIp: base.ManagementIp,
 				UpdatedAt:    h.convertTime(cinder.Storage.UpdateTime),
 				IsDefault:    cubecos.IsDefaultStorage(cinder.Name),
-				Status: status.Integration{
+				Status: status.Storage{
 					Current:      status.Ok,
 					IsProcessing: false,
 				},

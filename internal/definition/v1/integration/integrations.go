@@ -32,13 +32,13 @@ type Service struct {
 }
 
 type Storage struct {
-	Name         string             `json:"name"`
-	Type         string             `json:"type"`
-	Vendor       string             `json:"vendor"`
-	ManagementIp string             `json:"managementIp"`
-	UpdatedAt    string             `json:"updatedAt"`
-	IsDefault    bool               `json:"isDefault"`
-	Status       status.Integration `json:"status"`
+	Name         string         `json:"name"`
+	Type         string         `json:"type"`
+	Vendor       string         `json:"vendor"`
+	ManagementIp string         `json:"managementIp"`
+	UpdatedAt    string         `json:"updatedAt"`
+	IsDefault    bool           `json:"isDefault"`
+	Status       status.Storage `json:"status"`
 }
 
 func GetCommonServices() []Service {

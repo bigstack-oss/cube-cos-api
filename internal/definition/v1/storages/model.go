@@ -1,10 +1,13 @@
 package storages
 
+import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+
 type Model struct {
 	Vendor    string `json:"vendor" yaml:"vendor" bson:"vendor"`
 	Product   string `json:"product" yaml:"product" bson:"product"`
 	Multipath `json:"multipath" yaml:"multipath" bson:"multipath"`
 	Storage   `json:"storage" yaml:"storage" bson:"storage"`
+	Status    status.Model `json:"status" yaml:"status" bson:"status"`
 }
 
 type Multipath struct {

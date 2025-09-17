@@ -43,6 +43,7 @@ func (h *helper) listStorages() ([]integration.Storage, error) {
 	}
 
 	storages := h.convertToStorages(cinders)
+	h.syncProcessingStorages(&storages)
 	h.sortStorages(&storages)
 	return storages, nil
 }
@@ -65,6 +66,7 @@ func (h *helper) listModels() ([]storages.Model, error) {
 		return nil, err
 	}
 
+	h.syncProcessingModels(&models)
 	h.sortModels(&models)
 	return models, nil
 }
