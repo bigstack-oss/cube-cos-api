@@ -19,7 +19,7 @@ BlockIOAccounting=true
 MemoryAccounting=true
 TasksAccounting=true
 StandardOutput=null
-StandardError=syslog
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
