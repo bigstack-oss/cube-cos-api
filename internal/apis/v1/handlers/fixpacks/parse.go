@@ -31,6 +31,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseGetProgressParams()
 	case "continueInterruptedFixpackUpdate":
 		return h.parseUpdateInterruptedParams()
+	case "listRollbackableNodes":
+		return h.parseListRollbackableParams()
 	case "rollbackFixpack":
 		return h.parseRollbackParams()
 	case "deleteFixpack":
@@ -99,6 +101,20 @@ func (h *helper) parseListUpdatableParams() error {
 	}
 
 	_, found := cubecos.GetFixpackByVersion(h.reqOpts.Version)
+	if !found {
+		return fmt.Errorf("fixpack version %s not found", h.reqOpts.Version)
+	}
+
+	return nil
+}
+
+func (h *helper) parseListRollbackableParams() error {
+	h.reqOpts.Version = h.c.Param("version")
+	if h.reqOpts.Version == "" {
+		return fmt.Errorf("version parameter is required")
+	}
+
+	_, found := cubecos.GetFixpackRawByVersion(h.reqOpts.Version)
 	if !found {
 		return fmt.Errorf("fixpack version %s not found", h.reqOpts.Version)
 	}

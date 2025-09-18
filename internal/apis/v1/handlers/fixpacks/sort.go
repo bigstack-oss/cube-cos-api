@@ -4,7 +4,7 @@ import (
 	"sort"
 )
 
-func (h *helper) sortUpdatableNodesByHost(nodes *[]node) {
+func (h *helper) sortNodesByHost(nodes *[]node) {
 	sort.Slice(*nodes, func(i, j int) bool {
 		return (*nodes)[i].Name < (*nodes)[j].Name
 	})

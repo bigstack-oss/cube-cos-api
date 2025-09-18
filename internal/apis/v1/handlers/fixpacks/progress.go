@@ -14,7 +14,7 @@ import (
 
 type node struct {
 	Name      string `json:"name"`
-	Version   string `json:"version"`
+	Version   string `json:"version,omitempty"`
 	UpdatedAt string `json:"updatedAt"`
 }
 

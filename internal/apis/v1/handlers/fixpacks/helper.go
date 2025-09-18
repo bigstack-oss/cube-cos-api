@@ -78,7 +78,7 @@ func (h *helper) listUpdatableNodes(version string) ([]node, error) {
 		return nil, err
 	}
 
-	h.sortUpdatableNodesByHost(&updatables)
+	h.sortNodesByHost(&updatables)
 	return updatables, nil
 }
 
@@ -97,6 +97,25 @@ func (h *helper) installFixpack(updatables []node) error {
 	return nil
 }
 
+func (h *helper) listRollbackableNodes() ([]node, error) {
+	fixpack, found := cubecos.GetFixpackRawByVersion(h.reqOpts.Version)
+	if !found {
+		return nil, fmt.Errorf("fixpack version %s not found", h.reqOpts.Version)
+	}
+	if !fixpack.AllowRollback {
+		return []node{}, nil
+	}
+
+	list, err := h.filterNodesByRole(fixpack.RebootRequired)
+	if err != nil {
+		return nil, err
+	}
+
+	updatables := h.convertToRollbackableNodes(list)
+	h.sortNodesByHost(&updatables)
+	return updatables, nil
+}
+
 func (h *helper) rollbackFixpack(updateds []node) error {
 	h.delegateToLocal(updateds)
 	if !cubecos.IsVirtualIpOwner(base.Hostname) {
@@ -113,6 +132,18 @@ func (h *helper) convertToUpdatableNodes(list []nodes.Node) []node {
 		updatables = append(updatables, node{
 			Name:      n.Hostname,
 			Version:   n.Firmware.Active,
+			UpdatedAt: base.ActiveFirmwareUpdatedAt,
+		})
+	}
+
+	return updatables
+}
+
+func (h *helper) convertToRollbackableNodes(list []nodes.Node) []node {
+	updatables := make([]node, 0, len(list))
+	for _, n := range list {
+		updatables = append(updatables, node{
+			Name:      n.Hostname,
 			UpdatedAt: base.ActiveFirmwareUpdatedAt,
 		})
 	}

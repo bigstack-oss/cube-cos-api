@@ -69,6 +69,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/fixpacks/:version/rollbackableNodes",
+			Func:    listRollbackableNodes,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodDelete,
 			Path:    "/fixpacks/:version",
 			Func:    deleteFixpack,
@@ -308,6 +314,27 @@ func getFixpackUpdateProgress(c *gin.Context) {
 	}
 
 	bodies.SetInternalServerError(c, err)
+}
+
+func listRollbackableNodes(c *gin.Context) {
+	h, err := initHelper(c, "listRollbackableNodes")
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	nodes, err := h.listRollbackableNodes()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"List of rollbackable nodes",
+		nodes,
+	)
 }
 
 func rollbackFixpack(c *gin.Context) {

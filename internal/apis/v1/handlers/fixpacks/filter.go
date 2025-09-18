@@ -5,8 +5,25 @@ import (
 	"slices"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
 )
+
+func (h *helper) filterNodesByRole(roles []string) ([]nodes.Node, error) {
+	list := nodes.List()
+	if len(list) == 0 {
+		return nil, fmt.Errorf("no nodes found")
+	}
+
+	nodes := []nodes.Node{}
+	for _, node := range list {
+		if slices.Contains(roles, node.Role) {
+			nodes = append(nodes, node)
+		}
+	}
+
+	return nodes, nil
+}
 
 func (h *helper) filterUnsupportedNodes(nodes []node, version string) ([]node, error) {
 	fixpack, found := cubecos.GetFixpackRawByVersion(version)

@@ -14835,7 +14835,7 @@ const docTemplate = `{
                                                         "destination": "CubeStorage",
                                                         "domainName": "default",
                                                         "projectName": "admin",
-                                                        "visibilityType": "public",
+                                                        "visibility": "public",
                                                         "diskType": "raw",
                                                         "createdAt": "2025-07-27T13:08:53+08:00",
                                                         "metadata": {
@@ -14867,7 +14867,7 @@ const docTemplate = `{
                                                         "destination": "CubeStorage",
                                                         "domainName": "default",
                                                         "projectName": "admin",
-                                                        "visibilityType": "private",
+                                                        "visibility": "private",
                                                         "createdAt": "2025-07-29T13:08:53+08:00",
                                                         "metadata": {
                                                             "cubeDefinedDestination": "CubeStorage",
@@ -17268,6 +17268,117 @@ const docTemplate = `{
                                         "status": {
                                             "type": "string",
                                             "example": "'internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/fixpacks/{version}/rollbackableNodes": {
+            "get": {
+                "operationId": "listFixpackRollbackableNodes",
+                "tags": [
+                    "Fixpacks"
+                ],
+                "summary": "Get nodes that can be rolled back with the specified fixpack",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/version"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of nodes that can be rolled back with the specified fixpack",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListFixpackRollbackableNodesResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "Rollbackable nodes",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "name": "cube451",
+                                                    "updatedAt": "2025-08-08T19:51:40+08:00"
+                                                },
+                                                {
+                                                    "name": "cube452",
+                                                    "updatedAt": "2025-08-08T19:51:40+08:00"
+                                                },
+                                                {
+                                                    "name": "cube453",
+                                                    "updatedAt": "2025-08-08T19:51:40+08:00"
+                                                }
+                                            ],
+                                            "msg": "Fetched rollbackable nodes successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "'FIX_001' not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to list rollbackable nodes: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
                                         }
                                     }
                                 }
@@ -24584,6 +24695,45 @@ const docTemplate = `{
                                     "type": "string"
                                 },
                                 "version": {
+                                    "type": "string"
+                                },
+                                "updatedAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ListFixpackRollbackableNodesResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "updatedAt"
+                            ],
+                            "properties": {
+                                "name": {
                                     "type": "string"
                                 },
                                 "updatedAt": {
