@@ -5,9 +5,12 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
@@ -25,8 +28,12 @@ var (
 func ImportImage(opts *images.CreateOpts) error {
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(180))
 	defer cancel()
+	cmd, err := genCmdByPoolType(ctx, opts)
+	if err != nil {
+		return err
+	}
 
-	cmd := exec.CommandContext(ctx, "hex_sdk", genImageArgs(opts)...)
+	defer removeWorkaroundScriptIfExists()
 	out, err := tty.Start(cmd)
 	if err != nil {
 		log.Errorf("images: failed to start command(%v)", err)
@@ -49,6 +56,53 @@ func ImportImage(opts *images.CreateOpts) error {
 	return nil
 }
 
+func genCmdByPoolType(ctx context.Context, opts *images.CreateOpts) (*exec.Cmd, error) {
+	switch opts.PoolType {
+	case "cinder-volumes":
+		return genCinderWorkaroundCmd(ctx, opts)
+	default:
+		return genGlanceCmd(ctx, opts)
+	}
+}
+
+func genCinderWorkaroundCmd(ctx context.Context, opts *images.CreateOpts) (*exec.Cmd, error) {
+	script := fmt.Sprintf(
+		"#!/bin/bash\nhex_sdk %s\n",
+		strings.Join(genImageArgs(opts), " "),
+	)
+
+	scriptPath := "image-import-cinder.sh"
+	if err := os.WriteFile(scriptPath, []byte(script), 0755); err != nil {
+		log.Errorf("images: failed to write script file(%v)", err)
+		return nil, err
+	}
+
+	absPath, err := filepath.Abs(scriptPath)
+	if err != nil {
+		log.Errorf("images: failed to get abs path(%v)", err)
+		return nil, err
+	}
+
+	err = os.Chmod(absPath, 0755)
+	if err != nil {
+		log.Errorf("images: failed to chmod script file(%v)", err)
+		return nil, err
+	}
+
+	return exec.CommandContext(
+		ctx,
+		absPath,
+	), nil
+}
+
+func genGlanceCmd(ctx context.Context, opts *images.CreateOpts) (*exec.Cmd, error) {
+	return exec.CommandContext(
+		ctx,
+		"hex_sdk",
+		genImageArgs(opts)...,
+	), nil
+}
+
 func genImageArgs(opts *images.CreateOpts) []string {
 	switch opts.ReservedType {
 	case "lb":
@@ -60,6 +114,20 @@ func genImageArgs(opts *images.CreateOpts) []string {
 		return []string{
 			"os_manila_image_import",
 			opts.Dir, opts.File,
+		}
+	default:
+		return genImageArgsByPoolType(opts)
+	}
+}
+
+func genImageArgsByPoolType(opts *images.CreateOpts) []string {
+	switch opts.PoolType {
+	case "cinder-volumes":
+		return []string{
+			"os_image_import",
+			opts.Dir, opts.File, opts.Name,
+			fmt.Sprintf(`"--os-project-domain-name %s --os-project-name %s"`, opts.Domain, opts.Project),
+			opts.PoolType, opts.StorageBackend,
 		}
 	default:
 		return []string{
@@ -146,4 +214,8 @@ func streamImportProgress(poolType string, buf *bytes.Buffer, last *float64, str
 		*last = percent
 		*streamingLogs <- percent
 	}
+}
+
+func removeWorkaroundScriptIfExists() {
+	os.Remove("/image-import-cinder.sh")
 }
