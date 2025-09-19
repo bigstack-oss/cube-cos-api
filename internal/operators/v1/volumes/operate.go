@@ -28,9 +28,13 @@ func (o *Operator) operateImageConvertion(req *images.ReqOpts) error {
 }
 
 func (o *Operator) convertImage(req *images.ReqOpts) error {
-	opts := req.GenCreateOpts()
+	opts, err := cubecos.GenCreateOptsByReqOpts(*req)
+	if err != nil {
+		return err
+	}
+
 	go o.syncProgressToController(req, &opts.StreamingLogs)
-	return cubecos.ImportImage(&opts)
+	return cubecos.ImportImage(opts)
 }
 
 func (o *Operator) syncProgressToController(req *images.ReqOpts, streamingLogs *chan float64) {

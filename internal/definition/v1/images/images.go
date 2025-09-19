@@ -110,6 +110,7 @@ type CreateOpts struct {
 	Domain         string       `json:"domain"`
 	Project        string       `json:"project"`
 	PoolType       string       `json:"poolType"`
+	StorageBackend string       `json:"storageBackend,omitempty"`
 	AttributesType string       `json:"attributesType,omitempty"`
 	Visibility     string       `json:"visibility"`
 	StreamingLogs  chan float64 `json:"streaming,omitempty"`
@@ -123,29 +124,6 @@ type Reserved struct {
 
 type Change struct {
 	Id string
-}
-
-func (r *ReqOpts) GenCreateOpts() CreateOpts {
-	poolType := "glance-images"
-	visibility := r.Visibility
-	if r.SourceFromAnotherHypervisor {
-		poolType = "cinder-volumes"
-		visibility = "public"
-	}
-
-	return CreateOpts{
-		Dir:            GlanceDir,
-		File:           r.File,
-		Name:           r.Name,
-		AttributesType: "default",
-		Destination:    r.Destination,
-		Domain:         r.Domain,
-		PoolType:       poolType,
-		Project:        r.Project,
-		Visibility:     visibility,
-		StreamingLogs:  make(chan float64),
-		ReservedType:   r.Reserved.Type,
-	}
 }
 
 func (r *ReqOpts) SetCompleted() {

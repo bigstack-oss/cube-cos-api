@@ -63,9 +63,10 @@ func genImageArgs(opts *images.CreateOpts) []string {
 		}
 	default:
 		return []string{
-			"os_image_import_with_attrs",
-			opts.AttributesType, opts.Dir, opts.File, opts.Name,
-			opts.Domain, opts.Project, opts.PoolType, opts.Visibility,
+			"os_image_import",
+			opts.Dir, opts.File, opts.Name,
+			fmt.Sprintf(`"--project-domain %s --project %s --visibility %s"`, opts.Domain, opts.Project, opts.Visibility),
+			opts.PoolType, opts.StorageBackend,
 		}
 	}
 }

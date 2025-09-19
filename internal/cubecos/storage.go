@@ -2,14 +2,17 @@ package cubecos
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -18,6 +21,35 @@ import (
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 )
+
+func GenCreateOptsByReqOpts(reqOpts images.ReqOpts) (*images.CreateOpts, error) {
+	poolType := "glance-images"
+	visibility := reqOpts.Visibility
+	if reqOpts.SourceFromAnotherHypervisor {
+		poolType = "cinder-volumes"
+		visibility = "public"
+	}
+
+	storageBackend, err := GetStorageBackendByPoolType(poolType)
+	if err != nil {
+		return nil, err
+	}
+
+	return &images.CreateOpts{
+		Dir:            images.GlanceDir,
+		File:           reqOpts.File,
+		Name:           reqOpts.Name,
+		AttributesType: "default",
+		Destination:    reqOpts.Destination,
+		Domain:         reqOpts.Domain,
+		PoolType:       poolType,
+		StorageBackend: storageBackend,
+		Project:        reqOpts.Project,
+		Visibility:     visibility,
+		StreamingLogs:  make(chan float64),
+		ReservedType:   reqOpts.Reserved.Type,
+	}, nil
+}
 
 func IsDefaultStorage(name string) bool {
 	file, err := os.Open(storages.CinderConf)
@@ -50,6 +82,32 @@ func IsDefaultStorage(name string) bool {
 	}
 
 	return defaultStorage == name
+}
+
+func GetStorageBackendByPoolType(poolType string) (string, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "os_list_volume_backend_by_pool", poolType).CombinedOutput()
+	if err != nil {
+		err := genIntegrationErr("storage backend exec failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return "", err
+	}
+
+	if !IsHexSuccessful(err) {
+		err := genIntegrationErr("storage backend output failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return "", err
+	}
+
+	storageBackend := strings.TrimSpace(string(out))
+	if len(storageBackend) == 0 {
+		err := genIntegrationErr("storage backend empty output")
+		log.Errorf("storage: %s", err.Error())
+		return "", err
+	}
+
+	return storageBackend, nil
 }
 
 func GetCephUsage() metric.Space {
