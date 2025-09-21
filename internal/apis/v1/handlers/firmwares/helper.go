@@ -97,6 +97,7 @@ func (h *helper) updateFirmware() error {
 
 	h.delegateToPeers(updatables, &progress)
 	h.setProgressDetails(progress)
+	go h.placeRollingTrigger()
 	return nil
 }
 

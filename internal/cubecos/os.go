@@ -121,7 +121,7 @@ func SoftRebootBySsh(host string) error {
 	return nil
 }
 
-func RolloutNodesByPowerCycle() error {
+func PowerCycleDataCenter() error {
 	out, err := exec.Command("hex_sdk", "-d", "cube_cluster_power", "cycle").CombinedOutput()
 	if err != nil {
 		err := fmt.Errorf("failed to execute the cluster power cycle cmd(%v %s)", err, string(out))

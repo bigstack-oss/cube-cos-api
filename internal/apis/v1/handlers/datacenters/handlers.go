@@ -29,8 +29,8 @@ var (
 		{
 			Version:              apis.V1,
 			Method:               http.MethodPost,
-			Path:                 "/datacenters/:DataCenter/rollingReboot",
-			Func:                 rolloutDataCenterBySoftReboot,
+			Path:                 "/datacenters/:DataCenter/reboot",
+			Func:                 softRebootDataCenter,
 			IsNotUnderDataCenter: true,
 		},
 	}
@@ -56,8 +56,8 @@ func getDataCenter(c *gin.Context) {
 	)
 }
 
-func rolloutDataCenterBySoftReboot(c *gin.Context) {
-	err := cubecos.RolloutNodesByPowerCycle()
+func softRebootDataCenter(c *gin.Context) {
+	err := cubecos.PowerCycleDataCenter()
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
