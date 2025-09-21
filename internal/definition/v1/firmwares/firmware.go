@@ -60,7 +60,7 @@ type Progress struct {
 	Status status.SystemUpdateProgress `json:"status"`
 }
 
-func (u *ReqOpts) SetProcessing() {
+func (u *ReqOpts) SetUpgrading() {
 	u.Status.Current = status.Upgrading
 	u.Status.Desired = status.Upgraded
 	u.Status.IsProcessing = true

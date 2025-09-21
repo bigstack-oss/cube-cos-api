@@ -284,6 +284,12 @@ func (n *Node) UpdateVolumeImageTaskUrl() string {
 	return u.String()
 }
 
+func (n *Node) UpdateFirmwareUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/firmwares", base.DataCenterName)
+	return u.String()
+}
+
 func (n *Node) UpdateFirmwareTaskUrl() string {
 	u := n.GenUrl()
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/firmwares/tasks", base.DataCenterName)

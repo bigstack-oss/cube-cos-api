@@ -7,20 +7,28 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
+	opfirmwares "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/firmwares"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
+)
+
+var (
+	reqQueue = opfirmwares.ReqQueue
 )
 
 type helper struct {
 	c       *gin.Context
 	reqId   string
 	handler string
+	http    *http.Helper
 	mongo   *mongo.Helper
 
 	file    string
@@ -31,6 +39,7 @@ type helper struct {
 func initHelper(c *gin.Context, handler string) (*helper, error) {
 	h := &helper{
 		c:       c,
+		http:    http.GetGlobalHelper(),
 		mongo:   mongo.GetGlobalHelper(),
 		reqId:   queries.GetReqId(c),
 		handler: handler,
@@ -74,8 +83,20 @@ func (h *helper) listUpdatableNodes() ([]node, error) {
 }
 
 func (h *helper) updateFirmware() error {
-	// todo:
-	// deletgate to local and all nodes
+	h.delegateToLocal()
+	if !cubecos.IsVirtualIpOwner(base.Hostname) {
+		return nil
+	}
+
+	progress := h.initUpgradeProgress()
+	updatables, err := h.listUpdatableNodes()
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to list updatable nodes (%v)", h.reqId, err)
+		return err
+	}
+
+	h.delegateToPeers(updatables, &progress)
+	h.setProgressDetails(progress)
 	return nil
 }
 

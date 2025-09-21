@@ -111,7 +111,8 @@ func (h *helper) findMatchedPkg(version string) (string, error) {
 			continue
 		}
 
-		if !strings.Contains(file, version) {
+		pkgPrefix := fmt.Sprintf("CUBE_%s_", version)
+		if !strings.Contains(file, pkgPrefix) {
 			continue
 		}
 

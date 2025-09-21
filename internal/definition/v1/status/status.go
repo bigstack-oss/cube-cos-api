@@ -21,6 +21,7 @@ const (
 	Installing           = "installing"
 	Repairing            = "repairing"
 	Processing           = "processing"
+	Partitioning         = "partitioning"
 	Upgrading            = "upgrading"
 	Syncing              = "syncing"
 	Checking             = "checking"
