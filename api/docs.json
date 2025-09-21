@@ -15753,6 +15753,124 @@
                         }
                     }
                 }
+            },
+            "patch": {
+                "operationId": "upgradeFirmware",
+                "tags": [
+                    "Firmwares"
+                ],
+                "summary": "Upgrade firmware on all nodes",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/upgradeFirmwareRequest"
+                },
+                "responses": {
+                    "202": {
+                        "description": "Firmware upgrade initiated successfully, processing",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 202
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "firmware upgrade initiated successfully, processing"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "msg": {
+                                            "type": "string",  
+                                            "example": "version is required"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "bad request"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "there is a firmware upgrade in processing, please try again later"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to upgrade firmware: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/v1/datacenters/{dataCenter}/firmwares/continueAnyway/{nodeName}": {
@@ -26691,6 +26809,35 @@
                         "schema": {
                             "type": "string",
                             "format": "binary"
+                        }
+                    }
+                }
+            },
+            "upgradeFirmwareRequest": {
+                "description": "Request body for upgrading firmware",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "version",
+                                "autoRolling"
+                            ],
+                            "properties": {
+                                "version": {
+                                    "type": "string",
+                                    "description": "The version of the firmware to be upgraded to"
+                                },
+                                "autoRolling": {
+                                    "type": "boolean",
+                                    "description": "Whether to automatically roll the upgrade across all nodes"
+                                }
+                            }
+                        },
+                        "example": {
+                            "version": "CUBE 3.1.0",
+                            "autoRolling": true
                         }
                     }
                 }
