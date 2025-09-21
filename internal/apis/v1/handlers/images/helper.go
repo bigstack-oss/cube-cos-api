@@ -49,12 +49,17 @@ func (h *helper) listMaterials() (*materials, error) {
 		return nil, err
 	}
 
+	destinations, err := h.listDestinations()
+	if err != nil {
+		return nil, err
+	}
+
 	return &materials{
 		ReservedImages: images.GetReserved(),
 		Projects:       projects,
 		Domains:        dominas,
 		Oses:           images.Oses,
-		Destinations:   images.Destinations,
+		Destinations:   destinations,
 		Visibilities:   images.Visibilitise,
 	}, nil
 }

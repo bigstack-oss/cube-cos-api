@@ -2,6 +2,8 @@ package images
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
+	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumetypes"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/domains"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/projects"
 	log "go-micro.dev/v5/logger"
@@ -44,4 +46,25 @@ func (h *helper) listDomains() ([]string, error) {
 	}
 
 	return domains, nil
+}
+
+func (h *helper) listDestinations() ([]string, error) {
+	types, err := h.openstack.ListVolumeTypes(volumetypes.ListOpts{})
+	if err != nil {
+		log.Errorf("images(%s): failed to list volume types:(%v)", h.reqId, err)
+		return nil, err
+	}
+
+	destinations := []string{}
+	for _, t := range types {
+		if t.Name == storages.DefaultType {
+			continue
+		}
+
+		if t.IsPublic {
+			destinations = append(destinations, t.Name)
+		}
+	}
+
+	return destinations, nil
 }

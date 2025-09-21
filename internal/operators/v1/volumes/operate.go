@@ -2,6 +2,7 @@ package volumes
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
@@ -34,6 +35,7 @@ func (o *Operator) convertImage(req *images.ReqOpts) error {
 	}
 
 	go o.syncProgressToController(req, &opts.StreamingLogs)
+	defer cubecos.RemoveRawImage(filepath.Join(opts.Dir, opts.File))
 	return cubecos.ImportImage(opts)
 }
 

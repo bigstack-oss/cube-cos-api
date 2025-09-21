@@ -10,6 +10,8 @@ const (
 
 	TmpUploadedStorageModelList = "/tmp/storage-model-list.yaml"
 	TmpUploadedStorageModel     = "/tmp/storage-model.yaml"
+
+	DefaultType = "__DEFAULT__"
 )
 
 type ReqOpts struct {

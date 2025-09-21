@@ -56,6 +56,17 @@ func ImportImage(opts *images.CreateOpts) error {
 	return nil
 }
 
+func RemoveRawImage(path string) {
+	err := os.Remove(path)
+	if err == nil {
+		return
+	}
+
+	if !os.IsNotExist(err) {
+		log.Warnf("images: failed to remove raw image file %s(%v)", path, err)
+	}
+}
+
 func genCmdByPoolType(ctx context.Context, opts *images.CreateOpts) (*exec.Cmd, error) {
 	switch opts.PoolType {
 	case "cinder-volumes":

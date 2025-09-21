@@ -2,6 +2,7 @@ package images
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
@@ -35,6 +36,7 @@ func (o *Operator) importImage(req *images.ReqOpts) error {
 	}
 
 	go o.syncProgressToController(req, &opts.StreamingLogs)
+	defer cubecos.RemoveRawImage(filepath.Join(opts.Dir, opts.File))
 	err = cubecos.ImportImage(opts)
 	if err != nil {
 		return err
