@@ -127,24 +127,10 @@ func genImageArgs(opts *images.CreateOpts) []string {
 			opts.Dir, opts.File,
 		}
 	default:
-		return genImageArgsByPoolType(opts)
-	}
-}
-
-func genImageArgsByPoolType(opts *images.CreateOpts) []string {
-	switch opts.PoolType {
-	case "cinder-volumes":
 		return []string{
 			"os_image_import",
 			opts.Dir, opts.File, opts.Name,
-			fmt.Sprintf(`"--os-project-domain-name %s --os-project-name %s"`, opts.Domain, opts.Project),
-			opts.PoolType, opts.StorageBackend,
-		}
-	default:
-		return []string{
-			"os_image_import",
-			opts.Dir, opts.File, opts.Name,
-			fmt.Sprintf(`"--project-domain %s --project %s --visibility %s"`, opts.Domain, opts.Project, opts.Visibility),
+			fmt.Sprintf(`"--os-project-domain-name %s --os-project-name %s --visibility %s"`, opts.Domain, opts.Project, opts.Visibility),
 			opts.PoolType, opts.StorageBackend,
 		}
 	}
