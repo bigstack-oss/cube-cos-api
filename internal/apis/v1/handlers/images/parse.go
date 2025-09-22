@@ -87,6 +87,7 @@ func (h *helper) parseListParams() error {
 	}
 
 	h.parseKeyword()
+	h.parseProject()
 	return nil
 }
 
@@ -113,6 +114,22 @@ func (h *helper) parseWatch() error {
 func (h *helper) parseKeyword() {
 	keyword := h.c.DefaultQuery("keyword", "")
 	h.keyword = strings.ToLower(keyword)
+}
+
+func (h *helper) parseProject() error {
+	h.project = h.c.DefaultQuery("project", "")
+	if h.project == "" {
+		return nil
+	}
+
+	var err error
+	h.project, err = h.openstack.GetProjectIdByName(h.project)
+	if err != nil {
+		log.Errorf("images(%s): failed to get project id by name %s(%v)", h.reqId, h.project, err)
+		return err
+	}
+
+	return nil
 }
 
 func (h *helper) saveUploadImage() error {

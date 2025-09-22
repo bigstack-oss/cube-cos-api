@@ -8,7 +8,8 @@ import (
 )
 
 func (h *helper) listConvertedImages() ([]images.Image, error) {
-	list, err := h.openstack.ListImages()
+	opts := h.genImageListOpts()
+	list, err := h.openstack.ListImages(opts)
 	if err != nil {
 		log.Errorf("images(%s): failed to list images(%v)", h.reqId, err)
 		return nil, err

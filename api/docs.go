@@ -14804,6 +14804,9 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/watch"
                     },
                     {
+                        "$ref": "#/components/parameters/projectNotRequired"
+                    },
+                    {
                         "$ref": "#/components/parameters/pageSize"
                     },
                     {
@@ -17956,7 +17959,17 @@ const docTemplate = `{
                 "schema": {
                     "type": "string"
                 },
-                "description": "The project name to filter volumes",
+                "description": "The project name to filter",
+                "example": "example-project"
+            },
+            "projectNotRequired": {
+                "in": "query",
+                "name": "project",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The project name to filter",
                 "example": "example-project"
             },
             "deviceName": {

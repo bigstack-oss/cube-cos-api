@@ -20,6 +20,7 @@ type helper struct {
 	openstack *openstack.Helper
 
 	reqOpts images.ReqOpts
+	project string
 
 	page    *pages.Page
 	keyword string

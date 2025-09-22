@@ -4,6 +4,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/blevesearch/bleve/v2"
+	opsimages "github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -61,4 +62,14 @@ func genImageMap(list []images.Image) map[string]images.Image {
 	}
 
 	return imageMap
+}
+
+func (h *helper) genImageListOpts() opsimages.ListOpts {
+	if h.project == "" {
+		return opsimages.ListOpts{
+			Owner: h.project,
+		}
+	}
+
+	return opsimages.ListOpts{}
 }
