@@ -3,6 +3,7 @@ package fixpacks
 import (
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -37,9 +38,15 @@ func (h *helper) filterUnsupportedNodes(nodes []node, version string) ([]node, e
 		return nodes, nil
 	}
 
-	supported := make([]node, 0, len(nodes))
+	supported := []node{}
 	for _, node := range nodes {
-		if slices.Contains(fixpack.SupportedFirmwares, node.Version) {
+		segment := strings.Split(node.Version, " ")
+		if len(segment) < 3 {
+			continue
+		}
+
+		numericVersion := segment[2]
+		if slices.Contains(fixpack.SupportedFirmwares, numericVersion) {
 			supported = append(supported, node)
 		}
 	}

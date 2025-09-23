@@ -60,9 +60,9 @@ type Progress struct {
 	Status status.SystemUpdateProgress `json:"status"`
 }
 
-func (u *ReqOpts) SetUpgrading() {
-	u.Status.Current = status.Upgrading
-	u.Status.Desired = status.Upgraded
+func (u *ReqOpts) SetInstalling() {
+	u.Status.Current = status.Installing
+	u.Status.Desired = status.Installed
 	u.Status.IsProcessing = true
 }
 
@@ -71,7 +71,7 @@ func (u *ReqOpts) SetError() {
 	u.Status.IsProcessing = false
 }
 
-func (u *ReqOpts) SetCompleted() {
-	u.Status.Desired = status.Updated
+func (u *ReqOpts) SetInstalled() {
+	u.Status.Desired = status.Installed
 	u.Status.IsProcessing = false
 }

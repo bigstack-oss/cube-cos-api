@@ -12,7 +12,7 @@ import (
 
 func (o *Operator) operate(req *firmwares.ReqOpts) error {
 	switch req.Status.Desired {
-	case status.Upgraded:
+	case status.Installed:
 		return cubecos.UpgradeFirmware(req)
 	}
 
@@ -29,7 +29,7 @@ func (o *Operator) handleExit(req *firmwares.ReqOpts, err error) {
 		req.SetError()
 	} else {
 		log.Infof("firmwares: %s %s successfully", req.Status.Desired, req.Version)
-		req.SetCompleted()
+		req.SetInstalled()
 	}
 
 	o.reportToController(req)

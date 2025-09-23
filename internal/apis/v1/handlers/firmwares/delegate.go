@@ -28,7 +28,7 @@ func (h *helper) delegateToPeers(list []node, upgrade *firmwares.Upgrade) {
 			continue
 		}
 
-		s := status.SystemUpdateProgress{Current: "partitioning", IsProcessing: true, ProcessPercent: 30}
+		s := status.SystemUpdateProgress{Current: "installing", IsProcessing: true, ProcessPercent: 30}
 		err = h.installPeer(*node)
 		if err != nil {
 			s.Current = "failed"
@@ -41,7 +41,7 @@ func (h *helper) delegateToPeers(list []node, upgrade *firmwares.Upgrade) {
 			upgrade.Progresses,
 			firmwares.Progress{
 				Host:   node.Hostname,
-				Phase:  status.Partitioning,
+				Phase:  status.Installing,
 				Status: s,
 			},
 		)

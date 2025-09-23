@@ -105,8 +105,9 @@ type Spec struct {
 }
 
 type Listen struct {
-	Port    int `json:"port" yaml:"port"`
-	Address `json:"Address" yaml:"address"`
+	Port       int `json:"port" yaml:"port"`
+	Address    `json:"Address" yaml:"address"`
+	DomainName string `json:"domainName" yaml:"domainName"`
 }
 
 type Address struct {

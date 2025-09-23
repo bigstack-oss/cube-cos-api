@@ -25,9 +25,9 @@ func (h *helper) initUpgradeProgress() firmwares.Upgrade {
 		Progresses: []firmwares.Progress{
 			{
 				Host:  base.Hostname,
-				Phase: status.Partitioning,
+				Phase: status.Installing,
 				Status: status.SystemUpdateProgress{
-					Current:        "partitioning",
+					Current:        "installing",
 					IsProcessing:   true,
 					ProcessPercent: 30,
 				},

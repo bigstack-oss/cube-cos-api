@@ -72,7 +72,7 @@ func (h *helper) parseUpdateParams() error {
 		return err
 	}
 
-	h.reqOpts.SetUpgrading()
+	h.reqOpts.SetInstalling()
 	return nil
 }
 
