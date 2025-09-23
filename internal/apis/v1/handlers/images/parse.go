@@ -86,8 +86,17 @@ func (h *helper) parseListParams() error {
 		return err
 	}
 
+	err = h.parseQueryVisibility()
+	if err != nil {
+		return err
+	}
+
+	err = h.parseProject()
+	if err != nil {
+		return err
+	}
+
 	h.parseKeyword()
-	h.parseProject()
 	return nil
 }
 
@@ -289,6 +298,19 @@ func (h *helper) parseVisibility(visibility opsimage.ImageVisibility) string {
 	default:
 		return "unknown"
 	}
+}
+
+func (h *helper) parseQueryVisibility() error {
+	h.visibility = h.c.DefaultQuery("visibility", "")
+	if h.visibility == "" {
+		return nil
+	}
+
+	if !images.IsVisibilityValid(h.visibility) {
+		return fmt.Errorf("invalid visibility %s", h.visibility)
+	}
+
+	return nil
 }
 
 func (h *helper) parseSizeMiB(bytes int64) int64 {

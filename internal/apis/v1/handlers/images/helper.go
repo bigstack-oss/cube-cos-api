@@ -19,8 +19,9 @@ type helper struct {
 	mongo     *mongo.Helper
 	openstack *openstack.Helper
 
-	reqOpts images.ReqOpts
-	project string
+	reqOpts    images.ReqOpts
+	project    string
+	visibility string
 
 	page    *pages.Page
 	keyword string

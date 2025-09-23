@@ -14807,6 +14807,16 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/projectNotRequired"
                     },
                     {
+                        "in": "query",
+                        "name": "visibility",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The visibility to filter",
+                        "example": "public"
+                    },
+                    {
                         "$ref": "#/components/parameters/pageSize"
                     },
                     {

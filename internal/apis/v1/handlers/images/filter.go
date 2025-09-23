@@ -65,11 +65,14 @@ func genImageMap(list []images.Image) map[string]images.Image {
 }
 
 func (h *helper) genImageListOpts() opsimages.ListOpts {
-	if h.project == "" {
-		return opsimages.ListOpts{
-			Owner: h.project,
-		}
+	opts := opsimages.ListOpts{}
+	if h.project != "" {
+		opts.Owner = h.project
 	}
 
-	return opsimages.ListOpts{}
+	if h.visibility != "" {
+		opts.Visibility = opsimages.ImageVisibility(h.visibility)
+	}
+
+	return opts
 }
