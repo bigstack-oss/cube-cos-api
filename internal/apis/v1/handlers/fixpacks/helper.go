@@ -102,7 +102,7 @@ func (h *helper) listRollbackableNodes() ([]node, error) {
 	if !found {
 		return nil, fmt.Errorf("fixpack version %s not found", h.reqOpts.Version)
 	}
-	if !fixpack.AllowRollback {
+	if fixpack.NoRollback {
 		return []node{}, nil
 	}
 

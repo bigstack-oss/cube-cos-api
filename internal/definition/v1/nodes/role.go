@@ -24,6 +24,15 @@ var (
 		RoleEdgeCore,
 	}
 
+	roleMap = map[string]struct{}{
+		RoleControl:          {},
+		RoleCompute:          {},
+		RoleStorage:          {},
+		RoleControlConverged: {},
+		RoleModerator:        {},
+		RoleEdgeCore:         {},
+	}
+
 	Control          atomic.Pointer[Role]
 	Compute          atomic.Pointer[Role]
 	Storage          atomic.Pointer[Role]
@@ -218,4 +227,9 @@ func GetNodesByRoles() []Node {
 	}
 
 	return nodes
+}
+
+func HasRole(role string) bool {
+	_, exists := roleMap[role]
+	return exists
 }

@@ -293,7 +293,7 @@ func convertPkgToFixpacks() ([]fixpacks.Fixpack, error) {
 			Status: status.Fixpack{
 				Current:        status.Available,
 				IsInstallable:  true,
-				IsRollbackable: info.AllowRollback,
+				IsRollbackable: info.NoRollback,
 			},
 		})
 	}
@@ -443,13 +443,13 @@ func GetFixpackInfo(file string) (*fixpacks.Raw, error) {
 		case "FIXPACK_NAME":
 			raw.Name = val
 		case "SUPPORTED_FIRMWARES":
-			raw.SupportedFirmwares = strings.Split(val, ",")
+			raw.SupportedFirmwares = strings.Split(val, " ")
 		case "FIXPACK_DESCRIPTION":
 			raw.Description = val
 		case "REBOOT_REQUIRED":
 			raw.RebootRequired = parseRebootRequiredRoles(val)
-		case "ALLOW_ROLLBACK":
-			raw.AllowRollback = parseAllowRollback(val)
+		case "NOROLLBACK":
+			raw.NoRollback = parseNoRollback(val)
 		}
 	}
 
@@ -458,21 +458,24 @@ func GetFixpackInfo(file string) (*fixpacks.Raw, error) {
 
 func parseRebootRequiredRoles(val string) []string {
 	roles := []string{}
-	for _, role := range strings.Split(val, ",") {
-		roles = append(roles, strings.ToLower(strings.TrimSpace(role)))
+	for _, str := range strings.Split(val, ",") {
+		role := strings.ToLower(strings.TrimSpace(str))
+		if nodes.HasRole(role) {
+			roles = append(roles, role)
+		}
 	}
 
 	return roles
 }
 
-func parseAllowRollback(val string) bool {
-	boolVal, err := strconv.ParseBool(val)
+func parseNoRollback(val string) bool {
+	intVal, err := strconv.ParseInt(val, 10, 64)
 	if err != nil {
-		log.Warnf("fixpack: failed to parse allow rollback value %s(%v)", val, err)
-		boolVal = false
+		log.Warnf("fixpack: failed to parse no rollback value %s(%v)", val, err)
+		return false
 	}
 
-	return boolVal
+	return intVal == 0
 }
 
 func genTmpFixpackDir() (string, error) {
