@@ -131,7 +131,7 @@ func genImageArgs(opts *images.CreateOpts) []string {
 			"os_image_import",
 			opts.Dir, opts.File, opts.Name,
 			fmt.Sprintf(`"--os-project-domain-name %s --os-project-name %s --visibility %s"`, opts.Domain, opts.Project, opts.Visibility),
-			opts.PoolType, opts.StorageBackend,
+			opts.PoolType, opts.Destination,
 		}
 	}
 }

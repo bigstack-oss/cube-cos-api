@@ -110,7 +110,6 @@ type CreateOpts struct {
 	Domain         string       `json:"domain"`
 	Project        string       `json:"project"`
 	PoolType       string       `json:"poolType"`
-	StorageBackend string       `json:"storageBackend,omitempty"`
 	AttributesType string       `json:"attributesType,omitempty"`
 	Visibility     string       `json:"visibility"`
 	StreamingLogs  chan float64 `json:"streaming,omitempty"`

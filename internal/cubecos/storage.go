@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"errors"
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -31,11 +30,6 @@ func GenCreateOptsByReqOpts(reqOpts images.ReqOpts) (*images.CreateOpts, error) 
 		visibility = "public"
 	}
 
-	storageBackend, err := GetStorageBackendByPoolType(poolType)
-	if err != nil {
-		return nil, err
-	}
-
 	return &images.CreateOpts{
 		Dir:            images.GlanceDir,
 		File:           reqOpts.File,
@@ -44,7 +38,6 @@ func GenCreateOptsByReqOpts(reqOpts images.ReqOpts) (*images.CreateOpts, error) 
 		Destination:    reqOpts.Destination,
 		Domain:         reqOpts.Domain,
 		PoolType:       poolType,
-		StorageBackend: fmt.Sprintf(`"%s"`, storageBackend),
 		Project:        reqOpts.Project,
 		Visibility:     visibility,
 		StreamingLogs:  make(chan float64),
