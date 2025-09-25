@@ -2,6 +2,7 @@ package images
 
 import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
 	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumetypes"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/domains"
@@ -48,22 +49,33 @@ func (h *helper) listDomains() ([]string, error) {
 	return domains, nil
 }
 
-func (h *helper) listDestinations() ([]string, error) {
+func (h *helper) listDestinations() ([]destination, error) {
 	types, err := h.openstack.ListVolumeTypes(volumetypes.ListOpts{})
 	if err != nil {
 		log.Errorf("images(%s): failed to list volume types:(%v)", h.reqId, err)
 		return nil, err
 	}
 
-	destinations := []string{}
+	defaultVolumeType, err := cubecos.GetDefaultVolumeType()
+	if err != nil {
+		log.Errorf("images(%s): failed to get default volume type:(%v)", h.reqId, err)
+		return nil, err
+	}
+
+	destinations := []destination{}
 	for _, t := range types {
 		if t.Name == storages.DefaultType {
 			continue
 		}
 
-		if t.IsPublic {
-			destinations = append(destinations, t.Name)
+		if !t.IsPublic {
+			continue
 		}
+
+		destinations = append(destinations, destination{
+			Name:      t.Name,
+			IsDefault: t.Name == defaultVolumeType,
+		})
 	}
 
 	return destinations, nil

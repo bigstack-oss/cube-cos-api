@@ -53,10 +53,19 @@ func GenCreateOptsByReqOpts(reqOpts images.ReqOpts) (*images.CreateOpts, error) 
 }
 
 func IsDefaultStorage(name string) bool {
+	defaultStorage, err := GetDefaultVolumeType()
+	if err != nil {
+		return false
+	}
+
+	return defaultStorage == name
+}
+
+func GetDefaultVolumeType() (string, error) {
 	file, err := os.Open(storages.CinderConf)
 	if err != nil {
 		log.Errorf("storages: failed to read cinder conf file(%v)", err)
-		return false
+		return "", err
 	}
 
 	defer file.Close()
@@ -79,10 +88,16 @@ func IsDefaultStorage(name string) bool {
 	err = scanner.Err()
 	if err != nil {
 		log.Errorf("storages: error reading cinder conf file(%v)", err)
-		return false
+		return "", err
 	}
 
-	return defaultStorage == name
+	if len(defaultStorage) == 0 {
+		err := errors.New("no default volume type found")
+		log.Errorf("storages: %v", err)
+		return "", err
+	}
+
+	return defaultStorage, nil
 }
 
 func GetStorageBackendByPoolType(poolType string) (string, error) {
