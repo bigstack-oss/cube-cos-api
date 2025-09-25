@@ -14744,7 +14744,10 @@ const docTemplate = `{
                                                     "Others"
                                                 ],
                                                 "destinations": [
-                                                    "CubeStorage"
+                                                    {
+                                                        "name": "CubeStorage",
+                                                        "isDefault": true
+                                                    }
                                                 ],
                                                 "domains": [
                                                     "default"
@@ -15827,7 +15830,7 @@ const docTemplate = `{
                                             "example": 400
                                         },
                                         "msg": {
-                                            "type": "string",  
+                                            "type": "string",
                                             "example": "version is required"
                                         },
                                         "status": {
@@ -24149,10 +24152,19 @@ const docTemplate = `{
                                     "type": "string"
                                 }
                             },
-                            "destinations": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
+                            "destination": {
+                                "type": "object",
+                                "required": [
+                                    "name",
+                                    "isDefault"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "isDefault": {
+                                        "type": "boolean"
+                                    }
                                 }
                             },
                             "domains": {
