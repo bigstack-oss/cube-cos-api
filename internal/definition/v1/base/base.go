@@ -38,6 +38,7 @@ var (
 	StorageNet               string
 	StorageIP                string
 	IsHaEnabled              bool
+	IsDomainNameEnabled      bool
 	IsGpuEnabled             bool
 	NodeMetadata             map[string]string
 )

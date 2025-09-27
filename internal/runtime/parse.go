@@ -3,6 +3,7 @@ package runtime
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -12,6 +13,10 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 
 	"github.com/gin-gonic/gin"
+)
+
+var (
+	domainRegex = regexp.MustCompile(`^(?i:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)(?:\.(?i:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?))*$`)
 )
 
 func newServiceDiscoveryIdentity() error {
@@ -31,6 +36,27 @@ func newServiceDiscoveryIdentity() error {
 	)
 
 	return nil
+}
+
+func checkIfDomainNameEnabled() (bool, error) {
+	domainName := conf.Opts.Spec.Listen.DomainName
+	if domainName == "" {
+		return false, nil
+	}
+
+	if !isValidDomain(domainName) {
+		return false, fmt.Errorf("invalid domain name: %s", domainName)
+	}
+
+	return true, nil
+}
+
+func isValidDomain(domain string) bool {
+	if len(domain) == 0 || len(domain) > 253 {
+		return false
+	}
+
+	return domainRegex.MatchString(domain)
 }
 
 func parseLocalListenAddr() (string, error) {

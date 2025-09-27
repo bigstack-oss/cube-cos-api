@@ -33,6 +33,12 @@ func initIdentities() error {
 		return err
 	}
 
+	base.IsDomainNameEnabled, err = checkIfDomainNameEnabled()
+	if err != nil {
+		log.Errorf("runtime: failed to get domain name enabled(%v)", err)
+		return err
+	}
+
 	base.ManagementNet, err = cubecos.GetManagementNet()
 	if err != nil {
 		log.Errorf("runtime: failed to get management network(%v)", err)
