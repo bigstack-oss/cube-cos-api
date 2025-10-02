@@ -1,16 +1,19 @@
 package cubecos
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 	ostime "time"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
+	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 	"gopkg.in/yaml.v3"
 )
@@ -48,6 +51,34 @@ func UpgradeFirmware(req *firmwares.ReqOpts) error {
 
 func GetUpdateInterruptedNode() (*nodes.Node, error) {
 	return nil, fmt.Errorf("waiting COS to provide the SDK, so not implemented yet")
+}
+
+func GetBoostrappingProgress() ([]firmwares.BoostrappingStatus, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(180))
+	defer cancel()
+
+	out, err := exec.CommandContext(ctx, "hex_sdk", "-f", "json", "stats_bootstrap").CombinedOutput()
+	if err != nil {
+		err := genIntegrationErr("boostrapping progress exec failure")
+		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
+		return nil, err
+	}
+
+	if !IsHexSuccessful(err) {
+		err := genIntegrationErr("boostrapping progress output failure")
+		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
+		return nil, err
+	}
+
+	var status []firmwares.BoostrappingStatus
+	err = json.Unmarshal(out, &status)
+	if err != nil {
+		err := genIntegrationErr("boostrapping progress output parsing failure")
+		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
+		return nil, err
+	}
+
+	return status, nil
 }
 
 func parseUpdateHistory() (*firmwares.Upadte, error) {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"sort"
+	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
@@ -58,6 +59,61 @@ func (h *helper) setProgressDetails(progress firmwares.Upgrade) {
 }
 
 func (h *helper) getUpgradeDetails() (*firmwares.Upgrade, error) {
+	upgrade, err := h.getPartitioningProgress()
+	if err != nil {
+		return nil, err
+	}
+
+	if h.isBoostrappingInProgress() {
+		return h.syncBoostrappingProgress(upgrade)
+	}
+
+	return upgrade, nil
+}
+
+func (h *helper) syncBoostrappingProgress(upgrade *firmwares.Upgrade) (*firmwares.Upgrade, error) {
+	boostrapping, err := cubecos.GetBoostrappingProgress()
+	if err != nil {
+		return nil, err
+	}
+
+	h.convertToUpgradeProgress(upgrade, boostrapping)
+	return upgrade, nil
+}
+
+func (h *helper) convertToUpgradeProgress(upgrade *firmwares.Upgrade, boostrappings []firmwares.BoostrappingStatus) {
+	progresses := []firmwares.Progress{}
+
+	for _, boostrapping := range boostrappings {
+		progress := firmwares.Progress{
+			Host:  boostrapping.Node,
+			Phase: boostrapping.Stdout,
+			Status: status.SystemUpdateProgress{
+				Current:        h.convertProgressStatus(boostrapping),
+				IsProcessing:   true,
+				ProcessPercent: 80,
+			},
+		}
+
+		progresses = append(progresses, progress)
+	}
+
+	upgrade.Progresses = progresses
+}
+
+func (h *helper) convertProgressStatus(bootstrapping firmwares.BoostrappingStatus) string {
+	if bootstrapping.Return != "0" {
+		return status.Failed
+	}
+
+	if strings.Contains(bootstrapping.Stdout, "succeeded") {
+		return status.Succeeded
+	}
+
+	return status.Installing
+}
+
+func (h *helper) getPartitioningProgress() (*firmwares.Upgrade, error) {
 	out, err := os.ReadFile(firmwares.UpdateProgress)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to read progress file(%v)", h.reqId, err)

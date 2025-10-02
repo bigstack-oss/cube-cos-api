@@ -15,10 +15,16 @@ import (
 	cryptossh "golang.org/x/crypto/ssh"
 )
 
+func (h *helper) isBoostrappingInProgress() bool {
+	_, err := os.Stat(firmwares.BoostrappingMarker)
+	return err == nil
+}
+
 func (h *helper) setBoostrappingMarker() {
 	err := os.WriteFile(firmwares.BoostrappingMarker, []byte(""), 0644)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to create boostrapping marker file %s(%v)", h.reqId, firmwares.BoostrappingMarker, err)
+		return
 	}
 
 	controllers, err := nodes.GetNodesByRole(nodes.RoleControl)

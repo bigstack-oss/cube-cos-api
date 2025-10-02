@@ -24153,17 +24153,20 @@ const docTemplate = `{
                                 }
                             },
                             "destination": {
-                                "type": "object",
-                                "required": [
-                                    "name",
-                                    "isDefault"
-                                ],
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "isDefault": {
-                                        "type": "boolean"
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "name",
+                                        "isDefault"
+                                    ],
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "isDefault": {
+                                            "type": "boolean"
+                                        }
                                     }
                                 }
                             },
@@ -24672,7 +24675,19 @@ const docTemplate = `{
                                             "type": "string"
                                         },
                                         "phase": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "enum": [
+                                                "bootstrapping cubecos",
+                                                "starting cluster",
+                                                "evacuting vms on host",
+                                                "moving vip away from host",
+                                                "moved vip away from host",
+                                                "rebooting host",
+                                                "cluster checking and repairing",
+                                                "cluster checked and repaired",
+                                                "reset and booted non-active server",
+                                                "cluster check and repair skipped as not all nodes are bootstrapped and synced"
+                                            ]
                                         },
                                         "status": {
                                             "type": "object",
@@ -24689,16 +24704,6 @@ const docTemplate = `{
                                                         "installing",
                                                         "waiting reboot",
                                                         "rebooting",
-                                                        "bootstrapping cubecos",
-                                                        "starting cluster",
-                                                        "evacuting vms on host",
-                                                        "moving vip away from host",
-                                                        "moved vip away from host",
-                                                        "rebooting host",
-                                                        "cluster checking and repairing",
-                                                        "cluster checked and repaired",
-                                                        "reset and booted non-active server",
-                                                        "cluster check and repair skipped as not all nodes are bootstrapped and synced",
                                                         "failed",
                                                         "resolved",
                                                         "succeeded"

@@ -36,6 +36,7 @@ const (
 	PoweringCycle        = "powering cycle"
 	Restarted            = "restarted"
 
+	Succeeded  = "succeeded"
 	Completed  = "completed"
 	Created    = "created"
 	Imported   = "imported"

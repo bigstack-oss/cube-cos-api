@@ -61,6 +61,12 @@ type Progress struct {
 	Status status.SystemUpdateProgress `json:"status"`
 }
 
+type BoostrappingStatus struct {
+	Node   string `json:"node"`
+	Return string `json:"return"`
+	Stdout string `json:"stdout"`
+}
+
 func (u *ReqOpts) SetInstalling() {
 	u.Status.Current = status.Installing
 	u.Status.Desired = status.Installed
