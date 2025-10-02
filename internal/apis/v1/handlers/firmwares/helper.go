@@ -83,6 +83,12 @@ func (h *helper) listUpdatableNodes() ([]node, error) {
 }
 
 func (h *helper) updateFirmware() error {
+	err := h.removePreviousBoostrappingMarker()
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to remove previous boostrapping marker (%v)", h.reqId, err)
+		return err
+	}
+
 	h.delegateToLocal()
 	if !cubecos.IsVirtualIpOwner(base.Hostname) {
 		return nil

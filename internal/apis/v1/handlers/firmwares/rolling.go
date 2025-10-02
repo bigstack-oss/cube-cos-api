@@ -44,6 +44,8 @@ func (h *helper) placeRollingTrigger() {
 			h.markNodeAsFailed(err.Error())
 			return
 		}
+
+		h.setBoostrappingMarker()
 	}
 }
 
