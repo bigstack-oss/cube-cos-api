@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -121,7 +122,7 @@ func (h *helper) deleteReqRecord() error {
 	err := h.mongo.DeleteOne(
 		fixpacks.Db,
 		fixpacks.ReqCollection,
-		bson.M{"hostname": h.reqOpts.Hostname},
+		bson.M{"version": h.reqOpts.Version},
 	)
 	if err == nil {
 		return nil
@@ -134,15 +135,14 @@ func (h *helper) deleteReqRecord() error {
 	return err
 }
 
-func (h *helper) markReqRecordAsFailed() error {
-	err := h.mongo.UpdateOne(
+func (h *helper) markReqRecordAsFailed(list []nodes.Node) error {
+	err := h.mongo.UpdateMany(
 		fixpacks.Db,
 		fixpacks.ReqCollection,
-		bson.M{"hostname": h.reqOpts.Hostname},
+		bson.M{"version": h.reqOpts.Version},
 		h.reqOpts,
-		options.Update().SetUpsert(true),
 	)
-	if err != nil {
+	if err == nil {
 		return nil
 	}
 

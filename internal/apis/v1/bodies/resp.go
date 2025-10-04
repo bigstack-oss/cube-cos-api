@@ -3,6 +3,7 @@ package bodies
 import (
 	"net/http"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
@@ -54,6 +55,13 @@ type SupportFileList struct {
 	Status string         `json:"status"`
 	Msg    string         `json:"msg"`
 	Data   []support.File `json:"data"`
+}
+
+type Fixpack struct {
+	Code   int              `json:"code"`
+	Status string           `json:"status"`
+	Msg    string           `json:"msg"`
+	Data   fixpacks.Fixpack `json:"data"`
 }
 
 func SetOk(c *gin.Context, msg string, data any) {

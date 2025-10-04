@@ -6,6 +6,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
@@ -82,21 +83,6 @@ func (h *helper) listUpdatableNodes(version string) ([]node, error) {
 	return updatables, nil
 }
 
-func (h *helper) installFixpack(updatables []node) error {
-	err := h.syncFixpack(updatables)
-	if err != nil {
-		return err
-	}
-
-	h.delegateToLocal(updatables)
-	if !cubecos.IsVirtualIpOwner(base.Hostname) {
-		return nil
-	}
-
-	h.delegateToPeers(updatables)
-	return nil
-}
-
 func (h *helper) listRollbackableNodes() ([]node, error) {
 	fixpack, found := cubecos.GetFixpackRawByVersion(h.reqOpts.Version)
 	if !found {
@@ -114,16 +100,6 @@ func (h *helper) listRollbackableNodes() ([]node, error) {
 	updatables := h.convertToRollbackableNodes(list)
 	h.sortNodesByHost(&updatables)
 	return updatables, nil
-}
-
-func (h *helper) rollbackFixpack(updateds []node) error {
-	h.delegateToLocal(updateds)
-	if !cubecos.IsVirtualIpOwner(base.Hostname) {
-		return nil
-	}
-
-	h.delegateToPeers(updateds)
-	return nil
 }
 
 func (h *helper) convertToUpdatableNodes(list []nodes.Node) []node {
@@ -186,13 +162,61 @@ func (h *helper) deleteFixpack() error {
 	return nil
 }
 
-func (h *helper) updateFixpackTask() error {
+func (h *helper) updateFixpackTask(nodes []node) error {
 	switch h.reqOpts.Status.Current {
 	case status.Completed:
 		return h.deleteReqRecord()
 	case status.Failed:
-		return h.markReqRecordAsFailed()
+		failures := h.findFailedNodes(nodes)
+		return h.markReqRecordAsFailed(failures)
 	default:
 		return fmt.Errorf("invalid status: %s", h.reqOpts.Status.Current)
 	}
+}
+
+func (h *helper) findFailedNodes(list []node) []nodes.Node {
+	failures := []nodes.Node{}
+
+	for _, n := range list {
+		node, err := nodes.Get(n.Name)
+		if err != nil {
+			log.Warnf("fixpacks(%s): failed to get node %s (%v)", h.reqId, n.Name, err)
+			continue
+		}
+
+		fixpack := &fixpacks.Fixpack{}
+		if node.IsLocal() {
+			fixpack, err = cubecos.GetLatestFixpackInfo()
+		} else {
+			fixpack, err = h.askPeerFixpackInfo(*node)
+		}
+		if err != nil {
+			continue
+		}
+
+		if fixpack.Version != h.reqOpts.Version {
+			failures = append(failures, *node)
+		}
+	}
+
+	return failures
+}
+
+func (h *helper) askPeerFixpackInfo(node nodes.Node) (*fixpacks.Fixpack, error) {
+	resp, err := h.http.R().
+		SetResult(&bodies.Fixpack{}).
+		SetHeaders(nodes.GetSecretHeaders()).
+		Get(node.GetFixpackInfoUrl())
+	if err != nil {
+		log.Errorf("fixpacks: failed to get node details %s: %v", node.Hostname, err)
+		return nil, err
+	}
+
+	if !resp.IsError() {
+		return &resp.Result().(*bodies.Fixpack).Data, nil
+	}
+
+	err = fmt.Errorf("resp error for node fixpack info %s: %s", node.Hostname, string(resp.Body()))
+	log.Errorf("fixpacks(%v)", err)
+	return nil, err
 }

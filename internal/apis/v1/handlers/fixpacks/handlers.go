@@ -6,6 +6,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -60,6 +61,12 @@ var (
 			Method:  http.MethodGet,
 			Path:    "/fixpacks/updateProgress",
 			Func:    getFixpackUpdateProgress,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/fixpacks/:nodeName/version",
+			Func:    getLatestNodeFixpackInfo,
 		},
 		{
 			Version: apis.V1,
@@ -276,18 +283,7 @@ func installFixpack(c *gin.Context) {
 		return
 	}
 
-	nodes, err := h.listUpdatableNodes(h.reqOpts.Version)
-	if err != nil {
-		bodies.SetInternalServerError(c, err)
-		return
-	}
-
-	err = h.installFixpack(nodes)
-	if err != nil {
-		bodies.SetInternalServerError(c, err)
-		return
-	}
-
+	h.requestOperation()
 	bodies.SetAccepted(
 		c,
 		"Fixpack installation started successfully",
@@ -337,6 +333,27 @@ func listRollbackableNodes(c *gin.Context) {
 	)
 }
 
+func getLatestNodeFixpackInfo(c *gin.Context) {
+	h, err := initHelper(c, "getLatestNodeFixpackInfo")
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	info, err := cubecos.GetLatestFixpackInfo()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		fmt.Sprintf("Fixpack version of node %s", h.reqOpts.Hostname),
+		info,
+	)
+}
+
 func rollbackFixpack(c *gin.Context) {
 	h, err := initHelper(c, "rollbackFixpack")
 	if err != nil {
@@ -351,18 +368,7 @@ func rollbackFixpack(c *gin.Context) {
 		return
 	}
 
-	nodes, err := h.listUpdatableNodes(h.reqOpts.Version)
-	if err != nil {
-		bodies.SetInternalServerError(c, err)
-		return
-	}
-
-	err = h.rollbackFixpack(nodes)
-	if err != nil {
-		bodies.SetInternalServerError(c, err)
-		return
-	}
-
+	h.requestOperation()
 	bodies.SetAccepted(
 		c,
 		"Fixpack rollback started successfully",
@@ -435,7 +441,13 @@ func updateFixpackTask(c *gin.Context) {
 		return
 	}
 
-	err = h.updateFixpackTask()
+	nodes, err := h.listUpdatableNodes(h.reqOpts.Version)
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	err = h.updateFixpackTask(nodes)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return

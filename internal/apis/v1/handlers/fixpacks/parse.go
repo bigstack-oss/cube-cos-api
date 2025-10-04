@@ -29,6 +29,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseInstallParams()
 	case "getFixpackUpdateProgress":
 		return h.parseGetProgressParams()
+	case "getLatestNodeFixpackInfo":
+		return h.parseGetNodeFixpackParams()
 	case "continueInterruptedFixpackUpdate":
 		return h.parseUpdateInterruptedParams()
 	case "listRollbackableNodes":
@@ -142,6 +144,19 @@ func (h *helper) parseInstallParams() error {
 }
 
 func (h *helper) parseGetProgressParams() error {
+	return h.parseListParams()
+}
+
+func (h *helper) parseGetNodeFixpackParams() error {
+	h.reqOpts.Hostname = h.c.Param("nodeName")
+	if h.reqOpts.Hostname == "" {
+		return fmt.Errorf("nodeName parameter is required")
+	}
+
+	if !h.isNodeExists() {
+		return fmt.Errorf("node %s not found", h.reqOpts.Hostname)
+	}
+
 	return h.parseListParams()
 }
 

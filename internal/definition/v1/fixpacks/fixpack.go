@@ -1,6 +1,8 @@
 package fixpacks
 
 import (
+	"regexp"
+
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
@@ -14,7 +16,13 @@ const (
 	TmpPreCalculateMd5 = "precalculated.md5"
 	DefaultMd5File     = "md5"
 
-	UpdateDir = "/var/fixpack"
+	UpdateDir   = "/var/fixpack"
+	RollbackDir = "/var/fixpack_rollback"
+	Info        = "fixpack.info"
+)
+
+var (
+	RollbackFileRegex = regexp.MustCompile(`^fixpack-(\d+)$`)
 )
 
 type ReqOpts struct {

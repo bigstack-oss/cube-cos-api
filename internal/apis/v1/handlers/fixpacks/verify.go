@@ -10,8 +10,19 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ceph"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
 )
+
+func (h *helper) isNodeExists() bool {
+	for _, node := range nodes.List() {
+		if node.Hostname == h.reqOpts.Hostname {
+			return true
+		}
+	}
+
+	return false
+}
 
 func (h *helper) isFixpackExists() bool {
 	list, err := h.listFixpacks()
