@@ -44,6 +44,7 @@ func ListFixpacks() ([]fixpacks.Fixpack, error) {
 	merged := mergeFixpacks(historyFixpacks, pkgFixpacks)
 	sortFixpackByVersion(&merged)
 	setInstallableStatus(&merged)
+	// setRollbackableStatus(&merged)
 	setRemovableStatus(&merged)
 	return merged, nil
 }
@@ -376,7 +377,7 @@ func convertPkgToFixpacks() ([]fixpacks.Fixpack, error) {
 			Status: status.Fixpack{
 				Current:        status.Available,
 				IsInstallable:  true,
-				IsRollbackable: info.NoRollback,
+				IsRollbackable: info.Rollbackable,
 			},
 		})
 	}
@@ -461,6 +462,25 @@ func setInstallableStatus(fixpacks *[]fixpacks.Fixpack) {
 	}
 }
 
+func setRollbackableStatus(fixpacks *[]fixpacks.Fixpack) {
+	if len(*fixpacks) == 0 {
+		return
+	}
+
+	latest, err := GetLatestFixpackInfo()
+	if err != nil {
+		return
+	}
+
+	for i, fixpack := range *fixpacks {
+		if strings.EqualFold(fixpack.Version, latest.Version) {
+			(*fixpacks)[i].Status.IsRollbackable = true
+		} else {
+			(*fixpacks)[i].Status.IsRollbackable = false
+		}
+	}
+}
+
 func setRemovableStatus(fixpacks *[]fixpacks.Fixpack) {
 	if len(*fixpacks) == 0 {
 		return
@@ -531,8 +551,8 @@ func GetFixpackInfo(file string) (*fixpacks.Raw, error) {
 			raw.Description = val
 		case "REBOOT_REQUIRED":
 			raw.RebootRequired = parseRebootRequiredRoles(val)
-		case "NOROLLBACK":
-			raw.NoRollback = parseNoRollback(val)
+		case "ROLLBACK":
+			raw.Rollbackable = parseRollback(val)
 		}
 	}
 
@@ -541,7 +561,7 @@ func GetFixpackInfo(file string) (*fixpacks.Raw, error) {
 
 func parseRebootRequiredRoles(val string) []string {
 	roles := []string{}
-	for _, str := range strings.Split(val, ",") {
+	for str := range strings.SplitSeq(val, " ") {
 		role := strings.ToLower(strings.TrimSpace(str))
 		if nodes.HasRole(role) {
 			roles = append(roles, role)
@@ -551,14 +571,8 @@ func parseRebootRequiredRoles(val string) []string {
 	return roles
 }
 
-func parseNoRollback(val string) bool {
-	intVal, err := strconv.ParseInt(val, 10, 64)
-	if err != nil {
-		log.Warnf("fixpack: failed to parse no rollback value %s(%v)", val, err)
-		return false
-	}
-
-	return intVal == 0
+func parseRollback(val string) bool {
+	return strings.EqualFold(strings.TrimSpace(val), "yes")
 }
 
 func genTmpFixpackDir() (string, error) {

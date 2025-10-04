@@ -65,7 +65,7 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodGet,
-			Path:    "/fixpacks/:nodeName/version",
+			Path:    "/fixpacks/nodes/:nodeName/version",
 			Func:    getLatestNodeFixpackInfo,
 		},
 		{

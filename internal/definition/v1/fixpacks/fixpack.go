@@ -37,7 +37,7 @@ type Raw struct {
 	Name               string   `json:"name" bson:"name"`
 	SupportedFirmwares []string `json:"supportedFirmwares" bson:"supportedFirmwares"`
 	RebootRequired     []string `json:"rebootRequired" bson:"rebootRequired"`
-	NoRollback         bool     `json:"noRollback" bson:"noRollback"`
+	Rollbackable       bool     `json:"rollbackable" bson:"rollbackable"`
 	Description        string   `json:"description" bson:"description"`
 	Details            string   `json:"details"`
 }
