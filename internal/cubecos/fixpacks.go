@@ -44,7 +44,7 @@ func ListFixpacks() ([]fixpacks.Fixpack, error) {
 	merged := mergeFixpacks(historyFixpacks, pkgFixpacks)
 	sortFixpackByVersion(&merged)
 	setInstallableStatus(&merged)
-	// setRollbackableStatus(&merged)
+	setRollbackableStatus(&merged)
 	setRemovableStatus(&merged)
 	return merged, nil
 }
@@ -191,10 +191,64 @@ func RollbackFixpack() error {
 }
 
 func GetLatestFixpackInfo() (*fixpacks.Fixpack, error) {
+	dirPath, err := getLatestFixpackDir()
+	if err != nil {
+		return nil, err
+	}
+
+	file, err := os.Open(dirPath)
+	if err != nil {
+		log.Errorf("fixpack: failed to open fixpack info file %s(%v)", dirPath, err)
+		return nil, err
+	}
+
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if !strings.HasPrefix(line, "FIXPACK_ID=") {
+			continue
+		}
+
+		segments := strings.Split(line, "=")
+		if len(segments) < 2 {
+			continue
+		}
+
+		version := strings.NewReplacer("\"", "", " ", "").Replace(segments[1])
+		fixpack, found := GetFixpackRawByVersion(version)
+		if !found {
+			err := fmt.Errorf("fixpack version %s not found", version)
+			log.Errorf("fixpack: %v", err)
+			return nil, err
+		}
+
+		return &fixpacks.Fixpack{
+			Version:        fixpack.Id,
+			Name:           fixpack.Name,
+			Note:           fixpack.Description,
+			Details:        fixpack.Details,
+			RebootRequired: parseRebootRequired(fixpack.RebootRequired),
+			TargetNodes:    parseRebootTargetNodes(fixpack.RebootRequired),
+		}, nil
+	}
+
+	err = scanner.Err()
+	if err != nil {
+		log.Errorf("fixpack: failed to scan fixpack info file %s(%v)", dirPath, err)
+		return nil, err
+	}
+
+	return nil, fmt.Errorf(
+		"failed to find fixpack id in info file",
+	)
+}
+
+func getLatestFixpackDir() (string, error) {
 	entries, err := os.ReadDir(fixpacks.RollbackDir)
 	if err != nil {
 		log.Errorf("fixpack: failed to read rollback directory %s(%v)", fixpacks.RollbackDir, err)
-		return nil, err
+		return "", err
 	}
 
 	versions := []int{}
@@ -225,51 +279,12 @@ func GetLatestFixpackInfo() (*fixpacks.Fixpack, error) {
 	if len(versions) == 0 {
 		err := fmt.Errorf("no fixpack directories found")
 		log.Errorf("fixpack: %v", err)
-		return nil, err
+		return "", err
 	}
 
 	sort.Ints(versions)
 	latestDir := dirMap[versions[len(versions)-1]]
-	infoFile := filepath.Join(latestDir, fixpacks.Info)
-	file, err := os.Open(infoFile)
-	if err != nil {
-		log.Errorf("fixpack: failed to open fixpack info file %s(%v)", infoFile, err)
-		return nil, err
-	}
-
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if !strings.HasPrefix(line, "FIXPACK_ID=") {
-			continue
-		}
-
-		segments := strings.Split(line, "=")
-		if len(segments) < 2 {
-			continue
-		}
-
-		version := strings.NewReplacer("\"", "", " ", "").Replace(segments[1])
-		fixpack, found := GetFixpackByVersion(version)
-		if !found {
-			err := fmt.Errorf("fixpack version %s not found", version)
-			log.Errorf("fixpack: %v", err)
-			return nil, err
-		}
-
-		return fixpack, nil
-	}
-
-	err = scanner.Err()
-	if err != nil {
-		log.Errorf("fixpack: failed to scan fixpack info file %s(%v)", infoFile, err)
-		return nil, err
-	}
-
-	return nil, fmt.Errorf(
-		"failed to find fixpack id in info file",
-	)
+	return filepath.Join(latestDir, fixpacks.Info), nil
 }
 
 func SortFixpackByTime(list *[]fixpacks.Fixpack) {

@@ -44,16 +44,16 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 }
 
 func (h *helper) listFixpacks() (*fixpacksPage, error) {
-	fixpackss, err := cubecos.ListFixpacks()
+	fixpacks, err := cubecos.ListFixpacks()
 	if err != nil {
-		log.Errorf("fixpacks(%s): failed to list fixpackss(%v)", h.reqId, err)
+		log.Errorf("fixpacks(%s): failed to list fixpacks(%v)", h.reqId, err)
 		return nil, err
 	}
 
-	h.syncRequestingRecord(&fixpackss)
+	h.syncRequestingRecord(&fixpacks)
 	return &fixpacksPage{
-		Fixpacks: h.paginateFixpacks(fixpackss),
-		Page:     h.genPageInfo(fixpackss),
+		Fixpacks: h.paginateFixpacks(fixpacks),
+		Page:     h.genPageInfo(fixpacks),
 	}, nil
 }
 
