@@ -128,10 +128,10 @@ func CheckStorageExist(name string) (bool, error) {
 	return false, nil
 }
 
-func CreateStorage(req storages.ReqOpts) error {
-	input, err := json.Marshal(req)
+func CreateStorage(details storages.CinderDetails) error {
+	input, err := json.Marshal(details)
 	if err != nil {
-		err := genIntegrationErr("storage req parsing failure")
+		err := genIntegrationErr("storage cinder details parsing failure")
 		log.Errorf("storage: %s (%v)", err.Error(), err)
 		return err
 	}

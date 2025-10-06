@@ -47,7 +47,7 @@ func (h *helper) parseGetStorageParams() error {
 }
 
 func (h *helper) parseVerifyStorageParams() error {
-	err := h.c.ShouldBindJSON(&h.storageReqOpts.Cinder)
+	err := h.c.ShouldBindJSON(&h.storageReqOpts.CinderDetails)
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (h *helper) parseVerifyStorageParams() error {
 }
 
 func (h *helper) parseCreateStorageParams() error {
-	err := h.c.ShouldBindJSON(&h.storageReqOpts.Cinder)
+	err := h.c.ShouldBindJSON(&h.storageReqOpts.CinderDetails)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func (h *helper) parseCreateStorageParams() error {
 }
 
 func (h *helper) parseUpdateStorageParams() error {
-	err := h.c.ShouldBindJSON(&h.storageReqOpts.Cinder)
+	err := h.c.ShouldBindJSON(&h.storageReqOpts.CinderDetails)
 	if err != nil {
 		return err
 	}

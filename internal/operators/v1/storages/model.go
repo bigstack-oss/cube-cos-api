@@ -19,9 +19,8 @@ func (o *Operator) operateModelReq(req storages.ModelReqOpts) error {
 	}
 
 	return fmt.Errorf(
-		"unknown desired action(%s) for model(%s %s)",
+		"unknown desired action(%s) for model(%s)",
 		req.Status.Desired,
-		req.Vendor,
 		req.Driver,
 	)
 }

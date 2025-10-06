@@ -72,7 +72,7 @@ func (h *helper) listModels() ([]storages.Model, error) {
 }
 
 func (h *helper) verifyStorage() (*storages.VerficationResult, error) {
-	err := cubecos.CreateStorage(h.storageReqOpts)
+	err := cubecos.CreateStorage(h.storageReqOpts.CinderDetails)
 	if err != nil {
 		log.Errorf("integrations(%s): failed to create storage (%v)", h.reqId, err)
 		return &storages.VerficationResult{

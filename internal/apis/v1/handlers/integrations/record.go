@@ -47,7 +47,6 @@ func (h *helper) updateModelTask() error {
 		storages.ModelReqCollection,
 		bson.M{
 			"hostname": h.modelReqOpts.Hostname,
-			"vendor":   h.modelReqOpts.Vendor,
 			"product":  h.modelReqOpts.Driver,
 			"reqId":    h.modelReqOpts.ReqId,
 		},
@@ -105,20 +104,17 @@ func (h *helper) syncStorageProcessingStatus(storage *integration.Storage) {
 
 func (h *helper) syncProcessingModels(models *[]storages.Model) {
 	for i, model := range *models {
-		if h.isModelProcessing(model.Vendor, model.Driver) {
+		if h.isModelProcessing(model.Driver) {
 			h.syncModelProcessingStatus(&(*models)[i])
 		}
 	}
 }
 
-func (h *helper) isModelProcessing(vendor, product string) bool {
+func (h *helper) isModelProcessing(driver string) bool {
 	count, err := h.mongo.GetCount(
 		storages.Db,
 		storages.ModelReqCollection,
-		bson.M{
-			"vendor":  vendor,
-			"product": product,
-		},
+		bson.M{"driver": driver},
 	)
 	if err != nil {
 		log.Errorf("integrations(%s): failed to get storage processing status (%v)", h.reqId, err)

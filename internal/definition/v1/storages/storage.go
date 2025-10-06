@@ -15,11 +15,11 @@ const (
 )
 
 type ReqOpts struct {
-	ReqId    string `json:"reqId" bson:"reqId"`
-	Name     string `json:"name" bson:"name"`
-	Hostname string `json:"hostname" bson:"hostname"`
-	Cinder   `json:"cinder" bson:"cinder"`
-	Status   status.Storage `json:"status" bson:"status"`
+	ReqId         string `json:"reqId" bson:"reqId"`
+	Name          string `json:"name" bson:"name"`
+	Hostname      string `json:"hostname" bson:"hostname"`
+	CinderDetails `json:"cinderDetails" bson:"cinderDetails"`
+	Status        status.Storage `json:"status" bson:"status"`
 }
 
 type ModelReqOpts struct {
@@ -51,7 +51,6 @@ type CinderDetails struct {
 }
 
 type Device struct {
-	Vendor string `json:"vendor" yaml:"vendor" bson:"vendor"`
 	Driver string `json:"driver" yaml:"driver" bson:"driver"`
 }
 
