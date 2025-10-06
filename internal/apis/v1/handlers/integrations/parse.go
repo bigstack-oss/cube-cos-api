@@ -76,11 +76,11 @@ func (h *helper) parseCreateStorageParams() error {
 		return errors.New("device vendor is required")
 	}
 
-	if h.storageReqOpts.Device.Product == "" {
-		return errors.New("device product is required")
+	if h.storageReqOpts.Device.Driver == "" {
+		return errors.New("device driver is required")
 	}
 
-	model, err := cubecos.GetStorageModel(h.storageReqOpts.Device.Vendor, h.storageReqOpts.Device.Product)
+	model, err := cubecos.GetStorageModel(h.storageReqOpts.Device.Driver)
 	if err != nil {
 		return fmt.Errorf("failed to get model image paths(%v)", err)
 	}
@@ -150,12 +150,8 @@ func (h *helper) parseCreateStorageModelParams() error {
 		return fmt.Errorf("failed to load storage model req(%v)", err)
 	}
 
-	if h.modelReqOpts.Vendor == "" {
-		return errors.New("vendor is required")
-	}
-
 	if h.modelReqOpts.Driver == "" {
-		return errors.New("product is required")
+		return errors.New("driver is required")
 	}
 
 	h.modelReqOpts.ReqId = h.reqId
@@ -170,12 +166,8 @@ func (h *helper) parseUpdateStorageModelParams() error {
 		return fmt.Errorf("failed to load storage model req(%v)", err)
 	}
 
-	if h.modelReqOpts.Vendor == "" {
-		return errors.New("vendor is required")
-	}
-
 	if h.modelReqOpts.Driver == "" {
-		return errors.New("product is required")
+		return errors.New("driver is required")
 	}
 
 	h.modelReqOpts.ReqId = h.reqId
@@ -201,7 +193,7 @@ func (h *helper) parseUpdateAllStorageModelParams() error {
 		}
 
 		if reqOpts.Driver == "" {
-			return fmt.Errorf("has empty product in the %s", string(b))
+			return fmt.Errorf("has empty driver in the %s", string(b))
 		}
 	}
 
@@ -209,14 +201,9 @@ func (h *helper) parseUpdateAllStorageModelParams() error {
 }
 
 func (h *helper) parseDeleteStorageModelParams() error {
-	h.modelReqOpts.Vendor = h.c.Param("vendor")
-	if h.modelReqOpts.Vendor == "" {
-		return errors.New("vendor is required")
-	}
-
-	h.modelReqOpts.Driver = h.c.Param("product")
+	h.modelReqOpts.Driver = h.c.Param("driver")
 	if h.modelReqOpts.Driver == "" {
-		return errors.New("product is required")
+		return errors.New("driver is required")
 	}
 
 	h.modelReqOpts.ReqId = h.reqId

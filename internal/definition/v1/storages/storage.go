@@ -38,8 +38,8 @@ type Cinder struct {
 }
 
 type Device struct {
-	Vendor  string `json:"vendor" yaml:"vendor" bson:"vendor"`
-	Product string `json:"product" yaml:"product" bson:"product"`
+	Vendor string `json:"vendor" yaml:"vendor" bson:"vendor"`
+	Driver string `json:"driver" yaml:"driver" bson:"driver"`
 }
 
 type Storage struct {

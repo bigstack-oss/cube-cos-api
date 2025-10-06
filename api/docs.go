@@ -4702,7 +4702,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/integrations/storages/models/{vendorName}/{productName}": {
+        "/api/v1/datacenters/{dataCenter}/integrations/storages/models/{driverName}": {
             "delete": {
                 "operationId": "deleteIntegratedStorageModel",
                 "tags": [
@@ -4714,10 +4714,7 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "$ref": "#/components/parameters/vendorName"
-                    },
-                    {
-                        "$ref": "#/components/parameters/productName"
+                        "$ref": "#/components/parameters/driverName"
                     }
                 ],
                 "responses": {
@@ -18384,6 +18381,16 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "description": "The name of the integrated storage."
+            },
+            "driverName": {
+                "in": "path",
+                "name": "driverName",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "The driver name to filter models",
+                "example": "example-driver"
             },
             "vendorName": {
                 "in": "path",

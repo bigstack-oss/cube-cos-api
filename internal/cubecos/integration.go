@@ -245,31 +245,31 @@ func ListModels() ([]storages.Model, error) {
 	return list, nil
 }
 
-func GetStorageModel(vendor, product string) (*storages.Model, error) {
+func GetStorageModel(driver string) (*storages.Model, error) {
 	models, err := ListModels()
 	if err != nil {
 		return nil, err
 	}
 
 	for _, model := range models {
-		if model.Vendor == vendor && model.Driver == product {
+		if model.Driver == driver {
 			return &model, nil
 		}
 	}
 
 	return nil, fmt.Errorf(
-		"storage model %s-%s not found", vendor, product,
+		"storage model %s not found", driver,
 	)
 }
 
-func CheckStorageModelExist(vendor, product string) (bool, error) {
+func CheckStorageModelExist(driver string) (bool, error) {
 	models, err := ListModels()
 	if err != nil {
 		return false, err
 	}
 
 	for _, m := range models {
-		if m.Vendor == vendor && m.Driver == product {
+		if m.Driver == driver {
 			return true, nil
 		}
 	}
@@ -304,7 +304,7 @@ func UpdateStorageModel(model storages.Model) error {
 }
 
 func DeleteStorageModel(req storages.ModelReqOpts) error {
-	model := map[string]string{"vendor": req.Vendor, "product": req.Driver}
+	model := map[string]string{"driver": req.Driver}
 	input, err := json.Marshal(model)
 	if err != nil {
 		err := genIntegrationErr("model req parsing failure")
@@ -314,7 +314,7 @@ func DeleteStorageModel(req storages.ModelReqOpts) error {
 
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
 	defer cancel()
-	out, err := exec.CommandContext(ctx, "hex_sdk", "host_delete_model", string(input)).CombinedOutput()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_delete_model", string(input)).CombinedOutput()
 	if err != nil {
 		err := genIntegrationErr("model exec failure")
 		log.Errorf("storage: %s (%s)", err.Error(), string(out))
