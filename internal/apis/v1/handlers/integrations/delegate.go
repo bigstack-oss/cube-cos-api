@@ -134,7 +134,7 @@ func (h *helper) initBatchStorageModelReqOpts() []defstorages.ModelReqOpts {
 	for _, modelReqOpts := range h.batchModelReqOpts {
 		found := false
 		for _, current := range currents {
-			if modelReqOpts.Vendor == current.Vendor && modelReqOpts.Product == current.Product {
+			if modelReqOpts.Vendor == current.Vendor && modelReqOpts.Driver == current.Driver {
 				found = true
 				break
 			}
@@ -218,9 +218,9 @@ func (h *helper) getStorageModelUrlByHandler(node nodes.Node) string {
 	case "creaeteStorage":
 		return node.PostStorageModelUrl()
 	case "updateStorage":
-		return node.PatchStorageModelUrl(h.modelReqOpts.Vendor, h.modelReqOpts.Product)
+		return node.PatchStorageModelUrl(h.modelReqOpts.Vendor, h.modelReqOpts.Driver)
 	case "deleteStorage":
-		return node.DeleteStorageModelUrl(h.modelReqOpts.Vendor, h.modelReqOpts.Product)
+		return node.DeleteStorageModelUrl(h.modelReqOpts.Vendor, h.modelReqOpts.Driver)
 	default:
 		return node.PostStorageModelUrl()
 	}

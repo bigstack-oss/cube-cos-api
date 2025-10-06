@@ -3,20 +3,23 @@ package storages
 import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 
 type Model struct {
+	Driver    string `json:"driver" yaml:"driver" bson:"driver"`
 	Vendor    string `json:"vendor" yaml:"vendor" bson:"vendor"`
-	Product   string `json:"product" yaml:"product" bson:"product"`
-	Multipath `json:"multipath" yaml:"multipath" bson:"multipath"`
+	Type      string `json:"type" yaml:"type" bson:"type"`
+	Multipath []Path `json:"multipath" yaml:"multipath" bson:"multipath"`
 	Storage   `json:"storage" yaml:"storage" bson:"storage"`
 	Status    status.Model `json:"status" yaml:"status" bson:"status"`
 }
 
-type Multipath struct {
-	Defaults            []Conf `json:"defaults" yaml:"defaults" bson:"defaults"`
-	Blacklist           `json:"blacklist" yaml:"blacklist" bson:"blacklist"`
-	BlacklistExceptions Blacklist       `json:"blacklistExceptions" yaml:"blacklistExceptions" bson:"blacklistExceptions"`
-	Devices             []ModelDevice   `json:"devices" yaml:"devices" bson:"devices"`
-	Overrides           []Conf          `json:"overrides" yaml:"overrides" bson:"overrides"`
-	Multipaths          []MultipathWwid `json:"multipaths" yaml:"multipaths" bson:"multipaths"`
+type Path struct {
+	Section     string       `json:"section" yaml:"section" bson:"section"`
+	Attributes  []Attribute  `json:"attributes" yaml:"attributes" bson:"attributes"`
+	SubSections []Subsection `json:"subsections" yaml:"subsections" bson:"subsections"`
+}
+
+type Subsection struct {
+	Section    string      `json:"section" yaml:"section" bson:"section"`
+	Attributes []Attribute `json:"attributes" yaml:"attributes" bson:"attributes"`
 }
 
 type Blacklist struct {
@@ -25,12 +28,12 @@ type Blacklist struct {
 }
 
 type ModelDevice struct {
-	Vendor   string `json:"vendor" yaml:"vendor" bson:"vendor"`
-	Product  string `json:"product" yaml:"product" bson:"product"`
-	Settings []Conf `json:"settings" yaml:"settings" bson:"settings"`
+	Vendor   string      `json:"vendor" yaml:"vendor" bson:"vendor"`
+	Product  string      `json:"product" yaml:"product" bson:"product"`
+	Settings []Attribute `json:"settings" yaml:"settings" bson:"settings"`
 }
 
 type MultipathWwid struct {
-	WWID     string `json:"wwid" yaml:"wwid" bson:"wwid"`
-	Settings []Conf `json:"settings" yaml:"settings" bson:"settings"`
+	WWID     string      `json:"wwid" yaml:"wwid" bson:"wwid"`
+	Settings []Attribute `json:"settings" yaml:"settings" bson:"settings"`
 }

@@ -50,22 +50,28 @@ type Storage struct {
 }
 
 type Service struct {
-	DriverSection []Conf         `json:"driverSection" yaml:"driverSection" bson:"driverSection"`
-	ExtraSettings []ExtraSetting `json:"extraSettings" yaml:"extraSettings" bson:"extraSettings"`
+	DriverSection    []Attribute       `json:"driverSection" yaml:"driverSection" bson:"driverSection"`
+	ExtraSettings    []ExtraSetting    `json:"extraSettings" yaml:"extraSettings" bson:"extraSettings"`
+	ExtraConfigFiles []ExtraConfigFile `json:"extraConfigFiles" yaml:"extraConfigFiles" bson:"extraConfigFiles"`
 }
 
-type Conf struct {
+type Attribute struct {
 	Key   string `json:"key" yaml:"key" bson:"key"`
 	Value string `json:"value" yaml:"value" bson:"value"`
 }
 
 type ExtraSetting struct {
-	SectionHeader string `json:"sectionHeader" yaml:"sectionHeader" bson:"sectionHeader"`
-	Settings      []Conf `json:"settings" yaml:"settings" bson:"settings"`
+	SectionHeader string      `json:"sectionHeader" yaml:"sectionHeader" bson:"sectionHeader"`
+	Settings      []Attribute `json:"settings" yaml:"settings" bson:"settings"`
+}
+
+type ExtraConfigFile struct {
+	Name    string `json:"name" yaml:"name" bson:"name"`
+	Content string `json:"content" yaml:"content" bson:"content"`
 }
 
 type VolumeType struct {
-	Settings []Conf `json:"settings" yaml:"settings" bson:"settings"`
+	Settings []Attribute `json:"settings" yaml:"settings" bson:"settings"`
 }
 
 type Image struct {

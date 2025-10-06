@@ -220,7 +220,7 @@ func ListVendors() ([]string, error) {
 func ListModels() ([]storages.Model, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
 	defer cancel()
-	out, err := exec.CommandContext(ctx, "hex_sdk", "host_get_models").CombinedOutput()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_get_models").CombinedOutput()
 	if err != nil {
 		err := genIntegrationErr("model exec failure")
 		log.Errorf("storage: %s (%s)", err.Error(), string(out))
@@ -236,6 +236,7 @@ func ListModels() ([]storages.Model, error) {
 	list := []storages.Model{}
 	err = json.Unmarshal(out, &list)
 	if err != nil {
+		log.Errorf("storage: failed to parse model list (%s)", err.Error())
 		err := genIntegrationErr("model parsing failure")
 		log.Errorf("storage: %s (%s)", err.Error(), string(out))
 		return nil, err
@@ -251,7 +252,7 @@ func GetStorageModel(vendor, product string) (*storages.Model, error) {
 	}
 
 	for _, model := range models {
-		if model.Vendor == vendor && model.Product == product {
+		if model.Vendor == vendor && model.Driver == product {
 			return &model, nil
 		}
 	}
@@ -268,7 +269,7 @@ func CheckStorageModelExist(vendor, product string) (bool, error) {
 	}
 
 	for _, m := range models {
-		if m.Vendor == vendor && m.Product == product {
+		if m.Vendor == vendor && m.Driver == product {
 			return true, nil
 		}
 	}
@@ -303,7 +304,7 @@ func UpdateStorageModel(req storages.ModelReqOpts) error {
 }
 
 func DeleteStorageModel(req storages.ModelReqOpts) error {
-	model := map[string]string{"vendor": req.Vendor, "product": req.Product}
+	model := map[string]string{"vendor": req.Vendor, "product": req.Driver}
 	input, err := json.Marshal(model)
 	if err != nil {
 		err := genIntegrationErr("model req parsing failure")

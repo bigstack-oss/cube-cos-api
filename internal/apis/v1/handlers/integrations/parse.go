@@ -154,7 +154,7 @@ func (h *helper) parseCreateStorageModelParams() error {
 		return errors.New("vendor is required")
 	}
 
-	if h.modelReqOpts.Product == "" {
+	if h.modelReqOpts.Driver == "" {
 		return errors.New("product is required")
 	}
 
@@ -174,7 +174,7 @@ func (h *helper) parseUpdateStorageModelParams() error {
 		return errors.New("vendor is required")
 	}
 
-	if h.modelReqOpts.Product == "" {
+	if h.modelReqOpts.Driver == "" {
 		return errors.New("product is required")
 	}
 
@@ -200,7 +200,7 @@ func (h *helper) parseUpdateAllStorageModelParams() error {
 			return fmt.Errorf("has empty vendor in the %s", string(b))
 		}
 
-		if reqOpts.Product == "" {
+		if reqOpts.Driver == "" {
 			return fmt.Errorf("has empty product in the %s", string(b))
 		}
 	}
@@ -214,8 +214,8 @@ func (h *helper) parseDeleteStorageModelParams() error {
 		return errors.New("vendor is required")
 	}
 
-	h.modelReqOpts.Product = h.c.Param("product")
-	if h.modelReqOpts.Product == "" {
+	h.modelReqOpts.Driver = h.c.Param("product")
+	if h.modelReqOpts.Driver == "" {
 		return errors.New("product is required")
 	}
 

@@ -22,7 +22,7 @@ func (o *Operator) operateModelReq(req storages.ModelReqOpts) error {
 		"unknown desired action(%s) for model(%s %s)",
 		req.Status.Desired,
 		req.Vendor,
-		req.Product,
+		req.Driver,
 	)
 }
 

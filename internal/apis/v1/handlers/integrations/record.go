@@ -48,7 +48,7 @@ func (h *helper) updateModelTask() error {
 		bson.M{
 			"hostname": h.modelReqOpts.Hostname,
 			"vendor":   h.modelReqOpts.Vendor,
-			"product":  h.modelReqOpts.Product,
+			"product":  h.modelReqOpts.Driver,
 			"reqId":    h.modelReqOpts.ReqId,
 		},
 	)
@@ -105,7 +105,7 @@ func (h *helper) syncStorageProcessingStatus(storage *integration.Storage) {
 
 func (h *helper) syncProcessingModels(models *[]storages.Model) {
 	for i, model := range *models {
-		if h.isModelProcessing(model.Vendor, model.Product) {
+		if h.isModelProcessing(model.Vendor, model.Driver) {
 			h.syncModelProcessingStatus(&(*models)[i])
 		}
 	}
@@ -135,7 +135,7 @@ func (h *helper) syncModelProcessingStatus(model *storages.Model) {
 		storages.ModelReqCollection,
 		bson.M{
 			"vendor":  model.Vendor,
-			"product": model.Product,
+			"product": model.Driver,
 		},
 	)
 	if err != nil {

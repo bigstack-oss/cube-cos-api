@@ -4248,114 +4248,137 @@ const docTemplate = `{
                                             "code": 200,
                                             "data": [
                                                 {
-                                                    "vendor": "Dell",
-                                                    "product": "PowerVault",
-                                                    "multipath": {
-                                                        "defaults": [
-                                                            {
-                                                                "key": "user_friendly_names",
-                                                                "value": "yes"
-                                                            }
-                                                        ],
-                                                        "blacklist": {
-                                                            "devnode": "sda",
-                                                            "devices": [
+                                                    "driver": "cinder.volume.drivers.dell_emc.sc.storagecenter_fc.SCFCDriver",
+                                                    "vendor": "Dell EMC",
+                                                    "type": "SC Series FC",
+                                                    "multipath": [
+                                                        {
+                                                            "section": "devices",
+                                                            "attributes": [],
+                                                            "subSections": [
                                                                 {
-                                                                    "vendor": "Generic",
-                                                                    "product": "USB",
-                                                                    "settings": [
+                                                                    "section": "device",
+                                                                    "attributes": [
                                                                         {
-                                                                            "key": "dev_loss_tmo",
-                                                                            "value": "10"
+                                                                            "key": "vendor",
+                                                                            "value": "COMPELNT"
+                                                                        },
+                                                                        {
+                                                                            "key": "product",
+                                                                            "value": "Compellent Vol"
+                                                                        },
+                                                                        {
+                                                                            "key": "user_friendly_names",
+                                                                            "value": "no"
+                                                                        },
+                                                                        {
+                                                                            "key": "flush_on_last_del",
+                                                                            "value": "yes"
                                                                         }
                                                                     ]
                                                                 }
                                                             ]
-                                                        },
-                                                        "blacklistExceptions": {
-                                                            "devnode": "sd[b-z]",
-                                                            "devices": [
-                                                                {
-                                                                    "vendor": "HP",
-                                                                    "product": "MSA",
-                                                                    "settings": [
-                                                                        {
-                                                                            "key": "polling_interval",
-                                                                            "value": "5"
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            ]
-                                                        },
-                                                        "devices": [
-                                                            {
-                                                                "vendor": "EMC",
-                                                                "product": "VNX",
-                                                                "settings": [
-                                                                    {
-                                                                        "key": "no_path_retry",
-                                                                        "value": "fail"
-                                                                    }
-                                                                ]
-                                                            }
-                                                        ],
-                                                        "overrides": [
-                                                            {
-                                                                "key": "checker_timeout",
-                                                                "value": "30"
-                                                            }
-                                                        ],
-                                                        "multipaths": [
-                                                            {
-                                                                "wwid": "3600508b400105e210000900000490000",
-                                                                "settings": [
-                                                                    {
-                                                                        "key": "path_grouping_policy",
-                                                                        "value": "group_by_prio"
-                                                                    }
-                                                                ]
-                                                            }
-                                                        ]
-                                                    },
+                                                        }
+                                                    ],
                                                     "storage": {
                                                         "service": {
                                                             "driverSection": [
                                                                 {
-                                                                    "key": "volume_driver",
-                                                                    "value": "cinder.volume.drivers.lvm.LVMVolumeDriver"
+                                                                    "key": "san_ip",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "san_login",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "san_password",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "san_thin_provision",
+                                                                    "value": "true"
+                                                                },
+                                                                {
+                                                                    "key": "dell_sc_ssn",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "dell_sc_api_port",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "dell_sc_verify_cert",
+                                                                    "value": "false"
+                                                                },
+                                                                {
+                                                                    "key": "dell_sc_server_folder",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "dell_sc_volume_folder",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "use_multipath_for_image_xfer",
+                                                                    "value": "true"
+                                                                },
+                                                                {
+                                                                    "key": "enforce_multipath_for_image_xfer",
+                                                                    "value": "true"
+                                                                },
+                                                                {
+                                                                    "key": "image_upload_use_cinder_backend",
+                                                                    "value": "true"
                                                                 }
                                                             ],
-                                                            "extraSettings": [
-                                                                {
-                                                                    "sectionHeader": "DEFAULT",
-                                                                    "settings": [
-                                                                        {
-                                                                            "key": "enabled_backends",
-                                                                            "value": "lvm"
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            ],
-                                                            "extraConfigFiles": [
-                                                                {
-                                                                    "name": "test.conf",
-                                                                    "content": "ZmlsZSBjb250ZW50IGluIGJhc2U2NA=="
-                                                                }
-                                                            ]
+                                                            "extraSettings": [],
+                                                            "extraConfigFiles": []
                                                         },
                                                         "volumeType": {
                                                             "settings": [
                                                                 {
-                                                                    "key": "volume_backend_name",
-                                                                    "value": "lvm"
+                                                                    "key": "storagetype:storageprofile",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "replication_enabled",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "replication_type",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "replication:activereplay",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "replication:livevolume",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "storagetype:volumeqos",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "storagetype:groupqos",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "storagetype:datareductionprofile",
+                                                                    "value": ""
+                                                                },
+                                                                {
+                                                                    "key": "multiattach",
+                                                                    "value": ""
                                                                 }
                                                             ]
                                                         },
                                                         "image": {
                                                             "useMultipath": true,
                                                             "forceMultipath": true
-                                                        },
-                                                        "updateTime": "2025-09-09T10:30:00+08:00"
+                                                        }
                                                     }
                                                 }
                                             ],
@@ -20046,99 +20069,82 @@ const docTemplate = `{
                         "items": {
                             "type": "object",
                             "required": [
+                                "driver",
                                 "vendor",
-                                "product",
+                                "type",
                                 "multipath",
                                 "storage"
                             ],
                             "properties": {
+                                "driver": {
+                                    "type": "string"
+                                },
                                 "vendor": {
                                     "type": "string"
                                 },
-                                "product": {
+                                "type": {
                                     "type": "string"
                                 },
                                 "multipath": {
-                                    "type": "object",
-                                    "required": [
-                                        "defaults",
-                                        "blacklist",
-                                        "blacklistExceptions",
-                                        "devices",
-                                        "overrides",
-                                        "multipaths"
-                                    ],
-                                    "properties": {
-                                        "defaults": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/StorageKeyValuePair"
-                                            }
-                                        },
-                                        "blacklist": {
-                                            "type": "object",
-                                            "required": [
-                                                "devnode",
-                                                "devices"
-                                            ],
-                                            "properties": {
-                                                "devnode": {
-                                                    "type": "string"
-                                                },
-                                                "devices": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/StorageModelVenderSetting"
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "section",
+                                            "attributes",
+                                            "subSections"
+                                        ],
+                                        "properties": {
+                                            "section": {
+                                                "type": "string"
+                                            },
+                                            "attributes": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "key",
+                                                        "value"
+                                                    ],
+                                                    "properties": {
+                                                        "key": {
+                                                            "type": "string"
+                                                        },
+                                                        "value": {
+                                                            "type": "string"
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        },
-                                        "blacklistExceptions": {
-                                            "type": "object",
-                                            "required": [
-                                                "devnode",
-                                                "devices"
-                                            ],
-                                            "properties": {
-                                                "devnode": {
-                                                    "type": "string"
-                                                },
-                                                "devices": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/StorageModelVenderSetting"
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "devices": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/StorageModelVenderSetting"
-                                            }
-                                        },
-                                        "overrides": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/StorageKeyValuePair"
-                                            }
-                                        },
-                                        "multipaths": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "required": [
-                                                    "wwid",
-                                                    "settings"
-                                                ],
-                                                "properties": {
-                                                    "wwid": {
-                                                        "type": "string"
-                                                    },
-                                                    "settings": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "$ref": "#/components/schemas/StorageKeyValuePair"
+                                            },
+                                            "subSections": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "section",
+                                                        "attributes"
+                                                    ],
+                                                    "properties": {
+                                                        "section": {
+                                                            "type": "string"
+                                                        },
+                                                        "attributes": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "required": [
+                                                                    "key",
+                                                                    "value"
+                                                                ],
+                                                                "properties": {
+                                                                    "key": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "value": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -20151,8 +20157,7 @@ const docTemplate = `{
                                     "required": [
                                         "service",
                                         "volumeType",
-                                        "image",
-                                        "updateTime"
+                                        "image"
                                     ],
                                     "properties": {
                                         "service": {
@@ -20166,7 +20171,19 @@ const docTemplate = `{
                                                 "driverSection": {
                                                     "type": "array",
                                                     "items": {
-                                                        "$ref": "#/components/schemas/StorageKeyValuePair"
+                                                        "type": "object",
+                                                        "required": [
+                                                            "key",
+                                                            "value"
+                                                        ],
+                                                        "properties": {
+                                                            "key": {
+                                                                "type": "string"
+                                                            },
+                                                            "value": {
+                                                                "type": "string"
+                                                            }
+                                                        }
                                                     }
                                                 },
                                                 "extraSettings": {
@@ -20174,18 +20191,15 @@ const docTemplate = `{
                                                     "items": {
                                                         "type": "object",
                                                         "required": [
-                                                            "sectionHeader",
-                                                            "settings"
+                                                            "key",
+                                                            "value"
                                                         ],
                                                         "properties": {
-                                                            "sectionHeader": {
+                                                            "key": {
                                                                 "type": "string"
                                                             },
-                                                            "settings": {
-                                                                "type": "array",
-                                                                "items": {
-                                                                    "$ref": "#/components/schemas/StorageKeyValuePair"
-                                                                }
+                                                            "value": {
+                                                                "type": "string"
                                                             }
                                                         }
                                                     }
@@ -20194,17 +20208,12 @@ const docTemplate = `{
                                                     "type": "array",
                                                     "items": {
                                                         "type": "object",
-                                                        "required": [
-                                                            "name",
-                                                            "content"
-                                                        ],
                                                         "properties": {
-                                                            "name": {
+                                                            "key": {
                                                                 "type": "string"
                                                             },
-                                                            "content": {
-                                                                "type": "string",
-                                                                "description": "Base64 encoded content of the config file"
+                                                            "value": {
+                                                                "type": "string"
                                                             }
                                                         }
                                                     }
@@ -20220,7 +20229,19 @@ const docTemplate = `{
                                                 "settings": {
                                                     "type": "array",
                                                     "items": {
-                                                        "$ref": "#/components/schemas/StorageKeyValuePair"
+                                                        "type": "object",
+                                                        "required": [
+                                                            "key",
+                                                            "value"
+                                                        ],
+                                                        "properties": {
+                                                            "key": {
+                                                                "type": "string"
+                                                            },
+                                                            "value": {
+                                                                "type": "string"
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
@@ -20239,10 +20260,6 @@ const docTemplate = `{
                                                     "type": "boolean"
                                                 }
                                             }
-                                        },
-                                        "updateTime": {
-                                            "type": "string",
-                                            "format": "date-time"
                                         }
                                     }
                                 }

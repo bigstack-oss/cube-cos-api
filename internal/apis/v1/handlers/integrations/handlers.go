@@ -392,13 +392,13 @@ func createStorageModel(c *gin.Context) {
 		return
 	}
 
-	found, err := cubecos.CheckStorageModelExist(h.modelReqOpts.Vendor, h.modelReqOpts.Product)
+	found, err := cubecos.CheckStorageModelExist(h.modelReqOpts.Vendor, h.modelReqOpts.Driver)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 	if found {
-		bodies.SetConflict(c, fmt.Errorf("storage model '%s %s' already exists", h.modelReqOpts.Vendor, h.modelReqOpts.Product))
+		bodies.SetConflict(c, fmt.Errorf("storage model '%s %s' already exists", h.modelReqOpts.Vendor, h.modelReqOpts.Driver))
 		return
 	}
 
@@ -432,13 +432,13 @@ func updateStorageModel(c *gin.Context) {
 		return
 	}
 
-	found, err := cubecos.CheckStorageModelExist(h.modelReqOpts.Vendor, h.modelReqOpts.Product)
+	found, err := cubecos.CheckStorageModelExist(h.modelReqOpts.Vendor, h.modelReqOpts.Driver)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 	if !found {
-		bodies.SetNotFound(c, fmt.Errorf("storage model '%s %s' not found", h.modelReqOpts.Vendor, h.modelReqOpts.Product))
+		bodies.SetNotFound(c, fmt.Errorf("storage model '%s %s' not found", h.modelReqOpts.Vendor, h.modelReqOpts.Driver))
 		return
 	}
 
@@ -457,13 +457,13 @@ func deleteStorageModel(c *gin.Context) {
 		return
 	}
 
-	found, err := cubecos.CheckStorageModelExist(h.modelReqOpts.Vendor, h.modelReqOpts.Product)
+	found, err := cubecos.CheckStorageModelExist(h.modelReqOpts.Vendor, h.modelReqOpts.Driver)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 	if !found {
-		bodies.SetNotFound(c, fmt.Errorf("storage model '%s %s' not found", h.modelReqOpts.Vendor, h.modelReqOpts.Product))
+		bodies.SetNotFound(c, fmt.Errorf("storage model '%s %s' not found", h.modelReqOpts.Vendor, h.modelReqOpts.Driver))
 		return
 	}
 
