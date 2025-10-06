@@ -43,7 +43,7 @@ func (o *Operator) updateStorage(req storages.ReqOpts) error {
 func (o *Operator) handleStorageExit(req storages.ReqOpts, err error) {
 	if err != nil {
 		log.Errorf("storages: failed to %s %s(%v)", req.Status.Desired, req.Name, err)
-		req.SetFailed()
+		req.SetFailed(err.Error())
 	} else {
 		log.Infof("storages: %s %s successfully", req.Status.Desired, req.Name)
 		req.SetCompleted()

@@ -26098,6 +26098,42 @@
                     },
                     {
                         "$ref": "#/components/schemas/OSD00003E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/MDL00001I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/MDL00001E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/MDL00002I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/MDL00002E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/MDL00003I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/MDL00003E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/STG00001I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/STG00001E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/STG00002I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/STG00002E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/STG00003I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/STG00003E"
                     }
                 ],
                 "discriminator": {
@@ -26116,7 +26152,19 @@
                         "OSD00002I": "#/components/schemas/OSD00002I",
                         "OSD00002E": "#/components/schemas/OSD00002E",
                         "OSD00003I": "#/components/schemas/OSD00003I",
-                        "OSD00003E": "#/components/schemas/OSD00003E"
+                        "OSD00003E": "#/components/schemas/OSD00003E",
+                        "MDL00001I": "#/components/schemas/MDL00001I",
+                        "MDL00001E": "#/components/schemas/MDL00001E",
+                        "MDL00002I": "#/components/schemas/MDL00002I",
+                        "MDL00002E": "#/components/schemas/MDL00002E",
+                        "MDL00003I": "#/components/schemas/MDL00003I",
+                        "MDL00003E": "#/components/schemas/MDL00003E",
+                        "STG00001I": "#/components/schemas/STG00001I",
+                        "STG00001E": "#/components/schemas/STG00001E",
+                        "STG00002I": "#/components/schemas/STG00002I",
+                        "STG00002E": "#/components/schemas/STG00002E",
+                        "STG00003I": "#/components/schemas/STG00003I",
+                        "STG00003E": "#/components/schemas/STG00003E"
                     }
                 }
             },
@@ -26863,6 +26911,456 @@
                                 "type": "string"
                             },
                             "description": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "MDL00001I": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^MDL"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "vendor",
+                            "driver"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string"
+                            },
+                            "vendor": {
+                                "type": "string"
+                            },
+                            "driver": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "MDL00001E": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^MDL"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "vendor",
+                            "driver"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string"
+                            },
+                            "vendor": {
+                                "type": "string"
+                            },
+                            "driver": {
+                                "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "MDL00002I": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^MDL"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "vendor",
+                            "driver"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string"
+                            },
+                            "vendor": {
+                                "type": "string"
+                            },
+                            "driver": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "MDL00002E": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^MDL"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "vendor",
+                            "driver"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string"
+                            },
+                            "vendor": {
+                                "type": "string"
+                            },
+                            "driver": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "MDL00003I": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^MDL"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "vendor",
+                            "driver"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string"
+                            },
+                            "vendor": {
+                                "type": "string"
+                            },
+                            "driver": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "MDL00003E": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^MDL"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "vendor",
+                            "driver"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string"
+                            },
+                            "vendor": {
+                                "type": "string"
+                            },
+                            "driver": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "STG00001I": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^STG"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "name"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "STG00001E": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^STG"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "name"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "STG00002I": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^STG"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "name"
+                        ], 
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "STG00002E": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^STG"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "name"
+                        ], 
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "STG00003I": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^STG"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "name"
+                        ], 
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "STG00003E": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^STG"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "name"
+                        ], 
+                        "properties": {
+                            "name": {
                                 "type": "string"
                             }
                         }

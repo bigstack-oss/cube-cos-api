@@ -1,6 +1,12 @@
 package storages
 
-import "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+import (
+	ostime "time"
+
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
+)
 
 const (
 	Db                 = "storages"
@@ -20,6 +26,7 @@ type ReqOpts struct {
 	Hostname      string `json:"hostname" bson:"hostname"`
 	CinderDetails `json:"cinderDetails" bson:"cinderDetails"`
 	Status        status.Storage `json:"status" bson:"status"`
+	Notify        `json:"notify" bson:"notify"`
 }
 
 type ModelReqOpts struct {
@@ -27,6 +34,7 @@ type ModelReqOpts struct {
 	Hostname string `json:"hostname" bson:"hostname"`
 	Model    `json:"model" bson:"model"`
 	Status   status.Model `json:"status" bson:"status"`
+	Notify   `json:"notify" bson:"notify"`
 }
 
 type Cinder struct {
@@ -96,6 +104,11 @@ type VerficationResult struct {
 	IsTestVolumeSuccessful bool `json:"isTestVolumeSuccessful"`
 }
 
+type Notify struct {
+	IsNeeded bool                       `json:"isNeeded" bson:"isNeeded"`
+	Payload  notifications.Notification `json:"payload" bson:"payload"`
+}
+
 func (r *ReqOpts) SetCreating() {
 	r.Status.Current = status.Creating
 	r.Status.Desired = status.Created
@@ -123,37 +136,43 @@ func (r *ReqOpts) SetDeleting() {
 func (r *ReqOpts) SetCompleted() {
 	r.Status.Current = status.Completed
 	r.Status.IsProcessing = false
+
+	r.SetStorageNotification(true)
+	switch r.Status.Desired {
+	case status.Created:
+		r.Notify.Payload.Id = "STG00001I"
+	case status.Updated:
+		r.Notify.Payload.Id = "STG00002I"
+	case status.Deleted:
+		r.Notify.Payload.Id = "STG00003I"
+	case status.Defaulted:
+		r.SetStorageNotification(false)
+	}
 }
 
-func (r *ReqOpts) SetFailed() {
+func (r *ReqOpts) SetFailed(msg string) {
 	r.Status.Current = status.Failed
 	r.Status.IsProcessing = false
+
+	r.SetStorageNotification(true)
+	r.Notify.Payload.AdditionalInfo["description"] = msg
+
+	switch r.Status.Desired {
+	case status.Created:
+		r.Notify.Payload.Id = "STG00001E"
+	case status.Updated:
+		r.Notify.Payload.Id = "STG00002E"
+	case status.Deleted:
+		r.Notify.Payload.Id = "STG00003E"
+	case status.Defaulted:
+		r.SetStorageNotification(false)
+	}
 }
 
-func (m *ModelReqOpts) SetCreating() {
-	m.Status.Current = status.Creating
-	m.Status.Desired = status.Created
-	m.Status.IsProcessing = true
-}
-
-func (m *ModelReqOpts) SetUpdating() {
-	m.Status.Current = status.Updating
-	m.Status.Desired = status.Updated
-	m.Status.IsProcessing = true
-}
-
-func (m *ModelReqOpts) SetDeleting() {
-	m.Status.Current = status.Deleting
-	m.Status.Desired = status.Deleted
-	m.Status.IsProcessing = true
-}
-
-func (m *ModelReqOpts) SetCompleted() {
-	m.Status.Current = status.Completed
-	m.Status.IsProcessing = false
-}
-
-func (m *ModelReqOpts) SetFailed() {
-	m.Status.Current = status.Failed
-	m.Status.IsProcessing = false
+func (r *ReqOpts) SetStorageNotification(shouldNotify bool) {
+	r.Notify.IsNeeded = shouldNotify
+	r.Notify.Payload = notifications.Notification{}
+	r.Notify.Payload.NodeName = r.Hostname
+	r.Notify.Payload.Time = time.LocalRFC3339(ostime.Now())
+	r.Notify.Payload.AdditionalInfo = map[string]string{"name": r.Name}
 }

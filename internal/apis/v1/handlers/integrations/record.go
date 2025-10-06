@@ -1,6 +1,7 @@
 package integrations
 
 import (
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
@@ -30,6 +31,10 @@ func (h *helper) addReqRecord() {
 }
 
 func (h *helper) updateStorageTask() error {
+	if h.storageReqOpts.Notify.IsNeeded {
+		defer cubecos.InsertNotification(h.storageReqOpts.Notify.Payload)
+	}
+
 	return h.mongo.DeleteOne(
 		storages.Db,
 		storages.ReqCollection,
@@ -42,6 +47,10 @@ func (h *helper) updateStorageTask() error {
 }
 
 func (h *helper) updateModelTask() error {
+	if h.modelReqOpts.Notify.IsNeeded {
+		defer cubecos.InsertNotification(h.storageReqOpts.Notify.Payload)
+	}
+
 	return h.mongo.DeleteOne(
 		storages.Db,
 		storages.ModelReqCollection,
