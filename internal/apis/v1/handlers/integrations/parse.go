@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 )
 
@@ -72,22 +71,8 @@ func (h *helper) parseCreateStorageParams() error {
 		return errors.New("storage name is required")
 	}
 
-	if h.storageReqOpts.Device.Vendor == "" {
-		return errors.New("device vendor is required")
-	}
-
-	if h.storageReqOpts.Device.Driver == "" {
-		return errors.New("device driver is required")
-	}
-
-	model, err := cubecos.GetStorageModel(h.storageReqOpts.Device.Driver)
-	if err != nil {
-		return fmt.Errorf("failed to get model image paths(%v)", err)
-	}
-
 	h.storageReqOpts.ReqId = h.reqId
 	h.storageReqOpts.Hostname = base.Hostname
-	h.storageReqOpts.Cinder.Storage.Image = model.Storage.Image
 	h.storageReqOpts.SetCreating()
 	return nil
 }
@@ -188,10 +173,6 @@ func (h *helper) parseUpdateAllStorageModelParams() error {
 			return fmt.Errorf("failed to marshal storage model options(%v)", err)
 		}
 
-		if reqOpts.Vendor == "" {
-			return fmt.Errorf("has empty vendor in the %s", string(b))
-		}
-
 		if reqOpts.Driver == "" {
 			return fmt.Errorf("has empty driver in the %s", string(b))
 		}
@@ -201,7 +182,7 @@ func (h *helper) parseUpdateAllStorageModelParams() error {
 }
 
 func (h *helper) parseDeleteStorageModelParams() error {
-	h.modelReqOpts.Driver = h.c.Param("driver")
+	h.modelReqOpts.Driver = h.c.Param("driverName")
 	if h.modelReqOpts.Driver == "" {
 		return errors.New("driver is required")
 	}

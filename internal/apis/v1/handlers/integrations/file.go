@@ -30,7 +30,7 @@ func (h *helper) loadStorageModel() error {
 
 	return yaml.Unmarshal(
 		payload,
-		&h.batchModelReqOpts,
+		&h.modelReqOpts,
 	)
 }
 

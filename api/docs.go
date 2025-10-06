@@ -4847,10 +4847,7 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "$ref": "#/components/parameters/vendorName"
-                    },
-                    {
-                        "$ref": "#/components/parameters/productName"
+                        "$ref": "#/components/parameters/driverName"
                     }
                 ],
                 "requestBody": {

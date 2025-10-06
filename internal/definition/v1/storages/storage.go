@@ -30,11 +30,13 @@ type ModelReqOpts struct {
 }
 
 type Cinder struct {
-	AsDefault  bool   `json:"asDefault" yaml:"asDefault" bson:"asDefault"`
 	Name       string `json:"name" yaml:"name" bson:"name"`
-	IsExternal bool   `json:"isExternal" yaml:"isExternal" bson:"isExternal"`
-	Device     `json:"device" yaml:"device" bson:"device"`
-	Storage    `json:"storage" yaml:"storage" bson:"storage"`
+	Driver     string `json:"driver" yaml:"driver" bson:"driver"`
+	Vendor     string `json:"vendor" yaml:"vendor" bson:"vendor"`
+	Model      string `json:"model" yaml:"model" bson:"model"`
+	IsDefault  bool   `json:"isDefault" yaml:"isDefault" bson:"isDefault"`
+	IsBuiltIn  bool   `json:"isBuiltIn" yaml:"isBuiltIn" bson:"isBuiltIn"`
+	UpdateTime string `json:"updateTime" yaml:"updateTime" bson:"updateTime"`
 }
 
 type Device struct {

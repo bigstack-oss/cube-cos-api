@@ -26,7 +26,7 @@ func (h *helper) checkIfStorageIsDefaulted() error {
 		return err
 	}
 
-	if storage.AsDefault {
+	if storage.IsDefault {
 		err := fmt.Errorf("the %s is already the default storage", h.storageReqOpts.Name)
 		bodies.SetBadRequest(h.c, err, nil)
 		return err

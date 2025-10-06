@@ -15,7 +15,7 @@ func (o *Operator) operateModelReq(req storages.ModelReqOpts) error {
 	case status.Created, status.Updated:
 		return cubecos.UpdateStorageModel(req.Model)
 	case status.Deleted:
-		return cubecos.DeleteStorageModel(req)
+		return cubecos.DeleteStorageModel(req.Driver)
 	}
 
 	return fmt.Errorf(

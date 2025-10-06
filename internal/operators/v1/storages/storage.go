@@ -33,7 +33,7 @@ func (o *Operator) updateStorage(req storages.ReqOpts) error {
 		return err
 	}
 
-	if !req.Cinder.AsDefault {
+	if !req.Cinder.IsDefault {
 		return nil
 	}
 

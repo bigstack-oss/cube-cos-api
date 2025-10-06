@@ -20,10 +20,10 @@ func (h *helper) convertToStorages(cinders []storages.Cinder) []integration.Stor
 			storages,
 			integration.Storage{
 				Name:         cinder.Name,
-				Type:         h.convertType(cinder.IsExternal),
-				Vendor:       cinder.Device.Vendor,
+				Type:         h.convertType(cinder.IsBuiltIn),
+				Vendor:       cinder.Vendor,
 				ManagementIp: base.ManagementIp,
-				UpdatedAt:    h.convertTime(cinder.Storage.UpdateTime),
+				UpdatedAt:    h.convertTime(cinder.UpdateTime),
 				IsDefault:    cubecos.IsDefaultStorage(cinder.Name),
 				Status: status.Storage{
 					Current:      status.Ok,
@@ -36,12 +36,12 @@ func (h *helper) convertToStorages(cinders []storages.Cinder) []integration.Stor
 	return storages
 }
 
-func (h *helper) convertType(isExternal bool) string {
-	if isExternal {
-		return "external"
+func (h *helper) convertType(isBuiltIn bool) string {
+	if isBuiltIn {
+		return "built-in"
 	}
 
-	return "built-in"
+	return "external"
 }
 
 func (h *helper) convertTime(updateTime string) string {

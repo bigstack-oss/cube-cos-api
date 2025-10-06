@@ -94,13 +94,13 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPut,
-			Path:    "/integrations/storages/models/:vendor/:product",
+			Path:    "/integrations/storages/models/:driverNname",
 			Func:    updateStorageModel,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodDelete,
-			Path:    "/integrations/storages/models/:vendor/:product",
+			Path:    "/integrations/storages/models/:driverNname",
 			Func:    deleteStorageModel,
 		},
 		{

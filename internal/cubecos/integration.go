@@ -303,8 +303,8 @@ func UpdateStorageModel(model storages.Model) error {
 	return nil
 }
 
-func DeleteStorageModel(req storages.ModelReqOpts) error {
-	model := map[string]string{"driver": req.Driver}
+func DeleteStorageModel(driver string) error {
+	model := map[string]string{"driver": driver}
 	input, err := json.Marshal(model)
 	if err != nil {
 		err := genIntegrationErr("model req parsing failure")
