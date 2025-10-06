@@ -1,11 +1,23 @@
-[
-	{
-		"name": "CubeStorage",
-		"driver": "cinder.volume.drivers.rbd.RBDDriver",
-		"vendor": "Bigstack",
-		"model": "CubeCOS",
-		"isDefault": true,
-		"isBuiltin": true,
-		"updateTime": "1970-01-01T00:00:00Z"
-	}
-]
+{
+    "name": "CubeStorage",
+    "driver": "cinder.volume.drivers.rbd.RBDDriver",
+    "vendor": "Bigstack",
+    "model": "CubeCOS",
+    "isDefault": true,
+    "isBuiltin": true,
+    "updateTime": "1970-01-01T00:00:00Z",
+    "storage": {
+        "service": {
+            "driverSection": [],
+            "extraSettings": [],
+            "extraConfigFiles": []
+        },
+        "volumeType": {
+            "settings": []
+        },
+        "image": {
+            "useMultipath": false,
+            "forceMultipath": false
+        }
+    }
+}

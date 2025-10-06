@@ -78,6 +78,41 @@ func ListStorages() ([]storages.Cinder, error) {
 	return list, nil
 }
 
+func GetStorage(name string) (*storages.CinderDetails, error) {
+	nameMap := map[string]string{"name": name}
+	input, err := json.Marshal(nameMap)
+	if err != nil {
+		err := genIntegrationErr("storage name parsing failure")
+		log.Errorf("storage: %s (%v)", err.Error(), err)
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_get_storage", string(input)).CombinedOutput()
+	if err != nil {
+		err := genIntegrationErr("storage exec failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return nil, err
+	}
+
+	if !IsHexSuccessful(err) {
+		err := genIntegrationErr("storage output failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return nil, err
+	}
+
+	cinder := &storages.CinderDetails{}
+	err = json.Unmarshal(out, cinder)
+	if err != nil {
+		err := genIntegrationErr("storage parsing failure")
+		log.Errorf("storage: %s (%s)", err.Error(), string(out))
+		return nil, err
+	}
+
+	return cinder, nil
+}
+
 func CheckStorageExist(name string) (bool, error) {
 	storages, err := ListStorages()
 	if err != nil {
@@ -91,23 +126,6 @@ func CheckStorageExist(name string) (bool, error) {
 	}
 
 	return false, nil
-}
-
-func GetStorage(name string) (*storages.Cinder, error) {
-	storages, err := ListStorages()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, storage := range storages {
-		if storage.Name == name {
-			return &storage, nil
-		}
-	}
-
-	return nil, fmt.Errorf(
-		"storage %s not found", name,
-	)
 }
 
 func CreateStorage(req storages.ReqOpts) error {

@@ -3334,7 +3334,7 @@ const docTemplate = `{
                                 "example1": {
                                     "summary": "Create integrated storage request",
                                     "value": {
-                                        "asDefault": true,
+                                        "isDefault": true,
                                         "name": "example-storage",
                                         "isExternal": false,
                                         "device": {
@@ -3703,7 +3703,7 @@ const docTemplate = `{
                                         "value": {
                                             "code": 200,
                                             "data": {
-                                                "asDefault": true,
+                                                "isDefault": true,
                                                 "name": "CubeStorage",
                                                 "isExternal": false,
                                                 "device": {
@@ -3844,7 +3844,7 @@ const docTemplate = `{
                                 "example1": {
                                     "summary": "Update integrated storage request",
                                     "value": {
-                                        "asDefault": true,
+                                        "isDefault": true,
                                         "isExternal": false,
                                         "device": {
                                             "vendor": "Dell",
@@ -19590,14 +19590,14 @@ const docTemplate = `{
             "CreateIntegratedStorageRequest": {
                 "type": "object",
                 "required": [
-                    "asDefault",
+                    "isDefault",
                     "name",
                     "isExternal",
                     "device",
                     "storage"
                 ],
                 "properties": {
-                    "asDefault": {
+                    "isDefault": {
                         "type": "boolean"
                     },
                     "name": {
@@ -19706,13 +19706,13 @@ const docTemplate = `{
             "UpdateIntegratedStorageRequest": {
                 "type": "object",
                 "required": [
-                    "asDefault",
+                    "isDefault",
                     "isExternal",
                     "device",
                     "storage"
                 ],
                 "properties": {
-                    "asDefault": {
+                    "isDefault": {
                         "type": "boolean"
                     },
                     "isExternal": {
@@ -19914,14 +19914,14 @@ const docTemplate = `{
                     "data": {
                         "type": "object",
                         "required": [
-                            "asDefault",
+                            "isDefault",
                             "name",
                             "isExternal",
                             "device",
                             "storage"
                         ],
                         "properties": {
-                            "asDefault": {
+                            "isDefault": {
                                 "type": "boolean"
                             },
                             "name": {

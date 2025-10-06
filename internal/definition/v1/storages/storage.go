@@ -39,6 +39,17 @@ type Cinder struct {
 	UpdateTime string `json:"updateTime" yaml:"updateTime" bson:"updateTime"`
 }
 
+type CinderDetails struct {
+	Name       string `json:"name" yaml:"name" bson:"name"`
+	Driver     string `json:"driver" yaml:"driver" bson:"driver"`
+	Vendor     string `json:"vendor" yaml:"vendor" bson:"vendor"`
+	Model      string `json:"model" yaml:"model" bson:"model"`
+	IsDefault  bool   `json:"isDefault" yaml:"isDefault" bson:"isDefault"`
+	IsBuiltIn  bool   `json:"isBuiltIn" yaml:"isBuiltIn" bson:"isBuiltIn"`
+	UpdateTime string `json:"updateTime" yaml:"updateTime" bson:"updateTime"`
+	Storage    `json:"storage" yaml:"storage" bson:"storage"`
+}
+
 type Device struct {
 	Vendor string `json:"vendor" yaml:"vendor" bson:"vendor"`
 	Driver string `json:"driver" yaml:"driver" bson:"driver"`
