@@ -277,8 +277,8 @@ func CheckStorageModelExist(vendor, product string) (bool, error) {
 	return false, nil
 }
 
-func UpdateStorageModel(req storages.ModelReqOpts) error {
-	input, err := json.Marshal(req)
+func UpdateStorageModel(model storages.Model) error {
+	input, err := json.Marshal(model)
 	if err != nil {
 		err := genIntegrationErr("model req parsing failure")
 		log.Errorf("storage: %s (%v)", err.Error(), err)
@@ -287,7 +287,7 @@ func UpdateStorageModel(req storages.ModelReqOpts) error {
 
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
 	defer cancel()
-	out, err := exec.CommandContext(ctx, "hex_sdk", "host_put_model", string(input)).CombinedOutput()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_put_model", string(input)).CombinedOutput()
 	if err != nil {
 		err := genIntegrationErr("model exec failure")
 		log.Errorf("storage: %s (%s)", err.Error(), string(out))

@@ -13,7 +13,7 @@ import (
 func (o *Operator) operateModelReq(req storages.ModelReqOpts) error {
 	switch req.Status.Desired {
 	case status.Created, status.Updated:
-		return cubecos.UpdateStorageModel(req)
+		return cubecos.UpdateStorageModel(req.Model)
 	case status.Deleted:
 		return cubecos.DeleteStorageModel(req)
 	}
