@@ -119,7 +119,7 @@ func (h *helper) addReqRecord(node string) {
 }
 
 func (h *helper) deleteReqRecord() error {
-	err := h.mongo.DeleteOne(
+	err := h.mongo.DeleteAll(
 		fixpacks.Db,
 		fixpacks.ReqCollection,
 		bson.M{"version": h.reqOpts.Version},
@@ -136,19 +136,22 @@ func (h *helper) deleteReqRecord() error {
 }
 
 func (h *helper) markReqRecordAsFailed(list []nodes.Node) error {
-	err := h.mongo.UpdateMany(
-		fixpacks.Db,
-		fixpacks.ReqCollection,
-		bson.M{"version": h.reqOpts.Version},
-		h.reqOpts,
-	)
-	if err == nil {
-		return nil
+	for _, node := range list {
+		err := h.mongo.UpdateOne(
+			fixpacks.Db,
+			fixpacks.ReqCollection,
+			bson.M{"hostname": node.Hostname, "version": h.reqOpts.Version},
+			bson.M{"$set": bson.M{"status.current": h.reqOpts.Status.Current, "status.isProcessing": h.reqOpts.Status.IsProcessing, "status.description": h.reqOpts.Status.Description}},
+		)
+		if err == nil {
+			return nil
+		}
+
+		log.Errorf(
+			"fixpacks(%s): failed mark req record as failed(%v)",
+			h.reqId, err,
+		)
 	}
 
-	log.Errorf(
-		"fixpacks(%s): failed mark req record as failed(%v)",
-		h.reqId, err,
-	)
-	return err
+	return nil
 }

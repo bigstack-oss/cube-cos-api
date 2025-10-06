@@ -11,10 +11,9 @@ var (
 
 func (h *helper) requestOperation() {
 	for _, node := range nodes.List() {
+		h.addReqRecord(node.Hostname)
 		if nodes.IsLocal(node.Hostname) {
-			h.addReqRecord(node.Hostname)
+			reqQueue.Add(&h.reqOpts)
 		}
-
-		reqQueue.Add(&h.reqOpts)
 	}
 }
