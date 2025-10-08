@@ -49,7 +49,56 @@ func (h *helper) getUpdateDetails() (*update, error) {
 		)
 	}
 
+	err = h.syncRebootingDetails(&update)
+	if err != nil {
+		return nil, err
+	}
+
 	return &update, nil
+}
+
+func (h *helper) syncRebootingDetails(update *update) error {
+	nodes, err := cubecos.ListFixpackRebootingNodes()
+	if err != nil {
+		return err
+	}
+
+	rebootingMap := make(map[string]bool)
+	for _, node := range nodes {
+		rebootingMap[node.Hostname] = true
+	}
+
+	for i, progress := range update.Progresses {
+		_, shouldReboot := rebootingMap[progress.Host]
+		if !shouldReboot {
+			continue
+		}
+
+		update.Progresses[i].Status.Current = status.WaitingReboot
+		update.Progresses[i].Status.IsProcessing = true
+		update.Progresses[i].Status.ProcessPercent = 100
+		update.Progresses[i].Status.Description = h.getRebootingHintsByNodeRole(progress.Host)
+	}
+
+	return nil
+}
+
+func (h *helper) getRebootingHintsByNodeRole(host string) string {
+	node, err := nodes.Get(host)
+	if err != nil {
+		return "Node needs to be rebooted to complete the fixpack update."
+	}
+
+	switch node.Role {
+	case nodes.RoleControl:
+		return "Control node needs to be rebooted to complete the fixpack update. Please schedule a maintenance window if necessary."
+	case nodes.RoleCompute:
+		return "Compute node needs to be rebooted to complete the fixpack update. Please schedule a maintenance window if necessary."
+	case nodes.RoleStorage:
+		return "Storage node needs to be rebooted to complete the fixpack update. Please schedule a maintenance window if necessary."
+	default:
+		return "Node needs to be rebooted to complete the fixpack update."
+	}
 }
 
 func (h *helper) convertOperationByAction(action string) string {

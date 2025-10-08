@@ -49,6 +49,36 @@ func ListFixpacks() ([]fixpacks.Fixpack, error) {
 	return merged, nil
 }
 
+func ListFixpackRebootingNodes() ([]nodes.Node, error) {
+	ctx, canel := context.WithTimeout(wait.CtxSeconds(60))
+	defer canel()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "cmd", "-v", "ls", "-lt", "/run/need_reboot").CombinedOutput()
+	if err != nil {
+		log.Errorf("fixpacks: failed to execute list rebooting nodes cmd(%v)", err)
+		return nil, err
+	}
+
+	lines := strings.SplitSeq(string(out), "\n")
+	rebootingNodes := []nodes.Node{}
+	for line := range lines {
+		segments := strings.Split(line, "|")
+		if len(segments) < 2 {
+			continue
+		}
+
+		hostname := segments[0]
+		node, err := nodes.Get(hostname)
+		if err != nil {
+			log.Warnf("fixpacks: failed to get node by hostname %s(%v)", hostname, err)
+			continue
+		}
+
+		rebootingNodes = append(rebootingNodes, *node)
+	}
+
+	return rebootingNodes, nil
+}
+
 func GetLastFixpackOperation() (*fixpacks.Fixpack, error) {
 	fixpacks, err := GetFixpackHistory()
 	if err != nil {

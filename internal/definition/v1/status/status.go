@@ -31,6 +31,7 @@ const (
 	Expairing            = "expairing"
 	Fixing               = "fixing"
 	RollingBack          = "rollingBack"
+	WaitingReboot        = "waitingReboot"
 	PoweringOn           = "powering on"
 	PoweringOff          = "powering off"
 	PoweringCycle        = "powering cycle"
