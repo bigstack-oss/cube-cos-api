@@ -59,7 +59,7 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodGet,
-			Path:    "/fixpacks/updateProgress",
+			Path:    "/fixpacks/updateProgress/:version",
 			Func:    getFixpackUpdateProgress,
 		},
 		{

@@ -1,15 +1,19 @@
 package fixpacks
 
 import (
+	"context"
 	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type node struct {
@@ -30,28 +34,95 @@ type progress struct {
 	Status status.SystemUpdateProgress `json:"status"`
 }
 
-func (h *helper) getUpdateDetails() (*update, error) {
-	fixpack, err := cubecos.GetLastFixpackOperation()
+// func (h *helper) getUpdateDetails() (*update, error) {
+// 	fixpack, err := cubecos.GetLastFixpackOperation()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	current, processPercent := h.getProgressByVersion(fixpack.Version)
+// 	update := update{
+// 		Version:   fixpack.Version,
+// 		Operation: h.convertOperationByAction(fixpack.Action),
+// 	}
+
+// 	for _, node := range nodes.List() {
+// 		update.Progresses = append(
+// 			update.Progresses,
+// 			h.syncProgress(node, current, processPercent),
+// 		)
+// 	}
+
+// 	err = h.syncRebootingDetails(&update)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return &update, nil
+// }
+
+func (h *helper) getUpdateProgressRecordByVersion(version string) (*update, error) {
+	c, err := h.mongo.GetQueryCursor(
+		fixpacks.Db,
+		fixpacks.ReqCollection,
+		bson.M{"version": version},
+	)
+	if err != nil {
+		err := fmt.Errorf("failed to get fixpack update progress record by version %s (%v)", version, err)
+		log.Errorf("fixpacks(%s): %v", h.reqId, err)
+		return nil, err
+	}
+
+	if c == nil {
+		err := fmt.Errorf("fixpack progress record format is unexpected")
+		log.Errorf("fixpacks(%s): %v", err)
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	defer cancel()
+	defer c.Close(ctx)
+	update, err := h.parseUpdateProgress(c)
 	if err != nil {
 		return nil, err
 	}
 
-	current, processPercent := h.getProgressByVersion(fixpack.Version)
-	update := update{
-		Version:   fixpack.Version,
-		Operation: h.convertOperationByAction(fixpack.Action),
+	err = h.syncRebootingDetails(update)
+	if err != nil {
+		return nil, err
 	}
 
-	for _, node := range nodes.List() {
+	return update, nil
+}
+
+func (h *helper) parseUpdateProgress(c *mongo.Cursor) (*update, error) {
+	update := update{}
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(120))
+	defer cancel()
+	for c.Next(ctx) {
+		reqOpts := fixpacks.ReqOpts{}
+		err := c.Decode(&reqOpts)
+		if err != nil {
+			log.Warnf("fixpacks(%s): failed to decode fixpack update progress record (%v)", h.reqId, err)
+			continue
+		}
+
+		current, processPercent := h.getProgressByVersion(h.reqOpts.Version)
+		node, err := nodes.Get(reqOpts.Hostname)
+		if err != nil {
+			log.Warnf("fixpacks(%s): failed to get node %s info for fixpack progress (%v)", h.reqId, reqOpts.Hostname, err)
+			continue
+		}
+
 		update.Progresses = append(
 			update.Progresses,
-			h.syncProgress(node, current, processPercent),
+			h.syncProgress(*node, current, processPercent),
 		)
-	}
 
-	err = h.syncRebootingDetails(&update)
-	if err != nil {
-		return nil, err
+		if update.Version == "" {
+			update.Version = reqOpts.Version
+			update.Operation = h.convertOperationByStatus(reqOpts.Status.Desired)
+		}
 	}
 
 	return &update, nil
@@ -101,16 +172,16 @@ func (h *helper) getRebootingHintsByNodeRole(host string) string {
 	}
 }
 
-func (h *helper) convertOperationByAction(action string) string {
-	switch strings.ToLower(action) {
-	case "installed":
+func (h *helper) convertOperationByStatus(desired string) string {
+	switch strings.ToLower(desired) {
+	case status.Installed:
 		return "install"
-	case "uninstalled":
+	case status.Rollbacked:
 		return "rollback"
+	default:
+		log.Warnf("fixpacks(%s): unknown fixpack action %s, set operation to install by default", h.reqId, desired)
+		return "install"
 	}
-
-	log.Warnf("fixpacks(%s): unknown fixpack action %s, set operation to install by default", h.reqId, action)
-	return "install"
 }
 
 func (h *helper) syncProgress(node nodes.Node, current string, processPercent float64) progress {

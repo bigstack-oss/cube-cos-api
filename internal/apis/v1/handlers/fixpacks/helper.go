@@ -58,7 +58,7 @@ func (h *helper) listFixpacks() (*fixpacksPage, error) {
 }
 
 func (h *helper) getFixpackUpdateProgress() (*update, error) {
-	update, err := h.getUpdateDetails()
+	update, err := h.getUpdateProgressRecordByVersion(h.reqOpts.Version)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +165,7 @@ func (h *helper) deleteFixpack() error {
 func (h *helper) updateFixpackTask(nodes []node) error {
 	switch h.reqOpts.Status.Current {
 	case status.Completed:
-		return h.deleteReqRecord()
+		return h.markReqRecordAsCompleted()
 	case status.Failed:
 		failures := h.findFailedNodes(nodes)
 		return h.markReqRecordAsFailed(failures)

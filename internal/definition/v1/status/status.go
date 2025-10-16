@@ -167,13 +167,14 @@ type Firmware struct {
 }
 
 type Fixpack struct {
-	Current        string `json:"current,omitempty" bson:"current"`
-	Desired        string `json:"-" bson:"desired"`
-	IsInstallable  bool   `json:"isInstallable" bson:"isInstallable"`
-	IsRollbackable bool   `json:"isRollbackable" bson:"isRollbackable"`
-	IsProcessing   bool   `json:"isProcessing" bson:"isProcessing"`
-	IsRemovable    bool   `json:"isRemovable" bson:"isRemovable"`
-	Description    string `json:"description,omitempty" bson:"description"`
+	Current        string  `json:"current,omitempty" bson:"current"`
+	Desired        string  `json:"-" bson:"desired"`
+	IsInstallable  bool    `json:"isInstallable" bson:"isInstallable"`
+	IsRollbackable bool    `json:"isRollbackable" bson:"isRollbackable"`
+	IsProcessing   bool    `json:"isProcessing" bson:"isProcessing"`
+	IsRemovable    bool    `json:"isRemovable" bson:"isRemovable"`
+	ProcessPercent float64 `json:"processPercent" bson:"processPercent"`
+	Description    string  `json:"description,omitempty" bson:"description"`
 }
 
 type Storage struct {

@@ -135,13 +135,34 @@ func (h *helper) deleteReqRecord() error {
 	return err
 }
 
+func (h *helper) markReqRecordAsCompleted() error {
+	return h.mongo.UpdateMany(
+		fixpacks.Db,
+		fixpacks.ReqCollection,
+		bson.M{"version": h.reqOpts.Version},
+		bson.M{
+			"$set": bson.M{
+				"status.current":      h.reqOpts.Status.Current,
+				"status.isProcessing": h.reqOpts.Status.IsProcessing,
+				"status.description":  h.reqOpts.Status.Description,
+			},
+		},
+	)
+}
+
 func (h *helper) markReqRecordAsFailed(list []nodes.Node) error {
 	for _, node := range list {
 		err := h.mongo.UpdateOne(
 			fixpacks.Db,
 			fixpacks.ReqCollection,
 			bson.M{"hostname": node.Hostname, "version": h.reqOpts.Version},
-			bson.M{"$set": bson.M{"status.current": h.reqOpts.Status.Current, "status.isProcessing": h.reqOpts.Status.IsProcessing, "status.description": h.reqOpts.Status.Description}},
+			bson.M{
+				"$set": bson.M{
+					"status.current":      h.reqOpts.Status.Current,
+					"status.isProcessing": h.reqOpts.Status.IsProcessing,
+					"status.description":  h.reqOpts.Status.Description,
+				},
+			},
 		)
 		if err == nil {
 			return nil

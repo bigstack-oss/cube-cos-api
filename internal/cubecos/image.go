@@ -16,6 +16,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	tty "github.com/creack/pty"
+	"github.com/google/uuid"
 	opsimage "github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	log "go-micro.dev/v5/logger"
 )
@@ -28,12 +29,13 @@ var (
 func ImportImage(opts *images.CreateOpts) error {
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(180))
 	defer cancel()
-	cmd, err := genCmdByPoolType(ctx, opts)
+	cmd, path, err := genCmd(ctx, opts)
 	if err != nil {
+		log.Errorf("images: failed to gen cmd by pool type (%v)", err)
 		return err
 	}
 
-	defer removeWorkaroundScriptIfExists()
+	defer removeWorkaroundScriptIfExists(path)
 	out, err := tty.Start(cmd)
 	if err != nil {
 		log.Errorf("images: failed to start command(%v)", err)
@@ -50,6 +52,7 @@ func ImportImage(opts *images.CreateOpts) error {
 
 	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("failed to import image %s(%v)", opts.Name, err)
+		log.Errorf("images: %v", err)
 		return err
 	}
 
@@ -67,51 +70,35 @@ func RemoveRawImage(path string) {
 	}
 }
 
-func genCmdByPoolType(ctx context.Context, opts *images.CreateOpts) (*exec.Cmd, error) {
-	switch opts.PoolType {
-	case "cinder-volumes":
-		return genCinderWorkaroundCmd(ctx, opts)
-	default:
-		return genGlanceCmd(ctx, opts)
-	}
-}
-
-func genCinderWorkaroundCmd(ctx context.Context, opts *images.CreateOpts) (*exec.Cmd, error) {
+func genCmd(ctx context.Context, opts *images.CreateOpts) (*exec.Cmd, string, error) {
 	script := fmt.Sprintf(
 		"#!/bin/bash\nhex_sdk %s\n",
 		strings.Join(genImageArgs(opts), " "),
 	)
 
-	scriptPath := "image-import-cinder.sh"
+	reqId := uuid.New().String()[:8]
+	scriptPath := fmt.Sprintf("image-import-%s.sh", reqId)
 	if err := os.WriteFile(scriptPath, []byte(script), 0755); err != nil {
 		log.Errorf("images: failed to write script file(%v)", err)
-		return nil, err
+		return nil, "", err
 	}
 
 	absPath, err := filepath.Abs(scriptPath)
 	if err != nil {
 		log.Errorf("images: failed to get abs path(%v)", err)
-		return nil, err
+		return nil, "", err
 	}
 
 	err = os.Chmod(absPath, 0755)
 	if err != nil {
 		log.Errorf("images: failed to chmod script file(%v)", err)
-		return nil, err
+		return nil, "", err
 	}
 
 	return exec.CommandContext(
 		ctx,
 		absPath,
-	), nil
-}
-
-func genGlanceCmd(ctx context.Context, opts *images.CreateOpts) (*exec.Cmd, error) {
-	return exec.CommandContext(
-		ctx,
-		"hex_sdk",
-		genImageArgs(opts)...,
-	), nil
+	), scriptPath, nil
 }
 
 func genImageArgs(opts *images.CreateOpts) []string {
@@ -213,6 +200,6 @@ func streamImportProgress(poolType string, buf *bytes.Buffer, last *float64, str
 	}
 }
 
-func removeWorkaroundScriptIfExists() {
-	os.Remove("/image-import-cinder.sh")
+func removeWorkaroundScriptIfExists(path string) {
+	os.Remove(path)
 }
