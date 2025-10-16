@@ -53,7 +53,7 @@ func ListFixpackRebootingNodes() ([]nodes.Node, error) {
 	ctx, canel := context.WithTimeout(wait.CtxSeconds(60))
 	defer canel()
 	out, err := exec.CommandContext(ctx, "hex_sdk", "cmd", "-v", "ls", "-lt", "/run/need_reboot").CombinedOutput()
-	if err != nil {
+	if !isValidFixpackError(err) {
 		log.Errorf("fixpacks: failed to execute list rebooting nodes cmd(%v)", err)
 		return nil, err
 	}
@@ -77,6 +77,10 @@ func ListFixpackRebootingNodes() ([]nodes.Node, error) {
 	}
 
 	return rebootingNodes, nil
+}
+
+func isValidFixpackError(err error) bool {
+	return err.Error() == "exit status 2"
 }
 
 func GetLastFixpackOperation() (*fixpacks.Fixpack, error) {

@@ -144,6 +144,11 @@ func (h *helper) parseInstallParams() error {
 }
 
 func (h *helper) parseGetProgressParams() error {
+	h.reqOpts.Version = h.c.Param("version")
+	if h.reqOpts.Version == "" {
+		return fmt.Errorf("version parameter is required")
+	}
+
 	return h.parseListParams()
 }
 

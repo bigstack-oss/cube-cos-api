@@ -34,33 +34,6 @@ type progress struct {
 	Status status.SystemUpdateProgress `json:"status"`
 }
 
-// func (h *helper) getUpdateDetails() (*update, error) {
-// 	fixpack, err := cubecos.GetLastFixpackOperation()
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	current, processPercent := h.getProgressByVersion(fixpack.Version)
-// 	update := update{
-// 		Version:   fixpack.Version,
-// 		Operation: h.convertOperationByAction(fixpack.Action),
-// 	}
-
-// 	for _, node := range nodes.List() {
-// 		update.Progresses = append(
-// 			update.Progresses,
-// 			h.syncProgress(node, current, processPercent),
-// 		)
-// 	}
-
-// 	err = h.syncRebootingDetails(&update)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return &update, nil
-// }
-
 func (h *helper) getUpdateProgressRecordByVersion(version string) (*update, error) {
 	c, err := h.mongo.GetQueryCursor(
 		fixpacks.Db,
@@ -82,7 +55,7 @@ func (h *helper) getUpdateProgressRecordByVersion(version string) (*update, erro
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
 	defer cancel()
 	defer c.Close(ctx)
-	update, err := h.parseUpdateProgress(c)
+	update, err := h.parseUpdateProgress(c, h.reqOpts.Version)
 	if err != nil {
 		return nil, err
 	}
@@ -95,8 +68,8 @@ func (h *helper) getUpdateProgressRecordByVersion(version string) (*update, erro
 	return update, nil
 }
 
-func (h *helper) parseUpdateProgress(c *mongo.Cursor) (*update, error) {
-	update := update{}
+func (h *helper) parseUpdateProgress(c *mongo.Cursor, version string) (*update, error) {
+	update := update{Version: version}
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(120))
 	defer cancel()
 	for c.Next(ctx) {
@@ -107,6 +80,8 @@ func (h *helper) parseUpdateProgress(c *mongo.Cursor) (*update, error) {
 			continue
 		}
 
+		update.Version = reqOpts.Version
+		update.Operation = h.convertOperationByStatus(reqOpts.Status.Current)
 		current, processPercent := h.getProgressByVersion(h.reqOpts.Version)
 		node, err := nodes.Get(reqOpts.Hostname)
 		if err != nil {
@@ -118,14 +93,28 @@ func (h *helper) parseUpdateProgress(c *mongo.Cursor) (*update, error) {
 			update.Progresses,
 			h.syncProgress(*node, current, processPercent),
 		)
-
-		if update.Version == "" {
-			update.Version = reqOpts.Version
-			update.Operation = h.convertOperationByStatus(reqOpts.Status.Desired)
-		}
 	}
 
+	h.backfillUpdateInfo(&update)
 	return &update, nil
+}
+
+func (h *helper) backfillUpdateInfo(update *update) {
+	if update.Operation == "" {
+		update.Operation = "waiting for update"
+	}
+
+	if update.Progresses != nil {
+		return
+	}
+
+	update.Progresses = []progress{}
+	for _, node := range nodes.List() {
+		update.Progresses = append(
+			update.Progresses,
+			progress{Host: node.Hostname},
+		)
+	}
 }
 
 func (h *helper) syncRebootingDetails(update *update) error {
@@ -140,6 +129,10 @@ func (h *helper) syncRebootingDetails(update *update) error {
 	}
 
 	for i, progress := range update.Progresses {
+		if progress.Status.Current == "" {
+			continue
+		}
+
 		_, shouldReboot := rebootingMap[progress.Host]
 		if !shouldReboot {
 			continue
@@ -172,14 +165,14 @@ func (h *helper) getRebootingHintsByNodeRole(host string) string {
 	}
 }
 
-func (h *helper) convertOperationByStatus(desired string) string {
-	switch strings.ToLower(desired) {
+func (h *helper) convertOperationByStatus(current string) string {
+	switch strings.ToLower(current) {
 	case status.Installed:
 		return "install"
 	case status.Rollbacked:
 		return "rollback"
 	default:
-		log.Warnf("fixpacks(%s): unknown fixpack action %s, set operation to install by default", h.reqId, desired)
+		log.Warnf("fixpacks(%s): unknown fixpack action %s, set operation to install by default", h.reqId, current)
 		return "install"
 	}
 }

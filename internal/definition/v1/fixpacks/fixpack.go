@@ -55,7 +55,15 @@ type Fixpack struct {
 }
 
 func (r *ReqOpts) SetCompleted() {
-	r.Status.Current = status.Completed
+	switch r.Status.Desired {
+	case status.Installed:
+		r.Status.Current = status.Installed
+	case status.Rollbacked:
+		r.Status.Current = status.Rollbacked
+	default:
+		r.Status.Current = status.Unknown
+	}
+
 	r.Status.IsProcessing = false
 }
 

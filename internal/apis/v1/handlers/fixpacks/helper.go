@@ -164,7 +164,7 @@ func (h *helper) deleteFixpack() error {
 
 func (h *helper) updateFixpackTask(nodes []node) error {
 	switch h.reqOpts.Status.Current {
-	case status.Completed:
+	case status.Installed, status.Rollbacked:
 		return h.markReqRecordAsCompleted()
 	case status.Failed:
 		failures := h.findFailedNodes(nodes)
