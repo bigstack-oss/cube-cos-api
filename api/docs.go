@@ -17335,7 +17335,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/fixpacks/updateProgress": {
+        "/api/v1/datacenters/{dataCenter}/fixpacks/updateProgress/{version}": {
             "get": {
                 "operationId": "getFixpackProgress",
                 "tags": [
@@ -17345,6 +17345,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/version"
                     }
                 ],
                 "responses": {
