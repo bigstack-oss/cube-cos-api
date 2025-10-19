@@ -94,13 +94,13 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPut,
-			Path:    "/integrations/storages/models/:driverNname",
+			Path:    "/integrations/storages/models/:driverName",
 			Func:    updateStorageModel,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodDelete,
-			Path:    "/integrations/storages/models/:driverNname",
+			Path:    "/integrations/storages/models/:driverName",
 			Func:    deleteStorageModel,
 		},
 		{
@@ -363,7 +363,7 @@ func updateStorageTask(c *gin.Context) {
 		return
 	}
 
-	err = h.checkTaskUpdateReq()
+	err = h.checkStoragaeTaskUpdateReq()
 	if err != nil {
 		log.Errorf("storages(%s): failed to check storage task(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err, nil)
@@ -402,7 +402,7 @@ func createStorageModel(c *gin.Context) {
 		return
 	}
 
-	h.updateStorageModelToControllers()
+	h.updateStorageModelToControlAndCompute()
 	bodies.SetAccepted(
 		c,
 		"received create integrated storage model request successfully, processing",
@@ -442,7 +442,7 @@ func updateStorageModel(c *gin.Context) {
 		return
 	}
 
-	h.updateStorageModelToControllers()
+	h.updateStorageModelToControlAndCompute()
 	bodies.SetAccepted(
 		c,
 		"received update integrated storage model request successfully, processing",
@@ -467,7 +467,7 @@ func deleteStorageModel(c *gin.Context) {
 		return
 	}
 
-	h.updateStorageModelToControllers()
+	h.updateStorageModelToControlAndCompute()
 	bodies.SetAccepted(
 		c,
 		"received delete integrated storage model request successfully, processing",
@@ -482,7 +482,7 @@ func updateModelTask(c *gin.Context) {
 		return
 	}
 
-	err = h.checkTaskUpdateReq()
+	err = h.checkModelTaskUpdateReq()
 	if err != nil {
 		log.Errorf("storages(%s): failed to check model task(%v)", h.reqId, err)
 		bodies.SetBadRequest(c, err, nil)

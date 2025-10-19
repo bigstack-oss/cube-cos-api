@@ -119,7 +119,7 @@ func (h *helper) updateAllStorageModelsToControllers() {
 	batchStorageModelReqOpts := h.initBatchStorageModelReqOpts()
 	for _, modelReqOpt := range batchStorageModelReqOpts {
 		h.modelReqOpts = modelReqOpt
-		h.updateStorageModelToControllers()
+		h.updateStorageModelToControlAndCompute()
 	}
 }
 
@@ -154,9 +154,9 @@ func (h *helper) initBatchStorageModelReqOpts() []defstorages.ModelReqOpts {
 	return inited
 }
 
-func (h *helper) updateStorageModelToControllers() {
+func (h *helper) updateStorageModelToControlAndCompute() {
 	h.updateStorageModelToLocal()
-	h.updateStorageModelToPeers()
+	// h.updatePeerStorageModelsOnControlAndCompute()
 }
 
 func (h *helper) updateStorageModelToLocal() {
@@ -167,18 +167,25 @@ func (h *helper) updateStorageModelToLocal() {
 	modelReqQueue.Add(&h.modelReqOpts)
 }
 
-func (h *helper) updateStorageModelToPeers() {
+func (h *helper) updatePeerStorageModelsOnControlAndCompute() {
 	if !cubecos.IsVirtualIpOwner(base.Hostname) {
 		return
 	}
 
-	nodes, err := nodes.GetPeerControls()
+	controllers, err := nodes.GetPeerControls()
 	if err != nil {
-		log.Errorf("storages(%s): failed to get peer controller nodes: %v", h.reqId, err)
+		log.Errorf("storages(%s): failed to get peer controller nodes(%v)", h.reqId, err)
 		return
 	}
 
-	for _, node := range nodes {
+	computes, err := nodes.GetComputes()
+	if err != nil {
+		log.Errorf("storages(%s): failed to get compute nodes(%v)", h.reqId, err)
+		return
+	}
+
+	nodesToOperate := append(controllers, computes...)
+	for _, node := range nodesToOperate {
 		h.updatePeerStorageModel(node)
 	}
 }

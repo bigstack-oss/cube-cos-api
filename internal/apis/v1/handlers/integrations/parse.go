@@ -32,6 +32,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseUpdateAllStorageModelParams()
 	case "deleteStorageModel":
 		return h.parseDeleteStorageModelParams()
+	case "updateModelTask":
+		return h.parseUpdateStorageModelTaskOptions()
 	default:
 		return nil
 	}
@@ -130,13 +132,14 @@ func (h *helper) parseUpdateStorageTaskOptions() error {
 }
 
 func (h *helper) parseCreateStorageModelParams() error {
+	h.modelReqOpts.Driver = h.c.Param("driverName")
+	if h.modelReqOpts.Driver == "" {
+		return errors.New("driver is required")
+	}
+
 	err := h.loadStorageModel()
 	if err != nil {
 		return fmt.Errorf("failed to load storage model req(%v)", err)
-	}
-
-	if h.modelReqOpts.Driver == "" {
-		return errors.New("driver is required")
 	}
 
 	h.modelReqOpts.ReqId = h.reqId
@@ -146,13 +149,14 @@ func (h *helper) parseCreateStorageModelParams() error {
 }
 
 func (h *helper) parseUpdateStorageModelParams() error {
+	h.modelReqOpts.Driver = h.c.Param("driverName")
+	if h.modelReqOpts.Driver == "" {
+		return errors.New("driver is required")
+	}
+
 	err := h.loadStorageModel()
 	if err != nil {
 		return fmt.Errorf("failed to load storage model req(%v)", err)
-	}
-
-	if h.modelReqOpts.Driver == "" {
-		return errors.New("driver is required")
 	}
 
 	h.modelReqOpts.ReqId = h.reqId
@@ -190,5 +194,17 @@ func (h *helper) parseDeleteStorageModelParams() error {
 	h.modelReqOpts.ReqId = h.reqId
 	h.modelReqOpts.Hostname = base.Hostname
 	h.modelReqOpts.SetDeleting()
+	return nil
+}
+
+func (h *helper) parseUpdateStorageModelTaskOptions() error {
+	err := h.c.ShouldBindJSON(&h.modelReqOpts)
+	if err != nil {
+		return fmt.Errorf(
+			"failed to parse patch storage model task options(%v)",
+			err,
+		)
+	}
+
 	return nil
 }

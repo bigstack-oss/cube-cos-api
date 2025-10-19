@@ -14,8 +14,8 @@ func (o *Operator) operateStorageReq(req storages.ReqOpts) error {
 	switch req.Status.Desired {
 	case status.Created, status.Updated:
 		return o.updateStorage(req)
-	case status.Defaulted:
-		return cubecos.SetDefaultStorage(req.Name)
+	// case status.Defaulted:
+	// 	return cubecos.SetDefaultStorage(req.Name)
 	case status.Deleted:
 		return cubecos.DeleteStorage(req.Name)
 	}
@@ -28,16 +28,7 @@ func (o *Operator) operateStorageReq(req storages.ReqOpts) error {
 }
 
 func (o *Operator) updateStorage(req storages.ReqOpts) error {
-	err := cubecos.CreateStorage(req.CinderDetails)
-	if err != nil {
-		return err
-	}
-
-	if !req.CinderDetails.IsDefault {
-		return nil
-	}
-
-	return cubecos.SetDefaultStorage(req.Name)
+	return cubecos.CreateStorage(req.CinderDetails)
 }
 
 func (o *Operator) handleStorageExit(req storages.ReqOpts, err error) {

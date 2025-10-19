@@ -1,6 +1,7 @@
 package storages
 
 import (
+	"encoding/json"
 	ostime "time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
@@ -20,7 +21,7 @@ type Model struct {
 type Path struct {
 	Section     string       `json:"section" yaml:"section" bson:"section"`
 	Attributes  []Attribute  `json:"attributes" yaml:"attributes" bson:"attributes"`
-	SubSections []Subsection `json:"subsections" yaml:"subsections" bson:"subsections"`
+	SubSections []Subsection `json:"subSections" yaml:"subSections" bson:"subSections"`
 }
 
 type Subsection struct {
@@ -42,6 +43,15 @@ type ModelDevice struct {
 type MultipathWwid struct {
 	WWID     string      `json:"wwid" yaml:"wwid" bson:"wwid"`
 	Settings []Attribute `json:"settings" yaml:"settings" bson:"settings"`
+}
+
+func (m *Model) String() string {
+	b, err := json.Marshal(m)
+	if err != nil {
+		return ""
+	}
+
+	return string(b)
 }
 
 func (m *ModelReqOpts) SetCreating() {

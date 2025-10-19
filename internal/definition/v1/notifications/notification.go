@@ -1,6 +1,7 @@
 package notifications
 
 import (
+	"encoding/json"
 	"sync"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
@@ -30,6 +31,15 @@ type ListOpts struct {
 	Desending bool   `json:"descending"`
 	Start     string `json:"start"`
 	Stop      string `json:"stop"`
+}
+
+func (n *Notification) String() string {
+	b, err := json.Marshal(n)
+	if err != nil {
+		return ""
+	}
+
+	return string(b)
 }
 
 func (n *Notification) SetSearchId() {

@@ -1,6 +1,7 @@
 package storages
 
 import (
+	"encoding/json"
 	ostime "time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
@@ -175,4 +176,13 @@ func (r *ReqOpts) SetStorageNotification(shouldNotify bool) {
 	r.Notify.Payload.NodeName = r.Hostname
 	r.Notify.Payload.Time = time.LocalRFC3339(ostime.Now())
 	r.Notify.Payload.AdditionalInfo = map[string]string{"name": r.Name}
+}
+
+func (m *ModelReqOpts) String() string {
+	b, err := json.Marshal(m)
+	if err != nil {
+		return ""
+	}
+
+	return string(b)
 }

@@ -27,10 +27,10 @@ func (o *Operator) operateModelReq(req storages.ModelReqOpts) error {
 
 func (o *Operator) handleModelExit(req storages.ModelReqOpts, err error) {
 	if err != nil {
-		log.Errorf("storages: failed to %s %s %s(%v)", req.Status.Desired, req.Vendor, req.Model, err)
+		log.Errorf("storages: failed to %s %s %s(%v)", req.Status.Desired, req.Driver, req.Model.String(), err)
 		req.SetFailed(err.Error())
 	} else {
-		log.Infof("storages: %s %s %s successfully", req.Status.Desired, req.Vendor, req.Model)
+		log.Infof("storages: %s %s %s successfully", req.Status.Desired, req.Driver, req.Model.String())
 		req.SetCompleted()
 	}
 

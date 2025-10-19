@@ -200,6 +200,15 @@ func GetControlNodes() ([]Node, error) {
 	return controllers, nil
 }
 
+func GetComputes() ([]Node, error) {
+	computes, err := GetNodesByRole(RoleCompute)
+	if err != nil {
+		return nil, err
+	}
+
+	return computes, nil
+}
+
 func GetPeerControls() ([]Node, error) {
 	controllers, err := GetControlNodes()
 	if err != nil {

@@ -30,6 +30,7 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 		reqId:   queries.GetReqId(c),
 		handler: handler,
 		mongo:   mongo.GetGlobalHelper(),
+		http:    http.GetGlobalHelper(),
 	}
 
 	return h, h.parseParamsByHandler()

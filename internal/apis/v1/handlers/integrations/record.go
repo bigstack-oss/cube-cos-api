@@ -48,7 +48,7 @@ func (h *helper) updateStorageTask() error {
 
 func (h *helper) updateModelTask() error {
 	if h.modelReqOpts.Notify.IsNeeded {
-		defer cubecos.InsertNotification(h.storageReqOpts.Notify.Payload)
+		defer cubecos.InsertNotification(h.modelReqOpts.Notify.Payload)
 	}
 
 	return h.mongo.DeleteOne(
