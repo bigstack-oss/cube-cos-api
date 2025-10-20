@@ -32,14 +32,14 @@ func (h *helper) checkModelTaskUpdateReq() error {
 }
 
 func (h *helper) checkIfStorageIsDefaulted() error {
-	storage, err := cubecos.GetStorage(h.storageReqOpts.Name)
+	storage, err := cubecos.GetStorage(h.storageReqOpts.CinderDetails.Name)
 	if err != nil {
 		bodies.SetInternalServerError(h.c, err)
 		return err
 	}
 
 	if storage.IsDefault {
-		err := fmt.Errorf("the %s is already the default storage", h.storageReqOpts.Name)
+		err := fmt.Errorf("the %s is already the default storage", h.storageReqOpts.CinderDetails.Name)
 		bodies.SetBadRequest(h.c, err, nil)
 		return err
 	}

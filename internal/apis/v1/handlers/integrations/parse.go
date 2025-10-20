@@ -40,8 +40,8 @@ func (h *helper) parseParamsByHandler() error {
 }
 
 func (h *helper) parseGetStorageParams() error {
-	h.storageReqOpts.Name = h.c.Param("storageName")
-	if h.storageReqOpts.Name == "" {
+	h.storageReqOpts.CinderDetails.Name = h.c.Param("storageName")
+	if h.storageReqOpts.CinderDetails.Name == "" {
 		return errors.New("storage name is required")
 	}
 
@@ -54,7 +54,7 @@ func (h *helper) parseVerifyStorageParams() error {
 		return err
 	}
 
-	if h.storageReqOpts.Name == "" {
+	if h.storageReqOpts.CinderDetails.Name == "" {
 		return errors.New("storage name is required")
 	}
 
@@ -89,8 +89,8 @@ func (h *helper) parseUpdateStorageParams() error {
 		return errors.New("storage name is required")
 	}
 
-	h.storageReqOpts.Name = h.c.Param("storageName")
-	if h.storageReqOpts.Name == "" {
+	h.storageReqOpts.CinderDetails.Name = h.c.Param("storageName")
+	if h.storageReqOpts.CinderDetails.Name == "" {
 		return errors.New("storage name is required")
 	}
 
@@ -101,8 +101,8 @@ func (h *helper) parseUpdateStorageParams() error {
 }
 
 func (h *helper) parseSetDefaultStorageParams() error {
-	h.storageReqOpts.Name = h.c.Param("storageName")
-	if h.storageReqOpts.Name == "" {
+	h.storageReqOpts.CinderDetails.Name = h.c.Param("storageName")
+	if h.storageReqOpts.CinderDetails.Name == "" {
 		return errors.New("storage name is required")
 	}
 
@@ -113,8 +113,8 @@ func (h *helper) parseSetDefaultStorageParams() error {
 }
 
 func (h *helper) parseDeleteStorageParams() error {
-	h.storageReqOpts.Name = h.c.Param("storageName")
-	if h.storageReqOpts.Name == "" {
+	h.storageReqOpts.CinderDetails.Name = h.c.Param("storageName")
+	if h.storageReqOpts.CinderDetails.Name == "" {
 		return errors.New("storage name is required")
 	}
 

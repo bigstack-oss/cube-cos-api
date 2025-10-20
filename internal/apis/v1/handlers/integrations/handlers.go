@@ -155,17 +155,17 @@ func getStorage(c *gin.Context) {
 		return
 	}
 
-	found, err := cubecos.CheckStorageExist(h.storageReqOpts.Name)
+	found, err := cubecos.CheckStorageExist(h.storageReqOpts.CinderDetails.Name)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 	if !found {
-		bodies.SetNotFound(c, fmt.Errorf("storage %s not found", h.storageReqOpts.Name))
+		bodies.SetNotFound(c, fmt.Errorf("storage %s not found", h.storageReqOpts.CinderDetails.Name))
 		return
 	}
 
-	storage, err := cubecos.GetStorage(h.storageReqOpts.Name)
+	storage, err := cubecos.GetStorage(h.storageReqOpts.CinderDetails.Name)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
@@ -186,13 +186,13 @@ func verifyStorage(c *gin.Context) {
 		return
 	}
 
-	found, err := cubecos.CheckStorageExist(h.storageReqOpts.Name)
+	found, err := cubecos.CheckStorageExist(h.storageReqOpts.CinderDetails.Name)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 	if !found {
-		bodies.SetConflict(c, fmt.Errorf("storage %s already exists", h.storageReqOpts.Name))
+		bodies.SetConflict(c, fmt.Errorf("storage %s already exists", h.storageReqOpts.CinderDetails.Name))
 		return
 	}
 
@@ -216,13 +216,13 @@ func createStorage(c *gin.Context) {
 		return
 	}
 
-	found, err := cubecos.CheckStorageExist(h.storageReqOpts.Name)
+	found, err := cubecos.CheckStorageExist(h.storageReqOpts.CinderDetails.Name)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 	if found {
-		bodies.SetNotFound(c, fmt.Errorf("storage %s already exists", h.storageReqOpts.Name))
+		bodies.SetNotFound(c, fmt.Errorf("storage %s already exists", h.storageReqOpts.CinderDetails.Name))
 		return
 	}
 
@@ -241,13 +241,13 @@ func updateStorage(c *gin.Context) {
 		return
 	}
 
-	found, err := cubecos.CheckStorageExist(h.storageReqOpts.Name)
+	found, err := cubecos.CheckStorageExist(h.storageReqOpts.CinderDetails.Name)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 	if !found {
-		bodies.SetNotFound(c, fmt.Errorf("storage %s not found", h.storageReqOpts.Name))
+		bodies.SetNotFound(c, fmt.Errorf("storage %s not found", h.storageReqOpts.CinderDetails.Name))
 		return
 	}
 
@@ -266,13 +266,13 @@ func setStorageAsDefault(c *gin.Context) {
 		return
 	}
 
-	found, err := cubecos.CheckStorageExist(h.storageReqOpts.Name)
+	found, err := cubecos.CheckStorageExist(h.storageReqOpts.CinderDetails.Name)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 	if !found {
-		bodies.SetNotFound(c, fmt.Errorf("storage %s not found", h.storageReqOpts.Name))
+		bodies.SetNotFound(c, fmt.Errorf("storage %s not found", h.storageReqOpts.CinderDetails.Name))
 		return
 	}
 
@@ -296,13 +296,13 @@ func deleteStorage(c *gin.Context) {
 		return
 	}
 
-	found, err := cubecos.CheckStorageExist(h.storageReqOpts.Name)
+	found, err := cubecos.CheckStorageExist(h.storageReqOpts.CinderDetails.Name)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 	if !found {
-		bodies.SetNotFound(c, fmt.Errorf("storage %s not found", h.storageReqOpts.Name))
+		bodies.SetNotFound(c, fmt.Errorf("storage %s not found", h.storageReqOpts.CinderDetails.Name))
 		return
 	}
 

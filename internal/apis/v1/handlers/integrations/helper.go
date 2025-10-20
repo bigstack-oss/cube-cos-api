@@ -83,13 +83,13 @@ func (h *helper) verifyStorage() (*storages.VerficationResult, error) {
 	}
 
 	defer func() {
-		err := cubecos.DeleteStorage(h.storageReqOpts.Name)
+		err := cubecos.DeleteStorage(h.storageReqOpts.CinderDetails.Name)
 		if err != nil {
 			log.Errorf("integrations(%s): failed to delete storage after verification (%v)", h.reqId, err)
 		}
 	}()
 
-	result, err := cubecos.VerifyStorage(h.storageReqOpts.Name)
+	result, err := cubecos.VerifyStorage(h.storageReqOpts.CinderDetails.Name)
 	if err != nil {
 		log.Errorf("integrations(%s): storage verification failed (%v)", h.reqId, err)
 		return result, err

@@ -17,7 +17,7 @@ func (h *helper) addReqRecord() {
 		fixpacks.ReqCollection,
 		bson.M{
 			"hostname": base.Hostname,
-			"name":     h.storageReqOpts.Name,
+			"name":     h.storageReqOpts.CinderDetails.Name,
 		},
 		bson.M{"$set": h.storageReqOpts},
 		options.Update().SetUpsert(true),
@@ -40,7 +40,7 @@ func (h *helper) updateStorageTask() error {
 		storages.ReqCollection,
 		bson.M{
 			"hostname": h.storageReqOpts.Hostname,
-			"name":     h.storageReqOpts.Name,
+			"name":     h.storageReqOpts.CinderDetails.Name,
 			"reqId":    h.storageReqOpts.ReqId,
 		},
 	)

@@ -15,13 +15,13 @@ func (o *Operator) operateStorageReq(req storages.ReqOpts) error {
 	case status.Created, status.Updated:
 		return o.updateStorage(req)
 	case status.Deleted:
-		return cubecos.DeleteStorage(req.Name)
+		return cubecos.DeleteStorage(req.CinderDetails.Name)
 	}
 
 	return fmt.Errorf(
 		"unknown desired action(%s) for storage(%s)",
 		req.Status.Desired,
-		req.Name,
+		req.CinderDetails.Name,
 	)
 }
 
@@ -31,10 +31,10 @@ func (o *Operator) updateStorage(req storages.ReqOpts) error {
 
 func (o *Operator) handleStorageExit(req storages.ReqOpts, err error) {
 	if err != nil {
-		log.Errorf("storages: failed to %s %s(%v)", req.Status.Desired, req.Name, err)
+		log.Errorf("storages: failed to %s %s(%v)", req.Status.Desired, req.CinderDetails.Name, err)
 		req.SetFailed(err.Error())
 	} else {
-		log.Infof("storages: %s %s successfully", req.Status.Desired, req.Name)
+		log.Infof("storages: %s %s successfully", req.Status.Desired, req.CinderDetails.Name)
 		req.SetCompleted()
 	}
 
@@ -44,7 +44,7 @@ func (o *Operator) handleStorageExit(req storages.ReqOpts, err error) {
 func (o *Operator) reportStorageToController(req storages.ReqOpts) {
 	node, err := cubecos.GetVirtualIpController()
 	if err != nil {
-		log.Errorf("storages: failed to report %s result to control(%v)", req.Name, err)
+		log.Errorf("storages: failed to report %s result to control(%v)", req.CinderDetails.Name, err)
 		return
 	}
 
@@ -53,14 +53,14 @@ func (o *Operator) reportStorageToController(req storages.ReqOpts) {
 		SetBody(req).
 		Patch(node.UpdateStorageTaskUrl())
 	if err != nil {
-		log.Errorf("storages: failed to send storage %s to %s(%v)", req.Name, node.Hostname, err)
+		log.Errorf("storages: failed to send storage %s to %s(%v)", req.CinderDetails.Name, node.Hostname, err)
 		return
 	}
 
 	if resp.IsError() {
 		log.Errorf(
 			"storages: failed to send storage %s to %s(%s)",
-			req.Name,
+			req.CinderDetails.Name,
 			node.Hostname,
 			string(resp.Body()),
 		)

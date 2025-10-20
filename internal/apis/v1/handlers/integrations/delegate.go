@@ -77,11 +77,9 @@ func (h *helper) getStorageUrlByHandler(node nodes.Node) string {
 	case "creaeteStorage":
 		return node.PostStorageUrl()
 	case "updateStorage":
-		return node.PatchStorageUrl(h.storageReqOpts.Name)
-	case "updateStorages":
-		return node.PutStoragesUrl()
+		return node.PatchStorageUrl(h.storageReqOpts.CinderDetails.Name)
 	case "deleteStorage":
-		return node.DeleteStorageUrl(h.storageReqOpts.Name)
+		return node.DeleteStorageUrl(h.storageReqOpts.CinderDetails.Name)
 	default:
 		return node.PostStorageUrl()
 	}
