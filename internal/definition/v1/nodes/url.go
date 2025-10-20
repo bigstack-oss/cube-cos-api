@@ -350,12 +350,6 @@ func (n *Node) PostStorageModelUrl() string {
 	return u.String()
 }
 
-func (n *Node) PatchStorageModelUrl(driver string) string {
-	u := n.GenUrl()
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages/models/%s", base.DataCenterName, driver)
-	return u.String()
-}
-
 func (n *Node) PutStorageModelUrl(driver string) string {
 	u := n.GenUrl()
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages/models/%s", base.DataCenterName, driver)

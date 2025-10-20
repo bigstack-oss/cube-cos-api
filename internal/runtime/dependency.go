@@ -195,7 +195,6 @@ func newDryRunFacility() error {
 	err := newTriggerDryRunFacility()
 	if err != nil {
 		log.Errorf("runtime: failed to create dry run facility(%v)", err)
-		return err
 	}
 
 	return nil
@@ -447,6 +446,10 @@ func genSamlMapper() gocloak.ProtocolMapperRepresentation {
 
 func newTriggerDryRunFacility() error {
 	h := kubernetes.GetGlobalHelper()
+	if h == nil {
+		return nil
+	}
+
 	h.SetNamespaceClient()
 	err := h.CreateNamespace(metav1.ObjectMeta{
 		Name: triggers.DryRunNamespace,

@@ -88,14 +88,14 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPut,
-			Path:    "/integrations/storages/models",
-			Func:    updateAllStorageModels,
+			Path:    "/integrations/storages/models/:driverName",
+			Func:    updateStorageModel,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPut,
-			Path:    "/integrations/storages/models/:driverName",
-			Func:    updateStorageModel,
+			Path:    "/integrations/storages/models",
+			Func:    updateAllStorageModels,
 		},
 		{
 			Version: apis.V1,
@@ -392,35 +392,10 @@ func createStorageModel(c *gin.Context) {
 		return
 	}
 
-	found, err := cubecos.CheckStorageModelExist(h.modelReqOpts.Driver)
-	if err != nil {
-		bodies.SetInternalServerError(c, err)
-		return
-	}
-	if found {
-		bodies.SetConflict(c, fmt.Errorf("storage model '%s' already exists", h.modelReqOpts.Driver))
-		return
-	}
-
-	h.updateStorageModelToControlAndCompute()
+	h.updatePeerStorageModel()
 	bodies.SetAccepted(
 		c,
 		"received create integrated storage model request successfully, processing",
-	)
-}
-
-func updateAllStorageModels(c *gin.Context) {
-	h, err := initHelper(c, "updateAllStorageModels")
-	if err != nil {
-		log.Errorf("integrations(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err, nil)
-		return
-	}
-
-	h.updateAllStorageModelsToControllers()
-	bodies.SetAccepted(
-		c,
-		"received update all integrated storage models request successfully, processing",
 	)
 }
 
@@ -442,10 +417,25 @@ func updateStorageModel(c *gin.Context) {
 		return
 	}
 
-	h.updateStorageModelToControlAndCompute()
+	h.updatePeerStorageModel()
 	bodies.SetAccepted(
 		c,
 		"received update integrated storage model request successfully, processing",
+	)
+}
+
+func updateAllStorageModels(c *gin.Context) {
+	h, err := initHelper(c, "updateAllStorageModels")
+	if err != nil {
+		log.Errorf("integrations(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	h.updateAllStorageModelsToControllers()
+	bodies.SetAccepted(
+		c,
+		"received update all integrated storage models request successfully, processing",
 	)
 }
 
@@ -467,7 +457,7 @@ func deleteStorageModel(c *gin.Context) {
 		return
 	}
 
-	h.updateStorageModelToControlAndCompute()
+	h.updatePeerStorageModel()
 	bodies.SetAccepted(
 		c,
 		"received delete integrated storage model request successfully, processing",

@@ -132,14 +132,9 @@ func (h *helper) parseUpdateStorageTaskOptions() error {
 }
 
 func (h *helper) parseCreateStorageModelParams() error {
-	h.modelReqOpts.Driver = h.c.Param("driverName")
-	if h.modelReqOpts.Driver == "" {
-		return errors.New("driver is required")
-	}
-
 	err := h.loadStorageModel()
 	if err != nil {
-		return fmt.Errorf("failed to load storage model req(%v)", err)
+		return fmt.Errorf("failed to load storage model creation req(%v)", err)
 	}
 
 	h.modelReqOpts.ReqId = h.reqId

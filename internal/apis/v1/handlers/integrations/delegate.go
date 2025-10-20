@@ -10,6 +10,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	defstorages "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/storages"
+	"github.com/go-resty/resty/v2"
 	"github.com/mohae/deepcopy"
 	log "go-micro.dev/v5/logger"
 )
@@ -119,7 +120,7 @@ func (h *helper) updateAllStorageModelsToControllers() {
 	batchStorageModelReqOpts := h.initBatchStorageModelReqOpts()
 	for _, modelReqOpt := range batchStorageModelReqOpts {
 		h.modelReqOpts = modelReqOpt
-		h.updateStorageModelToControlAndCompute()
+		h.updatePeerStorageModel()
 	}
 }
 
@@ -154,8 +155,7 @@ func (h *helper) initBatchStorageModelReqOpts() []defstorages.ModelReqOpts {
 	return inited
 }
 
-// 要處理 peer controller 以及 compute node 的 storage model 更新, 目前沒有 handle file 傳輸
-func (h *helper) updateStorageModelToControlAndCompute() {
+func (h *helper) updatePeerStorageModel() {
 	h.updateStorageModelToLocal()
 	h.updatePeerStorageModelsOnControlAndCompute()
 }
@@ -187,21 +187,16 @@ func (h *helper) updatePeerStorageModelsOnControlAndCompute() {
 
 	nodesToOperate := append(controllers, computes...)
 	for _, node := range nodesToOperate {
-		h.updatePeerStorageModel(node)
+		h.sendStorageModelReqToPeer(node)
 	}
 }
 
-func (h *helper) updatePeerStorageModel(node nodes.Node) error {
-	// reqOpts, err := h.genPeerStorageModelReq(node.Hostname)
-	// if err != nil {
-	// 	return nil
-	// }
-
-	url := h.getStorageModelUrlByHandler(node)
-	req := h.http.R().
-		SetHeaders(h.convertHeadersToMap(h.c.Request.Header)).
-		SetFile("storageModel", defstorages.TmpUploadedStorageModel)
-	resp, err := req.Execute(h.c.Request.Method, url)
+func (h *helper) sendStorageModelReqToPeer(node nodes.Node) error {
+	req := h.genStorageModelReqByHandler()
+	resp, err := req.Execute(
+		h.c.Request.Method,
+		h.genStorageModelUrlByHandler(node),
+	)
 	if err != nil {
 		log.Errorf(
 			"storages(%s): failed to update peer storage model %s(%v)",
@@ -221,20 +216,28 @@ func (h *helper) updatePeerStorageModel(node nodes.Node) error {
 	return nil
 }
 
-func (h *helper) getStorageModelUrlByHandler(node nodes.Node) string {
+func (h *helper) genStorageModelUrlByHandler(node nodes.Node) string {
 	switch h.handler {
-	case "creaeteStorage":
+	case "createStorageModel":
 		return node.PostStorageModelUrl()
-	case "updateStorage":
-		return node.PatchStorageModelUrl(h.modelReqOpts.Driver)
-	case "deleteStorage":
-		return node.DeleteStorageModelUrl(h.modelReqOpts.Driver)
-	case "updateAllStorageModels":
-		return node.PutAllStorageModelsUrl()
 	case "updateStorageModel":
 		return node.PutStorageModelUrl(h.modelReqOpts.Driver)
+	case "updateAllStorageModels":
+		return node.PutAllStorageModelsUrl()
+	case "deleteStorageModel":
+		return node.DeleteStorageModelUrl(h.modelReqOpts.Driver)
 	default:
 		return node.PostStorageModelUrl()
+	}
+}
+
+func (h *helper) genStorageModelReqByHandler() *resty.Request {
+	req := h.http.R().SetHeaders(h.convertHeadersToMap(h.c.Request.Header))
+	switch h.handler {
+	case "deleteStorageModel":
+		return req
+	default:
+		return req.SetFile("storageModel", defstorages.TmpUploadedStorageModel)
 	}
 }
 
