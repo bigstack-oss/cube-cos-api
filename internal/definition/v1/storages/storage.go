@@ -15,8 +15,10 @@ const (
 	ModelReqCollection = "modelRequests"
 	CinderConf         = "/etc/cinder/cinder.conf"
 
-	TmpUploadedStorageModelList = "/tmp/storage-model-list.yaml"
 	TmpUploadedStorageModel     = "/tmp/storage-model.yaml"
+	TmpUploadedStorageModelList = "/tmp/storage-model-list.yaml"
+	TmpUploadedStorage          = "/tmp/storage.yaml"
+	TmpUploadedStorageList      = "/tmp/storage-list.yaml"
 
 	DefaultType = "__DEFAULT__"
 )

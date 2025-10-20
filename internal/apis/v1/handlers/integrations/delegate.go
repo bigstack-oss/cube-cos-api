@@ -1,7 +1,6 @@
 package integrations
 
 import (
-	"encoding/json"
 	"maps"
 	"net/http"
 
@@ -11,7 +10,6 @@ import (
 	defstorages "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
 	"github.com/bigstack-oss/cube-cos-api/internal/operators/v1/storages"
 	"github.com/go-resty/resty/v2"
-	"github.com/mohae/deepcopy"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -20,12 +18,12 @@ var (
 	modelReqQueue = storages.ModelReqQueue
 )
 
-func (h *helper) updateStorageToControllers() {
-	h.updateStorageToLocal()
-	h.updateStorageToPeers()
+func (h *helper) updateStorage() {
+	h.updateLocalStorage()
+	h.updatePeerStorage()
 }
 
-func (h *helper) updateStorageToLocal() {
+func (h *helper) updateLocalStorage() {
 	if cubecos.IsVirtualIpOwner(base.Hostname) {
 		h.addReqRecord()
 	}
@@ -33,7 +31,7 @@ func (h *helper) updateStorageToLocal() {
 	reqQueue.Add(&h.storageReqOpts)
 }
 
-func (h *helper) updateStorageToPeers() {
+func (h *helper) updatePeerStorage() {
 	if !cubecos.IsVirtualIpOwner(base.Hostname) {
 		return
 	}
@@ -45,21 +43,16 @@ func (h *helper) updateStorageToPeers() {
 	}
 
 	for _, node := range nodes {
-		h.updatePeerStorage(node)
+		h.sendStorageReqToPeer(node)
 	}
 }
 
-func (h *helper) updatePeerStorage(node nodes.Node) error {
-	reqOpts, err := h.genPeerStorageReq(node.Hostname)
-	if err != nil {
-		return nil
-	}
-
-	url := h.getStorageUrlByHandler(node)
-	req := h.http.R().
-		SetHeaders(h.convertHeadersToMap(h.c.Request.Header)).
-		SetBody(string(reqOpts))
-	resp, err := req.Execute(h.c.Request.Method, url)
+func (h *helper) sendStorageReqToPeer(node nodes.Node) error {
+	req := h.genStorageReqByHandler()
+	resp, err := req.Execute(
+		h.c.Request.Method,
+		h.getStorageUrlByHandler(node),
+	)
 	if err != nil {
 		log.Errorf(
 			"storages(%s): failed to update peer storage %s(%v)",
@@ -85,23 +78,13 @@ func (h *helper) getStorageUrlByHandler(node nodes.Node) string {
 		return node.PostStorageUrl()
 	case "updateStorage":
 		return node.PatchStorageUrl(h.storageReqOpts.Name)
+	case "updateStorages":
+		return node.PutStoragesUrl()
 	case "deleteStorage":
 		return node.DeleteStorageUrl(h.storageReqOpts.Name)
 	default:
 		return node.PostStorageUrl()
 	}
-}
-
-func (h *helper) genPeerStorageReq(hostname string) ([]byte, error) {
-	reqOpts := deepcopy.Copy(h.storageReqOpts).(defstorages.ReqOpts)
-	reqOpts.Hostname = hostname
-	req, err := json.Marshal(reqOpts)
-	if err != nil {
-		log.Errorf("storages(%s): failed to marshal storage request for node %s(%v)", h.reqId, hostname, err)
-		return nil, err
-	}
-
-	return req, nil
 }
 
 func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
@@ -116,7 +99,7 @@ func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
 	return headerMap
 }
 
-func (h *helper) updateAllStorageModelsToControllers() {
+func (h *helper) updateStorageModelsToControllers() {
 	batchStorageModelReqOpts := h.initBatchStorageModelReqOpts()
 	for _, modelReqOpt := range batchStorageModelReqOpts {
 		h.modelReqOpts = modelReqOpt
@@ -222,12 +205,22 @@ func (h *helper) genStorageModelUrlByHandler(node nodes.Node) string {
 		return node.PostStorageModelUrl()
 	case "updateStorageModel":
 		return node.PutStorageModelUrl(h.modelReqOpts.Driver)
-	case "updateAllStorageModels":
-		return node.PutAllStorageModelsUrl()
+	case "updateStorageModels":
+		return node.PutStorageModelsUrl()
 	case "deleteStorageModel":
 		return node.DeleteStorageModelUrl(h.modelReqOpts.Driver)
 	default:
 		return node.PostStorageModelUrl()
+	}
+}
+
+func (h *helper) genStorageReqByHandler() *resty.Request {
+	req := h.http.R().SetHeaders(h.convertHeadersToMap(h.c.Request.Header))
+	switch h.handler {
+	case "deleteStorage":
+		return req
+	default:
+		return req.SetFile("storage", defstorages.TmpUploadedStorage)
 	}
 }
 
@@ -239,16 +232,4 @@ func (h *helper) genStorageModelReqByHandler() *resty.Request {
 	default:
 		return req.SetFile("storageModel", defstorages.TmpUploadedStorageModel)
 	}
-}
-
-func (h *helper) genPeerStorageModelReq(hostname string) ([]byte, error) {
-	modelReqOpts := deepcopy.Copy(h.modelReqOpts).(defstorages.ModelReqOpts)
-	modelReqOpts.Hostname = hostname
-	req, err := json.Marshal(modelReqOpts)
-	if err != nil {
-		log.Errorf("storages(%s): failed to marshal storage model request for node %s(%v)", h.reqId, hostname, err)
-		return nil, err
-	}
-
-	return req, nil
 }

@@ -28,7 +28,7 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseCreateStorageModelParams()
 	case "updateStorageModel":
 		return h.parseUpdateStorageModelParams()
-	case "updateAllStorageModels":
+	case "updateStorageModels":
 		return h.parseUpdateAllStorageModelParams()
 	case "deleteStorageModel":
 		return h.parseDeleteStorageModelParams()
@@ -64,12 +64,12 @@ func (h *helper) parseVerifyStorageParams() error {
 }
 
 func (h *helper) parseCreateStorageParams() error {
-	err := h.c.ShouldBindJSON(&h.storageReqOpts.CinderDetails)
+	err := h.loadStorage()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to load storage creation req(%v)", err)
 	}
 
-	if h.storageReqOpts.Name == "" {
+	if h.storageReqOpts.CinderDetails.Name == "" {
 		return errors.New("storage name is required")
 	}
 
@@ -80,11 +80,16 @@ func (h *helper) parseCreateStorageParams() error {
 }
 
 func (h *helper) parseUpdateStorageParams() error {
-	err := h.c.ShouldBindJSON(&h.storageReqOpts.CinderDetails)
+	err := h.loadStorage()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to load storage update req(%v)", err)
 	}
 
+	if h.storageReqOpts.CinderDetails.Name == "" {
+		return errors.New("storage name is required")
+	}
+
+	h.storageReqOpts.Name = h.c.Param("storageName")
 	if h.storageReqOpts.Name == "" {
 		return errors.New("storage name is required")
 	}

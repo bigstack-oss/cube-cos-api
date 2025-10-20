@@ -356,9 +356,15 @@ func (n *Node) PutStorageModelUrl(driver string) string {
 	return u.String()
 }
 
-func (n *Node) PutAllStorageModelsUrl() string {
+func (n *Node) PutStorageModelsUrl() string {
 	u := n.GenUrl()
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages/models", base.DataCenterName)
+	return u.String()
+}
+
+func (n *Node) PutStoragesUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages", base.DataCenterName)
 	return u.String()
 }
 

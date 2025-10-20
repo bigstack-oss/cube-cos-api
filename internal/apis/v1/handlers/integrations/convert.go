@@ -21,6 +21,7 @@ func (h *helper) convertToStorages(cinders []storages.Cinder) []integration.Stor
 			integration.Storage{
 				Name:         cinder.Name,
 				Type:         h.convertType(cinder.IsBuiltIn),
+				Driver:       cinder.Driver,
 				Vendor:       cinder.Vendor,
 				ManagementIp: base.ManagementIp,
 				UpdatedAt:    h.convertTime(cinder.UpdateTime),

@@ -8,6 +8,31 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+func (h *helper) loadStorage() error {
+	storage, err := h.c.FormFile("storage")
+	if err != nil {
+		log.Errorf("storages(%s): %v", h.reqId, err)
+		return err
+	}
+
+	err = h.c.SaveUploadedFile(storage, storages.TmpUploadedStorage)
+	if err != nil {
+		log.Errorf("storages(%s): failed to save storage(%v)", h.reqId, err)
+		return err
+	}
+
+	payload, err := os.ReadFile(storages.TmpUploadedStorage)
+	if err != nil {
+		log.Errorf("storages(%s): failed to read storage file(%v)", h.reqId, err)
+		return err
+	}
+
+	return yaml.Unmarshal(
+		payload,
+		&h.storageReqOpts.CinderDetails,
+	)
+}
+
 func (h *helper) loadStorageModel() error {
 	list, err := h.c.FormFile("storageModel")
 	if err != nil {
@@ -21,7 +46,6 @@ func (h *helper) loadStorageModel() error {
 		return err
 	}
 
-	// defer os.Remove(storages.TmpUploadedStorageModel)
 	payload, err := os.ReadFile(storages.TmpUploadedStorageModel)
 	if err != nil {
 		log.Errorf("storages(%s): failed to read storage model file(%v)", h.reqId, err)

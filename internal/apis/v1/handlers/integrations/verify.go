@@ -7,8 +7,8 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 )
 
-func (h *helper) checkStoragaeTaskUpdateReq() error {
-	if h.storageReqOpts.Name == "" {
+func (h *helper) checkStorageTaskUpdateReq() error {
+	if h.storageReqOpts.CinderDetails.Name == "" {
 		return fmt.Errorf("storage name is required")
 	}
 
