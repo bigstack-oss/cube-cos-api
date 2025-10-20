@@ -21,7 +21,7 @@ func (h *helper) loadStorageModel() error {
 		return err
 	}
 
-	defer os.Remove(storages.TmpUploadedStorageModel)
+	// defer os.Remove(storages.TmpUploadedStorageModel)
 	payload, err := os.ReadFile(storages.TmpUploadedStorageModel)
 	if err != nil {
 		log.Errorf("storages(%s): failed to read storage model file(%v)", h.reqId, err)
@@ -54,8 +54,18 @@ func (h *helper) loadStorageModelList() error {
 		return err
 	}
 
-	return yaml.Unmarshal(
-		payload,
-		&h.batchModelReqOpts,
-	)
+	models := []storages.Model{}
+	err = yaml.Unmarshal(payload, &models)
+	if err != nil {
+		return err
+	}
+
+	for _, model := range models {
+		h.batchModelReqOpts = append(
+			h.batchModelReqOpts,
+			storages.ModelReqOpts{Model: model},
+		)
+	}
+
+	return nil
 }

@@ -154,9 +154,10 @@ func (h *helper) initBatchStorageModelReqOpts() []defstorages.ModelReqOpts {
 	return inited
 }
 
+// 要處理 peer controller 以及 compute node 的 storage model 更新, 目前沒有 handle file 傳輸
 func (h *helper) updateStorageModelToControlAndCompute() {
 	h.updateStorageModelToLocal()
-	// h.updatePeerStorageModelsOnControlAndCompute()
+	h.updatePeerStorageModelsOnControlAndCompute()
 }
 
 func (h *helper) updateStorageModelToLocal() {
@@ -191,15 +192,15 @@ func (h *helper) updatePeerStorageModelsOnControlAndCompute() {
 }
 
 func (h *helper) updatePeerStorageModel(node nodes.Node) error {
-	reqOpts, err := h.genPeerStorageModelReq(node.Hostname)
-	if err != nil {
-		return nil
-	}
+	// reqOpts, err := h.genPeerStorageModelReq(node.Hostname)
+	// if err != nil {
+	// 	return nil
+	// }
 
 	url := h.getStorageModelUrlByHandler(node)
 	req := h.http.R().
 		SetHeaders(h.convertHeadersToMap(h.c.Request.Header)).
-		SetBody(string(reqOpts))
+		SetFile("storageModel", defstorages.TmpUploadedStorageModel)
 	resp, err := req.Execute(h.c.Request.Method, url)
 	if err != nil {
 		log.Errorf(
@@ -228,6 +229,10 @@ func (h *helper) getStorageModelUrlByHandler(node nodes.Node) string {
 		return node.PatchStorageModelUrl(h.modelReqOpts.Driver)
 	case "deleteStorage":
 		return node.DeleteStorageModelUrl(h.modelReqOpts.Driver)
+	case "updateAllStorageModels":
+		return node.PutAllStorageModelsUrl()
+	case "updateStorageModel":
+		return node.PutStorageModelUrl(h.modelReqOpts.Driver)
 	default:
 		return node.PostStorageModelUrl()
 	}

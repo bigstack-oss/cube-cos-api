@@ -49,15 +49,14 @@ func (o *Operator) reportModelToController(req storages.ModelReqOpts) {
 		SetBody(req).
 		Patch(node.UpdateModelTaskUrl())
 	if err != nil {
-		log.Errorf("storages: failed to send model %s %s to %s(%v)", req.Vendor, req.Model, node.Hostname, err)
+		log.Errorf("storages: failed to send model %s to %s(%v)", req.Driver, node.Hostname, err)
 		return
 	}
 
 	if resp.IsError() {
 		log.Errorf(
-			"storages: failed to send model %s %s to %s(%s)",
-			req.Vendor,
-			req.Model,
+			"storages: failed to send model %s to %s(%s)",
+			req.Driver,
 			node.Hostname,
 			string(resp.Body()),
 		)
