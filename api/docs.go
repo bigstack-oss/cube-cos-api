@@ -3241,7 +3241,7 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/integrations/storages": {
             "get": {
-                "operationId": "listIntegratedStorages",
+                "operationId": "listIntegrationStorages",
                 "tags": [
                     "Integrations"
                 ],
@@ -3257,7 +3257,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ListIntegratedStoragesResponse"
+                                    "$ref": "#/components/schemas/ListIntegrationStoragesResponse"
                                 },
                                 "examples": {
                                     "example1": {
@@ -3313,7 +3313,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "operationId": "createIntegratedStorage",
+                "operationId": "createIntegrationStorage",
                 "tags": [
                     "Integrations"
                 ],
@@ -3328,25 +3328,65 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CreateIntegratedStorageRequest"
+                                "$ref": "#/components/schemas/ApplyIntegrationStorageRequest"
                             },
                             "examples": {
                                 "example1": {
-                                    "summary": "Create integrated storage request",
+                                    "summary": "Create integration storage request",
                                     "value": {
+                                        "name": "dell-emc-sc-fc",
+                                        "driver": "cinder.volume.drivers.dell_emc.sc.storagecenter_fc.SCFCDriver",
                                         "isDefault": true,
-                                        "name": "example-storage",
-                                        "isExternal": false,
-                                        "device": {
-                                            "vendor": "Dell",
-                                            "product": "PowerVault ME4024"
-                                        },
                                         "storage": {
                                             "service": {
                                                 "driverSection": [
                                                     {
-                                                        "key": "volume_driver",
-                                                        "value": "cinder.volume.drivers.rbd.RBDDriver"
+                                                        "key": "san_ip",
+                                                        "value": "10.32.10.250"
+                                                    },
+                                                    {
+                                                        "key": "san_login",
+                                                        "value": "Admin"
+                                                    },
+                                                    {
+                                                        "key": "san_password",
+                                                        "value": "bigstackcoltd"
+                                                    },
+                                                    {
+                                                        "key": "san_thin_provision",
+                                                        "value": "true"
+                                                    },
+                                                    {
+                                                        "key": "dell_sc_ssn",
+                                                        "value": "364940"
+                                                    },
+                                                    {
+                                                        "key": "dell_sc_api_port",
+                                                        "value": "3033"
+                                                    },
+                                                    {
+                                                        "key": "dell_sc_verify_cert",
+                                                        "value": "false"
+                                                    },
+                                                    {
+                                                        "key": "dell_sc_server_folder",
+                                                        "value": "dev-servers/glance-cluster"
+                                                    },
+                                                    {
+                                                        "key": "dell_sc_volume_folder",
+                                                        "value": "dev-vols"
+                                                    },
+                                                    {
+                                                        "key": "use_multipath_for_image_xfer",
+                                                        "value": "true"
+                                                    },
+                                                    {
+                                                        "key": "enforce_multipath_for_image_xfer",
+                                                        "value": "true"
+                                                    },
+                                                    {
+                                                        "key": "image_upload_use_cinder_backend",
+                                                        "value": "true"
                                                     }
                                                 ],
                                                 "extraSettings": [
@@ -3354,20 +3394,66 @@ const docTemplate = `{
                                                         "sectionHeader": "DEFAULT",
                                                         "settings": [
                                                             {
-                                                                "key": "enabled_backends",
-                                                                "value": "ceph"
+                                                                "key": "allowed_direct_url_schemes",
+                                                                "value": "cinder"
+                                                            },
+                                                            {
+                                                                "key": "glance_request_timeout",
+                                                                "value": "1200"
                                                             }
                                                         ]
+                                                    }
+                                                ],
+                                                "extraConfigFiles": [
+                                                    {
+                                                        "name": "test.conf",
+                                                        "content": "YWFhCg=="
                                                     }
                                                 ]
                                             },
                                             "volumeType": {
                                                 "settings": [
                                                     {
-                                                        "key": "volume_backend_name",
-                                                        "value": "ceph"
+                                                        "key": "storagetype:storageprofile",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "replication_enabled",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "replication_type",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "replication:activereplay",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "replication:livevolume",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "storagetype:volumeqos",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "storagetype:groupqos",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "storagetype:datareductionprofile",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "multiattach",
+                                                        "value": ""
                                                     }
                                                 ]
+                                            },
+                                            "image": {
+                                                "useMultipath": true,
+                                                "forceMultipath": true
                                             }
                                         }
                                     }
@@ -3453,7 +3539,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to create integrated storage: internal server error"
+                                            "example": "failed to create integration storage: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -3676,11 +3762,11 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/integrations/storages/{storageName}": {
             "get": {
-                "operationId": "getIntegratedStorage",
+                "operationId": "getIntegrationStorage",
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "Retrieve the details of an integrated storage",
+                "summary": "Retrieve the details of an integration storage",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -3691,11 +3777,11 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Retrieve the details of an integrated storage successfully",
+                        "description": "Retrieve the details of an integration storage successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/GetIntegratedStorageResponse"
+                                    "$ref": "#/components/schemas/GetIntegrationStorageResponse"
                                 },
                                 "examples": {
                                     "example1": {
@@ -3703,19 +3789,59 @@ const docTemplate = `{
                                         "value": {
                                             "code": 200,
                                             "data": {
+                                                "name": "dell-emc-sc-fc",
+                                                "driver": "cinder.volume.drivers.dell_emc.sc.storagecenter_fc.SCFCDriver",
                                                 "isDefault": true,
-                                                "name": "CubeStorage",
-                                                "isExternal": false,
-                                                "device": {
-                                                    "vendor": "Dell",
-                                                    "product": "PowerVault ME4024"
-                                                },
                                                 "storage": {
                                                     "service": {
                                                         "driverSection": [
                                                             {
-                                                                "key": "volume_driver",
-                                                                "value": "cinder.volume.drivers.rbd.RBDDriver"
+                                                                "key": "san_ip",
+                                                                "value": "10.32.10.250"
+                                                            },
+                                                            {
+                                                                "key": "san_login",
+                                                                "value": "Admin"
+                                                            },
+                                                            {
+                                                                "key": "san_password",
+                                                                "value": "bigstackcoltd"
+                                                            },
+                                                            {
+                                                                "key": "san_thin_provision",
+                                                                "value": "true"
+                                                            },
+                                                            {
+                                                                "key": "dell_sc_ssn",
+                                                                "value": "364940"
+                                                            },
+                                                            {
+                                                                "key": "dell_sc_api_port",
+                                                                "value": "3033"
+                                                            },
+                                                            {
+                                                                "key": "dell_sc_verify_cert",
+                                                                "value": "false"
+                                                            },
+                                                            {
+                                                                "key": "dell_sc_server_folder",
+                                                                "value": "dev-servers/glance-cluster"
+                                                            },
+                                                            {
+                                                                "key": "dell_sc_volume_folder",
+                                                                "value": "dev-vols"
+                                                            },
+                                                            {
+                                                                "key": "use_multipath_for_image_xfer",
+                                                                "value": "true"
+                                                            },
+                                                            {
+                                                                "key": "enforce_multipath_for_image_xfer",
+                                                                "value": "true"
+                                                            },
+                                                            {
+                                                                "key": "image_upload_use_cinder_backend",
+                                                                "value": "true"
                                                             }
                                                         ],
                                                         "extraSettings": [
@@ -3723,8 +3849,12 @@ const docTemplate = `{
                                                                 "sectionHeader": "DEFAULT",
                                                                 "settings": [
                                                                     {
-                                                                        "key": "enabled_backends",
-                                                                        "value": "ceph"
+                                                                        "key": "allowed_direct_url_schemes",
+                                                                        "value": "cinder"
+                                                                    },
+                                                                    {
+                                                                        "key": "glance_request_timeout",
+                                                                        "value": "1200"
                                                                     }
                                                                 ]
                                                             }
@@ -3732,26 +3862,57 @@ const docTemplate = `{
                                                         "extraConfigFiles": [
                                                             {
                                                                 "name": "test.conf",
-                                                                "content": "ZmlsZSBjb250ZW50IGluIGJhc2U2NA=="
+                                                                "content": "YWFhCg=="
                                                             }
                                                         ]
                                                     },
                                                     "volumeType": {
                                                         "settings": [
                                                             {
-                                                                "key": "volume_backend_name",
-                                                                "value": "ceph"
+                                                                "key": "storagetype:storageprofile",
+                                                                "value": ""
+                                                            },
+                                                            {
+                                                                "key": "replication_enabled",
+                                                                "value": ""
+                                                            },
+                                                            {
+                                                                "key": "replication_type",
+                                                                "value": ""
+                                                            },
+                                                            {
+                                                                "key": "replication:activereplay",
+                                                                "value": ""
+                                                            },
+                                                            {
+                                                                "key": "replication:livevolume",
+                                                                "value": ""
+                                                            },
+                                                            {
+                                                                "key": "storagetype:volumeqos",
+                                                                "value": ""
+                                                            },
+                                                            {
+                                                                "key": "storagetype:groupqos",
+                                                                "value": ""
+                                                            },
+                                                            {
+                                                                "key": "storagetype:datareductionprofile",
+                                                                "value": ""
+                                                            },
+                                                            {
+                                                                "key": "multiattach",
+                                                                "value": ""
                                                             }
                                                         ]
                                                     },
                                                     "image": {
                                                         "useMultipath": true,
                                                         "forceMultipath": true
-                                                    },
-                                                    "updateTime": "2025-09-09T12:00:00+08:00"
+                                                    }
                                                 }
                                             },
-                                            "msg": "fetch integrated storage details successfully",
+                                            "msg": "fetch integration storage details successfully",
                                             "status": "ok"
                                         }
                                     }
@@ -3806,7 +3967,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to fetch integrated storage details: internal server error"
+                                            "example": "failed to fetch integration storage details: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -3820,11 +3981,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "operationId": "updateIntegratedStorage",
+                "operationId": "updateIntegrationStorage",
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "Update an integrated storage",
+                "summary": "Update an integration storage",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -3838,24 +3999,65 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/UpdateIntegratedStorageRequest"
+                                "$ref": "#/components/schemas/ApplyIntegrationStorageRequest"
                             },
                             "examples": {
                                 "example1": {
-                                    "summary": "Update integrated storage request",
+                                    "summary": "Update integration storage request",
                                     "value": {
+                                        "name": "dell-emc-sc-fc",
+                                        "driver": "cinder.volume.drivers.dell_emc.sc.storagecenter_fc.SCFCDriver",
                                         "isDefault": true,
-                                        "isExternal": false,
-                                        "device": {
-                                            "vendor": "Dell",
-                                            "product": "PowerVault ME4024"
-                                        },
                                         "storage": {
                                             "service": {
                                                 "driverSection": [
                                                     {
-                                                        "key": "volume_driver",
-                                                        "value": "cinder.volume.drivers.lvm.LVMVolumeDriver"
+                                                        "key": "san_ip",
+                                                        "value": "10.32.10.250"
+                                                    },
+                                                    {
+                                                        "key": "san_login",
+                                                        "value": "Admin"
+                                                    },
+                                                    {
+                                                        "key": "san_password",
+                                                        "value": "bigstackcoltd"
+                                                    },
+                                                    {
+                                                        "key": "san_thin_provision",
+                                                        "value": "true"
+                                                    },
+                                                    {
+                                                        "key": "dell_sc_ssn",
+                                                        "value": "364940"
+                                                    },
+                                                    {
+                                                        "key": "dell_sc_api_port",
+                                                        "value": "3033"
+                                                    },
+                                                    {
+                                                        "key": "dell_sc_verify_cert",
+                                                        "value": "false"
+                                                    },
+                                                    {
+                                                        "key": "dell_sc_server_folder",
+                                                        "value": "dev-servers/glance-cluster"
+                                                    },
+                                                    {
+                                                        "key": "dell_sc_volume_folder",
+                                                        "value": "dev-vols"
+                                                    },
+                                                    {
+                                                        "key": "use_multipath_for_image_xfer",
+                                                        "value": "true"
+                                                    },
+                                                    {
+                                                        "key": "enforce_multipath_for_image_xfer",
+                                                        "value": "true"
+                                                    },
+                                                    {
+                                                        "key": "image_upload_use_cinder_backend",
+                                                        "value": "true"
                                                     }
                                                 ],
                                                 "extraSettings": [
@@ -3863,8 +4065,12 @@ const docTemplate = `{
                                                         "sectionHeader": "DEFAULT",
                                                         "settings": [
                                                             {
-                                                                "key": "enabled_backends",
-                                                                "value": "lvm"
+                                                                "key": "allowed_direct_url_schemes",
+                                                                "value": "cinder"
+                                                            },
+                                                            {
+                                                                "key": "glance_request_timeout",
+                                                                "value": "1200"
                                                             }
                                                         ]
                                                     }
@@ -3872,17 +4078,53 @@ const docTemplate = `{
                                                 "extraConfigFiles": [
                                                     {
                                                         "name": "test.conf",
-                                                        "content": "ZmlsZSBjb250ZW50IGluIGJhc2U2NA=="
+                                                        "content": "YWFhCg=="
                                                     }
                                                 ]
                                             },
                                             "volumeType": {
                                                 "settings": [
                                                     {
-                                                        "key": "volume_backend_name",
-                                                        "value": "lvm"
+                                                        "key": "storagetype:storageprofile",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "replication_enabled",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "replication_type",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "replication:activereplay",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "replication:livevolume",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "storagetype:volumeqos",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "storagetype:groupqos",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "storagetype:datareductionprofile",
+                                                        "value": ""
+                                                    },
+                                                    {
+                                                        "key": "multiattach",
+                                                        "value": ""
                                                     }
                                                 ]
+                                            },
+                                            "image": {
+                                                "useMultipath": true,
+                                                "forceMultipath": true
                                             }
                                         }
                                     }
@@ -3893,7 +4135,7 @@ const docTemplate = `{
                 },
                 "responses": {
                     "202": {
-                        "description": "Receive the request to update an integrated storage successfully, processing",
+                        "description": "Receive the request to update an integration storage successfully, processing",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3910,7 +4152,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "receive the request to update an integrated storage successfully, processing"
+                                            "example": "receive the request to update an integration storage successfully, processing"
                                         },
                                         "status": {
                                             "type": "string",
@@ -3968,7 +4210,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to update integrated storage: internal server error"
+                                            "example": "failed to update integration storage: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -3982,11 +4224,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "operationId": "deleteIntegratedStorage",
+                "operationId": "deleteIntegrationStorage",
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "Delete an integrated storage",
+                "summary": "Delete an integration storage",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -3997,7 +4239,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "202": {
-                        "description": "Receive the request to delete an integrated storage successfully, processing",
+                        "description": "Receive the request to delete an integration storage successfully, processing",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4014,7 +4256,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "receive the request to delete an integrated storage successfully, processing"
+                                            "example": "receive the request to delete an integration storage successfully, processing"
                                         },
                                         "status": {
                                             "type": "string",
@@ -4072,142 +4314,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to delete integrated storage: internal server error"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "internal server error"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/datacenters/{dataCenter}/integrations/storages/{storageName}/asDefault": {
-            "patch": {
-                "operationId": "setStorageAsDefault",
-                "tags": [
-                    "Integrations"
-                ],
-                "summary": "Set an integrated storage as the default storage",
-                "parameters": [
-                    {
-                        "$ref": "#/components/parameters/dataCenter"
-                    },
-                    {
-                        "$ref": "#/components/parameters/storageName"
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Receive the request to set an integrated storage as the default storage successfully, processing",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "code",
-                                        "msg",
-                                        "status"
-                                    ],
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 202
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "receive the request to set an integrated storage as the default storage successfully, processing"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "accepted"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "code",
-                                        "msg",
-                                        "status"
-                                    ],
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 404
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "storage example-storage not found"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "not found"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "code",
-                                        "msg",
-                                        "status"
-                                    ],
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 409
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "storage example-storage is already the default storage"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "conflict"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "code",
-                                        "msg",
-                                        "status"
-                                    ],
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 500
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "failed to set the integrated storage as the default storage: internal server error"
+                                            "example": "failed to delete integration storage: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -4223,11 +4330,11 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/integrations/storages/models": {
             "get": {
-                "operationId": "listIntegratedStorageModels",
+                "operationId": "listIntegrationStorageModels",
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "Retrieve the list of integrated storage models",
+                "summary": "Retrieve the list of integration storage models",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -4235,11 +4342,11 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Retrieve the list of integrated storage models successfully",
+                        "description": "Retrieve the list of integration storage models successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ListIntegratedStorageModelsResponse"
+                                    "$ref": "#/components/schemas/ListIntegrationStorageModelsResponse"
                                 },
                                 "examples": {
                                     "example1": {
@@ -4422,11 +4529,11 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "operationId": "createIntegratedStorageModel",
+                "operationId": "createIntegrationStorageModel",
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "Create an integrated storage model",
+                "summary": "Create an integration storage model",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -4437,14 +4544,14 @@ const docTemplate = `{
                     "content": {
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/CreateOrUpdateIntegreatedStorageModelsRequest"
+                                "$ref": "#/components/schemas/ApplyIntegreationStorageModelsRequest"
                             }
                         }
                     }
                 },
                 "responses": {
                     "202": {
-                        "description": "Receive the request to create an integrated storage model successfully, processing",
+                        "description": "Receive the request to create an integration storage model successfully, processing",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4461,7 +4568,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "receive the request to create an integrated storage model successfully, processing"
+                                            "example": "receive the request to create an integration storage model successfully, processing"
                                         },
                                         "status": {
                                             "type": "string",
@@ -4501,35 +4608,6 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "code",
-                                        "msg",
-                                        "status"
-                                    ],
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 409
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "storage model Dell PowerVault already exists"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "conflict"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
@@ -4548,7 +4626,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to create integrated storage model: internal server error"
+                                            "example": "failed to create integration storage model: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -4562,11 +4640,11 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "operationId": "updateAllIntegratedStorageModels",
+                "operationId": "updateIntegrationStorageModels",
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "Update all integrated storage models",
+                "summary": "Update integration storage models",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -4577,14 +4655,14 @@ const docTemplate = `{
                     "content": {
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/PutIntegreatedStorageModelsRequest"
+                                "$ref": "#/components/schemas/UpdateIntegreationStorageModelsRequest"
                             }
                         }
                     }
                 },
                 "responses": {
                     "202": {
-                        "description": "Receive the request to update the integrated storage models successfully, processing",
+                        "description": "Receive the request to update the integration storage models successfully, processing",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4601,7 +4679,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "Receive the request to update the integrated storage models successfully, processing"
+                                            "example": "Receive the request to update the integration storage models successfully, processing"
                                         },
                                         "status": {
                                             "type": "string",
@@ -4641,35 +4719,6 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "code",
-                                        "msg",
-                                        "status"
-                                    ],
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 409
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "storage model Dell PowerVault already exists"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "conflict"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
@@ -4688,7 +4737,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to update the integrated storage models: internal server error"
+                                            "example": "failed to update the integration storage models: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -4704,11 +4753,11 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/integrations/storages/models/{driverName}": {
             "delete": {
-                "operationId": "deleteIntegratedStorageModel",
+                "operationId": "deleteIntegrationStorageModel",
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "Delete an integrated storage model",
+                "summary": "Delete an integration storage model",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -4719,7 +4768,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "202": {
-                        "description": "Receive the request to delete an integrated storage model successfully, processing",
+                        "description": "Receive the request to delete an integration storage model successfully, processing",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4736,7 +4785,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "receive the request to delete an integrated storage model successfully, processing"
+                                            "example": "receive the request to delete an integration storage model successfully, processing"
                                         },
                                         "status": {
                                             "type": "string",
@@ -4823,7 +4872,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to delete integrated storage model: internal server error"
+                                            "example": "failed to delete integration storage model: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -4837,11 +4886,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "operationId": "updateIntegratedStorageModel",
+                "operationId": "updateIntegrationStorageModel",
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "Create an integrated storage model",
+                "summary": "Create an integration storage model",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -4855,14 +4904,14 @@ const docTemplate = `{
                     "content": {
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/CreateOrUpdateIntegreatedStorageModelsRequest"
+                                "$ref": "#/components/schemas/ApplyIntegreationStorageModelsRequest"
                             }
                         }
                     }
                 },
                 "responses": {
                     "202": {
-                        "description": "Receive the request to update an integrated storage model successfully, processing",
+                        "description": "Receive the request to update an integration storage model successfully, processing",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4879,7 +4928,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "receive the request to update an integrated storage model successfully, processing"
+                                            "example": "receive the request to update an integration storage model successfully, processing"
                                         },
                                         "status": {
                                             "type": "string",
@@ -4948,35 +4997,6 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "code",
-                                        "msg",
-                                        "status"
-                                    ],
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer",
-                                            "example": 409
-                                        },
-                                        "msg": {
-                                            "type": "string",
-                                            "example": "storage model Dell PowerVault is under processing, try again later"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "example": "conflict"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
@@ -4995,7 +5015,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to create integrated storage model: internal server error"
+                                            "example": "failed to create integration storage model: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -5011,11 +5031,11 @@ const docTemplate = `{
         },
         "/api/v1/datacenters/{dataCenter}/integrations/storages/vendors": {
             "get": {
-                "operationId": "listIntegratedStorageVendors",
+                "operationId": "listIntegrationStorageVendors",
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "Retrieve the list of integrated storage vendors",
+                "summary": "Retrieve the list of integration storage vendors",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -5023,7 +5043,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Retrieve the list of integrated storage vendors successfully",
+                        "description": "Retrieve the list of integration storage vendors successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5062,7 +5082,7 @@ const docTemplate = `{
                                                 "NetApp",
                                                 "Dell"
                                             ],
-                                            "msg": "fetch integrated storage vendors successfully",
+                                            "msg": "fetch integration storage vendors successfully",
                                             "status": "ok"
                                         }
                                     }
@@ -5083,7 +5103,7 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "failed to fetch integrated storage vendors: internal server error"
+                                            "example": "failed to fetch integration storage vendors: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -18380,7 +18400,7 @@ const docTemplate = `{
                 "schema": {
                     "type": "string"
                 },
-                "description": "The name of the integrated storage."
+                "description": "The name of the integration storage."
             },
             "driverName": {
                 "in": "path",
@@ -19510,7 +19530,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "ListIntegratedStoragesResponse": {
+            "ListIntegrationStoragesResponse": {
                 "type": "object",
                 "required": [
                     "code",
@@ -19590,7 +19610,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "CreateIntegratedStorageRequest": {
+            "ApplyIntegrationStorageRequest": {
                 "type": "object",
                 "required": [
                     "isDefault",
@@ -19701,12 +19721,27 @@ const docTemplate = `{
                                         }
                                     }
                                 }
+                            },
+                            "image": {
+                                "type": "object",
+                                "required": [
+                                    "useMultipath",
+                                    "forceMultipath"
+                                ],
+                                "properties": {
+                                    "useMultipath": {
+                                        "type": "boolean"
+                                    },
+                                    "forceMultipath": {
+                                        "type": "boolean"
+                                    }
+                                }
                             }
                         }
                     }
                 }
             },
-            "UpdateIntegratedStorageRequest": {
+            "UpdateIntegrationStorageRequest": {
                 "type": "object",
                 "required": [
                     "isDefault",
@@ -19901,7 +19936,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "GetIntegratedStorageResponse": {
+            "GetIntegrationStorageResponse": {
                 "type": "object",
                 "required": [
                     "code",
@@ -20058,7 +20093,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "ListIntegratedStorageModelsResponse": {
+            "ListIntegrationStorageModelsResponse": {
                 "type": "object",
                 "required": [
                     "code",
@@ -20275,7 +20310,7 @@ const docTemplate = `{
                     },
                     "msg": {
                         "type": "string",
-                        "example": "fetch integrated storage models successfully"
+                        "example": "fetch integration storage models successfully"
                     },
                     "status": {
                         "type": "string",
@@ -20283,7 +20318,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "PutIntegreatedStorageModelsRequest": {
+            "UpdateIntegreationStorageModelsRequest": {
                 "type": "object",
                 "required": [
                     "storageModels"
@@ -20296,7 +20331,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "CreateOrUpdateIntegreatedStorageModelsRequest": {
+            "ApplyIntegreationStorageModelsRequest": {
                 "type": "object",
                 "required": [
                     "storageModel"
@@ -27266,7 +27301,7 @@ const docTemplate = `{
                         "type": "object",
                         "required": [
                             "name"
-                        ], 
+                        ],
                         "properties": {
                             "name": {
                                 "type": "string"
@@ -27299,7 +27334,7 @@ const docTemplate = `{
                         "type": "object",
                         "required": [
                             "name"
-                        ], 
+                        ],
                         "properties": {
                             "name": {
                                 "type": "string"
@@ -27332,7 +27367,7 @@ const docTemplate = `{
                         "type": "object",
                         "required": [
                             "name"
-                        ], 
+                        ],
                         "properties": {
                             "name": {
                                 "type": "string"
@@ -27365,7 +27400,7 @@ const docTemplate = `{
                         "type": "object",
                         "required": [
                             "name"
-                        ], 
+                        ],
                         "properties": {
                             "name": {
                                 "type": "string"
