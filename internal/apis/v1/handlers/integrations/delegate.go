@@ -218,7 +218,7 @@ func (h *helper) genStorageReqByHandler() *resty.Request {
 	case "deleteStorage":
 		return req
 	default:
-		return req.SetFile("storage", defstorages.TmpUploadedStorage)
+		return req.SetBody(string(h.rawBody))
 	}
 }
 

@@ -64,9 +64,9 @@ func (h *helper) parseVerifyStorageParams() error {
 }
 
 func (h *helper) parseCreateStorageParams() error {
-	err := h.loadStorage()
+	err := h.c.ShouldBindJSON(&h.storageReqOpts.CinderDetails)
 	if err != nil {
-		return fmt.Errorf("failed to load storage creation req(%v)", err)
+		return fmt.Errorf("failed to parse storage creation req(%v)", err)
 	}
 
 	if h.storageReqOpts.CinderDetails.Name == "" {
@@ -80,9 +80,9 @@ func (h *helper) parseCreateStorageParams() error {
 }
 
 func (h *helper) parseUpdateStorageParams() error {
-	err := h.loadStorage()
+	err := h.c.ShouldBindJSON(&h.storageReqOpts.CinderDetails)
 	if err != nil {
-		return fmt.Errorf("failed to load storage update req(%v)", err)
+		return fmt.Errorf("failed to parse storage update req(%v)", err)
 	}
 
 	if h.storageReqOpts.CinderDetails.Name == "" {

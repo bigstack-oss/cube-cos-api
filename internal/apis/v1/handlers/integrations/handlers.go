@@ -222,7 +222,7 @@ func createStorage(c *gin.Context) {
 		return
 	}
 	if found {
-		bodies.SetNotFound(c, fmt.Errorf("storage %s already exists", h.storageReqOpts.CinderDetails.Name))
+		bodies.SetConflict(c, fmt.Errorf("storage %s already exists", h.storageReqOpts.CinderDetails.Name))
 		return
 	}
 
