@@ -3,7 +3,6 @@ package integrations
 import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
 	log "go-micro.dev/v5/logger"
@@ -11,13 +10,32 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (h *helper) addReqRecord() {
+func (h *helper) addStorageModelReqRecord() {
 	err := h.mongo.UpdateOne(
-		fixpacks.Db,
-		fixpacks.ReqCollection,
+		storages.Db,
+		storages.ReqCollection,
 		bson.M{
-			"hostname": base.Hostname,
-			"name":     h.storageReqOpts.CinderDetails.Name,
+			"hostname":           base.Hostname,
+			"cinderDetails.name": h.storageReqOpts.CinderDetails.Name,
+		},
+		bson.M{"$set": h.storageReqOpts},
+		options.Update().SetUpsert(true),
+	)
+	if err != nil {
+		log.Errorf(
+			"integrations(%s): failed to add storage request record(%v)",
+			h.reqId, err,
+		)
+	}
+}
+
+func (h *helper) addStorageReqRecord() {
+	err := h.mongo.UpdateOne(
+		storages.Db,
+		storages.ReqCollection,
+		bson.M{
+			"hostname":           base.Hostname,
+			"cinderDetails.name": h.storageReqOpts.CinderDetails.Name,
 		},
 		bson.M{"$set": h.storageReqOpts},
 		options.Update().SetUpsert(true),
@@ -35,13 +53,18 @@ func (h *helper) updateStorageTask() error {
 		defer cubecos.InsertNotification(h.storageReqOpts.Notify.Payload)
 	}
 
+	log.Infof("-------")
+	log.Infof(h.storageReqOpts.Hostname)
+	log.Infof(h.storageReqOpts.CinderDetails.Name)
+	log.Infof(h.storageReqOpts.ReqId)
+
 	return h.mongo.DeleteOne(
 		storages.Db,
 		storages.ReqCollection,
 		bson.M{
-			"hostname": h.storageReqOpts.Hostname,
-			"name":     h.storageReqOpts.CinderDetails.Name,
-			"reqId":    h.storageReqOpts.ReqId,
+			"hostname":           h.storageReqOpts.Hostname,
+			"cinderDetails.Name": h.storageReqOpts.CinderDetails.Name,
+			"reqId":              h.storageReqOpts.ReqId,
 		},
 	)
 }
@@ -55,9 +78,9 @@ func (h *helper) updateModelTask() error {
 		storages.Db,
 		storages.ModelReqCollection,
 		bson.M{
-			"hostname": h.modelReqOpts.Hostname,
-			"product":  h.modelReqOpts.Driver,
-			"reqId":    h.modelReqOpts.ReqId,
+			"hostname":     h.modelReqOpts.Hostname,
+			"model.driver": h.modelReqOpts.Driver,
+			"reqId":        h.modelReqOpts.ReqId,
 		},
 	)
 }
@@ -75,8 +98,8 @@ func (h *helper) isStorageProcessing(name string) bool {
 		storages.Db,
 		storages.ReqCollection,
 		bson.M{
-			"name":     name,
-			"hostname": base.Hostname,
+			"cinderDetails.name": name,
+			"hostname":           base.Hostname,
 		},
 	)
 	if err != nil {
@@ -92,7 +115,7 @@ func (h *helper) syncStorageProcessingStatus(storage *integration.Storage) {
 	doc, err := h.mongo.Get(
 		storages.Db,
 		storages.ReqCollection,
-		bson.M{"name": storage.Name},
+		bson.M{"cinderDetails.name": storage.Name},
 	)
 	if err != nil {
 		log.Errorf("integrations(%s): failed to get storage request record (%v)", h.reqId, err)
@@ -138,10 +161,7 @@ func (h *helper) syncModelProcessingStatus(model *storages.Model) {
 	doc, err := h.mongo.Get(
 		storages.Db,
 		storages.ModelReqCollection,
-		bson.M{
-			"vendor":  model.Vendor,
-			"product": model.Driver,
-		},
+		bson.M{"model.driver": model.Driver},
 	)
 	if err != nil {
 		log.Errorf("integrations(%s): failed to get storage request record (%v)", h.reqId, err)

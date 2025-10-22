@@ -25,7 +25,6 @@ const (
 
 type ReqOpts struct {
 	ReqId         string `json:"reqId" bson:"reqId"`
-	Name          string `json:"name" bson:"name"`
 	Hostname      string `json:"hostname" bson:"hostname"`
 	CinderDetails `json:"cinderDetails" bson:"cinderDetails"`
 	Status        status.Storage `json:"status" bson:"status"`

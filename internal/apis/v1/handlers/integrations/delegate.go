@@ -24,10 +24,7 @@ func (h *helper) updateStorage() {
 }
 
 func (h *helper) updateLocalStorage() {
-	if cubecos.IsVirtualIpOwner(base.Hostname) {
-		h.addReqRecord()
-	}
-
+	h.addStorageReqRecord()
 	reqQueue.Add(&h.storageReqOpts)
 }
 
@@ -47,7 +44,7 @@ func (h *helper) updatePeerStorage() {
 	}
 }
 
-func (h *helper) sendStorageReqToPeer(node nodes.Node) error {
+func (h *helper) sendStorageReqToPeer(node nodes.Node) {
 	req := h.genStorageReqByHandler()
 	resp, err := req.Execute(
 		h.c.Request.Method,
@@ -58,7 +55,7 @@ func (h *helper) sendStorageReqToPeer(node nodes.Node) error {
 			"storages(%s): failed to update peer storage %s(%v)",
 			h.reqId, node.Hostname, err,
 		)
-		return err
+		return
 	}
 
 	if resp.IsError() {
@@ -66,10 +63,8 @@ func (h *helper) sendStorageReqToPeer(node nodes.Node) error {
 			"storages(%s): has resp error during updating peer storage on node %s(%s)",
 			h.reqId, node.Hostname, resp.String(),
 		)
-		return err
+		return
 	}
-
-	return nil
 }
 
 func (h *helper) getStorageUrlByHandler(node nodes.Node) string {
@@ -137,19 +132,16 @@ func (h *helper) initBatchStorageModelReqOpts() []defstorages.ModelReqOpts {
 }
 
 func (h *helper) updatePeerStorageModel() {
-	h.updateStorageModelToLocal()
-	h.updatePeerStorageModelsOnControlAndCompute()
+	h.updateLocalStorageModel()
+	h.updatePeerStorageModels()
 }
 
-func (h *helper) updateStorageModelToLocal() {
-	if cubecos.IsVirtualIpOwner(base.Hostname) {
-		h.addReqRecord()
-	}
-
+func (h *helper) updateLocalStorageModel() {
+	h.addStorageModelReqRecord()
 	modelReqQueue.Add(&h.modelReqOpts)
 }
 
-func (h *helper) updatePeerStorageModelsOnControlAndCompute() {
+func (h *helper) updatePeerStorageModels() {
 	if !cubecos.IsVirtualIpOwner(base.Hostname) {
 		return
 	}
