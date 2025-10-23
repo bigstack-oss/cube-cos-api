@@ -39,6 +39,7 @@ type Storage struct {
 	ManagementIp string         `json:"managementIp"`
 	UpdatedAt    string         `json:"updatedAt"`
 	IsDefault    bool           `json:"isDefault"`
+	IsVerified   bool           `json:"isVerified"`
 	Status       status.Storage `json:"status"`
 }
 

@@ -3337,6 +3337,7 @@ const docTemplate = `{
                                         "name": "dell-emc-sc-fc",
                                         "driver": "cinder.volume.drivers.dell_emc.sc.storagecenter_fc.SCFCDriver",
                                         "isDefault": true,
+                                        "isVerified": true,
                                         "storage": {
                                             "service": {
                                                 "driverSection": [
@@ -3540,6 +3541,141 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to create integration storage: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/integrations/storages/{storageName}/asDefault": {
+            "patch": {
+                "operationId": "setStorageAsDefault",
+                "tags": [
+                    "Integrations"
+                ],
+                "summary": "Set an integrated storage as the default storage",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/storageName"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Receive the request to set an integrated storage as the default storage successfully, processing",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 202
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "receive the request to set an integrated storage as the default storage successfully, processing"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "accepted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "storage example-storage not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "storage example-storage is already the default storage"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "conflict"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to set the integrated storage as the default storage: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -19614,6 +19750,7 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "isDefault",
+                    "isVerified",
                     "name",
                     "isExternal",
                     "device",
@@ -19621,6 +19758,9 @@ const docTemplate = `{
                 ],
                 "properties": {
                     "isDefault": {
+                        "type": "boolean"
+                    },
+                    "isVerified": {
                         "type": "boolean"
                     },
                     "name": {

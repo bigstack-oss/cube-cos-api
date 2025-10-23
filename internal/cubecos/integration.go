@@ -128,7 +128,7 @@ func CheckStorageExist(name string) (bool, error) {
 	return false, nil
 }
 
-func CreateStorage(details storages.CinderDetails) error {
+func UpdateStorage(details storages.CinderDetails) error {
 	input, err := json.Marshal(details)
 	if err != nil {
 		err := genIntegrationErr("storage cinder details parsing failure")

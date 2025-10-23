@@ -196,15 +196,10 @@ func verifyStorage(c *gin.Context) {
 		return
 	}
 
-	verification, err := h.verifyStorage()
-	if err != nil {
-		return
-	}
-
-	bodies.SetOk(
+	h.requestStorageVerification()
+	bodies.SetAccepted(
 		c,
-		"verify integrated storage successfully",
-		verification,
+		"verify integrated storage successfully, processing",
 	)
 }
 
@@ -273,6 +268,11 @@ func setStorageAsDefault(c *gin.Context) {
 	}
 	if !found {
 		bodies.SetNotFound(c, fmt.Errorf("storage %s not found", h.storageReqOpts.CinderDetails.Name))
+		return
+	}
+
+	if !h.hasVerifiedRecord(h.storageReqOpts.CinderDetails.Name) {
+		bodies.SetBadRequest(c, fmt.Errorf("storage %s is not verified yet", h.storageReqOpts.CinderDetails.Name), nil)
 		return
 	}
 

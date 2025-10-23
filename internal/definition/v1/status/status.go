@@ -42,6 +42,7 @@ const (
 	Created    = "created"
 	Imported   = "imported"
 	Toggled    = "toggled"
+	Verified   = "verified"
 	Added      = "added"
 	Uploaded   = "uploaded"
 	Upgraded   = "upgraded"

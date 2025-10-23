@@ -48,6 +48,7 @@ func (h *helper) listStorages() ([]integration.Storage, error) {
 
 	storages := h.convertToStorages(cinders)
 	h.syncProcessingStorages(&storages)
+	h.syncVerifiedStorages(&storages)
 	h.sortStorages(&storages)
 	return storages, nil
 }
@@ -75,28 +76,12 @@ func (h *helper) listModels() ([]storages.Model, error) {
 	return models, nil
 }
 
-func (h *helper) verifyStorage() (*storages.VerficationResult, error) {
-	err := cubecos.CreateStorage(h.storageReqOpts.CinderDetails)
-	if err != nil {
-		log.Errorf("integrations(%s): failed to create storage (%v)", h.reqId, err)
-		return &storages.VerficationResult{
-			IsCinderServiceUp:      false,
-			IsTestVolumeSuccessful: false,
-		}, nil
-	}
+func (h *helper) requestStorageVerification() {
+	h.updateLocalStorage()
 
-	defer func() {
-		err := cubecos.DeleteStorage(h.storageReqOpts.CinderDetails.Name)
-		if err != nil {
-			log.Errorf("integrations(%s): failed to delete storage after verification (%v)", h.reqId, err)
-		}
-	}()
+	// err = h.updateStorageAsVerified(h.storageReqOpts.CinderDetails.Name)
+	// if err != nil {
+	// 	log.Errorf("integrations(%s): failed to update storage as verified (%v)", h.reqId, err)
+	// }
 
-	result, err := cubecos.VerifyStorage(h.storageReqOpts.CinderDetails.Name)
-	if err != nil {
-		log.Errorf("integrations(%s): storage verification failed (%v)", h.reqId, err)
-		return result, err
-	}
-
-	return result, nil
 }

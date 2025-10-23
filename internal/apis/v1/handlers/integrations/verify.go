@@ -5,7 +5,12 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
+
+func (h *helper) isVerificationReq() bool {
+	return h.storageReqOpts.Status.Desired == status.Verified
+}
 
 func (h *helper) checkStorageTaskUpdateReq() error {
 	if h.storageReqOpts.CinderDetails.Name == "" {

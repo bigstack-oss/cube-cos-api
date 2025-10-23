@@ -2,6 +2,7 @@ package storages
 
 import (
 	"encoding/json"
+	"strconv"
 	ostime "time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
@@ -10,10 +11,11 @@ import (
 )
 
 const (
-	Db                 = "storages"
-	ReqCollection      = "storageRequests"
-	ModelReqCollection = "modelRequests"
-	CinderConf         = "/etc/cinder/cinder.conf"
+	Db                    = "storages"
+	ReqCollection         = "storageRequests"
+	ModelReqCollection    = "modelRequests"
+	VerficationCollection = "verifications"
+	CinderConf            = "/etc/cinder/cinder.conf"
 
 	TmpUploadedStorageModel     = "/tmp/storage-model.yaml"
 	TmpUploadedStorageModelList = "/tmp/storage-model-list.yaml"
@@ -24,11 +26,12 @@ const (
 )
 
 type ReqOpts struct {
-	ReqId         string `json:"reqId" bson:"reqId"`
-	Hostname      string `json:"hostname" bson:"hostname"`
-	CinderDetails `json:"cinderDetails" bson:"cinderDetails"`
-	Status        status.Storage `json:"status" bson:"status"`
-	Notify        `json:"notify" bson:"notify"`
+	ReqId             string `json:"reqId" bson:"reqId"`
+	Hostname          string `json:"hostname" bson:"hostname"`
+	CinderDetails     `json:"cinderDetails" bson:"cinderDetails"`
+	Status            status.Storage `json:"status" bson:"status"`
+	VerficationResult `json:"verificationResult" bson:"verificationResult"`
+	Notify            `json:"notify" bson:"notify"`
 }
 
 type ModelReqOpts struct {
@@ -147,7 +150,11 @@ func (r *ReqOpts) SetCompleted() {
 		r.Notify.Payload.Id = "STG00002I"
 	case status.Deleted:
 		r.Notify.Payload.Id = "STG00003I"
+	case status.Verified:
+		r.Notify.Payload.Id = "STG00004I"
+		r.SetStorageVerifiedAdditionalInfo()
 	case status.Defaulted:
+		r.Notify.Payload.Id = "STG00005I"
 		r.SetStorageNotification(false)
 	}
 }
@@ -166,8 +173,20 @@ func (r *ReqOpts) SetFailed(msg string) {
 		r.Notify.Payload.Id = "STG00002E"
 	case status.Deleted:
 		r.Notify.Payload.Id = "STG00003E"
+	case status.Verified:
+		r.Notify.Payload.Id = "STG00004E"
+		r.SetStorageVerifiedAdditionalInfo()
 	case status.Defaulted:
+		r.Notify.Payload.Id = "STG00005E"
 		r.SetStorageNotification(false)
+	}
+}
+
+func (r *ReqOpts) SetStorageVerifiedAdditionalInfo() {
+	r.Notify.Payload.AdditionalInfo = map[string]string{
+		"name":                   r.Name,
+		"isCinderServiceUp":      strconv.FormatBool(r.VerficationResult.IsCinderServiceUp),
+		"isTestVolumeSuccessful": strconv.FormatBool(r.VerficationResult.IsTestVolumeSuccessful),
 	}
 }
 

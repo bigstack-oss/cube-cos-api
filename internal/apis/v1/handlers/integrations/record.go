@@ -4,6 +4,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -47,11 +48,23 @@ func (h *helper) addStorageReqRecord() {
 			h.reqId, err,
 		)
 	}
+
+	h.removeVerifiedRecordDuringUpdate()
+}
+
+func (h *helper) removeVerifiedRecordDuringUpdate() {
+	if h.storageReqOpts.Status.Desired == status.Updated {
+		h.removeVerificationRecord()
+	}
 }
 
 func (h *helper) updateStorageTask() error {
 	if h.storageReqOpts.Notify.IsNeeded {
 		defer cubecos.InsertNotification(h.storageReqOpts.Notify.Payload)
+	}
+
+	if h.isVerificationReq() {
+		h.updateStorageAsVerified(h.storageReqOpts.CinderDetails.Name)
 	}
 
 	return h.mongo.DeleteOne(
@@ -166,4 +179,55 @@ func (h *helper) syncModelProcessingStatus(model *storages.Model) {
 	}
 
 	model.Status = reqOpts.Status
+}
+
+func (h *helper) updateStorageAsVerified(name string) error {
+	err := h.mongo.UpdateOne(
+		storages.Db,
+		storages.VerficationCollection,
+		bson.M{"name": name},
+		bson.M{"$set": bson.M{"name": name, "isVerified": true}},
+	)
+	if err != nil {
+		log.Errorf("integrations(%s): failed to update storage(%s) as verified (%v)", h.reqId, name, err)
+		return err
+	}
+
+	return nil
+}
+
+func (h *helper) syncVerifiedStorages(storages *[]integration.Storage) {
+	for i, storage := range *storages {
+		if h.hasVerifiedRecord(storage.Name) {
+			(*storages)[i].IsVerified = true
+		}
+	}
+}
+
+func (h *helper) hasVerifiedRecord(name string) bool {
+	count, err := h.mongo.GetCount(
+		storages.Db,
+		storages.VerficationCollection,
+		bson.M{"name": name, "isVerified": true},
+	)
+	if err != nil {
+		log.Errorf("integrations(%s): failed to get storage verified status (%v)", h.reqId, err)
+		return false
+	}
+
+	return count > 0
+}
+
+func (h *helper) removeVerificationRecord() {
+	err := h.mongo.DeleteOne(
+		storages.Db,
+		storages.VerficationCollection,
+		bson.M{"name": h.storageReqOpts.CinderDetails.Name},
+	)
+	if err != nil {
+		log.Errorf(
+			"integrations(%s): failed to remove storage(%s) verification record(%v)",
+			h.reqId, h.storageReqOpts.CinderDetails.Name, err,
+		)
+	}
 }
