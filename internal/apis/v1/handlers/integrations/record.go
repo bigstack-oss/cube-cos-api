@@ -13,17 +13,18 @@ import (
 func (h *helper) addStorageModelReqRecord() {
 	err := h.mongo.UpdateOne(
 		storages.Db,
-		storages.ReqCollection,
+		storages.ModelReqCollection,
 		bson.M{
-			"hostname":           base.Hostname,
-			"cinderDetails.name": h.storageReqOpts.CinderDetails.Name,
+			"model.driver": h.modelReqOpts.Model.Driver,
+			"hostname":     h.modelReqOpts.Hostname,
+			"reqId":        h.modelReqOpts.ReqId,
 		},
-		bson.M{"$set": h.storageReqOpts},
+		bson.M{"$set": h.modelReqOpts},
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
 		log.Errorf(
-			"integrations(%s): failed to add storage request record(%v)",
+			"integrations(%s): failed to add storage model request record(%v)",
 			h.reqId, err,
 		)
 	}
@@ -53,19 +54,10 @@ func (h *helper) updateStorageTask() error {
 		defer cubecos.InsertNotification(h.storageReqOpts.Notify.Payload)
 	}
 
-	log.Infof("-------")
-	log.Infof(h.storageReqOpts.Hostname)
-	log.Infof(h.storageReqOpts.CinderDetails.Name)
-	log.Infof(h.storageReqOpts.ReqId)
-
 	return h.mongo.DeleteOne(
 		storages.Db,
 		storages.ReqCollection,
-		bson.M{
-			"hostname":           h.storageReqOpts.Hostname,
-			"cinderDetails.Name": h.storageReqOpts.CinderDetails.Name,
-			"reqId":              h.storageReqOpts.ReqId,
-		},
+		bson.M{"reqId": h.storageReqOpts.ReqId},
 	)
 }
 
@@ -78,9 +70,8 @@ func (h *helper) updateModelTask() error {
 		storages.Db,
 		storages.ModelReqCollection,
 		bson.M{
-			"hostname":     h.modelReqOpts.Hostname,
-			"model.driver": h.modelReqOpts.Driver,
-			"reqId":        h.modelReqOpts.ReqId,
+			"hostname": h.modelReqOpts.Hostname,
+			"reqId":    h.modelReqOpts.ReqId,
 		},
 	)
 }
@@ -97,10 +88,7 @@ func (h *helper) isStorageProcessing(name string) bool {
 	count, err := h.mongo.GetCount(
 		storages.Db,
 		storages.ReqCollection,
-		bson.M{
-			"cinderDetails.name": name,
-			"hostname":           base.Hostname,
-		},
+		bson.M{"cinderDetails.name": name},
 	)
 	if err != nil {
 		log.Errorf("integrations(%s): failed to get storage processing status (%v)", h.reqId, err)

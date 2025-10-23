@@ -92,7 +92,7 @@ func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
 	return headerMap
 }
 
-func (h *helper) updateStorageModelsToControllers() {
+func (h *helper) updateStorageModels() {
 	batchStorageModelReqOpts := h.initBatchStorageModelReqOpts()
 	for _, modelReqOpt := range batchStorageModelReqOpts {
 		h.modelReqOpts = modelReqOpt
@@ -219,6 +219,8 @@ func (h *helper) genStorageModelReqByHandler() *resty.Request {
 	switch h.handler {
 	case "deleteStorageModel":
 		return req
+	case "updateStorageModels":
+		return req.SetFile("storageModels", defstorages.TmpUploadedStorageModelList)
 	default:
 		return req.SetFile("storageModel", defstorages.TmpUploadedStorageModel)
 	}

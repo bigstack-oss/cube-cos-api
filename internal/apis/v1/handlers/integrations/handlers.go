@@ -432,7 +432,7 @@ func updateStorageModels(c *gin.Context) {
 		return
 	}
 
-	h.updateStorageModelsToControllers()
+	h.updateStorageModels()
 	bodies.SetAccepted(
 		c,
 		"received update all integrated storage models request successfully, processing",

@@ -150,6 +150,7 @@ func prepareApiHandlersByRole() {
 		integration.Module,
 		integrations.Handlers,
 		nodes.RoleControl,
+		nodes.RoleCompute,
 		nodes.RoleModerator,
 		nodes.RoleEdgeCore,
 	)

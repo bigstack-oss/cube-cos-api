@@ -290,7 +290,7 @@ func (h *helper) getBlockDeviceStatus(blockDev nodes.BlockDevice) status.BlockDe
 		CommandContext(ctx, "hex_sdk", "-f", "json", "ceph_osd_list", blockdevice.WithDevPath(blockDev.Name)).
 		CombinedOutput()
 	if err != nil {
-		log.Errorf("nodes: failed to get block device(%s) status(%v)", blockDev.Name, err)
+		log.Errorf("nodes: failed to get block device(%s) status(%v) (%s)", blockDev.Name, err, string(out))
 		return status.BlockDevice{Current: "failed"}
 	}
 
