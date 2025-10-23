@@ -167,3 +167,8 @@ func (h *helper) clearPkgBy(status string) error {
 
 	return nil
 }
+
+func (h *helper) updateFirmwareTask() error {
+	// have to be implemented
+	return nil
+}

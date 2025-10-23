@@ -69,6 +69,12 @@ var (
 			Path:    "/firmwares/:version",
 			Func:    deleteFirmware,
 		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/firmwares/tasks",
+			Func:    updateFirmwareTask,
+		},
 	}
 )
 
@@ -346,6 +352,27 @@ func deleteFirmware(c *gin.Context) {
 	bodies.SetOk(
 		c,
 		"Firmware deleted successfully",
+		nil,
+	)
+}
+
+func updateFirmwareTask(c *gin.Context) {
+	h, err := initHelper(c, "updateFirmwareTask")
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.updateFirmwareTask()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"Firmware task updated successfully",
 		nil,
 	)
 }

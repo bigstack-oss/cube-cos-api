@@ -297,6 +297,8 @@ func prepareApiHandlersByRole() {
 		firmwares.Module,
 		firmwaresapi.Handlers,
 		nodes.RoleControl,
+		nodes.RoleCompute,
+		nodes.RoleStorage,
 		nodes.RoleModerator,
 		nodes.RoleEdgeCore,
 	)
@@ -305,6 +307,8 @@ func prepareApiHandlersByRole() {
 		fixpacks.Module,
 		fixpacksapi.Handlers,
 		nodes.RoleControl,
+		nodes.RoleCompute,
+		nodes.RoleStorage,
 		nodes.RoleModerator,
 		nodes.RoleEdgeCore,
 	)

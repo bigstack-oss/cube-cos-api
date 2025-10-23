@@ -71,7 +71,6 @@ func (h *helper) loadStorageModelList() error {
 		return err
 	}
 
-	// defer os.Remove(storages.TmpUploadedStorageModelList)
 	payload, err := os.ReadFile(storages.TmpUploadedStorageModelList)
 	if err != nil {
 		log.Errorf("storages(%s): failed to read storage models file(%v)", h.reqId, err)
