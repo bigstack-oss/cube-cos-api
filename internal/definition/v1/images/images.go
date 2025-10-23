@@ -107,6 +107,7 @@ type CreateOpts struct {
 	File           string       `json:"file"`
 	Name           string       `json:"name"`
 	Destination    string       `json:"destination"`
+	Os             string       `json:"os"`
 	Domain         string       `json:"domain"`
 	Project        string       `json:"project"`
 	PoolType       string       `json:"poolType"`

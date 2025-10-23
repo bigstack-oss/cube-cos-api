@@ -36,6 +36,7 @@ func GenCreateOptsByReqOpts(reqOpts images.ReqOpts) (*images.CreateOpts, error) 
 		Name:           reqOpts.Name,
 		AttributesType: "default",
 		Destination:    reqOpts.Destination,
+		Os:             strings.ToLower(reqOpts.Os),
 		Domain:         reqOpts.Domain,
 		PoolType:       poolType,
 		Project:        reqOpts.Project,
