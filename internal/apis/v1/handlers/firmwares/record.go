@@ -169,6 +169,24 @@ func (h *helper) clearPkgBy(status string) error {
 }
 
 func (h *helper) updateFirmwareTask() error {
-	// have to be implemented
+	update, err := h.getFirmwareUpgradeProgress()
+	if err != nil {
+		log.Errorf("firmwares: failed to get firmware upgrade progress (%v)", err)
+		return err
+	}
+
+	for i, progress := range update.Progresses {
+		if progress.Host != h.reqOpts.Hostname {
+			continue
+		}
+
+		update.Progresses[i].Status = status.SystemUpdateProgress{
+			Current:      h.reqOpts.Status.Current,
+			IsProcessing: h.reqOpts.Status.IsProcessing,
+		}
+		break
+	}
+
+	h.setProgressDetails(*update)
 	return nil
 }

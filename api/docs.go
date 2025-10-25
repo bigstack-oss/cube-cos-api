@@ -3317,7 +3317,7 @@ const docTemplate = `{
                 "tags": [
                     "Integrations"
                 ],
-                "summary": "Integreate a storage",
+                "summary": "Integrate a storage",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
@@ -19749,40 +19749,24 @@ const docTemplate = `{
             "ApplyIntegrationStorageRequest": {
                 "type": "object",
                 "required": [
+                    "name",
+                    "driver",
                     "isDefault",
                     "isVerified",
-                    "name",
-                    "isExternal",
-                    "device",
                     "storage"
                 ],
                 "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "driver": {
+                        "type": "string"
+                    },
                     "isDefault": {
                         "type": "boolean"
                     },
                     "isVerified": {
                         "type": "boolean"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "isExternal": {
-                        "type": "boolean"
-                    },
-                    "device": {
-                        "type": "object",
-                        "required": [
-                            "vendor",
-                            "product"
-                        ],
-                        "properties": {
-                            "vendor": {
-                                "type": "string"
-                            },
-                            "product": {
-                                "type": "string"
-                            }
-                        }
                     },
                     "storage": {
                         "type": "object",
@@ -19885,15 +19869,11 @@ const docTemplate = `{
                 "type": "object",
                 "required": [
                     "isDefault",
-                    "isExternal",
                     "device",
                     "storage"
                 ],
                 "properties": {
                     "isDefault": {
-                        "type": "boolean"
-                    },
-                    "isExternal": {
                         "type": "boolean"
                     },
                     "device": {
@@ -20039,6 +20019,46 @@ const docTemplate = `{
                                         "type": "array",
                                         "items": {
                                             "$ref": "#/components/schemas/StorageKeyValuePair"
+                                        }
+                                    },
+                                    "extraSettings": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "sectionHeader",
+                                                "settings"
+                                            ],
+                                            "properties": {
+                                                "sectionHeader": {
+                                                    "type": "string"
+                                                },
+                                                "settings": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/StorageKeyValuePair"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "extraConfigFiles": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "name",
+                                                "content"
+                                            ],
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "content": {
+                                                    "type": "string",
+                                                    "description": "Base64 encoded content of the config file"
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -20373,28 +20393,47 @@ const docTemplate = `{
                                                     "items": {
                                                         "type": "object",
                                                         "required": [
-                                                            "key",
-                                                            "value"
+                                                            "sectionHeader",
+                                                            "settings"
                                                         ],
                                                         "properties": {
-                                                            "key": {
+                                                            "sectionHeader": {
                                                                 "type": "string"
                                                             },
-                                                            "value": {
-                                                                "type": "string"
+                                                            "settings": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "object",
+                                                                    "required": [
+                                                                        "key",
+                                                                        "value"
+                                                                    ],
+                                                                    "properties": {
+                                                                        "key": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "value": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    }
+                                                                }
                                                             }
                                                         }
                                                     }
                                                 },
                                                 "extraConfigFiles": {
                                                     "type": "array",
+                                                    "required": [
+                                                        "name",
+                                                        "content"
+                                                    ],
                                                     "items": {
                                                         "type": "object",
                                                         "properties": {
-                                                            "key": {
+                                                            "name": {
                                                                 "type": "string"
                                                             },
-                                                            "value": {
+                                                            "content": {
                                                                 "type": "string"
                                                             }
                                                         }
@@ -20479,7 +20518,7 @@ const docTemplate = `{
                 "properties": {
                     "storageModel": {
                         "type": "string",
-                        "format": "text",
+                        "format": "file",
                         "description": "The YAML content of a storage model"
                     }
                 }

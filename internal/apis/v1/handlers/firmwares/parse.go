@@ -28,6 +28,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseUpdateInterruptedParams()
 	case "deleteFirmware":
 		return h.parseDeleteParams()
+	case "updateFirmwareTask":
+		return h.parseUpdateFirmwareTaskParams()
 	default:
 		return nil
 	}
@@ -127,6 +129,28 @@ func (h *helper) parseDeleteParams() error {
 	}
 
 	return h.checkFirmwarePattern()
+}
+
+func (h *helper) parseUpdateFirmwareTaskParams() error {
+	err := h.c.ShouldBindJSON(&h.reqOpts)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to bind update request options (%v)", h.reqId, err)
+		return err
+	}
+
+	if h.reqOpts.Version == "" {
+		err := fmt.Errorf("version is required for firmware update task")
+		log.Errorf("firmwares(%s): %v", h.reqId, err)
+		return err
+	}
+
+	if h.reqOpts.Hostname == "" {
+		err := fmt.Errorf("hostname is required for firmware update task")
+		log.Errorf("firmwares(%s): %v", h.reqId, err)
+		return err
+	}
+
+	return nil
 }
 
 func (h *helper) saveUploadFile() error {
