@@ -19723,7 +19723,8 @@ const docTemplate = `{
                                             "type": "string",
                                             "enum": [
                                                 "ok",
-                                                "integrating",
+                                                "validating",
+                                                "creating",
                                                 "updating",
                                                 "deleting"
                                             ]
