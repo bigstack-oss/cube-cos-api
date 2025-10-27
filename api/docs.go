@@ -3272,6 +3272,7 @@ const docTemplate = `{
                                                     "managementIp": "10.32.45.1",
                                                     "updatedAt": "2025-07-31T16:33:06+08:00",
                                                     "isDefault": true,
+                                                    "isVerified": true,
                                                     "status": {
                                                         "current": "ok",
                                                         "isProcessing": false
@@ -3336,8 +3337,6 @@ const docTemplate = `{
                                     "value": {
                                         "name": "dell-emc-sc-fc",
                                         "driver": "cinder.volume.drivers.dell_emc.sc.storagecenter_fc.SCFCDriver",
-                                        "isDefault": true,
-                                        "isVerified": true,
                                         "storage": {
                                             "service": {
                                                 "driverSection": [
@@ -4143,7 +4142,6 @@ const docTemplate = `{
                                     "value": {
                                         "name": "dell-emc-sc-fc",
                                         "driver": "cinder.volume.drivers.dell_emc.sc.storagecenter_fc.SCFCDriver",
-                                        "isDefault": true,
                                         "storage": {
                                             "service": {
                                                 "driverSection": [
@@ -19687,6 +19685,7 @@ const docTemplate = `{
                                 "name",
                                 "type",
                                 "isDefault",
+                                "isVerified",
                                 "vendor",
                                 "managementIp",
                                 "updatedAt",
@@ -19700,6 +19699,9 @@ const docTemplate = `{
                                     "type": "string"
                                 },
                                 "isDefault": {
+                                    "type": "boolean"
+                                },
+                                "isVerified": {
                                     "type": "boolean"
                                 },
                                 "vendor": {
@@ -19752,8 +19754,6 @@ const docTemplate = `{
                 "required": [
                     "name",
                     "driver",
-                    "isDefault",
-                    "isVerified",
                     "storage"
                 ],
                 "properties": {
@@ -19762,12 +19762,6 @@ const docTemplate = `{
                     },
                     "driver": {
                         "type": "string"
-                    },
-                    "isDefault": {
-                        "type": "boolean"
-                    },
-                    "isVerified": {
-                        "type": "boolean"
                     },
                     "storage": {
                         "type": "object",
@@ -19859,114 +19853,6 @@ const docTemplate = `{
                                     },
                                     "forceMultipath": {
                                         "type": "boolean"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "UpdateIntegrationStorageRequest": {
-                "type": "object",
-                "required": [
-                    "isDefault",
-                    "device",
-                    "storage"
-                ],
-                "properties": {
-                    "isDefault": {
-                        "type": "boolean"
-                    },
-                    "device": {
-                        "type": "object",
-                        "required": [
-                            "vendor",
-                            "product"
-                        ],
-                        "properties": {
-                            "vendor": {
-                                "type": "string"
-                            },
-                            "product": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "storage": {
-                        "type": "object",
-                        "required": [
-                            "service",
-                            "volumeType",
-                            "image"
-                        ],
-                        "properties": {
-                            "service": {
-                                "type": "object",
-                                "required": [
-                                    "driverSection",
-                                    "extraSettings",
-                                    "extraConfigFiles"
-                                ],
-                                "properties": {
-                                    "driverSection": {
-                                        "type": "array",
-                                        "items": {
-                                            "$ref": "#/components/schemas/StorageKeyValuePair"
-                                        }
-                                    },
-                                    "extraSettings": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "object",
-                                            "required": [
-                                                "sectionHeader",
-                                                "settings"
-                                            ],
-                                            "properties": {
-                                                "sectionHeader": {
-                                                    "type": "string"
-                                                },
-                                                "settings": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/StorageKeyValuePair"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "extraConfigFiles": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "object",
-                                            "required": [
-                                                "name",
-                                                "content"
-                                            ],
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "content": {
-                                                    "type": "string",
-                                                    "description": "Base64 encoded content of the config file"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "volumeType": {
-                                "type": "object",
-                                "required": [
-                                    "settings"
-                                ],
-                                "properties": {
-                                    "settings": {
-                                        "type": "array",
-                                        "items": {
-                                            "$ref": "#/components/schemas/StorageKeyValuePair"
-                                        }
                                     }
                                 }
                             }
