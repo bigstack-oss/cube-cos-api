@@ -51,11 +51,6 @@ func (o *Operator) genImageCustomProperties(req *images.ReqOpts) opsimage.Update
 	return opsimage.UpdateOpts{
 		opsimage.UpdateImageProperty{
 			Op:    opsimage.AddOp,
-			Name:  images.CubeDefinedOs,
-			Value: req.Os,
-		},
-		opsimage.UpdateImageProperty{
-			Op:    opsimage.AddOp,
 			Name:  images.DefaultOsDistro,
 			Value: req.Os,
 		},

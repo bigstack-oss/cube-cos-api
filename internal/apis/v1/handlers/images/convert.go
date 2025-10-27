@@ -56,11 +56,6 @@ func (h *helper) genImageUpdateOpts() opsimage.UpdateOpts {
 	if h.reqOpts.Os != "" {
 		opts = append(opts, opsimage.UpdateImageProperty{
 			Op:    opsimage.ReplaceOp,
-			Name:  images.CubeDefinedOs,
-			Value: h.reqOpts.Os,
-		})
-		opts = append(opts, opsimage.UpdateImageProperty{
-			Op:    opsimage.ReplaceOp,
 			Name:  images.DefaultOsDistro,
 			Value: h.reqOpts.Os,
 		})

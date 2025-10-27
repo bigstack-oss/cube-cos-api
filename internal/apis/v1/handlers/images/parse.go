@@ -239,12 +239,7 @@ func (h *helper) parseOs(properties map[string]any) string {
 		return ""
 	}
 
-	os, ok := properties[images.CubeDefinedOs].(string)
-	if ok && os != "" {
-		return os
-	}
-
-	os, ok = properties[images.DefaultOsDistro].(string)
+	os, ok := properties[images.DefaultOsDistro].(string)
 	if ok && os != "" {
 		return os
 	}

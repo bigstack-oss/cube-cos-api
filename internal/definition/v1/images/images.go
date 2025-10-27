@@ -15,7 +15,6 @@ const (
 
 	GlanceDir              = "/mnt/cephfs/glance"
 	DefaultOsDistro        = "os_distro"
-	CubeDefinedOs          = "cubeDefinedOs"
 	CubeDefinedDestination = "cubeDefinedDestination"
 )
 
