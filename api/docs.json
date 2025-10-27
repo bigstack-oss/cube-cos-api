@@ -3684,7 +3684,7 @@
                 }
             }
         },
-        "/api/v1/datacenters/{dataCenter}/integrations/storages/verify": {
+        "/api/v1/datacenters/{dataCenter}/integrations/storages/{storageName}/verify": {
             "post": {
                 "operationId": "verifyStorageIntegration",
                 "tags": [
@@ -3694,69 +3694,11 @@
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/storageName"
                     }
                 ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/VerifyStorageIntegrationRequest"
-                            },
-                            "examples": {
-                                "example1": {
-                                    "summary": "Verify the connectivity of an external storage",
-                                    "value": {
-                                        "name": "example-storage",
-                                        "device": {
-                                            "vendor": "Dell",
-                                            "product": "PowerVault ME4024"
-                                        },
-                                        "storage": {
-                                            "service": {
-                                                "driverSection": [
-                                                    {
-                                                        "key": "volume_driver",
-                                                        "value": "cinder.volume.drivers.rbd.RBDDriver"
-                                                    }
-                                                ],
-                                                "extraSettings": [
-                                                    {
-                                                        "sectionHeader": "DEFAULT",
-                                                        "settings": [
-                                                            {
-                                                                "key": "enabled_backends",
-                                                                "value": "ceph"
-                                                            }
-                                                        ]
-                                                    }
-                                                ],
-                                                "extraConfigFiles": [
-                                                    {
-                                                        "name": "test.conf",
-                                                        "content": "ZmlsZSBjb250ZW50IGluIGJhc2U2NA=="
-                                                    }
-                                                ]
-                                            },
-                                            "volumeType": {
-                                                "settings": [
-                                                    {
-                                                        "key": "volume_backend_name",
-                                                        "value": "ceph"
-                                                    }
-                                                ]
-                                            },
-                                            "image": {
-                                                "useMultipath": true,
-                                                "forceMultipath": true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
                         "description": "Verify the connectivity of an external storage successfully",
@@ -3848,7 +3790,7 @@
                                         },
                                         "msg": {
                                             "type": "string",
-                                            "example": "storage name example-storage already exists"
+                                            "example": "storage example-storage is under processing, please try again later"
                                         },
                                         "status": {
                                             "type": "string",

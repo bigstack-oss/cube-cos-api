@@ -78,10 +78,4 @@ func (h *helper) listModels() ([]storages.Model, error) {
 
 func (h *helper) requestStorageVerification() {
 	h.updateLocalStorage()
-
-	// err = h.updateStorageAsVerified(h.storageReqOpts.CinderDetails.Name)
-	// if err != nil {
-	// 	log.Errorf("integrations(%s): failed to update storage as verified (%v)", h.reqId, err)
-	// }
-
 }

@@ -49,11 +49,7 @@ func (h *helper) parseGetStorageParams() error {
 }
 
 func (h *helper) parseVerifyStorageParams() error {
-	err := h.c.ShouldBindJSON(&h.storageReqOpts.CinderDetails)
-	if err != nil {
-		return err
-	}
-
+	h.storageReqOpts.CinderDetails.Name = h.c.Param("storageName")
 	if h.storageReqOpts.CinderDetails.Name == "" {
 		return errors.New("storage name is required")
 	}

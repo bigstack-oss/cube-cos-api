@@ -34,7 +34,7 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
-			Path:    "/integrations/storages/verify",
+			Path:    "/integrations/storages/:storageName/verify",
 			Func:    verifyStorage,
 		},
 		{
@@ -192,7 +192,7 @@ func verifyStorage(c *gin.Context) {
 		return
 	}
 	if !found {
-		bodies.SetConflict(c, fmt.Errorf("storage %s already exists", h.storageReqOpts.CinderDetails.Name))
+		bodies.SetConflict(c, fmt.Errorf("storage %s does not exist", h.storageReqOpts.CinderDetails.Name))
 		return
 	}
 
