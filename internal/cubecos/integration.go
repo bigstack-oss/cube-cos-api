@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/datacenter"
@@ -334,7 +335,7 @@ func DeleteStorageModel(driver string) error {
 	defer cancel()
 	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_delete_model", string(input)).CombinedOutput()
 	if err != nil {
-		err := genIntegrationErr("model exec failure")
+		err := identifyStorageModelDeleteErr(driver, out)
 		log.Errorf("storage: %s (%s)", err.Error(), string(out))
 		return err
 	}
@@ -345,7 +346,17 @@ func DeleteStorageModel(driver string) error {
 		return err
 	}
 
+	wait.Seconds(3)
+	if DoesStorageModelExist(driver) {
+		return fmt.Errorf("%s is built-in model, can't be deleted", driver)
+	}
+
 	return nil
+}
+
+func DoesStorageModelExist(driver string) bool {
+	model, err := GetStorageModel(driver)
+	return err == nil && model != nil
 }
 
 func genIntegrationErr(description string) error {
@@ -353,4 +364,17 @@ func genIntegrationErr(description string) error {
 		"cubecos has unexpected hex error, please contact support(%s)",
 		description,
 	)
+}
+
+func identifyStorageModelDeleteErr(driver string, output []byte) error {
+	if !strings.Contains(string(output), "does not exist") {
+		return genIntegrationErr("model exec failure")
+	}
+
+	wait.Seconds(3)
+	if DoesStorageModelExist(driver) {
+		return fmt.Errorf("%s is built-in model, can't be deleted", driver)
+	}
+
+	return nil
 }
