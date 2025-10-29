@@ -109,9 +109,5 @@ func (m *ModelReqOpts) SetModelNotification(shouldNotify bool) {
 	m.Notify.Payload = notifications.Notification{}
 	m.Notify.Payload.NodeName = m.Hostname
 	m.Notify.Payload.Time = time.LocalRFC3339(ostime.Now())
-	m.Notify.Payload.AdditionalInfo = map[string]string{
-		"type":   m.Type,
-		"vendor": m.Vendor,
-		"driver": m.Driver,
-	}
+	m.Notify.Payload.AdditionalInfo = map[string]string{"driver": m.Driver}
 }

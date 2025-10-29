@@ -26994,8 +26994,6 @@ const docTemplate = `{
                     "additionalInfo": {
                         "type": "object",
                         "required": [
-                            "type",
-                            "vendor",
                             "driver"
                         ],
                         "properties": {
@@ -27035,8 +27033,6 @@ const docTemplate = `{
                     "additionalInfo": {
                         "type": "object",
                         "required": [
-                            "type",
-                            "vendor",
                             "driver"
                         ],
                         "properties": {
@@ -27079,8 +27075,6 @@ const docTemplate = `{
                     "additionalInfo": {
                         "type": "object",
                         "required": [
-                            "type",
-                            "vendor",
                             "driver"
                         ],
                         "properties": {
@@ -27161,8 +27155,6 @@ const docTemplate = `{
                     "additionalInfo": {
                         "type": "object",
                         "required": [
-                            "type",
-                            "vendor",
                             "driver"
                         ],
                         "properties": {
@@ -27202,8 +27194,6 @@ const docTemplate = `{
                     "additionalInfo": {
                         "type": "object",
                         "required": [
-                            "type",
-                            "vendor",
                             "driver"
                         ],
                         "properties": {

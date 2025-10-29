@@ -26990,8 +26990,6 @@
                     "additionalInfo": {
                         "type": "object",
                         "required": [
-                            "type",
-                            "vendor",
                             "driver"
                         ],
                         "properties": {
@@ -27031,8 +27029,6 @@
                     "additionalInfo": {
                         "type": "object",
                         "required": [
-                            "type",
-                            "vendor",
                             "driver"
                         ],
                         "properties": {
@@ -27075,8 +27071,6 @@
                     "additionalInfo": {
                         "type": "object",
                         "required": [
-                            "type",
-                            "vendor",
                             "driver"
                         ],
                         "properties": {
@@ -27157,8 +27151,6 @@
                     "additionalInfo": {
                         "type": "object",
                         "required": [
-                            "type",
-                            "vendor",
                             "driver"
                         ],
                         "properties": {
@@ -27198,8 +27190,6 @@
                     "additionalInfo": {
                         "type": "object",
                         "required": [
-                            "type",
-                            "vendor",
                             "driver"
                         ],
                         "properties": {

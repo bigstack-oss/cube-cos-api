@@ -87,7 +87,7 @@ var (
 		},
 		{
 			Version: apis.V1,
-			Method:  http.MethodPut,
+			Method:  http.MethodPatch,
 			Path:    "/integrations/storages/models/:driverName",
 			Func:    updateStorageModel,
 		},
