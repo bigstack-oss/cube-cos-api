@@ -30,6 +30,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseDeleteParams()
 	case "updateFirmwareTask":
 		return h.parseUpdateFirmwareTaskParams()
+	case "continueInterruptedFirmwareUpdate":
+		return h.parseContinueInterruptionParams()
 	default:
 		return nil
 	}
@@ -148,6 +150,15 @@ func (h *helper) parseUpdateFirmwareTaskParams() error {
 		err := fmt.Errorf("hostname is required for firmware update task")
 		log.Errorf("firmwares(%s): %v", h.reqId, err)
 		return err
+	}
+
+	return nil
+}
+
+func (h *helper) parseContinueInterruptionParams() error {
+	h.reqOpts.Hostname = h.c.Param("nodeName")
+	if h.reqOpts.Hostname == "" {
+		return fmt.Errorf("nodeName parameter is required")
 	}
 
 	return nil
