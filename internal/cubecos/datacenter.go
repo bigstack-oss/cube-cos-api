@@ -74,7 +74,12 @@ func GetActiveFirmwareVersion() (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("%s %s", desc, version), nil
+	date, err := ReadSettingSys(SysBuildLabel)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s %s %s", desc, version, date), nil
 }
 
 func GetInactiveFirmwareVersion() (string, error) {

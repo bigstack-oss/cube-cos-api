@@ -117,6 +117,7 @@ const (
 	// setting sys
 	SysProductDescription = "sys.product.description"
 	SysProductVersion     = "sys.product.version"
+	SysBuildLabel         = "sys.build.label"
 )
 
 var (

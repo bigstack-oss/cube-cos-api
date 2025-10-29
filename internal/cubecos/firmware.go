@@ -106,8 +106,9 @@ func convertHistoryToFirmwares(update *firmwares.Upadte) []firmwares.Firmware {
 
 	for _, raw := range update.History {
 		date := convertRawTime(time.FormatFirmware, raw.CreatedAt)
+		dayBaseDate := convertRawTimeToDayBaseDate(raw.CreatedAt)
 		firmwaresList = append(firmwaresList, firmwares.Firmware{
-			Version:      convertFirmwareVersion(raw.Version),
+			Version:      convertFirmwareVersion(raw.Version, dayBaseDate),
 			ReleaseNotes: convertReleaseNotes(raw.Version, raw.Variant, date),
 			UpdatedAt:    date,
 			Status: status.Firmware{
@@ -118,6 +119,15 @@ func convertHistoryToFirmwares(update *firmwares.Upadte) []firmwares.Firmware {
 	}
 
 	return firmwaresList
+}
+
+func convertRawTimeToDayBaseDate(rawTime string) string {
+	segments := strings.Split(rawTime, " ")
+	if len(segments) < 2 {
+		return ""
+	}
+
+	return segments[0]
 }
 
 func removeFreshInstalledFirmwares(firmwares []firmwares.Firmware) []firmwares.Firmware {
@@ -181,7 +191,7 @@ func ConvertPkgNameToFirmware(pkgname string) (*firmwares.Firmware, error) {
 
 	date := convertRawTime(time.FormatFirmwarePkg, segment[2])
 	return &firmwares.Firmware{
-		Version:      convertFirmwareVersion(segment[1]),
+		Version:      convertFirmwareVersion(segment[1], segment[2]),
 		ReleaseNotes: convertReleaseNotes(segment[1], segment[3], date),
 		UpdatedAt:    date,
 		Status: status.Firmware{
@@ -192,8 +202,8 @@ func ConvertPkgNameToFirmware(pkgname string) (*firmwares.Firmware, error) {
 	}, nil
 }
 
-func convertFirmwareVersion(version string) string {
-	return fmt.Sprintf("Cube Appliance %s", version)
+func convertFirmwareVersion(version, date string) string {
+	return fmt.Sprintf("Cube Appliance %s %s", version, date)
 }
 
 func convertReleaseNotes(version, variant, date string) string {
