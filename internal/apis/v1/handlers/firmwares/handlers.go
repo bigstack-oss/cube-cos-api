@@ -297,10 +297,9 @@ func updateFirmware(c *gin.Context) {
 		return
 	}
 
-	bodies.SetOk(
+	bodies.SetAccepted(
 		c,
-		"Firmware updated successfully",
-		nil,
+		"The request to update firmware has been accepted, please check the firmware upgrade progress for more details",
 	)
 }
 

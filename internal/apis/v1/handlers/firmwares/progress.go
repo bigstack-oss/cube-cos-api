@@ -26,9 +26,9 @@ func (h *helper) initUpgradeProgress() firmwares.Upgrade {
 		Progresses: []firmwares.Progress{
 			{
 				Host:  base.Hostname,
-				Phase: status.Installing,
+				Phase: status.Partitioning,
 				Status: status.SystemUpdateProgress{
-					Current:        "installing",
+					Current:        status.Installing,
 					IsProcessing:   true,
 					ProcessPercent: 30,
 				},
@@ -181,5 +181,24 @@ func (h *helper) syncFirstTimeInstallationProgress() {
 	if err != nil {
 		log.Errorf("firmwares: failed to write firmware progress(%v)", err)
 		return
+	}
+}
+
+func (h *helper) syncFirmwareStatuses(list *[]firmwares.Firmware) {
+	upgrade, err := h.getFirmwareUpgradeProgress()
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to get firmware upgrade progress(%v)", h.reqId, err)
+		return
+	}
+
+	for i, firmware := range *list {
+		if firmware.Version != upgrade.Version {
+			continue
+		}
+
+		for _, progress := range upgrade.Progresses {
+			(*list)[i].Status.Current = progress.Status.Current
+			break
+		}
 	}
 }

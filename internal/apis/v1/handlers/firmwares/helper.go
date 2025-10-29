@@ -55,6 +55,7 @@ func (h *helper) listFirmwares() (*firmwarePage, error) {
 		return nil, err
 	}
 
+	h.syncFirmwareStatuses(&firmwares)
 	h.sortFirmwares(&firmwares)
 	return &firmwarePage{
 		Firmwares: h.paginateFirmwares(firmwares),

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -32,6 +33,7 @@ func (o *Operator) handleExit(req *firmwares.ReqOpts, err error) {
 		req.SetInstalled()
 	}
 
+	req.Hostname = base.Hostname
 	o.reportToController(req)
 }
 

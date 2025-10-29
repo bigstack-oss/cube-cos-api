@@ -43,9 +43,12 @@ func UpgradeFirmware(req *firmwares.ReqOpts) error {
 	}
 
 	if !IsHexSuccessful(err) {
-		return fmt.Errorf("failed to upgrade firmware %s(%v %s)", req.Version, err, string(out))
+		err := fmt.Errorf("failed to upgrade firmware %s(%v %s)", req.Version, err, string(out))
+		log.Errorf("firmwares: %v", err)
+		return err
 	}
 
+	log.Infof("firmwares: %s", string(out))
 	return nil
 }
 

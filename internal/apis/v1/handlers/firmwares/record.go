@@ -180,9 +180,19 @@ func (h *helper) updateFirmwareTask() error {
 			continue
 		}
 
+		current := ""
+		switch h.reqOpts.Status.Current {
+		case status.Error:
+			current = status.Failed
+		case status.Installed:
+			current = status.WaitingReboot
+		}
+
+		update.Progresses[i].Phase = status.Partitioning
 		update.Progresses[i].Status = status.SystemUpdateProgress{
-			Current:      h.reqOpts.Status.Current,
-			IsProcessing: h.reqOpts.Status.IsProcessing,
+			Current:        current,
+			IsProcessing:   true,
+			ProcessPercent: 50,
 		}
 		break
 	}

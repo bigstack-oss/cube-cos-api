@@ -14,10 +14,12 @@ require (
 	github.com/fsnotify/fsnotify v1.8.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-micro/plugins/v5/config/encoder/yaml v1.0.0
+	github.com/go-resty/resty/v2 v2.16.3
 	github.com/google/uuid v1.6.0
 	github.com/gophercloud/gophercloud/v2 v2.8.0
 	github.com/influxdata/influxdb-client-go/v2 v2.14.0
 	github.com/json-iterator/go v1.1.12
+	github.com/kr/pty v1.1.1
 	github.com/micro/plugins/v5/server/http v1.0.2
 	github.com/micro/plugins/v5/wrapper/breaker/hystrix v1.0.2
 	github.com/micro/plugins/v5/wrapper/ratelimiter/uber v1.0.2
@@ -103,7 +105,6 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.22.0 // indirect
-	github.com/go-resty/resty/v2 v2.16.3 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect

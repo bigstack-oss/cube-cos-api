@@ -74,11 +74,11 @@ func (u *ReqOpts) SetInstalling() {
 }
 
 func (u *ReqOpts) SetError() {
-	u.Status.Desired = status.Error
+	u.Status.Current = status.Error
 	u.Status.IsProcessing = false
 }
 
 func (u *ReqOpts) SetInstalled() {
-	u.Status.Desired = status.Installed
+	u.Status.Current = status.Installed
 	u.Status.IsProcessing = false
 }

@@ -20334,7 +20334,7 @@ const docTemplate = `{
                 "properties": {
                     "storageModels": {
                         "type": "string",
-                        "format": "text",
+                        "format": "binary",
                         "description": "The array YAML content of multiple storage models"
                     }
                 }
@@ -20347,7 +20347,7 @@ const docTemplate = `{
                 "properties": {
                     "storageModel": {
                         "type": "string",
-                        "format": "file",
+                        "format": "binary",
                         "description": "The YAML content of a storage model"
                     }
                 }
@@ -24620,9 +24620,12 @@ const docTemplate = `{
                                                     "type": "string",
                                                     "enum": [
                                                         "available",
-                                                        "processing",
-                                                        "updated",
-                                                        "failed"
+                                                        "installing",
+                                                        "waiting reboot",
+                                                        "rebooting",
+                                                        "failed",
+                                                        "resolved",
+                                                        "succeeded"
                                                     ]
                                                 },
                                                 "isUpdatable": {
@@ -24744,6 +24747,7 @@ const docTemplate = `{
                                         "phase": {
                                             "type": "string",
                                             "enum": [
+                                                "partitioning",
                                                 "bootstrapping cubecos",
                                                 "starting cluster",
                                                 "evacuting vms on host",
