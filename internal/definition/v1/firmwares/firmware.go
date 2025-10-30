@@ -15,7 +15,8 @@ const (
 	UpdateDir          = "/var/update"
 	UpdateHistory      = "/var/appliance-db/update.history"
 	UpdateProgress     = "/var/run/cube-cos-api/progress.json"
-	BoostrappingMarker = "/var/run/cube-cos-api/bootstrapping"
+	ResolvedMarker     = "/var/lib/cube-cos-api/resolved"
+	BoostrappingMarker = "/var/lib/cube-cos-api/bootstrapping"
 )
 
 type ReqOpts struct {
@@ -67,6 +68,10 @@ type BoostrappingStatus struct {
 	Stdout string `json:"stdout"`
 }
 
+type ResolvedStatus struct {
+	HasFailureBeenResolved bool `json:"hasFailureBeenResolved"`
+}
+
 func (u *ReqOpts) SetInstalling() {
 	u.Status.Current = status.Installing
 	u.Status.Desired = status.Installed
@@ -79,6 +84,6 @@ func (u *ReqOpts) SetError() {
 }
 
 func (u *ReqOpts) SetInstalled() {
-	u.Status.Current = status.Installed
+	u.Status.Current = status.Succeeded
 	u.Status.IsProcessing = false
 }

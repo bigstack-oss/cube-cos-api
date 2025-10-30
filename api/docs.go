@@ -25056,7 +25056,7 @@ const docTemplate = `{
                                                     "enum": [
                                                         "available",
                                                         "installing",
-                                                        "waitingReboot",
+                                                        "waiting reboot",
                                                         "rebooting",
                                                         "installed",
                                                         "rolling back",

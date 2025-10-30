@@ -126,6 +126,12 @@ func (h *helper) continueInterruptedFirmwareUpdate() error {
 		return err
 	}
 
+	err = cubecos.SetResolvedInfoBySsh(h.reqOpts.Hostname)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to set resolved info on node %s (%v)", h.reqId, node.Hostname, err)
+		return err
+	}
+
 	if node.IsVirtualIpOwner {
 		cubecos.MoveVirtualIpOwner()
 	}

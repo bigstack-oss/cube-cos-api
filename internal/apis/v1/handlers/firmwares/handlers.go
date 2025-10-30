@@ -65,6 +65,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/firmwares/resovled/:nodeName",
+			Func:    getFirmwareNodeResolvedStatus,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodDelete,
 			Path:    "/firmwares/:version",
 			Func:    deleteFirmware,
@@ -280,6 +286,23 @@ func continueInterruptedFirmwareUpdate(c *gin.Context) {
 		c,
 		"Firmware update continued successfully",
 		nil,
+	)
+}
+
+func getFirmwareNodeResolvedStatus(c *gin.Context) {
+	h, err := initHelper(c, "getFirmwareNodeResolvedStatus")
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"Firmware node resolved status",
+		gin.H{
+			"hasFailureBeenResolved": h.hasLocalResolvedMarker(),
+		},
 	)
 }
 

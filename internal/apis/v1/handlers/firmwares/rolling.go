@@ -6,6 +6,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
 var (
@@ -75,7 +76,7 @@ func (h *helper) markNodeAsFailed(errMsg string) {
 			continue
 		}
 
-		update.Progresses[i].Status.Current = "failed"
+		update.Progresses[i].Status.Current = status.Failed
 		update.Progresses[i].Status.Description = errMsg
 		break
 	}

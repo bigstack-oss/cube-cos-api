@@ -290,6 +290,12 @@ func (n *Node) UpdateFirmwareUrl() string {
 	return u.String()
 }
 
+func (n *Node) GetFirmwareResovledUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/firmwares/%s/resolved", base.DataCenterName, n.Hostname)
+	return u.String()
+}
+
 func (n *Node) UpdateFirmwareTaskUrl() string {
 	u := n.GenUrl()
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/firmwares/tasks", base.DataCenterName)

@@ -10,6 +10,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ssh"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
 	cryptossh "golang.org/x/crypto/ssh"
@@ -115,6 +116,27 @@ func SoftRebootBySsh(host string) error {
 	err = ssh.Run("echo YES | hex_cli -c reboot")
 	if err != nil {
 		log.Errorf("os: failed to soft reboot the system %s(%v)", host, err)
+		return err
+	}
+
+	return nil
+}
+
+func SetResolvedInfoBySsh(host string) error {
+	ssh, err := ssh.NewHelper(
+		ssh.Host(host),
+		ssh.User("root"),
+		ssh.HostKeyCallback(cryptossh.InsecureIgnoreHostKey()),
+	)
+	if err != nil {
+		log.Errorf("os: failed to create ssh helper for soft reboot(%s)(%v)", host, err)
+		return err
+	}
+
+	defer ssh.Close()
+	err = ssh.Run(fmt.Sprintf("touch %s", firmwares.ResolvedMarker))
+	if err != nil {
+		log.Errorf("os: failed to set the upgrade resolved marker on the system %s(%v)", host, err)
 		return err
 	}
 

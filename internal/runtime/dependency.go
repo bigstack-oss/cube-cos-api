@@ -127,7 +127,13 @@ func newGlobalHelpers() error {
 }
 
 func newAuthIdentities() error {
-	err := newDefaultNodeToken()
+	err := syncVarCubeCosApiDirs()
+	if err != nil {
+		log.Errorf("runtime: failed to sync cube-cos-api var dirs(%v)", err)
+		return err
+	}
+
+	err = newDefaultNodeToken()
 	if err != nil {
 		log.Errorf("runtime: failed to init node token(%v)", err)
 		return err
@@ -369,7 +375,7 @@ func newDefaultNodeToken() error {
 	return flushDefaultNodeToken()
 }
 
-func flushDefaultNodeToken() error {
+func syncVarCubeCosApiDirs() error {
 	err := os.MkdirAll(base.VarRunCubeCosApiDir, 0755)
 	if err != nil {
 		if !os.IsExist(err) {
@@ -378,8 +384,20 @@ func flushDefaultNodeToken() error {
 		}
 	}
 
+	err = os.MkdirAll(base.VarLibCubeCosApiDir, 0755)
+	if err != nil {
+		if !os.IsExist(err) {
+			log.Errorf("runtime: failed to create %s dir(%v)", base.VarLibCubeCosApiDir, err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func flushDefaultNodeToken() error {
 	path := fmt.Sprintf("%s/node_token", base.VarRunCubeCosApiDir)
-	err = os.WriteFile(path, []byte(auths.DefaultNodeToken), 0644)
+	err := os.WriteFile(path, []byte(auths.DefaultNodeToken), 0644)
 	if err != nil {
 		log.Errorf("runtime: failed to write node token to file(%v)", err)
 		return err

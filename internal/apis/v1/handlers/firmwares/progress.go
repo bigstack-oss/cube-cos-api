@@ -165,7 +165,7 @@ func (h *helper) syncFirstTimeInstallationProgress() {
 		upgrade.Progresses = append(upgrade.Progresses, firmwares.Progress{
 			Host: node.Hostname,
 			Status: status.SystemUpdateProgress{
-				Current:        status.Installed,
+				Current:        h.getFinalInstallationStatus(node),
 				ProcessPercent: 100,
 			},
 		})
@@ -184,6 +184,41 @@ func (h *helper) syncFirstTimeInstallationProgress() {
 	}
 }
 
+func (h *helper) getFinalInstallationStatus(node nodes.Node) string {
+	if !node.IsLocal() {
+		return h.getPeerInstallationStatus(node)
+	}
+
+	_, err := os.Stat(firmwares.ResolvedMarker)
+	if err != nil {
+		return status.Succeeded
+	}
+
+	return status.Resolved
+}
+
+func (h *helper) getPeerInstallationStatus(node nodes.Node) string {
+	req := h.http.R().
+		SetResult(&firmwares.ResolvedStatus{}).
+		SetHeaders(h.convertHeadersToMap(h.c.Request.Header))
+	resp, err := req.Execute(h.c.Request.Method, node.GetFirmwareResovledUrl())
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to get peer resolved info %s(%v)", h.reqId, node.Hostname, err)
+		return status.Succeeded
+	}
+
+	if resp.IsError() {
+		log.Errorf("firmwares(%s): has resp error from peer %s(%s)", h.reqId, node.Hostname, resp.String())
+		return status.Succeeded
+	}
+
+	if !resp.Result().(*firmwares.ResolvedStatus).HasFailureBeenResolved {
+		return status.Succeeded
+	}
+
+	return status.Resolved
+}
+
 func (h *helper) syncFirmwareStatuses(list *[]firmwares.Firmware) {
 	upgrade, err := h.getFirmwareUpgradeProgress()
 	if err != nil {
@@ -196,9 +231,35 @@ func (h *helper) syncFirmwareStatuses(list *[]firmwares.Firmware) {
 			continue
 		}
 
-		for _, progress := range upgrade.Progresses {
-			(*list)[i].Status.Current = progress.Status.Current
-			break
+		s := h.syncOverallProgressStatus(upgrade.Progresses)
+		(*list)[i].Status.Current = s
+		if s == status.Installing {
+			(*list)[i].Status.IsProcessing = true
 		}
 	}
+}
+
+func (h *helper) syncOverallProgressStatus(progresses []firmwares.Progress) string {
+	statusMap := map[string]bool{}
+	for _, progress := range progresses {
+		statusMap[progress.Status.Current] = true
+	}
+
+	if statusMap[status.Installing] {
+		return status.Installing
+	}
+
+	if statusMap[status.WaitingReboot] {
+		return status.WaitingReboot
+	}
+
+	if statusMap[status.Rebooting] {
+		return status.Rebooting
+	}
+
+	if statusMap[status.Failed] {
+		return status.Failed
+	}
+
+	return status.Succeeded
 }

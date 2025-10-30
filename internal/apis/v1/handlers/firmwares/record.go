@@ -184,7 +184,7 @@ func (h *helper) updateFirmwareTask() error {
 		switch h.reqOpts.Status.Current {
 		case status.Error:
 			current = status.Failed
-		case status.Installed:
+		case status.Succeeded:
 			current = status.WaitingReboot
 		}
 
@@ -199,4 +199,9 @@ func (h *helper) updateFirmwareTask() error {
 
 	h.setProgressDetails(*update)
 	return nil
+}
+
+func (h *helper) hasLocalResolvedMarker() bool {
+	_, err := os.Stat(firmwares.ResolvedMarker)
+	return err == nil
 }

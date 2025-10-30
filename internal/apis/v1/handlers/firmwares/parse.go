@@ -28,6 +28,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseUpdateInterruptedParams()
 	case "deleteFirmware":
 		return h.parseDeleteParams()
+	case "getFirmwareNodeResolvedStatus":
+		return h.parseGetNodeResolvedStatusParams()
 	case "updateFirmwareTask":
 		return h.parseUpdateFirmwareTaskParams()
 	case "continueInterruptedFirmwareUpdate":
@@ -131,6 +133,15 @@ func (h *helper) parseDeleteParams() error {
 	}
 
 	return h.checkFirmwarePattern()
+}
+
+func (h *helper) parseGetNodeResolvedStatusParams() error {
+	h.reqOpts.Hostname = h.c.Param("nodeName")
+	if h.reqOpts.Hostname == "" {
+		return fmt.Errorf("node name parameter is required")
+	}
+
+	return nil
 }
 
 func (h *helper) parseUpdateFirmwareTaskParams() error {
