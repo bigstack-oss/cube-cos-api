@@ -383,7 +383,7 @@ func parentDeviceSysfs(device string) (string, error) {
 }
 
 func getBlockDeviceStatus(blockDev nodes.BlockDevice) status.BlockDevice {
-	out, err := exec.Command("hex_sdk", "-f", "json", "ceph_osd_list", fmt.Sprintf("/dev/%s", blockDev.Name)).CombinedOutput()
+	out, err := exec.Command("hex_sdk", "-f", "json", "ceph_osd_list", fmt.Sprintf("/dev/%s", blockDev.Name)).Output()
 	if err != nil {
 		log.Errorf("nodes: failed to get block device(%s) status: %v", blockDev.Name, err)
 		return status.BlockDevice{Current: "failed"}
@@ -392,7 +392,7 @@ func getBlockDeviceStatus(blockDev nodes.BlockDevice) status.BlockDevice {
 	smartCtl := []blockdevice.SmartCtl{}
 	err = json.Unmarshal(out, &smartCtl)
 	if err != nil {
-		log.Errorf("nodes: failed to unmarshal block device(%s) status: %v", blockDev.Name, err)
+		log.Errorf("nodes: failed to unmarshal block device(%s) status: %v (%s)", blockDev.Name, err, string(out))
 		return status.BlockDevice{Current: "failed"}
 	}
 

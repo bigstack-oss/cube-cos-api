@@ -82,7 +82,7 @@ func GetStorageIp(storageNet string) (string, error) {
 }
 
 func DumpInterfaces() ([]NetworkInterface, error) {
-	out, err := exec.Command("hex_sdk", "-v", "-f", "json", "DumpInterface").CombinedOutput()
+	out, err := exec.Command("hex_sdk", "-v", "-f", "json", "DumpInterface").Output()
 	if err != nil {
 		log.Errorf("net: failed to get network info(%v)", err)
 		return nil, err
@@ -91,7 +91,7 @@ func DumpInterfaces() ([]NetworkInterface, error) {
 	interfaces := []NetworkInterface{}
 	err = json.Unmarshal(out, &interfaces)
 	if err != nil {
-		log.Errorf("net: failed to unmarshal network info(%v)", err)
+		log.Errorf("net: failed to unmarshal network info %v (%s)", err, string(out))
 		return nil, err
 	}
 
