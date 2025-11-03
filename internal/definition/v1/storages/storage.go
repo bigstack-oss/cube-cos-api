@@ -23,6 +23,7 @@ const (
 	TmpUploadedStorageList      = "/tmp/storage-list.yaml"
 
 	DefaultType = "__DEFAULT__"
+	CubeStorage = "CubeStorage"
 )
 
 type ReqOpts struct {
@@ -120,6 +121,12 @@ func (r *ReqOpts) SetCreating() {
 	r.Status.IsProcessing = true
 }
 
+func (r *ReqOpts) SetVerifying() {
+	r.Status.Current = status.Verifying
+	r.Status.Desired = status.Verified
+	r.Status.IsProcessing = true
+}
+
 func (r *ReqOpts) SetUpdating() {
 	r.Status.Current = status.Updating
 	r.Status.Desired = status.Updated
@@ -140,6 +147,10 @@ func (r *ReqOpts) SetDeleting() {
 
 func (r *ReqOpts) SetCompleted() {
 	r.Status.Current = status.Completed
+	if r.Status.Desired == status.Verified {
+		r.Status.Current = status.Verified
+	}
+
 	r.Status.IsProcessing = false
 
 	r.SetStorageNotification(true)

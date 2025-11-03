@@ -187,6 +187,7 @@ func (h *helper) updateStorageAsVerified(name string) error {
 		storages.VerficationCollection,
 		bson.M{"name": name},
 		bson.M{"$set": bson.M{"name": name, "isVerified": true}},
+		options.Update().SetUpsert(true),
 	)
 	if err != nil {
 		log.Errorf("integrations(%s): failed to update storage(%s) as verified (%v)", h.reqId, name, err)
@@ -196,15 +197,23 @@ func (h *helper) updateStorageAsVerified(name string) error {
 	return nil
 }
 
-func (h *helper) syncVerifiedStorages(storages *[]integration.Storage) {
-	for i, storage := range *storages {
+func (h *helper) syncVerifiedStorages(list *[]integration.Storage) {
+	for i, storage := range *list {
+		if storage.Type == "built-in" {
+			(*list)[i].IsVerified = true
+		}
+
 		if h.hasVerifiedRecord(storage.Name) {
-			(*storages)[i].IsVerified = true
+			(*list)[i].IsVerified = true
 		}
 	}
 }
 
 func (h *helper) hasVerifiedRecord(name string) bool {
+	if name == storages.CubeStorage {
+		return true
+	}
+
 	count, err := h.mongo.GetCount(
 		storages.Db,
 		storages.VerficationCollection,

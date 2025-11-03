@@ -56,6 +56,7 @@ func (h *helper) parseVerifyStorageParams() error {
 
 	h.storageReqOpts.ReqId = h.reqId
 	h.storageReqOpts.Hostname = base.Hostname
+	h.storageReqOpts.SetVerifying()
 	return nil
 }
 

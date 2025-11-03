@@ -12,8 +12,10 @@ import (
 
 func (o *Operator) operateStorageReq(req storages.ReqOpts) error {
 	switch req.Status.Desired {
-	case status.Created, status.Updated, status.Defaulted:
+	case status.Created, status.Updated:
 		return cubecos.UpdateStorage(req.CinderDetails)
+	case status.Defaulted:
+		return cubecos.SetDefaultStorage(req.CinderDetails.Name)
 	case status.Verified:
 		return o.verifyStorage(&req)
 	case status.Deleted:

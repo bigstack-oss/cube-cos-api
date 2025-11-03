@@ -9,7 +9,7 @@ import (
 )
 
 func (h *helper) isVerificationReq() bool {
-	return h.storageReqOpts.Status.Desired == status.Verified
+	return h.storageReqOpts.Status.Current == status.Verified
 }
 
 func (h *helper) checkStorageTaskUpdateReq() error {
