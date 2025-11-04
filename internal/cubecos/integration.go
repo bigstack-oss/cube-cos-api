@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/datacenter"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
@@ -76,6 +77,7 @@ func ListStorages() ([]storages.Cinder, error) {
 		return nil, err
 	}
 
+	setBuiltInStorageTimeAsFirmwareInstalledTime(&list)
 	return list, nil
 }
 
@@ -377,4 +379,12 @@ func identifyStorageModelDeleteErr(driver string, output []byte) error {
 	}
 
 	return nil
+}
+
+func setBuiltInStorageTimeAsFirmwareInstalledTime(list *[]storages.Cinder) {
+	for i, storage := range *list {
+		if storage.IsBuiltIn {
+			(*list)[i].UpdateTime = base.ActiveFirmwareUpdatedAt
+		}
+	}
 }

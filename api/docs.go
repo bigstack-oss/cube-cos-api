@@ -19667,7 +19667,7 @@ const docTemplate = `{
                                             "type": "string",
                                             "enum": [
                                                 "ok",
-                                                "validating",
+                                                "verifying",
                                                 "creating",
                                                 "updating",
                                                 "deleting"
@@ -26188,6 +26188,18 @@ const docTemplate = `{
                     },
                     {
                         "$ref": "#/components/schemas/STG00003E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/STG00004I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/STG00004E"
+                    },
+                    {
+                        "$ref": "#/components/schemas/STG00005I"
+                    },
+                    {
+                        "$ref": "#/components/schemas/STG00005E"
                     }
                 ],
                 "discriminator": {
@@ -26997,12 +27009,6 @@ const docTemplate = `{
                             "driver"
                         ],
                         "properties": {
-                            "type": {
-                                "type": "string"
-                            },
-                            "vendor": {
-                                "type": "string"
-                            },
                             "driver": {
                                 "type": "string"
                             }
@@ -27036,12 +27042,6 @@ const docTemplate = `{
                             "driver"
                         ],
                         "properties": {
-                            "type": {
-                                "type": "string"
-                            },
-                            "vendor": {
-                                "type": "string"
-                            },
                             "driver": {
                                 "type": "string"
                             },
@@ -27078,12 +27078,6 @@ const docTemplate = `{
                             "driver"
                         ],
                         "properties": {
-                            "type": {
-                                "type": "string"
-                            },
-                            "vendor": {
-                                "type": "string"
-                            },
                             "driver": {
                                 "type": "string"
                             }
@@ -27114,17 +27108,9 @@ const docTemplate = `{
                     "additionalInfo": {
                         "type": "object",
                         "required": [
-                            "type",
-                            "vendor",
                             "driver"
                         ],
                         "properties": {
-                            "type": {
-                                "type": "string"
-                            },
-                            "vendor": {
-                                "type": "string"
-                            },
                             "driver": {
                                 "type": "string"
                             }
@@ -27158,12 +27144,6 @@ const docTemplate = `{
                             "driver"
                         ],
                         "properties": {
-                            "type": {
-                                "type": "string"
-                            },
-                            "vendor": {
-                                "type": "string"
-                            },
                             "driver": {
                                 "type": "string"
                             }
@@ -27197,12 +27177,6 @@ const docTemplate = `{
                             "driver"
                         ],
                         "properties": {
-                            "type": {
-                                "type": "string"
-                            },
-                            "vendor": {
-                                "type": "string"
-                            },
                             "driver": {
                                 "type": "string"
                             }
@@ -27379,6 +27353,154 @@ const docTemplate = `{
                 }
             },
             "STG00003E": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^STG"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "name"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "STG00004I": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^STG"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "isCinderServiceUp",
+                            "isTestVolumeSuccessful"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "isCinderServiceUp": {
+                                "type": "boolean"
+                            },
+                            "isTestVolumeSuccessful": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            },
+            "STG00004E": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^STG"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "isCinderServiceUp",
+                            "isTestVolumeSuccessful"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "isCinderServiceUp": {
+                                "type": "boolean"
+                            },
+                            "isTestVolumeSuccessful": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            },
+            "STG00005I": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "nodeName",
+                    "time",
+                    "additionalInfo"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^STG"
+                    },
+                    "nodeName": {
+                        "type": "string"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "additionalInfo": {
+                        "type": "object",
+                        "required": [
+                            "name"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "STG00005E": {
                 "type": "object",
                 "required": [
                     "id",
