@@ -4,6 +4,7 @@ pipeline {
             image 'localhost:5000/cube-cos-api-jail'
             args '-u 1000:1000'
             label 'bldsrv_prod'
+            reuseNode true
         }
     }
 
