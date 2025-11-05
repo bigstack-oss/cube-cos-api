@@ -6,11 +6,14 @@ import (
 	"os/exec"
 	"strings"
 
+	ostime "time"
+
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/datacenter"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
 )
@@ -77,7 +80,7 @@ func ListStorages() ([]storages.Cinder, error) {
 		return nil, err
 	}
 
-	setBuiltInStorageTimeAsFirmwareInstalledTime(&list)
+	convertStorageTimes(&list)
 	return list, nil
 }
 
@@ -381,10 +384,24 @@ func identifyStorageModelDeleteErr(driver string, output []byte) error {
 	return nil
 }
 
-func setBuiltInStorageTimeAsFirmwareInstalledTime(list *[]storages.Cinder) {
+func convertStorageTimes(list *[]storages.Cinder) {
 	for i, storage := range *list {
 		if storage.IsBuiltIn {
 			(*list)[i].UpdateTime = base.ActiveFirmwareUpdatedAt
+			continue
 		}
+
+		if storage.UpdateTime == "" {
+			(*list)[i].UpdateTime = time.NowRFC3339()
+			continue
+		}
+
+		updateTime, err := ostime.Parse(time.FormatRFC3339ZUTC, storage.UpdateTime)
+		if err != nil {
+			log.Warnf("integrations: failed to parse storage %s update time %s (%v)", storage.Name, storage.UpdateTime, err)
+			continue
+		}
+
+		(*list)[i].UpdateTime = time.LocalRFC3339(updateTime)
 	}
 }

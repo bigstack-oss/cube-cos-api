@@ -19670,7 +19670,8 @@ const docTemplate = `{
                                                 "verifying",
                                                 "creating",
                                                 "updating",
-                                                "deleting"
+                                                "deleting",
+                                                "setting to default"
                                             ]
                                         },
                                         "isProcessing": {

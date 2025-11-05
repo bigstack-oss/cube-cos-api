@@ -50,7 +50,7 @@ func (h *helper) convertTime(updateTime string) string {
 		return ""
 	}
 
-	update, err := ostime.Parse(updateTime, time.FormatRFC3339Z)
+	update, err := ostime.Parse(time.FormatRFC3339Z, updateTime)
 	if err != nil {
 		log.Warnf("integrations: failed to parse update time %s (%v)", updateTime, err)
 		return updateTime
