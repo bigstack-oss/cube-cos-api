@@ -10,12 +10,7 @@ import (
 )
 
 func (h *helper) listConvertedVolumes() ([]volumes.Volume, error) {
-	opts, err := h.genListOpts()
-	if err != nil {
-		log.Errorf("volumes(%s): failed to generate volume list opts(%v)", h.reqId, err)
-		return nil, err
-	}
-
+	opts := h.genListOpts()
 	list, err := h.openstack.ListVolumes(*opts)
 	if err != nil {
 		log.Errorf("volumes(%s): failed to list volumes(%v)", h.reqId, err)
@@ -27,17 +22,18 @@ func (h *helper) listConvertedVolumes() ([]volumes.Volume, error) {
 	return volumes, nil
 }
 
-func (h *helper) genListOpts() (*opsvolumes.ListOpts, error) {
+func (h *helper) genListOpts() *opsvolumes.ListOpts {
 	id, err := h.openstack.GetProjectIdByName(h.project)
 	if err != nil {
-		log.Errorf("volumes(%s): failed to get project id(%v)", h.reqId, err)
-		return nil, err
+		return &opsvolumes.ListOpts{
+			AllTenants: true,
+		}
 	}
 
 	return &opsvolumes.ListOpts{
 		AllTenants: true,
 		TenantID:   id,
-	}, nil
+	}
 }
 
 func (h *helper) convertToVolumes(list []opsvolumes.Volume) []volumes.Volume {

@@ -80,10 +80,6 @@ func (h *helper) parseWatch() error {
 
 func (h *helper) parseProject() error {
 	h.project = h.c.DefaultQuery("project", "")
-	if h.project == "" {
-		return fmt.Errorf("project parameter is required")
-	}
-
 	return nil
 }
 

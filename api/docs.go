@@ -15432,7 +15432,7 @@ const docTemplate = `{
                         "$ref": "#/components/parameters/dataCenter"
                     },
                     {
-                        "$ref": "#/components/parameters/project"
+                        "$ref": "#/components/parameters/projectNotRequired"
                     },
                     {
                         "$ref": "#/components/parameters/watch"
