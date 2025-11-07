@@ -276,11 +276,6 @@ func setStorageAsDefault(c *gin.Context) {
 		return
 	}
 
-	err = h.checkIfStorageIsDefaulted()
-	if err != nil {
-		return
-	}
-
 	h.updateStorage()
 	bodies.SetAccepted(
 		c,

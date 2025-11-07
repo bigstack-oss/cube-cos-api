@@ -4,7 +4,6 @@ import (
 	"sort"
 	ostime "time"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/integration"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -25,7 +24,7 @@ func (h *helper) convertToStorages(cinders []storages.Cinder) []integration.Stor
 				Vendor:       cinder.Vendor,
 				ManagementIp: base.ManagementIp,
 				UpdatedAt:    h.convertTime(cinder.UpdateTime),
-				IsDefault:    cubecos.IsDefaultStorage(cinder.Name),
+				IsDefault:    cinder.IsDefault,
 				Status: status.Storage{
 					Current:      status.Ok,
 					IsProcessing: false,
