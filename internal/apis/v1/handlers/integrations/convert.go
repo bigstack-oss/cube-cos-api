@@ -75,3 +75,20 @@ func (h *helper) sortModels(models *[]storages.Model) {
 		return (*models)[i].Vendor > (*models)[j].Vendor
 	})
 }
+
+func (h *helper) eraseStorageExtraConfigFiles(storage *storages.CinderDetails) {
+	if storage == nil || storage.ExtraConfigFiles == nil {
+		return
+	}
+
+	storage.ExtraConfigFiles = []storages.ExtraConfigFile{}
+}
+
+func (h *helper) eraseModelExtraConfigFiles(models []storages.Model) {
+	for i := range models {
+		model := &models[i]
+		if model.ExtraConfigFiles != nil {
+			model.ExtraConfigFiles = []storages.ExtraConfigFile{}
+		}
+	}
+}

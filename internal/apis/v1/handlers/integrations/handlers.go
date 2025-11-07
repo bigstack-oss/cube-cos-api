@@ -171,6 +171,7 @@ func getStorage(c *gin.Context) {
 		return
 	}
 
+	h.eraseStorageExtraConfigFiles(storage)
 	bodies.SetOk(
 		c,
 		"fetch integrated storage details successfully",
@@ -343,6 +344,7 @@ func listModels(c *gin.Context) {
 		return
 	}
 
+	h.eraseModelExtraConfigFiles(models)
 	bodies.SetOk(
 		c,
 		"fetch integrated models successfully",
