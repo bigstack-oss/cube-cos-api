@@ -27,7 +27,7 @@ func (o *Operator) operate(req *firmwares.ReqOpts) error {
 func (o *Operator) handleExit(req *firmwares.ReqOpts, err error) {
 	if err != nil {
 		log.Errorf("firmwares: failed to %s %s(%v)", req.Status.Desired, req.Version, err)
-		req.SetError()
+		req.SetError(err.Error())
 	} else {
 		log.Infof("firmwares: %s %s successfully", req.Status.Desired, req.Version)
 		req.SetInstalled()

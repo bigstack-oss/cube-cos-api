@@ -2,6 +2,7 @@ package firmwares
 
 import (
 	"encoding/json"
+	"fmt"
 	"maps"
 	"net/http"
 
@@ -34,24 +35,25 @@ func (h *helper) delegateToPeer(hostname string, upgrade *firmwares.Upgrade) err
 	}
 
 	s := status.SystemUpdateProgress{Current: status.Installing, IsProcessing: true, ProcessPercent: 30}
-	err = h.installPeer(*node)
-	if err != nil {
-		s.Current = "failed"
-		s.IsProcessing = false
+	defer h.syncNodeUpgradeProgress(hostname, upgrade, &s)
+	if node.Status == status.Down {
+		err := fmt.Errorf("FRW00001E: unable to connect node %s", node.Hostname)
+		s.Current = status.Failed
 		s.ProcessPercent = 0
-
-		// TODO: need the error code here
+		s.IsProcessing = false
 		s.Description = err.Error()
+		return err
 	}
 
-	upgrade.Progresses = append(
-		upgrade.Progresses,
-		firmwares.Progress{
-			Host:   node.Hostname,
-			Phase:  status.Partitioning,
-			Status: s,
-		},
-	)
+	err = h.installPeer(*node)
+	if err != nil {
+		err := fmt.Errorf("FRW00002E: unable to install firmware on the %s", node.Hostname)
+		s.Current = status.Failed
+		s.IsProcessing = false
+		s.ProcessPercent = 0
+		s.Description = err.Error()
+		return err
+	}
 
 	return nil
 }

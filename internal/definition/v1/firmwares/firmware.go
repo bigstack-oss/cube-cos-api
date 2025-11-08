@@ -78,9 +78,10 @@ func (u *ReqOpts) SetInstalling() {
 	u.Status.IsProcessing = true
 }
 
-func (u *ReqOpts) SetError() {
+func (u *ReqOpts) SetError(err string) {
 	u.Status.Current = status.Error
 	u.Status.IsProcessing = false
+	u.Status.Description = err
 }
 
 func (u *ReqOpts) SetInstalled() {

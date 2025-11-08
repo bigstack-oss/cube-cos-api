@@ -103,26 +103,36 @@ func (h *helper) updateFirmware() error {
 	}
 
 	h.delegateToPeers(updatables, &progress)
-	h.setProgressDetails(progress)
+	h.setProgressDetails(&progress)
 	go h.placeRollingTrigger()
 	return nil
 }
 
 func (h *helper) updateNodeFirmware() error {
-	progress, err := h.getFirmwareUpgradeProgress()
+	update, err := h.getFirmwareUpgradeProgress()
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to get firmware upgrade progress (%v)", h.reqId, err)
 		return err
 	}
 
-	if nodes.IsLocal(h.reqOpts.Hostname) {
-		h.delegateToLocal()
-	} else {
-		h.delegateToPeer(h.reqOpts.Hostname, progress)
+	defer h.setProgressDetails(update)
+	for i, p := range update.Progresses {
+		if p.Host != h.reqOpts.Hostname {
+			continue
+		}
+
+		update.Progresses[i].Status.Current = h.reqOpts.Status.Current
+		update.Progresses[i].Status.ProcessPercent = 30
+		update.Progresses[i].Status.IsProcessing = true
+		update.Progresses[i].Status.Description = ""
+		break
 	}
 
-	h.setProgressDetails(*progress)
-	return nil
+	if nodes.IsLocal(h.reqOpts.Hostname) {
+		h.delegateToLocal()
+	}
+
+	return h.delegateToPeer(h.reqOpts.Hostname, update)
 }
 
 func (h *helper) abortFirmwareUpdate() error {

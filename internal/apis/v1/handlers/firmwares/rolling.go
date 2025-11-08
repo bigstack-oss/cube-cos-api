@@ -81,5 +81,5 @@ func (h *helper) markNodeAsFailed(errMsg string) {
 		break
 	}
 
-	h.setProgressDetails(*update)
+	h.setProgressDetails(update)
 }

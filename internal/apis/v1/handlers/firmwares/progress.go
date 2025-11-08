@@ -38,7 +38,7 @@ func (h *helper) initUpgradeProgress() firmwares.Upgrade {
 	}
 }
 
-func (h *helper) setProgressDetails(progress firmwares.Upgrade) {
+func (h *helper) setProgressDetails(progress *firmwares.Upgrade) {
 	file, err := os.Create(firmwares.UpdateProgress)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to create progress file for update(%v)", h.reqId, err)
@@ -280,4 +280,24 @@ func (h *helper) syncOverallProgressStatus(progresses []firmwares.Progress) stri
 	}
 
 	return status.Succeeded
+}
+
+func (h *helper) syncNodeUpgradeProgress(hostname string, upgrade *firmwares.Upgrade, s *status.SystemUpdateProgress) {
+	for i, p := range upgrade.Progresses {
+		if p.Host != hostname {
+			continue
+		}
+
+		upgrade.Progresses[i].Status = *s
+		return
+	}
+
+	upgrade.Progresses = append(
+		upgrade.Progresses,
+		firmwares.Progress{
+			Host:   hostname,
+			Phase:  status.Partitioning,
+			Status: *s,
+		},
+	)
 }

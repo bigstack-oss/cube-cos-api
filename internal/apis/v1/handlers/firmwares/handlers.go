@@ -315,10 +315,9 @@ func retryNodeFirmwareUpdate(c *gin.Context) {
 		return
 	}
 
-	bodies.SetOk(
+	bodies.SetAccepted(
 		c,
 		"Firmware update retried successfully",
-		nil,
 	)
 }
 

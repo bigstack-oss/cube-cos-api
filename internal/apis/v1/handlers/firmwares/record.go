@@ -181,9 +181,11 @@ func (h *helper) updateFirmwareTask() error {
 		}
 
 		current := ""
+		desc := ""
 		switch h.reqOpts.Status.Current {
 		case status.Error:
 			current = status.Failed
+			desc = h.reqOpts.Status.Description
 		case status.Succeeded:
 			current = status.WaitingReboot
 		}
@@ -193,11 +195,12 @@ func (h *helper) updateFirmwareTask() error {
 			Current:        current,
 			IsProcessing:   true,
 			ProcessPercent: 50,
+			Description:    desc,
 		}
 		break
 	}
 
-	h.setProgressDetails(*update)
+	h.setProgressDetails(update)
 	return nil
 }
 

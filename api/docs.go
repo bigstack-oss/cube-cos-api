@@ -18204,7 +18204,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "description": "The version of the file to delete",
-                "example": "example-verion-0"
+                "example": "example-version-0"
             },
             "nodeName": {
                 "name": "nodeName",

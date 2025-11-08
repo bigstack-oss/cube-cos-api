@@ -38,14 +38,15 @@ func ListFirmwares() ([]firmwares.Firmware, error) {
 func UpgradeFirmware(req *firmwares.ReqOpts) error {
 	out, err := exec.Command("hex_install", "-v", "update", req.PkgPath).CombinedOutput()
 	if err != nil {
-		err := fmt.Errorf("failed to execute firmware upgrade %s(%v %s)", req.Version, err, string(out))
-		log.Errorf("firmwares: %v", err)
+		errDesc := strings.ReplaceAll(string(out), "\n", " ")
+		log.Errorf("firmwares: failed to execute firmware upgrade %s(%s %s)", req.Version, err, errDesc)
+		return fmt.Errorf("FRW00003E: %s", errDesc)
 	}
 
 	if !IsHexSuccessful(err) {
-		err := fmt.Errorf("failed to upgrade firmware %s(%v %s)", req.Version, err, string(out))
-		log.Errorf("firmwares: %v", err)
-		return err
+		err := fmt.Errorf("%v %s", err, string(out))
+		log.Errorf("firmwares: failed to upgrade firmware(%v)", err)
+		return fmt.Errorf("FRW00003E: %s", strings.ReplaceAll(string(out), "\n", " "))
 	}
 
 	req.Status.Description = GetUpdateFirmwareStatus()
