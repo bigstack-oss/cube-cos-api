@@ -86,9 +86,12 @@ func (h *helper) eraseStorageExtraConfigFiles(storage *storages.CinderDetails) {
 
 func (h *helper) eraseModelExtraConfigFiles(models []storages.Model) {
 	for i := range models {
-		model := &models[i]
-		if model.ExtraConfigFiles != nil {
-			model.ExtraConfigFiles = []storages.ExtraConfigFile{}
+		if len(models[i].ExtraConfigFiles) == 0 {
+			continue
+		}
+
+		for j := range models[i].ExtraConfigFiles {
+			models[i].ExtraConfigFiles[j].Content = ""
 		}
 	}
 }

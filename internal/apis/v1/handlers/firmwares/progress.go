@@ -10,6 +10,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ssh"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 )
@@ -182,6 +183,23 @@ func (h *helper) syncFirstTimeInstallationProgress() {
 		log.Errorf("firmwares: failed to write firmware progress(%v)", err)
 		return
 	}
+}
+
+func (h *helper) syncProgressToControllers() error {
+	controllers, err := nodes.GetPeerControls()
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to get peer controllers (%v)", h.reqId, err)
+		return err
+	}
+
+	for _, controller := range controllers {
+		err := ssh.SyncRemoteFile(controller.Hostname, firmwares.UpdateProgress, firmwares.UpdateProgress)
+		if err != nil {
+			log.Warnf("firmwares(%s): failed to sync firmware progress to controller %s(%v)", h.reqId, controller.Hostname, err)
+		}
+	}
+
+	return nil
 }
 
 func (h *helper) getFinalInstallationStatus(node nodes.Node) string {

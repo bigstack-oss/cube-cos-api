@@ -34,6 +34,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseUpdateFirmwareTaskParams()
 	case "continueInterruptedFirmwareUpdate":
 		return h.parseContinueInterruptionParams()
+	case "retryNodeFirmwareUpdate":
+		return h.parseRetryNodeFirmwareUpdateParams()
 	default:
 		return nil
 	}
@@ -172,6 +174,35 @@ func (h *helper) parseContinueInterruptionParams() error {
 		return fmt.Errorf("nodeName parameter is required")
 	}
 
+	return nil
+}
+
+func (h *helper) parseRetryNodeFirmwareUpdateParams() error {
+	h.reqOpts.Hostname = h.c.Param("nodeName")
+	if h.reqOpts.Hostname == "" {
+		return fmt.Errorf("nodeName parameter is required")
+	}
+
+	h.reqOpts.Version = h.c.Param("version")
+	if h.reqOpts.Version == "" {
+		return fmt.Errorf("version parameter is required")
+	}
+
+	var err error
+	h.reqOpts.PkgPath, err = h.findMatchedPkg(h.reqOpts.Version)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to find matched package for version %s (%v)", h.reqId, h.reqOpts.Version, err)
+		return err
+	}
+
+	progress, err := h.getFirmwareUpgradeProgress()
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to get firmware upgrade progress (%v)", h.reqId, err)
+		return err
+	}
+
+	h.reqOpts.AutoRolling = progress.IsRollingApplied
+	h.reqOpts.SetInstalling()
 	return nil
 }
 

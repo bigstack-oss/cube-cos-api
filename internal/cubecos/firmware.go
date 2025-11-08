@@ -48,8 +48,28 @@ func UpgradeFirmware(req *firmwares.ReqOpts) error {
 		return err
 	}
 
+	req.Status.Description = GetUpdateFirmwareStatus()
 	log.Infof("firmwares: %s", string(out))
 	return nil
+}
+
+// note:
+// TODO: waiting COS to provide the SDK for getting interrupted node after firmware upgrade
+func GetUpdateFirmwareStatus() string {
+	out, err := exec.Command("hex_sdk", "-f", "json", "stats_update").CombinedOutput()
+	if err != nil {
+		err := genIntegrationErr("firmware upgrade status exec failure")
+		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
+		return ""
+	}
+
+	if !IsHexSuccessful(err) {
+		err := genIntegrationErr("firmware upgrade status output failure")
+		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
+		return ""
+	}
+
+	return string(out)
 }
 
 func GetUpdateInterruptedNode() (*nodes.Node, error) {

@@ -48,6 +48,12 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
+			Path:    "/firmwares/abort",
+			Func:    abortFirmwareUpdate,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
 			Path:    "/firmwares/md5sum/verify",
 			Func:    verfiyFirmwareAndMd5Sum,
 		},
@@ -62,6 +68,12 @@ var (
 			Method:  http.MethodPost,
 			Path:    "/firmwares/continueAnyway/:nodeName",
 			Func:    continueInterruptedFirmwareUpdate,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPatch,
+			Path:    "/firmwares/:version/:nodeName",
+			Func:    retryNodeFirmwareUpdate,
 		},
 		{
 			Version: apis.V1,
@@ -289,6 +301,27 @@ func continueInterruptedFirmwareUpdate(c *gin.Context) {
 	)
 }
 
+func retryNodeFirmwareUpdate(c *gin.Context) {
+	h, err := initHelper(c, "retryNodeFirmwareUpdate")
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.updateNodeFirmware()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"Firmware update retried successfully",
+		nil,
+	)
+}
+
 func getFirmwareNodeResolvedStatus(c *gin.Context) {
 	h, err := initHelper(c, "getFirmwareNodeResolvedStatus")
 	if err != nil {
@@ -323,6 +356,27 @@ func updateFirmware(c *gin.Context) {
 	bodies.SetAccepted(
 		c,
 		"The request to update firmware has been accepted, please check the firmware upgrade progress for more details",
+	)
+}
+
+func abortFirmwareUpdate(c *gin.Context) {
+	h, err := initHelper(c, "abortFirmwareUpdate")
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	err = h.abortFirmwareUpdate()
+	if err != nil {
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"Firmware update aborted successfully",
+		nil,
 	)
 }
 

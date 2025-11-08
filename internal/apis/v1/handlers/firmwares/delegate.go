@@ -18,34 +18,42 @@ func (h *helper) delegateToLocal() {
 
 func (h *helper) delegateToPeers(list []node, upgrade *firmwares.Upgrade) {
 	for _, peer := range list {
-		node, err := nodes.Get(peer.Name)
-		if err != nil {
-			log.Warnf("firmwares(%s): failed to get node %s (%v)", h.reqId, peer.Name, err)
-			continue
-		}
-
-		if node.IsLocal() {
-			continue
-		}
-
-		s := status.SystemUpdateProgress{Current: status.Installing, IsProcessing: true, ProcessPercent: 30}
-		err = h.installPeer(*node)
-		if err != nil {
-			s.Current = "failed"
-			s.IsProcessing = false
-			s.ProcessPercent = 0
-			s.Description = err.Error()
-		}
-
-		upgrade.Progresses = append(
-			upgrade.Progresses,
-			firmwares.Progress{
-				Host:   node.Hostname,
-				Phase:  status.Partitioning,
-				Status: s,
-			},
-		)
+		h.delegateToPeer(peer.Name, upgrade)
 	}
+}
+
+func (h *helper) delegateToPeer(hostname string, upgrade *firmwares.Upgrade) error {
+	node, err := nodes.Get(hostname)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to get node %s (%v)", h.reqId, hostname, err)
+		return err
+	}
+
+	if node.IsLocal() {
+		return nil
+	}
+
+	s := status.SystemUpdateProgress{Current: status.Installing, IsProcessing: true, ProcessPercent: 30}
+	err = h.installPeer(*node)
+	if err != nil {
+		s.Current = "failed"
+		s.IsProcessing = false
+		s.ProcessPercent = 0
+
+		// TODO: need the error code here
+		s.Description = err.Error()
+	}
+
+	upgrade.Progresses = append(
+		upgrade.Progresses,
+		firmwares.Progress{
+			Host:   node.Hostname,
+			Phase:  status.Partitioning,
+			Status: s,
+		},
+	)
+
+	return nil
 }
 
 func (h *helper) installPeer(node nodes.Node) error {

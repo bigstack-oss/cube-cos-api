@@ -108,6 +108,35 @@ func (h *helper) updateFirmware() error {
 	return nil
 }
 
+func (h *helper) updateNodeFirmware() error {
+	progress, err := h.getFirmwareUpgradeProgress()
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to get firmware upgrade progress (%v)", h.reqId, err)
+		return err
+	}
+
+	if nodes.IsLocal(h.reqOpts.Hostname) {
+		h.delegateToLocal()
+	} else {
+		h.delegateToPeer(h.reqOpts.Hostname, progress)
+	}
+
+	h.setProgressDetails(*progress)
+	return nil
+}
+
+func (h *helper) abortFirmwareUpdate() error {
+	err := os.Remove(firmwares.UpdateProgress)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to remove update progress file (%v)", h.reqId, err)
+		return err
+	}
+
+	h.syncFirstTimeInstallationProgress()
+	h.syncProgressToControllers()
+	return nil
+}
+
 func (h *helper) getFirmwareUpgradeProgress() (*firmwares.Upgrade, error) {
 	h.syncFirstTimeInstallationProgress()
 	upgrade, err := h.getUpgradeDetails()

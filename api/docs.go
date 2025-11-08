@@ -16448,6 +16448,66 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/firmwares/abort": {
+            "post": {
+                "operationId": "abortFirmwareUpdate",
+                "tags": [
+                    "Firmwares"
+                ],
+                "summary": "Abort ongoing firmware update",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Firmware update aborted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AbortFirmwareUpdateResponse"
+                                },
+                                "examples": {
+                                    "example1": {
+                                        "summary": "Firmware update aborted",
+                                        "value": {
+                                            "code": 200,
+                                            "msg": "Firmware update aborted successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to abort firmware update: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/firmwares/{version}": {
             "delete": {
                 "operationId": "deleteFirmware",
@@ -16565,6 +16625,81 @@ const docTemplate = `{
                                         "msg": {
                                             "type": "string",
                                             "example": "failed to delete firmware: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/firmwares/{version}/{nodeName}": {
+            "patch": {
+                "operationId": "retryNodeFirmwareUpdate",
+                "tags": [
+                    "Firmwares"
+                ],
+                "summary": "Retry firmware update on a specific node",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/version"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Firmware update retried successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "msg",
+                                        "status"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 202
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "Firmware update retried successfully"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to retry firmware update: internal server error"
                                         },
                                         "status": {
                                             "type": "string",
@@ -24796,6 +24931,25 @@ const docTemplate = `{
                                 }
                             }
                         }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "AbortFirmwareUpdateResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer"
                     },
                     "msg": {
                         "type": "string"
