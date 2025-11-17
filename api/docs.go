@@ -3866,8 +3866,9 @@ const docTemplate = `{
                                         "value": {
                                             "code": 200,
                                             "data": {
-                                                "name": "dell-emc-sc-fc",
                                                 "driver": "cinder.volume.drivers.dell_emc.sc.storagecenter_fc.SCFCDriver",
+                                                "name": "dell-emc-sc-fc",
+                                                "vendor": "Dell EMC",
                                                 "isDefault": true,
                                                 "storage": {
                                                     "service": {
@@ -20080,7 +20081,8 @@ const docTemplate = `{
                             "isDefault",
                             "name",
                             "isExternal",
-                            "device",
+                            "vendor",
+                            "driver",
                             "storage"
                         ],
                         "properties": {
@@ -20093,20 +20095,11 @@ const docTemplate = `{
                             "isExternal": {
                                 "type": "boolean"
                             },
-                            "device": {
-                                "type": "object",
-                                "required": [
-                                    "vendor",
-                                    "product"
-                                ],
-                                "properties": {
-                                    "vendor": {
-                                        "type": "string"
-                                    },
-                                    "product": {
-                                        "type": "string"
-                                    }
-                                }
+                            "driver": {
+                                "type": "string"
+                            },
+                            "vendor": {
+                                "type": "string"
                             },
                             "storage": {
                                 "type": "object",
@@ -20388,12 +20381,12 @@ const docTemplate = `{
                                                 },
                                                 "extraConfigFiles": {
                                                     "type": "array",
-                                                    "required": [
-                                                        "name",
-                                                        "content"
-                                                    ],
                                                     "items": {
                                                         "type": "object",
+                                                        "required": [
+                                                            "name",
+                                                            "content"
+                                                        ],
                                                         "properties": {
                                                             "name": {
                                                                 "type": "string"
@@ -20529,7 +20522,13 @@ const docTemplate = `{
                                             "type": "string"
                                         },
                                         "type": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "enum": [
+                                                "trial",
+                                                "perpetual",
+                                                "community",
+                                                "enterprise"
+                                            ]
                                         },
                                         "hosts": {
                                             "type": "array",
@@ -20551,7 +20550,12 @@ const docTemplate = `{
                                                     "type": "string"
                                                 },
                                                 "feature": {
-                                                    "type": "string"
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "basic",
+                                                        "advanced",
+                                                        "premium"
+                                                    ]
                                                 }
                                             }
                                         },
@@ -20562,7 +20566,12 @@ const docTemplate = `{
                                             "type": "string"
                                         },
                                         "supportPlan": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "enum": [
+                                                "ESA",
+                                                "EEA",
+                                                "FMA"
+                                            ]
                                         },
                                         "expiry": {
                                             "type": "object",
