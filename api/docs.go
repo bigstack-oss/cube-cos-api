@@ -20550,12 +20550,7 @@ const docTemplate = `{
                                                     "type": "string"
                                                 },
                                                 "feature": {
-                                                    "type": "string",
-                                                    "enum": [
-                                                        "basic",
-                                                        "advanced",
-                                                        "premium"
-                                                    ]
+                                                    "$ref": "#/components/schemas/LicenseFeature"
                                                 }
                                             }
                                         },
@@ -20566,12 +20561,7 @@ const docTemplate = `{
                                             "type": "string"
                                         },
                                         "supportPlan": {
-                                            "type": "string",
-                                            "enum": [
-                                                "ESA",
-                                                "EEA",
-                                                "FMA"
-                                            ]
+                                            "$ref": "#/components/schemas/LicenseSupportPlan"
                                         },
                                         "expiry": {
                                             "type": "object",
@@ -20669,7 +20659,7 @@ const docTemplate = `{
                                                 "type": "string"
                                             },
                                             "feature": {
-                                                "type": "string"
+                                                "$ref": "#/components/schemas/LicenseFeature"
                                             }
                                         }
                                     },
@@ -20680,7 +20670,7 @@ const docTemplate = `{
                                         "type": "string"
                                     },
                                     "supportPlan": {
-                                        "type": "string"
+                                        "$ref": "#/components/schemas/LicenseSupportPlan"
                                     },
                                     "expiry": {
                                         "type": "object",
@@ -25665,7 +25655,7 @@ const docTemplate = `{
                                         "type": "string"
                                     },
                                     "feature": {
-                                        "type": "string"
+                                        "$ref": "#/components/schemas/LicenseFeature"
                                     }
                                 }
                             },
@@ -25676,7 +25666,7 @@ const docTemplate = `{
                                 "type": "string"
                             },
                             "supportPlan": {
-                                "type": "string"
+                                "$ref": "#/components/schemas/LicenseSupportPlan"
                             },
                             "expiry": {
                                 "type": "object",
@@ -26174,6 +26164,24 @@ const docTemplate = `{
                         "format": "date-time"
                     }
                 }
+            },
+            "LicenseFeature": {
+                "type": "string",
+                "enum": [
+                    "N/A",
+                    "basic",
+                    "advanced",
+                    "premium"
+                ]
+            },
+            "LicenseSupportPlan": {
+                "type": "string",
+                "enum": [
+                    "N/A",
+                    "ESA",
+                    "EEA",
+                    "FMA"
+                ]
             },
             "ListLicenseCurrentStatus": {
                 "type": "string",
