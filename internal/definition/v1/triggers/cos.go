@@ -40,10 +40,10 @@ func (t *Trigger) Bytes() ([]byte, error) {
 }
 
 // note:
-// the regexp.MustCompile(`"([^"]+)"\s*==\s*"([^"]+)"`) is used to
+// the regexp.MustCompile(`([a-zA-Z0-9_()"]+)\s*==\s*"([^"]+)"`) is used to
 // match the attribute pairs -> "field" == "value"
 func (t *Trigger) ParseAttributes() Attribute {
-	regex := regexp.MustCompile(`"([^"]+)"\s*==\s*"([^"]+)"`)
+	regex := regexp.MustCompile(`([a-zA-Z0-9_()"]+)\s*==\s*"([^"]+)"`)
 	matches := regex.FindAllStringSubmatch(t.Match, -1)
 	attrs := Attribute{
 		AlertTypes: []string{},
@@ -55,15 +55,24 @@ func (t *Trigger) ParseAttributes() Attribute {
 	for _, match := range matches {
 		key := strings.TrimSpace(match[1])
 		val := strings.TrimSpace(match[2])
-		switch key {
-		case "name()":
+		if strings.Contains(key, "name()") {
 			attrs.AlertTypes = append(attrs.AlertTypes, val)
-		case "key":
+			continue
+		}
+
+		if strings.Contains(key, "key") {
 			attrs.EventIds = append(attrs.EventIds, val)
-		case "severity":
+			continue
+		}
+
+		if strings.Contains(key, "severity") {
 			attrs.Severities = append(attrs.Severities, events.GetSeverityFullName(val))
-		case "category":
+			continue
+		}
+
+		if strings.Contains(key, "category") {
 			attrs.Categories = append(attrs.Categories, val)
+			continue
 		}
 	}
 
