@@ -103,7 +103,7 @@ func listFixpacks(c *gin.Context) {
 		return
 	}
 
-	fixpacks, err := h.listFixpacks()
+	fixpacks, err := h.listFixpacks(true)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
@@ -298,7 +298,7 @@ func getFixpackUpdateProgress(c *gin.Context) {
 		return
 	}
 
-	updateProgress, err := h.getFixpackUpdateProgress()
+	updateProgress, err := h.getFixpackUpdateProgress(h.reqOpts.Version)
 	if err == nil {
 		bodies.SetOk(c, "List of fixpack update progress", updateProgress)
 		return

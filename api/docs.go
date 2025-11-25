@@ -24759,7 +24759,6 @@ const docTemplate = `{
                                                         "waiting reboot",
                                                         "rebooting",
                                                         "failed",
-                                                        "resolved",
                                                         "succeeded"
                                                     ]
                                                 },
@@ -25025,6 +25024,8 @@ const docTemplate = `{
                                                     "enum": [
                                                         "available",
                                                         "installing",
+                                                        "waiting reboot",
+                                                        "rebooting",
                                                         "installed",
                                                         "rolling back",
                                                         "install failed",

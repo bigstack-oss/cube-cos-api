@@ -87,6 +87,51 @@ func (h *helper) syncRequestingRecord(list *[]fixpacks.Fixpack) {
 	}
 }
 
+func (h *helper) syncStatusByNodeProgresses(list *[]fixpacks.Fixpack) {
+	for i, fixpack := range *list {
+		update, err := h.getFixpackUpdateProgress(fixpack.Version)
+		if err != nil {
+			log.Errorf("fixpacks(%s): failed to get fixpack update progress (%v)", h.reqId, err)
+			return
+		}
+
+		finalStatus := status.Available
+		for _, progress := range update.Progresses {
+			if progress.Status.Current == status.Installing {
+				finalStatus = status.Installing
+				continue
+			}
+
+			if progress.Status.Current == status.InstallFailed {
+				finalStatus = status.InstallFailed
+				continue
+			}
+
+			if progress.Status.Current == status.RollingBack {
+				finalStatus = status.RollingBack
+				continue
+			}
+
+			if progress.Status.Current == status.RollbackFailed {
+				finalStatus = status.RollbackFailed
+				continue
+			}
+
+			if progress.Status.Current == status.WaitingReboot {
+				finalStatus = status.WaitingReboot
+				continue
+			}
+
+			if progress.Status.Current == status.Rebooting {
+				finalStatus = status.Rebooting
+				continue
+			}
+		}
+
+		(*list)[i].Status.Current = finalStatus
+	}
+}
+
 func (h *helper) hasInprogressUpdate(filter bson.M) bool {
 	count, err := h.mongo.GetCount(
 		fixpacks.Db,
@@ -116,6 +161,15 @@ func (h *helper) addReqRecord(node string) {
 			h.reqId, err,
 		)
 	}
+}
+
+func (h *helper) changeNodeFirmwareStatus(status string) error {
+	return h.mongo.UpdateOne(
+		fixpacks.Db,
+		fixpacks.ReqCollection,
+		bson.M{"hostname": h.reqOpts.Hostname, "version": h.reqOpts.Version},
+		bson.M{"$set": bson.M{"status.current": status}},
+	)
 }
 
 func (h *helper) deleteReqRecord() error {

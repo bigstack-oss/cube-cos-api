@@ -161,7 +161,7 @@ func (h *helper) getRebootingHintsByNodeRole(host string) string {
 	case nodes.RoleStorage:
 		return "Storage node needs to be rebooted to complete the fixpack update. Please schedule a maintenance window if necessary."
 	default:
-		return "Node needs to be rebooted to complete the fixpack update."
+		return fmt.Sprintf("%s node needs to be rebooted to complete the fixpack update.", node.Role)
 	}
 }
 
@@ -239,7 +239,7 @@ func (h *helper) getProgressByVersion(version string) (string, float64) {
 }
 
 func (h *helper) checkConditionForContinue() error {
-	update, err := h.getFixpackUpdateProgress()
+	update, err := h.getFixpackUpdateProgress(h.reqOpts.Version)
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to get fixpack update progress (%v)", h.reqId, err)
 		return err

@@ -24755,7 +24755,6 @@
                                                         "waiting reboot",
                                                         "rebooting",
                                                         "failed",
-                                                        "resolved",
                                                         "succeeded"
                                                     ]
                                                 },
@@ -25021,6 +25020,8 @@
                                                     "enum": [
                                                         "available",
                                                         "installing",
+                                                        "waiting reboot",
+                                                        "rebooting",
                                                         "installed",
                                                         "rolling back",
                                                         "install failed",

@@ -43,7 +43,7 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 	return h, h.parseParamsByHandler()
 }
 
-func (h *helper) listFixpacks() (*fixpacksPage, error) {
+func (h *helper) listFixpacks(syncNodeProgress bool) (*fixpacksPage, error) {
 	fixpacks, err := cubecos.ListFixpacks()
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to list fixpacks(%v)", h.reqId, err)
@@ -51,14 +51,18 @@ func (h *helper) listFixpacks() (*fixpacksPage, error) {
 	}
 
 	h.syncRequestingRecord(&fixpacks)
+	if syncNodeProgress {
+		h.syncStatusByNodeProgresses(&fixpacks)
+	}
+
 	return &fixpacksPage{
 		Fixpacks: h.paginateFixpacks(fixpacks),
 		Page:     h.genPageInfo(fixpacks),
 	}, nil
 }
 
-func (h *helper) getFixpackUpdateProgress() (*update, error) {
-	update, err := h.getUpdateProgressRecordByVersion(h.reqOpts.Version)
+func (h *helper) getFixpackUpdateProgress(version string) (*update, error) {
+	update, err := h.getUpdateProgressRecordByVersion(version)
 	if err != nil {
 		return nil, err
 	}
@@ -128,28 +132,17 @@ func (h *helper) convertToRollbackableNodes(list []nodes.Node) []node {
 }
 
 func (h *helper) continueInterruptedFixpackUpdate() error {
-	node, err := nodes.Get(h.reqOpts.Hostname)
-	if err != nil {
-		log.Errorf("fixpacks(%s): failed to get node %s (%v)", h.reqId, h.reqOpts.Hostname, err)
-		return err
-	}
-
-	if node.IsVirtualIpOwner {
-		cubecos.MoveVirtualIpOwner()
-	}
-
 	shouldReboot, err := h.checkRebootRequirement()
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to check reboot requirement (%v)", h.reqId, err)
 		return err
 	}
 
-	h.deleteReqRecord()
-	if !shouldReboot {
-		return nil
+	if shouldReboot {
+		return h.changeNodeFirmwareStatus(status.WaitingReboot)
 	}
 
-	return cubecos.SoftRebootBySsh(node.Hostname)
+	return h.deleteReqRecord()
 }
 
 func (h *helper) deleteFixpack() error {

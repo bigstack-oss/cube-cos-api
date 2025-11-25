@@ -25,7 +25,7 @@ func (h *helper) isNodeExists() bool {
 }
 
 func (h *helper) isFixpackExists() bool {
-	list, err := h.listFixpacks()
+	list, err := h.listFixpacks(false)
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to list fixpack for checking existence(%v)", h.reqId, err)
 		return false
@@ -41,7 +41,7 @@ func (h *helper) isFixpackExists() bool {
 }
 
 func (h *helper) isFixpackRemovable() bool {
-	list, err := h.listFixpacks()
+	list, err := h.listFixpacks(false)
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to list fixpack for checking existence(%v)", h.reqId, err)
 		return false
@@ -59,7 +59,8 @@ func (h *helper) isFixpackRemovable() bool {
 }
 
 func (h *helper) getVersionStatus(version string) (string, error) {
-	fixpacks, err := h.listFixpacks()
+	syncNodeProgress := false
+	fixpacks, err := h.listFixpacks(syncNodeProgress)
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to list fixpack for checking installation(%v)", h.reqId, err)
 		return "", err
@@ -97,7 +98,7 @@ func (h *helper) checkFixpackDuplication() error {
 		return err
 	}
 
-	data, err := h.listFixpacks()
+	data, err := h.listFixpacks(false)
 	if err != nil {
 		return err
 	}
@@ -137,7 +138,7 @@ func (h *helper) copyFile(src, dst string) error {
 }
 
 func (h *helper) checkRebootRequirement() (bool, error) {
-	update, err := h.getFixpackUpdateProgress()
+	update, err := h.getFixpackUpdateProgress(h.reqOpts.Version)
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to get fixpack update progress for checking reboot requirement(%v)", h.reqId, err)
 		return false, err
