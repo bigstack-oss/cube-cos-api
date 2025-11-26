@@ -251,10 +251,14 @@ func (h *helper) syncFirmwareStatuses(list *[]firmwares.Firmware) {
 
 		s := h.syncOverallProgressStatus(upgrade.Progresses)
 		(*list)[i].Status.Current = s
-		if s == status.Installing {
+		if h.isPendingInprogress(s) {
 			(*list)[i].Status.IsProcessing = true
 		}
 	}
+}
+
+func (h *helper) isPendingInprogress(s string) bool {
+	return s == status.Installing || s == status.WaitingReboot || s == status.Rebooting
 }
 
 func (h *helper) syncOverallProgressStatus(progresses []firmwares.Progress) string {

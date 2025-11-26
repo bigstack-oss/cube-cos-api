@@ -127,13 +127,13 @@ func convertHistoryToFirmwares(update *firmwares.Upadte) []firmwares.Firmware {
 
 	for _, raw := range update.History {
 		date := convertRawTime(time.FormatFirmware, raw.CreatedAt)
-		dayBaseDate := convertRawTimeToDayBaseDate(raw.CreatedAt)
+		dayBaseDate := convertRawTimeToDayBaseDate(raw.BuiltAt)
 		firmwaresList = append(firmwaresList, firmwares.Firmware{
 			Version:      convertFirmwareVersion(raw.Version, dayBaseDate),
 			ReleaseNotes: convertReleaseNotes(raw.Version, raw.Variant, date),
 			UpdatedAt:    date,
 			Status: status.Firmware{
-				Current:     status.Updated,
+				Current:     status.Succeeded,
 				IsRemovable: false,
 			},
 		})
