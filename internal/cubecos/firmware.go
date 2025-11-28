@@ -40,34 +40,45 @@ func UpgradeFirmware(req *firmwares.ReqOpts) error {
 	if err != nil {
 		errDesc := strings.ReplaceAll(string(out), "\n", " ")
 		log.Errorf("firmwares: failed to execute firmware upgrade %s(%s %s)", req.Version, err, errDesc)
-		return fmt.Errorf("FRW00003E: %s", errDesc)
+		return fmt.Errorf("FRW0000%dE: %s", getUpdateFirmwareErrCode(err), getUpdateFirmwareStatus())
 	}
 
 	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("%v %s", err, string(out))
 		log.Errorf("firmwares: failed to upgrade firmware(%v)", err)
-		return fmt.Errorf("FRW00003E: %s", strings.ReplaceAll(string(out), "\n", " "))
+		return fmt.Errorf("FRW0000%dE: %s", getUpdateFirmwareErrCode(err), getUpdateFirmwareStatus())
 	}
 
-	req.Status.Description = GetUpdateFirmwareStatus()
 	log.Infof("firmwares: %s", string(out))
 	return nil
 }
 
-// note:
-// TODO: waiting COS to provide the SDK for getting interrupted node after firmware upgrade
-func GetUpdateFirmwareStatus() string {
-	out, err := exec.Command("hex_sdk", "-f", "json", "stats_update").CombinedOutput()
+func getUpdateFirmwareErrCode(err error) int {
+	code := GetCmdReturnCode(err)
+	switch code {
+	case 1:
+		return 4
+	case 2:
+		return 5
+	case 3:
+		return 6
+	default:
+		return 0
+	}
+}
+
+func getUpdateFirmwareStatus() string {
+	out, err := exec.Command("hex_sdk", "-v", "stats_partition").CombinedOutput()
 	if err != nil {
-		err := genIntegrationErr("firmware upgrade status exec failure")
+		err := genIntegrationErr("firmware fetch status exec failure")
 		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
-		return ""
+		return err.Error()
 	}
 
 	if !IsHexSuccessful(err) {
-		err := genIntegrationErr("firmware upgrade status output failure")
+		err := genIntegrationErr("firmware fetch status output failure")
 		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
-		return ""
+		return err.Error()
 	}
 
 	return string(out)
