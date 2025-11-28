@@ -128,7 +128,11 @@ func (h *helper) syncStatusByNodeProgresses(list *[]fixpacks.Fixpack) {
 			}
 		}
 
-		(*list)[i].Status.Current = finalStatus
+		(*list)[i].Status.Current = fmt.Sprintf(
+			"%s from %s",
+			finalStatus,
+			update.Operation,
+		)
 	}
 }
 
@@ -163,7 +167,7 @@ func (h *helper) addReqRecord(node string) {
 	}
 }
 
-func (h *helper) changeNodeFirmwareStatus(status string) error {
+func (h *helper) changeNodeFixpackStatus(status string) error {
 	return h.mongo.UpdateOne(
 		fixpacks.Db,
 		fixpacks.ReqCollection,

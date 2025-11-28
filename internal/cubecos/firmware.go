@@ -40,13 +40,15 @@ func UpgradeFirmware(req *firmwares.ReqOpts) error {
 	if err != nil {
 		errDesc := strings.ReplaceAll(string(out), "\n", " ")
 		log.Errorf("firmwares: failed to execute firmware upgrade %s(%s %s)", req.Version, err, errDesc)
-		return fmt.Errorf("FRW0000%dE: %s", getUpdateFirmwareErrCode(err), getUpdateFirmwareStatus())
+		code, stderr := getUpdateFirmwareStatus()
+		return fmt.Errorf("FRW0000%dE: %s", code, stderr)
 	}
 
 	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("%v %s", err, string(out))
 		log.Errorf("firmwares: failed to upgrade firmware(%v)", err)
-		return fmt.Errorf("FRW0000%dE: %s", getUpdateFirmwareErrCode(err), getUpdateFirmwareStatus())
+		code, stderr := getUpdateFirmwareStatus()
+		return fmt.Errorf("FRW0000%dE: %s", code, stderr)
 	}
 
 	log.Infof("firmwares: %s", string(out))
@@ -67,21 +69,21 @@ func getUpdateFirmwareErrCode(err error) int {
 	}
 }
 
-func getUpdateFirmwareStatus() string {
+func getUpdateFirmwareStatus() (int, string) {
 	out, err := exec.Command("hex_sdk", "-v", "stats_partition").CombinedOutput()
 	if err != nil {
 		err := genIntegrationErr("firmware fetch status exec failure")
 		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
-		return err.Error()
+		return getUpdateFirmwareErrCode(err), string(out)
 	}
 
 	if !IsHexSuccessful(err) {
 		err := genIntegrationErr("firmware fetch status output failure")
 		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
-		return err.Error()
+		return getUpdateFirmwareErrCode(err), string(out)
 	}
 
-	return string(out)
+	return 0, string(out)
 }
 
 func GetUpdateInterruptedNode() (*nodes.Node, error) {

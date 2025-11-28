@@ -139,7 +139,7 @@ func (h *helper) continueInterruptedFixpackUpdate() error {
 	}
 
 	if shouldReboot {
-		return h.changeNodeFirmwareStatus(status.WaitingReboot)
+		return h.changeNodeFixpackStatus(status.WaitingReboot)
 	}
 
 	return h.deleteReqRecord()
