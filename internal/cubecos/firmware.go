@@ -72,14 +72,14 @@ func getUpdateFirmwareErrCode(err error) int {
 func getUpdateFirmwareStatus() (int, string) {
 	out, err := exec.Command("hex_sdk", "-v", "stats_partition").CombinedOutput()
 	if err != nil {
-		err := genIntegrationErr("firmware fetch status exec failure")
-		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
+		intgErr := genIntegrationErr("firmware fetch status exec failure")
+		log.Errorf("firmwares: %s (%s)", intgErr.Error(), string(out))
 		return getUpdateFirmwareErrCode(err), string(out)
 	}
 
 	if !IsHexSuccessful(err) {
-		err := genIntegrationErr("firmware fetch status output failure")
-		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
+		intgErr := genIntegrationErr("firmware fetch status output failure")
+		log.Errorf("firmwares: %s (%s)", intgErr.Error(), string(out))
 		return getUpdateFirmwareErrCode(err), string(out)
 	}
 

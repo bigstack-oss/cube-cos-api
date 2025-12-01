@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"syscall"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ssh"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
@@ -178,16 +177,16 @@ func MoveVirtualIpOwner() error {
 }
 
 func GetCmdReturnCode(err error) int {
-	if err == nil {
-		return 0
-	}
-
-	exitErr, ok := err.(*exec.ExitError)
-	if !ok {
-		log.Infof("os: failed to parse the cmd return code from %v", err)
+	segments := strings.Split(err.Error(), "exit status ")
+	if len(segments) != 2 {
 		return -1
 	}
 
-	status := exitErr.Sys().(syscall.WaitStatus)
-	return status.ExitStatus()
+	var code int
+	_, scanErr := fmt.Sscanf(segments[1], "%d", &code)
+	if scanErr != nil {
+		return -1
+	}
+
+	return code
 }
