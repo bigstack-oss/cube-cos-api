@@ -17,8 +17,8 @@ type DataCenter struct {
 	IsLocal     bool     `json:"isLocal"`
 	IsHaEnabled bool     `json:"isHaEnabled"`
 	UtcTimeZone string   `json:"utcTimeZone,omitempty"`
-	Firmware    System   `json:"firmware"`
-	Fixpack     System   `json:"fixpack"`
+	Firmware    `json:"firmware"`
+	Fixpack     `json:"fixpack"`
 	Additional  `json:"additional"`
 }
 
@@ -34,7 +34,13 @@ type NodeLicenseStatus struct {
 	Unlicense int `json:"unlicense"`
 }
 
-type System struct {
+type Firmware struct {
+	Version   string `json:"version"`
+	UpdatedAt string `json:"updatedAt"`
+}
+
+type Fixpack struct {
+	Name      string `json:"name"`
 	Version   string `json:"version"`
 	UpdatedAt string `json:"updatedAt"`
 }

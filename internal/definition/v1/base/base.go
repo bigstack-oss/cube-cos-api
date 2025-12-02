@@ -28,6 +28,7 @@ var (
 	ActiveFirmwareVersion    string
 	ActiveFirmwareUpdatedAt  string
 	InactiveFirmwareVersion  string
+	FixpackName              string
 	FixpackVersion           string
 	FixpackUpdatedAt         string
 	DataCenterNumericVersion string

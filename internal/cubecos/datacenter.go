@@ -98,6 +98,16 @@ func GetInactiveFirmwareVersion() (string, error) {
 	return ReadPartitionFirmwareVersion(inactive)
 }
 
+func GetFixpackName() (string, error) {
+	fixpack, err := GetDataCenterLastInstalledFixpack()
+	if err != nil {
+		return "", err
+	}
+
+	name := fixpack[2]
+	return name, nil
+}
+
 func GetFixpackVersion() (string, error) {
 	fixpack, err := GetDataCenterLastInstalledFixpack()
 	if err != nil {

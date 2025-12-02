@@ -105,6 +105,11 @@ func initIdentities() error {
 		return err
 	}
 
+	base.FixpackName, err = cubecos.GetFixpackName()
+	if err != nil {
+		log.Warnf("runtime: failed to get fixpack name(%v)", err)
+	}
+
 	base.FixpackVersion, err = cubecos.GetFixpackVersion()
 	if err != nil {
 		log.Warnf("runtime: failed to get fixpack version(%v)", err)

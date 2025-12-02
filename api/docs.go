@@ -129,7 +129,8 @@ const docTemplate = `{
                                                         "updatedAt": "2025-08-08T19:51:40+08:00"
                                                     },
                                                     "fixpack": {
-                                                        "version": "Cube Fixpack 2025-08-10",
+                                                        "name": "Cube 3.0.0",
+                                                        "version": "Fixpack 1",
                                                         "updatedAt": "2025-08-10T19:51:40+08:00"
                                                     },
                                                     "additional": {
@@ -223,7 +224,8 @@ const docTemplate = `{
                                                     "updatedAt": "2025-08-08T19:51:40+08:00"
                                                 },
                                                 "fixpack": {
-                                                    "version": "Cube Fixpack 2025-08-10",
+                                                    "name": "Cube 3.0.0",
+                                                    "version": "Fixpack 1",
                                                     "updatedAt": "2025-08-10T19:51:40+08:00"
                                                 },
                                                 "additional": {
@@ -25501,10 +25503,10 @@ const docTemplate = `{
                         "type": "boolean"
                     },
                     "firmware": {
-                        "$ref": "#/components/schemas/SystemVersionDetails"
+                        "$ref": "#/components/schemas/FirmwareVersionDetails"
                     },
                     "fixpack": {
-                        "$ref": "#/components/schemas/SystemVersionDetails"
+                        "$ref": "#/components/schemas/FixpackVersionDetails"
                     },
                     "utcTimeZone": {
                         "type": "string"
@@ -25549,13 +25551,33 @@ const docTemplate = `{
                     }
                 }
             },
-            "SystemVersionDetails": {
+            "FirmwareVersionDetails": {
                 "type": "object",
                 "required": [
                     "version",
                     "updatedAt"
                 ],
                 "properties": {
+                    "version": {
+                        "type": "string"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "FixpackVersionDetails": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "version",
+                    "updatedAt"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
                     "version": {
                         "type": "string"
                     },

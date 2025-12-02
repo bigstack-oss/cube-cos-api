@@ -16,11 +16,12 @@ func getLocalDataCenter() base.DataCenter {
 		IsLocal:     true,
 		IsHaEnabled: base.IsHaEnabled,
 		UtcTimeZone: time.LocalZone,
-		Firmware: base.System{
+		Firmware: base.Firmware{
 			Version:   base.ActiveFirmwareVersion,
 			UpdatedAt: base.ActiveFirmwareUpdatedAt,
 		},
-		Fixpack: base.System{
+		Fixpack: base.Fixpack{
+			Name:      base.FixpackName,
 			Version:   base.FixpackVersion,
 			UpdatedAt: base.FixpackUpdatedAt,
 		},
