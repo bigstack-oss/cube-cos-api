@@ -227,7 +227,6 @@ func ConvertPkgNameToFirmware(pkgname string) (*firmwares.Firmware, error) {
 	return &firmwares.Firmware{
 		Version:      convertFirmwareVersion(segment[1], segment[2]),
 		ReleaseNotes: convertReleaseNotes(segment[1], segment[3], date),
-		UpdatedAt:    date,
 		Status: status.Firmware{
 			Current:     status.Available,
 			IsUpdatable: true,
