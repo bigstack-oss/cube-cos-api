@@ -37,7 +37,7 @@ func (h *helper) delegateToPeer(hostname string, upgrade *firmwares.Upgrade) err
 	s := status.SystemUpdateProgress{Current: status.Installing, IsProcessing: true, ProcessPercent: 30}
 	defer h.syncNodeUpgradeProgress(hostname, upgrade, &s)
 	if node.Status == status.Down {
-		err := fmt.Errorf("FRW00001E: unable to connect node %s", node.Hostname)
+		err := fmt.Errorf("UPG1001: unable to connect node %s", node.Hostname)
 		s.Current = status.Failed
 		s.ProcessPercent = 0
 		s.IsProcessing = false
@@ -47,7 +47,7 @@ func (h *helper) delegateToPeer(hostname string, upgrade *firmwares.Upgrade) err
 
 	err = h.installPeer(*node)
 	if err != nil {
-		err := fmt.Errorf("FRW00002E: unable to install firmware on the %s", node.Hostname)
+		err := fmt.Errorf("UPG1002: unable to install firmware on the %s", node.Hostname)
 		s.Current = status.Failed
 		s.IsProcessing = false
 		s.ProcessPercent = 0

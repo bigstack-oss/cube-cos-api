@@ -41,32 +41,18 @@ func UpgradeFirmware(req *firmwares.ReqOpts) error {
 		errDesc := strings.ReplaceAll(string(out), "\n", " ")
 		log.Errorf("firmwares: failed to execute firmware upgrade %s(%s %s)", req.Version, err, errDesc)
 		code, stderr := getUpdateFirmwareStatus()
-		return fmt.Errorf("FRW0000%dE: %s", code, stderr)
+		return fmt.Errorf("UPG200%d: %s", code, stderr)
 	}
 
 	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("%v %s", err, string(out))
 		log.Errorf("firmwares: failed to upgrade firmware(%v)", err)
 		code, stderr := getUpdateFirmwareStatus()
-		return fmt.Errorf("FRW0000%dE: %s", code, stderr)
+		return fmt.Errorf("UPG200%d: %s", code, stderr)
 	}
 
 	log.Infof("firmwares: %s", string(out))
 	return nil
-}
-
-func getUpdateFirmwareErrCode(err error) int {
-	code := GetCmdReturnCode(err)
-	switch code {
-	case 1:
-		return 4
-	case 2:
-		return 5
-	case 3:
-		return 6
-	default:
-		return 0
-	}
 }
 
 func getUpdateFirmwareStatus() (int, string) {
@@ -74,13 +60,13 @@ func getUpdateFirmwareStatus() (int, string) {
 	if err != nil {
 		intgErr := genIntegrationErr("firmware fetch status exec failure")
 		log.Errorf("firmwares: %s (%s)", intgErr.Error(), string(out))
-		return getUpdateFirmwareErrCode(err), string(out)
+		return GetCmdReturnCode(err), string(out)
 	}
 
 	if !IsHexSuccessful(err) {
 		intgErr := genIntegrationErr("firmware fetch status output failure")
 		log.Errorf("firmwares: %s (%s)", intgErr.Error(), string(out))
-		return getUpdateFirmwareErrCode(err), string(out)
+		return GetCmdReturnCode(err), string(out)
 	}
 
 	return 0, string(out)
