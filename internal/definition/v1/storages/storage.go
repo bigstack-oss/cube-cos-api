@@ -166,7 +166,6 @@ func (r *ReqOpts) SetCompleted() {
 		r.SetStorageVerifiedAdditionalInfo()
 	case status.Defaulted:
 		r.Notify.Payload.Id = "STG00005I"
-		r.SetStorageNotification(false)
 	}
 }
 
@@ -189,7 +188,6 @@ func (r *ReqOpts) SetFailed(msg string) {
 		r.SetStorageVerifiedAdditionalInfo()
 	case status.Defaulted:
 		r.Notify.Payload.Id = "STG00005E"
-		r.SetStorageNotification(false)
 	}
 }
 
