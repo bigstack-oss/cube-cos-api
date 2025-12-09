@@ -1212,6 +1212,9 @@ func parseNetworkTrafficHistory(c *api.QueryTableResult) ([]metric.TimeValue, er
 		if err != nil {
 			continue
 		}
+		if c.Record().Value() == nil {
+			continue
+		}
 
 		points = append(
 			points,
@@ -1383,6 +1386,10 @@ func parseHostCpuUsageRank(c *api.QueryTableResult) ([]metric.RankPoint, error) 
 func parseVmCpuUsageRank(c *api.QueryTableResult) ([]metric.RankPoint, error) {
 	rank := []metric.RankPoint{}
 	for c.Next() {
+		if c.Record().Value() == nil {
+			continue
+		}
+
 		rank = append(
 			rank,
 			metric.RankPoint{
@@ -1485,6 +1492,9 @@ func parseDiskOpsHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
 		if err != nil {
 			continue
 		}
+		if c.Record().Value() == nil {
+			continue
+		}
 
 		points = append(
 			points,
@@ -1508,6 +1518,9 @@ func parseDiskLatencyTimeValueMap(c *api.QueryTableResult) (map[string]float64, 
 		if err != nil {
 			continue
 		}
+		if c.Record().Value() == nil {
+			continue
+		}
 
 		timeMap[time.LocalRFC3339(date)] = math.RoundDown(
 			c.Record().Value().(float64)/1000.0/1000.0,
@@ -1523,6 +1536,9 @@ func parseDiskIopsTimeValueMap(c *api.QueryTableResult) (map[string]float64, err
 	for c.Next() {
 		date, err := ostime.Parse(metric.TimeLayout, c.Record().Time().String())
 		if err != nil {
+			continue
+		}
+		if c.Record().Value() == nil {
 			continue
 		}
 
@@ -1568,6 +1584,9 @@ func parseDiskBandwidthHistory(c *api.QueryTableResult) ([]metric.TimeValue, err
 	for c.Next() {
 		date, err := ostime.Parse(metric.TimeLayout, c.Record().Time().String())
 		if err != nil {
+			continue
+		}
+		if c.Record().Value() == nil {
 			continue
 		}
 
