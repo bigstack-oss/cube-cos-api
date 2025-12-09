@@ -25,6 +25,7 @@ var (
 	}
 	StatusOkDesciptions = []string{
 		"checking returns the last result",
+		"checking",
 	}
 )
 
