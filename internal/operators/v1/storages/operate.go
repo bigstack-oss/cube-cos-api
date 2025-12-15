@@ -65,7 +65,7 @@ func (o *Operator) handleStorageReqs() {
 				continue
 			}
 
-			err := o.operateStorageReq(*req)
+			err := o.operateStorageReq(req)
 			o.handleStorageExit(*req, err)
 		}
 	}

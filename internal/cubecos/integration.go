@@ -192,7 +192,7 @@ func VerifyStorage(name string) (*storages.VerficationResult, error) {
 		return nil, err
 	}
 
-	return result, err
+	return result, nil
 }
 
 func DeleteStorage(name string) error {

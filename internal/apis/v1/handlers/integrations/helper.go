@@ -78,4 +78,5 @@ func (h *helper) listModels() ([]storages.Model, error) {
 
 func (h *helper) requestStorageVerification() {
 	h.updateLocalStorage()
+	h.updatePeerStorage()
 }

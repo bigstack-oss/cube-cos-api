@@ -71,6 +71,8 @@ func (h *helper) getStorageUrlByHandler(node nodes.Node) string {
 	switch h.handler {
 	case "creaeteStorage":
 		return node.PostStorageUrl()
+	case "verifyStorage":
+		return node.VerifyStorageUrl(h.storageReqOpts.CinderDetails.Name)
 	case "updateStorage":
 		return node.PatchStorageUrl(h.storageReqOpts.CinderDetails.Name)
 	case "deleteStorage":
@@ -207,7 +209,7 @@ func (h *helper) genStorageModelUrlByHandler(node nodes.Node) string {
 func (h *helper) genStorageReqByHandler() *resty.Request {
 	req := h.http.R().SetHeaders(h.convertHeadersToMap(h.c.Request.Header))
 	switch h.handler {
-	case "deleteStorage":
+	case "deleteStorage", "verifyStorage":
 		return req
 	default:
 		return req.SetBody(string(h.rawBody))

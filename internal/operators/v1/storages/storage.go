@@ -10,14 +10,14 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-func (o *Operator) operateStorageReq(req storages.ReqOpts) error {
+func (o *Operator) operateStorageReq(req *storages.ReqOpts) error {
 	switch req.Status.Desired {
 	case status.Created, status.Updated:
 		return cubecos.UpdateStorage(req.CinderDetails)
 	case status.Defaulted:
 		return cubecos.SetDefaultStorage(req.CinderDetails.Name)
 	case status.Verified:
-		return o.verifyStorage(&req)
+		return o.verifyStorage(req)
 	case status.Deleted:
 		return cubecos.DeleteStorage(req.CinderDetails.Name)
 	}
