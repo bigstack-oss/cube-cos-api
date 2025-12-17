@@ -685,18 +685,6 @@ const docTemplate = `{
                                                     ]
                                                 },
                                                 {
-                                                    "name": "businessLogic",
-                                                    "category": "cloud computing",
-                                                    "modules": [
-                                                        {
-                                                            "name": "senlin"
-                                                        },
-                                                        {
-                                                            "name": "watcher"
-                                                        }
-                                                    ]
-                                                },
-                                                {
                                                     "name": "dataPipe",
                                                     "category": "infrascope",
                                                     "modules": [
@@ -11715,25 +11703,6 @@ const docTemplate = `{
                                                         "default": 1024,
                                                         "min": 256,
                                                         "max": 65536
-                                                    },
-                                                    "roles": [
-                                                        {
-                                                            "name": "control-converged",
-                                                            "hosts": [
-                                                                {
-                                                                    "name": "example-node-0",
-                                                                    "ip": "10.10.10.10"
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "name": "senlin.debug.enabled",
-                                                    "description": "Set to true to enable senlin verbose log.",
-                                                    "limitation": {
-                                                        "type": "bool",
-                                                        "default": false
                                                     },
                                                     "roles": [
                                                         {

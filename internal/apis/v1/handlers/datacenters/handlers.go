@@ -29,7 +29,7 @@ var (
 		{
 			Version:              apis.V1,
 			Method:               http.MethodPost,
-			Path:                 "/datacenters/:DataCenter/reboot",
+			Path:                 "/datacenters/:DataCenter/rollingReboot",
 			Func:                 softRebootDataCenter,
 			IsNotUnderDataCenter: true,
 		},

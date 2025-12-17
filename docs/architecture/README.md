@@ -26,7 +26,6 @@ $ systemctl --type=service | grep api
   openstack-heat-api.service                loaded active running OpenStack Heat API Service
   openstack-manila-api.service              loaded active running OpenStack Manila API Server
   openstack-nova-api.service                loaded active running OpenStack Nova API Server
-  openstack-senlin-api.service              loaded active running OpenStack Senlin API Server
   openstack-watcher-api.service             loaded active running OpenStack Watcher API service
   skyline-apiserver.service                 loaded active running Skyline APIServer
 ```

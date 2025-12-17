@@ -104,7 +104,6 @@ const (
 	OctaviaHa                   = "octavia.ha"
 	OpensearchCuratorRp         = "opensearch.curator.rp"
 	OpensearchHeapSize          = "opensearch.heap.size"
-	SenlinDebugEnabled          = "senlin.debug.enabled"
 	SkylineDebugEnabled         = "skyline.debug.enabled"
 	SnapshotApplyAction         = "snapshot.apply.action"
 	SnapshotApplyPolicyIgnore   = "snapshot.apply.policy.ignore"
@@ -203,7 +202,6 @@ func setTuningToRoles() {
 	tuningToRoles[OctaviaHa] = nodes.AllRoles
 	tuningToRoles[OpensearchCuratorRp] = nodes.AllRoles
 	tuningToRoles[OpensearchHeapSize] = nodes.AllRoles
-	tuningToRoles[SenlinDebugEnabled] = nodes.AllRoles
 	tuningToRoles[SkylineDebugEnabled] = nodes.AllRoles
 	tuningToRoles[SnapshotApplyAction] = nodes.AllRoles
 	tuningToRoles[SnapshotApplyPolicyIgnore] = nodes.AllRoles

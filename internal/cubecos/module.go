@@ -183,14 +183,6 @@ var (
 			},
 		},
 		{
-			Name:     "businessLogic",
-			Category: "cloud computing",
-			Modules: []services.Module{
-				{Name: "senlin", IsRepairable: true, IsCloudOnly: true},
-				{Name: "watcher", IsRepairable: true},
-			},
-		},
-		{
 			Name:     "dataPipe",
 			Category: "infrascope",
 			Modules: []services.Module{

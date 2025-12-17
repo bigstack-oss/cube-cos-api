@@ -25,7 +25,6 @@ func ListFirmwares() ([]firmwares.Firmware, error) {
 	}
 
 	firmwares := convertHistoryToFirmwares(update)
-	// firmwares = removeFreshInstalledFirmwares(firmwares)
 	appendUninstalledFirmwares(&firmwares)
 
 	return firmwares, nil

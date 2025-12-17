@@ -82,7 +82,7 @@ func GetStorageIp(storageNet string) (string, error) {
 }
 
 func DumpInterfaces() ([]NetworkInterface, error) {
-	out, err := exec.Command("hex_sdk", "-v", "-f", "json", "DumpInterface").CombinedOutput()
+	out, err := exec.Command("hex_sdk", "-v", "-f", "json", "DumpInterface").Output()
 	if err != nil {
 		log.Errorf("net: failed to get network info(%v)", err)
 		return nil, err
