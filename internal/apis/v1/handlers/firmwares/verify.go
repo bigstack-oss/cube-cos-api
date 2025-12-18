@@ -14,7 +14,7 @@ import (
 
 func (h *helper) isFirmwareExists() bool {
 	segments := strings.Split(h.file, " ")
-	version := segments[2]
+	version := segments[3]
 
 	list, err := h.listFirmwares()
 	if err != nil {
@@ -33,7 +33,7 @@ func (h *helper) isFirmwareExists() bool {
 
 func (h *helper) isFirmwareInstalled() bool {
 	segments := strings.Split(h.file, " ")
-	version := segments[2]
+	version := segments[3]
 
 	list, err := h.listFirmwares()
 	if err != nil {

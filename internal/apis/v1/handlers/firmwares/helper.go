@@ -191,7 +191,7 @@ func (h *helper) deleteFirmware() error {
 	}
 
 	segments := strings.Split(h.file, " ")
-	version := segments[2]
+	version := segments[3]
 	entries, err := os.ReadDir(firmwares.UpdateDir)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to read update directory %s(%v)", h.reqId, firmwares.UpdateDir, err)

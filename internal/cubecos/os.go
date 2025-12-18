@@ -144,7 +144,7 @@ func SetResolvedInfoBySsh(host string) error {
 }
 
 func PowerCycleDataCenter() error {
-	out, err := exec.Command("hex_sdk", "-d", "cube_cluster_power", "cycle").CombinedOutput()
+	out, err := exec.Command("hex_sdk", "cube_cluster_power", "cycle").CombinedOutput()
 	if err != nil {
 		err := fmt.Errorf("failed to execute the cluster power cycle cmd(%v %s)", err, string(out))
 		log.Errorf("os: %v", err)
