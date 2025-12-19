@@ -25,7 +25,7 @@ func (h *helper) paginateFirmwares(list []firmwares.Firmware) []firmwares.Firmwa
 
 func (h *helper) sortFirmwares(list *[]firmwares.Firmware) {
 	sort.Slice(*list, func(i, j int) bool {
-		return (*list)[i].UpdatedAt > (*list)[j].UpdatedAt
+		return (*list)[i].Version > (*list)[j].Version
 	})
 }
 
