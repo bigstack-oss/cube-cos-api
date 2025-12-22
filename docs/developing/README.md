@@ -12,7 +12,7 @@ Genearlly, there're two ways for CubeCOS API developing which help you to have a
 
 ## ▎Get The Environment Ready
 
-- Go >= 1.24.0
+- Go >= 1.24.2
 
 - Taskfile
 

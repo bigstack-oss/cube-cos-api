@@ -1,13 +1,13 @@
 FROM fedora:35
 
 RUN dnf install -y ca-certificates wget
-ENV GOLANG_VERSION=1.24.0
+ENV GOLANG_VERSION=1.24.2
 ENV GOTOOLCHAIN=local
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 RUN rm -rf /usr/local/go
-RUN wget -q --no-check-certificate https://go.dev/dl/go1.24.0.linux-amd64.tar.gz
-RUN tar -C /usr/local -xzf go1.24.0.linux-amd64.tar.gz
-RUN rm go1.24.0.linux-amd64.tar.gz
+RUN wget -q --no-check-certificate https://go.dev/dl/go1.24.2.linux-amd64.tar.gz
+RUN tar -C /usr/local -xzf go1.24.2.linux-amd64.tar.gz
+RUN rm go1.24.2.linux-amd64.tar.gz
 
 RUN dnf install -y go-task rpmdevtools gh
 

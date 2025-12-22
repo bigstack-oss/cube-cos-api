@@ -1,6 +1,6 @@
 module github.com/bigstack-oss/cube-cos-api
 
-go 1.24.0
+go 1.24.2
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
@@ -19,7 +19,6 @@ require (
 	github.com/gophercloud/gophercloud/v2 v2.8.0
 	github.com/influxdata/influxdb-client-go/v2 v2.14.0
 	github.com/json-iterator/go v1.1.12
-	github.com/kr/pty v1.1.1
 	github.com/micro/plugins/v5/server/http v1.0.2
 	github.com/micro/plugins/v5/wrapper/breaker/hystrix v1.0.2
 	github.com/micro/plugins/v5/wrapper/ratelimiter/uber v1.0.2
