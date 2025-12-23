@@ -22105,7 +22105,9 @@ const docTemplate = `{
                                             "enum": [
                                                 "ok",
                                                 "warning",
-                                                "fail"
+                                                "fail",
+                                                "processing",
+                                                "unknown"
                                             ]
                                         },
                                         "isPromotable": {
@@ -26396,7 +26398,11 @@ const docTemplate = `{
                         "STG00002I": "#/components/schemas/STG00002I",
                         "STG00002E": "#/components/schemas/STG00002E",
                         "STG00003I": "#/components/schemas/STG00003I",
-                        "STG00003E": "#/components/schemas/STG00003E"
+                        "STG00003E": "#/components/schemas/STG00003E",
+                        "STG00004I": "#/components/schemas/STG00004I",
+                        "STG00004E": "#/components/schemas/STG00004E",
+                        "STG00005I": "#/components/schemas/STG00005I",
+                        "STG00005E": "#/components/schemas/STG00005E"
                     }
                 }
             },
