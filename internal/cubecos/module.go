@@ -183,6 +183,13 @@ var (
 			},
 		},
 		{
+			Name:     "businessLogic",
+			Category: "cloud computing",
+			Modules: []services.Module{
+				{Name: "watcher", IsRepairable: true},
+			},
+		},
+		{
 			Name:     "dataPipe",
 			Category: "infrascope",
 			Modules: []services.Module{

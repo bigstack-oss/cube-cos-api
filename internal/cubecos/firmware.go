@@ -128,7 +128,7 @@ func convertHistoryToFirmwares(update *firmwares.Upadte) []firmwares.Firmware {
 		dayBaseDate := convertRawTimeToDayBaseDate(raw.BuiltAt)
 		firmwaresList = append(firmwaresList, firmwares.Firmware{
 			Version:      convertFirmwareVersion(raw.Version, dayBaseDate),
-			ReleaseNotes: convertReleaseNotes(raw.Version, raw.Variant, date),
+			ReleaseNotes: convertReleaseNotes(raw.Version, raw.Variant, dayBaseDate),
 			UpdatedAt:    date,
 			Status: status.Firmware{
 				Current:     status.Succeeded,
@@ -149,12 +149,13 @@ func convertRawTimeToDayBaseDate(rawTime string) string {
 	return segments[0]
 }
 
-func removeFreshInstalledFirmwares(firmwares []firmwares.Firmware) []firmwares.Firmware {
-	if len(firmwares) > 0 {
-		firmwares = firmwares[1:]
+func convertRfc3339ToDayBaseDate(rfc3339Time string) string {
+	t, err := ostime.Parse(ostime.RFC3339, rfc3339Time)
+	if err != nil {
+		panic(err)
 	}
 
-	return firmwares
+	return t.Format("20060102-1504")
 }
 
 func appendUninstalledFirmwares(list *[]firmwares.Firmware) {
@@ -211,7 +212,7 @@ func ConvertPkgNameToFirmware(pkgname string) (*firmwares.Firmware, error) {
 	date := convertRawTime(time.FormatFirmwarePkg, segment[2])
 	return &firmwares.Firmware{
 		Version:      convertFirmwareVersion(segment[1], segment[2]),
-		ReleaseNotes: convertReleaseNotes(segment[1], segment[3], date),
+		ReleaseNotes: convertReleaseNotes(segment[1], segment[3], convertRfc3339ToDayBaseDate(date)),
 		Status: status.Firmware{
 			Current:     status.Available,
 			IsUpdatable: true,
