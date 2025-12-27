@@ -16,9 +16,10 @@ const (
 	TmpPreCalculateMd5 = "precalculated.md5"
 	DefaultMd5File     = "md5"
 
-	UpdateDir   = "/var/fixpack"
-	RollbackDir = "/var/fixpack_rollback"
-	Info        = "fixpack.info"
+	UpdateDir        = "/var/fixpack"
+	RollbackDir      = "/var/fixpack_rollback"
+	NeedRebootMarker = "/run/need_reboot"
+	Info             = "fixpack.info"
 )
 
 var (

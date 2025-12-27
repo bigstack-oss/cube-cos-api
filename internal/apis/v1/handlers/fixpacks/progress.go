@@ -167,9 +167,9 @@ func (h *helper) getRebootingHintsByNodeRole(host string) string {
 
 func (h *helper) convertOperationByStatus(current string) string {
 	switch strings.ToLower(current) {
-	case status.Installed:
+	case status.Installed, status.Installing:
 		return "install"
-	case status.Rollbacked:
+	case status.Rollbacked, status.RollingBack:
 		return "rollback"
 	default:
 		log.Warnf("fixpacks(%s): unknown fixpack action %s, set operation to install by default", h.reqId, current)

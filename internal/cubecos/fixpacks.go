@@ -7,11 +7,13 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -62,7 +64,12 @@ func ListFixpackRebootingNodes() ([]nodes.Node, error) {
 	rebootingNodes := []nodes.Node{}
 	for line := range lines {
 		segments := strings.Split(line, "|")
-		if len(segments) < 2 {
+		if len(segments) < 3 {
+			continue
+		}
+
+		desc := segments[2]
+		if strings.Contains(desc, "cannot access") {
 			continue
 		}
 
@@ -80,6 +87,10 @@ func ListFixpackRebootingNodes() ([]nodes.Node, error) {
 }
 
 func isValidFixpackError(err error) bool {
+	if err == nil {
+		return true
+	}
+
 	return err.Error() == "exit status 2"
 }
 
@@ -204,7 +215,26 @@ func InstallFixpack(req *fixpacks.ReqOpts) error {
 		return err
 	}
 
+	syncRebootingMarker(req)
 	return nil
+}
+
+func syncRebootingMarker(req *fixpacks.ReqOpts) {
+	fixpack, found := GetFixpackRawByVersion(req.Version)
+	if !found {
+		log.Errorf("fixpack: failed to get fixpack raw by version %s", req.Version)
+		return
+	}
+
+	if !slices.Contains(fixpack.RebootRequired, base.CurrentRole) {
+		return
+	}
+
+	_, err := os.Create(fixpacks.NeedRebootMarker)
+	if err != nil {
+		log.Errorf("fixpack: failed to create need reboot marker(%v)", err)
+		return
+	}
 }
 
 func RollbackFixpack() error {
@@ -281,7 +311,7 @@ func GetLatestFixpackInfo() (*fixpacks.Fixpack, error) {
 func getLatestFixpackDir() (string, error) {
 	entries, err := os.ReadDir(fixpacks.RollbackDir)
 	if err != nil {
-		log.Errorf("fixpack: failed to read rollback directory %s(%v)", fixpacks.RollbackDir, err)
+		log.Warnf("fixpack: no fixpack rollback directory(%s)", fixpacks.RollbackDir)
 		return "", err
 	}
 
@@ -615,6 +645,16 @@ func parseRebootRequiredRoles(val string) []string {
 		if nodes.HasRole(role) {
 			roles = append(roles, role)
 		}
+
+		if role != nodes.RoleCompute && role != nodes.RoleControl {
+			continue
+		}
+
+		if slices.Contains(roles, nodes.RoleControlConverged) {
+			continue
+		}
+
+		roles = append(roles, nodes.RoleControlConverged)
 	}
 
 	return roles
@@ -677,4 +717,8 @@ func unmountTmpDir(tmpDir string) {
 	if err != nil {
 		log.Errorf("fixpack: failed to remove tmp dir %s(%v)", tmpDir, err)
 	}
+}
+
+func RemoveFixpackRebootingMarker() {
+	os.Remove(fixpacks.NeedRebootMarker)
 }

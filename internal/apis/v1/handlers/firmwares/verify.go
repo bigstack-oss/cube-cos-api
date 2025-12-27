@@ -96,11 +96,12 @@ func (h *helper) findMatchedPkg(version string) (string, error) {
 	}
 
 	segments := strings.Split(version, " ")
-	if len(segments) < 3 {
+	if len(segments) < 4 {
 		return "", fmt.Errorf("invalid version format: %s", version)
 	}
 
 	version = segments[2]
+	date := segments[3]
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
@@ -113,6 +114,10 @@ func (h *helper) findMatchedPkg(version string) (string, error) {
 
 		pkgPrefix := fmt.Sprintf("_%s_", version)
 		if !strings.Contains(file, pkgPrefix) {
+			continue
+		}
+
+		if !strings.Contains(file, date) {
 			continue
 		}
 

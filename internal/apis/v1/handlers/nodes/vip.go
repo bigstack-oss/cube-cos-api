@@ -58,7 +58,7 @@ func (h *helper) moveFirmwareUpgradeProgress(node string) error {
 	defer ssh.Close()
 	err = ssh.Copy(firmwares.UpdateProgress, firmwares.UpdateProgress)
 	if err != nil {
-		log.Errorf("fixpacks(%s): failed to copy firmware upgrade progress to node %s(%v)", h.reqId, node, err)
+		log.Errorf("nodes(%s): failed to copy firmware upgrade progress to node %s(%v)", h.reqId, node, err)
 		return err
 	}
 

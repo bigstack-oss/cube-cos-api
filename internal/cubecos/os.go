@@ -9,9 +9,7 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ssh"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	log "go-micro.dev/v5/logger"
 	cryptossh "golang.org/x/crypto/ssh"
 	"golang.org/x/sys/unix"
@@ -73,16 +71,6 @@ func IsHexSuccessful(err error) bool {
 }
 
 func GracefulReboot() error {
-	node, err := nodes.Get(base.Hostname)
-	if err != nil {
-		log.Errorf("os: failed to get node info(%v)", err)
-		return err
-	}
-
-	if node.IsVirtualIpOwner {
-		MoveVirtualIpOwner()
-	}
-
 	unix.Sync()
 	return Reboot()
 }
