@@ -3,6 +3,7 @@ package firmwares
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"os"
 	"path/filepath"
 	"strings"
@@ -80,7 +81,14 @@ func (h *helper) listUpdatableNodes() ([]node, error) {
 		})
 	}
 
+	h.sortNodesByName(&updatables)
 	return updatables, nil
+}
+
+func (h *helper) sortNodesByName(nodes *[]node) {
+	sort.SliceStable(*nodes, func(i, j int) bool {
+		return (*nodes)[i].Name < (*nodes)[j].Name
+	})
 }
 
 func (h *helper) updateFirmware() error {
