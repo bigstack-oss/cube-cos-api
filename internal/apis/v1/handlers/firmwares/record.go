@@ -5,9 +5,9 @@ import (
 	"os"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ssh"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	defssh "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ssh"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -39,7 +39,7 @@ func (h *helper) setBoostrappingMarker() {
 }
 
 func (h *helper) moveBoostrappingMarkerToController(node string) error {
-	sshAuth, err := cubecos.GenDefaultSshAuth()
+	sshAuth, err := defssh.GenSshAuth("/root/.ssh/id_rsa")
 	if err != nil {
 		return err
 	}
@@ -84,7 +84,7 @@ func (h *helper) removePreviousBoostrappingMarker() error {
 }
 
 func (h *helper) removeBoostrappingMarkerFromController(node string) error {
-	sshAuth, err := cubecos.GenDefaultSshAuth()
+	sshAuth, err := defssh.GenSshAuth("/root/.ssh/id_rsa")
 	if err != nil {
 		return err
 	}

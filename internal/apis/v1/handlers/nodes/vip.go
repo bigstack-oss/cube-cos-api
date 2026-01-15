@@ -6,9 +6,9 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ssh"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pacemaker"
+	defssh "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ssh"
 	log "go-micro.dev/v5/logger"
 	cryptossh "golang.org/x/crypto/ssh"
 )
@@ -40,7 +40,7 @@ func (h *helper) moveFirmwareUpgradeProgress(node string) error {
 		return nil
 	}
 
-	sshAuth, err := cubecos.GenDefaultSshAuth()
+	sshAuth, err := defssh.GenSshAuth("/root/.ssh/id_rsa")
 	if err != nil {
 		return err
 	}

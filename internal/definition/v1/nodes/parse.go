@@ -1,6 +1,8 @@
 package nodes
 
-import "go-micro.dev/v5/registry"
+import (
+	"go-micro.dev/v5/registry"
+)
 
 func HostnameMap() (map[string]Node, error) {
 	svcs, err := GetDiscoveredServices()

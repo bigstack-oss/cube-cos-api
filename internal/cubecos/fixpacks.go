@@ -13,9 +13,9 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ssh"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	"github.com/google/uuid"
@@ -226,7 +226,7 @@ func syncRebootingMarker(req *fixpacks.ReqOpts) {
 		return
 	}
 
-	if !slices.Contains(fixpack.RebootRequired, base.CurrentRole) {
+	if len(fixpack.RebootRequired) == 0 {
 		return
 	}
 
@@ -234,6 +234,13 @@ func syncRebootingMarker(req *fixpacks.ReqOpts) {
 	if err != nil {
 		log.Errorf("fixpack: failed to create need reboot marker(%v)", err)
 		return
+	}
+
+	for _, node := range parseRebootTargetNodes(fixpack.RebootRequired) {
+		err := ssh.SyncRemoteFile(node, fixpacks.NeedRebootMarker, fixpacks.NeedRebootMarker)
+		if err != nil {
+			log.Errorf("fixpack: failed to sync rebooting marker to node %s(%v)", node, err)
+		}
 	}
 }
 
@@ -252,6 +259,50 @@ func RollbackFixpack() error {
 	}
 
 	return nil
+}
+
+func GetLatestInstalledFixpackVersion() (string, error) {
+	ctx, canel := context.WithTimeout(wait.CtxSeconds(120))
+	defer canel()
+	out, err := exec.CommandContext(ctx, "hex_config", "fixpack_get_history").CombinedOutput()
+	if err != nil {
+		log.Errorf("fixpacks: failed to execute fixpack history cmd(%v)", err)
+		return "", err
+	}
+
+	uninstalled := map[string]bool{}
+	lines := strings.Split(string(out), "\n")
+	for i := len(lines) - 1; i >= 0; i-- {
+		segments := strings.Split(lines[i], "|")
+		if len(segments) < 6 {
+			continue
+		}
+
+		version := segments[1]
+		action := segments[4]
+		result := segments[3]
+
+		if strings.EqualFold(action, "uninstalled") {
+			if strings.EqualFold(result, "no") {
+				uninstalled[version] = true
+			}
+		}
+
+		if strings.EqualFold(action, "installed") {
+			if !strings.EqualFold(result, "yes") {
+				continue
+			}
+
+			_, isUninstalled := uninstalled[version]
+			if isUninstalled {
+				continue
+			}
+		}
+
+		return version, nil
+	}
+
+	return "", nil
 }
 
 func GetLatestFixpackInfo() (*fixpacks.Fixpack, error) {
@@ -470,16 +521,19 @@ func parseRebootRequired(list []string) bool {
 
 func parseRebootTargetNodes(roles []string) []string {
 	list := []string{}
-	for _, role := range roles {
-		nodes, err := nodes.GetNodesByRole(strings.ToLower(role))
-		if err != nil {
-			log.Warnf("fixpack: failed to get nodes by role %s(%v)", role, err)
+	for _, node := range nodes.List() {
+		if node.Role == nodes.RoleControlConverged {
+			list = append(list, node.Hostname)
 			continue
 		}
 
-		for _, n := range nodes {
-			list = append(list, n.Hostname)
+		if slices.Contains(roles, node.Role) {
+			list = append(list, node.Hostname)
 		}
+	}
+
+	if len(list) == 0 {
+		log.Warnf("fixpacks: no any nodes found for %v", roles)
 	}
 
 	return list
@@ -546,13 +600,13 @@ func setRollbackableStatus(fixpacks *[]fixpacks.Fixpack) {
 		return
 	}
 
-	latest, err := GetLatestFixpackInfo()
+	latestVersion, err := GetLatestInstalledFixpackVersion()
 	if err != nil {
 		return
 	}
 
 	for i, fixpack := range *fixpacks {
-		if strings.EqualFold(fixpack.Version, latest.Version) {
+		if strings.EqualFold(fixpack.Version, latestVersion) {
 			(*fixpacks)[i].Status.IsRollbackable = true
 		} else {
 			(*fixpacks)[i].Status.IsRollbackable = false

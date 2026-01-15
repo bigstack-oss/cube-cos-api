@@ -257,6 +257,11 @@ func (h *helper) parseDestination(properties map[string]any) string {
 		return destination
 	}
 
+	destination, ok = properties[images.Stores].(string)
+	if ok && destination != "" {
+		return destination
+	}
+
 	return "CubeStorage"
 }
 

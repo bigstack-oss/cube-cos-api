@@ -128,10 +128,10 @@ func (h *helper) syncStatusByNodeProgresses(list *[]fixpacks.Fixpack) {
 			}
 		}
 
-		if finalStatus == status.Available {
-			(*list)[i].Status.Current = finalStatus
-		} else {
+		if finalStatus == status.WaitingReboot || finalStatus == status.Rebooting {
 			(*list)[i].Status.Current = fmt.Sprintf("%s from %s", finalStatus, update.Operation)
+		} else {
+			(*list)[i].Status.Current = finalStatus
 		}
 	}
 }
