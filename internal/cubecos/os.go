@@ -10,6 +10,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ssh"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
+	defssh "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ssh"
 	log "go-micro.dev/v5/logger"
 	cryptossh "golang.org/x/crypto/ssh"
 	"golang.org/x/sys/unix"
@@ -111,9 +112,16 @@ func SoftRebootBySsh(host string) error {
 }
 
 func SetResolvedInfoBySsh(host string) error {
+	sshAuth, err := defssh.GenSshAuth("/root/.ssh/id_rsa")
+	if err != nil {
+		log.Errorf("ssh: failed to generate ssh auth for syncing remote file to %s(%v)", host, err)
+		return err
+	}
+
 	ssh, err := ssh.NewHelper(
-		ssh.Host(host),
+		ssh.Host(fmt.Sprintf("%s:22", host)),
 		ssh.User("root"),
+		ssh.AuthMethod(sshAuth),
 		ssh.HostKeyCallback(cryptossh.InsecureIgnoreHostKey()),
 	)
 	if err != nil {
@@ -125,6 +133,34 @@ func SetResolvedInfoBySsh(host string) error {
 	err = ssh.Run(fmt.Sprintf("touch %s", firmwares.ResolvedMarker))
 	if err != nil {
 		log.Errorf("os: failed to set the upgrade resolved marker on the system %s(%v)", host, err)
+		return err
+	}
+
+	return nil
+}
+
+func RemoveFileBySsh(host, filePath string) error {
+	sshAuth, err := defssh.GenSshAuth("/root/.ssh/id_rsa")
+	if err != nil {
+		log.Errorf("ssh: failed to generate ssh auth for syncing remote file to %s(%v)", host, err)
+		return err
+	}
+
+	ssh, err := ssh.NewHelper(
+		ssh.Host(fmt.Sprintf("%s:22", host)),
+		ssh.User("root"),
+		ssh.AuthMethod(sshAuth),
+		ssh.HostKeyCallback(cryptossh.InsecureIgnoreHostKey()),
+	)
+	if err != nil {
+		log.Errorf("os: failed to create ssh helper for file removal(%s)(%v)", host, err)
+		return err
+	}
+
+	defer ssh.Close()
+	err = ssh.Run(fmt.Sprintf("rm -rf %s", filePath))
+	if err != nil {
+		log.Errorf("os: failed to remove the file on the system %s(%v)", host, err)
 		return err
 	}
 

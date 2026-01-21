@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ssh"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	log "go-micro.dev/v5/logger"
 	cryptossh "golang.org/x/crypto/ssh"
 )
@@ -30,6 +29,7 @@ func GenSshAuth(idRsaPath string) (cryptossh.AuthMethod, error) {
 func SyncRemoteFile(host, src, dst string) error {
 	sshAuth, err := GenSshAuth("/root/.ssh/id_rsa")
 	if err != nil {
+		log.Errorf("ssh: failed to generate ssh auth for syncing remote file to %s(%v)", host, err)
 		return err
 	}
 
@@ -40,11 +40,12 @@ func SyncRemoteFile(host, src, dst string) error {
 		ssh.HostKeyCallback(cryptossh.InsecureIgnoreHostKey()),
 	)
 	if err != nil {
+		log.Errorf("ssh: failed to create ssh helper for syncing remote file to %s(%v)", host, err)
 		return err
 	}
 
 	defer ssh.Close()
-	err = ssh.Copy(firmwares.UpdateProgress, firmwares.UpdateProgress)
+	err = ssh.Copy(src, dst)
 	if err != nil {
 		log.Errorf("ssh: failed to copy firmware upgrade progress to node %s(%v)", host, err)
 		return err

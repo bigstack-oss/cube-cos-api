@@ -229,5 +229,10 @@ func (h *helper) moveFile(srcPath, dstPath string) error {
 		return err
 	}
 
+	err = h.syncFixpackToControllers(dstPath)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

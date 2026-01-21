@@ -152,6 +152,12 @@ func (h *helper) deleteFixpack() error {
 		return err
 	}
 
+	err = h.removePeerFixpacks(h.file)
+	if err != nil {
+		log.Errorf("fixpacks(%s): failed to remove peer fixpacks(%v)", h.reqId, err)
+		return err
+	}
+
 	return nil
 }
 
