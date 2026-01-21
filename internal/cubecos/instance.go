@@ -22,5 +22,7 @@ func EvacuateVms(hostname string) error {
 		)
 	}
 
+	// have to wait for while vm to be evacuated
+
 	return nil
 }

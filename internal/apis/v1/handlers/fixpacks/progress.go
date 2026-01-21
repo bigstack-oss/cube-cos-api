@@ -55,7 +55,7 @@ func (h *helper) getUpdateProgressRecordByVersion(version string) (*update, erro
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
 	defer cancel()
 	defer c.Close(ctx)
-	update, err := h.parseUpdateProgress(c, h.reqOpts.Version)
+	update, err := h.parseUpdateProgress(c, version)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (h *helper) parseUpdateProgress(c *mongo.Cursor, version string) (*update, 
 
 		update.Version = reqOpts.Version
 		update.Operation = h.convertOperationByStatus(reqOpts.Status.Current)
-		current, processPercent := h.getProgressByVersion(h.reqOpts.Version)
+		current, processPercent := h.getProgressByVersion(version)
 		node, err := nodes.Get(reqOpts.Hostname)
 		if err != nil {
 			log.Warnf("fixpacks(%s): failed to get node %s info for fixpack progress (%v)", h.reqId, reqOpts.Hostname, err)

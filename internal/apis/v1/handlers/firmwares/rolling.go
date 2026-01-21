@@ -44,6 +44,10 @@ func (h *helper) placeRollingTrigger() {
 			continue
 		}
 
+		// if cubecos.IsPrimaryController(base.Hostname) {
+
+		// }
+
 		log.Infof("firmwares: all nodes are partitioned, start rolling upgrade on %s", base.Hostname)
 		err := cubecos.EvacuateVms(base.Hostname)
 		if err != nil {

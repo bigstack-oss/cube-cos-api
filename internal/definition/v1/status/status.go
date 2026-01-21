@@ -31,7 +31,7 @@ const (
 	Removing                 = "removing"
 	Expairing                = "expairing"
 	Fixing                   = "fixing"
-	RollingBack              = "rollingBack"
+	RollingBack              = "rolling back"
 	WaitingReboot            = "waiting reboot"
 	WaitingRebootFomInstall  = "waiting reboot from install"
 	WaitingRebootFomRollback = "waiting reboot from rollback"

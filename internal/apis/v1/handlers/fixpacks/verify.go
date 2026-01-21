@@ -59,14 +59,14 @@ func (h *helper) isFixpackRemovable() bool {
 }
 
 func (h *helper) getVersionStatus(version string) (string, error) {
-	syncNodeProgress := false
-	fixpacks, err := h.listFixpacks(syncNodeProgress)
+	fixpacks, err := cubecos.ListFixpacks()
 	if err != nil {
-		log.Errorf("fixpacks(%s): failed to list fixpack for checking installation(%v)", h.reqId, err)
+		log.Errorf("fixpacks(%s): failed to list fixpacks(%v)", h.reqId, err)
 		return "", err
 	}
 
-	for _, fixpack := range fixpacks.Fixpacks {
+	h.syncRequestingRecord(&fixpacks)
+	for _, fixpack := range fixpacks {
 		if fixpack.Version != version {
 			continue
 		}

@@ -26,6 +26,6 @@ func RemoveHostPendingReq(db, collection string) {
 		},
 	)
 	if err != nil {
-		log.Errorf("%s: failed to reset pending requests: %v", db, err)
+		log.Errorf("%s: failed to reset isUpdating requests: %v", db, err)
 	}
 }

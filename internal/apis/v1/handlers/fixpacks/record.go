@@ -88,7 +88,7 @@ func (h *helper) syncRequestingRecord(list *[]fixpacks.Fixpack) {
 }
 
 func (h *helper) syncStatusByNodeProgresses(list *[]fixpacks.Fixpack) {
-	for i, fixpack := range *list {
+	for _, fixpack := range *list {
 		update, err := h.getFixpackUpdateProgress(fixpack.Version)
 		if err != nil {
 			log.Errorf("fixpacks(%s): failed to get fixpack update progress (%v)", h.reqId, err)
@@ -96,43 +96,65 @@ func (h *helper) syncStatusByNodeProgresses(list *[]fixpacks.Fixpack) {
 		}
 
 		finalStatus := status.Available
-		for _, progress := range update.Progresses {
-			if progress.Status.Current == status.Installing {
-				finalStatus = status.Installing
-				continue
-			}
-
-			if progress.Status.Current == status.InstallFailed {
-				finalStatus = status.InstallFailed
-				continue
-			}
-
-			if progress.Status.Current == status.RollingBack {
-				finalStatus = status.RollingBack
-				continue
-			}
-
-			if progress.Status.Current == status.RollbackFailed {
-				finalStatus = status.RollbackFailed
-				continue
-			}
-
-			if progress.Status.Current == status.WaitingReboot {
-				finalStatus = status.WaitingReboot
-				continue
-			}
-
-			if progress.Status.Current == status.Rebooting {
-				finalStatus = status.Rebooting
-				continue
-			}
+		val, found := h.foundFailureOrInprogessStatus(update.Progresses)
+		if found {
+			finalStatus = val
 		}
 
-		if finalStatus == status.WaitingReboot || finalStatus == status.Rebooting {
-			(*list)[i].Status.Current = fmt.Sprintf("%s from %s", finalStatus, update.Operation)
-		} else {
-			(*list)[i].Status.Current = finalStatus
+		h.polishRebootingStatus(&fixpack, finalStatus, update.Operation)
+		h.polishInstallationStatus(&fixpack, update)
+	}
+}
+
+func (h *helper) foundFailureOrInprogessStatus(progresses []progress) (string, bool) {
+	for _, progress := range progresses {
+		if progress.Status.Current == status.Installing {
+			return status.Installing, true
 		}
+
+		if progress.Status.Current == status.InstallFailed {
+			return status.InstallFailed, true
+		}
+
+		if progress.Status.Current == status.RollingBack {
+			return status.RollingBack, true
+		}
+
+		if progress.Status.Current == status.RollbackFailed {
+			return status.RollbackFailed, true
+
+		}
+
+		if progress.Status.Current == status.WaitingReboot {
+			return status.WaitingReboot, true
+		}
+
+		if progress.Status.Current == status.Rebooting {
+			return status.Rebooting, true
+		}
+	}
+
+	return "", false
+}
+
+func (h *helper) polishRebootingStatus(fixpack *fixpacks.Fixpack, finalStatus string, operation string) {
+	if finalStatus == status.WaitingReboot || finalStatus == status.Rebooting {
+		fixpack.Status.Current = fmt.Sprintf("%s from %s", finalStatus, operation)
+	} else {
+		fixpack.Status.Current = finalStatus
+	}
+}
+
+func (h *helper) polishInstallationStatus(fixpack *fixpacks.Fixpack, update *update) {
+	installCount := 0
+	for _, progress := range update.Progresses {
+		if progress.Status.Current == status.Installed {
+			installCount++
+		}
+	}
+
+	if installCount == len(update.Progresses) {
+		fixpack.Status.Current = status.Installed
 	}
 }
 
