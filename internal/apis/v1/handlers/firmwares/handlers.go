@@ -71,6 +71,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/firmwares/nodes/:nodeName/rollingReboot",
+			Func:    rollingRebootNode,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/firmwares/:version/:nodeName",
 			Func:    retryNodeFirmwareUpdate,
@@ -298,6 +304,21 @@ func continueInterruptedFirmwareUpdate(c *gin.Context) {
 		c,
 		"Firmware update continued successfully",
 		nil,
+	)
+}
+
+func rollingRebootNode(c *gin.Context) {
+	h, err := initHelper(c, "rollingRebootNode")
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	go h.prerebootLocal()
+	bodies.SetAccepted(
+		c,
+		"The request to rolling reboot node has been accepted, please check the firmware upgrade progress for more details",
 	)
 }
 

@@ -9,9 +9,12 @@ import (
 	ostime "time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/math"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
+	"github.com/gophercloud/gophercloud/v2/openstack/blockstorage/v3/volumetypes"
 	opsimage "github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -252,17 +255,30 @@ func (h *helper) parseDestination(properties map[string]any) string {
 		return ""
 	}
 
-	destination, ok := properties[images.CubeDefinedDestination].(string)
+	destination, ok := properties[images.Stores].(string)
 	if ok && destination != "" {
-		return destination
+		return h.convertVolumeBackendToType(destination)
 	}
 
-	destination, ok = properties[images.Stores].(string)
-	if ok && destination != "" {
-		return destination
+	return storages.CubeStorage
+}
+
+func (h *helper) convertVolumeBackendToType(backend string) string {
+	openstack := openstack.GetGlobalHelper()
+	volTypes, err := openstack.ListVolumeTypes(volumetypes.ListOpts{})
+	if err != nil {
+		log.Errorf("images: failed to list volume types(%v)", err)
+		return storages.CubeStorage
 	}
 
-	return "CubeStorage"
+	for _, volType := range volTypes {
+		val, found := volType.ExtraSpecs["volume_backend_name"]
+		if found && val == backend {
+			return volType.Name
+		}
+	}
+
+	return storages.CubeStorage
 }
 
 func (h *helper) parseProjectName(id string) string {

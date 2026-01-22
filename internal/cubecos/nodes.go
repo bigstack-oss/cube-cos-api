@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v1"
@@ -108,6 +109,34 @@ func GetNodeRole() (string, error) {
 	}
 
 	return role, nil
+}
+
+func GetPrimaryControllerHost() (string, error) {
+	hostsStr, err := GetTuningValue(CubeSysControllerHosts)
+	if err != nil {
+		return "", err
+	}
+
+	if hostsStr == "" {
+		return "", fmt.Errorf("controller hosts is empty")
+	}
+
+	hosts := strings.Split(hostsStr, ",")
+	if len(hosts) == 0 {
+		return "", fmt.Errorf("no controller hosts found")
+	}
+
+	return hosts[0], nil
+}
+
+func IsPrimaryController(hostname string) bool {
+	primary, err := GetPrimaryControllerHost()
+	if err != nil {
+		log.Errorf("nodes: failed to get primary controller host(%v)", err)
+		return false
+	}
+
+	return primary == hostname
 }
 
 func ListNodesWithTimeSensitiveInfo() []nodes.Node {

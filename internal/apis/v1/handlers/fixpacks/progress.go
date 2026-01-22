@@ -34,7 +34,7 @@ type progress struct {
 	Status status.SystemUpdateProgress `json:"status"`
 }
 
-func (h *helper) getUpdateProgressRecordByVersion(version string) (*update, error) {
+func (h *helper) getUpgradeProgressRecordByVersion(version string) (*update, error) {
 	c, err := h.mongo.GetQueryCursor(
 		fixpacks.Db,
 		fixpacks.ReqCollection,

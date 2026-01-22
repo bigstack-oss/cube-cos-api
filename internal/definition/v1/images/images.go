@@ -5,6 +5,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
 )
 
 const (
@@ -21,7 +22,7 @@ const (
 
 var (
 	Visibilitise = []string{"public", "private"}
-	Destinations = []string{"CubeStorage"}
+	Destinations = []string{storages.CubeStorage}
 	Oses         = []string{
 		"CentOS",
 		"Fedora",
@@ -46,7 +47,7 @@ var (
 		{
 			Name:                        "amphora-x64-haproxy",
 			Os:                          "Ubuntu",
-			Destination:                 "CubeStorage",
+			Destination:                 storages.CubeStorage,
 			Domain:                      "Default",
 			Project:                     "admin",
 			SourceFromAnotherHypervisor: false,
@@ -59,7 +60,7 @@ var (
 		{
 			Name:                        "manila-service-image",
 			Os:                          "Ubuntu",
-			Destination:                 "CubeStorage",
+			Destination:                 storages.CubeStorage,
 			Domain:                      "Default",
 			Project:                     "admin",
 			SourceFromAnotherHypervisor: false,

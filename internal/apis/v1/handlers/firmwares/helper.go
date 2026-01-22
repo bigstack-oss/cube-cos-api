@@ -3,9 +3,9 @@ package firmwares
 import (
 	"errors"
 	"fmt"
-	"sort"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"

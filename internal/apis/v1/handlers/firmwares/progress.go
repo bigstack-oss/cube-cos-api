@@ -38,29 +38,31 @@ func (h *helper) initUpgradeProgress() firmwares.Upgrade {
 	}
 }
 
-func (h *helper) setProgressDetails(progress *firmwares.Upgrade) {
+func (h *helper) setProgressDetails(progress *firmwares.Upgrade) error {
 	file, err := os.Create(firmwares.UpdateProgress)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to create progress file for update(%v)", h.reqId, err)
-		return
+		return err
 	}
 
 	defer file.Close()
 	content, err := json.Marshal(progress)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to marshal progress details(%v)", h.reqId, err)
-		return
+		return err
 	}
 
 	_, err = file.WriteString(string(content))
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to write progress file(%v)", h.reqId, err)
-		return
+		return err
 	}
+
+	return nil
 }
 
 func (h *helper) getUpgradeDetails() (*firmwares.Upgrade, error) {
-	upgrade, err := h.getPartitioningProgress()
+	upgrade, err := h.getUpgradeProgress()
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +116,7 @@ func (h *helper) convertProgressStatus(bootstrapping firmwares.BoostrappingStatu
 	return status.Installing
 }
 
-func (h *helper) getPartitioningProgress() (*firmwares.Upgrade, error) {
+func (h *helper) getUpgradeProgress() (*firmwares.Upgrade, error) {
 	out, err := os.ReadFile(firmwares.UpdateProgress)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to read progress file(%v)", h.reqId, err)
@@ -304,4 +306,45 @@ func (h *helper) syncNodeUpgradeProgress(hostname string, upgrade *firmwares.Upg
 			Status: *s,
 		},
 	)
+}
+
+func (h *helper) setUpdateProgressOnNode(hostname, phase, status string) error {
+	update, err := h.getUpgradeProgress()
+	if err != nil {
+		log.Errorf("firmwares: failed to get update progress(%v)", err)
+		return err
+	}
+
+	for i, progress := range update.Progresses {
+		if progress.Host == hostname {
+			update.Progresses[i].Phase = phase
+			update.Progresses[i].Status.Current = status
+		}
+	}
+
+	return h.setProgressDetails(update)
+}
+
+func (h *helper) waitForPrimaryControllerVmEvacuated() {
+	hostname, err := cubecos.GetPrimaryControllerHost()
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to get primary controller host(%v)", err, h.reqId)
+		h.markNodeAsFailed(err.Error())
+		return
+	}
+
+	log.Infof("firmwares: wait for all vms evacuated on node %s", hostname)
+	err = cubecos.WaitForAllVmsEvacuated(hostname)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to wait for all vms evacuated (%v)", err, h.reqId)
+		h.markNodeAsFailed(err.Error())
+		return
+	}
+
+	err = h.setUpdateProgressOnNode(hostname, "rebooting", status.Rebooting)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to set rebooting progress(%v)", err, h.reqId)
+		h.markNodeAsFailed(err.Error())
+		return
+	}
 }

@@ -6,6 +6,7 @@ import (
 	"maps"
 	"net/http"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -102,4 +103,33 @@ func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
 
 	maps.Copy(headerMap, nodes.GetSecretHeaders())
 	return headerMap
+}
+
+func (h *helper) prerebootPrimaryController() {
+	host, err := cubecos.GetPrimaryControllerHost()
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to get primary controller host(%v)", h.reqId, err)
+		return
+	}
+
+	node, err := nodes.Get(host)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to get primary controller node %s(%v)", h.reqId, host, err)
+		return
+	}
+
+	resp, err := h.http.R().
+		SetHeaders(nodes.GetSecretHeaders()).
+		Post(node.FirmwareRollingRebootUrl())
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to prereboot primary controller %s(%v)", h.reqId, node.Hostname, err)
+		return
+	}
+
+	if !resp.IsError() {
+		return
+	}
+
+	err = fmt.Errorf("resp error for firmware rolling reboot on primary controller %s: %s", node.Hostname, string(resp.Body()))
+	log.Errorf("firmwares(%s): %v", h.reqId, err)
 }

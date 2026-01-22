@@ -35,6 +35,7 @@ const (
 	CubeSysControllerIp      = "cubesys.controller.ip"
 	CubeSysManagementNetwork = "cubesys.management"
 	CubeSysStorageNetwork    = "cubesys.storage"
+	CubeSysControllerHosts   = "cubesys.control.hosts"
 	CubeNetIfAddrPrefix      = "net.if.addr."
 	NetIfAddrEth0            = "net.if.addr.eth0"
 

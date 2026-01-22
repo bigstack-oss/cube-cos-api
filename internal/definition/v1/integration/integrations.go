@@ -5,6 +5,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
 )
 
 const (
@@ -13,7 +14,7 @@ const (
 
 var (
 	BuiltInStorages = map[string]bool{
-		"CubeStorage": true,
+		storages.CubeStorage: true,
 	}
 )
 

@@ -30,7 +30,7 @@ func (h *helper) placeRollingTrigger() {
 		return
 	}
 
-	log.Infof("firmwares: start to place rolling trigger", base.Hostname)
+	log.Infof("firmwares(%s): start to place rolling trigger", h.reqId)
 	if atomic.LoadInt32(&rollingTriggerCount) > 0 {
 		return
 	}
@@ -38,38 +38,76 @@ func (h *helper) placeRollingTrigger() {
 	atomic.AddInt32(&rollingTriggerCount, 1)
 	defer atomic.AddInt32(&rollingTriggerCount, -1)
 	for {
-		log.Infof("firmwares: check whether all nodes are partitioned")
+		log.Infof("firmwares(%s): check whether all nodes are partitioned", h.reqId)
 		wait.Seconds(5)
 		if !h.areAllNodesPartitioned() {
 			continue
 		}
 
-		// if cubecos.IsPrimaryController(base.Hostname) {
-		// }
-
-		log.Infof("firmwares: all nodes are partitioned, start rolling upgrade on %s", base.Hostname)
-		err := cubecos.EvacuateVms(base.Hostname)
+		log.Infof("firmwares(%s): do rolling reboot procedure", h.reqId)
+		hostname, err := cubecos.GetPrimaryControllerHost()
 		if err != nil {
-			log.Errorf("firmwares: failed to evacuate vms (%v)", err)
-			h.markNodeAsFailed(err.Error())
+			log.Errorf("firmwares(%s): failed to get primary controller host(%v)", err, h.reqId)
 			return
 		}
 
-		log.Infof("firmwares: all vms are evacuated, set bootstrapping marker and drain node %s", base.Hostname)
-		h.setBoostrappingMarker()
-		err = h.drainNode()
+		err = h.setUpdateProgressOnNode(hostname, "evacuting vms on host", status.Rebooting)
 		if err != nil {
-			log.Errorf("firmwares: failed to drain node (%v)", err)
-			h.markNodeAsFailed(err.Error())
+			log.Errorf("firmwares(%s): failed to set rebooting progress(%v)", err, h.reqId)
 			return
 		}
 
-		err = cubecos.GracefulReboot()
-		if err != nil {
-			log.Errorf("firmwares: failed to reboot node (%v)", err)
-			h.markNodeAsFailed(err.Error())
+		if cubecos.IsPrimaryController(base.Hostname) {
+			h.prerebootLocal()
 			return
 		}
+
+		log.Infof("firmwares(%s): current node %s is not primary controller, send prereboot procedure request to %s", base.Hostname, h.reqId, hostname)
+		h.prerebootPrimaryController()
+		h.waitForPrimaryControllerVmEvacuated()
+		return
+	}
+}
+
+func (h *helper) prerebootLocal() {
+	log.Infof("firmwares: start to evacuate vms on node %s", base.Hostname)
+	err := cubecos.EvacuateVms(base.Hostname)
+	if err != nil {
+		log.Errorf("firmwares: failed to evacuate vms (%v)", err)
+		h.markNodeAsFailed(err.Error())
+		return
+	}
+
+	log.Infof("firmwares: wait for all vms evacuated on node %s", base.Hostname)
+	err = cubecos.WaitForAllVmsEvacuated(base.Hostname)
+	if err != nil {
+		log.Errorf("firmwares: failed to wait for all vms evacuated (%v)", err)
+		h.markNodeAsFailed(err.Error())
+		return
+	}
+
+	log.Infof("firmwares: all vms are evacuated, set bootstrapping marker and drain node %s", base.Hostname)
+	h.setBoostrappingMarker()
+	err = h.drainNode()
+	if err != nil {
+		log.Errorf("firmwares: failed to drain node (%v)", err)
+		h.markNodeAsFailed(err.Error())
+		return
+	}
+
+	log.Infof("firmwares: drain completed, reboot node %s", base.Hostname)
+	err = h.setUpdateProgressOnNode(base.Hostname, "rebooting", status.Rebooting)
+	if err != nil {
+		log.Errorf("firmwares: failed to set rebooting progress(%v)", err)
+		h.markNodeAsFailed(err.Error())
+		return
+	}
+
+	err = cubecos.GracefulReboot()
+	if err != nil {
+		log.Errorf("firmwares: failed to reboot node (%v)", err)
+		h.markNodeAsFailed(err.Error())
+		return
 	}
 }
 
@@ -80,7 +118,10 @@ func (h *helper) areAllNodesPartitioned() bool {
 	}
 
 	for _, progress := range update.Progresses {
-		log.Infof("%s: %s", progress.Host, progress.Status.Current)
+		log.Infof("firmware(%s): %s %s", h.reqId, progress.Host, progress.Status.Current)
+	}
+
+	for _, progress := range update.Progresses {
 		if progress.Status.Current != status.WaitingReboot {
 			return false
 		}

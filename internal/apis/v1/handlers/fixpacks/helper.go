@@ -62,7 +62,7 @@ func (h *helper) listFixpacks(syncNodeProgress bool) (*fixpacksPage, error) {
 }
 
 func (h *helper) getFixpackUpdateProgress(version string) (*update, error) {
-	update, err := h.getUpdateProgressRecordByVersion(version)
+	update, err := h.getUpgradeProgressRecordByVersion(version)
 	if err != nil {
 		return nil, err
 	}
