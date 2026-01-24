@@ -14,7 +14,7 @@ const (
 
 	UpdateDir          = "/var/update"
 	UpdateHistory      = "/var/appliance-db/update.history"
-	UpdateProgress     = "/var/run/cube-cos-api/progress.json"
+	UpdateProgress     = "/var/lib/cube-cos-api/progress.json"
 	ResolvedMarker     = "/var/lib/cube-cos-api/resolved"
 	BoostrappingMarker = "/var/lib/cube-cos-api/bootstrapping"
 )
@@ -84,7 +84,7 @@ func (u *ReqOpts) SetError(err string) {
 	u.Status.Description = err
 }
 
-func (u *ReqOpts) SetInstalled() {
-	u.Status.Current = status.Succeeded
+func (u *ReqOpts) SetWaitingReboot() {
+	u.Status.Current = status.WaitingReboot
 	u.Status.IsProcessing = false
 }

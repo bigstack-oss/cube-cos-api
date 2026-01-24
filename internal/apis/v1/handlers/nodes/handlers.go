@@ -5,7 +5,10 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/nodes"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -317,7 +320,14 @@ func drainNode(c *gin.Context) {
 		return
 	}
 
-	err = h.drainNode()
+	err = cubecos.SetNodeUpdateProgress(base.Hostname, status.Rebooting, status.Rebooting)
+	if err != nil {
+		log.Errorf("nodes(%s): failed to set node(%s) update progress(%v)", h.reqId, base.Hostname, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	err = cubecos.DrainNode()
 	if err != nil {
 		log.Errorf("nodes(%s): failed to drain node(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)

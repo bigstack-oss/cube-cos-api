@@ -30,7 +30,7 @@ func (o *Operator) handleExit(req *firmwares.ReqOpts, err error) {
 		req.SetError(err.Error())
 	} else {
 		log.Infof("firmwares: %s %s successfully", req.Status.Desired, req.Version)
-		req.SetInstalled()
+		req.SetWaitingReboot()
 	}
 
 	req.Hostname = base.Hostname

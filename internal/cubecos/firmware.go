@@ -2,19 +2,23 @@ package cubecos
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 	ostime "time"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ssh"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	defssh "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ssh"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	json "github.com/json-iterator/go"
 	log "go-micro.dev/v5/logger"
+	cryptossh "golang.org/x/crypto/ssh"
 	"gopkg.in/yaml.v3"
 )
 
@@ -101,6 +105,120 @@ func GetBoostrappingProgress() ([]firmwares.BoostrappingStatus, error) {
 	}
 
 	return status, nil
+}
+
+func GetUpgradeProgress() (*firmwares.Upgrade, error) {
+	out, err := os.ReadFile(firmwares.UpdateProgress)
+	if err != nil {
+		log.Errorf("firmwares: failed to read progress file(%v)", err)
+		return nil, err
+	}
+
+	upgrade := &firmwares.Upgrade{}
+	err = json.Unmarshal(out, upgrade)
+	if err != nil {
+		log.Errorf("firmwares: failed to unmarshal progress file(%v)", err)
+		return nil, err
+	}
+
+	return upgrade, nil
+}
+
+func SetNodeUpdateProgress(hostname, phase, status string) error {
+	update, err := GetUpgradeProgress()
+	if err != nil {
+		log.Errorf("firmwares: failed to get update progress(%v)", err)
+		return err
+	}
+
+	for i, progress := range update.Progresses {
+		if progress.Host == hostname {
+			update.Progresses[i].Phase = phase
+			update.Progresses[i].Status.Current = status
+		}
+	}
+
+	return SetProgressDetails(update)
+}
+
+func SetProgressDetails(progress *firmwares.Upgrade) error {
+	file, err := os.Create(firmwares.UpdateProgress)
+	if err != nil {
+		log.Errorf("firmwares: failed to create progress file for update(%v)", err)
+		return err
+	}
+
+	defer file.Close()
+	content, err := json.Marshal(progress)
+	if err != nil {
+		log.Errorf("firmwares: failed to marshal progress details(%v)", err)
+		return err
+	}
+
+	_, err = file.WriteString(string(content))
+	if err != nil {
+		log.Errorf("firmwares: failed to write progress file(%v)", err)
+		return err
+	}
+
+	return nil
+}
+
+func SyncFirmwareUpgradeProgressToAllNodes() {
+	for _, node := range nodes.List() {
+		err := MoveFirmwareUpgradeProgress(node.Hostname)
+		if err != nil {
+			log.Errorf("nodes: failed to move firmware upgrade progress to controller %s(%v)", node.Hostname, err)
+		}
+	}
+}
+
+func MoveFirmwareUpgradeProgress(node string) error {
+	if !IsProgressFileExist() {
+		return errors.New("firmware upgrade progress file does not exist")
+	}
+
+	sshAuth, err := defssh.GenSshAuth(defssh.DefaultPrivateKey)
+	if err != nil {
+		return err
+	}
+
+	ssh, err := ssh.NewHelper(
+		ssh.Host(fmt.Sprintf("%s:22", node)),
+		ssh.User("root"),
+		ssh.AuthMethod(sshAuth),
+		ssh.HostKeyCallback(cryptossh.InsecureIgnoreHostKey()),
+	)
+	if err != nil {
+		return err
+	}
+
+	defer ssh.Close()
+	err = ssh.Copy(firmwares.UpdateProgress, firmwares.UpdateProgress)
+	if err != nil {
+		log.Errorf("firmwares: failed to copy firmware upgrade progress to node %s(%v)", node, err)
+		return err
+	}
+
+	return nil
+}
+
+func IsProgressFileExist() bool {
+	_, err := os.Stat(firmwares.UpdateProgress)
+	if err == nil {
+		return true
+	}
+
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	log.Errorf(
+		"firmwares: failed to check if firmware upgrade progress file exists(%v)",
+		err,
+	)
+
+	return false
 }
 
 func parseUpdateHistory() (*firmwares.Upadte, error) {

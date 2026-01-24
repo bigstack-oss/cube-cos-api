@@ -112,7 +112,7 @@ func SoftRebootBySsh(host string) error {
 }
 
 func SetResolvedInfoBySsh(host string) error {
-	sshAuth, err := defssh.GenSshAuth("/root/.ssh/id_rsa")
+	sshAuth, err := defssh.GenSshAuth(defssh.DefaultPrivateKey)
 	if err != nil {
 		log.Errorf("ssh: failed to generate ssh auth for syncing remote file to %s(%v)", host, err)
 		return err
@@ -140,7 +140,7 @@ func SetResolvedInfoBySsh(host string) error {
 }
 
 func RemoveFileBySsh(host, filePath string) error {
-	sshAuth, err := defssh.GenSshAuth("/root/.ssh/id_rsa")
+	sshAuth, err := defssh.GenSshAuth(defssh.DefaultPrivateKey)
 	if err != nil {
 		log.Errorf("ssh: failed to generate ssh auth for syncing remote file to %s(%v)", host, err)
 		return err

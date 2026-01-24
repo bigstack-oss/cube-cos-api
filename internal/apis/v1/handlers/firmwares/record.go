@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ssh"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	defssh "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ssh"
@@ -39,7 +40,7 @@ func (h *helper) setBoostrappingMarker() {
 }
 
 func (h *helper) moveBoostrappingMarkerToController(node string) error {
-	sshAuth, err := defssh.GenSshAuth("/root/.ssh/id_rsa")
+	sshAuth, err := defssh.GenSshAuth(defssh.DefaultPrivateKey)
 	if err != nil {
 		return err
 	}
@@ -77,14 +78,14 @@ func (h *helper) removePreviousBoostrappingMarker() error {
 	}
 
 	for _, controller := range controllers {
-		h.removeBoostrappingMarkerFromController(controller.Hostname)
+		h.removeBoostrappingMarker(controller.Hostname)
 	}
 
 	return nil
 }
 
-func (h *helper) removeBoostrappingMarkerFromController(node string) error {
-	sshAuth, err := defssh.GenSshAuth("/root/.ssh/id_rsa")
+func (h *helper) removeBoostrappingMarker(node string) error {
+	sshAuth, err := defssh.GenSshAuth(defssh.DefaultPrivateKey)
 	if err != nil {
 		return err
 	}
@@ -200,7 +201,7 @@ func (h *helper) updateFirmwareTask() error {
 		break
 	}
 
-	h.setProgressDetails(update)
+	cubecos.SetProgressDetails(update)
 	return nil
 }
 

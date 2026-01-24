@@ -125,11 +125,17 @@ func (h *helper) prerebootPrimaryController() {
 		log.Errorf("firmwares(%s): failed to prereboot primary controller %s(%v)", h.reqId, node.Hostname, err)
 		return
 	}
-
 	if !resp.IsError() {
 		return
 	}
 
-	err = fmt.Errorf("resp error for firmware rolling reboot on primary controller %s: %s", node.Hostname, string(resp.Body()))
-	log.Errorf("firmwares(%s): %v", h.reqId, err)
+	log.Errorf(
+		"firmwares(%s): %v",
+		h.reqId,
+		fmt.Errorf(
+			"resp error for firmware rolling reboot on primary controller %s: %s",
+			node.Hostname,
+			string(resp.Body()),
+		),
+	)
 }

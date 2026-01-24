@@ -10,6 +10,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v1"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v1/accelerators/devices"
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -190,6 +191,49 @@ func IsGpuEnabled() (bool, error) {
 	}
 
 	return len(devices) > 0, nil
+}
+
+func DrainNode() error {
+	SyncFirmwareUpgradeProgressToAllNodes()
+	if !IsVirtualIpOwner(base.Hostname) {
+		return nil
+	}
+
+	err := MoveVirtualIpOwner()
+	if err != nil {
+		log.Errorf("nodes: failed to move virtual ip owner(%v)", err)
+		return err
+	}
+
+	err = WaitForVirutalIpOwnerChanged(base.Hostname)
+	if err != nil {
+		log.Errorf("nodes: failed to wait for virtual ip owner changed(%v)", err)
+		return err
+	}
+
+	return nil
+}
+
+func WaitForVirutalIpOwnerChanged(oldOwner string) error {
+	for range 600 {
+		wait.Seconds(1)
+		host, err := pacemaker.GetVirtualIpHost()
+		if err != nil {
+			log.Errorf("nodes: failed to get virtual ip host(%v)", err)
+			continue
+		}
+
+		if host == oldOwner {
+			log.Infof("nodes: virtual ip owner is still %s, wait for it changed", oldOwner)
+			continue
+		}
+
+		return nil
+	}
+
+	return fmt.Errorf(
+		"failed to wait for virtual ip owner changed in 10 minutes",
+	)
 }
 
 func syncTimeSensitiveInfo(list *[]nodes.Node) {

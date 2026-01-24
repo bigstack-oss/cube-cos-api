@@ -10,6 +10,10 @@ import (
 	cryptossh "golang.org/x/crypto/ssh"
 )
 
+const (
+	DefaultPrivateKey = "/root/.ssh/id_rsa"
+)
+
 func GenSshAuth(idRsaPath string) (cryptossh.AuthMethod, error) {
 	key, err := os.ReadFile(idRsaPath)
 	if err != nil {
@@ -27,7 +31,7 @@ func GenSshAuth(idRsaPath string) (cryptossh.AuthMethod, error) {
 }
 
 func SyncRemoteFile(host, src, dst string) error {
-	sshAuth, err := GenSshAuth("/root/.ssh/id_rsa")
+	sshAuth, err := GenSshAuth(DefaultPrivateKey)
 	if err != nil {
 		log.Errorf("ssh: failed to generate ssh auth for syncing remote file to %s(%v)", host, err)
 		return err

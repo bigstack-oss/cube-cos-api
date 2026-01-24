@@ -53,11 +53,14 @@ func convertToHosts(nodes []Node) []Host {
 func parseNodesByRole(svc *registry.Service, role string) []Node {
 	nodes := []Node{}
 	for _, node := range svc.Nodes {
-		if node.Metadata["role"] != role {
+		if node.Metadata["role"] == RoleControlConverged {
+			nodes = append(nodes, New(node))
 			continue
 		}
 
-		nodes = append(nodes, New(node))
+		if node.Metadata["role"] == role {
+			nodes = append(nodes, New(node))
+		}
 	}
 
 	return nodes

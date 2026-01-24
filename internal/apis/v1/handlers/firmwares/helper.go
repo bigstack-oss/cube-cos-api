@@ -111,7 +111,7 @@ func (h *helper) updateFirmware() error {
 	}
 
 	h.delegateToPeers(updatables, &progress)
-	h.setProgressDetails(&progress)
+	cubecos.SetProgressDetails(&progress)
 	go h.placeRollingTrigger()
 	return nil
 }
@@ -123,7 +123,7 @@ func (h *helper) updateNodeFirmware() error {
 		return err
 	}
 
-	defer h.setProgressDetails(update)
+	defer cubecos.SetProgressDetails(update)
 	for i, p := range update.Progresses {
 		if p.Host != h.reqOpts.Hostname {
 			continue

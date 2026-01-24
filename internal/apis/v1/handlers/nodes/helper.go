@@ -12,7 +12,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pacemaker"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -260,38 +259,6 @@ func (h *helper) disconnectNodeIpmi() error {
 			"failed to disconnect node ipmi due to the db issues(%v)",
 			err,
 		)
-	}
-
-	return nil
-}
-
-func (h *helper) drainNode() error {
-	if !cubecos.IsVirtualIpOwner(h.node) {
-		return nil
-	}
-
-	err := cubecos.MoveVirtualIpOwner()
-	if err != nil {
-		log.Errorf("nodes(%s): failed to move virtual ip owner(%v)", h.reqId, err)
-		return err
-	}
-
-	err = h.waitForVirutalIpOwnerChanged(h.node)
-	if err != nil {
-		log.Errorf("nodes(%s): failed to wait for virtual ip owner changed(%v)", h.reqId, err)
-		return err
-	}
-
-	node, err := pacemaker.GetVirtualIpHost()
-	if err != nil {
-		log.Errorf("nodes(%s): failed to get virtual ip host(%v)", h.reqId, err)
-		return err
-	}
-
-	err = h.moveFirmwareUpgradeProgress(node)
-	if err != nil {
-		log.Errorf("nodes(%s): failed to move firmware upgrade progress(%v)", h.reqId, err)
-		return err
 	}
 
 	return nil

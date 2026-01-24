@@ -38,31 +38,8 @@ func (h *helper) initUpgradeProgress() firmwares.Upgrade {
 	}
 }
 
-func (h *helper) setProgressDetails(progress *firmwares.Upgrade) error {
-	file, err := os.Create(firmwares.UpdateProgress)
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to create progress file for update(%v)", h.reqId, err)
-		return err
-	}
-
-	defer file.Close()
-	content, err := json.Marshal(progress)
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to marshal progress details(%v)", h.reqId, err)
-		return err
-	}
-
-	_, err = file.WriteString(string(content))
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to write progress file(%v)", h.reqId, err)
-		return err
-	}
-
-	return nil
-}
-
 func (h *helper) getUpgradeDetails() (*firmwares.Upgrade, error) {
-	upgrade, err := h.getUpgradeProgress()
+	upgrade, err := cubecos.GetUpgradeProgress()
 	if err != nil {
 		return nil, err
 	}
@@ -116,23 +93,6 @@ func (h *helper) convertProgressStatus(bootstrapping firmwares.BoostrappingStatu
 	return status.Installing
 }
 
-func (h *helper) getUpgradeProgress() (*firmwares.Upgrade, error) {
-	out, err := os.ReadFile(firmwares.UpdateProgress)
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to read progress file(%v)", h.reqId, err)
-		return nil, err
-	}
-
-	upgrade := &firmwares.Upgrade{}
-	err = json.Unmarshal(out, upgrade)
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to unmarshal progress file(%v)", h.reqId, err)
-		return nil, err
-	}
-
-	return upgrade, nil
-}
-
 func (h *helper) sortUpgradeProgress(progresses *[]firmwares.Progress) {
 	sort.Slice(*progresses, func(i, j int) bool {
 		return (*progresses)[i].Host < (*progresses)[j].Host
@@ -183,7 +143,6 @@ func (h *helper) syncFirstTimeInstallationProgress() {
 	_, err = f.Write(b)
 	if err != nil {
 		log.Errorf("firmwares: failed to write firmware progress(%v)", err)
-		return
 	}
 }
 
@@ -308,23 +267,6 @@ func (h *helper) syncNodeUpgradeProgress(hostname string, upgrade *firmwares.Upg
 	)
 }
 
-func (h *helper) setUpdateProgressOnNode(hostname, phase, status string) error {
-	update, err := h.getUpgradeProgress()
-	if err != nil {
-		log.Errorf("firmwares: failed to get update progress(%v)", err)
-		return err
-	}
-
-	for i, progress := range update.Progresses {
-		if progress.Host == hostname {
-			update.Progresses[i].Phase = phase
-			update.Progresses[i].Status.Current = status
-		}
-	}
-
-	return h.setProgressDetails(update)
-}
-
 func (h *helper) waitForPrimaryControllerVmEvacuated() {
 	hostname, err := cubecos.GetPrimaryControllerHost()
 	if err != nil {
@@ -341,10 +283,12 @@ func (h *helper) waitForPrimaryControllerVmEvacuated() {
 		return
 	}
 
-	err = h.setUpdateProgressOnNode(hostname, "rebooting", status.Rebooting)
+	err = cubecos.SetNodeUpdateProgress(hostname, status.Rebooting, status.Rebooting)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to set rebooting progress(%v)", err, h.reqId)
 		h.markNodeAsFailed(err.Error())
 		return
 	}
+
+	cubecos.SyncFirmwareUpgradeProgressToAllNodes()
 }
