@@ -344,6 +344,12 @@ func (n *Node) VerifyStorageUrl(name string) string {
 	return u.String()
 }
 
+func (n *Node) SetDefaultStorageUrl(name string) string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages/%s/asDefault", base.DataCenterName, name)
+	return u.String()
+}
+
 func (n *Node) PatchStorageUrl(name string) string {
 	u := n.GenUrl()
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages/%s", base.DataCenterName, name)

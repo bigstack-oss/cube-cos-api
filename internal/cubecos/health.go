@@ -326,7 +326,7 @@ func GetRepairingInfo() (*services.ReairingInfo, error) {
 	info := services.ReairingInfo{}
 	err = json.Unmarshal(b, &info)
 	if err != nil {
-		log.Errorf("healths: failed to unmarshal repairing info(%v)", err)
+		log.Errorf("healths: failed to unmarshal repairing info %s(%v)", string(b), err)
 		return nil, err
 	}
 

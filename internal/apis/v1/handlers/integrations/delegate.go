@@ -71,6 +71,8 @@ func (h *helper) getStorageUrlByHandler(node nodes.Node) string {
 	switch h.handler {
 	case "creaeteStorage":
 		return node.PostStorageUrl()
+	case "setStorageAsDefault":
+		return node.SetDefaultStorageUrl(h.storageReqOpts.CinderDetails.Name)
 	case "verifyStorage":
 		return node.VerifyStorageUrl(h.storageReqOpts.CinderDetails.Name)
 	case "updateStorage":
