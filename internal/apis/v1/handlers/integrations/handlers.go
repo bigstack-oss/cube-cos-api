@@ -193,7 +193,7 @@ func verifyStorage(c *gin.Context) {
 		return
 	}
 	if !found {
-		bodies.SetConflict(c, fmt.Errorf("storage %s does not exist", h.storageReqOpts.CinderDetails.Name))
+		bodies.SetNotFound(c, fmt.Errorf("storage %s does not exist", h.storageReqOpts.CinderDetails.Name))
 		return
 	}
 

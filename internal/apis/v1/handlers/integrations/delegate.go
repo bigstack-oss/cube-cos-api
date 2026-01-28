@@ -29,6 +29,10 @@ func (h *helper) updateLocalStorage() {
 }
 
 func (h *helper) updatePeerStorage() {
+	if !base.IsHaEnabled {
+		return
+	}
+
 	if !cubecos.IsVirtualIpOwner(base.Hostname) {
 		return
 	}
@@ -146,6 +150,10 @@ func (h *helper) updateLocalStorageModel() {
 }
 
 func (h *helper) updatePeerStorageModels() {
+	if !base.IsHaEnabled {
+		return
+	}
+
 	if !cubecos.IsVirtualIpOwner(base.Hostname) {
 		return
 	}

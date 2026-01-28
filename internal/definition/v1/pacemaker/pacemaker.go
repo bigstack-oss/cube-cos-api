@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -149,6 +150,10 @@ func (s *Status) GetVipHost() (string, error) {
 }
 
 func IsVirtualIpOwner(hostname string) bool {
+	if !base.IsHaEnabled {
+		return true
+	}
+
 	vipHost, err := GetVirtualIpHost()
 	if err != nil {
 		log.Warnf("nodes: failed to get virtual ip host(%v)", err)
