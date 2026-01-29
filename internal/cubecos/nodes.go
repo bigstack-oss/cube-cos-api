@@ -55,6 +55,10 @@ func GetVirtualIpController() (*nodes.Node, error) {
 		)
 	}
 
+	if !base.IsHaEnabled {
+		return &nodes[0], nil
+	}
+
 	syncVirutalIpOwner(&nodes)
 	if !base.IsHaEnabled {
 		return &nodes[0], nil

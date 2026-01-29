@@ -91,9 +91,15 @@ func Reboot() error {
 }
 
 func SoftRebootBySsh(host string) error {
+	sshAuth, err := defssh.GenSshAuth(defssh.DefaultPrivateKey)
+	if err != nil {
+		return err
+	}
+
 	ssh, err := ssh.NewHelper(
-		ssh.Host(host),
+		ssh.Host(fmt.Sprintf("%s:22", host)),
 		ssh.User("root"),
+		ssh.AuthMethod(sshAuth),
 		ssh.HostKeyCallback(cryptossh.InsecureIgnoreHostKey()),
 	)
 	if err != nil {

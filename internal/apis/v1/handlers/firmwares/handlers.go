@@ -83,12 +83,6 @@ var (
 		},
 		{
 			Version: apis.V1,
-			Method:  http.MethodGet,
-			Path:    "/firmwares/resovled/:nodeName",
-			Func:    getFirmwareNodeResolvedStatus,
-		},
-		{
-			Version: apis.V1,
 			Method:  http.MethodDelete,
 			Path:    "/firmwares/:version",
 			Func:    deleteFirmware,
@@ -98,6 +92,12 @@ var (
 			Method:  http.MethodPatch,
 			Path:    "/firmwares/tasks",
 			Func:    updateFirmwareTask,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/firmwares/hasClusterBootstrappingMarker",
+			Func:    hasClusterBootstrappingMarker,
 		},
 	}
 )
@@ -342,23 +342,6 @@ func retryNodeFirmwareUpdate(c *gin.Context) {
 	)
 }
 
-func getFirmwareNodeResolvedStatus(c *gin.Context) {
-	h, err := initHelper(c, "getFirmwareNodeResolvedStatus")
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err, nil)
-		return
-	}
-
-	bodies.SetOk(
-		c,
-		"Firmware node resolved status",
-		gin.H{
-			"hasFailureBeenResolved": h.hasLocalResolvedMarker(),
-		},
-	)
-}
-
 func updateFirmware(c *gin.Context) {
 	h, err := initHelper(c, "updateFirmware")
 	if err != nil {
@@ -469,6 +452,26 @@ func updateFirmwareTask(c *gin.Context) {
 	bodies.SetOk(
 		c,
 		"Firmware task updated successfully",
+		nil,
+	)
+}
+
+func hasClusterBootstrappingMarker(c *gin.Context) {
+	h, err := initHelper(c, "hasClusterBootstrappingMarker")
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	if !h.hasBootstrappingMarker() {
+		bodies.SetNotFound(c, errors.New("bootstrapping marker not found"))
+		return
+	}
+
+	bodies.SetOk(
+		c,
+		"Found bootstrapping marker",
 		nil,
 	)
 }

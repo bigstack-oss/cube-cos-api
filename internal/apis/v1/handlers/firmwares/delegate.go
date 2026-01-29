@@ -18,7 +18,7 @@ func (h *helper) delegateToLocal() {
 	reqQueue.Add(&h.reqOpts)
 }
 
-func (h *helper) delegateToPeers(list []node, upgrade *firmwares.Upgrade) {
+func (h *helper) updatePeerFirmware(list []node, upgrade *firmwares.Upgrade) {
 	for _, peer := range list {
 		h.delegateToPeer(peer.Name, upgrade)
 	}

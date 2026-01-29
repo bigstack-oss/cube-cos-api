@@ -292,7 +292,7 @@ func (n *Node) UpdateFirmwareUrl() string {
 
 func (n *Node) GetFirmwareResovledUrl() string {
 	u := n.GenUrl()
-	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/firmwares/%s/resolved", base.DataCenterName, n.Hostname)
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/firmwares/resolved/%s", base.DataCenterName, n.Hostname)
 	return u.String()
 }
 
@@ -311,6 +311,12 @@ func (n *Node) FirmwareRollingRebootUrl() string {
 func (n *Node) GetFixpackInfoUrl() string {
 	u := n.GenUrl()
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/fixpacks/nodes/%s/version", base.DataCenterName, n.Hostname)
+	return u.String()
+}
+
+func (n *Node) GetFirmwareBootstrappingUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/firmwares/hasClusterBootstrappingMarker", base.DataCenterName)
 	return u.String()
 }
 

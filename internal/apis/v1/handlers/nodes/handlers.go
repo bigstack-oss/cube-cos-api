@@ -320,7 +320,7 @@ func drainNode(c *gin.Context) {
 		return
 	}
 
-	err = cubecos.SetNodeUpdateProgress(base.Hostname, status.Rebooting, status.Rebooting)
+	err = cubecos.SetNodeUpdateProgress(base.Hostname, status.Rebooting, status.Rebooting, false)
 	if err != nil {
 		log.Errorf("nodes(%s): failed to set node(%s) update progress(%v)", h.reqId, base.Hostname, err)
 		bodies.SetInternalServerError(c, err)

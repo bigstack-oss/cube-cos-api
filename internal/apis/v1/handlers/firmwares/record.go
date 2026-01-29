@@ -16,12 +16,12 @@ import (
 	cryptossh "golang.org/x/crypto/ssh"
 )
 
-func (h *helper) isBoostrappingInProgress() bool {
+func (h *helper) hasBootstrappingMarker() bool {
 	_, err := os.Stat(firmwares.BoostrappingMarker)
 	return err == nil
 }
 
-func (h *helper) setBoostrappingMarker() {
+func (h *helper) syncBoostrappingMarker() {
 	err := os.WriteFile(firmwares.BoostrappingMarker, []byte(""), 0644)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to create boostrapping marker file %s(%v)", h.reqId, firmwares.BoostrappingMarker, err)
@@ -187,7 +187,7 @@ func (h *helper) updateFirmwareTask() error {
 		case status.Error:
 			current = status.Failed
 			desc = h.reqOpts.Status.Description
-		case status.Succeeded:
+		case status.WaitingReboot:
 			current = status.WaitingReboot
 		}
 
@@ -203,9 +203,4 @@ func (h *helper) updateFirmwareTask() error {
 
 	cubecos.SetProgressDetails(update)
 	return nil
-}
-
-func (h *helper) hasLocalResolvedMarker() bool {
-	_, err := os.Stat(firmwares.ResolvedMarker)
-	return err == nil
 }

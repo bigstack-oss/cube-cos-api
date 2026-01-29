@@ -16,6 +16,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	opfirmwares "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/firmwares"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -92,12 +93,6 @@ func (h *helper) sortNodesByName(nodes *[]node) {
 }
 
 func (h *helper) updateFirmware() error {
-	err := h.removePreviousBoostrappingMarker()
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to remove previous boostrapping marker (%v)", h.reqId, err)
-		return err
-	}
-
 	h.delegateToLocal()
 	if !cubecos.IsVirtualIpOwner(base.Hostname) {
 		return nil
@@ -110,8 +105,9 @@ func (h *helper) updateFirmware() error {
 		return err
 	}
 
-	h.delegateToPeers(updatables, &progress)
+	h.updatePeerFirmware(updatables, &progress)
 	cubecos.SetProgressDetails(&progress)
+	h.syncProgressToAllNodes()
 	go h.placeRollingTrigger()
 	return nil
 }
@@ -151,7 +147,7 @@ func (h *helper) abortFirmwareUpdate() error {
 	}
 
 	h.syncFirstTimeInstallationProgress()
-	h.syncProgressToControllers()
+	h.syncProgressToAllNodes()
 	return nil
 }
 
@@ -173,19 +169,20 @@ func (h *helper) continueInterruptedFirmwareUpdate() error {
 		return err
 	}
 
-	err = cubecos.SetResolvedInfoBySsh(h.reqOpts.Hostname)
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to set resolved info on node %s (%v)", h.reqId, node.Hostname, err)
-		return err
-	}
-
 	if node.IsVirtualIpOwner {
 		cubecos.MoveVirtualIpOwner()
 	}
 
+	err = cubecos.SetNodeUpdateProgress(node.Hostname, status.Rebooting, status.Rebooting, true)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to set rebooting progress(%v)", err, h.reqId)
+		return err
+	}
+
+	cubecos.SyncFirmwareUpgradeProgressToAllNodes()
 	err = cubecos.SoftRebootBySsh(node.Hostname)
 	if err != nil {
-		log.Errorf("firmwares(%s): failed to soft reboot node %s (%v)", h.reqId, node.Hostname, err)
+		log.Errorf("firmwares(%s): failed to soft reboot node %s(%v)", h.reqId, node.Hostname, err)
 		return err
 	}
 

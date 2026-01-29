@@ -30,7 +30,6 @@ func ListFirmwares() ([]firmwares.Firmware, error) {
 
 	firmwares := convertHistoryToFirmwares(update)
 	appendUninstalledFirmwares(&firmwares)
-
 	return firmwares, nil
 }
 
@@ -82,22 +81,10 @@ func GetUpdateInterruptedNode() (*nodes.Node, error) {
 func GetBoostrappingProgress() ([]firmwares.BoostrappingStatus, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(180))
 	defer cancel()
-
-	out, err := exec.CommandContext(ctx, "hex_sdk", "-f", "json", "stats_bootstrap").CombinedOutput()
-	if err != nil {
-		err := genIntegrationErr("boostrapping progress exec failure")
-		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
-		return nil, err
-	}
-
-	if !IsHexSuccessful(err) {
-		err := genIntegrationErr("boostrapping progress output failure")
-		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
-		return nil, err
-	}
+	out, _ := exec.CommandContext(ctx, "hex_sdk", "-f", "json", "stats_bootstrap").Output()
 
 	var status []firmwares.BoostrappingStatus
-	err = json.Unmarshal(out, &status)
+	err := json.Unmarshal(out, &status)
 	if err != nil {
 		err := genIntegrationErr("boostrapping progress output parsing failure")
 		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
@@ -124,7 +111,7 @@ func GetUpgradeProgress() (*firmwares.Upgrade, error) {
 	return upgrade, nil
 }
 
-func SetNodeUpdateProgress(hostname, phase, status string) error {
+func SetNodeUpdateProgress(hostname, phase, status string, isContinueAnywaied bool) error {
 	update, err := GetUpgradeProgress()
 	if err != nil {
 		log.Errorf("firmwares: failed to get update progress(%v)", err)
@@ -135,6 +122,10 @@ func SetNodeUpdateProgress(hostname, phase, status string) error {
 		if progress.Host == hostname {
 			update.Progresses[i].Phase = phase
 			update.Progresses[i].Status.Current = status
+		}
+
+		if !progress.Status.IsContinueAnywaied && isContinueAnywaied {
+			update.Progresses[i].Status.IsContinueAnywaied = isContinueAnywaied
 		}
 	}
 

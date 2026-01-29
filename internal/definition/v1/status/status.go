@@ -38,6 +38,7 @@ const (
 	Rebooting                = "rebooting"
 	RebootingFromInstall     = "rebooting from install"
 	RebootingFromRollback    = "rebooting from rollback"
+	EvacutingVmOnHost        = "evacuting vms on host"
 	PoweringOn               = "powering on"
 	PoweringOff              = "powering off"
 	PoweringCycle            = "powering cycle"
@@ -202,10 +203,11 @@ type Model struct {
 }
 
 type SystemUpdateProgress struct {
-	Current        string  `json:"current" bson:"current"`
-	IsProcessing   bool    `json:"isProcessing" bson:"isProcessing"`
-	ProcessPercent float64 `json:"processPercent" bson:"processPercent"`
-	Description    string  `json:"description" bson:"description"`
+	Current            string  `json:"current" bson:"current"`
+	IsProcessing       bool    `json:"isProcessing" bson:"isProcessing"`
+	ProcessPercent     float64 `json:"processPercent" bson:"processPercent"`
+	IsContinueAnywaied bool    `json:"isContinueAnywaied" bson:"isContinueAnywaied"`
+	Description        string  `json:"description" bson:"description"`
 }
 
 func NewHealthOk() *Health {

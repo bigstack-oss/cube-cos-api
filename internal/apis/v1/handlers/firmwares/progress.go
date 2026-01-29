@@ -2,17 +2,19 @@ package firmwares
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"sort"
-	"strings"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ssh"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ssh"
+	defssh "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ssh"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
+	cryptossh "golang.org/x/crypto/ssh"
 )
 
 type node struct {
@@ -44,7 +46,7 @@ func (h *helper) getUpgradeDetails() (*firmwares.Upgrade, error) {
 		return nil, err
 	}
 
-	if h.isBoostrappingInProgress() {
+	if h.hasBootstrappingMarker() {
 		return h.syncBoostrappingProgress(upgrade)
 	}
 
@@ -62,31 +64,55 @@ func (h *helper) syncBoostrappingProgress(upgrade *firmwares.Upgrade) (*firmware
 }
 
 func (h *helper) convertToUpgradeProgress(upgrade *firmwares.Upgrade, boostrappings []firmwares.BoostrappingStatus) {
-	progresses := []firmwares.Progress{}
-
-	for _, boostrapping := range boostrappings {
-		progress := firmwares.Progress{
-			Host:  boostrapping.Node,
-			Phase: boostrapping.Stdout,
-			Status: status.SystemUpdateProgress{
-				Current:        h.convertProgressStatus(boostrapping),
-				IsProcessing:   true,
-				ProcessPercent: 80,
-			},
+	for i, progress := range upgrade.Progresses {
+		if progress.Phase != status.Rebooting && progress.Phase != status.Partitioning {
+			continue
 		}
 
-		progresses = append(progresses, progress)
-	}
+		if i != 0 && upgrade.Progresses[i-1].Status.Current != status.Succeeded {
+			continue
+		}
 
-	upgrade.Progresses = progresses
+		upgrade.Progresses[i].Phase = h.findPhaseFromBoostrapping(progress, boostrappings)
+		upgrade.Progresses[i].Status.Current = h.findStatusFromBoostrapping(progress, boostrappings)
+		if upgrade.Progresses[i].Status.Current == status.Succeeded {
+			upgrade.Progresses[i].Status.IsProcessing = false
+			upgrade.Progresses[i].Status.ProcessPercent = 100
+		} else {
+			upgrade.Progresses[i].Status.IsProcessing = true
+			upgrade.Progresses[i].Status.ProcessPercent = 80
+		}
+	}
 }
 
-func (h *helper) convertProgressStatus(bootstrapping firmwares.BoostrappingStatus) string {
-	if bootstrapping.Return != "0" {
-		return status.Failed
+func (h *helper) findPhaseFromBoostrapping(progress firmwares.Progress, boostrappings []firmwares.BoostrappingStatus) string {
+	for _, boostrapping := range boostrappings {
+		if boostrapping.Node != progress.Host {
+			continue
+		}
+
+		if boostrapping.Return != "0" {
+			return boostrapping.Stdout
+		}
 	}
 
-	if strings.Contains(bootstrapping.Stdout, "succeeded") {
+	return status.Succeeded
+}
+
+func (h *helper) findStatusFromBoostrapping(progress firmwares.Progress, boostrappings []firmwares.BoostrappingStatus) string {
+	for _, boostrapping := range boostrappings {
+		if boostrapping.Node != progress.Host {
+			continue
+		}
+
+		if boostrapping.Return != "0" {
+			return status.Failed
+		}
+
+		if progress.Status.IsContinueAnywaied {
+			return status.Resolved
+		}
+
 		return status.Succeeded
 	}
 
@@ -105,18 +131,42 @@ func (h *helper) syncFirstTimeInstallationProgress() {
 		return
 	}
 
-	if !os.IsNotExist(err) {
-		log.Errorf("firmwares: failed to stat firmware progress file(%v)", err)
+	if h.IsClusterInBoostrapping() {
+		h.syncByOtherNodes()
 		return
 	}
 
-	f, err := os.Create(firmwares.UpdateProgress)
+	h.setFreshFirmwareProgressFile()
+}
+
+func (h *helper) syncByOtherNodes() {
+	for _, node := range nodes.List() {
+		if node.IsLocal() {
+			continue
+		}
+
+		if !h.doseNodeHasBootstrappingMarker(node) {
+			continue
+		}
+
+		err := h.copyFirmwareDataFrom(node)
+		if err != nil {
+			log.Infof("firmwares: unable to copy firmware progress from node %s (%v)", node.Hostname, err)
+			continue
+		}
+
+		return
+	}
+}
+
+func (h *helper) setFreshFirmwareProgressFile() {
+	file, err := os.Create(firmwares.UpdateProgress)
 	if err != nil {
 		log.Errorf("firmwares: failed to create firmware progress file(%v)", err)
 		return
 	}
 
-	defer f.Close()
+	defer file.Close()
 	version, err := cubecos.GetActiveFirmwareVersion()
 	if err != nil {
 		log.Errorf("firmwares: failed to get active firmware version(%v)", err)
@@ -140,27 +190,19 @@ func (h *helper) syncFirstTimeInstallationProgress() {
 		return
 	}
 
-	_, err = f.Write(b)
+	_, err = file.Write(b)
 	if err != nil {
 		log.Errorf("firmwares: failed to write firmware progress(%v)", err)
 	}
 }
 
-func (h *helper) syncProgressToControllers() error {
-	controllers, err := nodes.GetPeerControls()
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to get peer controllers (%v)", h.reqId, err)
-		return err
-	}
-
-	for _, controller := range controllers {
-		err := ssh.SyncRemoteFile(controller.Hostname, firmwares.UpdateProgress, firmwares.UpdateProgress)
+func (h *helper) syncProgressToAllNodes() {
+	for _, nodes := range nodes.List() {
+		err := defssh.SyncRemoteFile(nodes.Hostname, firmwares.UpdateProgress, firmwares.UpdateProgress)
 		if err != nil {
-			log.Warnf("firmwares(%s): failed to sync firmware progress to controller %s(%v)", h.reqId, controller.Hostname, err)
+			log.Warnf("firmwares(%s): failed to sync firmware progress to controller %s(%v)", h.reqId, nodes.Hostname, err)
 		}
 	}
-
-	return nil
 }
 
 func (h *helper) getFinalInstallationStatus(node nodes.Node) string {
@@ -168,12 +210,7 @@ func (h *helper) getFinalInstallationStatus(node nodes.Node) string {
 		return h.getPeerInstallationStatus(node)
 	}
 
-	_, err := os.Stat(firmwares.ResolvedMarker)
-	if err != nil {
-		return status.Succeeded
-	}
-
-	return status.Resolved
+	return status.Succeeded
 }
 
 func (h *helper) getPeerInstallationStatus(node nodes.Node) string {
@@ -283,7 +320,7 @@ func (h *helper) waitForPrimaryControllerVmEvacuated() {
 		return
 	}
 
-	err = cubecos.SetNodeUpdateProgress(hostname, status.Rebooting, status.Rebooting)
+	err = cubecos.SetNodeUpdateProgress(hostname, status.Rebooting, status.Rebooting, false)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to set rebooting progress(%v)", err, h.reqId)
 		h.markNodeAsFailed(err.Error())
@@ -291,4 +328,58 @@ func (h *helper) waitForPrimaryControllerVmEvacuated() {
 	}
 
 	cubecos.SyncFirmwareUpgradeProgressToAllNodes()
+}
+
+func (h *helper) IsClusterInBoostrapping() bool {
+	for _, node := range nodes.List() {
+		if h.doseNodeHasBootstrappingMarker(node) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (h *helper) doseNodeHasBootstrappingMarker(node nodes.Node) bool {
+	resp, err := h.http.R().
+		SetHeaders(nodes.GetSecretHeaders()).
+		Get(node.GetFirmwareBootstrappingUrl())
+	if err != nil {
+		log.Infof("firmwares: unable to find firmware bootstrapping marker from node %s (%v)", node.Hostname, err)
+		return false
+	}
+
+	return resp.IsError()
+}
+
+func (h *helper) copyFirmwareDataFrom(node nodes.Node) error {
+	sshAuth, err := defssh.GenSshAuth(defssh.DefaultPrivateKey)
+	if err != nil {
+		return err
+	}
+
+	ssh, err := ssh.NewHelper(
+		ssh.Host(fmt.Sprintf("%s:22", node.Hostname)),
+		ssh.User("root"),
+		ssh.AuthMethod(sshAuth),
+		ssh.HostKeyCallback(cryptossh.InsecureIgnoreHostKey()),
+	)
+	if err != nil {
+		return err
+	}
+
+	defer ssh.Close()
+	err = ssh.CopyFrom(firmwares.BoostrappingMarker, firmwares.BoostrappingMarker)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to copy boostrapping marker to controller %s(%v)", h.reqId, node.Hostname, err)
+		return err
+	}
+
+	err = ssh.CopyFrom(firmwares.UpdateProgress, firmwares.UpdateProgress)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to copy firmware upgrade progress from node %s(%v)", h.reqId, node.Hostname, err)
+		return err
+	}
+
+	return nil
 }
