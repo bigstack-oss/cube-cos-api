@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Nerzal/gocloak/v13"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 )
 
 const (
@@ -25,7 +26,7 @@ var (
 	DefaultIdentifierFormat    = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
 
 	DefaultAdminProject     = "admin"
-	DefaultOidcClientId     = "cube-cos-api"
+	DefaultOidcClientId     = base.ServiceName
 	DefaultOidcClientSecret = ""
 	DefaultOidcClientOpts   = gocloak.Client{
 		ClientID:                  gocloak.StringP(DefaultOidcClientId),

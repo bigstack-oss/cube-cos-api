@@ -100,11 +100,6 @@ func newGlobalHelpers() error {
 		log.Errorf("runtime: failed to init kubernetes helper(%v)", err)
 	}
 
-	err = newGlobalAwsHelper()
-	if err != nil {
-		log.Warnf("runtime: failed to init aws helper(%v)", err)
-	}
-
 	return nil
 }
 
@@ -112,12 +107,6 @@ func newAuthIdentities() error {
 	err := syncVarCubeCosApiDirs()
 	if err != nil {
 		log.Errorf("runtime: failed to sync cube-cos-api var dirs(%v)", err)
-		return err
-	}
-
-	err = newDefaultNodeToken()
-	if err != nil {
-		log.Errorf("runtime: failed to init node token(%v)", err)
 		return err
 	}
 
@@ -145,16 +134,27 @@ func newAuthIdentities() error {
 		return err
 	}
 
+	err = newServiceDiscoveryIdentity()
+	if err != nil {
+		log.Errorf("runtime: failed to parse service discovery identify(%v)", err)
+		return err
+	}
+
+	err = newDefaultNodeToken()
+	if err != nil {
+		log.Errorf("runtime: failed to init node token(%v)", err)
+		return err
+	}
+
 	err = newKeycloakSamlMapper()
 	if err != nil {
 		log.Errorf("runtime: failed to init saml mapper in keycloak(%v)", err)
 		return err
 	}
 
-	err = newServiceDiscoveryIdentity()
+	err = newGlobalAwsHelper()
 	if err != nil {
-		log.Errorf("runtime: failed to parse service discovery identify(%v)", err)
-		return err
+		log.Warnf("runtime: failed to init aws helper(%v)", err)
 	}
 
 	err = newNodeMetadata()
@@ -289,7 +289,7 @@ func newGlobalKeycloakHelper() error {
 		opts.Ip = base.DataCenterVip
 	}
 
-	err := syncKeycloakApiServiceAccount(&opts)
+	err := syncKeycloakApiServiceAccount(opts)
 	if err != nil {
 		log.Errorf("runtime: failed to sync keycloak api service account(%v)", err)
 		return err
@@ -301,31 +301,41 @@ func newGlobalKeycloakHelper() error {
 		keycloak.Port(opts.Port),
 		keycloak.Path(opts.Path),
 		keycloak.Realm(opts.Realm),
-		// keycloak.Username(opts.Username),
-		// keycloak.Password(opts.Password),
-		keycloak.Username("cube-cos-api"),
-		keycloak.Password(base.ServiceDiscoveryIdentity),
+		keycloak.Username(base.ServiceName),
+		keycloak.Password(base.SystemSeed),
 		keycloak.Insecure(opts.TlsInsecureSkipVerify),
 	)
 }
 
-func syncKeycloakApiServiceAccount(opts *keycloak.Options) error {
+func syncKeycloakApiServiceAccount(opts keycloak.Options) error {
+	if isApiKeycloakAccountExists(opts) {
+		return nil
+	}
+
+	return initKeycloakApiServiceAccount(opts)
+}
+
+func isApiKeycloakAccountExists(opts keycloak.Options) bool {
 	h, err := keycloak.NewHelper(
 		keycloak.Scheme(opts.Scheme),
 		keycloak.Ip(opts.Ip),
 		keycloak.Port(opts.Port),
 		keycloak.Path(opts.Path),
 		keycloak.Realm(opts.Realm),
-		keycloak.Username("cube-cos-api"),
-		keycloak.Password(base.ServiceDiscoveryIdentity),
+		keycloak.Username(base.ServiceName),
+		keycloak.Password(base.SystemSeed),
 		keycloak.Insecure(opts.TlsInsecureSkipVerify),
 	)
+	err = h.LoginAdmin()
 	if err == nil {
-		log.Infof("runtime: keycloak api service account already exists")
-		return nil
+		return true
 	}
 
-	h, err = keycloak.NewHelper(
+	return false
+}
+
+func initKeycloakApiServiceAccount(opts keycloak.Options) error {
+	h, err := keycloak.NewHelper(
 		keycloak.Scheme(opts.Scheme),
 		keycloak.Ip(opts.Ip),
 		keycloak.Port(opts.Port),
@@ -336,7 +346,7 @@ func syncKeycloakApiServiceAccount(opts *keycloak.Options) error {
 		keycloak.Insecure(opts.TlsInsecureSkipVerify),
 	)
 	if err != nil {
-		log.Errorf("runtime: failed to create keycloak helper by admin account(%v)", err)
+		log.Errorf("runtime: failed to new keycloak helper by admin account(%v)", err)
 		return err
 	}
 
@@ -346,55 +356,67 @@ func syncKeycloakApiServiceAccount(opts *keycloak.Options) error {
 		return err
 	}
 
-	_, err = h.CreateUser("master", gocloak.User{
-		Username: gocloak.StringP("cube-cos-api"),
+	_, err = h.CreateUser(auths.DefaultKeycloakRealm, gocloak.User{
+		Username: gocloak.StringP(base.ServiceName),
 		Enabled:  gocloak.BoolP(true),
 	})
-	if !isAccepableUserCreateError(err) {
+	if !isAcceptableCreationError(err) {
 		log.Errorf("runtime: failed to create keycloak api service account(%v)", err)
 		return err
 	}
 
-	user, err := h.GetUser("master", "cube-cos-api")
+	user, err := h.GetUser(auths.DefaultKeycloakRealm, base.ServiceName)
 	if err != nil {
 		log.Errorf("runtime: failed to get keycloak api service account(%v)", err)
 		return err
 	}
 
-	err = h.SetPassword("master", *user.ID, base.ServiceDiscoveryIdentity)
+	err = h.SetPassword(auths.DefaultKeycloakRealm, *user.ID, base.SystemSeed)
 	if err != nil {
 		log.Errorf("runtime: failed to set password for keycloak api service account(%v)", err)
 		return err
 	}
 
-	role, err := h.GetRealmRole("master", "admin")
+	role, err := h.GetRealmRole(auths.DefaultKeycloakRealm, "admin")
 	if err != nil {
-		log.Errorf("runtime: failed to get cube-admins role(%v)", err)
+		log.Errorf("runtime: failed to get admin role(%v)", err)
 		return err
 	}
 
-	err = h.AddRealmRoleToUser("master", *user.ID, []gocloak.Role{*role})
+	err = h.AddRealmRoleToUser(auths.DefaultKeycloakRealm, *user.ID, []gocloak.Role{*role})
 	if err != nil {
-		log.Errorf("runtime: failed to assign cube-admins role to keycloak api service account(%v)", err)
+		log.Errorf("runtime: failed to assign admin role to keycloak api service account(%v)", err)
 		return err
 	}
 
-	group, err := h.GetGroup("master", "cube-admins")
+	group, err := h.GetGroup(auths.DefaultKeycloakRealm, "cube-admins")
 	if err != nil {
 		log.Errorf("runtime: failed to get cube-admins group(%v)", err)
 		return err
 	}
 
-	err = h.AddUserToGroup("master", *user.ID, *group.ID)
+	err = h.AddUserToGroup(auths.DefaultKeycloakRealm, *user.ID, *group.ID)
 	if err != nil {
 		log.Errorf("runtime: failed to add keycloak api service account to cube-admins group(%v)", err)
+		return err
+	}
+
+	group, err = h.GetGroup(auths.DefaultKeycloakRealm, "cube-users")
+	if err != nil {
+		log.Errorf("runtime: failed to get cube-users group(%v)", err)
+		return err
+	}
+
+	err = h.DeleteUserFromGroup(auths.DefaultKeycloakRealm, *user.ID, *group.ID)
+	if err != nil {
+		log.Errorf("runtime: failed to remove keycloak api service account from cube-users group(%v)", err)
 		return err
 	}
 
 	return nil
 }
 
-func isAccepableUserCreateError(err error) bool {
+func isAcceptableCreationError(err error) bool {
 	if err == nil {
 		return true
 	}

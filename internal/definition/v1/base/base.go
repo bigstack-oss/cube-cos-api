@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	ServiceName       = "cube-cos-api"
 	NetMajorInterface = "eth0"
 
 	VarLibCubeCosApiDir = "/var/lib/cube-cos-api"
