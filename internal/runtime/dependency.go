@@ -100,24 +100,6 @@ func newGlobalHelpers() error {
 		log.Errorf("runtime: failed to init kubernetes helper(%v)", err)
 	}
 
-	err = newGlobalKeycloakHelper()
-	if err != nil {
-		log.Errorf("runtime: failed to init keycloak helper(%v)", err)
-		return err
-	}
-
-	err = newKeycloakOidcAuth()
-	if err != nil {
-		log.Errorf("runtime: failed to init oidc auth in keycloak(%v)", err)
-		return err
-	}
-
-	err = newDefaultOidcSecret()
-	if err != nil {
-		log.Errorf("runtime: failed to init oidc secret in keycloak(%v)", err)
-		return err
-	}
-
 	err = newGlobalAwsHelper()
 	if err != nil {
 		log.Warnf("runtime: failed to init aws helper(%v)", err)
@@ -139,15 +121,33 @@ func newAuthIdentities() error {
 		return err
 	}
 
-	err = newKeycloakSamlMapper()
-	if err != nil {
-		log.Errorf("runtime: failed to init saml mapper in keycloak(%v)", err)
-		return err
-	}
-
 	err = newBucketSecret()
 	if err != nil {
 		log.Errorf("runtime: failed to init bucket secret(%v)", err)
+		return err
+	}
+
+	err = newGlobalKeycloakHelper()
+	if err != nil {
+		log.Errorf("runtime: failed to init keycloak helper(%v)", err)
+		return err
+	}
+
+	err = newKeycloakOidcAuth()
+	if err != nil {
+		log.Errorf("runtime: failed to init oidc auth in keycloak(%v)", err)
+		return err
+	}
+
+	err = newDefaultOidcSecret()
+	if err != nil {
+		log.Errorf("runtime: failed to init oidc secret in keycloak(%v)", err)
+		return err
+	}
+
+	err = newKeycloakSamlMapper()
+	if err != nil {
+		log.Errorf("runtime: failed to init saml mapper in keycloak(%v)", err)
 		return err
 	}
 
@@ -289,7 +289,43 @@ func newGlobalKeycloakHelper() error {
 		opts.Ip = base.DataCenterVip
 	}
 
+	err := syncKeycloakApiServiceAccount(&opts)
+	if err != nil {
+		log.Errorf("runtime: failed to sync keycloak api service account(%v)", err)
+		return err
+	}
+
 	return keycloak.NewGlobalHelper(
+		keycloak.Scheme(opts.Scheme),
+		keycloak.Ip(opts.Ip),
+		keycloak.Port(opts.Port),
+		keycloak.Path(opts.Path),
+		keycloak.Realm(opts.Realm),
+		// keycloak.Username(opts.Username),
+		// keycloak.Password(opts.Password),
+		keycloak.Username("cube-cos-api"),
+		keycloak.Password(base.ServiceDiscoveryIdentity),
+		keycloak.Insecure(opts.TlsInsecureSkipVerify),
+	)
+}
+
+func syncKeycloakApiServiceAccount(opts *keycloak.Options) error {
+	h, err := keycloak.NewHelper(
+		keycloak.Scheme(opts.Scheme),
+		keycloak.Ip(opts.Ip),
+		keycloak.Port(opts.Port),
+		keycloak.Path(opts.Path),
+		keycloak.Realm(opts.Realm),
+		keycloak.Username("cube-cos-api"),
+		keycloak.Password(base.ServiceDiscoveryIdentity),
+		keycloak.Insecure(opts.TlsInsecureSkipVerify),
+	)
+	if err == nil {
+		log.Infof("runtime: keycloak api service account already exists")
+		return nil
+	}
+
+	h, err = keycloak.NewHelper(
 		keycloak.Scheme(opts.Scheme),
 		keycloak.Ip(opts.Ip),
 		keycloak.Port(opts.Port),
@@ -299,6 +335,76 @@ func newGlobalKeycloakHelper() error {
 		keycloak.Password(opts.Password),
 		keycloak.Insecure(opts.TlsInsecureSkipVerify),
 	)
+	if err != nil {
+		log.Errorf("runtime: failed to create keycloak helper by admin account(%v)", err)
+		return err
+	}
+
+	err = h.LoginAdmin()
+	if err != nil {
+		log.Errorf("runtime: failed to login keycloak admin(%v)", err)
+		return err
+	}
+
+	_, err = h.CreateUser("master", gocloak.User{
+		Username: gocloak.StringP("cube-cos-api"),
+		Enabled:  gocloak.BoolP(true),
+	})
+	if !isAccepableUserCreateError(err) {
+		log.Errorf("runtime: failed to create keycloak api service account(%v)", err)
+		return err
+	}
+
+	user, err := h.GetUser("master", "cube-cos-api")
+	if err != nil {
+		log.Errorf("runtime: failed to get keycloak api service account(%v)", err)
+		return err
+	}
+
+	err = h.SetPassword("master", *user.ID, base.ServiceDiscoveryIdentity)
+	if err != nil {
+		log.Errorf("runtime: failed to set password for keycloak api service account(%v)", err)
+		return err
+	}
+
+	role, err := h.GetRealmRole("master", "admin")
+	if err != nil {
+		log.Errorf("runtime: failed to get cube-admins role(%v)", err)
+		return err
+	}
+
+	err = h.AddRealmRoleToUser("master", *user.ID, []gocloak.Role{*role})
+	if err != nil {
+		log.Errorf("runtime: failed to assign cube-admins role to keycloak api service account(%v)", err)
+		return err
+	}
+
+	group, err := h.GetGroup("master", "cube-admins")
+	if err != nil {
+		log.Errorf("runtime: failed to get cube-admins group(%v)", err)
+		return err
+	}
+
+	err = h.AddUserToGroup("master", *user.ID, *group.ID)
+	if err != nil {
+		log.Errorf("runtime: failed to add keycloak api service account to cube-admins group(%v)", err)
+		return err
+	}
+
+	return nil
+}
+
+func isAccepableUserCreateError(err error) bool {
+	if err == nil {
+		return true
+	}
+
+	apiErr, ok := err.(*gocloak.APIError)
+	if ok && apiErr.Code == http.StatusConflict {
+		return true
+	}
+
+	return false
 }
 
 func newGlobalHttpHelper() error {
