@@ -240,14 +240,14 @@ func newGlobalInfluxHelper() error {
 func newGlobalOpenstackHelper() error {
 	opts := conf.Opts.Spec.Openstack
 	if opts.Auth.Source == "file" {
-		return openstack.NewGlobalHelper(
+		return openstack.NewGlobalHelperWithoutDnsService(
 			openstack.AuthSource(opts.Auth.Source),
 			openstack.AuthFile(opts.Auth.File),
 			openstack.EnableAutoRenew(opts.Auth.EnableAutoRenew),
 		)
 	}
 
-	return openstack.NewGlobalHelper(
+	return openstack.NewGlobalHelperWithoutDnsService(
 		openstack.AuthType(opts.Auth.Type),
 		openstack.AuthUrl(opts.Auth.Url),
 		openstack.EnableAutoRenew(opts.Auth.EnableAutoRenew),
