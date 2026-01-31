@@ -34,7 +34,6 @@ func (o *Operator) Init() error {
 	o.ctx, o.cancel = context.WithCancel(context.Background())
 	o.http = http.GetGlobalHelper()
 	cubecos.RemoveHostPendingReq(fixpacks.Db, fixpacks.ReqCollection)
-	cubecos.RemoveFixpackRebootingMarker()
 	return nil
 }
 

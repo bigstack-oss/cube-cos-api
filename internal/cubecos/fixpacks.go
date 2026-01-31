@@ -244,7 +244,7 @@ func syncRebootingMarker(req *fixpacks.ReqOpts) {
 	}
 }
 
-func RollbackFixpack() error {
+func RollbackFixpack(req *fixpacks.ReqOpts) error {
 	out, err := exec.Command("hex_fixpack_install", "-u").CombinedOutput()
 	if err != nil {
 		err := fmt.Errorf("failed to execute the fixpack rollback cmd(%v %s)", err, string(out))
@@ -258,6 +258,7 @@ func RollbackFixpack() error {
 		return err
 	}
 
+	syncRebootingMarker(req)
 	return nil
 }
 
@@ -445,12 +446,18 @@ func parseHistoryFixpacks(out []byte) []fixpacks.Fixpack {
 			continue
 		}
 
+		date := segments[0]
+		version := segments[1]
+		isRollbackable := segments[3]
+		action := segments[4]
+		note := segments[5]
+
 		list = append(list, fixpacks.Fixpack{
-			Version:   segments[1],
-			Action:    segments[4],
-			Note:      segments[5],
-			UpdatedAt: convertRawTime(time.FormatFixpack, segments[0]),
-			Status:    convertFixpackStatus(segments[3], segments[4]),
+			Version:   version,
+			Action:    action,
+			Note:      note,
+			UpdatedAt: convertRawTime(time.FormatFixpack, date),
+			Status:    convertFixpackStatus(isRollbackable, action),
 		})
 	}
 
@@ -630,9 +637,9 @@ func setRemovableStatus(fixpacks *[]fixpacks.Fixpack) {
 	}
 }
 
-func convertFixpackStatus(rollback, action string) status.Fixpack {
+func convertFixpackStatus(isRollbackable, action string) status.Fixpack {
 	s := status.Fixpack{}
-	if strings.EqualFold(rollback, "yes") {
+	if strings.EqualFold(isRollbackable, "yes") {
 		s.IsRollbackable = true
 	}
 

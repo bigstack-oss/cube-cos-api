@@ -15,7 +15,7 @@ func (o *Operator) operate(req *fixpacks.ReqOpts) error {
 	case status.Installed:
 		return cubecos.InstallFixpack(req)
 	case status.Rollbacked:
-		return cubecos.RollbackFixpack()
+		return cubecos.RollbackFixpack(req)
 	}
 
 	return fmt.Errorf(

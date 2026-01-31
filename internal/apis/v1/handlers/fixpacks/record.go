@@ -88,7 +88,7 @@ func (h *helper) syncRequestingRecord(list *[]fixpacks.Fixpack) {
 }
 
 func (h *helper) syncStatusByNodeProgresses(list *[]fixpacks.Fixpack) {
-	for _, fixpack := range *list {
+	for i, fixpack := range *list {
 		update, err := h.getFixpackUpdateProgress(fixpack.Version)
 		if err != nil {
 			log.Errorf("fixpacks(%s): failed to get fixpack update progress (%v)", h.reqId, err)
@@ -99,10 +99,12 @@ func (h *helper) syncStatusByNodeProgresses(list *[]fixpacks.Fixpack) {
 		val, found := h.foundFailureOrInprogessStatus(update.Progresses)
 		if found {
 			finalStatus = val
+		} else {
+			finalStatus = fixpack.Status.Current
 		}
 
-		h.polishRebootingStatus(&fixpack, finalStatus, update.Operation)
-		h.polishInstallationStatus(&fixpack, update)
+		h.polishRebootingStatus(&(*list)[i], finalStatus, update.Operation)
+		h.polishInstallationStatus(&(*list)[i], update)
 	}
 }
 
@@ -122,7 +124,6 @@ func (h *helper) foundFailureOrInprogessStatus(progresses []progress) (string, b
 
 		if progress.Status.Current == status.RollbackFailed {
 			return status.RollbackFailed, true
-
 		}
 
 		if progress.Status.Current == status.WaitingReboot {
