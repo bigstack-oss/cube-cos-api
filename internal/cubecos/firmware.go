@@ -111,7 +111,26 @@ func GetUpgradeProgress() (*firmwares.Upgrade, error) {
 	return upgrade, nil
 }
 
-func SetNodeUpdateProgress(hostname, phase, status string, isContinueAnywaied bool) error {
+func SetNodeUpdateProgress(hostname, phase, status string) error {
+	update, err := GetUpgradeProgress()
+	if err != nil {
+		log.Errorf("firmwares: failed to get update progress(%v)", err)
+		return err
+	}
+
+	for i, progress := range update.Progresses {
+		if progress.Host != hostname {
+			continue
+		}
+
+		update.Progresses[i].Phase = phase
+		update.Progresses[i].Status.Current = status
+	}
+
+	return SetProgressDetails(update)
+}
+
+func SetNodeAsContinueAnywaied(hostname string) error {
 	update, err := GetUpgradeProgress()
 	if err != nil {
 		log.Errorf("firmwares: failed to get update progress(%v)", err)
@@ -120,12 +139,8 @@ func SetNodeUpdateProgress(hostname, phase, status string, isContinueAnywaied bo
 
 	for i, progress := range update.Progresses {
 		if progress.Host == hostname {
-			update.Progresses[i].Phase = phase
-			update.Progresses[i].Status.Current = status
-		}
-
-		if !progress.Status.IsContinueAnywaied && isContinueAnywaied {
-			update.Progresses[i].Status.IsContinueAnywaied = isContinueAnywaied
+			update.Progresses[i].Status.IsContinueAnywaied = true
+			break
 		}
 	}
 
@@ -140,7 +155,7 @@ func SetProgressDetails(progress *firmwares.Upgrade) error {
 	}
 
 	defer file.Close()
-	content, err := json.Marshal(progress)
+	content, err := json.MarshalIndent(progress, "", "  ")
 	if err != nil {
 		log.Errorf("firmwares: failed to marshal progress details(%v)", err)
 		return err
@@ -157,6 +172,10 @@ func SetProgressDetails(progress *firmwares.Upgrade) error {
 
 func SyncFirmwareUpgradeProgressToAllNodes() {
 	for _, node := range nodes.List() {
+		if node.IsLocal() {
+			continue
+		}
+
 		err := MoveFirmwareUpgradeProgress(node.Hostname)
 		if err != nil {
 			log.Errorf("nodes: failed to move firmware upgrade progress to controller %s(%v)", node.Hostname, err)

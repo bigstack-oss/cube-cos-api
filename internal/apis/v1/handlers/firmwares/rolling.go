@@ -44,7 +44,7 @@ func (h *helper) placeRollingTrigger() {
 			return
 		}
 
-		err = cubecos.SetNodeUpdateProgress(hostname, status.EvacutingVmOnHost, status.Rebooting, false)
+		err = cubecos.SetNodeUpdateProgress(hostname, status.EvacutingVmOnHost, status.Rebooting)
 		if err != nil {
 			log.Errorf("firmwares(%s): failed to set rebooting progress(%v)", err, h.reqId)
 			return
@@ -80,7 +80,7 @@ func (h *helper) prerebootLocal() {
 	}
 
 	log.Infof("firmwares: all vms are evacuated, set bootstrapping marker and drain node %s", base.Hostname)
-	err = cubecos.SetNodeUpdateProgress(base.Hostname, status.Rebooting, status.Rebooting, false)
+	err = cubecos.SetNodeUpdateProgress(base.Hostname, status.Rebooting, status.Rebooting)
 	if err != nil {
 		log.Errorf("firmwares: failed to set rebooting progress(%v)", err)
 		h.markNodeAsFailed(err.Error())

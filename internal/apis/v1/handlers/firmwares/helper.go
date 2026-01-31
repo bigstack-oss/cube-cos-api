@@ -169,17 +169,23 @@ func (h *helper) continueInterruptedFirmwareUpdate() error {
 		return err
 	}
 
-	if node.IsVirtualIpOwner {
-		cubecos.MoveVirtualIpOwner()
-	}
-
-	err = cubecos.SetNodeUpdateProgress(node.Hostname, status.Rebooting, status.Rebooting, true)
+	err = cubecos.SetNodeUpdateProgress(node.Hostname, status.Rebooting, status.Rebooting)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to set rebooting progress(%v)", err, h.reqId)
 		return err
 	}
 
+	err = cubecos.SetNodeAsContinueAnywaied(node.Hostname)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to set continue anywaied flag(%v)", h.reqId, err)
+		return err
+	}
+
 	cubecos.SyncFirmwareUpgradeProgressToAllNodes()
+	if node.IsVirtualIpOwner {
+		cubecos.MoveVirtualIpOwner()
+	}
+
 	err = cubecos.SoftRebootBySsh(node.Hostname)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to soft reboot node %s(%v)", h.reqId, node.Hostname, err)

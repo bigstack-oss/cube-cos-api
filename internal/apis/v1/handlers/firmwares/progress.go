@@ -75,7 +75,7 @@ func (h *helper) convertToUpgradeProgress(upgrade *firmwares.Upgrade, boostrappi
 
 		upgrade.Progresses[i].Phase = h.findPhaseFromBoostrapping(progress, boostrappings)
 		upgrade.Progresses[i].Status.Current = h.findStatusFromBoostrapping(progress, boostrappings)
-		if upgrade.Progresses[i].Status.Current == status.Succeeded {
+		if upgrade.Progresses[i].Status.Current == status.Succeeded || upgrade.Progresses[i].Status.Current == status.Resolved {
 			upgrade.Progresses[i].Status.IsProcessing = false
 			upgrade.Progresses[i].Status.ProcessPercent = 100
 		} else {
@@ -198,6 +198,10 @@ func (h *helper) setFreshFirmwareProgressFile() {
 
 func (h *helper) syncProgressToAllNodes() {
 	for _, nodes := range nodes.List() {
+		if nodes.IsLocal() {
+			continue
+		}
+
 		err := defssh.SyncRemoteFile(nodes.Hostname, firmwares.UpdateProgress, firmwares.UpdateProgress)
 		if err != nil {
 			log.Warnf("firmwares(%s): failed to sync firmware progress to controller %s(%v)", h.reqId, nodes.Hostname, err)
@@ -320,7 +324,7 @@ func (h *helper) waitForPrimaryControllerVmEvacuated() {
 		return
 	}
 
-	err = cubecos.SetNodeUpdateProgress(hostname, status.Rebooting, status.Rebooting, false)
+	err = cubecos.SetNodeUpdateProgress(hostname, status.Rebooting, status.Rebooting)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to set rebooting progress(%v)", err, h.reqId)
 		h.markNodeAsFailed(err.Error())
@@ -378,6 +382,12 @@ func (h *helper) copyFirmwareDataFrom(node nodes.Node) error {
 	err = ssh.CopyFrom(firmwares.UpdateProgress, firmwares.UpdateProgress)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to copy firmware upgrade progress from node %s(%v)", h.reqId, node.Hostname, err)
+		return err
+	}
+
+	err = ssh.CopyFrom(firmwares.ResolvedMarker, firmwares.ResolvedMarker)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to copy resolved marker from node %s(%v)", h.reqId, node.Hostname, err)
 		return err
 	}
 

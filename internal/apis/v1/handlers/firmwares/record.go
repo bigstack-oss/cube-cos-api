@@ -28,18 +28,12 @@ func (h *helper) syncBoostrappingMarker() {
 		return
 	}
 
-	controllers, err := nodes.GetNodesByRole(nodes.RoleControl)
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to get controller nodes(%v)", h.reqId, err)
-		return
-	}
-
-	for _, controller := range controllers {
-		h.moveBoostrappingMarkerToController(controller.Hostname)
+	for _, node := range nodes.List() {
+		h.moveBoostrappingMarkerToNode(node.Hostname)
 	}
 }
 
-func (h *helper) moveBoostrappingMarkerToController(node string) error {
+func (h *helper) moveBoostrappingMarkerToNode(node string) error {
 	sshAuth, err := defssh.GenSshAuth(defssh.DefaultPrivateKey)
 	if err != nil {
 		return err
