@@ -78,15 +78,15 @@ func GetUpdateInterruptedNode() (*nodes.Node, error) {
 	return nil, fmt.Errorf("waiting COS to provide the SDK, so not implemented yet")
 }
 
-func GetBoostrappingProgress() ([]firmwares.BoostrappingStatus, error) {
+func GetBootstrappingProgress() ([]firmwares.BootstrappingStatus, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(180))
 	defer cancel()
 	out, _ := exec.CommandContext(ctx, "hex_sdk", "-f", "json", "stats_bootstrap").Output()
 
-	var status []firmwares.BoostrappingStatus
+	var status []firmwares.BootstrappingStatus
 	err := json.Unmarshal(out, &status)
 	if err != nil {
-		err := genIntegrationErr("boostrapping progress output parsing failure")
+		err := genIntegrationErr("bootstrapping progress output parsing failure")
 		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
 		return nil, err
 	}

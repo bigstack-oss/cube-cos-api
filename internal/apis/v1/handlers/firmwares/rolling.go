@@ -88,7 +88,7 @@ func (h *helper) prerebootLocal() {
 	}
 
 	log.Infof("firmwares: drain completed, reboot node %s", base.Hostname)
-	h.syncBoostrappingMarker()
+	h.syncBootstrappingMarker()
 	err = cubecos.DrainNode()
 	if err != nil {
 		log.Errorf("firmwares: failed to drain node (%v)", err)

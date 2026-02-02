@@ -12,11 +12,12 @@ const (
 	TmpPreCalculateMd5 = "precalculated.md5"
 	DefaultMd5File     = "md5"
 
-	UpdateDir          = "/var/update"
-	UpdateHistory      = "/var/appliance-db/update.history"
-	UpdateProgress     = "/var/lib/cube-cos-api/progress.json"
-	ResolvedMarker     = "/var/lib/cube-cos-api/resolved"
-	BoostrappingMarker = "/var/lib/cube-cos-api/bootstrapping"
+	UpdateDir           = "/var/update"
+	UpdateHistory       = "/var/appliance-db/update.history"
+	UpdateProgress      = "/var/lib/cube-cos-api/progress.json"
+	ResolvedMarker      = "/var/lib/cube-cos-api/resolved"
+	BootstrappingMarker = "/var/lib/cube-cos-api/bootstrapping"
+	BootstrappingLog    = "/run/cube_bootstrap.log"
 )
 
 type ReqOpts struct {
@@ -62,7 +63,7 @@ type Progress struct {
 	Status status.SystemUpdateProgress `json:"status"`
 }
 
-type BoostrappingStatus struct {
+type BootstrappingStatus struct {
 	Node   string `json:"node"`
 	Return string `json:"return"`
 	Stdout string `json:"stdout"`

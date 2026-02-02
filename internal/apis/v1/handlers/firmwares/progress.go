@@ -22,6 +22,12 @@ type node struct {
 	nodes.Firmware `json:"firmware"`
 }
 
+func (h *helper) resetBootstrappingLogs() {
+	for _, node := range nodes.List() {
+		h.resetBootstrappingLog(node.Hostname)
+	}
+}
+
 func (h *helper) initUpgradeProgress() firmwares.Upgrade {
 	return firmwares.Upgrade{
 		Version:          h.reqOpts.Version,
@@ -47,23 +53,23 @@ func (h *helper) getUpgradeDetails() (*firmwares.Upgrade, error) {
 	}
 
 	if h.hasBootstrappingMarker() {
-		return h.syncBoostrappingProgress(upgrade)
+		return h.syncBootstrappingProgress(upgrade)
 	}
 
 	return upgrade, nil
 }
 
-func (h *helper) syncBoostrappingProgress(upgrade *firmwares.Upgrade) (*firmwares.Upgrade, error) {
-	boostrapping, err := cubecos.GetBoostrappingProgress()
+func (h *helper) syncBootstrappingProgress(upgrade *firmwares.Upgrade) (*firmwares.Upgrade, error) {
+	bootstrapping, err := cubecos.GetBootstrappingProgress()
 	if err != nil {
 		return nil, err
 	}
 
-	h.convertToUpgradeProgress(upgrade, boostrapping)
+	h.convertToUpgradeProgress(upgrade, bootstrapping)
 	return upgrade, nil
 }
 
-func (h *helper) convertToUpgradeProgress(upgrade *firmwares.Upgrade, boostrappings []firmwares.BoostrappingStatus) {
+func (h *helper) convertToUpgradeProgress(upgrade *firmwares.Upgrade, bootstrappings []firmwares.BootstrappingStatus) {
 	for i, progress := range upgrade.Progresses {
 		if progress.Phase != status.Rebooting && progress.Phase != status.Partitioning {
 			continue
@@ -73,8 +79,8 @@ func (h *helper) convertToUpgradeProgress(upgrade *firmwares.Upgrade, boostrappi
 			continue
 		}
 
-		upgrade.Progresses[i].Phase = h.findPhaseFromBoostrapping(progress, boostrappings)
-		upgrade.Progresses[i].Status.Current = h.findStatusFromBoostrapping(progress, boostrappings)
+		upgrade.Progresses[i].Phase = h.findPhaseFromBootstrapping(progress, bootstrappings)
+		upgrade.Progresses[i].Status.Current = h.findStatusFromBootstrapping(progress, bootstrappings)
 		if upgrade.Progresses[i].Status.Current == status.Succeeded || upgrade.Progresses[i].Status.Current == status.Resolved {
 			upgrade.Progresses[i].Status.IsProcessing = false
 			upgrade.Progresses[i].Status.ProcessPercent = 100
@@ -85,27 +91,27 @@ func (h *helper) convertToUpgradeProgress(upgrade *firmwares.Upgrade, boostrappi
 	}
 }
 
-func (h *helper) findPhaseFromBoostrapping(progress firmwares.Progress, boostrappings []firmwares.BoostrappingStatus) string {
-	for _, boostrapping := range boostrappings {
-		if boostrapping.Node != progress.Host {
+func (h *helper) findPhaseFromBootstrapping(progress firmwares.Progress, bootstrappings []firmwares.BootstrappingStatus) string {
+	for _, bootstrapping := range bootstrappings {
+		if bootstrapping.Node != progress.Host {
 			continue
 		}
 
-		if boostrapping.Return != "0" {
-			return boostrapping.Stdout
+		if bootstrapping.Return != "0" {
+			return bootstrapping.Stdout
 		}
 	}
 
 	return status.Succeeded
 }
 
-func (h *helper) findStatusFromBoostrapping(progress firmwares.Progress, boostrappings []firmwares.BoostrappingStatus) string {
-	for _, boostrapping := range boostrappings {
-		if boostrapping.Node != progress.Host {
+func (h *helper) findStatusFromBootstrapping(progress firmwares.Progress, bootstrappings []firmwares.BootstrappingStatus) string {
+	for _, bootstrapping := range bootstrappings {
+		if bootstrapping.Node != progress.Host {
 			continue
 		}
 
-		if boostrapping.Return != "0" {
+		if bootstrapping.Return != "0" {
 			return status.Failed
 		}
 
@@ -131,7 +137,7 @@ func (h *helper) syncFirstTimeInstallationProgress() {
 		return
 	}
 
-	if h.IsClusterInBoostrapping() {
+	if h.IsClusterInBootstrapping() {
 		h.syncByOtherNodes()
 		return
 	}
@@ -334,7 +340,7 @@ func (h *helper) waitForPrimaryControllerVmEvacuated() {
 	cubecos.SyncFirmwareUpgradeProgressToAllNodes()
 }
 
-func (h *helper) IsClusterInBoostrapping() bool {
+func (h *helper) IsClusterInBootstrapping() bool {
 	for _, node := range nodes.List() {
 		if h.doseNodeHasBootstrappingMarker(node) {
 			return true
@@ -373,9 +379,9 @@ func (h *helper) copyFirmwareDataFrom(node nodes.Node) error {
 	}
 
 	defer ssh.Close()
-	err = ssh.CopyFrom(firmwares.BoostrappingMarker, firmwares.BoostrappingMarker)
+	err = ssh.CopyFrom(firmwares.BootstrappingMarker, firmwares.BootstrappingMarker)
 	if err != nil {
-		log.Errorf("firmwares(%s): failed to copy boostrapping marker to controller %s(%v)", h.reqId, node.Hostname, err)
+		log.Errorf("firmwares(%s): failed to copy bootstrapping marker to controller %s(%v)", h.reqId, node.Hostname, err)
 		return err
 	}
 

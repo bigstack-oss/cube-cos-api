@@ -93,6 +93,7 @@ func (h *helper) sortNodesByName(nodes *[]node) {
 }
 
 func (h *helper) updateFirmware() error {
+	h.resetBootstrappingLogs()
 	h.delegateToLocal()
 	if !cubecos.IsVirtualIpOwner(base.Hostname) {
 		return nil

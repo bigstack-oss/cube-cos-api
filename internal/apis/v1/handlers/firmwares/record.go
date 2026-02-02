@@ -17,23 +17,23 @@ import (
 )
 
 func (h *helper) hasBootstrappingMarker() bool {
-	_, err := os.Stat(firmwares.BoostrappingMarker)
+	_, err := os.Stat(firmwares.BootstrappingMarker)
 	return err == nil
 }
 
-func (h *helper) syncBoostrappingMarker() {
-	err := os.WriteFile(firmwares.BoostrappingMarker, []byte(""), 0644)
+func (h *helper) syncBootstrappingMarker() {
+	err := os.WriteFile(firmwares.BootstrappingMarker, []byte(""), 0644)
 	if err != nil {
-		log.Errorf("firmwares(%s): failed to create boostrapping marker file %s(%v)", h.reqId, firmwares.BoostrappingMarker, err)
+		log.Errorf("firmwares(%s): failed to create bootstrapping marker file %s(%v)", h.reqId, firmwares.BootstrappingMarker, err)
 		return
 	}
 
 	for _, node := range nodes.List() {
-		h.moveBoostrappingMarkerToNode(node.Hostname)
+		h.moveBootstrappingMarkerToNode(node.Hostname)
 	}
 }
 
-func (h *helper) moveBoostrappingMarkerToNode(node string) error {
+func (h *helper) moveBootstrappingMarkerToNode(node string) error {
 	sshAuth, err := defssh.GenSshAuth(defssh.DefaultPrivateKey)
 	if err != nil {
 		return err
@@ -50,17 +50,17 @@ func (h *helper) moveBoostrappingMarkerToNode(node string) error {
 	}
 
 	defer ssh.Close()
-	err = ssh.Copy(firmwares.BoostrappingMarker, firmwares.BoostrappingMarker)
+	err = ssh.Copy(firmwares.BootstrappingMarker, firmwares.BootstrappingMarker)
 	if err != nil {
-		log.Errorf("firmwares(%s): failed to copy boostrapping marker to controller %s(%v)", h.reqId, node, err)
+		log.Errorf("firmwares(%s): failed to copy bootstrapping marker to controller %s(%v)", h.reqId, node, err)
 		return err
 	}
 
 	return nil
 }
 
-func (h *helper) removePreviousBoostrappingMarker() error {
-	err := os.Remove(firmwares.BoostrappingMarker)
+func (h *helper) removePreviousBootstrappingMarker() error {
+	err := os.Remove(firmwares.BootstrappingMarker)
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
@@ -72,13 +72,13 @@ func (h *helper) removePreviousBoostrappingMarker() error {
 	}
 
 	for _, controller := range controllers {
-		h.removeBoostrappingMarker(controller.Hostname)
+		h.removeBootstrappingMarker(controller.Hostname)
 	}
 
 	return nil
 }
 
-func (h *helper) removeBoostrappingMarker(node string) error {
+func (h *helper) removeBootstrappingMarker(node string) error {
 	sshAuth, err := defssh.GenSshAuth(defssh.DefaultPrivateKey)
 	if err != nil {
 		return err
@@ -95,9 +95,37 @@ func (h *helper) removeBoostrappingMarker(node string) error {
 	}
 
 	defer ssh.Close()
-	err = ssh.Run(fmt.Sprintf("rm -f %s", firmwares.BoostrappingMarker))
+	err = ssh.Run(fmt.Sprintf("rm -f %s", firmwares.BootstrappingMarker))
 	if err != nil {
-		log.Errorf("firmwares(%s): failed to remove boostrapping marker from controller %s(%v)", h.reqId, node, err)
+		log.Errorf("firmwares(%s): failed to remove bootstrapping marker from controller %s(%v)", h.reqId, node, err)
+		return err
+	}
+
+	return nil
+}
+
+func (h *helper) resetBootstrappingLog(node string) error {
+	sshAuth, err := defssh.GenSshAuth(defssh.DefaultPrivateKey)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to generate ssh auth to remove bootstrapping logs on %s (%v)", h.reqId, node, err)
+		return err
+	}
+
+	ssh, err := ssh.NewHelper(
+		ssh.Host(fmt.Sprintf("%s:22", node)),
+		ssh.User("root"),
+		ssh.AuthMethod(sshAuth),
+		ssh.HostKeyCallback(cryptossh.InsecureIgnoreHostKey()),
+	)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to create ssh helper to remove bootstrapping logs on %s (%v)", h.reqId, node, err)
+		return err
+	}
+
+	defer ssh.Close()
+	err = ssh.Run(fmt.Sprintf("echo '' > %s", firmwares.BootstrappingLog))
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to remove bootstrapping log from node %s(%v)", h.reqId, node, err)
 		return err
 	}
 
