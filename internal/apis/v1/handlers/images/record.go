@@ -40,6 +40,7 @@ func (h *helper) syncUploadRecord() error {
 }
 
 func (h *helper) removePendingReq() error {
+	log.Infof("images: remove pending records for %s %s (%s %s)", h.reqOpts.Name, h.reqOpts.File, h.reqOpts.Domain, h.reqOpts.Project)
 	return h.mongo.DeleteAll(
 		images.Db,
 		images.ReqCollection,
