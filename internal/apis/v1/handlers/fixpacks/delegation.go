@@ -34,6 +34,10 @@ func (h *helper) syncFixpackToControllers(filePath string) error {
 	}
 
 	for _, controller := range controllers {
+		if controller.IsLocal() {
+			continue
+		}
+
 		err := ssh.SyncRemoteFile(controller.Hostname, filePath, filePath)
 		if err != nil {
 			log.Errorf("fixpacks(%s): failed to sync remote file %s to %s(%v)", h.reqId, filePath, controller.Hostname, err)
