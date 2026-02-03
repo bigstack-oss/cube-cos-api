@@ -215,14 +215,21 @@ func GetPeerControls() ([]Node, error) {
 		return nil, err
 	}
 
-	for i, controller := range controllers {
-		if controller.IsLocal() {
-			controllers = slices.Delete(controllers, i, i+1)
-			break
+	uniqueControllers := []Node{}
+	for _, controller := range controllers {
+		if !slices.ContainsFunc(uniqueControllers, func(n Node) bool { return n.Hostname == controller.Hostname }) {
+			uniqueControllers = append(uniqueControllers, controller)
 		}
 	}
 
-	return controllers, nil
+	peers := []Node{}
+	for _, controller := range uniqueControllers {
+		if !controller.IsLocal() {
+			peers = append(peers, controller)
+		}
+	}
+
+	return peers, nil
 }
 
 func GetController() (*Node, error) {

@@ -44,6 +44,10 @@ func (h *helper) updatePeerStorage() {
 	}
 
 	for _, node := range nodes {
+		if node.IsLocal() {
+			continue
+		}
+
 		h.sendStorageReqToPeer(node)
 	}
 }
