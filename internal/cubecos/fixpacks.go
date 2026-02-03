@@ -46,7 +46,6 @@ func ListFixpacks() ([]fixpacks.Fixpack, error) {
 	merged := mergeFixpacks(historyFixpacks, pkgFixpacks)
 	sortFixpackByVersion(&merged)
 	setInstallableStatus(&merged)
-	setRollbackableStatus(&merged)
 	setRemovableStatus(&merged)
 	return merged, nil
 }
@@ -281,19 +280,12 @@ func GetLatestInstalledFixpackVersion() (string, error) {
 
 		version := segments[1]
 		action := segments[4]
-		result := segments[3]
 
 		if strings.EqualFold(action, "uninstalled") {
-			if strings.EqualFold(result, "no") {
-				uninstalled[version] = true
-			}
+			uninstalled[version] = true
 		}
 
 		if strings.EqualFold(action, "installed") {
-			if !strings.EqualFold(result, "yes") {
-				continue
-			}
-
 			_, isUninstalled := uninstalled[version]
 			if isUninstalled {
 				continue
@@ -598,25 +590,6 @@ func setInstallableStatus(fixpacks *[]fixpacks.Fixpack) {
 		currentIsAvailable := (*fixpacks)[i].Status.Current == status.Available
 		if previousIsInstalled && currentIsAvailable {
 			(*fixpacks)[i].Status.IsInstallable = true
-		}
-	}
-}
-
-func setRollbackableStatus(fixpacks *[]fixpacks.Fixpack) {
-	if len(*fixpacks) == 0 {
-		return
-	}
-
-	latestVersion, err := GetLatestInstalledFixpackVersion()
-	if err != nil {
-		return
-	}
-
-	for i, fixpack := range *fixpacks {
-		if strings.EqualFold(fixpack.Version, latestVersion) {
-			(*fixpacks)[i].Status.IsRollbackable = true
-		} else {
-			(*fixpacks)[i].Status.IsRollbackable = false
 		}
 	}
 }
