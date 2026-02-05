@@ -52,7 +52,7 @@ func (h *helper) getUpgradeDetails() (*firmwares.Upgrade, error) {
 		return nil, err
 	}
 
-	if h.hasBootstrappingMarker() {
+	if h.IsClusterInBootstrapping() {
 		return h.syncBootstrappingProgress(upgrade)
 	}
 
@@ -75,8 +75,12 @@ func (h *helper) convertToUpgradeProgress(upgrade *firmwares.Upgrade, bootstrapp
 			continue
 		}
 
-		if i != 0 && upgrade.Progresses[i-1].Status.Current != status.Succeeded {
-			continue
+		isNotTheFirstNode := i != 0
+		if isNotTheFirstNode {
+			isPreviousNodeNotFinsiehd := upgrade.Progresses[i-1].Status.Current != status.Succeeded && upgrade.Progresses[i-1].Status.Current != status.Resolved
+			if isPreviousNodeNotFinsiehd {
+				continue
+			}
 		}
 
 		upgrade.Progresses[i].Phase = h.findPhaseFromBootstrapping(progress, bootstrappings)
@@ -97,6 +101,10 @@ func (h *helper) findPhaseFromBootstrapping(progress firmwares.Progress, bootstr
 			continue
 		}
 
+		if bootstrapping.Stdout == "reset by api" {
+			return progress.Phase
+		}
+
 		if bootstrapping.Return != "0" {
 			return bootstrapping.Stdout
 		}
@@ -109,6 +117,10 @@ func (h *helper) findStatusFromBootstrapping(progress firmwares.Progress, bootst
 	for _, bootstrapping := range bootstrappings {
 		if bootstrapping.Node != progress.Host {
 			continue
+		}
+
+		if bootstrapping.Stdout == "reset by api" {
+			return progress.Status.Current
 		}
 
 		if bootstrapping.Return != "0" {
@@ -190,7 +202,7 @@ func (h *helper) setFreshFirmwareProgressFile() {
 		})
 	}
 
-	b, err := json.Marshal(upgrade)
+	b, err := json.MarshalIndent(upgrade, "", "  ")
 	if err != nil {
 		log.Errorf("firmwares: failed to marshal firmware progress(%v)", err)
 		return
@@ -359,7 +371,11 @@ func (h *helper) doseNodeHasBootstrappingMarker(node nodes.Node) bool {
 		return false
 	}
 
-	return resp.IsError()
+	if resp.IsError() {
+		return false
+	}
+
+	return true
 }
 
 func (h *helper) copyFirmwareDataFrom(node nodes.Node) error {
@@ -394,6 +410,48 @@ func (h *helper) copyFirmwareDataFrom(node nodes.Node) error {
 	err = ssh.CopyFrom(firmwares.ResolvedMarker, firmwares.ResolvedMarker)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to copy resolved marker from node %s(%v)", h.reqId, node.Hostname, err)
+		return err
+	}
+
+	return nil
+}
+
+func (h *helper) setNodeUpdateProgress(hostname, phase, status string) error {
+	update, err := h.getFirmwareUpgradeProgress()
+	if err != nil {
+		log.Errorf("firmwares: failed to get update progress(%v)", err)
+		return err
+	}
+
+	for i, progress := range update.Progresses {
+		if progress.Host != hostname {
+			continue
+		}
+
+		update.Progresses[i].Phase = phase
+		update.Progresses[i].Status.Current = status
+	}
+
+	return h.setProgressDetails(update)
+}
+
+func (h *helper) setProgressDetails(progress *firmwares.Upgrade) error {
+	file, err := os.Create(firmwares.UpdateProgress)
+	if err != nil {
+		log.Errorf("firmwares: failed to create progress file for update(%v)", err)
+		return err
+	}
+
+	defer file.Close()
+	content, err := json.MarshalIndent(progress, "", "  ")
+	if err != nil {
+		log.Errorf("firmwares: failed to marshal progress details(%v)", err)
+		return err
+	}
+
+	_, err = file.WriteString(string(content))
+	if err != nil {
+		log.Errorf("firmwares: failed to write progress file(%v)", err)
 		return err
 	}
 

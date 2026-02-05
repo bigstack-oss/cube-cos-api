@@ -123,7 +123,7 @@ func (h *helper) resetBootstrappingLog(node string) error {
 	}
 
 	defer ssh.Close()
-	err = ssh.Run(fmt.Sprintf("echo '' > %s", firmwares.BootstrappingLog))
+	err = ssh.Run(fmt.Sprintf("echo 'reset by api' > %s", firmwares.BootstrappingLog))
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to remove bootstrapping log from node %s(%v)", h.reqId, node, err)
 		return err

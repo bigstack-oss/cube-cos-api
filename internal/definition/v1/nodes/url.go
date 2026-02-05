@@ -320,6 +320,12 @@ func (n *Node) GetFirmwareBootstrappingUrl() string {
 	return u.String()
 }
 
+func (n *Node) GetFirmwareUpgradeProgressUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/firmwares/upgradeProgress", base.DataCenterName)
+	return u.String()
+}
+
 func (n *Node) PatchFixpackUrl() string {
 	u := n.GenUrl()
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/fixpacks", base.DataCenterName)

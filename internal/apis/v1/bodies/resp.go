@@ -3,6 +3,7 @@ package bodies
 import (
 	"net/http"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -55,6 +56,13 @@ type SupportFileList struct {
 	Status string         `json:"status"`
 	Msg    string         `json:"msg"`
 	Data   []support.File `json:"data"`
+}
+
+type FirmwareUpgradeProgress struct {
+	Code   int               `json:"code"`
+	Status string            `json:"status"`
+	Msg    string            `json:"msg"`
+	Data   firmwares.Upgrade `json:"data"`
 }
 
 type Fixpack struct {

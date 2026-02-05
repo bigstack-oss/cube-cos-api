@@ -9,8 +9,10 @@ import (
 	"strings"
 	ostime "time"
 
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/ssh"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
+	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	defssh "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ssh"
@@ -111,8 +113,34 @@ func GetUpgradeProgress() (*firmwares.Upgrade, error) {
 	return upgrade, nil
 }
 
+func GetUpgradeProgressFromVip() (*firmwares.Upgrade, error) {
+	node, err := GetVirtualIpController()
+	if err != nil {
+		log.Errorf("firmwares: failed to get virtual IP controller(%v)", err)
+		return nil, err
+	}
+
+	http := http.GetGlobalHelper()
+	resp, err := http.R().
+		SetResult(&bodies.FirmwareUpgradeProgress{}).
+		SetHeaders(nodes.GetSecretHeaders()).
+		Get(node.GetFirmwareUpgradeProgressUrl())
+	if err != nil {
+		log.Errorf("firmwares: unable to get firmware upgrade progress from node %s (%v)", node.Hostname, err)
+		return nil, err
+	}
+
+	if resp.IsError() {
+		err := fmt.Errorf("HTTP %d: %s", resp.StatusCode(), string(resp.Body()))
+		log.Errorf("firmwares: failed to get firmware upgrade progress from node %s (%v)", node.Hostname, err)
+		return nil, err
+	}
+
+	return &resp.Result().(*bodies.FirmwareUpgradeProgress).Data, nil
+}
+
 func SetNodeUpdateProgress(hostname, phase, status string) error {
-	update, err := GetUpgradeProgress()
+	update, err := GetUpgradeProgressFromVip()
 	if err != nil {
 		log.Errorf("firmwares: failed to get update progress(%v)", err)
 		return err
