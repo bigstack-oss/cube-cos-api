@@ -92,6 +92,18 @@ func (h *helper) convertToUpgradeProgress(upgrade *firmwares.Upgrade, bootstrapp
 			upgrade.Progresses[i].Status.IsProcessing = true
 			upgrade.Progresses[i].Status.ProcessPercent = 80
 		}
+
+		isLastNode := i == len(upgrade.Progresses)-1
+		if !isLastNode {
+			continue
+		}
+
+		if h.isNodeStillBootstrapping(progress.Host) {
+			upgrade.Progresses[i].Phase = status.Rebooting
+			upgrade.Progresses[i].Status.Current = status.Rebooting
+			upgrade.Progresses[i].Status.IsProcessing = true
+			upgrade.Progresses[i].Status.ProcessPercent = 80
+		}
 	}
 }
 
@@ -103,6 +115,10 @@ func (h *helper) findPhaseFromBootstrapping(progress firmwares.Progress, bootstr
 
 		if bootstrapping.Stdout == "reset by api" {
 			return progress.Phase
+		}
+
+		if bootstrapping.Return == "1" && bootstrapping.Stdout == "" {
+			return status.Rebooting
 		}
 
 		if bootstrapping.Return != "0" {
@@ -123,6 +139,10 @@ func (h *helper) findStatusFromBootstrapping(progress firmwares.Progress, bootst
 			return progress.Status.Current
 		}
 
+		if bootstrapping.Return == "1" && bootstrapping.Stdout == "" {
+			return status.Rebooting
+		}
+
 		if bootstrapping.Return != "0" {
 			return status.Failed
 		}
@@ -135,6 +155,33 @@ func (h *helper) findStatusFromBootstrapping(progress firmwares.Progress, bootst
 	}
 
 	return status.Installing
+}
+
+func (h *helper) isNodeStillBootstrapping(host string) bool {
+	sshAuth, err := defssh.GenSshAuth(defssh.DefaultPrivateKey)
+	if err != nil {
+		log.Errorf("firmwares: failed to generate ssh auth for checking bootstrapping status of node %s(%v)", host, err)
+		return true
+	}
+
+	ssh, err := ssh.NewHelper(
+		ssh.Host(fmt.Sprintf("%s:22", host)),
+		ssh.User("root"),
+		ssh.AuthMethod(sshAuth),
+		ssh.HostKeyCallback(cryptossh.InsecureIgnoreHostKey()),
+	)
+	if err != nil {
+		log.Errorf("firmwares: failed to create ssh helper for soft reboot(%s)(%v)", host, err)
+		return true
+	}
+
+	defer ssh.Close()
+	err = ssh.Run("ps aux | grep '/usr/sbin/bootstrap' | grep -v grep")
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 func (h *helper) sortUpgradeProgress(progresses *[]firmwares.Progress) {
