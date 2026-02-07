@@ -176,6 +176,10 @@ func (h *helper) updatePeerStorageModels() {
 
 	nodesToOperate := append(controllers, computes...)
 	for _, node := range nodesToOperate {
+		if node.IsLocal() {
+			continue
+		}
+
 		h.sendStorageModelReqToPeer(node)
 	}
 }

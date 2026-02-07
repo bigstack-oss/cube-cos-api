@@ -50,6 +50,10 @@ func (h *helper) updatePeerControllers() {
 	}
 
 	for _, node := range peerNodes {
+		if node.IsLocal() {
+			continue
+		}
+
 		h.updateSettingToPeerNode(node)
 	}
 }

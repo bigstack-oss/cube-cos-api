@@ -116,6 +116,10 @@ func (h *helper) updateToPeerTriggers() {
 	}
 
 	for _, node := range nodes {
+		if node.IsLocal() {
+			continue
+		}
+
 		h.updatePeerTrigger(node)
 	}
 }
