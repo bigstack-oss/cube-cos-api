@@ -504,3 +504,38 @@ func (h *helper) setProgressDetails(progress *firmwares.Upgrade) error {
 
 	return nil
 }
+
+func (h *helper) removeClusterFirmwareUpgradeProgress() {
+	list := nodes.List()
+	for _, node := range list {
+		h.removeNodeFirmwareUpgradeProgress(node.Hostname)
+	}
+}
+
+func (h *helper) removeNodeFirmwareUpgradeProgress(node string) error {
+	sshAuth, err := defssh.GenSshAuth(defssh.DefaultPrivateKey)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to generate ssh auth to remove firmware upgrade progress on %s (%v)", h.reqId, node, err)
+		return err
+	}
+
+	ssh, err := ssh.NewHelper(
+		ssh.Host(fmt.Sprintf("%s:22", node)),
+		ssh.User("root"),
+		ssh.AuthMethod(sshAuth),
+		ssh.HostKeyCallback(cryptossh.InsecureIgnoreHostKey()),
+	)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to create ssh helper to remove firmware upgrade progress on %s (%v)", h.reqId, node, err)
+		return err
+	}
+
+	defer ssh.Close()
+	err = ssh.Run("rm -rf /var/lib/cube-cos-api/*")
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to remove firmware upgrade progress from node %s(%v)", h.reqId, node, err)
+		return err
+	}
+
+	return nil
+}

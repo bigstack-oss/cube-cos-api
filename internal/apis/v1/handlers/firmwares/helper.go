@@ -141,12 +141,7 @@ func (h *helper) updateNodeFirmware() error {
 }
 
 func (h *helper) abortFirmwareUpdate() error {
-	err := os.Remove(firmwares.UpdateProgress)
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to remove update progress file (%v)", h.reqId, err)
-		return err
-	}
-
+	h.removeClusterFirmwareUpgradeProgress()
 	h.syncFirstTimeInstallationProgress()
 	h.syncProgressToAllNodes()
 	return nil
