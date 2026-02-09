@@ -110,12 +110,6 @@ func newAuthIdentities() error {
 		return err
 	}
 
-	err = newBucketSecret()
-	if err != nil {
-		log.Errorf("runtime: failed to init bucket secret(%v)", err)
-		return err
-	}
-
 	err = newGlobalKeycloakHelper()
 	if err != nil {
 		log.Errorf("runtime: failed to init keycloak helper(%v)", err)
@@ -149,6 +143,12 @@ func newAuthIdentities() error {
 	err = newKeycloakSamlMapper()
 	if err != nil {
 		log.Errorf("runtime: failed to init saml mapper in keycloak(%v)", err)
+		return err
+	}
+
+	err = newBucketSecret()
+	if err != nil {
+		log.Errorf("runtime: failed to init bucket secret(%v)", err)
 		return err
 	}
 
