@@ -34,7 +34,7 @@ func WaitForAllVmsEvacuated(hostname string) error {
 
 	for range maxTries {
 		wait.Seconds(10)
-		servers, err := openstack.ListServers(servers.ListOpts{Host: hostname})
+		servers, err := openstack.ListServers(servers.ListOpts{Host: hostname, AllTenants: true})
 		if err != nil {
 			log.Errorf("cubecos: failed to list servers on %s (%v)", hostname, err)
 			continue
