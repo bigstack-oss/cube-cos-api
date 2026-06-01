@@ -1,0 +1,3882 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "cube-cos-api",
+    "languages": [
+      "Go"
+    ],
+    "frameworks": [
+      "Gin",
+      "go-micro",
+      "MongoDB",
+      "InfluxDB",
+      "OpenStack",
+      "Kubernetes"
+    ],
+    "description": "Central communication API for CubeCOS cluster nodes \u2014 manages firmware, health monitoring, node operations, metrics, and integrations using MDNS peer discovery",
+    "analyzedAt": "2026-05-25T07:39:43.384296+00:00",
+    "gitCommitHash": "5310e066f3e96edecc0212d29ebf72aa996e637b"
+  },
+  "nodes": [
+    {
+      "id": "file:cmd/main.go",
+      "type": "file",
+      "name": "main.go",
+      "filePath": "cmd/main.go",
+      "summary": "Application entry point \u2014 loads config, creates HTTP server, and starts the go-micro service",
+      "tags": [
+        "entry-point",
+        "main",
+        "bootstrap"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/service/service.go",
+      "type": "file",
+      "name": "service.go",
+      "filePath": "internal/service/service.go",
+      "summary": "Microservice lifecycle management \u2014 creates go-micro service with rate limiting, circuit breaker, registry, and operator orchestration",
+      "tags": [
+        "microservice",
+        "lifecycle",
+        "go-micro"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/config/config.go",
+      "type": "file",
+      "name": "config.go",
+      "filePath": "internal/config/config.go",
+      "summary": "Configuration loading and management \u2014 reads YAML config files and syncs global system options",
+      "tags": [
+        "config",
+        "yaml",
+        "options"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/runtime/runtime.go",
+      "type": "file",
+      "name": "runtime.go",
+      "filePath": "internal/runtime/runtime.go",
+      "summary": "Runtime initialization \u2014 combines server creation and dependency initialization",
+      "tags": [
+        "runtime",
+        "init"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/runtime/router.go",
+      "type": "file",
+      "name": "router.go",
+      "filePath": "internal/runtime/router.go",
+      "summary": "HTTP router setup \u2014 creates Gin router, registers all API handlers by node role, sets up middleware",
+      "tags": [
+        "router",
+        "gin",
+        "middleware",
+        "http"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/runtime/dependency.go",
+      "type": "file",
+      "name": "dependency.go",
+      "filePath": "internal/runtime/dependency.go",
+      "summary": "External dependency initialization \u2014 sets up MongoDB, InfluxDB, OpenStack, Keycloak, Kubernetes, AWS clients",
+      "tags": [
+        "dependencies",
+        "mongodb",
+        "influxdb",
+        "openstack",
+        "keycloak",
+        "kubernetes"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/runtime/identity.go",
+      "type": "file",
+      "name": "identity.go",
+      "filePath": "internal/runtime/identity.go",
+      "summary": "Node identity resolution \u2014 determines node role, hostname, datacenter, VIP, and authentication setup",
+      "tags": [
+        "identity",
+        "node-role",
+        "authentication"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/runtime/filter.go",
+      "type": "file",
+      "name": "filter.go",
+      "filePath": "internal/runtime/filter.go",
+      "summary": "Request filtering middleware \u2014 authentication and authorization checks for API requests",
+      "tags": [
+        "middleware",
+        "auth",
+        "filter"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/runtime/parse.go",
+      "type": "file",
+      "name": "parse.go",
+      "filePath": "internal/runtime/parse.go",
+      "summary": "Request parsing utilities \u2014 extracts common request parameters and validates inputs",
+      "tags": [
+        "parsing",
+        "request",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/runtime/options.go",
+      "type": "file",
+      "name": "options.go",
+      "filePath": "internal/runtime/options.go",
+      "summary": "Server options configuration \u2014 HTTP server options and settings",
+      "tags": [
+        "options",
+        "server-config"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/runtime/log.go",
+      "type": "file",
+      "name": "log.go",
+      "filePath": "internal/runtime/log.go",
+      "summary": "Logging setup \u2014 configures structured logging for the runtime",
+      "tags": [
+        "logging",
+        "structured-log"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/runtime/time.go",
+      "type": "file",
+      "name": "time.go",
+      "filePath": "internal/runtime/time.go",
+      "summary": "Time utilities for runtime operations",
+      "tags": [
+        "time",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/runtime/promptmsg.go",
+      "type": "file",
+      "name": "promptmsg.go",
+      "filePath": "internal/runtime/promptmsg.go",
+      "summary": "Prompt message constants for user-facing notifications",
+      "tags": [
+        "messages",
+        "constants"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/apis/api.go",
+      "type": "file",
+      "name": "api.go",
+      "filePath": "internal/apis/api.go",
+      "summary": "Central handler registry \u2014 routes API handlers to node roles (control, compute, storage, moderator, edge-core)",
+      "tags": [
+        "api-registry",
+        "role-based",
+        "handler-mapping"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/doc.go",
+      "type": "file",
+      "name": "doc.go",
+      "filePath": "internal/apis/doc.go",
+      "summary": "Swagger documentation endpoint registration for API docs",
+      "tags": [
+        "swagger",
+        "documentation",
+        "api-docs"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/apis/v1/bodies/req.go",
+      "type": "file",
+      "name": "req.go",
+      "filePath": "internal/apis/v1/bodies/req.go",
+      "summary": "Request body reader utility \u2014 reads raw body from Gin context",
+      "tags": [
+        "request",
+        "body-parser"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/apis/v1/bodies/resp.go",
+      "type": "file",
+      "name": "resp.go",
+      "filePath": "internal/apis/v1/bodies/resp.go",
+      "summary": "Standardized HTTP response helpers with consistent JSON structure",
+      "tags": [
+        "response",
+        "http",
+        "json"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/queries/params.go",
+      "type": "file",
+      "name": "params.go",
+      "filePath": "internal/apis/v1/queries/params.go",
+      "summary": "Query parameter parser utilities \u2014 pagination, time ranges, keyword filtering, aggregation",
+      "tags": [
+        "query-params",
+        "pagination",
+        "filtering"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/queries/watch.go",
+      "type": "file",
+      "name": "watch.go",
+      "filePath": "internal/apis/v1/queries/watch.go",
+      "summary": "Watch query parameter parser for SSE streaming endpoints",
+      "tags": [
+        "sse",
+        "watch",
+        "streaming"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:api/docs.go",
+      "type": "file",
+      "name": "docs.go",
+      "filePath": "api/docs.go",
+      "summary": "Auto-generated Swagger API documentation Go source",
+      "tags": [
+        "swagger",
+        "generated",
+        "api-docs"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:api/docs.json",
+      "type": "config",
+      "name": "docs.json",
+      "filePath": "api/docs.json",
+      "summary": "Auto-generated Swagger API specification in JSON format",
+      "tags": [
+        "swagger",
+        "generated",
+        "openapi"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/datacenters/handlers.go",
+      "type": "file",
+      "name": "datacenters/handlers.go",
+      "filePath": "internal/apis/v1/handlers/datacenters/handlers.go",
+      "summary": "Data center listing, firmware/fixpack info, rolling reboot operations",
+      "tags": [
+        "datacenter",
+        "ha",
+        "rolling-reboot",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/events/handlers.go",
+      "type": "file",
+      "name": "events/handlers.go",
+      "filePath": "internal/apis/v1/handlers/events/handlers.go",
+      "summary": "Event listing with filtering, predefined events, event ranks, SSE streaming",
+      "tags": [
+        "events",
+        "filtering",
+        "sse",
+        "influxdb",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/firmwares/handlers.go",
+      "type": "file",
+      "name": "firmwares/handlers.go",
+      "filePath": "internal/apis/v1/handlers/firmwares/handlers.go",
+      "summary": "Firmware lifecycle \u2014 upload, verify MD5, upgrade, progress tracking, abort, per-node operations",
+      "tags": [
+        "firmware",
+        "upgrade",
+        "lifecycle",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/fixpacks/handlers.go",
+      "type": "file",
+      "name": "fixpacks/handlers.go",
+      "filePath": "internal/apis/v1/handlers/fixpacks/handlers.go",
+      "summary": "Fixpack (hotpatch) lifecycle \u2014 upload, install, rollback, progress tracking, per-node version info",
+      "tags": [
+        "fixpack",
+        "hotfix",
+        "rollback",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/grafana/handlers.go",
+      "type": "file",
+      "name": "grafana/handlers.go",
+      "filePath": "internal/apis/v1/handlers/grafana/handlers.go",
+      "summary": "Generates Grafana dashboard deep-links for hosts, instances, networks, and storages",
+      "tags": [
+        "grafana",
+        "dashboard",
+        "links",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/healths/handlers.go",
+      "type": "file",
+      "name": "healths/handlers.go",
+      "filePath": "internal/apis/v1/handlers/healths/handlers.go",
+      "summary": "Health summary, per-service/module health history, repair operations, SSE streaming",
+      "tags": [
+        "health",
+        "monitoring",
+        "repair",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/images/handlers.go",
+      "type": "file",
+      "name": "images/handlers.go",
+      "filePath": "internal/apis/v1/handlers/images/handlers.go",
+      "summary": "VM image management \u2014 list materials, list/export images, import, update metadata, SSE watch",
+      "tags": [
+        "images",
+        "openstack",
+        "glance",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/integrations/handlers.go",
+      "type": "file",
+      "name": "integrations/handlers.go",
+      "filePath": "internal/apis/v1/handlers/integrations/handlers.go",
+      "summary": "Third-party storage integration CRUD \u2014 Cinder backends, vendor/model management, verification",
+      "tags": [
+        "integration",
+        "storage",
+        "cinder",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/licenses/handlers.go",
+      "type": "file",
+      "name": "licenses/handlers.go",
+      "filePath": "internal/apis/v1/handlers/licenses/handlers.go",
+      "summary": "License management \u2014 list, verify, import cluster/host licenses, attachments",
+      "tags": [
+        "license",
+        "verification",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/logout/handlers.go",
+      "type": "file",
+      "name": "logout/handlers.go",
+      "filePath": "internal/apis/v1/handlers/logout/handlers.go",
+      "summary": "Session cleanup and redirect for logout flow via SAML",
+      "tags": [
+        "logout",
+        "session",
+        "saml",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/me/handlers.go",
+      "type": "file",
+      "name": "me/handlers.go",
+      "filePath": "internal/apis/v1/handlers/me/handlers.go",
+      "summary": "Returns current authenticated user information",
+      "tags": [
+        "user",
+        "auth",
+        "identity",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/metrics/handlers.go",
+      "type": "file",
+      "name": "metrics/handlers.go",
+      "filePath": "internal/apis/v1/handlers/metrics/handlers.go",
+      "summary": "Datacenter summary and detailed metrics (CPU, memory, disk, network) with SSE watch",
+      "tags": [
+        "metrics",
+        "monitoring",
+        "influxdb",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/nodes/handlers.go",
+      "type": "file",
+      "name": "nodes/handlers.go",
+      "filePath": "internal/apis/v1/handlers/nodes/handlers.go",
+      "summary": "Full node management \u2014 list, reboot, IPMI, drain, device CRUD, OSD management, SSE watch",
+      "tags": [
+        "nodes",
+        "ipmi",
+        "osd",
+        "ceph",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/notifications/handlers.go",
+      "type": "file",
+      "name": "notifications/handlers.go",
+      "filePath": "internal/apis/v1/handlers/notifications/handlers.go",
+      "summary": "Notification listing with filtering/pagination and most recent notification",
+      "tags": [
+        "notifications",
+        "toast",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/opensearch/handlers.go",
+      "type": "file",
+      "name": "opensearch/handlers.go",
+      "filePath": "internal/apis/v1/handlers/opensearch/handlers.go",
+      "summary": "Generates OpenSearch dashboard deep-link for request IDs",
+      "tags": [
+        "opensearch",
+        "logging",
+        "dashboard",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/services/handlers.go",
+      "type": "file",
+      "name": "services/handlers.go",
+      "filePath": "internal/apis/v1/handlers/services/handlers.go",
+      "summary": "Lists all non-internal cluster services in configured order",
+      "tags": [
+        "services",
+        "catalog",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/settings/handlers.go",
+      "type": "file",
+      "name": "settings/handlers.go",
+      "filePath": "internal/apis/v1/handlers/settings/handlers.go",
+      "summary": "Cluster settings \u2014 title prefix, email senders/recipients, Slack channels, per-node task updates",
+      "tags": [
+        "settings",
+        "email",
+        "slack",
+        "notifications",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/supportfiles/handlers.go",
+      "type": "file",
+      "name": "supportfiles/handlers.go",
+      "filePath": "internal/apis/v1/handlers/supportfiles/handlers.go",
+      "summary": "Diagnostic bundle management \u2014 create, list, download, delete support files",
+      "tags": [
+        "support-files",
+        "diagnostics",
+        "debug",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/tokens/handlers.go",
+      "type": "file",
+      "name": "tokens/handlers.go",
+      "filePath": "internal/apis/v1/handlers/tokens/handlers.go",
+      "summary": "Authentication token creation (access + refresh) from user credentials",
+      "tags": [
+        "auth",
+        "token",
+        "keycloak",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/triggers/handlers.go",
+      "type": "file",
+      "name": "triggers/handlers.go",
+      "filePath": "internal/apis/v1/handlers/triggers/handlers.go",
+      "summary": "Automation trigger management \u2014 CRUD, dry-run script verification, enable/disable",
+      "tags": [
+        "triggers",
+        "automation",
+        "scripts",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/tunings/handlers.go",
+      "type": "file",
+      "name": "tunings/handlers.go",
+      "filePath": "internal/apis/v1/handlers/tunings/handlers.go",
+      "summary": "System tuning parameter management \u2014 list specs, update, enable/disable, reset, SSE watch",
+      "tags": [
+        "tunings",
+        "parameters",
+        "system-config",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/volumes/handlers.go",
+      "type": "file",
+      "name": "volumes/handlers.go",
+      "filePath": "internal/apis/v1/handlers/volumes/handlers.go",
+      "summary": "Volume management \u2014 list/export volumes, image-to-volume conversion, SSE watch",
+      "tags": [
+        "volumes",
+        "cinder",
+        "openstack",
+        "handler",
+        "api-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/events/helper.go",
+      "type": "file",
+      "name": "events/helper.go",
+      "filePath": "internal/apis/v1/handlers/events/helper.go",
+      "summary": "Helper struct and business logic delegation for events handler",
+      "tags": [
+        "events",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/firmwares/helper.go",
+      "type": "file",
+      "name": "firmwares/helper.go",
+      "filePath": "internal/apis/v1/handlers/firmwares/helper.go",
+      "summary": "Helper struct and business logic delegation for firmwares handler",
+      "tags": [
+        "firmwares",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/fixpacks/helper.go",
+      "type": "file",
+      "name": "fixpacks/helper.go",
+      "filePath": "internal/apis/v1/handlers/fixpacks/helper.go",
+      "summary": "Helper struct and business logic delegation for fixpacks handler",
+      "tags": [
+        "fixpacks",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/healths/helper.go",
+      "type": "file",
+      "name": "healths/helper.go",
+      "filePath": "internal/apis/v1/handlers/healths/helper.go",
+      "summary": "Helper struct and business logic delegation for healths handler",
+      "tags": [
+        "healths",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/images/helper.go",
+      "type": "file",
+      "name": "images/helper.go",
+      "filePath": "internal/apis/v1/handlers/images/helper.go",
+      "summary": "Helper struct and business logic delegation for images handler",
+      "tags": [
+        "images",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/integrations/helper.go",
+      "type": "file",
+      "name": "integrations/helper.go",
+      "filePath": "internal/apis/v1/handlers/integrations/helper.go",
+      "summary": "Helper struct and business logic delegation for integrations handler",
+      "tags": [
+        "integrations",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/licenses/helper.go",
+      "type": "file",
+      "name": "licenses/helper.go",
+      "filePath": "internal/apis/v1/handlers/licenses/helper.go",
+      "summary": "Helper struct and business logic delegation for licenses handler",
+      "tags": [
+        "licenses",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/metrics/helper.go",
+      "type": "file",
+      "name": "metrics/helper.go",
+      "filePath": "internal/apis/v1/handlers/metrics/helper.go",
+      "summary": "Helper struct and business logic delegation for metrics handler",
+      "tags": [
+        "metrics",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/nodes/helper.go",
+      "type": "file",
+      "name": "nodes/helper.go",
+      "filePath": "internal/apis/v1/handlers/nodes/helper.go",
+      "summary": "Helper struct and business logic delegation for nodes handler",
+      "tags": [
+        "nodes",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/settings/helper.go",
+      "type": "file",
+      "name": "settings/helper.go",
+      "filePath": "internal/apis/v1/handlers/settings/helper.go",
+      "summary": "Helper struct and business logic delegation for settings handler",
+      "tags": [
+        "settings",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/supportfiles/helper.go",
+      "type": "file",
+      "name": "supportfiles/helper.go",
+      "filePath": "internal/apis/v1/handlers/supportfiles/helper.go",
+      "summary": "Helper struct and business logic delegation for supportfiles handler",
+      "tags": [
+        "supportfiles",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/triggers/helper.go",
+      "type": "file",
+      "name": "triggers/helper.go",
+      "filePath": "internal/apis/v1/handlers/triggers/helper.go",
+      "summary": "Helper struct and business logic delegation for triggers handler",
+      "tags": [
+        "triggers",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/tunings/helper.go",
+      "type": "file",
+      "name": "tunings/helper.go",
+      "filePath": "internal/apis/v1/handlers/tunings/helper.go",
+      "summary": "Helper struct and business logic delegation for tunings handler",
+      "tags": [
+        "tunings",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/apis/v1/handlers/volumes/helper.go",
+      "type": "file",
+      "name": "volumes/helper.go",
+      "filePath": "internal/apis/v1/handlers/volumes/helper.go",
+      "summary": "Helper struct and business logic delegation for volumes handler",
+      "tags": [
+        "volumes",
+        "helper",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/datacenter.go",
+      "type": "file",
+      "name": "datacenter.go",
+      "filePath": "internal/cubecos/datacenter.go",
+      "summary": "Reads datacenter metadata (firmware versions, partitions, HA status) via CLI tools",
+      "tags": [
+        "datacenter",
+        "hex-sdk",
+        "cli",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/device.go",
+      "type": "file",
+      "name": "device.go",
+      "filePath": "internal/cubecos/device.go",
+      "summary": "Manages Ceph OSD disk operations (add/promote/demote/remove) via hex_sdk",
+      "tags": [
+        "ceph",
+        "osd",
+        "disk",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/event.go",
+      "type": "file",
+      "name": "event.go",
+      "filePath": "internal/cubecos/event.go",
+      "summary": "Queries event data from InfluxDB using Flux statements",
+      "tags": [
+        "events",
+        "influxdb",
+        "flux",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/firmware.go",
+      "type": "file",
+      "name": "firmware.go",
+      "filePath": "internal/cubecos/firmware.go",
+      "summary": "Firmware lifecycle operations (list/upgrade/distribute) across cluster nodes via CLI and SSH",
+      "tags": [
+        "firmware",
+        "hex-install",
+        "ssh",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/fixpacks.go",
+      "type": "file",
+      "name": "fixpacks.go",
+      "filePath": "internal/cubecos/fixpacks.go",
+      "summary": "Fixpack listing, installation, removal via hex_config CLI",
+      "tags": [
+        "fixpack",
+        "hex-config",
+        "cli",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/cubecos/health.go",
+      "type": "file",
+      "name": "health.go",
+      "filePath": "internal/cubecos/health.go",
+      "summary": "Cluster health tracking \u2014 queries from InfluxDB, manages repair operations, S3 health alerts",
+      "tags": [
+        "health",
+        "influxdb",
+        "aws-s3",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/cubecos/image.go",
+      "type": "file",
+      "name": "image.go",
+      "filePath": "internal/cubecos/image.go",
+      "summary": "VM image import via hex_sdk with pseudo-terminal progress tracking",
+      "tags": [
+        "images",
+        "hex-sdk",
+        "pty",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/instance.go",
+      "type": "file",
+      "name": "instance.go",
+      "filePath": "internal/cubecos/instance.go",
+      "summary": "VM evacuation via OpenStack Nova API with wait-for-completion",
+      "tags": [
+        "vm",
+        "openstack",
+        "evacuation",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/integration.go",
+      "type": "file",
+      "name": "integration.go",
+      "filePath": "internal/cubecos/integration.go",
+      "summary": "Cinder storage backend management via hex_sdk",
+      "tags": [
+        "cinder",
+        "storage",
+        "hex-sdk",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/license.go",
+      "type": "file",
+      "name": "license.go",
+      "filePath": "internal/cubecos/license.go",
+      "summary": "License import, verification, and synchronization via CLI",
+      "tags": [
+        "license",
+        "hex-sdk",
+        "verification",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/cubecos/metric.go",
+      "type": "file",
+      "name": "metric.go",
+      "filePath": "internal/cubecos/metric.go",
+      "summary": "Queries host/VM metrics from InfluxDB and local gopsutil",
+      "tags": [
+        "metrics",
+        "influxdb",
+        "gopsutil",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/cubecos/module.go",
+      "type": "file",
+      "name": "module.go",
+      "filePath": "internal/cubecos/module.go",
+      "summary": "Ordered list of cluster services/modules for health checks",
+      "tags": [
+        "services",
+        "health-check",
+        "ordering",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/network.go",
+      "type": "file",
+      "name": "network.go",
+      "filePath": "internal/cubecos/network.go",
+      "summary": "Network configuration \u2014 VIPs, management/storage IPs, interfaces",
+      "tags": [
+        "network",
+        "vip",
+        "configuration",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/nodes.go",
+      "type": "file",
+      "name": "nodes.go",
+      "filePath": "internal/cubecos/nodes.go",
+      "summary": "Node inventory, role discovery, VIP ownership, GPU detection via MongoDB and OpenStack",
+      "tags": [
+        "nodes",
+        "mongodb",
+        "openstack",
+        "pacemaker",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/notifications.go",
+      "type": "file",
+      "name": "notifications.go",
+      "filePath": "internal/cubecos/notifications.go",
+      "summary": "CRUD operations for toast notifications stored in MongoDB",
+      "tags": [
+        "notifications",
+        "mongodb",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/opensearch.go",
+      "type": "file",
+      "name": "opensearch.go",
+      "filePath": "internal/cubecos/opensearch.go",
+      "summary": "Fetches OpenSearch dashboard link for request IDs",
+      "tags": [
+        "opensearch",
+        "cli",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/os.go",
+      "type": "file",
+      "name": "os.go",
+      "filePath": "internal/cubecos/os.go",
+      "summary": "OS-level utilities \u2014 reboot, strict mode detection, hex_sdk exit code helpers",
+      "tags": [
+        "os",
+        "reboot",
+        "hex-sdk",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/osd.go",
+      "type": "file",
+      "name": "osd.go",
+      "filePath": "internal/cubecos/osd.go",
+      "summary": "Individual Ceph OSD management (wait/restart/remove)",
+      "tags": [
+        "ceph",
+        "osd",
+        "systemctl",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/record.go",
+      "type": "file",
+      "name": "record.go",
+      "filePath": "internal/cubecos/record.go",
+      "summary": "Pending request record management in MongoDB",
+      "tags": [
+        "mongodb",
+        "records",
+        "cleanup",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/settings.go",
+      "type": "file",
+      "name": "settings.go",
+      "filePath": "internal/cubecos/settings.go",
+      "summary": "Alert notification settings management (email/Slack) via hex_sdk",
+      "tags": [
+        "settings",
+        "email",
+        "slack",
+        "hex-sdk",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/statistic.go",
+      "type": "file",
+      "name": "statistic.go",
+      "filePath": "internal/cubecos/statistic.go",
+      "summary": "Dashboard summary statistics aggregation logic",
+      "tags": [
+        "statistics",
+        "dashboard",
+        "aggregation",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/storage.go",
+      "type": "file",
+      "name": "storage.go",
+      "filePath": "internal/cubecos/storage.go",
+      "summary": "Storage utilities \u2014 default volume type, Ceph usage, image import options",
+      "tags": [
+        "storage",
+        "ceph",
+        "cinder",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/supportfile.go",
+      "type": "file",
+      "name": "supportfile.go",
+      "filePath": "internal/cubecos/supportfile.go",
+      "summary": "Support/diagnostic file creation, listing, and S3 upload",
+      "tags": [
+        "support-files",
+        "aws-s3",
+        "diagnostics",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/sys.go",
+      "type": "file",
+      "name": "sys.go",
+      "filePath": "internal/cubecos/sys.go",
+      "summary": "Reads system settings from OS configuration files",
+      "tags": [
+        "system",
+        "configuration",
+        "filesystem",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/token.go",
+      "type": "file",
+      "name": "token.go",
+      "filePath": "internal/cubecos/token.go",
+      "summary": "Authentication token creation via Keycloak OIDC",
+      "tags": [
+        "auth",
+        "keycloak",
+        "oidc",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/trigger.go",
+      "type": "file",
+      "name": "trigger.go",
+      "filePath": "internal/cubecos/trigger.go",
+      "summary": "Alert trigger CRUD operations via hex_sdk",
+      "tags": [
+        "triggers",
+        "hex-sdk",
+        "alerts",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/cubecos/tuning.go",
+      "type": "file",
+      "name": "tuning.go",
+      "filePath": "internal/cubecos/tuning.go",
+      "summary": "System tuning parameter read/write from policy YAML files with cluster distribution",
+      "tags": [
+        "tunings",
+        "policy",
+        "yaml",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/cubecos/vm.go",
+      "type": "file",
+      "name": "vm.go",
+      "filePath": "internal/cubecos/vm.go",
+      "summary": "VM status and hypervisor resource usage queries via OpenStack",
+      "tags": [
+        "vm",
+        "openstack",
+        "hypervisor",
+        "cubecos",
+        "system-interaction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/operators/v1/firmwares/firmwares.go",
+      "type": "file",
+      "name": "firmwares/firmwares.go",
+      "filePath": "internal/operators/v1/firmwares/firmwares.go",
+      "summary": "Processes firmware upgrade requests asynchronously from a workqueue",
+      "tags": [
+        "firmware",
+        "workqueue",
+        "async",
+        "operator",
+        "background-worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/operators/v1/fixpacks/fixpacks.go",
+      "type": "file",
+      "name": "fixpacks/fixpacks.go",
+      "filePath": "internal/operators/v1/fixpacks/fixpacks.go",
+      "summary": "Processes fixpack install/remove requests from a workqueue",
+      "tags": [
+        "fixpack",
+        "workqueue",
+        "async",
+        "operator",
+        "background-worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/operators/v1/healths/healths.go",
+      "type": "file",
+      "name": "healths/healths.go",
+      "filePath": "internal/operators/v1/healths/healths.go",
+      "summary": "Health repair operations and periodic health history resync",
+      "tags": [
+        "health",
+        "repair",
+        "periodic-sync",
+        "operator",
+        "background-worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/operators/v1/images/images.go",
+      "type": "file",
+      "name": "images/images.go",
+      "filePath": "internal/operators/v1/images/images.go",
+      "summary": "Processes image import requests with progress tracking in MongoDB",
+      "tags": [
+        "images",
+        "workqueue",
+        "mongodb",
+        "operator",
+        "background-worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/operators/v1/licenses/licenses.go",
+      "type": "file",
+      "name": "licenses/licenses.go",
+      "filePath": "internal/operators/v1/licenses/licenses.go",
+      "summary": "Watches license files for changes and auto-syncs license state",
+      "tags": [
+        "license",
+        "fsnotify",
+        "file-watcher",
+        "operator",
+        "background-worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/operators/v1/metrics/metrics.go",
+      "type": "file",
+      "name": "metrics/metrics.go",
+      "filePath": "internal/operators/v1/metrics/metrics.go",
+      "summary": "Periodically refreshes cached metric summary data every 60 seconds",
+      "tags": [
+        "metrics",
+        "periodic",
+        "cache",
+        "operator",
+        "background-worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/operators/v1/nodes/nodes.go",
+      "type": "file",
+      "name": "nodes/nodes.go",
+      "filePath": "internal/operators/v1/nodes/nodes.go",
+      "summary": "Watches node registry, syncs state, processes OSD/device operations",
+      "tags": [
+        "nodes",
+        "registry",
+        "workqueue",
+        "operator",
+        "background-worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/operators/v1/settings/settings.go",
+      "type": "file",
+      "name": "settings/settings.go",
+      "filePath": "internal/operators/v1/settings/settings.go",
+      "summary": "Processes alert settings changes and watches policy files",
+      "tags": [
+        "settings",
+        "workqueue",
+        "fsnotify",
+        "operator",
+        "background-worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/operators/v1/storages/storage.go",
+      "type": "file",
+      "name": "storages/storage.go",
+      "filePath": "internal/operators/v1/storages/storage.go",
+      "summary": "Processes storage backend and model CRUD requests from dual workqueues",
+      "tags": [
+        "storage",
+        "workqueue",
+        "cinder",
+        "operator",
+        "background-worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/operators/v1/supportfiles/supportfiles.go",
+      "type": "file",
+      "name": "supportfiles/supportfiles.go",
+      "filePath": "internal/operators/v1/supportfiles/supportfiles.go",
+      "summary": "Creates diagnostic files on request and watches for new files",
+      "tags": [
+        "support-files",
+        "workqueue",
+        "fsnotify",
+        "operator",
+        "background-worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/operators/v1/triggers/trigger.go",
+      "type": "file",
+      "name": "triggers/trigger.go",
+      "filePath": "internal/operators/v1/triggers/trigger.go",
+      "summary": "Manages alert trigger CRUD and watches trigger policy files",
+      "tags": [
+        "triggers",
+        "workqueue",
+        "fsnotify",
+        "operator",
+        "background-worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/operators/v1/tunings/tuning.go",
+      "type": "file",
+      "name": "tunings/tuning.go",
+      "filePath": "internal/operators/v1/tunings/tuning.go",
+      "summary": "Applies tuning changes and watches tuning policy file for edits",
+      "tags": [
+        "tunings",
+        "workqueue",
+        "fsnotify",
+        "operator",
+        "background-worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/operators/v1/volumes/volumes.go",
+      "type": "file",
+      "name": "volumes/volumes.go",
+      "filePath": "internal/operators/v1/volumes/volumes.go",
+      "summary": "Processes volume-to-image conversion requests asynchronously",
+      "tags": [
+        "volumes",
+        "workqueue",
+        "conversion",
+        "operator",
+        "background-worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/auths/auth.go",
+      "type": "file",
+      "name": "auth.go",
+      "filePath": "internal/definition/v1/auths/auth.go",
+      "summary": "Auth constants and default Keycloak/OIDC/SAML config values",
+      "tags": [
+        "auth",
+        "keycloak",
+        "oidc",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/auths/user.go",
+      "type": "file",
+      "name": "user.go",
+      "filePath": "internal/definition/v1/auths/user.go",
+      "summary": "User credential DTO with validation helpers",
+      "tags": [
+        "user",
+        "dto",
+        "validation",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/base/base.go",
+      "type": "file",
+      "name": "base.go",
+      "filePath": "internal/definition/v1/base/base.go",
+      "summary": "Global system identity vars and utility functions (MAC hash, panic capture)",
+      "tags": [
+        "identity",
+        "system",
+        "globals",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/base/datacenter.go",
+      "type": "file",
+      "name": "datacenter.go",
+      "filePath": "internal/definition/v1/base/datacenter.go",
+      "summary": "Datacenter API response schema with firmware/fixpack/license info",
+      "tags": [
+        "datacenter",
+        "schema",
+        "response",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/blockdevice/blockdevice.go",
+      "type": "file",
+      "name": "blockdevice.go",
+      "filePath": "internal/definition/v1/blockdevice/blockdevice.go",
+      "summary": "Block device type constants and path helpers",
+      "tags": [
+        "block-device",
+        "constants",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/ceph/device.go",
+      "type": "file",
+      "name": "device.go",
+      "filePath": "internal/definition/v1/ceph/device.go",
+      "summary": "Ceph OSD/device models and health-check command execution",
+      "tags": [
+        "ceph",
+        "osd",
+        "models",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/ceph/rados-gateway.go",
+      "type": "file",
+      "name": "rados-gateway.go",
+      "filePath": "internal/definition/v1/ceph/rados-gateway.go",
+      "summary": "Ceph RADOS gateway space metrics and URL generation",
+      "tags": [
+        "ceph",
+        "rados",
+        "metrics",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/datacenter/datacenter.go",
+      "type": "file",
+      "name": "datacenter.go",
+      "filePath": "internal/definition/v1/datacenter/datacenter.go",
+      "summary": "Datacenter type detection (cloud/edge) from node roles",
+      "tags": [
+        "datacenter",
+        "type-detection",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/email/email.go",
+      "type": "file",
+      "name": "email.go",
+      "filePath": "internal/definition/v1/email/email.go",
+      "summary": "Email sender/recipient models with SMTP auth and status management",
+      "tags": [
+        "email",
+        "smtp",
+        "models",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/errors/errors.go",
+      "type": "file",
+      "name": "errors.go",
+      "filePath": "internal/definition/v1/errors/errors.go",
+      "summary": "Centralized domain error definitions and error template pattern",
+      "tags": [
+        "errors",
+        "domain",
+        "sentinel",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/events/event.go",
+      "type": "file",
+      "name": "event.go",
+      "filePath": "internal/definition/v1/events/event.go",
+      "summary": "Event data models (system/host/instance) with filter support",
+      "tags": [
+        "events",
+        "models",
+        "filters",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/firmwares/firmware.go",
+      "type": "file",
+      "name": "firmware.go",
+      "filePath": "internal/definition/v1/firmwares/firmware.go",
+      "summary": "Firmware upgrade request models, progress tracking, status transitions",
+      "tags": [
+        "firmware",
+        "models",
+        "state-machine",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/fixpacks/fixpack.go",
+      "type": "file",
+      "name": "fixpack.go",
+      "filePath": "internal/definition/v1/fixpacks/fixpack.go",
+      "summary": "Fixpack install/rollback models with status lifecycle",
+      "tags": [
+        "fixpack",
+        "models",
+        "state-machine",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/grafana/grafana.go",
+      "type": "file",
+      "name": "grafana.go",
+      "filePath": "internal/definition/v1/grafana/grafana.go",
+      "summary": "Grafana dashboard link and enabled flag",
+      "tags": [
+        "grafana",
+        "models",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/health/health.go",
+      "type": "file",
+      "name": "health.go",
+      "filePath": "internal/definition/v1/health/health.go",
+      "summary": "Health check report models with status evaluation logic",
+      "tags": [
+        "health",
+        "models",
+        "evaluation",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/images/images.go",
+      "type": "file",
+      "name": "images.go",
+      "filePath": "internal/definition/v1/images/images.go",
+      "summary": "VM image management models (Glance integration, visibility)",
+      "tags": [
+        "images",
+        "models",
+        "openstack",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/integration/integrations.go",
+      "type": "file",
+      "name": "integrations.go",
+      "filePath": "internal/definition/v1/integration/integrations.go",
+      "summary": "Integration service definitions (Keycloak, OpenStack, Ceph URLs)",
+      "tags": [
+        "integration",
+        "services",
+        "urls",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/licenses/license.go",
+      "type": "file",
+      "name": "license.go",
+      "filePath": "internal/definition/v1/licenses/license.go",
+      "summary": "License data models with product/expiry/verification info",
+      "tags": [
+        "license",
+        "models",
+        "verification",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/md5/md5.go",
+      "type": "file",
+      "name": "md5.go",
+      "filePath": "internal/definition/v1/md5/md5.go",
+      "summary": "MD5 file hash computation utility",
+      "tags": [
+        "md5",
+        "hash",
+        "utility",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/me/me.go",
+      "type": "file",
+      "name": "me.go",
+      "filePath": "internal/definition/v1/me/me.go",
+      "summary": "Module constant for current user endpoint",
+      "tags": [
+        "me",
+        "constant",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/metric/metric.go",
+      "type": "file",
+      "name": "metric.go",
+      "filePath": "internal/definition/v1/metric/metric.go",
+      "summary": "Metric data models for CPU/memory/storage usage, time-series, rankings",
+      "tags": [
+        "metrics",
+        "models",
+        "time-series",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/network/network.go",
+      "type": "file",
+      "name": "network.go",
+      "filePath": "internal/definition/v1/network/network.go",
+      "summary": "Network interface definition",
+      "tags": [
+        "network",
+        "models",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/nodes/node.go",
+      "type": "file",
+      "name": "node.go",
+      "filePath": "internal/definition/v1/nodes/node.go",
+      "summary": "Node entity model \u2014 comprehensive struct with role, status, firmware, devices, OSD info",
+      "tags": [
+        "nodes",
+        "models",
+        "entity",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/nodes/device.go",
+      "type": "file",
+      "name": "device.go",
+      "filePath": "internal/definition/v1/nodes/device.go",
+      "summary": "Node device (disk) data models and request options",
+      "tags": [
+        "device",
+        "models",
+        "disk",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/nodes/role.go",
+      "type": "file",
+      "name": "role.go",
+      "filePath": "internal/definition/v1/nodes/role.go",
+      "summary": "Node role constants and role-based utility functions",
+      "tags": [
+        "roles",
+        "constants",
+        "rbac",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/nodes/url.go",
+      "type": "file",
+      "name": "url.go",
+      "filePath": "internal/definition/v1/nodes/url.go",
+      "summary": "Node URL generation utilities for cross-node API communication",
+      "tags": [
+        "urls",
+        "cross-node",
+        "communication",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/nodes/infra.go",
+      "type": "file",
+      "name": "infra.go",
+      "filePath": "internal/definition/v1/nodes/infra.go",
+      "summary": "Infrastructure node data models",
+      "tags": [
+        "infrastructure",
+        "models",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/nodes/ipmi.go",
+      "type": "file",
+      "name": "ipmi.go",
+      "filePath": "internal/definition/v1/nodes/ipmi.go",
+      "summary": "IPMI configuration and operation models",
+      "tags": [
+        "ipmi",
+        "models",
+        "bmc",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/notifications/notification.go",
+      "type": "file",
+      "name": "notification.go",
+      "filePath": "internal/definition/v1/notifications/notification.go",
+      "summary": "Toast notification data models",
+      "tags": [
+        "notifications",
+        "models",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/opensearch/opensearch.go",
+      "type": "file",
+      "name": "opensearch.go",
+      "filePath": "internal/definition/v1/opensearch/opensearch.go",
+      "summary": "OpenSearch configuration",
+      "tags": [
+        "opensearch",
+        "config",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/pacemaker/pacemaker.go",
+      "type": "file",
+      "name": "pacemaker.go",
+      "filePath": "internal/definition/v1/pacemaker/pacemaker.go",
+      "summary": "Pacemaker HA cluster models for VIP and resource management",
+      "tags": [
+        "pacemaker",
+        "ha",
+        "vip",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/pages/page.go",
+      "type": "file",
+      "name": "page.go",
+      "filePath": "internal/definition/v1/pages/page.go",
+      "summary": "Pagination helper types and defaults",
+      "tags": [
+        "pagination",
+        "utility",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/script/script.go",
+      "type": "file",
+      "name": "script.go",
+      "filePath": "internal/definition/v1/script/script.go",
+      "summary": "Script execution constants",
+      "tags": [
+        "script",
+        "constants",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/search/search.go",
+      "type": "file",
+      "name": "search.go",
+      "filePath": "internal/definition/v1/search/search.go",
+      "summary": "Full-text search models and Bleve index configuration",
+      "tags": [
+        "search",
+        "bleve",
+        "full-text",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/services/service.go",
+      "type": "file",
+      "name": "service.go",
+      "filePath": "internal/definition/v1/services/service.go",
+      "summary": "Cluster service definitions with ordering and visibility",
+      "tags": [
+        "services",
+        "models",
+        "ordering",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/settings/settings.go",
+      "type": "file",
+      "name": "settings.go",
+      "filePath": "internal/definition/v1/settings/settings.go",
+      "summary": "Settings data models for alert configuration",
+      "tags": [
+        "settings",
+        "models",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/settings/cos.go",
+      "type": "file",
+      "name": "cos.go",
+      "filePath": "internal/definition/v1/settings/cos.go",
+      "summary": "COS-specific settings and policy definitions",
+      "tags": [
+        "settings",
+        "policy",
+        "cos",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/settings/api.go",
+      "type": "file",
+      "name": "api.go",
+      "filePath": "internal/definition/v1/settings/api.go",
+      "summary": "Settings API request/response types",
+      "tags": [
+        "settings",
+        "api",
+        "types",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/settings/status.go",
+      "type": "file",
+      "name": "status.go",
+      "filePath": "internal/definition/v1/settings/status.go",
+      "summary": "Settings status constants",
+      "tags": [
+        "settings",
+        "status",
+        "constants",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/slack/slack.go",
+      "type": "file",
+      "name": "slack.go",
+      "filePath": "internal/definition/v1/slack/slack.go",
+      "summary": "Slack channel integration models",
+      "tags": [
+        "slack",
+        "models",
+        "integration",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/ssh/ssh.go",
+      "type": "file",
+      "name": "ssh.go",
+      "filePath": "internal/definition/v1/ssh/ssh.go",
+      "summary": "SSH client configuration and operation models",
+      "tags": [
+        "ssh",
+        "models",
+        "remote",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/status/status.go",
+      "type": "file",
+      "name": "status.go",
+      "filePath": "internal/definition/v1/status/status.go",
+      "summary": "Comprehensive status constants for async operations across all modules",
+      "tags": [
+        "status",
+        "state-machine",
+        "constants",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/storages/storage.go",
+      "type": "file",
+      "name": "storage.go",
+      "filePath": "internal/definition/v1/storages/storage.go",
+      "summary": "Storage backend data models (Cinder volumes, backends)",
+      "tags": [
+        "storage",
+        "models",
+        "cinder",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/storages/model.go",
+      "type": "file",
+      "name": "model.go",
+      "filePath": "internal/definition/v1/storages/model.go",
+      "summary": "Storage model/driver definitions",
+      "tags": [
+        "storage",
+        "drivers",
+        "models",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/support/support.go",
+      "type": "file",
+      "name": "support.go",
+      "filePath": "internal/definition/v1/support/support.go",
+      "summary": "Support file data models with group/file metadata",
+      "tags": [
+        "support-files",
+        "models",
+        "metadata",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/time/time.go",
+      "type": "file",
+      "name": "time.go",
+      "filePath": "internal/definition/v1/time/time.go",
+      "summary": "Time period parsing and formatting utilities",
+      "tags": [
+        "time",
+        "parsing",
+        "utilities",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/triggers/trigger.go",
+      "type": "file",
+      "name": "trigger.go",
+      "filePath": "internal/definition/v1/triggers/trigger.go",
+      "summary": "Alert trigger data model",
+      "tags": [
+        "triggers",
+        "models",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/triggers/cos.go",
+      "type": "file",
+      "name": "cos.go",
+      "filePath": "internal/definition/v1/triggers/cos.go",
+      "summary": "COS trigger definitions and alert rule configuration",
+      "tags": [
+        "triggers",
+        "alerts",
+        "rules",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/triggers/options.go",
+      "type": "file",
+      "name": "options.go",
+      "filePath": "internal/definition/v1/triggers/options.go",
+      "summary": "Trigger request options and validation",
+      "tags": [
+        "triggers",
+        "options",
+        "validation",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/triggers/api.go",
+      "type": "file",
+      "name": "api.go",
+      "filePath": "internal/definition/v1/triggers/api.go",
+      "summary": "Trigger API request/response types",
+      "tags": [
+        "triggers",
+        "api",
+        "types",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/definition/v1/tunings/tuning.go",
+      "type": "file",
+      "name": "tuning.go",
+      "filePath": "internal/definition/v1/tunings/tuning.go",
+      "summary": "Tuning parameter models with specs, values, and group organization",
+      "tags": [
+        "tunings",
+        "models",
+        "parameters",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/definition/v1/volumes/volumes.go",
+      "type": "file",
+      "name": "volumes.go",
+      "filePath": "internal/definition/v1/volumes/volumes.go",
+      "summary": "Volume data models (OpenStack Cinder volumes)",
+      "tags": [
+        "volumes",
+        "models",
+        "cinder",
+        "definition",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/auths/oidc/oidc.go",
+      "type": "file",
+      "name": "oidc.go",
+      "filePath": "internal/auths/oidc/oidc.go",
+      "summary": "OIDC authentication middleware \u2014 validates tokens via OpenID Connect provider",
+      "tags": [
+        "oidc",
+        "auth",
+        "middleware"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:internal/auths/saml/saml.go",
+      "type": "file",
+      "name": "saml.go",
+      "filePath": "internal/auths/saml/saml.go",
+      "summary": "SAML 2.0 SP authentication \u2014 session management, metadata, redirect handling",
+      "tags": [
+        "saml",
+        "auth",
+        "sso"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:internal/log/log.go",
+      "type": "file",
+      "name": "log.go",
+      "filePath": "internal/log/log.go",
+      "summary": "Structured logging utility with file rotation support",
+      "tags": [
+        "logging",
+        "utility",
+        "rotation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:internal/trick/time.go",
+      "type": "file",
+      "name": "time.go",
+      "filePath": "internal/trick/time.go",
+      "summary": "Time utility helpers for formatting and parsing",
+      "tags": [
+        "time",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:go.mod",
+      "type": "config",
+      "name": "go.mod",
+      "filePath": "go.mod",
+      "summary": "Go module definition with 35+ direct dependencies including Gin, go-micro, MongoDB, InfluxDB, OpenStack, Kubernetes clients",
+      "tags": [
+        "dependencies",
+        "go-modules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:Taskfile.yaml",
+      "type": "config",
+      "name": "Taskfile.yaml",
+      "filePath": "Taskfile.yaml",
+      "summary": "Build task automation \u2014 compile, lint, test, generate swagger docs, and RPM packaging",
+      "tags": [
+        "build",
+        "tasks",
+        "automation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "config:configs/cube-cos-api.yaml.template",
+      "type": "config",
+      "name": "cube-cos-api.yaml.template",
+      "filePath": "configs/cube-cos-api.yaml.template",
+      "summary": "Application configuration template with MongoDB, InfluxDB, Keycloak, S3, and network settings",
+      "tags": [
+        "config-template",
+        "yaml",
+        "deployment"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "config:init/cube-cos-api.service",
+      "type": "config",
+      "name": "cube-cos-api.service",
+      "filePath": "init/cube-cos-api.service",
+      "summary": "Systemd service unit file for cube-cos-api daemon",
+      "tags": [
+        "systemd",
+        "service",
+        "deployment"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:init/cube-cos-api.spec",
+      "type": "config",
+      "name": "cube-cos-api.spec",
+      "filePath": "init/cube-cos-api.spec",
+      "summary": "RPM package spec file for building cube-cos-api distribution packages",
+      "tags": [
+        "rpm",
+        "packaging",
+        "deployment"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:scripts/rpm.yaml",
+      "type": "config",
+      "name": "rpm.yaml",
+      "filePath": "scripts/rpm.yaml",
+      "summary": "RPM build configuration for nFPM packager",
+      "tags": [
+        "rpm",
+        "nfpm",
+        "packaging"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "pipeline:.github/workflows/ci.yml",
+      "type": "pipeline",
+      "name": "ci.yml",
+      "filePath": ".github/workflows/ci.yml",
+      "summary": "CI pipeline \u2014 runs linting and tests on pull requests",
+      "tags": [
+        "ci",
+        "github-actions",
+        "testing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "pipeline:.github/workflows/dependency-review.yml",
+      "type": "pipeline",
+      "name": "dependency-review.yml",
+      "filePath": ".github/workflows/dependency-review.yml",
+      "summary": "Dependency vulnerability review on pull requests",
+      "tags": [
+        "security",
+        "dependencies",
+        "review"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "pipeline:.github/workflows/fast-forward-merge.yaml",
+      "type": "pipeline",
+      "name": "fast-forward-merge.yaml",
+      "filePath": ".github/workflows/fast-forward-merge.yaml",
+      "summary": "Fast-forward merge automation for approved PRs",
+      "tags": [
+        "merge",
+        "automation",
+        "git"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "pipeline:.github/workflows/scorecard.yml",
+      "type": "pipeline",
+      "name": "scorecard.yml",
+      "filePath": ".github/workflows/scorecard.yml",
+      "summary": "OpenSSF Scorecard security assessment pipeline",
+      "tags": [
+        "security",
+        "scorecard",
+        "assessment"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:.github/dependabot.yml",
+      "type": "config",
+      "name": "dependabot.yml",
+      "filePath": ".github/dependabot.yml",
+      "summary": "Dependabot configuration for automated dependency updates",
+      "tags": [
+        "dependabot",
+        "dependencies",
+        "automation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "pipeline:build/cube-cos-api-binary.Jenkinsfile",
+      "type": "pipeline",
+      "name": "cube-cos-api-binary.Jenkinsfile",
+      "filePath": "build/cube-cos-api-binary.Jenkinsfile",
+      "summary": "Jenkins pipeline for building the Go binary",
+      "tags": [
+        "jenkins",
+        "ci",
+        "build"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "pipeline:build/cube-cos-api-rpm.Jenkinsfile",
+      "type": "pipeline",
+      "name": "cube-cos-api-rpm.Jenkinsfile",
+      "filePath": "build/cube-cos-api-rpm.Jenkinsfile",
+      "summary": "Jenkins pipeline for building RPM packages",
+      "tags": [
+        "jenkins",
+        "rpm",
+        "packaging"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:build/cube-cos-api-jail.Dockerfile",
+      "type": "service",
+      "name": "cube-cos-api-jail.Dockerfile",
+      "filePath": "build/cube-cos-api-jail.Dockerfile",
+      "summary": "Dockerfile for isolated build environment (jail)",
+      "tags": [
+        "docker",
+        "build",
+        "isolation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:build/cube-cos-api-rpm.Dockerfile",
+      "type": "service",
+      "name": "cube-cos-api-rpm.Dockerfile",
+      "filePath": "build/cube-cos-api-rpm.Dockerfile",
+      "summary": "Dockerfile for RPM package build environment",
+      "tags": [
+        "docker",
+        "rpm",
+        "build"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Project overview \u2014 CubeCOS API is the central communication mechanism for CubeCOS cluster nodes using MDNS discovery",
+      "tags": [
+        "readme",
+        "overview",
+        "architecture"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:docs/api/README.md",
+      "type": "document",
+      "name": "api/README.md",
+      "filePath": "docs/api/README.md",
+      "summary": "API documentation guide",
+      "tags": [
+        "api",
+        "documentation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:docs/architecture/README.md",
+      "type": "document",
+      "name": "architecture/README.md",
+      "filePath": "docs/architecture/README.md",
+      "summary": "Architecture documentation explaining system design and component interactions",
+      "tags": [
+        "architecture",
+        "documentation",
+        "design"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:docs/developing/README.md",
+      "type": "document",
+      "name": "developing/README.md",
+      "filePath": "docs/developing/README.md",
+      "summary": "Developer guide for contributing to the project",
+      "tags": [
+        "development",
+        "contributing",
+        "guide"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:CONTRIBUTING.md",
+      "type": "document",
+      "name": "CONTRIBUTING.md",
+      "filePath": "CONTRIBUTING.md",
+      "summary": "Contribution guidelines for the project",
+      "tags": [
+        "contributing",
+        "guidelines"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:SECURITY.md",
+      "type": "document",
+      "name": "SECURITY.md",
+      "filePath": "SECURITY.md",
+      "summary": "Security policy and vulnerability reporting procedures",
+      "tags": [
+        "security",
+        "policy"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:CODE_OF_CONDUCT.md",
+      "type": "document",
+      "name": "CODE_OF_CONDUCT.md",
+      "filePath": "CODE_OF_CONDUCT.md",
+      "summary": "Community code of conduct",
+      "tags": [
+        "community",
+        "conduct"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:cmd/main.go",
+      "target": "file:internal/config/config.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:cmd/main.go",
+      "target": "file:internal/runtime/runtime.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:cmd/main.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:cmd/main.go",
+      "target": "config:api/docs.json",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/runtime.go",
+      "target": "file:internal/runtime/router.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/runtime.go",
+      "target": "file:internal/runtime/dependency.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/auths/oidc/oidc.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/auths/saml/saml.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/runtime/filter.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/runtime/identity.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/dependency.go",
+      "target": "file:internal/config/config.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/service/service.go",
+      "target": "file:internal/runtime/runtime.go",
+      "type": "depends_on",
+      "weight": 0.6,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/datacenters/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/datacenters/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/events/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/events/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/firmwares/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/firmwares/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/fixpacks/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/fixpacks/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/grafana/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/grafana/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/healths/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/healths/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/images/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/images/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/integrations/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/integrations/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/licenses/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/licenses/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/metrics/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/metrics/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/nodes/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/nodes/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/notifications/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/notifications/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/opensearch/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/opensearch/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/services/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/services/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/settings/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/settings/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/supportfiles/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/supportfiles/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/tokens/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/tokens/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/triggers/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/triggers/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/tunings/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/tunings/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/volumes/handlers.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/volumes/handlers.go",
+      "target": "file:internal/apis/v1/bodies/resp.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/datacenters/handlers.go",
+      "target": "file:internal/cubecos/datacenter.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/events/handlers.go",
+      "target": "file:internal/cubecos/event.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/firmwares/handlers.go",
+      "target": "file:internal/cubecos/firmware.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/firmwares/handlers.go",
+      "target": "file:internal/cubecos/os.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/fixpacks/handlers.go",
+      "target": "file:internal/cubecos/fixpacks.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/grafana/handlers.go",
+      "target": "file:internal/cubecos/datacenter.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/healths/handlers.go",
+      "target": "file:internal/cubecos/health.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/images/handlers.go",
+      "target": "file:internal/cubecos/image.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/integrations/handlers.go",
+      "target": "file:internal/cubecos/integration.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/licenses/handlers.go",
+      "target": "file:internal/cubecos/license.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/metrics/handlers.go",
+      "target": "file:internal/cubecos/metric.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/metrics/handlers.go",
+      "target": "file:internal/cubecos/statistic.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/nodes/handlers.go",
+      "target": "file:internal/cubecos/nodes.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/nodes/handlers.go",
+      "target": "file:internal/cubecos/device.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/nodes/handlers.go",
+      "target": "file:internal/cubecos/osd.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/nodes/handlers.go",
+      "target": "file:internal/cubecos/instance.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/notifications/handlers.go",
+      "target": "file:internal/cubecos/notifications.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/opensearch/handlers.go",
+      "target": "file:internal/cubecos/opensearch.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/settings/handlers.go",
+      "target": "file:internal/cubecos/settings.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/supportfiles/handlers.go",
+      "target": "file:internal/cubecos/supportfile.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/tokens/handlers.go",
+      "target": "file:internal/cubecos/token.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/triggers/handlers.go",
+      "target": "file:internal/cubecos/trigger.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/apis/v1/handlers/tunings/handlers.go",
+      "target": "file:internal/cubecos/tuning.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/firmwares/firmwares.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/firmwares/firmwares.go",
+      "target": "file:internal/cubecos/firmware.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/firmwares/firmwares.go",
+      "target": "file:internal/cubecos/os.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/fixpacks/fixpacks.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/fixpacks/fixpacks.go",
+      "target": "file:internal/cubecos/fixpacks.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/healths/healths.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/healths/healths.go",
+      "target": "file:internal/cubecos/health.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/images/images.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/images/images.go",
+      "target": "file:internal/cubecos/image.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/licenses/licenses.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/licenses/licenses.go",
+      "target": "file:internal/cubecos/license.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/metrics/metrics.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/metrics/metrics.go",
+      "target": "file:internal/cubecos/metric.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/metrics/metrics.go",
+      "target": "file:internal/cubecos/statistic.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/nodes/nodes.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/nodes/nodes.go",
+      "target": "file:internal/cubecos/nodes.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/nodes/nodes.go",
+      "target": "file:internal/cubecos/device.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/nodes/nodes.go",
+      "target": "file:internal/cubecos/osd.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/settings/settings.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/settings/settings.go",
+      "target": "file:internal/cubecos/settings.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/storages/storage.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/storages/storage.go",
+      "target": "file:internal/cubecos/integration.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/storages/storage.go",
+      "target": "file:internal/cubecos/storage.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/supportfiles/supportfiles.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/supportfiles/supportfiles.go",
+      "target": "file:internal/cubecos/supportfile.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/triggers/trigger.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/triggers/trigger.go",
+      "target": "file:internal/cubecos/trigger.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/tunings/tuning.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/tunings/tuning.go",
+      "target": "file:internal/cubecos/tuning.go",
+      "type": "calls",
+      "weight": 0.8,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/operators/v1/volumes/volumes.go",
+      "target": "file:internal/service/service.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/definition/v1/nodes/node.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/definition/v1/base/base.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/definition/v1/status/status.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/definition/v1/errors/errors.go",
+      "target": "file:internal/apis/api.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "config:configs/cube-cos-api.yaml.template",
+      "target": "file:internal/config/config.go",
+      "type": "configures",
+      "weight": 0.6,
+      "direction": "forward"
+    },
+    {
+      "source": "config:init/cube-cos-api.service",
+      "target": "file:cmd/main.go",
+      "type": "configures",
+      "weight": 0.6,
+      "direction": "forward"
+    },
+    {
+      "source": "config:init/cube-cos-api.spec",
+      "target": "file:cmd/main.go",
+      "type": "configures",
+      "weight": 0.6,
+      "direction": "forward"
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:cmd/main.go",
+      "type": "documents",
+      "weight": 0.5,
+      "direction": "forward"
+    },
+    {
+      "source": "document:docs/architecture/README.md",
+      "target": "file:internal/runtime/router.go",
+      "type": "documents",
+      "weight": 0.5,
+      "direction": "forward"
+    },
+    {
+      "source": "document:docs/api/README.md",
+      "target": "config:api/docs.json",
+      "type": "documents",
+      "weight": 0.5,
+      "direction": "forward"
+    },
+    {
+      "source": "document:docs/developing/README.md",
+      "target": "config:Taskfile.yaml",
+      "type": "documents",
+      "weight": 0.5,
+      "direction": "forward"
+    },
+    {
+      "source": "pipeline:.github/workflows/ci.yml",
+      "target": "config:Taskfile.yaml",
+      "type": "triggers",
+      "weight": 0.6,
+      "direction": "forward"
+    },
+    {
+      "source": "pipeline:build/cube-cos-api-binary.Jenkinsfile",
+      "target": "file:cmd/main.go",
+      "type": "deploys",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "pipeline:build/cube-cos-api-rpm.Jenkinsfile",
+      "target": "config:init/cube-cos-api.spec",
+      "type": "deploys",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "service:build/cube-cos-api-jail.Dockerfile",
+      "target": "pipeline:build/cube-cos-api-binary.Jenkinsfile",
+      "type": "serves",
+      "weight": 0.5,
+      "direction": "forward"
+    },
+    {
+      "source": "service:build/cube-cos-api-rpm.Dockerfile",
+      "target": "pipeline:build/cube-cos-api-rpm.Jenkinsfile",
+      "type": "serves",
+      "weight": 0.5,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/datacenters/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/events/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/firmwares/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/fixpacks/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/grafana/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/healths/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/images/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/integrations/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/licenses/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/logout/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/me/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/metrics/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/nodes/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/notifications/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/opensearch/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/services/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/settings/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/supportfiles/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/tokens/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/triggers/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/tunings/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    },
+    {
+      "source": "file:internal/runtime/router.go",
+      "target": "file:internal/apis/v1/handlers/volumes/handlers.go",
+      "type": "imports",
+      "weight": 0.7,
+      "direction": "forward"
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:entry-point",
+      "name": "Entry Point",
+      "description": "Application bootstrap and main function",
+      "nodeIds": [
+        "file:cmd/main.go"
+      ]
+    },
+    {
+      "id": "layer:runtime-infrastructure",
+      "name": "Runtime Infrastructure",
+      "description": "Server initialization, dependency setup, routing, authentication middleware, and microservice lifecycle",
+      "nodeIds": [
+        "file:internal/service/service.go",
+        "file:internal/config/config.go",
+        "file:internal/runtime/runtime.go",
+        "file:internal/runtime/router.go",
+        "file:internal/runtime/dependency.go",
+        "file:internal/runtime/identity.go",
+        "file:internal/runtime/filter.go",
+        "file:internal/runtime/parse.go",
+        "file:internal/runtime/options.go",
+        "file:internal/runtime/log.go",
+        "file:internal/runtime/time.go",
+        "file:internal/runtime/promptmsg.go",
+        "file:internal/auths/oidc/oidc.go",
+        "file:internal/auths/saml/saml.go",
+        "file:internal/log/log.go",
+        "file:internal/trick/time.go"
+      ]
+    },
+    {
+      "id": "layer:api-handlers",
+      "name": "API Handlers",
+      "description": "REST API endpoint handlers organized by domain module \u2014 request parsing, validation, response formatting, and SSE streaming",
+      "nodeIds": [
+        "file:internal/apis/api.go",
+        "file:internal/apis/doc.go",
+        "file:internal/apis/v1/bodies/req.go",
+        "file:internal/apis/v1/bodies/resp.go",
+        "file:internal/apis/v1/queries/params.go",
+        "file:internal/apis/v1/queries/watch.go",
+        "file:internal/apis/v1/handlers/datacenters/handlers.go",
+        "file:internal/apis/v1/handlers/events/handlers.go",
+        "file:internal/apis/v1/handlers/firmwares/handlers.go",
+        "file:internal/apis/v1/handlers/fixpacks/handlers.go",
+        "file:internal/apis/v1/handlers/grafana/handlers.go",
+        "file:internal/apis/v1/handlers/healths/handlers.go",
+        "file:internal/apis/v1/handlers/images/handlers.go",
+        "file:internal/apis/v1/handlers/integrations/handlers.go",
+        "file:internal/apis/v1/handlers/licenses/handlers.go",
+        "file:internal/apis/v1/handlers/logout/handlers.go",
+        "file:internal/apis/v1/handlers/me/handlers.go",
+        "file:internal/apis/v1/handlers/metrics/handlers.go",
+        "file:internal/apis/v1/handlers/nodes/handlers.go",
+        "file:internal/apis/v1/handlers/notifications/handlers.go",
+        "file:internal/apis/v1/handlers/opensearch/handlers.go",
+        "file:internal/apis/v1/handlers/services/handlers.go",
+        "file:internal/apis/v1/handlers/settings/handlers.go",
+        "file:internal/apis/v1/handlers/supportfiles/handlers.go",
+        "file:internal/apis/v1/handlers/tokens/handlers.go",
+        "file:internal/apis/v1/handlers/triggers/handlers.go",
+        "file:internal/apis/v1/handlers/tunings/handlers.go",
+        "file:internal/apis/v1/handlers/volumes/handlers.go",
+        "file:internal/apis/v1/handlers/events/helper.go",
+        "file:internal/apis/v1/handlers/firmwares/helper.go",
+        "file:internal/apis/v1/handlers/fixpacks/helper.go",
+        "file:internal/apis/v1/handlers/healths/helper.go",
+        "file:internal/apis/v1/handlers/images/helper.go",
+        "file:internal/apis/v1/handlers/integrations/helper.go",
+        "file:internal/apis/v1/handlers/licenses/helper.go",
+        "file:internal/apis/v1/handlers/metrics/helper.go",
+        "file:internal/apis/v1/handlers/nodes/helper.go",
+        "file:internal/apis/v1/handlers/settings/helper.go",
+        "file:internal/apis/v1/handlers/supportfiles/helper.go",
+        "file:internal/apis/v1/handlers/triggers/helper.go",
+        "file:internal/apis/v1/handlers/tunings/helper.go",
+        "file:internal/apis/v1/handlers/volumes/helper.go"
+      ]
+    },
+    {
+      "id": "layer:system-interaction",
+      "name": "System Interaction (CubeCOS)",
+      "description": "Business logic layer wrapping CLI tools (hex_sdk, hex_config), external service clients (InfluxDB, MongoDB, OpenStack, Ceph, Keycloak, S3), and OS-level operations",
+      "nodeIds": [
+        "file:internal/cubecos/datacenter.go",
+        "file:internal/cubecos/device.go",
+        "file:internal/cubecos/event.go",
+        "file:internal/cubecos/firmware.go",
+        "file:internal/cubecos/fixpacks.go",
+        "file:internal/cubecos/health.go",
+        "file:internal/cubecos/image.go",
+        "file:internal/cubecos/instance.go",
+        "file:internal/cubecos/integration.go",
+        "file:internal/cubecos/license.go",
+        "file:internal/cubecos/metric.go",
+        "file:internal/cubecos/module.go",
+        "file:internal/cubecos/network.go",
+        "file:internal/cubecos/nodes.go",
+        "file:internal/cubecos/notifications.go",
+        "file:internal/cubecos/opensearch.go",
+        "file:internal/cubecos/os.go",
+        "file:internal/cubecos/osd.go",
+        "file:internal/cubecos/record.go",
+        "file:internal/cubecos/settings.go",
+        "file:internal/cubecos/statistic.go",
+        "file:internal/cubecos/storage.go",
+        "file:internal/cubecos/supportfile.go",
+        "file:internal/cubecos/sys.go",
+        "file:internal/cubecos/token.go",
+        "file:internal/cubecos/trigger.go",
+        "file:internal/cubecos/tuning.go",
+        "file:internal/cubecos/vm.go"
+      ]
+    },
+    {
+      "id": "layer:background-operators",
+      "name": "Background Operators",
+      "description": "Async background workers using Kubernetes workqueues, filesystem watchers, and periodic sync loops for long-running tasks",
+      "nodeIds": [
+        "file:internal/operators/v1/firmwares/firmwares.go",
+        "file:internal/operators/v1/fixpacks/fixpacks.go",
+        "file:internal/operators/v1/healths/healths.go",
+        "file:internal/operators/v1/images/images.go",
+        "file:internal/operators/v1/licenses/licenses.go",
+        "file:internal/operators/v1/metrics/metrics.go",
+        "file:internal/operators/v1/nodes/nodes.go",
+        "file:internal/operators/v1/settings/settings.go",
+        "file:internal/operators/v1/storages/storage.go",
+        "file:internal/operators/v1/supportfiles/supportfiles.go",
+        "file:internal/operators/v1/triggers/trigger.go",
+        "file:internal/operators/v1/tunings/tuning.go",
+        "file:internal/operators/v1/volumes/volumes.go"
+      ]
+    },
+    {
+      "id": "layer:domain-definitions",
+      "name": "Domain Definitions",
+      "description": "Domain type definitions, DTOs, constants, error types, and shared data structures used across all layers",
+      "nodeIds": [
+        "file:internal/definition/v1/auths/auth.go",
+        "file:internal/definition/v1/auths/user.go",
+        "file:internal/definition/v1/base/base.go",
+        "file:internal/definition/v1/base/datacenter.go",
+        "file:internal/definition/v1/blockdevice/blockdevice.go",
+        "file:internal/definition/v1/ceph/device.go",
+        "file:internal/definition/v1/ceph/rados-gateway.go",
+        "file:internal/definition/v1/datacenter/datacenter.go",
+        "file:internal/definition/v1/email/email.go",
+        "file:internal/definition/v1/errors/errors.go",
+        "file:internal/definition/v1/events/event.go",
+        "file:internal/definition/v1/firmwares/firmware.go",
+        "file:internal/definition/v1/fixpacks/fixpack.go",
+        "file:internal/definition/v1/grafana/grafana.go",
+        "file:internal/definition/v1/health/health.go",
+        "file:internal/definition/v1/images/images.go",
+        "file:internal/definition/v1/integration/integrations.go",
+        "file:internal/definition/v1/licenses/license.go",
+        "file:internal/definition/v1/md5/md5.go",
+        "file:internal/definition/v1/me/me.go",
+        "file:internal/definition/v1/metric/metric.go",
+        "file:internal/definition/v1/network/network.go",
+        "file:internal/definition/v1/nodes/node.go",
+        "file:internal/definition/v1/nodes/device.go",
+        "file:internal/definition/v1/nodes/role.go",
+        "file:internal/definition/v1/nodes/url.go",
+        "file:internal/definition/v1/nodes/infra.go",
+        "file:internal/definition/v1/nodes/ipmi.go",
+        "file:internal/definition/v1/notifications/notification.go",
+        "file:internal/definition/v1/opensearch/opensearch.go",
+        "file:internal/definition/v1/pacemaker/pacemaker.go",
+        "file:internal/definition/v1/pages/page.go",
+        "file:internal/definition/v1/script/script.go",
+        "file:internal/definition/v1/search/search.go",
+        "file:internal/definition/v1/services/service.go",
+        "file:internal/definition/v1/settings/settings.go",
+        "file:internal/definition/v1/settings/cos.go",
+        "file:internal/definition/v1/settings/api.go",
+        "file:internal/definition/v1/settings/status.go",
+        "file:internal/definition/v1/slack/slack.go",
+        "file:internal/definition/v1/ssh/ssh.go",
+        "file:internal/definition/v1/status/status.go",
+        "file:internal/definition/v1/storages/storage.go",
+        "file:internal/definition/v1/storages/model.go",
+        "file:internal/definition/v1/support/support.go",
+        "file:internal/definition/v1/time/time.go",
+        "file:internal/definition/v1/triggers/trigger.go",
+        "file:internal/definition/v1/triggers/cos.go",
+        "file:internal/definition/v1/triggers/options.go",
+        "file:internal/definition/v1/triggers/api.go",
+        "file:internal/definition/v1/tunings/tuning.go",
+        "file:internal/definition/v1/volumes/volumes.go"
+      ]
+    },
+    {
+      "id": "layer:api-documentation",
+      "name": "API Documentation",
+      "description": "Auto-generated Swagger/OpenAPI documentation for the REST API",
+      "nodeIds": [
+        "file:api/docs.go",
+        "config:api/docs.json"
+      ]
+    },
+    {
+      "id": "layer:build-and-ci",
+      "name": "Build & CI/CD",
+      "description": "CI/CD pipelines (GitHub Actions, Jenkins), Docker build environments, RPM packaging, and task automation",
+      "nodeIds": [
+        "config:Taskfile.yaml",
+        "config:scripts/rpm.yaml",
+        "pipeline:.github/workflows/ci.yml",
+        "pipeline:.github/workflows/dependency-review.yml",
+        "pipeline:.github/workflows/fast-forward-merge.yaml",
+        "pipeline:.github/workflows/scorecard.yml",
+        "config:.github/dependabot.yml",
+        "pipeline:build/cube-cos-api-binary.Jenkinsfile",
+        "pipeline:build/cube-cos-api-rpm.Jenkinsfile",
+        "service:build/cube-cos-api-jail.Dockerfile",
+        "service:build/cube-cos-api-rpm.Dockerfile"
+      ]
+    },
+    {
+      "id": "layer:deployment-config",
+      "name": "Deployment & Configuration",
+      "description": "Systemd service definitions, RPM specs, application config templates, and Go module definition",
+      "nodeIds": [
+        "config:go.mod",
+        "config:configs/cube-cos-api.yaml.template",
+        "config:init/cube-cos-api.service",
+        "config:init/cube-cos-api.spec"
+      ]
+    },
+    {
+      "id": "layer:documentation",
+      "name": "Documentation",
+      "description": "Project documentation \u2014 README, architecture docs, API docs, developer guides, and community files",
+      "nodeIds": [
+        "document:README.md",
+        "document:docs/api/README.md",
+        "document:docs/architecture/README.md",
+        "document:docs/developing/README.md",
+        "document:CONTRIBUTING.md",
+        "document:SECURITY.md",
+        "document:CODE_OF_CONDUCT.md"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Project Overview",
+      "description": "Start with the README to understand CubeCOS API's purpose: it's the central communication mechanism for CubeCOS cluster nodes, using MDNS for peer discovery across control, compute, and storage roles.",
+      "nodeIds": [
+        "document:README.md",
+        "document:docs/architecture/README.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Application Entry Point",
+      "description": "The main function loads configuration, creates an HTTP server via the runtime package, and starts a go-micro microservice with rate limiting and circuit breaking.",
+      "nodeIds": [
+        "file:cmd/main.go",
+        "file:internal/service/service.go"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Runtime & Server Setup",
+      "description": "The runtime package initializes external dependencies (MongoDB, InfluxDB, OpenStack, Keycloak, Kubernetes), resolves node identity/role, and sets up the Gin HTTP router with authentication middleware.",
+      "nodeIds": [
+        "file:internal/runtime/runtime.go",
+        "file:internal/runtime/dependency.go",
+        "file:internal/runtime/router.go",
+        "file:internal/runtime/identity.go"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Role-Based Handler Registration",
+      "description": "The API registry maps handler modules to node roles (control, compute, storage, moderator, edge-core). Each node only registers handlers appropriate for its role, enabling distributed API responsibilities.",
+      "nodeIds": [
+        "file:internal/apis/api.go",
+        "file:internal/runtime/filter.go"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "API Handler Pattern",
+      "description": "Each handler module follows a consistent pattern: handlers.go defines route registrations, helper.go encapsulates business logic, with shared request/response utilities for pagination, filtering, and SSE streaming.",
+      "nodeIds": [
+        "file:internal/apis/v1/handlers/nodes/handlers.go",
+        "file:internal/apis/v1/handlers/nodes/helper.go",
+        "file:internal/apis/v1/bodies/resp.go",
+        "file:internal/apis/v1/queries/params.go"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "System Interaction Layer (CubeCOS)",
+      "description": "The cubecos package wraps all external system interactions \u2014 CLI tools (hex_sdk, hex_config), InfluxDB queries, MongoDB operations, OpenStack APIs, Ceph commands, and SSH for cross-node communication.",
+      "nodeIds": [
+        "file:internal/cubecos/nodes.go",
+        "file:internal/cubecos/metric.go",
+        "file:internal/cubecos/firmware.go",
+        "file:internal/cubecos/health.go"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Background Operators",
+      "description": "Operators implement the service.Operator interface and run as background goroutines. They use Kubernetes workqueues for async task processing and filesystem watchers for reactive state sync.",
+      "nodeIds": [
+        "file:internal/operators/v1/nodes/nodes.go",
+        "file:internal/operators/v1/firmwares/firmwares.go",
+        "file:internal/operators/v1/settings/settings.go"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Domain Definitions",
+      "description": "The definition package provides all domain types, DTOs, constants, and error definitions shared across layers \u2014 from node roles and status state machines to metric models and API schemas.",
+      "nodeIds": [
+        "file:internal/definition/v1/nodes/node.go",
+        "file:internal/definition/v1/status/status.go",
+        "file:internal/definition/v1/errors/errors.go",
+        "file:internal/definition/v1/base/base.go"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Authentication & Authorization",
+      "description": "The auth layer supports both OIDC (via Keycloak) and SAML 2.0 for SSO. Token creation flows through Keycloak, while request filtering validates auth on every API call.",
+      "nodeIds": [
+        "file:internal/auths/oidc/oidc.go",
+        "file:internal/auths/saml/saml.go",
+        "file:internal/apis/v1/handlers/tokens/handlers.go"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Build & Deployment",
+      "description": "The project uses GitHub Actions for CI, Jenkins for binary/RPM builds, Docker for build environments, and systemd for production deployment. Taskfile.yaml automates local development tasks.",
+      "nodeIds": [
+        "pipeline:.github/workflows/ci.yml",
+        "pipeline:build/cube-cos-api-binary.Jenkinsfile",
+        "config:Taskfile.yaml",
+        "config:init/cube-cos-api.service"
+      ]
+    }
+  ]
+}
