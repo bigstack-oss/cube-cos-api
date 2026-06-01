@@ -41,6 +41,7 @@ require (
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
+	github.com/NVIDIA/go-nvml v0.13.0-1 // indirect
 	github.com/RoaringBitmap/roaring v1.9.3 // indirect
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5 // indirect
 	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect

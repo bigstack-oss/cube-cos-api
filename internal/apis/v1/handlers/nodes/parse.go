@@ -27,6 +27,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseDrainOptions()
 	case "listNodeDevices":
 		return h.parseListDevicesOptions()
+	case "listNodeGpuCards":
+		return h.parseListGPUCardsOptions()
 	case "addNodeDevice":
 		return h.parseCreateDeviceOptions()
 	case "updateNodeDevice":
@@ -354,6 +356,14 @@ func (h *helper) parseUpdateOsdTaskOptions() error {
 		)
 	}
 
+	return nil
+}
+
+func (h *helper) parseListGPUCardsOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("nodeName should be provided")
+	}
 	return nil
 }
 
