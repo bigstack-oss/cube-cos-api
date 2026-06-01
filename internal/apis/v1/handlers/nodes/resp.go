@@ -1,6 +1,7 @@
 package nodes
 
 import (
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/gpu"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 )
@@ -15,4 +16,11 @@ type devicesResp struct {
 	Status string              `json:"status"`
 	Msg    string              `json:"msg"`
 	Data   []nodes.BlockDevice `json:"data"`
+}
+
+type gpuCardsResp struct {
+	Code   int              `json:"code"`
+	Status string           `json:"status"`
+	Msg    string           `json:"msg"`
+	Data   []gpu.GpuCard 		`json:"data"`
 }
