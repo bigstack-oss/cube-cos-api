@@ -388,7 +388,7 @@ func GetNodeGpusMap(nodeName string) (map[string]gpu.GpuFromHex, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	for _, gpu := range gpus {
 		gpuMap[gpu.PciAddress] = gpu
 	}
@@ -456,4 +456,31 @@ func listNodeVgpuProfiles(gpuId string) *[]gpu.VgpuProfileFromHex {
 	}
 
 	return &profiles
+}
+
+func UpdateNodeGpuCard(gpuId string, req gpu.UpdateGpuCardRequest) error {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	defer cancel()
+
+	args := []string{"gpu_device_update", "-gpuId", gpuId, "-resourceType", string(req.ResourceType)}
+	if len(req.Profiles) > 0 {
+		profilesJson, err := json.Marshal(req.Profiles)
+		if err != nil {
+			return fmt.Errorf("failed to marshal profiles: %v", err)
+		}
+		args = append(args, "-profiles", string(profilesJson))
+	}
+
+	out, err := exec.CommandContext(ctx, "hex_sdk", args...).CombinedOutput()
+	if err != nil {
+		log.Errorf("nodes: failed to update gpu card %s via hex_sdk: %v, output: %s", gpuId, err, string(out))
+		return err
+	}
+
+	if !IsHexSuccessful(err) {
+		log.Errorf("nodes: output error when updating gpu card %s via hex_sdk: %s", gpuId, string(out))
+		return fmt.Errorf("hex_sdk gpu_device_update failed: %s", string(out))
+	}
+
+	return nil
 }

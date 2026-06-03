@@ -73,6 +73,12 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodPut,
+			Path:    "/nodes/:nodeName/gpuCards/:gpuId",
+			Func:    updateNodeGpuCard,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodGet,
 			Path:    "/nodes/:nodeName/devices",
 			Func:    listNodeDevices,
@@ -292,6 +298,29 @@ func listNodeGpuCards(c *gin.Context) {
 	}
 
 	bodies.SetOk(c, "node GPU cards retrieved successfully", gpuCards)
+}
+
+func updateNodeGpuCard(c *gin.Context) {
+	h, err := initHelper(c, "updateNodeGpuCard")
+	if err != nil {
+		log.Errorf("gpu(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	if !nodes.IsExist(h.node) {
+		bodies.SetNotFound(c, fmt.Errorf("node %s not found", h.node))
+		return
+	}
+
+	err = h.updateNodeGpuCard()
+	if err != nil {
+		log.Errorf("gpu(%s): failed to update GPU card %s for node %s: %v", h.reqId, h.gpuId, h.node, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(c, "node GPU card updated successfully", nil)
 }
 
 func ipmiOperateNode(c *gin.Context) {

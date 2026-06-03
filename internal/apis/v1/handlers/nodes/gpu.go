@@ -22,14 +22,14 @@ import (
 )
 
 type listAttachedInstancesOpts struct {
-	Device nvml.Device
-	DeviceUUID string
-	DeviceMemoryUsedMiB int
-	DeviceMemoryTotalMiB int
+	Device                   nvml.Device
+	DeviceUUID               string
+	DeviceMemoryUsedMiB      int
+	DeviceMemoryTotalMiB     int
 	DeviceGpuUtilizationRate uint32
-	NodeName string
-	HexGpu gpu.GpuFromHex
-	HexProfilesMap map[uint32]gpu.VgpuProfileFromHex
+	NodeName                 string
+	HexGpu                   gpu.GpuFromHex
+	HexProfilesMap           map[uint32]gpu.VgpuProfileFromHex
 }
 
 func (h *helper) listNodeGpuCards() ([]gpu.GpuCard, error) {
@@ -37,6 +37,40 @@ func (h *helper) listNodeGpuCards() ([]gpu.GpuCard, error) {
 		return h.listLocalGpuCards()
 	}
 	return h.listRemoteGpuCards()
+}
+
+func (h *helper) updateNodeGpuCard() error {
+	if nodes.IsLocal(h.node) {
+		return h.updateLocalGpuCard()
+	}
+	return h.updateRemoteGpuCard()
+}
+
+func (h *helper) updateLocalGpuCard() error {
+	return cubecos.UpdateNodeGpuCard(h.gpuId, h.gpuCardReq)
+}
+
+func (h *helper) updateRemoteGpuCard() error {
+	node, err := nodes.Get(h.node)
+	if err != nil {
+		log.Errorf("gpu(%s): failed to get node %s: %v", h.reqId, h.node, err)
+		return err
+	}
+
+	resp, err := h.http.R().
+		SetHeaders(nodes.GetSecretHeaders()).
+		SetBody(h.gpuCardReq).
+		Put(node.UpdateGpuCardUrl(h.gpuId))
+	if err != nil {
+		log.Errorf("gpu(%s): failed to update GPU card on remote node %s: %v", h.reqId, h.node, err)
+		return err
+	}
+
+	if resp.IsError() {
+		return fmt.Errorf("error response from node %s updating GPU card: %s", h.node, string(resp.Body()))
+	}
+
+	return nil
 }
 
 func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
@@ -101,14 +135,14 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 
 		vgpuProfiles, hexProfilesMap := listVgpuProfiles(device, hexGpu)
 		attachedInstances := listAttachedInstances(listAttachedInstancesOpts{
-			Device: device,
-			DeviceUUID: uuid,
-			DeviceMemoryUsedMiB: memoryUsedMiB,
-			DeviceMemoryTotalMiB: memoryTotalMiB,
+			Device:                   device,
+			DeviceUUID:               uuid,
+			DeviceMemoryUsedMiB:      memoryUsedMiB,
+			DeviceMemoryTotalMiB:     memoryTotalMiB,
 			DeviceGpuUtilizationRate: gpuUtilizationPercent,
-			NodeName: h.node,
-			HexGpu: hexGpu,
-			HexProfilesMap: hexProfilesMap,
+			NodeName:                 h.node,
+			HexGpu:                   hexGpu,
+			HexProfilesMap:           hexProfilesMap,
 		})
 
 		if vgpuProfiles != nil && attachedInstances != nil {
@@ -116,12 +150,12 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 		}
 
 		gpuCards = append(gpuCards, gpu.GpuCard{
-			Id: hexGpu.Id,
-			Name: hexGpu.Name,
+			Id:           hexGpu.Id,
+			Name:         hexGpu.Name,
 			ResourceType: hexGpu.Type,
 			Vram: &gpu.VramInfo{
-				AllocatedMiB: memoryUsedMiB,
-				TotalMiB: memoryTotalMiB,
+				AllocatedMiB:       memoryUsedMiB,
+				TotalMiB:           memoryTotalMiB,
 				UtilizationPercent: float64(memoryUtilizationPercent),
 			},
 			Gpu: &gpu.GpuInfo{
@@ -129,14 +163,14 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 			},
 			PciAddress: pciAddress,
 			Status: gpu.GpuStatusInfo{
-				Current: hexGpu.Status,
+				Current:      hexGpu.Status,
 				IsProcessing: false,
 			},
 			AllocationSummary: &gpu.AllocationSummary{
 				Current: hexGpu.Allocation.Current,
-				Total: hexGpu.Allocation.Total,
+				Total:   hexGpu.Allocation.Total,
 			},
-			Profiles: vgpuProfiles,
+			Profiles:          vgpuProfiles,
 			AttachedInstances: attachedInstances,
 		})
 	}
@@ -216,11 +250,11 @@ func listVgpuProfiles(device nvml.Device, hexGpu gpu.GpuFromHex) (*[]gpu.VgpuPro
 		hexProfile := hexProfilesMap[nvmlProfile.Id]
 
 		vgpuProfiles = append(vgpuProfiles, gpu.VgpuProfile{
-			Id: strconv.FormatUint(uint64(nvmlProfile.Id), 10),
-			Name: hexProfile.Name,
-			VramMiB: nvmlProfile.MemorySizeMB,
+			Id:        strconv.FormatUint(uint64(nvmlProfile.Id), 10),
+			Name:      hexProfile.Name,
+			VramMiB:   nvmlProfile.MemorySizeMB,
 			AliasName: hexProfile.Alias,
-			Count: hexProfile.Count,
+			Count:     hexProfile.Count,
 			// `Remaining` will be calculated later after getting attached instances.
 			Remaining: hexProfile.Count,
 		})
@@ -253,10 +287,10 @@ func listAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedInstan
 
 func listPgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedInstance {
 	deviceMemoryUsedMiB,
-	deviceMemoryTotalMiB,
-	deviceGpuUtilizationRate,
-	nodeName,
-	hexGpu :=
+		deviceMemoryTotalMiB,
+		deviceGpuUtilizationRate,
+		nodeName,
+		hexGpu :=
 		opts.DeviceMemoryUsedMiB,
 		opts.DeviceMemoryTotalMiB,
 		opts.DeviceGpuUtilizationRate,
@@ -274,13 +308,13 @@ func listPgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedIn
 		log.Errorf("gpu: hex pgpu allocation.current is not 0, but cannot find any active Openstack pgpu server on node %s", nodeName)
 	} else {
 		attachedInstances = append(attachedInstances, gpu.AttachedInstance{
-			Id: activeOpenstackPgpuServer.ID,
-			Name: activeOpenstackPgpuServer.Name,
-			ProfileAlias: nil,
+			Id:                 activeOpenstackPgpuServer.ID,
+			Name:               activeOpenstackPgpuServer.Name,
+			ProfileAlias:       nil,
 			UtilizationPercent: deviceGpuUtilizationRate,
 			MemoryUsage: gpu.InstanceMemoryUsage{
 				AllocatedMiB: deviceMemoryUsedMiB,
-				TotalMiB: deviceMemoryTotalMiB,
+				TotalMiB:     deviceMemoryTotalMiB,
 			},
 			Links: buildInstanceLinks(activeOpenstackPgpuServer.ID),
 		})
@@ -293,7 +327,7 @@ func getActiveOpenstackPgpuServer(nodeName string) *servers.Server {
 	openstackHelper := openstack.GetGlobalHelper()
 
 	serversOnNode, err := openstackHelper.ListServers(servers.ListOpts{
-		Host: nodeName,
+		Host:       nodeName,
 		AllTenants: true,
 	})
 
@@ -373,13 +407,13 @@ func listVgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedIn
 		utilizationPercent := vgpuInstanceUtilizationMap[vgpuInstanceId]
 
 		attachedInstances = append(attachedInstances, gpu.AttachedInstance{
-			Id: vmId,
-			Name: instanceName,
-			ProfileAlias: &profileAlias,
+			Id:                 vmId,
+			Name:               instanceName,
+			ProfileAlias:       &profileAlias,
 			UtilizationPercent: utilizationPercent,
 			MemoryUsage: gpu.InstanceMemoryUsage{
 				AllocatedMiB: bytesToMiB(fbUsage),
-				TotalMiB: bytesToMiB(frameBufferBytes),
+				TotalMiB:     bytesToMiB(frameBufferBytes),
 			},
 			Links: buildInstanceLinks(vmId),
 		})
@@ -393,19 +427,19 @@ func buildVgpuInstanceUtilizationMap(device nvml.Device, deviceUUID string) map[
 	valueType, samples, ret := device.GetVgpuUtilization(0)
 
 	if ret != nvml.SUCCESS {
-			log.Errorf("nvml: failed to get vgpu utilization for device %s: %s", deviceUUID, nvml.ErrorString(ret))
-			return utilizationMap
+		log.Errorf("nvml: failed to get vgpu utilization for device %s: %s", deviceUUID, nvml.ErrorString(ret))
+		return utilizationMap
 	}
 
 	for _, sample := range samples {
-			switch valueType {
-			case nvml.VALUE_TYPE_UNSIGNED_INT:
-					utilizationMap[sample.VgpuInstance] = binary.LittleEndian.Uint32(sample.SmUtil[:4])
-			case nvml.VALUE_TYPE_DOUBLE:
-					utilizationMap[sample.VgpuInstance] = binary.LittleEndian.Uint32(sample.SmUtil[:])
-			}
+		switch valueType {
+		case nvml.VALUE_TYPE_UNSIGNED_INT:
+			utilizationMap[sample.VgpuInstance] = binary.LittleEndian.Uint32(sample.SmUtil[:4])
+		case nvml.VALUE_TYPE_DOUBLE:
+			utilizationMap[sample.VgpuInstance] = binary.LittleEndian.Uint32(sample.SmUtil[:])
+		}
 	}
-	
+
 	return utilizationMap
 }
 
@@ -415,15 +449,15 @@ func buildInstanceLinks(vmId string) gpu.InstanceLinks {
 		base.DataCenterVip,
 		vmId,
 	)
-	
+
 	openstackHelper := openstack.GetGlobalHelper()
 
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
 	defer cancel()
 
 	result := remoteconsoles.Create(ctx, openstackHelper.Compute, vmId, remoteconsoles.CreateOpts{
-			Protocol: remoteconsoles.ConsoleProtocolVNC,
-			Type:     remoteconsoles.ConsoleTypeNoVNC,
+		Protocol: remoteconsoles.ConsoleProtocolVNC,
+		Type:     remoteconsoles.ConsoleTypeNoVNC,
 	})
 	console, err := result.Extract()
 
