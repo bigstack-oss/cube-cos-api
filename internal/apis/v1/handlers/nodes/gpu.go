@@ -33,6 +33,12 @@ type listAttachedInstancesOpts struct {
 }
 
 func (h *helper) listNodeGpuCards() ([]gpu.GpuCard, error) {
+	useMockData := true
+
+	if useMockData {
+		return cubecos.GetMockGpus(), nil
+	}
+	
 	if nodes.IsLocal(h.node) {
 		return h.listLocalGpuCards()
 	}
