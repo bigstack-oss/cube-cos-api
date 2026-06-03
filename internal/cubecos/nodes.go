@@ -400,60 +400,60 @@ func listNodeGpus(nodeName string) ([]gpu.GpuFromHex, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
 	defer cancel()
 
-	out, err := exec.CommandContext(ctx, "hex_sdk", "list_gpus", "-f", "json").CombinedOutput()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_device_list").CombinedOutput()
 	if err != nil {
-		log.Errorf("nodes: failed to list gpus for node(%s) via hex_sdk: %v", nodeName, err)
+		log.Errorf("nodes: failed to list gpus for node %s via hex_sdk: %v", nodeName, err)
 		return nil, err
 	}
 
 	if !IsHexSuccessful(err) {
-		log.Errorf("nodes: output error when listing gpus for node(%s) via hex_sdk: %v", nodeName, err)
+		log.Errorf("nodes: output error when listing gpus for node %s via hex_sdk: %v", nodeName, err)
 		return nil, err
 	}
 
 	gpus := []gpu.GpuFromHex{}
 	err = json.Unmarshal(out, &gpus)
 	if err != nil {
-		log.Errorf("nodes: failed to parse output when listing gpus for node(%s) via hex_sdk: %v", nodeName, err)
+		log.Errorf("nodes: failed to parse output when listing gpus for node %s via hex_sdk: %v", nodeName, err)
 		return nil, err
 	}
 
 	return gpus, nil
 }
 
-func GetNodeVgpuProfilesMap(gpuPciAddress string) map[uint32]gpu.VgpuProfileFromHex {
-	profiles := listNodeVgpuProfiles(gpuPciAddress)
+func GetNodeVgpuProfilesMap(gpuId string) map[uint32]gpu.VgpuProfileFromHex {
+	profiles := listNodeVgpuProfiles(gpuId)
 	profilesMap := map[uint32]gpu.VgpuProfileFromHex{}
 
-	for _, profile := range profiles {
+	for _, profile := range *profiles {
 		profilesMap[profile.Id] = profile
 	}
 
 	return profilesMap
 }
 
-func listNodeVgpuProfiles(gpuPciAddress string) []gpu.VgpuProfileFromHex {
+func listNodeVgpuProfiles(gpuId string) *[]gpu.VgpuProfileFromHex {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
 	defer cancel()
 
 	profiles := []gpu.VgpuProfileFromHex{}
 
-	out, err := exec.CommandContext(ctx, "hex_sdk", "list_vgpu_profiles", "-pciAddress", gpuPciAddress, "-f", "json").CombinedOutput()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_vgpu_profile_list", "-gpuId", gpuId).CombinedOutput()
 	if err != nil {
-		log.Errorf("nodes: failed to list vgpu profiles for gpu with pci address %s: %v", gpuPciAddress, err)
-		return profiles
+		log.Errorf("nodes: failed to list vgpu profiles for gpu %s: %v", gpuId, err)
+		return &profiles
 	}
 
 	if !IsHexSuccessful(err) {
-		log.Errorf("nodes: output error when listing vgpu profiles for gpu with pci address %s with hex_sdk: %v", gpuPciAddress, err)
-		return profiles
+		log.Errorf("nodes: output error when listing vgpu profiles for gpu %s via hex_sdk: %v", gpuId, err)
+		return &profiles
 	}
 
 	err = json.Unmarshal(out, &profiles)
 	if err != nil {
-		log.Errorf("nodes: failed to parse output when listing vgpu profiles for gpu with pci address %s with hex_sdk: %v", gpuPciAddress, err)
-		return profiles
+		log.Errorf("nodes: failed to parse output when listing vgpu profiles for gpu %s via hex_sdk: %v", gpuId, err)
+		return &profiles
 	}
 
-	return profiles
+	return &profiles
 }

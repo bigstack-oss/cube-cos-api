@@ -25,7 +25,7 @@ type GpuFromHex struct {
 	Type  			ResourceType 				`json:"type"`
 	PciAddress 	string 							`json:"pciAddress"`
 	Status 			GpuStatus 					`json:"status"`
-	Allocation 	AllocationSummary 	`json:"allocation"`
+	Allocation 	*AllocationSummary 	`json:"allocation"`
 }
 
 type VgpuProfileFromHex struct {
