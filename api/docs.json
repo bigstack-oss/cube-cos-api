@@ -681,6 +681,18 @@
                                                     ]
                                                 },
                                                 {
+                                                    "name": "businessLogic",
+                                                    "category": "cloud computing",
+                                                    "modules": [
+                                                        {
+                                                            "name": "senlin"
+                                                        },
+                                                        {
+                                                            "name": "watcher"
+                                                        }
+                                                    ]
+                                                },
+                                                {
                                                     "name": "dataPipe",
                                                     "category": "infrascope",
                                                     "modules": [
@@ -8796,6 +8808,403 @@
                 }
             }
         },
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/gpuCards": {
+            "get": {
+                "operationId": "listNodeGPUCards",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Retrieve the GPU cards of a node",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve the node GPU cards successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListNodeGPUCardsResponse"
+                                },
+                                "examples": {
+                                    "example": {
+                                        "summary": "GPU cards list",
+                                        "value": {
+                                            "code": 200,
+                                            "data": [
+                                                {
+                                                    "id": "gpu-001",
+                                                    "name": "NVIDIA A100 80GB",
+                                                    "pciAddress": "0000:01:00.0",
+                                                    "resourceType": "migBackedVgpu",
+                                                    "supportResourceTypes": [
+                                                        "pgpu",
+                                                        "sriovVgpu",
+                                                        "migBackedVgpu"
+                                                    ],
+                                                    "vram": {
+                                                        "allocatedMiB": 80000,
+                                                        "totalMiB": 100000,
+                                                        "utilizationPercent": 40
+                                                    },
+                                                    "gpu": {
+                                                        "utilizationPercent": 24
+                                                    },
+                                                    "allocationSummary": {
+                                                        "current": 2,
+                                                        "total": 6
+                                                    },
+                                                    "profiles": [
+                                                        {
+                                                            "id": "a100-1-5c",
+                                                            "name": "A100-1-5c",
+                                                            "vramMiB": 5120,
+                                                            "count": 16,
+                                                            "remaining": 14,
+                                                            "aliasName": "Inference_Small"
+                                                        },
+                                                        {
+                                                            "id": "a100-2-10c",
+                                                            "name": "A100-2-10c",
+                                                            "vramMiB": 10240,
+                                                            "count": 8,
+                                                            "remaining": 7,
+                                                            "aliasName": "Training_Medium"
+                                                        }
+                                                    ],
+                                                    "profileCountLimit": 10,
+                                                    "vramLimitMiB": 10240,
+                                                    "attachedInstances": [
+                                                        {
+                                                            "id": "vm-99",
+                                                            "name": "AI-Worker-01",
+                                                            "profileAlias": "A100-1-5C",
+                                                            "utilizationPercent": 20.35,
+                                                            "memoryUsage": {
+                                                                "allocatedMiB": 4200,
+                                                                "totalMiB": 5000
+                                                            },
+                                                            "links": {
+                                                                "grafana": "https://example.grafana/vm-99",
+                                                                "console": "https://example.console/vm-99"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "status": {
+                                                        "current": "inUse",
+                                                        "isProcessing": false
+                                                    }
+                                                },
+                                                {
+                                                    "id": "gpu-002",
+                                                    "name": "NVIDIA A100 80GB",
+                                                    "pciAddress": "0000:01:00.1",
+                                                    "resourceType": "pgpu",
+                                                    "supportResourceTypes": [
+                                                        "pgpu",
+                                                        "sriovVgpu"
+                                                    ],
+                                                    "vram": {
+                                                        "allocatedMiB": 81920,
+                                                        "totalMb": 81920,
+                                                        "utilizationPercent": 85
+                                                    },
+                                                    "gpu": {
+                                                        "utilizationPercent": 92
+                                                    },
+                                                    "allocationSummary": {
+                                                        "current": 1,
+                                                        "total": 1
+                                                    },
+                                                    "profiles": null,
+                                                    "profileCountLimit": null,
+                                                    "vramLimitMiB": null,
+                                                    "attachedInstances": [
+                                                        {
+                                                            "id": "vm-102",
+                                                            "name": "Deep-Learning-Main",
+                                                            "profileAlias": null,
+                                                            "utilizationPercent": 91.5,
+                                                            "memoryUsage": {
+                                                                "allocatedMiB": 78000,
+                                                                "totalMiB": 81920
+                                                            },
+                                                            "links": {
+                                                                "grafana": "https://example.grafana/vm-99",
+                                                                "console": "https://example.console/vm-99"
+                                                            }
+                                                        }
+                                                    ],
+                                                    "status": {
+                                                        "current": "inUse",
+                                                        "isProcessing": false
+                                                    }
+                                                },
+                                                {
+                                                    "id": "gpu-003",
+                                                    "name": "NVIDIA A100 80GB",
+                                                    "pciAddress": "0000:01:00.2",
+                                                    "resourceType": "unset",
+                                                    "supportResourceTypes": [
+                                                        "pgpu"
+                                                    ],
+                                                    "vram": null,
+                                                    "gpu": null,
+                                                    "allocationSummary": null,
+                                                    "profiles": null,
+                                                    "profileCountLimit": null,
+                                                    "vramLimitMiB": null,
+                                                    "attachedInstances": null,
+                                                    "status": {
+                                                        "current": "unassigned",
+                                                        "isProcessing": false
+                                                    }
+                                                }
+                                            ],
+                                            "msg": "fetch node GPU cards successfully",
+                                            "status": "ok"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Node not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to fetch node GPU cards: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/datacenters/{dataCenter}/nodes/{nodeName}/gpuCards/{gpuId}": {
+            "put": {
+                "operationId": "updateNodeGPUCard",
+                "tags": [
+                    "Nodes"
+                ],
+                "summary": "Update node GPU card",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dataCenter"
+                    },
+                    {
+                        "$ref": "#/components/parameters/nodeName"
+                    },
+                    {
+                        "$ref": "#/components/parameters/gpuId"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateNodeGPUCardPutRequest"
+                            },
+                            "examples": {
+                                "passthrough": {
+                                    "summary": "Set to passthrough",
+                                    "value": {
+                                        "resourceType": "pgpu"
+                                    }
+                                },
+                                "sr-iov": {
+                                    "summary": "Set to SR-IOV",
+                                    "value": {
+                                        "resourceType": "sriovVgpu",
+                                        "profiles": [
+                                            {
+                                                "id": "a100-1-5c",
+                                                "count": 1
+                                            },
+                                            {
+                                                "id": "a100-2-10c",
+                                                "count": 2
+                                            }
+                                        ]
+                                    }
+                                },
+                                "mig-backed": {
+                                    "summary": "Set to MIG-backed",
+                                    "value": {
+                                        "resourceType": "migBackedVgpu",
+                                        "profiles": [
+                                            {
+                                                "id": "a100-1-5c",
+                                                "count": 3
+                                            },
+                                            {
+                                                "id": "a100-2-10c",
+                                                "count": 4
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Node GPU card updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpdateNodeGPUCardResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Node or GPU card not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "node not found"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "GPU card does not support 'sriovVgpu' resource type"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "confict"
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "resourceTypeUnsupported": {
+                                        "summary": "Resource type unsupported",
+                                        "value": {
+                                            "code": 409,
+                                            "msg": "GPU card does not support 'sriovVgpu' resource type",
+                                            "status": "conflict"
+                                        }
+                                    },
+                                    "exceedProfileCountLimit": {
+                                        "summary": "Exceed profile count limit",
+                                        "value": {
+                                            "code": 409,
+                                            "msg": "Exceed GPU profile count limit",
+                                            "status": "conflict"
+                                        }
+                                    },
+                                    "exceedVRAMLimitMiB": {
+                                        "summary": "Exceed VRAM limit MiB",
+                                        "value": {
+                                            "code": 409,
+                                            "msg": "Exceed VRAM limit MiB",
+                                            "status": "conflict"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "failed to update node GPU card: internal server error"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "internal server error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/datacenters/{dataCenter}/settings": {
             "get": {
                 "operationId": "getSettings",
@@ -11699,6 +12108,25 @@
                                                         "default": 1024,
                                                         "min": 256,
                                                         "max": 65536
+                                                    },
+                                                    "roles": [
+                                                        {
+                                                            "name": "control-converged",
+                                                            "hosts": [
+                                                                {
+                                                                    "name": "example-node-0",
+                                                                    "ip": "10.10.10.10"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "senlin.debug.enabled",
+                                                    "description": "Set to true to enable senlin verbose log.",
+                                                    "limitation": {
+                                                        "type": "bool",
+                                                        "default": false
                                                     },
                                                     "roles": [
                                                         {
@@ -18301,15 +18729,7 @@
                 "schema": {
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "enum": [
-                            "control-converged",
-                            "control",
-                            "compute",
-                            "storage",
-                            "edge-core",
-                            "moderator"
-                        ]
+                        "$ref": "#/components/schemas/NodeRole"
                     }
                 },
                 "description": "The role of the host",
@@ -18610,6 +19030,16 @@
                 },
                 "description": "The product name to filter models",
                 "example": "example-product"
+            },
+            "gpuId": {
+                "in": "path",
+                "name": "gpuId",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                },
+                "description": "A UUID with a \"GPU-\" prefix",
+                "example": "GPU-0aa3c43c-1ada-6075-e57a-dccb0793a8b6"
             }
         },
         "schemas": {
@@ -19334,10 +19764,6 @@
                                         },
                                         "modules": {
                                             "type": "array",
-                                            "required": [
-                                                "name",
-                                                "status"
-                                            ],
                                             "items": {
                                                 "type": "object",
                                                 "required": [
@@ -19808,129 +20234,6 @@
                     },
                     "driver": {
                         "type": "string"
-                    },
-                    "storage": {
-                        "type": "object",
-                        "required": [
-                            "service",
-                            "volumeType",
-                            "image"
-                        ],
-                        "properties": {
-                            "service": {
-                                "type": "object",
-                                "required": [
-                                    "driverSection",
-                                    "extraSettings",
-                                    "extraConfigFiles"
-                                ],
-                                "properties": {
-                                    "driverSection": {
-                                        "type": "array",
-                                        "items": {
-                                            "$ref": "#/components/schemas/StorageKeyValuePair"
-                                        }
-                                    },
-                                    "extraSettings": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "object",
-                                            "required": [
-                                                "sectionHeader",
-                                                "settings"
-                                            ],
-                                            "properties": {
-                                                "sectionHeader": {
-                                                    "type": "string"
-                                                },
-                                                "settings": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/StorageKeyValuePair"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "extraConfigFiles": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "object",
-                                            "required": [
-                                                "name",
-                                                "content"
-                                            ],
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "content": {
-                                                    "type": "string",
-                                                    "description": "Base64 encoded content of the config file"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "volumeType": {
-                                "type": "object",
-                                "required": [
-                                    "settings"
-                                ],
-                                "properties": {
-                                    "settings": {
-                                        "type": "array",
-                                        "items": {
-                                            "$ref": "#/components/schemas/StorageKeyValuePair"
-                                        }
-                                    }
-                                }
-                            },
-                            "image": {
-                                "type": "object",
-                                "required": [
-                                    "useMultipath",
-                                    "forceMultipath"
-                                ],
-                                "properties": {
-                                    "useMultipath": {
-                                        "type": "boolean"
-                                    },
-                                    "forceMultipath": {
-                                        "type": "boolean"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "VerifyStorageIntegrationRequest": {
-                "type": "object",
-                "required": [
-                    "name",
-                    "device",
-                    "storage"
-                ],
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "device": {
-                        "type": "object",
-                        "required": [
-                            "vendor",
-                            "product"
-                        ],
-                        "properties": {
-                            "vendor": {
-                                "type": "string"
-                            },
-                            "product": {
-                                "type": "string"
-                            }
-                        }
                     },
                     "storage": {
                         "type": "object",
@@ -20674,7 +20977,7 @@
                                             "type": "string"
                                         },
                                         "role": {
-                                            "type": "string"
+                                            "$ref": "#/components/schemas/NodeRole"
                                         },
                                         "expiry": {
                                             "type": "object",
@@ -20774,7 +21077,7 @@
                                     "type": "string"
                                 },
                                 "role": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/NodeRole"
                                 },
                                 "product": {
                                     "type": "string"
@@ -21773,49 +22076,6 @@
                     }
                 }
             },
-            "GetNodeIpmiSettingResponse": {
-                "type": "object",
-                "required": [
-                    "code",
-                    "data",
-                    "msg",
-                    "status"
-                ],
-                "properties": {
-                    "code": {
-                        "type": "integer"
-                    },
-                    "data": {
-                        "type": "object",
-                        "required": [
-                            "ip",
-                            "port",
-                            "username",
-                            "password"
-                        ],
-                        "properties": {
-                            "ip": {
-                                "type": "string"
-                            },
-                            "port": {
-                                "type": "integer"
-                            },
-                            "username": {
-                                "type": "string"
-                            },
-                            "password": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "msg": {
-                        "type": "string"
-                    },
-                    "status": {
-                        "type": "string"
-                    }
-                }
-            },
             "VerifyNodeIpmiResponse": {
                 "type": "object",
                 "required": [
@@ -22432,21 +22692,6 @@
                     },
                     "status": {
                         "type": "string"
-                    }
-                }
-            },
-            "TitlePrefix": {
-                "type": "object",
-                "required": [
-                    "value",
-                    "status"
-                ],
-                "properties": {
-                    "value": {
-                        "type": "string"
-                    },
-                    "status": {
-                        "$ref": "#/components/schemas/SettingStatus"
                     }
                 }
             },
@@ -23175,6 +23420,291 @@
                     "msg": {
                         "type": "string",
                         "example": "slack channel deleted successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "ListNodeGPUCardsResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "data",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "id",
+                                "name",
+                                "pciAddress",
+                                "resourceType",
+                                "supportResourceTypes",
+                                "vram",
+                                "gpu",
+                                "allocationSummary",
+                                "profiles",
+                                "profileCountLimit",
+                                "vramLimitMiB",
+                                "attachedInstances",
+                                "status"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "pciAddress": {
+                                    "type": "string"
+                                },
+                                "resourceType": {
+                                    "$ref": "#/components/schemas/GPUResourceType"
+                                },
+                                "supportResourceTypes": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/GPUSupportResourceType"
+                                    }
+                                },
+                                "vram": {
+                                    "type": "object",
+                                    "nullable": true,
+                                    "required": [
+                                        "allocatedMiB",
+                                        "totalMiB",
+                                        "utilizationPercent"
+                                    ],
+                                    "properties": {
+                                        "allocatedMiB": {
+                                            "type": "integer"
+                                        },
+                                        "totalMiB": {
+                                            "type": "integer"
+                                        },
+                                        "utilizationPercent": {
+                                            "type": "number",
+                                            "description": "Floating-point number"
+                                        }
+                                    }
+                                },
+                                "gpu": {
+                                    "type": "object",
+                                    "nullable": true,
+                                    "required": [
+                                        "utilizationPercent"
+                                    ],
+                                    "properties": {
+                                        "utilizationPercent": {
+                                            "type": "number",
+                                            "description": "Floating-point number"
+                                        }
+                                    }
+                                },
+                                "allocationSummary": {
+                                    "type": "object",
+                                    "nullable": true,
+                                    "required": [
+                                        "current",
+                                        "total"
+                                    ],
+                                    "properties": {
+                                        "current": {
+                                            "type": "integer"
+                                        },
+                                        "total": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "profileCountLimit": {
+                                    "type": "integer",
+                                    "nullable": true
+                                },
+                                "vramLimitMiB": {
+                                    "type": "integer",
+                                    "nullable": true
+                                },
+                                "profiles": {
+                                    "type": "array",
+                                    "nullable": true,
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "id",
+                                            "name",
+                                            "vramMiB",
+                                            "count",
+                                            "remaining",
+                                            "aliasName"
+                                        ],
+                                        "properties": {
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "vramMiB": {
+                                                "type": "integer"
+                                            },
+                                            "count": {
+                                                "type": "integer"
+                                            },
+                                            "remaining": {
+                                                "type": "integer"
+                                            },
+                                            "aliasName": {
+                                                "type": "string",
+                                                "nullable": true
+                                            }
+                                        }
+                                    }
+                                },
+                                "attachedInstances": {
+                                    "type": "array",
+                                    "nullable": true,
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "id",
+                                            "name",
+                                            "profileAlias",
+                                            "utilizationPercent",
+                                            "memoryUsage",
+                                            "links"
+                                        ],
+                                        "properties": {
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "profileAlias": {
+                                                "type": "string",
+                                                "nullable": true
+                                            },
+                                            "utilizationPercent": {
+                                                "type": "number",
+                                                "description": "Floating-point number"
+                                            },
+                                            "memoryUsage": {
+                                                "type": "object",
+                                                "required": [
+                                                    "allocatedMiB",
+                                                    "totalMiB"
+                                                ],
+                                                "properties": {
+                                                    "allocatedMiB": {
+                                                        "type": "integer"
+                                                    },
+                                                    "totalMiB": {
+                                                        "type": "integer"
+                                                    }
+                                                }
+                                            },
+                                            "links": {
+                                                "type": "object",
+                                                "required": [
+                                                    "grafana",
+                                                    "console"
+                                                ],
+                                                "properties": {
+                                                    "grafana": {
+                                                        "type": "string"
+                                                    },
+                                                    "console": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "status": {
+                                    "type": "object",
+                                    "required": [
+                                        "current",
+                                        "isProcessing"
+                                    ],
+                                    "properties": {
+                                        "current": {
+                                            "$ref": "#/components/schemas/GPUCardStatus"
+                                        },
+                                        "isProcessing": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "node GPU cards retrieved successfully"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    }
+                }
+            },
+            "UpdateNodeGPUCardPutRequest": {
+                "type": "object",
+                "required": [
+                    "resourceType"
+                ],
+                "properties": {
+                    "resourceType": {
+                        "$ref": "#/components/schemas/GPUSupportResourceType"
+                    },
+                    "profiles": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "id",
+                                "count"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "count": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "UpdateNodeGPUCardResponse": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "msg",
+                    "status"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "msg": {
+                        "type": "string",
+                        "example": "node GPU card updated successfully"
                     },
                     "status": {
                         "type": "string",
@@ -25446,15 +25976,7 @@
                     "roles": {
                         "type": "array",
                         "items": {
-                            "type": "string",
-                            "enum": [
-                                "control-converged",
-                                "control",
-                                "compute",
-                                "storage",
-                                "edge-core",
-                                "moderator"
-                            ]
+                            "$ref": "#/components/schemas/NodeRole"
                         }
                     },
                     "version": {
@@ -25554,6 +26076,42 @@
                     }
                 }
             },
+            "GPUResourceType": {
+                "type": "string",
+                "enum": [
+                    "unset",
+                    "pgpu",
+                    "sriovVgpu",
+                    "migBackedVgpu"
+                ]
+            },
+            "GPUSupportResourceType": {
+                "type": "string",
+                "enum": [
+                    "pgpu",
+                    "sriovVgpu",
+                    "migBackedVgpu"
+                ]
+            },
+            "GPUCardStatus": {
+                "type": "string",
+                "enum": [
+                    "unassigned",
+                    "idle",
+                    "inUse"
+                ]
+            },
+            "NodeRole": {
+                "type": "string",
+                "enum": [
+                    "control-converged",
+                    "control",
+                    "compute",
+                    "storage",
+                    "edge-core",
+                    "moderator"
+                ]
+            },
             "Node": {
                 "type": "object",
                 "required": [
@@ -25592,7 +26150,7 @@
                         "type": "string"
                     },
                     "role": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/NodeRole"
                     },
                     "address": {
                         "type": "string"
@@ -25857,7 +26415,6 @@
                     "files": {
                         "type": "array",
                         "items": {
-                            "type": "object",
                             "$ref": "#/components/schemas/SupportFile"
                         }
                     },
@@ -26399,233 +26956,6 @@
                         "STG00004E": "#/components/schemas/STG00004E",
                         "STG00005I": "#/components/schemas/STG00005I",
                         "STG00005E": "#/components/schemas/STG00005E"
-                    }
-                }
-            },
-            "StorageModel": {
-                "type": "object",
-                "required": [
-                    "vendor",
-                    "product",
-                    "multipath",
-                    "storage"
-                ],
-                "properties": {
-                    "vendor": {
-                        "type": "string"
-                    },
-                    "product": {
-                        "type": "string"
-                    },
-                    "multipath": {
-                        "type": "object",
-                        "required": [
-                            "defaults",
-                            "blacklist",
-                            "blacklistExceptions",
-                            "devices",
-                            "overrides",
-                            "multipaths"
-                        ],
-                        "properties": {
-                            "defaults": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/StorageKeyValuePair"
-                                }
-                            },
-                            "blacklist": {
-                                "type": "object",
-                                "required": [
-                                    "devnode",
-                                    "devices"
-                                ],
-                                "properties": {
-                                    "devnode": {
-                                        "type": "string"
-                                    },
-                                    "devices": {
-                                        "type": "array",
-                                        "items": {
-                                            "$ref": "#/components/schemas/StorageModelVenderSetting"
-                                        }
-                                    }
-                                }
-                            },
-                            "blacklistExceptions": {
-                                "type": "object",
-                                "required": [
-                                    "devnode",
-                                    "devices"
-                                ],
-                                "properties": {
-                                    "devnode": {
-                                        "type": "string"
-                                    },
-                                    "devices": {
-                                        "type": "array",
-                                        "items": {
-                                            "$ref": "#/components/schemas/StorageModelVenderSetting"
-                                        }
-                                    }
-                                }
-                            },
-                            "devices": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/StorageModelVenderSetting"
-                                }
-                            },
-                            "overrides": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/StorageKeyValuePair"
-                                }
-                            },
-                            "multipaths": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "required": [
-                                        "wwid",
-                                        "settings"
-                                    ],
-                                    "properties": {
-                                        "wwid": {
-                                            "type": "string"
-                                        },
-                                        "settings": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/StorageKeyValuePair"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "storage": {
-                        "type": "object",
-                        "required": [
-                            "service",
-                            "volumeType",
-                            "image",
-                            "updateTime"
-                        ],
-                        "properties": {
-                            "service": {
-                                "type": "object",
-                                "required": [
-                                    "driverSection",
-                                    "extraSettings",
-                                    "extraConfigFiles"
-                                ],
-                                "properties": {
-                                    "driverSection": {
-                                        "type": "array",
-                                        "items": {
-                                            "$ref": "#/components/schemas/StorageKeyValuePair"
-                                        }
-                                    },
-                                    "extraSettings": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "object",
-                                            "required": [
-                                                "sectionHeader",
-                                                "settings"
-                                            ],
-                                            "properties": {
-                                                "sectionHeader": {
-                                                    "type": "string"
-                                                },
-                                                "settings": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/StorageKeyValuePair"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "extraConfigFiles": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "object",
-                                            "required": [
-                                                "name",
-                                                "content"
-                                            ],
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "content": {
-                                                    "type": "string",
-                                                    "description": "Base64 encoded content of the config file"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "volumeType": {
-                                "type": "object",
-                                "required": [
-                                    "settings"
-                                ],
-                                "properties": {
-                                    "settings": {
-                                        "type": "array",
-                                        "items": {
-                                            "$ref": "#/components/schemas/StorageKeyValuePair"
-                                        }
-                                    }
-                                }
-                            },
-                            "image": {
-                                "type": "object",
-                                "required": [
-                                    "useMultipath",
-                                    "forceMultipath"
-                                ],
-                                "properties": {
-                                    "useMultipath": {
-                                        "type": "boolean"
-                                    },
-                                    "forceMultipath": {
-                                        "type": "boolean"
-                                    }
-                                }
-                            },
-                            "updateTime": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        }
-                    }
-                }
-            },
-            "StorageModelVenderSetting": {
-                "type": "object",
-                "required": [
-                    "vendor",
-                    "product",
-                    "settings"
-                ],
-                "properties": {
-                    "vendor": {
-                        "type": "string"
-                    },
-                    "product": {
-                        "type": "string"
-                    },
-                    "settings": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/StorageKeyValuePair"
-                        }
                     }
                 }
             },
