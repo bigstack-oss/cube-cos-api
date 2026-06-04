@@ -3,6 +3,7 @@ package cubecos
 import (
 	"fmt"
 	"os/exec"
+	"strings"
 
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
@@ -77,7 +78,11 @@ func GetStorageIp(storageNet string) (string, error) {
 		return "", fmt.Errorf("storage network is empty")
 	}
 
-	netIfAddrStorageIp := fmt.Sprintf("%s%s", CubeNetIfAddrPrefix, storageNet)
+	// Splits the entire string by the comma
+	storageNets := strings.Split(storageNet, ",")
+	storageFrontendNet := storageNets[0]
+
+	netIfAddrStorageIp := fmt.Sprintf("%s%s", CubeNetIfAddrPrefix, storageFrontendNet)
 	return GetTuningValue(netIfAddrStorageIp)
 }
 
