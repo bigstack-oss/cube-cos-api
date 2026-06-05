@@ -29,16 +29,26 @@ tasks:
   diffMod:
     cmds:
       - GOWORK=off go mod tidy
-  diffApiDocs:
+  generateApiDocs:
+    desc: Generate api/docs.json from cube-cos-openapi/docs.yaml
     cmds:
-      - git diff --exit-code api
+      - yq -o=json -I=4 cube-cos-openapi/docs.yaml > api/docs.json
+  diffApiDocs:
+    deps:
+      - generateApiDocs
+    cmds:
+      - git diff --exit-code api/docs.json
   test:
     cmds:
       - GOWORK=off go test -v ./...
   buildLocalBinary:
+    deps:
+      - generateApiDocs
     cmds:
       - GOWORK=off GOOS=linux GOARCH=amd64 go build -o bin/{{.apiService}} cmd/main.go
   runLocalDevApi:
+    deps:
+      - generateApiDocs
     cmds:
       - GOWORK=off go run cmd/main.go -conf configs/{{.apiService}}.yaml
   runLocalDevMongo:

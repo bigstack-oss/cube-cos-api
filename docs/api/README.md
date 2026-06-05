@@ -30,7 +30,7 @@ Follow the video to interact with the API doc -> [Video](../../assets/videos/api
 
 ## 🧪 Swagger Online Editor
 
-1). Copy the JSON content from [JSON](../../api/docs.json)
+1). Copy the JSON content from [JSON](../../api/docs.json) or YAML from [YAML](../../cube-cos-openapi/docs.yaml)
 
 <br/>
 

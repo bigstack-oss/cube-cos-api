@@ -176,6 +176,22 @@ func (n *Node) ListDevicesUrl() string {
 	return u.String()
 }
 
+func (n *Node) ListGpuCardsUrl() string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/gpuCards", base.DataCenterName, n.Hostname)
+	return u.String()
+}
+
+func (n *Node) UpdateGpuCardUrl(gpuId string) string {
+	u := url.URL{}
+	u.Scheme = n.Protocol
+	u.Host = n.Address
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/nodes/%s/gpuCards/%s", base.DataCenterName, n.Hostname, gpuId)
+	return u.String()
+}
+
 func (n *Node) GetDeviceUrl(device string) string {
 	u := url.URL{}
 	u.Scheme = n.Protocol

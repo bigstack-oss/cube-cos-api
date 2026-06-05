@@ -1,10 +1,12 @@
 package cubecos
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
@@ -13,6 +15,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/gpu"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pacemaker"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
@@ -375,4 +378,109 @@ func getPendingPowerStatus(hostname string) (string, error) {
 	}
 
 	return node.Status, nil
+}
+
+// Returns a map of GPUs from hex, with PCI address as key.
+func GetNodeGpusMap(nodeName string) (map[string]gpu.GpuFromHex, error) {
+	gpuMap := map[string]gpu.GpuFromHex{}
+	gpus, err := listNodeGpus(nodeName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, gpu := range gpus {
+		gpuMap[gpu.PciAddress] = gpu
+	}
+
+	return gpuMap, nil
+}
+
+func listNodeGpus(nodeName string) ([]gpu.GpuFromHex, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	defer cancel()
+
+	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_device_list").CombinedOutput()
+	if err != nil {
+		log.Errorf("nodes: failed to list gpus for node %s via hex_sdk: %v", nodeName, err)
+		return nil, err
+	}
+
+	if !IsHexSuccessful(err) {
+		log.Errorf("nodes: output error when listing gpus for node %s via hex_sdk: %v", nodeName, err)
+		return nil, err
+	}
+
+	gpus := []gpu.GpuFromHex{}
+	err = json.Unmarshal(out, &gpus)
+	if err != nil {
+		log.Errorf("nodes: failed to parse output when listing gpus for node %s via hex_sdk: %v", nodeName, err)
+		return nil, err
+	}
+
+	return gpus, nil
+}
+
+func GetNodeVgpuProfilesMap(gpuId string) map[uint32]gpu.VgpuProfileFromHex {
+	profiles := listNodeVgpuProfiles(gpuId)
+	profilesMap := map[uint32]gpu.VgpuProfileFromHex{}
+
+	for _, profile := range *profiles {
+		profilesMap[profile.Id] = profile
+	}
+
+	return profilesMap
+}
+
+func listNodeVgpuProfiles(gpuId string) *[]gpu.VgpuProfileFromHex {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	defer cancel()
+
+	profiles := []gpu.VgpuProfileFromHex{}
+
+	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_vgpu_profile_list", "-gpuId", gpuId).CombinedOutput()
+	if err != nil {
+		log.Errorf("nodes: failed to list vgpu profiles for gpu %s: %v", gpuId, err)
+		return &profiles
+	}
+
+	if !IsHexSuccessful(err) {
+		log.Errorf("nodes: output error when listing vgpu profiles for gpu %s via hex_sdk: %v", gpuId, err)
+		return &profiles
+	}
+
+	err = json.Unmarshal(out, &profiles)
+	if err != nil {
+		log.Errorf("nodes: failed to parse output when listing vgpu profiles for gpu %s via hex_sdk: %v", gpuId, err)
+		return &profiles
+	}
+
+	return &profiles
+}
+
+func UpdateNodeGpuCard(gpuId string, req gpu.UpdateGpuCardRequest) error {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	defer cancel()
+
+	args := []string{"gpu_device_update", "-gpuId", gpuId, "-resourceType", string(req.ResourceType)}
+	if len(req.Profiles) > 0 {
+		profilesJson, err := json.Marshal(req.Profiles)
+		if err != nil {
+			return fmt.Errorf("failed to marshal profiles: %v", err)
+		}
+		args = append(args, "-profiles", string(profilesJson))
+	}
+
+	out, err := exec.CommandContext(ctx, "hex_sdk", args...).CombinedOutput()
+	if err != nil {
+		log.Errorf("nodes: failed to update gpu card %s via hex_sdk: %v, output: %s", gpuId, err, string(out))
+		return err
+	}
+
+	if !IsHexSuccessful(err) {
+		log.Errorf("nodes: output error when updating gpu card %s via hex_sdk: %s", gpuId, string(out))
+		return fmt.Errorf("hex_sdk gpu_device_update failed: %s", string(out))
+	}
+
+	return nil
 }

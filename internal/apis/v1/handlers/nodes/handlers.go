@@ -1,6 +1,7 @@
 package nodes
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
@@ -63,6 +64,18 @@ var (
 			Method:  http.MethodPost,
 			Path:    "/nodes/drain",
 			Func:    drainNode,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/nodes/:nodeName/gpuCards",
+			Func:    listNodeGpuCards,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPut,
+			Path:    "/nodes/:nodeName/gpuCards/:gpuId",
+			Func:    updateNodeGpuCard,
 		},
 		{
 			Version: apis.V1,
@@ -262,6 +275,52 @@ func setNodeIpmi(c *gin.Context) {
 		"the node ipmi setting is set successfully",
 		nil,
 	)
+}
+
+func listNodeGpuCards(c *gin.Context) {
+	h, err := initHelper(c, "listNodeGpuCards")
+	if err != nil {
+		log.Errorf("gpu(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	if !nodes.IsExist(h.node) {
+		bodies.SetNotFound(c, fmt.Errorf("node %s not found", h.node))
+		return
+	}
+
+	gpuCards, err := h.listNodeGpuCards()
+	if err != nil {
+		log.Errorf("gpu(%s): failed to list GPU cards for node %s: %v", h.reqId, h.node, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(c, "node GPU cards retrieved successfully", gpuCards)
+}
+
+func updateNodeGpuCard(c *gin.Context) {
+	h, err := initHelper(c, "updateNodeGpuCard")
+	if err != nil {
+		log.Errorf("gpu(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	if !nodes.IsExist(h.node) {
+		bodies.SetNotFound(c, fmt.Errorf("node %s not found", h.node))
+		return
+	}
+
+	err = h.updateNodeGpuCard()
+	if err != nil {
+		log.Errorf("gpu(%s): failed to update GPU card %s for node %s: %v", h.reqId, h.gpuId, h.node, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(c, "node GPU card updated successfully", nil)
 }
 
 func ipmiOperateNode(c *gin.Context) {

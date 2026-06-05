@@ -27,6 +27,10 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseDrainOptions()
 	case "listNodeDevices":
 		return h.parseListDevicesOptions()
+	case "listNodeGpuCards":
+		return h.parseListGPUCardsOptions()
+	case "updateNodeGpuCard":
+		return h.parseUpdateGPUCardOptions()
 	case "addNodeDevice":
 		return h.parseCreateDeviceOptions()
 	case "updateNodeDevice":
@@ -352,6 +356,33 @@ func (h *helper) parseUpdateOsdTaskOptions() error {
 			"failed to parse patch osd task options(%v)",
 			err,
 		)
+	}
+
+	return nil
+}
+
+func (h *helper) parseListGPUCardsOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("nodeName should be provided")
+	}
+	return nil
+}
+
+func (h *helper) parseUpdateGPUCardOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("nodeName should be provided")
+	}
+
+	h.gpuId = h.c.Param("gpuId")
+	if h.gpuId == "" {
+		return fmt.Errorf("gpuId should be provided")
+	}
+
+	err := h.c.ShouldBindJSON(&h.gpuCardReq)
+	if err != nil {
+		return fmt.Errorf("failed to parse update GPU card request(%v)", err)
 	}
 
 	return nil
