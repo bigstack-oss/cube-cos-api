@@ -35,6 +35,11 @@ type VgpuProfileFromHex struct {
 	Alias 		string 	`json:"alias"`
 }
 
+type PgpuAttachedInstanceFromHex struct {
+	Id 		string `json:"id"`
+	Name 	string `json:"name"`
+}
+
 type GpuCard struct {
 	Id                   string                	`json:"id"`
 	Name                 string                	`json:"name"`

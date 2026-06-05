@@ -17,7 +17,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/gpu"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/remoteconsoles"
-	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -269,49 +268,26 @@ func listPgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedIn
 		return &attachedInstances
 	}
 
-	activeOpenstackPgpuServer := getActiveOpenstackPgpuServer(nodeName)
-	if activeOpenstackPgpuServer == nil {
-		log.Errorf("gpu: hex pgpu allocation.current is not 0, but cannot find any active Openstack pgpu server on node %s", nodeName)
+	attachedInstance := cubecos.GetNodePgpuAttachedInstance(hexGpu.PciAddress)
+	if attachedInstance == nil {
+		log.Errorf("gpu: hex gpu %s allocation.current is not 0, but its attached instance is null on node %s", hexGpu.PciAddress, nodeName)
 	} else {
 		attachedInstances = append(attachedInstances, gpu.AttachedInstance{
-			Id: activeOpenstackPgpuServer.ID,
-			Name: activeOpenstackPgpuServer.Name,
+			Id: attachedInstance.Id,
+			Name: attachedInstance.Name,
 			ProfileAlias: nil,
 			UtilizationPercent: deviceGpuUtilizationRate,
 			MemoryUsage: gpu.InstanceMemoryUsage{
 				AllocatedMiB: deviceMemoryUsedMiB,
 				TotalMiB: deviceMemoryTotalMiB,
 			},
-			Links: buildInstanceLinks(activeOpenstackPgpuServer.ID),
+			Links: buildInstanceLinks(attachedInstance.Id),
 		})
 	}
 
 	return &attachedInstances
 }
 
-func getActiveOpenstackPgpuServer(nodeName string) *servers.Server {
-	openstackHelper := openstack.GetGlobalHelper()
-
-	serversOnNode, err := openstackHelper.ListServers(servers.ListOpts{
-		Host: nodeName,
-		AllTenants: true,
-	})
-
-	if err != nil {
-		log.Errorf("openstack: failed to list servers for node %s: %v", nodeName, err)
-		return nil
-	}
-
-	for _, server := range serversOnNode {
-		if server.Status != "ACTIVE" {
-			continue
-		}
-		// TODO: Check `server.Flavor.ExtraSpecs` for "pci_passthrough:alias" key (non-empty = PCI passthrough VM)
-		return &server
-	}
-
-	return nil
-}
 
 // Returns the attached instances for SR-IOV and MIG-backed vGPUs.
 func listVgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedInstance {

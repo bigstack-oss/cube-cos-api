@@ -457,3 +457,33 @@ func listNodeVgpuProfiles(gpuId string) *[]gpu.VgpuProfileFromHex {
 
 	return &profiles
 }
+
+func GetNodePgpuAttachedInstance(pciAddress string) *gpu.PgpuAttachedInstanceFromHex {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	defer cancel()
+
+	attachedInstance := gpu.PgpuAttachedInstanceFromHex{}
+
+	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_pgpu_attached_instance_get", pciAddress).CombinedOutput()
+	if err != nil {
+		log.Errorf("nodes: failed to get attached instance for gpu %s: %v", pciAddress, err)
+		return &attachedInstance
+	}
+
+	if !IsHexSuccessful(err) {
+		log.Errorf("nodes: output error when getting attached instance for gpu %s via hex_sdk: %v", pciAddress, err)
+		return &attachedInstance
+	}
+
+	err = json.Unmarshal(out, &attachedInstance)
+	if err != nil {
+		log.Errorf("nodes: failed to parse output when getting attached instance for gpu %s via hex_sdk: %v", pciAddress, err)
+		return &attachedInstance
+	}
+
+	if len(attachedInstance.Id) == 0 {
+		return nil
+	}
+
+	return &attachedInstance
+}
