@@ -26,6 +26,7 @@ tasks:
   prepareTarball:
     desc: "Prepare the tarball"
     cmds:
+      - git submodule update --init
       - mkdir -p ~/source
       - cp -r ./* ~/source/
       - cd ~ && tar -cvzf "cube-cos-api-{{.VERSION}}.tar.gz" source

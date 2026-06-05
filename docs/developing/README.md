@@ -1,4 +1,4 @@
-## ▎To Start Developing
+# ▎To Start Developing
 
 The following guide is for anyone to write code which directly accesses the CubeCOS API.
 
@@ -7,8 +7,6 @@ Genearlly, there're two ways for CubeCOS API developing which help you to have a
 - RPM: A comprehensive way to develop with CubeCOS
 
 - Binary replacement: A faster way to develop with CubeCOS (⚠️ the binary will be reset when CubeCOS get restarted)
-
-<br/>
 
 ## ▎Get The Environment Ready
 
@@ -20,13 +18,9 @@ Genearlly, there're two ways for CubeCOS API developing which help you to have a
 
 - rpmlint
 
-<br/>
-
 ## ▎RPM
 
 1). Go to cube-cos-api dir
-
-<br/>
 
 2). Execute the task command
 
@@ -34,15 +28,11 @@ Genearlly, there're two ways for CubeCOS API developing which help you to have a
 task rpm:build
 ```
 
-<br/>
-
 3). Send the built rpm to a running CubeCOS
 
-```
+```bash
 scp <path of rpm> <user>@<cubecos>:<path to place rpm>
 ```
-
-<br/>
 
 4). Log in to your CubeCOS and reinstall the cube-cos-api by the RPM
 
@@ -53,8 +43,6 @@ rm -f /usr/local/bin/cube-cos-api
 dnf -y install "<path to cube-cos-api rpm>"
 ```
 
-<br/>
-
 5). Commit the changes if you don't want to lost the binary after machine reboot
 
 ```bash
@@ -62,21 +50,15 @@ git add /usr/local/bin/cube-cos-api
 hex_sdk git_push "change the cube-cos-api with dev version manually (YYYY-MM-DD)"
 ```
 
-<br/>
-
 6). Restart the cube-cos-api by the hex sdk
 
 ```bash
 hex_config bootstrap api
 ```
 
-<br/>
-
 ## ▎Binary Replacement
 
 1). Go to cube-cos-api dir
-
-<br/>
 
 2). Replace your CubeCOS IP in the Taskfile.yaml below
 
@@ -84,13 +66,55 @@ hex_config bootstrap api
   devCosIp: "<REPLACE_WITH_YOUR_DEV_COS_IP>"
 ```
 
-<br/>
-
 3). Execute the task command
 
 ```bash
 task deployRemoteDevApi
 ```
+
+## ▎API Documentation
+
+The API spec lives in `api/cube-cos-openapi/docs.yaml` (OpenAPI 3.0 YAML) as the **single source of truth**.
+This is a git submodule pointing to [bigstack-oss/cube-cos-openapi](https://github.com/bigstack-oss/cube-cos-openapi).
+
+At build time, the YAML is converted to JSON and embedded into the Go binary via `//go:embed`, then served by gin-swagger at `/api/v1/datacenters/:dataCenter/apidocs/index.html`.
+
+`api/docs.json` is **gitignored** — it is always generated fresh during local dev, CI, and RPM builds.
+
+```txt
+api/cube-cos-openapi/docs.yaml  →  (yq)  →  api/docs.json  →  (go:embed)  →  binary
+            ↑                                                                    ↓
+   single source of truth                                          gin-swagger serves UI
+```
+
+### Editing the API spec
+
+1). Edit `api/cube-cos-openapi/docs.yaml` directly
+
+2). Regenerate the embedded JSON
+
+```bash
+task generateApiDocs
+```
+
+NOTE: the `generateApiDocs` task is depended by `buildLocalBinary` and `runLocalDevApi`.
+So we don't need to manually update it every time.
+
+### Prerequisites
+
+- [yq](https://github.com/mikefarah/yq) (for YAML → JSON conversion)
+
+### Architecture
+
+| Component                        | Role                                                                            |
+| -------------------------------- | ------------------------------------------------------------------------------- |
+| `api/cube-cos-openapi/docs.yaml` | Source of truth for the OpenAPI spec (validated by CI in cube-cos-openapi repo) |
+| `api/docs.json`                  | Auto-generated JSON from the YAML (gitignored)                                  |
+| `api/docs.go`                    | Uses `//go:embed docs.json` to bake the spec into the binary                    |
+| `internal/apis/doc.go`           | Registers the gin-swagger handler on `/api/v1/apidocs/*any`                     |
+| `github.com/swaggo/swag`         | Runtime library for spec registration (`swag.Register`)                         |
+| `github.com/swaggo/gin-swagger`  | Gin middleware serving Swagger UI                                               |
+| `github.com/swaggo/files`        | Embedded Swagger UI static assets                                               |
 
 ## | Update Jenkins Base Image
 

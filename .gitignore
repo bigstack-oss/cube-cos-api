@@ -27,3 +27,6 @@ go.work.sum
 
 # Artifacts
 *.tar
+
+# Generated API docs (built from api/cube-cos-openapi/docs.yaml)
+api/docs.json

@@ -21,9 +21,9 @@ vars:
 tasks:
   check:
     cmds:
+      - task: generateApiDocs
       - task: vet
       - task: diffMod
-      - task: diffApiDocs
   build:
     cmds:
       - task: buildLocalBinary
@@ -33,19 +33,24 @@ tasks:
   diffMod:
     cmds:
       - CGO_ENABLED=1 GOWORK=off go mod tidy
-  diffApiDocs:
+  generateApiDocs:
+    desc: Generate api/docs.json from api/cube-cos-openapi/docs.yaml
     cmds:
-      - git diff --exit-code api
+      - yq -o=json -I=4 api/cube-cos-openapi/docs.yaml > api/docs.json
   test:
     cmds:
       - CGO_ENABLED=1 GOWORK=off go test -v ./...
   buildLocalBinary:
+    deps:
+      - generateApiDocs
     cmds:
       - cmd: docker compose run --rm cube-cos-api-builder
         platforms: [darwin, windows]
       - cmd: CGO_ENABLED=1 GOWORK=off GOOS=linux GOARCH=amd64 go build -o bin/{{.apiService}} cmd/main.go
         platforms: [linux]
   runLocalDevApi:
+    deps:
+      - generateApiDocs
     cmds:
       - CGO_ENABLED=1 GOWORK=off go run cmd/main.go -conf configs/{{.apiService}}.yaml
   runLocalDevMongo:

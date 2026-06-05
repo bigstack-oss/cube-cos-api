@@ -7,7 +7,7 @@ License:        Apache License 2.0
 URL:            https://github.com/bigstack-oss/cube-cos-api
 Source0:        https://github.com/bigstack-oss/cube-cos-api/tree/%{build_number}
 
-BuildRequires: systemd golang
+BuildRequires: systemd golang yq
 
 %description
 The API service for CubeCOS.
@@ -21,6 +21,7 @@ find ./source/ -mindepth 1 -maxdepth 1 -name  '*' -exec mv -t . {} +
 rmdir source
 
 %build
+yq -o=json -I=4 api/cube-cos-openapi/docs.yaml > api/docs.json
 GOWORK=off go mod tidy -v
 go clean -v
 GOWORK=off GOOS=linux GOARCH=amd64 go build -o %{name} -v cmd/main.go
