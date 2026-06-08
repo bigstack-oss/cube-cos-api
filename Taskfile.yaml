@@ -37,7 +37,10 @@ tasks:
       - GOWORK=off go test -v ./...
   buildLocalBinary:
     cmds:
-      - GOWORK=off GOOS=linux GOARCH=amd64 go build -o bin/{{.apiService}} cmd/main.go
+      - cmd: docker compose run --rm cube-cos-api-builder
+        platforms: [darwin, windows]
+      - cmd: GOWORK=off GOOS=linux GOARCH=amd64 go build -o bin/{{.apiService}} cmd/main.go
+        platforms: [linux]
   runLocalDevApi:
     cmds:
       - GOWORK=off go run cmd/main.go -conf configs/{{.apiService}}.yaml

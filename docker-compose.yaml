@@ -1,0 +1,16 @@
+services:
+  cube-cos-api-builder:
+    build:
+      context: ./build
+      dockerfile: cube-cos-api-rpm.Dockerfile
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - go-module-cache:/go/pkg/mod
+      - go-build-cache:/root/.cache/go-build
+    command: >
+      sh -c "GOWORK=off GOOS=linux GOARCH=amd64 go build -o bin/cube-cos-api cmd/main.go"
+
+volumes:
+  go-module-cache:
+  go-build-cache:
