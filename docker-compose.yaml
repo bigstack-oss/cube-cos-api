@@ -1,14 +1,11 @@
 services:
   cube-cos-api-builder:
-    image: golang:1.24-alpine3.21
+    build:
+      context: ./build
+      dockerfile: cube-cos-api-jail.Dockerfile
+    platform: linux/amd64
     working_dir: /workspace
     volumes:
       - .:/workspace
-      - go-module-cache:/go/pkg/mod
-      - go-build-cache:/root/.cache/go-build
     command: >
-      sh -c "GOWORK=off GOOS=linux GOARCH=amd64 go build -o bin/cube-cos-api cmd/main.go"
-
-volumes:
-  go-module-cache:
-  go-build-cache:
+      sh -c "CGO_ENABLED=1 GOWORK=off GOOS=linux GOARCH=amd64 go build -a -o bin/cube-cos-api cmd/main.go"

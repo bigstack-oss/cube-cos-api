@@ -91,3 +91,15 @@ hex_config bootstrap api
 ```bash
 task deployRemoteDevApi
 ```
+
+## | Update Jenkins Base Image
+
+### Binary Pipeline Base Image
+
+Jenkins `cube-cos-api-binary` pipeline uses the `localhost:5000/cube-cos-api-jail` base image.
+If you want to update the base image, update the `./build/cube-cos-api-jail.Dockerfile` and execute `task deployJailImageToRemoteJenkins`, it generates a image tar file and loaded by jenkins build server.
+
+### RPM Pipeline Base Image
+
+Jenkins `cube-cos-api-rpm` pipeline uses the `localhost:5000/cube-cos-api-rpm` base image.
+If you want to update the base image, update the `./build/cube-cos-api-rpm.Dockerfile` and execute `task deployRpmImageToRemoteJenkins`, it generates a image tar file and loaded by jenkins build server.

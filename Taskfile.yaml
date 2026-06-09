@@ -13,6 +13,10 @@ vars:
   devE2EContainer: "3c_3p_5s"
   devE2ENode: "10.1.0.1"
   mongoVersion: "6.0.19"
+  jenkinsBuildServerUser: "root"
+  jenkinsBuildServerIp: "10.32.200.11"
+  jenkinsBuildServerBinaryImage: "localhost:5000/cube-cos-api-jail"
+  jenkinsBuildServerRpmImage: "localhost:5000/cube-cos-api-rpm"
 
 tasks:
   check:
@@ -25,25 +29,25 @@ tasks:
       - task: buildLocalBinary
   vet:
     cmds:
-      - GOWORK=off go vet ./...
+      - CGO_ENABLED=1 GOWORK=off go vet ./...
   diffMod:
     cmds:
-      - GOWORK=off go mod tidy
+      - CGO_ENABLED=1 GOWORK=off go mod tidy
   diffApiDocs:
     cmds:
       - git diff --exit-code api
   test:
     cmds:
-      - GOWORK=off go test -v ./...
+      - CGO_ENABLED=1 GOWORK=off go test -v ./...
   buildLocalBinary:
     cmds:
       - cmd: docker compose run --rm cube-cos-api-builder
         platforms: [darwin, windows]
-      - cmd: GOWORK=off GOOS=linux GOARCH=amd64 go build -o bin/{{.apiService}} cmd/main.go
+      - cmd: CGO_ENABLED=1 GOWORK=off GOOS=linux GOARCH=amd64 go build -o bin/{{.apiService}} cmd/main.go
         platforms: [linux]
   runLocalDevApi:
     cmds:
-      - GOWORK=off go run cmd/main.go -conf configs/{{.apiService}}.yaml
+      - CGO_ENABLED=1 GOWORK=off go run cmd/main.go -conf configs/{{.apiService}}.yaml
   runLocalDevMongo:
     cmds:
       - docker run -d -p 27017:27017 --name {{.dbService}}-0 --hostname {{.dbService}}-0 mongo:{{.mongoVersion}} mongod --replSet cube-cos-rs
@@ -126,3 +130,28 @@ tasks:
   restartRemoteE2ESystemdService:
     cmds:
       - ssh {{.devCosUser}}@{{.devE2EIp}} "docker exec -i {{.devE2EContainer}} ssh root@{{.devE2ENode}} systemctl restart cube-cos-api.service"
+  buildJailImage:
+    cmds:
+      - cmd: sudo docker build --platform=linux/amd64 -t localhost:5000/cube-cos-api-jail -f build/cube-cos-api-jail.Dockerfile .
+  runJailContainer:
+    cmds:
+      - cmd: docker run -it --rm --name cube-cos-api-jail {{.jenkinsBuildServerBinaryImage}}
+  deployJailImageToRemoteJenkins:
+    cmds:
+      - task: buildJailImage
+      - docker save {{.jenkinsBuildServerBinaryImage}} > cube-cos-api-jail.tar
+      - scp ./cube-cos-api-jail.tar {{.jenkinsBuildServerUser}}@{{.jenkinsBuildServerIp}}:~/
+      - ssh {{.jenkinsBuildServerUser}}@{{.jenkinsBuildServerIp}} "docker load -i ./cube-cos-api-jail.tar"
+  buildRpmImage:
+    cmds:
+      - sudo docker build --platform=linux/amd64 -t localhost:5000/cube-cos-api-rpm -f build/cube-cos-api-rpm.Dockerfile .
+  runRpmContainer:
+    cmds:
+      - docker run -it --rm --name cube-cos-api-rpm {{.jenkinsBuildServerRpmImage}}
+  deployRpmImageToRemoteJenkins:
+    cmds:
+      - task: buildRpmImage
+      - docker save {{.jenkinsBuildServerRpmImage}} > cube-cos-api-rpm.tar
+      - scp ./cube-cos-api-rpm.tar {{.jenkinsBuildServerUser}}@{{.jenkinsBuildServerIp}}:~/
+      - ssh {{.jenkinsBuildServerUser}}@{{.jenkinsBuildServerIp}} "docker load -i ./cube-cos-api-rpm.tar"
+  

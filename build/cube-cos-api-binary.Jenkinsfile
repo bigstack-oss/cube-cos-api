@@ -48,7 +48,6 @@ pipeline {
                 chmod 600 ~/.ssh/known_hosts
                 """
 
-
                 script {
                     env.BLDPTH = sh(script: 'pwd', returnStdout: true).trim()
                     env.VERSION = getVersion()
@@ -64,7 +63,7 @@ pipeline {
             steps {
                 dir("${env.BLDPTH}") {
                     echo 'Running checks...'
-                    sh 'go-task check'
+                    sh 'task check'
                 }
             }
         }
@@ -73,7 +72,7 @@ pipeline {
             steps {
                 dir("${env.BLDPTH}") {
                     echo 'Building the project...'
-                    sh 'go-task build'
+                    sh 'task build'
                 }
             }
         }
@@ -82,7 +81,7 @@ pipeline {
             steps {
                 dir("${env.BLDPTH}") {
                     echo 'Running tests...'
-                    sh 'go-task test'
+                    sh 'task test'
                 }
             }
         }

@@ -3,6 +3,7 @@ module github.com/bigstack-oss/cube-cos-api
 go 1.24.2
 
 require (
+	github.com/NVIDIA/go-nvml v0.13.1-0
 	github.com/Nerzal/gocloak/v13 v13.9.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.78.2
 	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20260130102442-288f9c049e55

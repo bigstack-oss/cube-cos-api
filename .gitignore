@@ -24,3 +24,6 @@ go.work.sum
 
 # Vscode setting files
 .vscode/
+
+# Artifacts
+*.tar
