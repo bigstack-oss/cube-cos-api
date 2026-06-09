@@ -118,6 +118,7 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 			Id: hexGpu.Id,
 			Name: hexGpu.Name,
 			ResourceType: hexGpu.Type,
+			SupportResourceTypes: hexGpu.SupportTypes,
 			Vram: &gpu.VramInfo{
 				AllocatedMiB: memoryUsedMiB,
 				TotalMiB: memoryTotalMiB,
@@ -135,6 +136,8 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 				Current: hexGpu.Allocation.Current,
 				Total: hexGpu.Allocation.Total,
 			},
+			VramLimitMiB: memoryTotalMiB,
+			ProfileCountLimit: hexGpu.ProfileCountLimit,
 			Profiles: vgpuProfiles,
 			AttachedInstances: attachedInstances,
 		})

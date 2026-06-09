@@ -20,12 +20,14 @@ const (
 )
 
 type GpuFromHex struct {
-	Id 					string 							`json:"id"`
-	Name 				string 							`json:"name"`
-	Type  			ResourceType 				`json:"type"`
-	PciAddress 	string 							`json:"pciAddress"`
-	Status 			GpuStatus 					`json:"status"`
-	Allocation 	*AllocationSummary 	`json:"allocation"`
+	Id 								string 									`json:"id"`
+	Name 							string 									`json:"name"`
+	Type  						ResourceType 						`json:"type"`
+	SupportTypes 			[]SupportResourceType 	`json:"supportTypes"`
+	PciAddress 				string 									`json:"pciAddress"`
+	ProfileCountLimit *int 										`json:"profileCountLimit"`
+	Status 						GpuStatus 							`json:"status"`
+	Allocation 				*AllocationSummary 			`json:"allocation"`
 }
 
 type VgpuProfileFromHex struct {
@@ -49,6 +51,8 @@ type GpuCard struct {
 	Vram                 *VramInfo             	`json:"vram"`
 	Gpu                  *GpuInfo 							`json:"gpu"`
 	AllocationSummary    *AllocationSummary    	`json:"allocationSummary"`
+	VramLimitMiB 				 int 										`json:"vramLimitMiB"`
+	ProfileCountLimit 	 *int 									`json:"profileCountLimit"`
 	Profiles             *[]VgpuProfile         `json:"profiles"`
 	AttachedInstances    *[]AttachedInstance    `json:"attachedInstances"`
 	Status               GpuStatusInfo        	`json:"status"`
