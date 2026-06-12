@@ -19,8 +19,8 @@ type devicesResp struct {
 }
 
 type gpuCardsResp struct {
-	Code   int              `json:"code"`
-	Status string           `json:"status"`
-	Msg    string           `json:"msg"`
-	Data   []gpu.GpuCard 		`json:"data"`
+	Code   int           `json:"code"`
+	Status string        `json:"status"`
+	Msg    string        `json:"msg"`
+	Data   []gpu.GpuCard `json:"data"`
 }

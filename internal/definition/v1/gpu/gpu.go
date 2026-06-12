@@ -20,42 +20,42 @@ const (
 )
 
 type GpuFromHex struct {
-	Id 								string 									`json:"id"`
-	Name 							string 									`json:"name"`
-	Type  						ResourceType 						`json:"type"`
-	SupportTypes 			[]SupportResourceType 	`json:"supportTypes"`
-	PciAddress 				string 									`json:"pciAddress"`
-	ProfileCountLimit *int 										`json:"profileCountLimit"`
-	Status 						GpuStatus 							`json:"status"`
-	Allocation 				*AllocationSummary 			`json:"allocation"`
+	Id                string                `json:"id"`
+	Name              string                `json:"name"`
+	Type              ResourceType          `json:"type"`
+	SupportTypes      []SupportResourceType `json:"supportTypes"`
+	PciAddress        string                `json:"pciAddress"`
+	ProfileCountLimit *int                  `json:"profileCountLimit"`
+	Status            GpuStatus             `json:"status"`
+	Allocation        *AllocationSummary    `json:"allocation"`
 }
 
 type VgpuProfileFromHex struct {
-	Id 				uint32 	`json:"id"`
-	Name      string  `json:"name"`
-	Count     int     `json:"count"`
-	Alias 		string 	`json:"alias"`
+	Id    uint32 `json:"id"`
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+	Alias string `json:"alias"`
 }
 
 type PgpuAttachedInstanceFromHex struct {
-	Id 		string `json:"id"`
-	Name 	string `json:"name"`
+	Id   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type GpuCard struct {
-	Id                   string                	`json:"id"`
-	Name                 string                	`json:"name"`
-	PciAddress           string                	`json:"pciAddress"`
-	ResourceType         ResourceType          	`json:"resourceType"`
-	SupportResourceTypes []SupportResourceType 	`json:"supportResourceTypes"`
-	Vram                 *VramInfo             	`json:"vram"`
-	Gpu                  *GpuInfo 							`json:"gpu"`
-	AllocationSummary    *AllocationSummary    	`json:"allocationSummary"`
-	VramLimitMiB 				 int 										`json:"vramLimitMiB"`
-	ProfileCountLimit 	 *int 									`json:"profileCountLimit"`
-	Profiles             *[]VgpuProfile         `json:"profiles"`
-	AttachedInstances    *[]AttachedInstance    `json:"attachedInstances"`
-	Status               GpuStatusInfo        	`json:"status"`
+	Id                   string                `json:"id"`
+	Name                 string                `json:"name"`
+	PciAddress           string                `json:"pciAddress"`
+	ResourceType         ResourceType          `json:"resourceType"`
+	SupportResourceTypes []SupportResourceType `json:"supportResourceTypes"`
+	Vram                 *VramInfo             `json:"vram"`
+	Gpu                  *GpuInfo              `json:"gpu"`
+	AllocationSummary    *AllocationSummary    `json:"allocationSummary"`
+	VramLimitMiB         int                   `json:"vramLimitMiB"`
+	ProfileCountLimit    *int                  `json:"profileCountLimit"`
+	Profiles             *[]VgpuProfile        `json:"profiles"`
+	AttachedInstances    *[]AttachedInstance   `json:"attachedInstances"`
+	Status               GpuStatusInfo         `json:"status"`
 }
 
 type VramInfo struct {
@@ -74,21 +74,21 @@ type AllocationSummary struct {
 }
 
 type VgpuProfile struct {
-	Id        string  `json:"id"`
-	Name      string  `json:"name"`
-	VramMiB   uint64  `json:"vramMiB"`
-	AliasName string 	`json:"aliasName"`
-	Count     int     `json:"count"`
-	Remaining int     `json:"remaining"`
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	VramMiB   uint64 `json:"vramMiB"`
+	AliasName string `json:"aliasName"`
+	Count     int    `json:"count"`
+	Remaining int    `json:"remaining"`
 }
 
 type AttachedInstance struct {
-	Id                 string        					`json:"id"`
-	Name               string        					`json:"name"`
-	ProfileAlias       *string       					`json:"profileAlias"`
-	UtilizationPercent uint32       					`json:"utilizationPercent"`
-	MemoryUsage        InstanceMemoryUsage   	`json:"memoryUsage"`
-	Links              InstanceLinks 					`json:"links"`
+	Id                 string              `json:"id"`
+	Name               string              `json:"name"`
+	ProfileAlias       *string             `json:"profileAlias"`
+	UtilizationPercent uint32              `json:"utilizationPercent"`
+	MemoryUsage        InstanceMemoryUsage `json:"memoryUsage"`
+	Links              InstanceLinks       `json:"links"`
 }
 
 type InstanceMemoryUsage struct {
@@ -102,6 +102,6 @@ type InstanceLinks struct {
 }
 
 type GpuStatusInfo struct {
-	Current      GpuStatus 	`json:"current"`
-	IsProcessing bool       `json:"isProcessing"`
+	Current      GpuStatus `json:"current"`
+	IsProcessing bool      `json:"isProcessing"`
 }

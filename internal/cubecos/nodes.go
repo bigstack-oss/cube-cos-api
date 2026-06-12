@@ -388,7 +388,7 @@ func GetNodeGpusMap(nodeName string) (map[string]gpu.GpuFromHex, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	for _, gpu := range gpus {
 		gpuMap[gpu.PciAddress] = gpu
 	}
