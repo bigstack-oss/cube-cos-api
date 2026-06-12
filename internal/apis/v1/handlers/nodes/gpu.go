@@ -177,8 +177,13 @@ func bytesToMiB(bytes uint64) int {
 // Get PCI address in lowercase 4-digit domain form.
 // Handles both "0000:01:00.0" (Cyborg) and "00000000:01:00.0" (NVML BusId).
 func extractPciAddress(pciInfo nvml.PciInfo) string {
-	// `busId` is a [32]uint8 null-terminated string like "00000000:01:00.0"
-	busId := strings.TrimRight(string(pciInfo.BusId[:]), "\x00")
+	// `busId` is a [32]int8 null-terminated string like "00000000:01:00.0"
+	raw := pciInfo.BusId[:]
+	buffer := make([]byte, len(raw))
+	for i, b := range raw {
+		buffer[i] = byte(b)
+	}
+	busId := strings.TrimRight(string(buffer), "\x00")
 	address := strings.ToLower(strings.TrimSpace(busId))
 	parts := strings.SplitN(address, ":", 2)
 
