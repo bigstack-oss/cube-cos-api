@@ -98,6 +98,12 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 		pciAddress := extractPciAddress(pciInfo)
 		hexGpu := hexGpusMap[pciAddress]
 
+		if len(hexGpu.Id) == 0 {
+			err := fmt.Errorf("Cannot find hex gpu with pci address %s", pciAddress)
+			log.Errorf(err.Error())
+			return nil, err
+		}
+
 		vgpuProfiles, hexProfilesMap := listVgpuProfiles(device, hexGpu)
 		attachedInstances := listAttachedInstances(listAttachedInstancesOpts{
 			Device:                   device,
@@ -132,10 +138,7 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 				Current:      hexGpu.Status,
 				IsProcessing: false,
 			},
-			AllocationSummary: &gpu.AllocationSummary{
-				Current: hexGpu.Allocation.Current,
-				Total:   hexGpu.Allocation.Total,
-			},
+			AllocationSummary: hexGpu.Allocation,
 			VramLimitMiB:      memoryTotalMiB,
 			ProfileCountLimit: hexGpu.ProfileCountLimit,
 			Profiles:          vgpuProfiles,
@@ -174,8 +177,7 @@ func bytesToMiB(bytes uint64) int {
 	return int(bytes / 1024 / 1024)
 }
 
-// Get PCI address in lowercase 4-digit domain form.
-// Handles both "0000:01:00.0" (Cyborg) and "00000000:01:00.0" (NVML BusId).
+// Get PCI address in lowercase form.
 func extractPciAddress(pciInfo nvml.PciInfo) string {
 	// `busId` is a [32]int8 null-terminated string like "00000000:01:00.0"
 	raw := pciInfo.BusId[:]
@@ -185,12 +187,6 @@ func extractPciAddress(pciInfo nvml.PciInfo) string {
 	}
 	busId := strings.TrimRight(string(buffer), "\x00")
 	address := strings.ToLower(strings.TrimSpace(busId))
-	parts := strings.SplitN(address, ":", 2)
-
-	if len(parts) == 2 && len(parts[0]) == 8 {
-		return parts[0][4:] + ":" + parts[1]
-	}
-
 	return address
 }
 
@@ -248,8 +244,7 @@ func listAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedInstan
 		return nil
 	case gpu.ResourceTypePgpu:
 		return listPgpuAttachedInstances(opts)
-	case gpu.ResourceTypeSriovVgpu:
-	case gpu.ResourceTypeMigBackedVgpu:
+	case gpu.ResourceTypeSriovVgpu, gpu.ResourceTypeMigBackedVgpu:
 		return listVgpuAttachedInstances(opts)
 	default:
 		log.Errorf("gpu: unhandled gpu type %s when listing attached instances for gpu %s", hexGpu.Type, hexGpu.Id)
@@ -272,7 +267,7 @@ func listPgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedIn
 
 	attachedInstances := []gpu.AttachedInstance{}
 
-	if hexGpu.Allocation.Current == 0 {
+	if hexGpu.Allocation == nil || hexGpu.Allocation.Current == 0 {
 		return &attachedInstances
 	}
 
