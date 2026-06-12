@@ -15,6 +15,5 @@ func initNvml() error {
 		log.Fatalf("Failed to initialize NVML: %v", errorString)
 		return errors.New(errorString)
 	}
-	defer nvml.Shutdown()
 	return nil
 }
