@@ -102,7 +102,7 @@ So we don't need to manually update it every time.
 
 ### Prerequisites
 
-- [yq](https://github.com/mikefarah/yq) (for YAML → JSON conversion)
+- [yq](https://github.com/mikefarah/yq) >= 4.12.0 (for YAML → JSON conversion)
 
 ### Architecture
 
