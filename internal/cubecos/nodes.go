@@ -421,41 +421,51 @@ func listNodeGpus(nodeName string) ([]gpu.GpuFromHex, error) {
 	return gpus, nil
 }
 
-func GetNodeVgpuProfilesMap(gpuId string) map[uint32]gpu.VgpuProfileFromHex {
-	profiles := listNodeVgpuProfiles(gpuId)
+func GetNodeVgpuProfilesMap(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex) {
+	collection := getNodeVgpuProfileCollection(gpuId)
+
+	// Profile IDs will not conflict between SR-IOV and MIG.
 	profilesMap := map[uint32]gpu.VgpuProfileFromHex{}
 
-	for _, profile := range *profiles {
-		profilesMap[profile.Id] = profile
+	if collection.Sriov != nil {
+		for _, profile := range *collection.Sriov {
+			profilesMap[profile.Id] = profile
+		}
 	}
 
-	return profilesMap
+	if collection.MigBacked != nil {
+		for _, profile := range *collection.MigBacked {
+			profilesMap[profile.Id] = profile
+		}
+	}
+
+	return profilesMap, collection
 }
 
-func listNodeVgpuProfiles(gpuId string) *[]gpu.VgpuProfileFromHex {
+func getNodeVgpuProfileCollection(gpuId string) gpu.VgpuProfileCollectionFromHex {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
 	defer cancel()
 
-	profiles := []gpu.VgpuProfileFromHex{}
+	collection := gpu.VgpuProfileCollectionFromHex{}
 
 	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_vgpu_profile_list", "-gpuId", gpuId).CombinedOutput()
 	if err != nil {
 		log.Errorf("nodes: failed to list vgpu profiles for gpu %s: %v", gpuId, err)
-		return &profiles
+		return collection
 	}
 
 	if !IsHexSuccessful(err) {
 		log.Errorf("nodes: output error when listing vgpu profiles for gpu %s via hex_sdk: %v", gpuId, err)
-		return &profiles
+		return collection
 	}
 
-	err = json.Unmarshal(out, &profiles)
+	err = json.Unmarshal(out, &collection)
 	if err != nil {
 		log.Errorf("nodes: failed to parse output when listing vgpu profiles for gpu %s via hex_sdk: %v", gpuId, err)
-		return &profiles
+		return collection
 	}
 
-	return &profiles
+	return collection
 }
 
 func GetNodePgpuAttachedInstance(pciAddress string) *gpu.PgpuAttachedInstanceFromHex {

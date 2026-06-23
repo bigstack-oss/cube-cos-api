@@ -30,11 +30,18 @@ type GpuFromHex struct {
 	Allocation        *AllocationSummary    `json:"allocation"`
 }
 
+type VgpuProfileCollectionFromHex struct {
+	Sriov     *[]VgpuProfileFromHex `json:"sriov"`
+	MigBacked *[]VgpuProfileFromHex `json:"migBacked"`
+}
+
 type VgpuProfileFromHex struct {
-	Id    uint32 `json:"id"`
-	Name  string `json:"name"`
-	Count int    `json:"count"`
-	Alias string `json:"alias"`
+	Id           uint32  `json:"id"`
+	Name         string  `json:"name"`
+	VramMiB      uint64  `json:"vramMiB"`
+	Count        int     `json:"count"`
+	Alias        *string `json:"alias"`
+	VmCountLimit *int    `json:"vmCountLimit"`
 }
 
 type PgpuAttachedInstanceFromHex struct {
@@ -48,24 +55,23 @@ type GpuCard struct {
 	PciAddress           string                `json:"pciAddress"`
 	ResourceType         ResourceType          `json:"resourceType"`
 	SupportResourceTypes []SupportResourceType `json:"supportResourceTypes"`
-	Vram                 *VramInfo             `json:"vram"`
-	Gpu                  *GpuInfo              `json:"gpu"`
+	Vram                 VramInfo              `json:"vram"`
+	Gpu                  GpuInfo               `json:"gpu"`
 	AllocationSummary    *AllocationSummary    `json:"allocationSummary"`
-	VramLimitMiB         int                   `json:"vramLimitMiB"`
 	ProfileCountLimit    *int                  `json:"profileCountLimit"`
-	Profiles             *[]VgpuProfile        `json:"profiles"`
+	Profiles             GpuProfileCollection  `json:"profiles"`
 	AttachedInstances    *[]AttachedInstance   `json:"attachedInstances"`
 	Status               GpuStatusInfo         `json:"status"`
 }
 
 type VramInfo struct {
-	AllocatedMiB       int     `json:"allocatedMiB"`
-	TotalMiB           int     `json:"totalMiB"`
-	UtilizationPercent float64 `json:"utilizationPercent"`
+	AllocatedMiB       int    `json:"allocatedMiB"`
+	TotalMiB           int    `json:"totalMiB"`
+	UtilizationPercent uint32 `json:"utilizationPercent"`
 }
 
 type GpuInfo struct {
-	UtilizationPercent float64 `json:"utilizationPercent"`
+	UtilizationPercent uint32 `json:"utilizationPercent"`
 }
 
 type AllocationSummary struct {
@@ -73,13 +79,19 @@ type AllocationSummary struct {
 	Total   int `json:"total"`
 }
 
+type GpuProfileCollection struct {
+	SriovVgpu     []VgpuProfile `json:"sriovVgpu"`
+	MigBackedVgpu []VgpuProfile `json:"migBackedVgpu"`
+}
+
 type VgpuProfile struct {
-	Id        string `json:"id"`
-	Name      string `json:"name"`
-	VramMiB   uint64 `json:"vramMiB"`
-	AliasName string `json:"aliasName"`
-	Count     int    `json:"count"`
-	Remaining int    `json:"remaining"`
+	Id         uint32  `json:"id"`
+	Name       string  `json:"name"`
+	VramMiB    uint64  `json:"vramMiB"`
+	Count      int     `json:"count"`
+	Remaining  *int    `json:"remaining"`
+	AliasName  *string `json:"aliasName"`
+	CountLimit *int    `json:"countLimit"`
 }
 
 type AttachedInstance struct {

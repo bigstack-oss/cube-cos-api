@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 
 	"github.com/NVIDIA/go-nvml/pkg/nvml"
@@ -104,7 +103,8 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 			return nil, err
 		}
 
-		vgpuProfiles, hexProfilesMap := listVgpuProfiles(device, hexGpu)
+		hexProfilesMap, hexProfileCollection := cubecos.GetNodeVgpuProfilesMap(hexGpu.PciAddress)
+
 		attachedInstances := listAttachedInstances(listAttachedInstancesOpts{
 			Device:                   device,
 			DeviceUUID:               uuid,
@@ -116,22 +116,20 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 			HexProfilesMap:           hexProfilesMap,
 		})
 
-		if vgpuProfiles != nil && attachedInstances != nil {
-			updateVgpuProfilesRemaining(*vgpuProfiles, *attachedInstances)
-		}
+		profileCollection := toProfileCollection(hexProfileCollection, attachedInstances)
 
 		gpuCards = append(gpuCards, gpu.GpuCard{
 			Id:                   hexGpu.Id,
 			Name:                 hexGpu.Name,
 			ResourceType:         hexGpu.Type,
 			SupportResourceTypes: hexGpu.SupportTypes,
-			Vram: &gpu.VramInfo{
+			Vram: gpu.VramInfo{
 				AllocatedMiB:       memoryUsedMiB,
 				TotalMiB:           memoryTotalMiB,
-				UtilizationPercent: float64(memoryUtilizationPercent),
+				UtilizationPercent: memoryUtilizationPercent,
 			},
-			Gpu: &gpu.GpuInfo{
-				UtilizationPercent: float64(gpuUtilizationPercent),
+			Gpu: gpu.GpuInfo{
+				UtilizationPercent: gpuUtilizationPercent,
 			},
 			PciAddress: pciAddress,
 			Status: gpu.GpuStatusInfo{
@@ -139,9 +137,8 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 				IsProcessing: false,
 			},
 			AllocationSummary: hexGpu.Allocation,
-			VramLimitMiB:      memoryTotalMiB,
 			ProfileCountLimit: hexGpu.ProfileCountLimit,
-			Profiles:          vgpuProfiles,
+			Profiles:          profileCollection,
 			AttachedInstances: attachedInstances,
 		})
 	}
@@ -188,48 +185,6 @@ func extractPciAddress(pciInfo nvml.PciInfo) string {
 	busId := strings.TrimRight(string(buffer), "\x00")
 	address := strings.ToLower(strings.TrimSpace(busId))
 	return address
-}
-
-// Returns vGPU profiles with `Remaining = Count`, or returns `nil` for non-vGPU.
-// The exact `Remaining` value should be calculated based on the profile's `Count`
-// and the amount of attached instances created with this profile.
-func listVgpuProfiles(device nvml.Device, hexGpu gpu.GpuFromHex) (*[]gpu.VgpuProfile, map[uint32]gpu.VgpuProfileFromHex) {
-	hexProfilesMap := map[uint32]gpu.VgpuProfileFromHex{}
-
-	if !isVgpu(hexGpu) {
-		return nil, hexProfilesMap
-	}
-
-	vgpuProfiles := []gpu.VgpuProfile{}
-	hexProfilesMap = cubecos.GetNodeVgpuProfilesMap(hexGpu.PciAddress)
-
-	for i := 0; ; i++ {
-		nvmlProfile, ret := device.GetGpuInstanceProfileInfo(i)
-
-		if ret == nvml.ERROR_INVALID_ARGUMENT {
-			// No more profiles.
-			break
-		}
-
-		if ret != nvml.SUCCESS {
-			log.Errorf("nvml: failed to get gpu instance profile info for gpu %s at index %d: %v", hexGpu.Id, i, nvml.ErrorString(ret))
-			continue
-		}
-
-		hexProfile := hexProfilesMap[nvmlProfile.Id]
-
-		vgpuProfiles = append(vgpuProfiles, gpu.VgpuProfile{
-			Id:        strconv.FormatUint(uint64(nvmlProfile.Id), 10),
-			Name:      hexProfile.Name,
-			VramMiB:   nvmlProfile.MemorySizeMB,
-			AliasName: hexProfile.Alias,
-			Count:     hexProfile.Count,
-			// `Remaining` will be calculated later after getting attached instances.
-			Remaining: hexProfile.Count,
-		})
-	}
-
-	return &vgpuProfiles, hexProfilesMap
 }
 
 func isVgpu(hexGpu gpu.GpuFromHex) bool {
@@ -353,7 +308,7 @@ func listVgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedIn
 		attachedInstances = append(attachedInstances, gpu.AttachedInstance{
 			Id:                 vmId,
 			Name:               instanceName,
-			ProfileAlias:       &profileAlias,
+			ProfileAlias:       profileAlias,
 			UtilizationPercent: utilizationPercent,
 			MemoryUsage: gpu.InstanceMemoryUsage{
 				AllocatedMiB: bytesToMiB(fbUsage),
@@ -420,20 +375,77 @@ func buildInstanceLinks(vmId string) gpu.InstanceLinks {
 	}
 }
 
-func updateVgpuProfilesRemaining(profiles []gpu.VgpuProfile, attachedInstances []gpu.AttachedInstance) {
-	profileMapByAlias := map[string]gpu.VgpuProfile{}
-	for _, profile := range profiles {
-		profileMapByAlias[profile.AliasName] = profile
+func toProfileCollection(
+	hexProfileCollection gpu.VgpuProfileCollectionFromHex,
+	attachedInstances *[]gpu.AttachedInstance,
+) gpu.GpuProfileCollection {
+	collection := gpu.GpuProfileCollection{
+		SriovVgpu:     []gpu.VgpuProfile{},
+		MigBackedVgpu: []gpu.VgpuProfile{},
 	}
 
-	profileInstanceCountMap := map[string]int{}
-	for _, instance := range attachedInstances {
-		profile := profileMapByAlias[*instance.ProfileAlias]
-		profileInstanceCountMap[profile.Id]++
+	for _, profile := range *hexProfileCollection.Sriov {
+		collection.SriovVgpu = append(collection.SriovVgpu, gpu.VgpuProfile{
+			Id:         profile.Id,
+			Name:       profile.Name,
+			VramMiB:    profile.VramMiB,
+			Count:      profile.Count,
+			Remaining:  nil,
+			AliasName:  profile.Alias,
+			CountLimit: profile.VmCountLimit,
+		})
 	}
 
-	for _, profile := range profiles {
-		instanceCount := profileInstanceCountMap[profile.Id]
-		profile.Remaining = profile.Count - instanceCount
+	migProfileRemainingMap := createMigProfileRemainingMap(hexProfileCollection.MigBacked, attachedInstances)
+
+	for _, profile := range *hexProfileCollection.MigBacked {
+		remaining := migProfileRemainingMap[profile.Id]
+
+		collection.MigBackedVgpu = append(collection.MigBackedVgpu, gpu.VgpuProfile{
+			Id:         profile.Id,
+			Name:       profile.Name,
+			VramMiB:    profile.VramMiB,
+			Count:      profile.Count,
+			Remaining:  &remaining,
+			AliasName:  profile.Alias,
+			CountLimit: profile.VmCountLimit,
+		})
 	}
+
+	return collection
+}
+
+// Returns a map with profile ID as key, and remaining count as value.
+func createMigProfileRemainingMap(
+	migProfiles *[]gpu.VgpuProfileFromHex,
+	attachedInstances *[]gpu.AttachedInstance,
+) map[uint32]int {
+	// Key: profile ID. Value: remaining count.
+	remainingMap := map[uint32]int{}
+
+	if migProfiles == nil || attachedInstances == nil {
+		return remainingMap
+	}
+
+	// Key: profile alias. Value: profile ID.
+	profileIdMap := map[string]uint32{}
+
+	for _, profile := range *migProfiles {
+		if profile.Alias == nil || len(*profile.Alias) == 0 {
+			continue
+		}
+		remainingMap[profile.Id] = profile.Count
+		profileIdMap[*profile.Alias] = profile.Id
+	}
+
+	for _, instance := range *attachedInstances {
+		if instance.ProfileAlias == nil || len(*instance.ProfileAlias) == 0 {
+			continue
+		}
+
+		profileId := profileIdMap[*instance.ProfileAlias]
+		remainingMap[profileId] = max(remainingMap[profileId]-1, 0)
+	}
+
+	return remainingMap
 }
