@@ -448,14 +448,9 @@ func getNodeVgpuProfileCollection(gpuId string) gpu.VgpuProfileCollectionFromHex
 
 	collection := gpu.VgpuProfileCollectionFromHex{}
 
-	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_vgpu_profile_list", "-gpuId", gpuId).CombinedOutput()
+	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_vgpu_profile_list", gpuId).CombinedOutput()
 	if err != nil {
 		log.Errorf("nodes: failed to list vgpu profiles for gpu %s: %v", gpuId, err)
-		return collection
-	}
-
-	if !IsHexSuccessful(err) {
-		log.Errorf("nodes: output error when listing vgpu profiles for gpu %s via hex_sdk: %v", gpuId, err)
 		return collection
 	}
 

@@ -103,7 +103,12 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 			return nil, err
 		}
 
-		hexProfilesMap, hexProfileCollection := cubecos.GetNodeVgpuProfilesMap(hexGpu.PciAddress)
+		hexProfilesMap := map[uint32]gpu.VgpuProfileFromHex{}
+		hexProfileCollection := gpu.VgpuProfileCollectionFromHex{}
+
+		if isVgpu(hexGpu) {
+			hexProfilesMap, hexProfileCollection = cubecos.GetNodeVgpuProfilesMap(hexGpu.PciAddress)
+		}
 
 		attachedInstances := listAttachedInstances(listAttachedInstancesOpts{
 			Device:                   device,
@@ -384,32 +389,36 @@ func toProfileCollection(
 		MigBackedVgpu: []gpu.VgpuProfile{},
 	}
 
-	for _, profile := range *hexProfileCollection.Sriov {
-		collection.SriovVgpu = append(collection.SriovVgpu, gpu.VgpuProfile{
-			Id:         profile.Id,
-			Name:       profile.Name,
-			VramMiB:    profile.VramMiB,
-			Count:      profile.Count,
-			Remaining:  nil,
-			AliasName:  profile.Alias,
-			CountLimit: profile.VmCountLimit,
-		})
+	if hexProfileCollection.Sriov != nil {
+		for _, profile := range *hexProfileCollection.Sriov {
+			collection.SriovVgpu = append(collection.SriovVgpu, gpu.VgpuProfile{
+				Id:         profile.Id,
+				Name:       profile.Name,
+				VramMiB:    profile.VramMiB,
+				Count:      profile.Count,
+				Remaining:  nil,
+				AliasName:  profile.Alias,
+				CountLimit: profile.VmCountLimit,
+			})
+		}
 	}
 
 	migProfileRemainingMap := createMigProfileRemainingMap(hexProfileCollection.MigBacked, attachedInstances)
 
-	for _, profile := range *hexProfileCollection.MigBacked {
-		remaining := migProfileRemainingMap[profile.Id]
+	if hexProfileCollection.MigBacked != nil {
+		for _, profile := range *hexProfileCollection.MigBacked {
+			remaining := migProfileRemainingMap[profile.Id]
 
-		collection.MigBackedVgpu = append(collection.MigBackedVgpu, gpu.VgpuProfile{
-			Id:         profile.Id,
-			Name:       profile.Name,
-			VramMiB:    profile.VramMiB,
-			Count:      profile.Count,
-			Remaining:  &remaining,
-			AliasName:  profile.Alias,
-			CountLimit: profile.VmCountLimit,
-		})
+			collection.MigBackedVgpu = append(collection.MigBackedVgpu, gpu.VgpuProfile{
+				Id:         profile.Id,
+				Name:       profile.Name,
+				VramMiB:    profile.VramMiB,
+				Count:      profile.Count,
+				Remaining:  &remaining,
+				AliasName:  profile.Alias,
+				CountLimit: profile.VmCountLimit,
+			})
+		}
 	}
 
 	return collection
@@ -443,8 +452,10 @@ func createMigProfileRemainingMap(
 			continue
 		}
 
-		profileId := profileIdMap[*instance.ProfileAlias]
-		remainingMap[profileId] = max(remainingMap[profileId]-1, 0)
+		profileId, exists := profileIdMap[*instance.ProfileAlias]
+		if exists {
+			remainingMap[profileId] = max(remainingMap[profileId]-1, 0)
+		}
 	}
 
 	return remainingMap
