@@ -325,6 +325,18 @@ func traceTime(c *gin.Context) {
 		return
 	}
 
+	// Successful, fast requests (e.g. dashboard polling /notifications, /events)
+	// log at Debug to avoid flooding; errors and slow requests stay at Info.
+	if c.Writer.Status() < 400 && elapsed < time.Second {
+		log.Debugf(
+			"req(%s): %s (%s)",
+			reqId,
+			genReqMsg(c),
+			elapsed,
+		)
+		return
+	}
+
 	log.Infof(
 		"req(%s): %s (%s)",
 		reqId,
