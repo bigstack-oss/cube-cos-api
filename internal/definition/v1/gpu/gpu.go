@@ -20,14 +20,14 @@ const (
 )
 
 type GpuFromHex struct {
-	Id                string                `json:"id"`
-	Name              string                `json:"name"`
-	Type              ResourceType          `json:"type"`
-	SupportTypes      []SupportResourceType `json:"supportTypes"`
-	PciAddress        string                `json:"pciAddress"`
-	ProfileCountLimit *int                  `json:"profileCountLimit"`
-	Status            GpuStatus             `json:"status"`
-	Allocation        *AllocationSummary    `json:"allocation"`
+	Id                         string                `json:"id"`
+	Name                       string                `json:"name"`
+	Type                       ResourceType          `json:"type"`
+	SupportTypes               []SupportResourceType `json:"supportTypes"`
+	PciAddress                 string                `json:"pciAddress"`
+	SriovVgpuProfileCountLimit *int                  `json:"sriovVgpuProfileCountLimit"`
+	Status                     GpuStatus             `json:"status"`
+	Allocation                 *AllocationSummary    `json:"allocation"`
 }
 
 type VgpuProfileCollectionFromHex struct {
@@ -50,18 +50,18 @@ type PgpuAttachedInstanceFromHex struct {
 }
 
 type GpuCard struct {
-	Id                   string                `json:"id"`
-	Name                 string                `json:"name"`
-	PciAddress           string                `json:"pciAddress"`
-	ResourceType         ResourceType          `json:"resourceType"`
-	SupportResourceTypes []SupportResourceType `json:"supportResourceTypes"`
-	Vram                 VramInfo              `json:"vram"`
-	Gpu                  GpuInfo               `json:"gpu"`
-	AllocationSummary    *AllocationSummary    `json:"allocationSummary"`
-	ProfileCountLimit    *int                  `json:"profileCountLimit"`
-	Profiles             GpuProfileCollection  `json:"profiles"`
-	AttachedInstances    *[]AttachedInstance   `json:"attachedInstances"`
-	Status               GpuStatusInfo         `json:"status"`
+	Id                         string                `json:"id"`
+	Name                       string                `json:"name"`
+	PciAddress                 string                `json:"pciAddress"`
+	ResourceType               ResourceType          `json:"resourceType"`
+	SupportResourceTypes       []SupportResourceType `json:"supportResourceTypes"`
+	Vram                       VramInfo              `json:"vram"`
+	Gpu                        GpuInfo               `json:"gpu"`
+	AllocationSummary          *AllocationSummary    `json:"allocationSummary"`
+	SriovVgpuProfileCountLimit *int                  `json:"sriovVgpuProfileCountLimit"`
+	Profiles                   GpuProfileCollection  `json:"profiles"`
+	AttachedInstances          *[]AttachedInstance   `json:"attachedInstances"`
+	Status                     GpuStatusInfo         `json:"status"`
 }
 
 type VramInfo struct {
