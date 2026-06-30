@@ -14,7 +14,7 @@ vars:
   devE2ENode: "10.1.0.1"
   mongoVersion: "6.0.19"
   jenkinsBuildServerUser: "root"
-  jenkinsBuildServerIp: "10.32.200.11"
+  jenkinsBuildServerIp: "<REPLACE_WITH_YOUR_JENKINS_BUILD_SERVER_IP>"
   jenkinsBuildServerBinaryImage: "localhost:5000/cube-cos-api-jail"
   jenkinsBuildServerRpmImage: "localhost:5000/cube-cos-api-rpm"
 
