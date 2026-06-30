@@ -57,3 +57,22 @@ func genStoragesLink() string {
 		base.DataCenterVip,
 	)
 }
+
+// panel 50 = GPU Utilization on the device dashboard (UID i-device).
+// Filtered by the hidden $GPU_HOST variable (gpu.host's `host` tag), NOT $HOST.
+func genGpuUtilizationHistoryLink(c *gin.Context) string {
+	return fmt.Sprintf(
+		"https://%s/grafana/d/i-device/device?orgId=1&var-GPU_HOST=%s&from=now-3h&to=now&viewPanel=50",
+		base.DataCenterVip,
+		c.Param("hostname"),
+	)
+}
+
+// panel 51 = GPU VRAM Usage on the device dashboard (UID i-device).
+func genGpuVramHistoryLink(c *gin.Context) string {
+	return fmt.Sprintf(
+		"https://%s/grafana/d/i-device/device?orgId=1&var-GPU_HOST=%s&from=now-3h&to=now&viewPanel=51",
+		base.DataCenterVip,
+		c.Param("hostname"),
+	)
+}
