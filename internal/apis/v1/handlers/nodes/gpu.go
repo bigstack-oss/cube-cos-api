@@ -141,10 +141,10 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 				Current:      hexGpu.Status,
 				IsProcessing: false,
 			},
-			AllocationSummary: hexGpu.Allocation,
-			ProfileCountLimit: hexGpu.ProfileCountLimit,
-			Profiles:          profileCollection,
-			AttachedInstances: attachedInstances,
+			AllocationSummary:          hexGpu.Allocation,
+			SriovVgpuProfileCountLimit: hexGpu.SriovVgpuProfileCountLimit,
+			Profiles:                   profileCollection,
+			AttachedInstances:          attachedInstances,
 		})
 	}
 
