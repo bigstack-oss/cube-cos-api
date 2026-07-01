@@ -75,6 +75,7 @@ var (
 				{Name: "ceph_osd", IsRepairable: true},
 				{Name: "ceph_rgw", IsRepairable: true},
 				{Name: "rbd_target", IsRepairable: false},
+				{Name: "fc_link", IsRepairable: true},
 			},
 		},
 		{
