@@ -36,20 +36,37 @@ func IsLicenseFile(file string) bool {
 }
 
 func SyncSourceLicense() {
-	b, err := exec.Command("hex_sdk", "-f", "json", "license_cluster_show").Output()
+	raws, err := listRawLicenses("def")
 	if err != nil {
-		log.Errorf("licenses: licenses: failed to list licenses(%v)", err)
 		return
+	}
+
+	cmpRaws, err := listRawLicenses("cmp")
+	if err != nil {
+		return
+	}
+
+	list := parseLicenses(append(raws, cmpRaws...))
+	licenses.SetList(list)
+}
+
+// hex_sdk license_cluster_show only reports the license of one product per
+// run ("def" for CubeCOS, "cmp" for CubeCMP), so the sync has to query each
+// product to see every installed license.
+func listRawLicenses(product string) ([]licenses.Raw, error) {
+	b, err := exec.Command("hex_sdk", "-f", "json", "license_cluster_show", product).Output()
+	if err != nil {
+		log.Errorf("licenses: failed to list %s licenses(%v)", product, err)
+		return nil, err
 	}
 
 	raws, err := parseRawLicenses(b)
 	if err != nil {
-		log.Errorf("licenses: licenses: failed to parse raw licenses(%v)", err)
-		return
+		log.Errorf("licenses: failed to parse %s raw licenses(%v)", product, err)
+		return nil, err
 	}
 
-	list := parseLicenses(raws)
-	licenses.SetList(list)
+	return raws, nil
 }
 
 func VerifyLicense(file string) (*licenses.Verification, error) {
