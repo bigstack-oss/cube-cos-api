@@ -30,8 +30,8 @@ func RegisterOperator(name string, operator Operator) {
 	Operators[name] = operator
 }
 
-func Micro(server *server.Server) micro.Service {
-	return micro.NewService(
+func Micro(server *server.Server, opts ...micro.Option) micro.Service {
+	options := []micro.Option{
 		micro.Server(*server),
 		micro.WrapClient(hystrix.NewClientWrapper()),
 		micro.WrapHandler(ratelimit.NewHandlerWrapper(10)),
@@ -40,7 +40,10 @@ func Micro(server *server.Server) micro.Service {
 		micro.RegisterInterval(time.Second*20),
 		micro.AfterStart(runOperators),
 		micro.AfterStop(stopOperators),
-	)
+	}
+	options = append(options, opts...)
+
+	return micro.NewService(options...)
 }
 
 func runOperators() error {

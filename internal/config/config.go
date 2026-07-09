@@ -81,7 +81,6 @@ func init() {
 	flag.IntVar(&Opts.Spec.Observability.Log.Rotation.Size, "observability.log.rotation.size", Opts.Spec.Observability.Log.Rotation.Size, "")
 	flag.IntVar(&Opts.Spec.Observability.Log.Rotation.TTL, "observability.log.rotation.ttl", Opts.Spec.Observability.Log.Rotation.TTL, "")
 	flag.BoolVar(&Opts.Spec.Observability.Log.Rotation.Compress, "observability.log.rotation.compress", Opts.Spec.Observability.Log.Rotation.Compress, "")
-	flag.Parse()
 }
 
 type Options struct {
@@ -157,7 +156,12 @@ func (o *Options) String() (string, error) {
 	return string(b), nil
 }
 
+// SyncOptions loads options with precedence: CLI flags > config file >
+// defaults. flag.Parse runs twice on purpose: the first parse fills -conf so
+// the right config file is read; the second re-applies explicitly-passed
+// flags on top of the values scanned from the file.
 func SyncOptions() error {
+	flag.Parse()
 	err := parseFileOpts()
 	if err != nil {
 		return err
@@ -196,6 +200,8 @@ func newConfiger() (config.Config, error) {
 	)
 }
 
+// The flag package has no re-entry guard: parsing again re-applies every
+// flag passed on the command line, overriding values loaded from the file.
 func overrideOptsByFlags() {
 	flag.Parse()
 }

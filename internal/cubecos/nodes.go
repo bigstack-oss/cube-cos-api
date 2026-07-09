@@ -463,7 +463,8 @@ func getNodeVgpuProfileCollection(gpuId string) gpu.VgpuProfileCollectionFromHex
 	return collection
 }
 
-func GetNodePgpuAttachedInstance(pciAddress string) *gpu.PgpuAttachedInstanceFromHex {
+// Returns (nil, nil) when the GPU has no attached instance.
+func GetNodePgpuAttachedInstance(pciAddress string) (*gpu.PgpuAttachedInstanceFromHex, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
 	defer cancel()
 
@@ -471,24 +472,17 @@ func GetNodePgpuAttachedInstance(pciAddress string) *gpu.PgpuAttachedInstanceFro
 
 	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_pgpu_attached_instance_get", pciAddress).CombinedOutput()
 	if err != nil {
-		log.Errorf("nodes: failed to get attached instance for gpu %s: %v", pciAddress, err)
-		return &attachedInstance
-	}
-
-	if !IsHexSuccessful(err) {
-		log.Errorf("nodes: output error when getting attached instance for gpu %s via hex_sdk: %v", pciAddress, err)
-		return &attachedInstance
+		return nil, fmt.Errorf("nodes: failed to get attached instance for gpu %s via hex_sdk: %w", pciAddress, err)
 	}
 
 	err = json.Unmarshal(out, &attachedInstance)
 	if err != nil {
-		log.Errorf("nodes: failed to parse output when getting attached instance for gpu %s via hex_sdk: %v", pciAddress, err)
-		return &attachedInstance
+		return nil, fmt.Errorf("nodes: failed to parse output when getting attached instance for gpu %s via hex_sdk: %w", pciAddress, err)
 	}
 
 	if len(attachedInstance.Id) == 0 {
-		return nil
+		return nil, nil
 	}
 
-	return &attachedInstance
+	return &attachedInstance, nil
 }

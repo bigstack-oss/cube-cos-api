@@ -15,12 +15,19 @@ func genHostLink(c *gin.Context) string {
 	)
 }
 
-func genInstanceLink(c *gin.Context) string {
+// InstanceDashboardLink is the Grafana instance dashboard URL for a VM. It is
+// exported for other handlers (e.g. GPU attached instances) that report links
+// to the same dashboard.
+func InstanceDashboardLink(instanceId string) string {
 	return fmt.Sprintf(
 		"https://%s/grafana/d/PVW6vU7Wz/instance?refresh=5m&kiosk=tv&orgId=1&var-UUID=%s",
 		base.DataCenterVip,
-		c.Param("instanceId"),
+		instanceId,
 	)
+}
+
+func genInstanceLink(c *gin.Context) string {
+	return InstanceDashboardLink(c.Param("instanceId"))
 }
 
 func genTopHostLink() string {
