@@ -1,5 +1,7 @@
 package gpu
 
+import "errors"
+
 type ResourceType string
 type SupportResourceType string
 type GpuStatus string
@@ -127,4 +129,38 @@ type InstanceConsole struct {
 type GpuStatusInfo struct {
 	Current      GpuStatus `json:"current"`
 	IsProcessing bool      `json:"isProcessing"`
+}
+
+// Sentinel errors for the update-GPU-card flow. Wrap with %w so the HTTP
+// handler can map them to status codes via errors.Is.
+var (
+	ErrGpuNotFound             = errors.New("gpu not found")
+	ErrUnsupportedType         = errors.New("resource type not supported by gpu")
+	ErrProfilesNotAllowed      = errors.New("profiles not allowed for this resource type")
+	ErrProfileNotFound         = errors.New("vgpu profile not found")
+	ErrExceedProfileCountLimit = errors.New("exceed gpu profile count limit")
+	ErrExceedVramLimit         = errors.New("exceed vram limit MiB")
+	ErrGpuInUse                = errors.New("gpu is in use")
+	ErrInvalidProfileCount     = errors.New("invalid vgpu profile count")
+	ErrDuplicateProfile        = errors.New("duplicate vgpu profile")
+)
+
+type UpdateGpuCardProfile struct {
+	Id    uint32 `json:"id" bson:"id"`
+	Count int    `json:"count" bson:"count"`
+}
+
+type UpdateGpuCardRequest struct {
+	ResourceType ResourceType           `json:"resourceType" binding:"required"`
+	Profiles     []UpdateGpuCardProfile `json:"profiles"`
+}
+
+// GpuReqRecord marks a GPU as being reconfigured. Its presence in
+// ReqGpuCollection makes the list endpoint report Status.IsProcessing = true.
+type GpuReqRecord struct {
+	Hostname     string                 `json:"hostname" bson:"hostname"`
+	GpuId        string                 `json:"gpuId" bson:"gpuId"`
+	ReqId        string                 `json:"reqId" bson:"reqId"`
+	ResourceType ResourceType           `json:"resourceType" bson:"resourceType"`
+	Profiles     []UpdateGpuCardProfile `json:"profiles" bson:"profiles"`
 }

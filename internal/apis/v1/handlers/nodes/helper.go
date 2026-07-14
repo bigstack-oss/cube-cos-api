@@ -11,6 +11,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/gpu"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
@@ -39,6 +40,8 @@ type helper struct {
 	deviceReqOpts   nodes.DeviceReqOpts
 	osdReqOpts      nodes.OsdReqOpts
 	osdReqOptses    []nodes.OsdReqOpts
+	gpuId           string
+	gpuCardReq      gpu.UpdateGpuCardRequest
 
 	page  *pages.Page
 	watch bool

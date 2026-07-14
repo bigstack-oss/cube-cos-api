@@ -26,6 +26,7 @@ const (
 
 	ReqDeviceCollection = "deviceRequests"
 	ReqOsdCollection    = "osdRequests"
+	ReqGpuCollection    = "gpuRequests"
 )
 
 var (

@@ -1,6 +1,7 @@
 package nodes
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/gpu"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/nodes"
@@ -70,6 +72,12 @@ var (
 			Method:  http.MethodGet,
 			Path:    "/nodes/:nodeName/gpuCards",
 			Func:    listNodeGpuCards,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPut,
+			Path:    "/nodes/:nodeName/gpuCards/:gpuId",
+			Func:    updateNodeGpuCard,
 		},
 		{
 			Version: apis.V1,
@@ -318,6 +326,38 @@ func getGpuInstanceConsole(c *gin.Context) {
 	bodies.SetOk(c, "gpu instance console link retrieved successfully", console)
 }
 
+func updateNodeGpuCard(c *gin.Context) {
+	h, err := initHelper(c, "updateNodeGpuCard")
+	if err != nil {
+		log.Errorf("gpu(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	if !nodes.IsExist(h.node) {
+		bodies.SetNotFound(c, fmt.Errorf("node %s not found", h.node))
+		return
+	}
+
+	err = h.updateNodeGpuCard()
+	switch {
+	case err == nil:
+		bodies.SetOk(c, "node GPU card updated successfully", nil)
+	case errors.Is(err, gpu.ErrGpuNotFound):
+		bodies.SetNotFound(c, err)
+	case errors.Is(err, gpu.ErrProfilesNotAllowed), errors.Is(err, gpu.ErrProfileNotFound), errors.Is(err, gpu.ErrInvalidProfileCount), errors.Is(err, gpu.ErrDuplicateProfile):
+		bodies.SetBadRequest(c, err, nil)
+	case errors.Is(err, gpu.ErrUnsupportedType),
+		errors.Is(err, gpu.ErrGpuInUse),
+		errors.Is(err, gpu.ErrExceedProfileCountLimit),
+		errors.Is(err, gpu.ErrExceedVramLimit):
+		bodies.SetConflict(c, err)
+	default:
+		log.Errorf("gpu(%s): failed to update GPU card %s for node %s: %v", h.reqId, h.gpuId, h.node, err)
+		bodies.SetInternalServerError(c, err)
+	}
+}
+
 func ipmiOperateNode(c *gin.Context) {
 	h, err := initHelper(c, "ipmiOperateNode")
 	if err != nil {
@@ -340,7 +380,7 @@ func ipmiOperateNode(c *gin.Context) {
 
 	bodies.SetAccepted(
 		c,
-		"the requets of ipmi operation is accepted and under processing",
+		"the request of ipmi operation is accepted and under processing",
 	)
 }
 

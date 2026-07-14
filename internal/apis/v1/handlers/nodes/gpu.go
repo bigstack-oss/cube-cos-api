@@ -20,6 +20,8 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/remoteconsoles"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	log "go-micro.dev/v5/logger"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Seams for unit tests: hex_sdk CLI, the NVML driver, and Openstack are
@@ -36,6 +38,11 @@ var (
 	createConsole               = createConsoleViaOpenstack
 	vgpuInstanceId              = vgpuInstanceIdViaReflect
 	isNvmlAvailable             = nvmlruntime.IsAvailable
+	getNodeGpuById              = cubecos.GetNodeGpuById
+	updateNodeGpuCardViaHex     = cubecos.UpdateNodeGpuCard
+	isGpuUpdating               = isGpuUpdatingViaMongo
+	upsertUpdatingGpuReq        = upsertUpdatingGpuReqViaMongo
+	deleteUpdatingGpuReq        = deleteUpdatingGpuReqViaMongo
 )
 
 type listAttachedInstancesOpts struct {
@@ -249,7 +256,7 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string
 		PciAddress: hexGpu.PciAddress,
 		Status: gpu.GpuStatusInfo{
 			Current:      hexGpu.Status,
-			IsProcessing: false,
+			IsProcessing: isGpuUpdating(h, hexGpu.Id),
 		},
 		AllocationSummary:          hexGpu.Allocation,
 		SriovVgpuProfileCountLimit: hexGpu.SriovVgpuProfileCountLimit,
@@ -330,7 +337,95 @@ func bytesToMiB(bytes uint64) int {
 }
 
 func isVgpu(hexGpu gpu.GpuFromHex) bool {
-	return hexGpu.Type == gpu.ResourceTypeSriovVgpu || hexGpu.Type == gpu.ResourceTypeMigBackedVgpu
+	return isVgpuType(hexGpu.Type)
+}
+
+func isVgpuType(t gpu.ResourceType) bool {
+	return t == gpu.ResourceTypeSriovVgpu || t == gpu.ResourceTypeMigBackedVgpu
+}
+
+func isSupportedType(supportTypes []gpu.SupportResourceType, t gpu.ResourceType) bool {
+	for _, st := range supportTypes {
+		if string(st) == string(t) {
+			return true
+		}
+	}
+	return false
+}
+
+// validateGpuCardUpdate checks a resource-type change against the card's real
+// capabilities. profilesMap (keyed by profile Id) and totalVramMiB (from NVML)
+// are only consulted for vGPU types with profiles. Returns a sentinel-wrapped
+// error the handler maps to a status.
+func validateGpuCardUpdate(
+	card gpu.GpuFromHex,
+	req gpu.UpdateGpuCardRequest,
+	profilesMap map[uint32]gpu.VgpuProfileFromHex,
+	totalVramMiB int,
+) error {
+	if !isSupportedType(card.SupportTypes, req.ResourceType) {
+		return fmt.Errorf("gpu card %s does not support '%s' resource type: %w", card.Id, req.ResourceType, gpu.ErrUnsupportedType)
+	}
+
+	if !isVgpuType(req.ResourceType) && len(req.Profiles) > 0 {
+		return fmt.Errorf("profiles are not allowed for resource type %s: %w", req.ResourceType, gpu.ErrProfilesNotAllowed)
+	}
+
+	if card.Status == gpu.GpuStatusInUse || (card.Allocation != nil && card.Allocation.Current > 0) {
+		return fmt.Errorf("gpu %s is in use: %w", card.Id, gpu.ErrGpuInUse)
+	}
+
+	if !isVgpuType(req.ResourceType) {
+		return nil
+	}
+
+	// Reject duplicate profile ids up front.
+	distinctIds := map[uint32]struct{}{}
+	for _, reqProfile := range req.Profiles {
+		if _, dup := distinctIds[reqProfile.Id]; dup {
+			return fmt.Errorf("gpu %s: duplicate vgpu profile %d: %w", card.Id, reqProfile.Id, gpu.ErrDuplicateProfile)
+		}
+		distinctIds[reqProfile.Id] = struct{}{}
+	}
+
+	// The profile-count limit only applies to SR-IOV vGPU; MIG-backed vGPU has no such limit.
+	if req.ResourceType == gpu.ResourceTypeSriovVgpu &&
+		card.SriovVgpuProfileCountLimit != nil && len(distinctIds) > *card.SriovVgpuProfileCountLimit {
+		return fmt.Errorf("gpu %s: %d distinct profiles exceed profile count limit %d: %w",
+			card.Id, len(distinctIds), *card.SriovVgpuProfileCountLimit, gpu.ErrExceedProfileCountLimit)
+	}
+
+	totalVramReqMiB := 0
+	for _, reqProfile := range req.Profiles {
+		if reqProfile.Count <= 0 {
+			return fmt.Errorf("gpu %s: profile %d count %d must be positive: %w",
+				card.Id, reqProfile.Id, reqProfile.Count, gpu.ErrInvalidProfileCount)
+		}
+
+		profile, ok := profilesMap[reqProfile.Id]
+		if !ok {
+			return fmt.Errorf("gpu %s: vgpu profile %d not found: %w", card.Id, reqProfile.Id, gpu.ErrProfileNotFound)
+		}
+
+		// The per-profile count limit only applies to MIG-backed vGPU; only its
+		// profiles carry a vm count limit.
+		if req.ResourceType == gpu.ResourceTypeMigBackedVgpu &&
+			profile.VmCountLimit != nil && reqProfile.Count > *profile.VmCountLimit {
+			return fmt.Errorf("gpu %s: profile %d count %d exceeds vm count limit %d: %w",
+				card.Id, reqProfile.Id, reqProfile.Count, *profile.VmCountLimit, gpu.ErrExceedProfileCountLimit)
+		}
+
+		totalVramReqMiB += int(profile.VramMiB) * reqProfile.Count
+	}
+
+	// The VRAM limit only applies to MIG-backed vGPU; SR-IOV profiles are fixed
+	// partitions constrained by the profile-count limit instead.
+	if req.ResourceType == gpu.ResourceTypeMigBackedVgpu && totalVramReqMiB > totalVramMiB {
+		return fmt.Errorf("gpu %s: requested vram %d MiB exceeds device total %d MiB: %w",
+			card.Id, totalVramReqMiB, totalVramMiB, gpu.ErrExceedVramLimit)
+	}
+
+	return nil
 }
 
 // listAttachedInstances returns the attached instances, flagging the card via
@@ -672,4 +767,130 @@ func createMigProfileRemainingMap(
 	}
 
 	return remainingMap
+}
+
+func (h *helper) updateNodeGpuCard() error {
+	if nodes.IsLocal(h.node) {
+		return h.updateLocalGpuCard()
+	}
+	return h.updateRemoteGpuCard()
+}
+
+func (h *helper) updateLocalGpuCard() error {
+	card, err := getNodeGpuById(h.node, h.gpuId)
+	if err != nil {
+		return err
+	}
+
+	// vGPU profile/VRAM limits need the GPU's available profiles (hex) and its
+	// total VRAM (NVML). Only gather them when profiles are actually supplied.
+	var profilesMap map[uint32]gpu.VgpuProfileFromHex
+	var totalVramMiB int
+	if isVgpuType(h.gpuCardReq.ResourceType) && len(h.gpuCardReq.Profiles) > 0 {
+		profilesMap, _, err = getNodeVgpuProfilesMap(card.Id)
+		if err != nil {
+			log.Errorf("gpu(%s): failed to get vgpu profiles for gpu %s: %v", h.reqId, h.gpuId, err)
+			return err
+		}
+
+		totalVramMiB, err = getGpuTotalVramMiB(card.Id)
+		if err != nil {
+			log.Errorf("gpu(%s): failed to get total vram for gpu %s: %v", h.reqId, h.gpuId, err)
+			return err
+		}
+	}
+
+	if err := validateGpuCardUpdate(card, h.gpuCardReq, profilesMap, totalVramMiB); err != nil {
+		return err
+	}
+
+	if err := upsertUpdatingGpuReq(h, h.gpuId); err != nil {
+		return err
+	}
+	defer func() {
+		if err := deleteUpdatingGpuReq(h, h.gpuId); err != nil {
+			log.Errorf("gpu(%s): failed to clear updating record for gpu %s: %v", h.reqId, h.gpuId, err)
+		}
+	}()
+
+	return updateNodeGpuCardViaHex(h.gpuId, h.gpuCardReq)
+}
+
+func (h *helper) updateRemoteGpuCard() error {
+	node, err := nodes.Get(h.node)
+	if err != nil {
+		log.Errorf("gpu(%s): failed to get node %s: %v", h.reqId, h.node, err)
+		return err
+	}
+
+	resp, err := h.http.R().
+		SetHeaders(nodes.GetSecretHeaders()).
+		SetBody(h.gpuCardReq).
+		Put(node.UpdateGpuCardUrl(h.gpuId))
+	if err != nil {
+		log.Errorf("gpu(%s): failed to update GPU card on remote node %s: %v", h.reqId, h.node, err)
+		return err
+	}
+
+	if resp.IsError() {
+		return fmt.Errorf("error response from node %s updating GPU card %s: %s", h.node, h.gpuId, string(resp.Body()))
+	}
+
+	return nil
+}
+
+func isGpuUpdatingViaMongo(h *helper, gpuId string) bool {
+	count, err := h.mongo.GetCount(
+		nodes.Db,
+		nodes.ReqGpuCollection,
+		bson.M{"hostname": h.node, "gpuId": gpuId},
+	)
+	if err != nil {
+		log.Errorf("gpu(%s): failed to get updating record for gpu %s: %v", h.reqId, gpuId, err)
+		return false
+	}
+
+	return count > 0
+}
+
+func upsertUpdatingGpuReqViaMongo(h *helper, gpuId string) error {
+	record := gpu.GpuReqRecord{
+		Hostname:     h.node,
+		GpuId:        gpuId,
+		ReqId:        h.reqId,
+		ResourceType: h.gpuCardReq.ResourceType,
+		Profiles:     h.gpuCardReq.Profiles,
+	}
+
+	return h.mongo.UpdateOne(
+		nodes.Db,
+		nodes.ReqGpuCollection,
+		bson.M{"hostname": h.node, "gpuId": gpuId, "reqId": h.reqId},
+		bson.M{"$set": record},
+		options.Update().SetUpsert(true),
+	)
+}
+
+func deleteUpdatingGpuReqViaMongo(h *helper, gpuId string) error {
+	return h.mongo.DeleteOne(
+		nodes.Db,
+		nodes.ReqGpuCollection,
+		bson.M{"hostname": h.node, "gpuId": gpuId, "reqId": h.reqId},
+	)
+}
+
+// getGpuTotalVramMiB reads the physical GPU's total VRAM via NVML. Used as the
+// budget for the vGPU VRAM-limit validation.
+func getGpuTotalVramMiB(uuid string) (int, error) {
+	device, ret := deviceGetHandleByUUID(uuid)
+	if ret != nvml.SUCCESS {
+		return 0, fmt.Errorf("nvml: failed to get device handle for gpu %s: %s", uuid, nvml.ErrorString(ret))
+	}
+
+	memoryInfo, ret := device.GetMemoryInfo()
+	if ret != nvml.SUCCESS {
+		return 0, fmt.Errorf("nvml: failed to get memory info for gpu %s: %s", uuid, nvml.ErrorString(ret))
+	}
+
+	return bytesToMiB(memoryInfo.Total), nil
 }

@@ -30,6 +30,16 @@ func restoreGpuSeams(t *testing.T) {
 	origCreateConsole := createConsole
 	origVgpuInstanceId := vgpuInstanceId
 	origIsNvmlAvailable := isNvmlAvailable
+	origGetNodeGpuById := getNodeGpuById
+	origUpdateNodeGpuCardViaHex := updateNodeGpuCardViaHex
+	origIsGpuUpdating := isGpuUpdating
+	origUpsertUpdatingGpuReq := upsertUpdatingGpuReq
+	origDeleteUpdatingGpuReq := deleteUpdatingGpuReq
+
+	// Defaults that avoid MongoDB in tests that build/list cards.
+	isGpuUpdating = func(h *helper, gpuId string) bool { return false }
+	upsertUpdatingGpuReq = func(h *helper, gpuId string) error { return nil }
+	deleteUpdatingGpuReq = func(h *helper, gpuId string) error { return nil }
 
 	t.Cleanup(func() {
 		getNodeGpusMap = origGetNodeGpusMap
@@ -43,6 +53,11 @@ func restoreGpuSeams(t *testing.T) {
 		createConsole = origCreateConsole
 		vgpuInstanceId = origVgpuInstanceId
 		isNvmlAvailable = origIsNvmlAvailable
+		getNodeGpuById = origGetNodeGpuById
+		updateNodeGpuCardViaHex = origUpdateNodeGpuCardViaHex
+		isGpuUpdating = origIsGpuUpdating
+		upsertUpdatingGpuReq = origUpsertUpdatingGpuReq
+		deleteUpdatingGpuReq = origDeleteUpdatingGpuReq
 	})
 }
 
@@ -988,6 +1003,153 @@ func TestIsVgpu(t *testing.T) {
 	require.True(t, isVgpu(gpu.GpuFromHex{Type: gpu.ResourceTypeMigBackedVgpu}))
 }
 
+func TestValidateGpuCardUpdate(t *testing.T) {
+	profileCountLimit := 2
+	vmCountLimit := 4
+
+	card := gpu.GpuFromHex{
+		Id:                         "GPU-1",
+		PciAddress:                 "0000:01:00.0",
+		SupportTypes:               []gpu.SupportResourceType{gpu.SupportResourceTypePgpu, gpu.SupportResourceTypeSriovVgpu},
+		Status:                     gpu.GpuStatusIdle,
+		SriovVgpuProfileCountLimit: &profileCountLimit,
+	}
+
+	// Only mig-backed profiles carry a vmCountLimit.
+	// Two profiles: id 57 = 2048 MiB each (vm limit 4), id 58 = 4096 MiB each (no vm limit).
+	profilesMap := map[uint32]gpu.VgpuProfileFromHex{
+		57: {Id: 57, VramMiB: 2048, VmCountLimit: &vmCountLimit},
+		58: {Id: 58, VramMiB: 4096},
+	}
+	totalVramMiB := 16384
+
+	t.Run("unsupported resource type -> 409 sentinel", func(t *testing.T) {
+		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{ResourceType: gpu.ResourceTypeMigBackedVgpu}, nil, 0)
+		require.ErrorIs(t, err, gpu.ErrUnsupportedType)
+	})
+
+	t.Run("profiles on a non-vgpu type -> 400 sentinel", func(t *testing.T) {
+		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypePgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 1}},
+		}, profilesMap, totalVramMiB)
+		require.ErrorIs(t, err, gpu.ErrProfilesNotAllowed)
+	})
+
+	t.Run("gpu in use by status -> 409 sentinel", func(t *testing.T) {
+		inUse := card
+		inUse.Status = gpu.GpuStatusInUse
+		err := validateGpuCardUpdate(inUse, gpu.UpdateGpuCardRequest{ResourceType: gpu.ResourceTypePgpu}, nil, 0)
+		require.ErrorIs(t, err, gpu.ErrGpuInUse)
+	})
+
+	t.Run("gpu in use by allocation -> 409 sentinel", func(t *testing.T) {
+		inUse := card
+		inUse.Allocation = &gpu.AllocationSummary{Current: 1, Total: 1}
+		err := validateGpuCardUpdate(inUse, gpu.UpdateGpuCardRequest{ResourceType: gpu.ResourceTypePgpu}, nil, 0)
+		require.ErrorIs(t, err, gpu.ErrGpuInUse)
+	})
+
+	t.Run("unknown profile id -> 400 sentinel", func(t *testing.T) {
+		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypeSriovVgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 999, Count: 1}},
+		}, profilesMap, totalVramMiB)
+		require.ErrorIs(t, err, gpu.ErrProfileNotFound)
+	})
+
+	t.Run("distinct profile count over card limit -> 409 sentinel", func(t *testing.T) {
+		three := 1
+		limited := card
+		limited.SriovVgpuProfileCountLimit = &three // allow only 1 distinct profile
+		err := validateGpuCardUpdate(limited, gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypeSriovVgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 1}, {Id: 58, Count: 1}},
+		}, profilesMap, totalVramMiB)
+		require.ErrorIs(t, err, gpu.ErrExceedProfileCountLimit)
+	})
+
+	// The profile-count limit is SR-IOV only; MIG-backed vGPU ignores it.
+	t.Run("mig-backed vgpu ignores the profile count limit", func(t *testing.T) {
+		one := 1
+		migCard := card
+		migCard.SupportTypes = []gpu.SupportResourceType{gpu.SupportResourceTypePgpu, gpu.SupportResourceTypeMigBackedVgpu}
+		migCard.SriovVgpuProfileCountLimit = &one // would trip for SR-IOV, but must be ignored here
+		err := validateGpuCardUpdate(migCard, gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypeMigBackedVgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 1}, {Id: 58, Count: 1}}, // 2 distinct > limit 1
+		}, profilesMap, totalVramMiB)
+		require.NoError(t, err)
+	})
+
+	// The per-profile vmCountLimit is MIG-backed only.
+	t.Run("mig-backed per-profile count over vmCountLimit -> 409 sentinel", func(t *testing.T) {
+		migCard := card
+		migCard.SupportTypes = []gpu.SupportResourceType{gpu.SupportResourceTypePgpu, gpu.SupportResourceTypeMigBackedVgpu}
+		err := validateGpuCardUpdate(migCard, gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypeMigBackedVgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 5}}, // vmCountLimit is 4; 2048*5 = 10240 <= 16384 so vram is not what trips
+		}, profilesMap, totalVramMiB)
+		require.ErrorIs(t, err, gpu.ErrExceedProfileCountLimit)
+	})
+
+	t.Run("sriov vgpu ignores the per-profile vmCountLimit", func(t *testing.T) {
+		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypeSriovVgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 5}}, // vmCountLimit is 4, but ignored for sriov
+		}, profilesMap, totalVramMiB)
+		require.NoError(t, err)
+	})
+
+	// The VRAM limit applies to MIG-backed vGPU only.
+	t.Run("mig-backed total requested vram over device total -> 409 sentinel", func(t *testing.T) {
+		migCard := card
+		migCard.SupportTypes = []gpu.SupportResourceType{gpu.SupportResourceTypePgpu, gpu.SupportResourceTypeMigBackedVgpu}
+		err := validateGpuCardUpdate(migCard, gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypeMigBackedVgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 58, Count: 5}}, // 4096*5 = 20480 > 16384
+		}, profilesMap, 16384)
+		require.ErrorIs(t, err, gpu.ErrExceedVramLimit)
+	})
+
+	// SR-IOV profiles are fixed partitions; their total VRAM is not checked against device memory.
+	t.Run("sriov vgpu ignores the vram limit", func(t *testing.T) {
+		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypeSriovVgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 58, Count: 5}}, // 20480 > 16384, but ignored for sriov
+		}, profilesMap, 16384)
+		require.NoError(t, err)
+	})
+
+	t.Run("valid pgpu update passes", func(t *testing.T) {
+		require.NoError(t, validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{ResourceType: gpu.ResourceTypePgpu}, nil, 0))
+	})
+
+	// TODO: What?
+	t.Run("valid sriov vgpu update within all limits passes", func(t *testing.T) {
+		require.NoError(t, validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypeSriovVgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 2}, {Id: 58, Count: 1}}, // 2048*2+4096 = 8192
+		}, profilesMap, totalVramMiB))
+	})
+
+	t.Run("non-positive profile count -> 400 sentinel", func(t *testing.T) {
+		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypeSriovVgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 0}},
+		}, profilesMap, totalVramMiB)
+		require.ErrorIs(t, err, gpu.ErrInvalidProfileCount)
+	})
+
+	t.Run("duplicate profile id -> 400 sentinel", func(t *testing.T) {
+		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypeSriovVgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 1}, {Id: 57, Count: 1}}, // same id twice
+		}, profilesMap, totalVramMiB)
+		require.ErrorIs(t, err, gpu.ErrDuplicateProfile)
+	})
+}
+
 func TestToProfileCollectionComputesMigRemaining(t *testing.T) {
 	migAlias := "1g.10gb"
 
@@ -1016,6 +1178,7 @@ func TestCreateMigProfileRemainingMap(t *testing.T) {
 		require.Empty(t, createMigProfileRemainingMap(nil, nil))
 	})
 
+	// TODO: but this should not happen. We should log warning.
 	t.Run("remaining count does not go below zero", func(t *testing.T) {
 		migProfiles := &[]gpu.VgpuProfileFromHex{
 			{Id: 5, Count: 1, Alias: &alias},
@@ -1030,6 +1193,7 @@ func TestCreateMigProfileRemainingMap(t *testing.T) {
 		require.Equal(t, map[uint32]int{5: 0}, remainingMap)
 	})
 
+	// TODO: This should not happen. We should log warning.
 	t.Run("instances with unknown alias are ignored", func(t *testing.T) {
 		unknownAlias := "unknown"
 		migProfiles := &[]gpu.VgpuProfileFromHex{
@@ -1043,4 +1207,157 @@ func TestCreateMigProfileRemainingMap(t *testing.T) {
 
 		require.Equal(t, map[uint32]int{5: 2}, remainingMap)
 	})
+}
+
+func TestUpdateLocalGpuCard(t *testing.T) {
+	restoreGpuSeams(t)
+
+	card := gpu.GpuFromHex{
+		Id:           "GPU-1",
+		PciAddress:   "0000:01:00.0",
+		SupportTypes: []gpu.SupportResourceType{gpu.SupportResourceTypePgpu, gpu.SupportResourceTypeSriovVgpu},
+		Status:       gpu.GpuStatusIdle,
+	}
+
+	t.Run("valid pgpu update calls hex and clears the record", func(t *testing.T) {
+		getNodeGpuById = func(nodeName, gpuId string) (gpu.GpuFromHex, error) { return card, nil }
+
+		var hexCalled, upserted, deleted bool
+		upsertUpdatingGpuReq = func(h *helper, gpuId string) error { upserted = true; return nil }
+		deleteUpdatingGpuReq = func(h *helper, gpuId string) error { deleted = true; return nil }
+		updateNodeGpuCardViaHex = func(gpuId string, req gpu.UpdateGpuCardRequest) error {
+			hexCalled = true
+			require.Equal(t, "GPU-1", gpuId)
+			require.Equal(t, gpu.ResourceTypePgpu, req.ResourceType)
+			return nil
+		}
+
+		h := &helper{node: "node-1", gpuId: "GPU-1", gpuCardReq: gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypePgpu,
+		}}
+
+		require.NoError(t, h.updateLocalGpuCard())
+		require.True(t, upserted)
+		require.True(t, hexCalled)
+		require.True(t, deleted)
+	})
+
+	t.Run("valid sriov vgpu update gathers profiles + vram then calls hex", func(t *testing.T) {
+		vmLimit := 4
+		getNodeGpuById = func(nodeName, gpuId string) (gpu.GpuFromHex, error) { return card, nil }
+		getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
+			require.Equal(t, card.Id, gpuId)
+			return map[uint32]gpu.VgpuProfileFromHex{
+				57: {Id: 57, VramMiB: 2048, VmCountLimit: &vmLimit},
+			}, gpu.VgpuProfileCollectionFromHex{}, nil
+		}
+		deviceGetHandleByUUID = func(uuid string) (nvml.Device, nvml.Return) {
+			require.Equal(t, "GPU-1", uuid)
+			return &nvmlmock.Device{
+				GetMemoryInfoFunc: func() (nvml.Memory, nvml.Return) {
+					return nvml.Memory{Total: 16384 * bytesPerMiB}, nvml.SUCCESS
+				},
+			}, nvml.SUCCESS
+		}
+
+		var hexCalled bool
+		updateNodeGpuCardViaHex = func(gpuId string, req gpu.UpdateGpuCardRequest) error { hexCalled = true; return nil }
+
+		h := &helper{node: "node-1", gpuId: "GPU-1", gpuCardReq: gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypeSriovVgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 2}}, // 2048*2 = 4096 <= 16384
+		}}
+
+		require.NoError(t, h.updateLocalGpuCard())
+		require.True(t, hexCalled)
+	})
+
+	t.Run("hex failure still clears the record", func(t *testing.T) {
+		getNodeGpuById = func(nodeName, gpuId string) (gpu.GpuFromHex, error) { return card, nil }
+
+		var deleted bool
+		deleteUpdatingGpuReq = func(h *helper, gpuId string) error { deleted = true; return nil }
+		updateNodeGpuCardViaHex = func(gpuId string, req gpu.UpdateGpuCardRequest) error {
+			return errors.New("hex_config failed")
+		}
+
+		h := &helper{node: "node-1", gpuId: "GPU-1", gpuCardReq: gpu.UpdateGpuCardRequest{ResourceType: gpu.ResourceTypePgpu}}
+
+		require.Error(t, h.updateLocalGpuCard())
+		require.True(t, deleted)
+	})
+
+	t.Run("validation failure skips hex and record", func(t *testing.T) {
+		getNodeGpuById = func(nodeName, gpuId string) (gpu.GpuFromHex, error) { return card, nil }
+
+		upsertUpdatingGpuReq = func(h *helper, gpuId string) error { t.Fatal("must not upsert"); return nil }
+		updateNodeGpuCardViaHex = func(gpuId string, req gpu.UpdateGpuCardRequest) error { t.Fatal("must not call hex"); return nil }
+
+		h := &helper{node: "node-1", gpuId: "GPU-1", gpuCardReq: gpu.UpdateGpuCardRequest{ResourceType: gpu.ResourceTypeMigBackedVgpu}}
+
+		err := h.updateLocalGpuCard()
+		require.ErrorIs(t, err, gpu.ErrUnsupportedType)
+	})
+
+	t.Run("gpu not found is surfaced", func(t *testing.T) {
+		getNodeGpuById = func(nodeName, gpuId string) (gpu.GpuFromHex, error) {
+			return gpu.GpuFromHex{}, gpu.ErrGpuNotFound
+		}
+
+		h := &helper{node: "node-1", gpuId: "missing", gpuCardReq: gpu.UpdateGpuCardRequest{ResourceType: gpu.ResourceTypePgpu}}
+
+		require.ErrorIs(t, h.updateLocalGpuCard(), gpu.ErrGpuNotFound)
+	})
+
+	t.Run("node-side profile-list failure surfaces as a non-4xx infra error, not a bad request", func(t *testing.T) {
+		getNodeGpuById = func(nodeName, gpuId string) (gpu.GpuFromHex, error) { return card, nil }
+		getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
+			return nil, gpu.VgpuProfileCollectionFromHex{}, errors.New("hex_sdk profile list failed")
+		}
+		deviceGetHandleByUUID = func(uuid string) (nvml.Device, nvml.Return) {
+			return &nvmlmock.Device{
+				GetMemoryInfoFunc: func() (nvml.Memory, nvml.Return) {
+					return nvml.Memory{Total: 16384 * bytesPerMiB}, nvml.SUCCESS
+				},
+			}, nvml.SUCCESS
+		}
+
+		hexCalled := false
+		updateNodeGpuCardViaHex = func(gpuId string, req gpu.UpdateGpuCardRequest) error { hexCalled = true; return nil }
+
+		h := &helper{node: "node-1", gpuId: "GPU-1", gpuCardReq: gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypeSriovVgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 1}},
+		}}
+
+		err := h.updateLocalGpuCard()
+
+		require.Error(t, err)
+		require.NotErrorIs(t, err, gpu.ErrGpuNotFound)
+		require.NotErrorIs(t, err, gpu.ErrUnsupportedType)
+		require.NotErrorIs(t, err, gpu.ErrProfilesNotAllowed)
+		require.NotErrorIs(t, err, gpu.ErrProfileNotFound)
+		require.NotErrorIs(t, err, gpu.ErrInvalidProfileCount)
+		require.NotErrorIs(t, err, gpu.ErrExceedProfileCountLimit)
+		require.NotErrorIs(t, err, gpu.ErrExceedVramLimit)
+		require.NotErrorIs(t, err, gpu.ErrGpuInUse)
+		require.False(t, hexCalled)
+	})
+}
+
+func TestBuildLocalGpuCardReportsIsProcessing(t *testing.T) {
+	restoreGpuSeams(t)
+
+	isGpuUpdating = func(h *helper, gpuId string) bool { return gpuId == "GPU-proc" }
+	deviceGetHandleByUUID = func(uuid string) (nvml.Device, nvml.Return) { return nil, nvml.ERROR_NOT_FOUND }
+
+	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(gpu.GpuFromHex{
+		Id:         "GPU-proc",
+		PciAddress: "0000:01:00.0",
+		Type:       gpu.ResourceTypePgpu,
+		Status:     gpu.GpuStatusIdle,
+	}, nil)
+
+	require.NoError(t, err)
+	require.True(t, card.Status.IsProcessing)
 }

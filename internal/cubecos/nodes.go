@@ -396,6 +396,52 @@ func GetNodeGpusMap(nodeName string) (map[string]gpu.GpuFromHex, error) {
 	return gpuMap, nil
 }
 
+// GetNodeGpuById returns the hex GPU whose Id matches gpuId, or gpu.ErrGpuNotFound.
+// Reuses GetNodeGpusMap (keyed by PCI address) and matches on the NVML UUID Id.
+func GetNodeGpuById(nodeName, gpuId string) (gpu.GpuFromHex, error) {
+	gpusMap, err := GetNodeGpusMap(nodeName)
+	if err != nil {
+		return gpu.GpuFromHex{}, err
+	}
+
+	for _, g := range gpusMap {
+		if g.Id == gpuId {
+			return g, nil
+		}
+	}
+
+	return gpu.GpuFromHex{}, fmt.Errorf("gpu %s not found on node %s: %w", gpuId, nodeName, gpu.ErrGpuNotFound)
+}
+
+// UpdateNodeGpuCard sets a GPU's resource type via hex_config. Profiles, when
+// present, are passed as a single JSON-string positional argument.
+func UpdateNodeGpuCard(gpuId string, req gpu.UpdateGpuCardRequest) error {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	defer cancel()
+
+	args := []string{"gpu_resource_set", gpuId, string(req.ResourceType)}
+	if len(req.Profiles) > 0 {
+		profilesJson, err := json.Marshal(req.Profiles)
+		if err != nil {
+			return fmt.Errorf("failed to marshal gpu profiles: %w", err)
+		}
+		args = append(args, string(profilesJson))
+	}
+
+	out, err := exec.CommandContext(ctx, "hex_config", args...).CombinedOutput()
+	if err != nil {
+		log.Errorf("nodes: failed to set gpu %s resource via hex_config: %v, output: %s", gpuId, err, string(out))
+		return err
+	}
+
+	if !IsHexSuccessful(err) {
+		log.Errorf("nodes: output error when setting gpu %s resource via hex_config: %s", gpuId, string(out))
+		return fmt.Errorf("hex_config gpu_resource_set failed: %s", string(out))
+	}
+
+	return nil
+}
+
 func listNodeGpus(nodeName string) ([]gpu.GpuFromHex, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
 	defer cancel()

@@ -31,6 +31,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListGPUCardsOptions()
 	case "getGpuInstanceConsole":
 		return h.parseGetGpuInstanceConsoleOptions()
+	case "updateNodeGpuCard":
+		return h.parseUpdateGPUCardOptions()
 	case "addNodeDevice":
 		return h.parseCreateDeviceOptions()
 	case "updateNodeDevice":
@@ -378,6 +380,24 @@ func (h *helper) parseGetGpuInstanceConsoleOptions() error {
 	h.instanceId = h.c.Param("instanceId")
 	if h.instanceId == "" {
 		return fmt.Errorf("instanceId should be provided")
+	}
+
+	return nil
+}
+
+func (h *helper) parseUpdateGPUCardOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("nodeName should be provided")
+	}
+
+	h.gpuId = h.c.Param("gpuId")
+	if h.gpuId == "" {
+		return fmt.Errorf("gpuId should be provided")
+	}
+
+	if err := h.c.ShouldBindJSON(&h.gpuCardReq); err != nil {
+		return fmt.Errorf("failed to parse update GPU card request(%v)", err)
 	}
 
 	return nil
