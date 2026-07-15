@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"maps"
+	"math"
 	"reflect"
 	"slices"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/gpu"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/nvmlruntime"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/remoteconsoles"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	log "go-micro.dev/v5/logger"
@@ -27,10 +29,13 @@ var (
 	getNodeVgpuProfilesMap      = cubecos.GetNodeVgpuProfilesMap
 	getNodePgpuAttachedInstance = cubecos.GetNodePgpuAttachedInstance
 	deviceGetHandleByUUID       = nvml.DeviceGetHandleByUUID
+	deviceGetCount              = nvml.DeviceGetCount
+	deviceGetHandleByIndex      = nvml.DeviceGetHandleByIndex
 	buildInstanceLinks          = buildInstanceLinksViaOpenstack
-	getOpenstackServer          = getOpenstackServerViaHelper
+	getOpenstackServerNames     = getOpenstackServerNamesViaHelper
 	createConsole               = createConsoleViaOpenstack
 	vgpuInstanceId              = vgpuInstanceIdViaReflect
+	isNvmlAvailable             = nvmlruntime.IsAvailable
 )
 
 type listAttachedInstancesOpts struct {
@@ -43,6 +48,9 @@ type listAttachedInstancesOpts struct {
 	NodeName                 string
 	HexGpu                   gpu.GpuFromHex
 	HexProfilesMap           map[uint32]gpu.VgpuProfileFromHex
+	// ServerNames maps Openstack server id to name, prefetched once per request
+	// so vGPU instance names do not cost a GetServer round trip each.
+	ServerNames map[string]string
 }
 
 func (h *helper) listNodeGpuCards() ([]gpu.GpuCard, error) {
@@ -58,12 +66,16 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 		return nil, err
 	}
 
+	// Resolve vGPU instance names in a single Openstack round trip rather than
+	// one GetServer per attached instance.
+	serverNames := h.resolveServerNames(hexGpusMap)
+
 	gpuCards := []gpu.GpuCard{}
 
 	// Iterate over hex GPUs instead of NVML devices: a GPU passed through to
 	// a VM is invisible to NVML, but must still be reported.
 	for _, pciAddress := range slices.Sorted(maps.Keys(hexGpusMap)) {
-		gpuCard, err := h.buildLocalGpuCard(hexGpusMap[pciAddress])
+		gpuCard, err := h.buildLocalGpuCard(hexGpusMap[pciAddress], serverNames)
 		if err != nil {
 			return nil, err
 		}
@@ -71,12 +83,43 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 		gpuCards = append(gpuCards, gpuCard)
 	}
 
+	// Hex is the source of truth for the response, but a GPU visible to NVML yet
+	// missing from hex points at a stale hex inventory (hot-add, cache lag): warn
+	// so the mismatch is not entirely silent.
+	h.warnGpusMissingFromHex(hexGpusMap)
+
 	return gpuCards, nil
 }
 
-func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex) (gpu.GpuCard, error) {
+// resolveServerNames prefetches Openstack server names (id -> name) when the
+// node has any vGPU, whose attached-instance names come from Openstack. A lookup
+// failure degrades to an empty map (instances reported without a name) rather
+// than failing the listing.
+func (h *helper) resolveServerNames(hexGpusMap map[string]gpu.GpuFromHex) map[string]string {
+	needsServerNames := false
+	for _, hexGpu := range hexGpusMap {
+		if isVgpu(hexGpu) {
+			needsServerNames = true
+			break
+		}
+	}
+	if !needsServerNames {
+		return map[string]string{}
+	}
+
+	serverNames, err := getOpenstackServerNames()
+	if err != nil {
+		log.Warnf("gpu(%s): failed to list Openstack servers for name resolution on node %s: %v; reporting instances without names", h.reqId, h.node, err)
+		return map[string]string{}
+	}
+
+	return serverNames
+}
+
+func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string]string) (gpu.GpuCard, error) {
 	var memoryUsedMiB, memoryTotalMiB int
 	var memoryUtilizationPercent, gpuUtilizationPercent uint32
+	var degraded bool
 
 	// Relies on hex reporting the GPU id as the NVML UUID.
 	device, ret := deviceGetHandleByUUID(hexGpu.Id)
@@ -106,9 +149,21 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex) (gpu.GpuCard, error) {
 		// Expected: a pgpu bound to vfio for passthrough (attached to a VM or
 		// reserved for one) is invisible to NVML. Only a pgpu can disappear this
 		// way, so any other type not being found is genuinely unexpected and
-		// falls through to the warning below.
+		// falls through to the warning below. Logged so an unexpected hex-id vs
+		// NVML-UUID mismatch (which also surfaces as ERROR_NOT_FOUND) is not
+		// entirely silent.
+		log.Debugf("nvml: pgpu %s not visible to NVML (expected for vfio passthrough); reporting from hex without runtime stats", hexGpu.Id)
 	default:
-		log.Warnf("nvml: failed to get device handle for gpu %s: %s", hexGpu.Id, nvml.ErrorString(ret))
+		// NVML was expected to see this device but could not provide a handle, so
+		// the card is reported without runtime stats or attached instances and
+		// its capacity is untrustworthy: flag it degraded. A node-wide NVML outage
+		// (init failed) is the common cause, so distinguish it in the log.
+		degraded = true
+		if !isNvmlAvailable() {
+			log.Warnf("nvml: NVML is not initialized on this node; gpu %s reported from hex without runtime stats or attachments (capacity is degraded)", hexGpu.Id)
+		} else {
+			log.Warnf("nvml: failed to get device handle for gpu %s: %s; reporting card as degraded", hexGpu.Id, nvml.ErrorString(ret))
+		}
 	}
 
 	hexProfilesMap := map[uint32]gpu.VgpuProfileFromHex{}
@@ -128,6 +183,7 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex) (gpu.GpuCard, error) {
 		NodeName:                 h.node,
 		HexGpu:                   hexGpu,
 		HexProfilesMap:           hexProfilesMap,
+		ServerNames:              serverNames,
 	})
 	if err != nil {
 		return gpu.GpuCard{}, err
@@ -157,9 +213,50 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex) (gpu.GpuCard, error) {
 		SriovVgpuProfileCountLimit: hexGpu.SriovVgpuProfileCountLimit,
 		Profiles:                   profileCollection,
 		AttachedInstances:          attachedInstances,
+		Degraded:                   degraded,
 	}
 
 	return gpuCard, nil
+}
+
+// warnGpusMissingFromHex enumerates NVML devices and warns for any that hex did
+// not report. Hex drives the response, so an NVML-visible GPU absent from hex
+// would otherwise silently disappear; the old code hard-errored on this. Runs
+// only when NVML is available (a vfio-passthrough GPU is invisible to NVML and
+// legitimately absent from enumeration, so it never triggers a warning).
+func (h *helper) warnGpusMissingFromHex(hexGpusMap map[string]gpu.GpuFromHex) {
+	if !isNvmlAvailable() {
+		return
+	}
+
+	count, ret := deviceGetCount()
+	if ret != nvml.SUCCESS {
+		log.Warnf("nvml: failed to get device count for hex reconciliation on node %s: %s", h.node, nvml.ErrorString(ret))
+		return
+	}
+
+	hexUUIDs := map[string]struct{}{}
+	for _, hexGpu := range hexGpusMap {
+		hexUUIDs[hexGpu.Id] = struct{}{}
+	}
+
+	for i := range count {
+		device, ret := deviceGetHandleByIndex(i)
+		if ret != nvml.SUCCESS {
+			log.Warnf("nvml: failed to get device handle at index %d for hex reconciliation on node %s: %s", i, h.node, nvml.ErrorString(ret))
+			continue
+		}
+
+		uuid, ret := device.GetUUID()
+		if ret != nvml.SUCCESS {
+			log.Warnf("nvml: failed to get UUID for device at index %d for hex reconciliation on node %s: %s", i, h.node, nvml.ErrorString(ret))
+			continue
+		}
+
+		if _, ok := hexUUIDs[uuid]; !ok {
+			log.Warnf("gpu: NVML reports device %s that is absent from the hex inventory on node %s; hex may be stale (hot-add, cache lag)", uuid, h.node)
+		}
+	}
 }
 
 func (h *helper) listRemoteGpuCards() ([]gpu.GpuCard, error) {
@@ -233,7 +330,12 @@ func listPgpuAttachedInstances(opts listAttachedInstancesOpts) (*[]gpu.AttachedI
 	}
 
 	if attachedInstance == nil {
-		return nil, fmt.Errorf("gpu: hex gpu %s allocation.current is not 0, but its attached instance is null on node %s", hexGpu.PciAddress, nodeName)
+		// The allocation count and the attached-instance lookup are two separate
+		// hex reads: during an attach/detach they can be observed out of sync
+		// (allocation already 1 while the instance is not yet reported). Degrade
+		// to no attached instance instead of failing the whole node listing.
+		log.Warnf("gpu: hex reports allocation for pgpu %s on node %s but no attached instance yet (transient read skew); reporting no attached instance", hexGpu.PciAddress, nodeName)
+		return &attachedInstances, nil
 	}
 
 	attachedInstances = append(attachedInstances, gpu.AttachedInstance{
@@ -253,7 +355,7 @@ func listPgpuAttachedInstances(opts listAttachedInstancesOpts) (*[]gpu.AttachedI
 
 // Returns the attached instances for SR-IOV and MIG-backed vGPUs.
 func listVgpuAttachedInstances(opts listAttachedInstancesOpts) (*[]gpu.AttachedInstance, error) {
-	device, deviceUUID, hexProfilesMap := opts.Device, opts.DeviceUUID, opts.HexProfilesMap
+	device, deviceUUID, hexProfilesMap, serverNames := opts.Device, opts.DeviceUUID, opts.HexProfilesMap, opts.ServerNames
 
 	attachedInstances := []gpu.AttachedInstance{}
 	if !opts.IsDeviceVisible {
@@ -265,52 +367,61 @@ func listVgpuAttachedInstances(opts listAttachedInstancesOpts) (*[]gpu.AttachedI
 		return nil, fmt.Errorf("nvml: failed to get active vgpus for device %s: %s", deviceUUID, nvml.ErrorString(ret))
 	}
 
+	// No active vGPU: skip the utilization query entirely (it can fail on a
+	// device with no samples yet, and its result would be unused anyway).
+	if len(vgpuInstances) == 0 {
+		return &attachedInstances, nil
+	}
+
 	vgpuInstanceUtilizationMap, err := buildVgpuInstanceUtilizationMap(device, deviceUUID)
 	if err != nil {
 		return nil, err
 	}
 
 	for i, vgpuInstance := range vgpuInstances {
+		// The per-instance NVML calls below are enrichment on top of the active
+		// vGPU list: a VM torn down between GetActiveVgpus and these calls leaves
+		// a stale handle that returns ERROR_NOT_FOUND. Skip just that instance
+		// instead of failing the whole node listing.
 		vmId, _, ret := vgpuInstance.GetVmID()
 		if ret != nvml.SUCCESS {
-			return nil, fmt.Errorf("nvml: failed to get VM ID for vgpu instance at index %d: %s", i, nvml.ErrorString(ret))
+			log.Warnf("nvml: failed to get VM ID for vgpu instance at index %d: %s; skipping instance", i, nvml.ErrorString(ret))
+			continue
 		}
 
 		vgpuType, ret := vgpuInstance.GetType()
 		if ret != nvml.SUCCESS {
-			return nil, fmt.Errorf("nvml: failed to get type for vgpu instance %s: %s", vmId, nvml.ErrorString(ret))
+			log.Warnf("nvml: failed to get type for vgpu instance %s: %s; skipping instance", vmId, nvml.ErrorString(ret))
+			continue
 		}
 
 		profileId, ret := vgpuType.GetGpuInstanceProfileId()
 		if ret != nvml.SUCCESS {
-			return nil, fmt.Errorf("nvml: failed to get profile ID for vgpu instance %s: %s", vmId, nvml.ErrorString(ret))
+			log.Warnf("nvml: failed to get profile ID for vgpu instance %s: %s; skipping instance", vmId, nvml.ErrorString(ret))
+			continue
 		}
 
 		frameBufferBytes, ret := vgpuType.GetFramebufferSize()
 		if ret != nvml.SUCCESS {
-			return nil, fmt.Errorf("nvml: failed to get frame buffer size for profile %d: %s", profileId, nvml.ErrorString(ret))
+			log.Warnf("nvml: failed to get frame buffer size for profile %d: %s; skipping instance %s", profileId, nvml.ErrorString(ret), vmId)
+			continue
 		}
 
 		fbUsage, ret := vgpuInstance.GetFbUsage()
 		if ret != nvml.SUCCESS {
-			return nil, fmt.Errorf("nvml: failed to get fb usage for vgpu instance %s: %s", vmId, nvml.ErrorString(ret))
+			log.Warnf("nvml: failed to get fb usage for vgpu instance %s: %s; skipping instance", vmId, nvml.ErrorString(ret))
+			continue
 		}
 
 		hexProfile := hexProfilesMap[profileId]
 		profileAlias := hexProfile.Alias
 
-		// The server name is enrichment: the lookup can fail transiently
-		// (e.g. the VM is being torn down), so degrade instead of failing
-		// the whole listing.
-		serverName := ""
-		server, err := getOpenstackServer(vmId)
-		switch {
-		case err != nil:
-			log.Warnf("gpu: failed to get Openstack server %s: %v", vmId, err)
-		case server == nil:
-			log.Warnf("gpu: Openstack server %s not found", vmId)
-		default:
-			serverName = server.Name
+		// The server name is enrichment resolved from the prefetched map; a VM
+		// being torn down (or briefly missing from the listing) simply has no
+		// name rather than failing the whole listing.
+		serverName, ok := serverNames[vmId]
+		if !ok {
+			log.Warnf("gpu: Openstack server %s not found in prefetched servers; reporting instance without name", vmId)
 		}
 
 		utilizationPercent := vgpuInstanceUtilizationMap[vgpuInstanceId(vgpuInstance)]
@@ -335,14 +446,13 @@ func buildVgpuInstanceUtilizationMap(device nvml.Device, deviceUUID string) (map
 	utilizationMap := map[uint32]uint32{}
 	valueType, samples, ret := device.GetVgpuUtilization(0)
 
-	// NVML returns ERROR_NOT_FOUND when no utilization samples exist (e.g.
-	// no vGPU has been active since the last query); that is not a failure.
-	if ret == nvml.ERROR_NOT_FOUND {
-		return utilizationMap, nil
-	}
-
+	// Utilization is enrichment: NVML returns ERROR_NOT_FOUND when no samples
+	// exist yet, ERROR_NOT_SUPPORTED on some hardware, and ERROR_GPU_IS_LOST
+	// during a reset. None of those should fail the node listing, so any
+	// non-SUCCESS degrades to an empty map.
 	if ret != nvml.SUCCESS {
-		return nil, fmt.Errorf("nvml: failed to get vgpu utilization for device %s: %s", deviceUUID, nvml.ErrorString(ret))
+		log.Warnf("nvml: failed to get vgpu utilization for device %s: %s; reporting empty utilization", deviceUUID, nvml.ErrorString(ret))
+		return utilizationMap, nil
 	}
 
 	for _, sample := range samples {
@@ -350,33 +460,41 @@ func buildVgpuInstanceUtilizationMap(device nvml.Device, deviceUUID string) (map
 		case nvml.VALUE_TYPE_UNSIGNED_INT:
 			utilizationMap[sample.VgpuInstance] = binary.LittleEndian.Uint32(sample.SmUtil[:4])
 		case nvml.VALUE_TYPE_DOUBLE:
-			utilizationMap[sample.VgpuInstance] = binary.LittleEndian.Uint32(sample.SmUtil[:])
+			// SmUtil holds the raw bytes of an IEEE-754 double; reinterpret it
+			// rather than reading the low bytes as an integer.
+			doubleBits := binary.LittleEndian.Uint64(sample.SmUtil[:])
+			utilizationMap[sample.VgpuInstance] = uint32(math.Round(math.Float64frombits(doubleBits)))
 		}
 	}
 
 	return utilizationMap, nil
 }
 
+// buildInstanceLinksViaOpenstack builds the links reported inline with each
+// attached instance. The console link is intentionally NOT minted here: creating
+// a Nova console is a write that mints a short-lived token, and doing it for
+// every instance on every GPU-list poll floods Nova with sessions that are
+// almost always discarded. The console is minted on demand via the dedicated
+// getGpuInstanceConsole endpoint instead, so Console stays empty in list output.
 func buildInstanceLinksViaOpenstack(vmId string) gpu.InstanceLinks {
-	links := gpu.InstanceLinks{
+	return gpu.InstanceLinks{
 		Grafana: grafana.InstanceDashboardLink(vmId),
 	}
+}
 
-	// Nova refuses to create a console for a non-ACTIVE instance (409): the
-	// console link is enrichment, so keep the remaining links instead of
-	// failing the whole listing.
-	console, err := createConsole(vmId)
+// getGpuInstanceConsole mints a Nova console for a single attached instance on
+// demand. Console tokens are short-lived, so they are created only when the user
+// actually asks to open a console rather than during every GPU listing.
+func (h *helper) getGpuInstanceConsole() (*gpu.InstanceConsole, error) {
+	console, err := createConsole(h.instanceId)
 	if err != nil {
-		log.Warnf("openstack: failed to create console link for instance %s: %v", vmId, err)
-		return links
+		return nil, err
 	}
 	if console == nil {
-		log.Warnf("openstack: no console returned for instance %s", vmId)
-		return links
+		return nil, fmt.Errorf("gpu: no console returned for instance %s", h.instanceId)
 	}
 
-	links.Console = console.URL
-	return links
+	return &gpu.InstanceConsole{Console: console.URL}, nil
 }
 
 func createConsoleViaOpenstack(vmId string) (*remoteconsoles.RemoteConsole, error) {
@@ -393,8 +511,20 @@ func createConsoleViaOpenstack(vmId string) (*remoteconsoles.RemoteConsole, erro
 	return result.Extract()
 }
 
-func getOpenstackServerViaHelper(vmId string) (*servers.Server, error) {
-	return openstack.GetGlobalHelper().GetServer(vmId)
+// getOpenstackServerNamesViaHelper returns a map of server id to name in a single
+// Openstack round trip, used to resolve vGPU attached-instance names in bulk.
+func getOpenstackServerNamesViaHelper() (map[string]string, error) {
+	serverList, err := openstack.GetGlobalHelper().ListServers(servers.ListOpts{})
+	if err != nil {
+		return nil, err
+	}
+
+	serverNames := make(map[string]string, len(serverList))
+	for _, server := range serverList {
+		serverNames[server.ID] = server.Name
+	}
+
+	return serverNames, nil
 }
 
 // nvml.VgpuInstance does not expose its raw handle; the driver's concrete

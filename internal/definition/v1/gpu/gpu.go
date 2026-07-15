@@ -62,6 +62,11 @@ type GpuCard struct {
 	Profiles                   GpuProfileCollection  `json:"profiles"`
 	AttachedInstances          *[]AttachedInstance   `json:"attachedInstances"`
 	Status                     GpuStatusInfo         `json:"status"`
+	// Degraded is true when NVML runtime enrichment that this card should have
+	// had (stats, attached instances) could not be obtained, so its capacity
+	// numbers are not trustworthy. Consumers such as schedulers should not
+	// allocate off a degraded card's reported capacity.
+	Degraded bool `json:"degraded"`
 }
 
 type VramInfo struct {
@@ -110,6 +115,13 @@ type InstanceMemoryUsage struct {
 
 type InstanceLinks struct {
 	Grafana string `json:"grafana"`
+	Console string `json:"console"`
+}
+
+// InstanceConsole is the on-demand console link for an attached instance. It is
+// minted lazily via its own endpoint rather than inline with the GPU listing so
+// the list path does not create a Nova console token per instance per poll.
+type InstanceConsole struct {
 	Console string `json:"console"`
 }
 

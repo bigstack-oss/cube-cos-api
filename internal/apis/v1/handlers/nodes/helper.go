@@ -35,6 +35,7 @@ type helper struct {
 	operation       string
 	device          string
 	osdId           string
+	instanceId      string
 	deviceReqOpts   nodes.DeviceReqOpts
 	osdReqOpts      nodes.OsdReqOpts
 	osdReqOptses    []nodes.OsdReqOpts

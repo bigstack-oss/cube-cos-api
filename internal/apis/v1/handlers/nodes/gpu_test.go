@@ -1,14 +1,15 @@
 package nodes
 
 import (
+	"encoding/binary"
 	"errors"
+	"math"
 	"testing"
 
 	"github.com/NVIDIA/go-nvml/pkg/nvml"
 	nvmlmock "github.com/NVIDIA/go-nvml/pkg/nvml/mock"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/gpu"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/remoteconsoles"
-	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/stretchr/testify/require"
 )
 
@@ -22,20 +23,26 @@ func restoreGpuSeams(t *testing.T) {
 	origGetNodeVgpuProfilesMap := getNodeVgpuProfilesMap
 	origGetNodePgpuAttachedInstance := getNodePgpuAttachedInstance
 	origDeviceGetHandleByUUID := deviceGetHandleByUUID
+	origDeviceGetCount := deviceGetCount
+	origDeviceGetHandleByIndex := deviceGetHandleByIndex
 	origBuildInstanceLinks := buildInstanceLinks
-	origGetOpenstackServer := getOpenstackServer
+	origGetOpenstackServerNames := getOpenstackServerNames
 	origCreateConsole := createConsole
 	origVgpuInstanceId := vgpuInstanceId
+	origIsNvmlAvailable := isNvmlAvailable
 
 	t.Cleanup(func() {
 		getNodeGpusMap = origGetNodeGpusMap
 		getNodeVgpuProfilesMap = origGetNodeVgpuProfilesMap
 		getNodePgpuAttachedInstance = origGetNodePgpuAttachedInstance
 		deviceGetHandleByUUID = origDeviceGetHandleByUUID
+		deviceGetCount = origDeviceGetCount
+		deviceGetHandleByIndex = origDeviceGetHandleByIndex
 		buildInstanceLinks = origBuildInstanceLinks
-		getOpenstackServer = origGetOpenstackServer
+		getOpenstackServerNames = origGetOpenstackServerNames
 		createConsole = origCreateConsole
 		vgpuInstanceId = origVgpuInstanceId
+		isNvmlAvailable = origIsNvmlAvailable
 	})
 }
 
@@ -144,6 +151,11 @@ func TestListLocalGpuCardsIncludesGpusInvisibleToNvml(t *testing.T) {
 	require.Equal(t, reservedUUID, reservedCard.Id)
 	require.Equal(t, gpu.VramInfo{}, reservedCard.Vram)
 	require.Equal(t, gpu.GpuInfo{}, reservedCard.Gpu)
+
+	// A vfio-passthrough GPU invisible to NVML is expected, not degraded.
+	require.False(t, passthroughCard.Degraded)
+	require.False(t, visibleCard.Degraded)
+	require.False(t, reservedCard.Degraded)
 }
 
 // NVML runtime stats are enrichment: an NVML fault must not hide the card
@@ -166,7 +178,9 @@ func TestListLocalGpuCardsDegradesOnNvmlFaults(t *testing.T) {
 		return hexGpusMap, nil
 	}
 
-	t.Run("device handle fault reports card without runtime stats", func(t *testing.T) {
+	// An unexpected handle fault on a GPU that NVML should have seen leaves the
+	// card without trustworthy capacity, so it is flagged degraded.
+	t.Run("device handle fault reports degraded card without runtime stats", func(t *testing.T) {
 		deviceGetHandleByUUID = func(uuid string) (nvml.Device, nvml.Return) {
 			return nil, nvml.ERROR_UNKNOWN
 		}
@@ -178,6 +192,7 @@ func TestListLocalGpuCardsDegradesOnNvmlFaults(t *testing.T) {
 		require.Equal(t, gpuUUID, cards[0].Id)
 		require.Equal(t, gpu.VramInfo{}, cards[0].Vram)
 		require.Equal(t, gpu.GpuInfo{}, cards[0].Gpu)
+		require.True(t, cards[0].Degraded)
 	})
 
 	t.Run("memory info fault degrades vram stats only", func(t *testing.T) {
@@ -269,7 +284,7 @@ func TestBuildLocalGpuCardVgpuProfiles(t *testing.T) {
 	}
 
 	h := &helper{node: "node-1"}
-	card, err := h.buildLocalGpuCard(hexGpu)
+	card, err := h.buildLocalGpuCard(hexGpu, map[string]string{})
 
 	require.NoError(t, err)
 	require.Equal(t, hexGpu.Id, card.Id)
@@ -344,7 +359,10 @@ func TestListPgpuAttachedInstances(t *testing.T) {
 		require.Nil(t, instances)
 	})
 
-	t.Run("missing hex instance returns error", func(t *testing.T) {
+	// A transient hex read skew (allocation already counted while the attached
+	// instance is not yet reported) must degrade to no attached instance rather
+	// than failing the whole node listing.
+	t.Run("missing hex instance degrades to no instances", func(t *testing.T) {
 		getNodePgpuAttachedInstance = func(pciAddress string) (*gpu.PgpuAttachedInstanceFromHex, error) {
 			return nil, nil
 		}
@@ -356,8 +374,9 @@ func TestListPgpuAttachedInstances(t *testing.T) {
 			},
 		})
 
-		require.Error(t, err)
-		require.Nil(t, instances)
+		require.NoError(t, err)
+		require.NotNil(t, instances)
+		require.Empty(t, *instances)
 	})
 
 	t.Run("attached instance is reported with links", func(t *testing.T) {
@@ -470,7 +489,9 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 		require.Nil(t, instances)
 	})
 
-	t.Run("vgpu utilization failure returns error", func(t *testing.T) {
+	// No active vGPU short-circuits before the utilization query, so a failing
+	// query there is never even reached.
+	t.Run("no active vgpu reports no instances", func(t *testing.T) {
 		device := &nvmlmock.Device{
 			GetActiveVgpusFunc: func() ([]nvml.VgpuInstance, nvml.Return) {
 				return []nvml.VgpuInstance{}, nvml.SUCCESS
@@ -487,17 +508,47 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeSriovVgpu},
 		})
 
-		require.Error(t, err)
-		require.Nil(t, instances)
+		require.NoError(t, err)
+		require.NotNil(t, instances)
+		require.Empty(t, *instances)
+	})
+
+	// A vGPU instance whose per-instance NVML call fails (e.g. the VM was torn
+	// down between GetActiveVgpus and GetVmID, leaving a stale handle) is skipped
+	// rather than failing the whole node listing.
+	t.Run("stale instance handle is skipped", func(t *testing.T) {
+		vgpuInstanceId = func(instance nvml.VgpuInstance) uint32 { return 7 }
+		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
+			return gpu.InstanceLinks{}
+		}
+
+		staleInstance := &nvmlmock.VgpuInstance{
+			GetVmIDFunc: func() (string, nvml.VgpuVmIdType, nvml.Return) {
+				return "", nvml.VgpuVmIdType(0), nvml.ERROR_NOT_FOUND
+			},
+		}
+
+		device := newDevice(
+			[]nvml.VgpuInstance{staleInstance, newVgpuInstance("vm-9")},
+			nil,
+		)
+
+		instances, err := listVgpuAttachedInstances(listAttachedInstancesOpts{
+			Device:          device,
+			IsDeviceVisible: true,
+			DeviceUUID:      "GPU-44444444-4444-4444-4444-444444444444",
+			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeSriovVgpu},
+			HexProfilesMap:  map[uint32]gpu.VgpuProfileFromHex{profileId: {Alias: &alias}},
+			ServerNames:     map[string]string{"vm-9": "instance-9"},
+		})
+
+		require.NoError(t, err)
+		require.Len(t, *instances, 1)
+		require.Equal(t, "vm-9", (*instances)[0].Id)
 	})
 
 	t.Run("attached instance is reported with server name", func(t *testing.T) {
 		vgpuInstanceId = func(instance nvml.VgpuInstance) uint32 { return 7 }
-
-		getOpenstackServer = func(vmId string) (*servers.Server, error) {
-			require.Equal(t, "vm-9", vmId)
-			return &servers.Server{Name: "instance-9"}, nil
-		}
 
 		links := gpu.InstanceLinks{Grafana: "https://grafana.example/vm-9"}
 		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
@@ -515,6 +566,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 			DeviceUUID:      "GPU-44444444-4444-4444-4444-444444444444",
 			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeSriovVgpu},
 			HexProfilesMap:  map[uint32]gpu.VgpuProfileFromHex{profileId: {Alias: &alias}},
+			ServerNames:     map[string]string{"vm-9": "instance-9"},
 		})
 
 		require.NoError(t, err)
@@ -533,16 +585,13 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 		}, (*instances)[0])
 	})
 
-	// The server name is enrichment: a lookup failure (e.g. the VM is being
-	// torn down) must not fail the whole GPU listing.
-	t.Run("server lookup failure reports instance without name", func(t *testing.T) {
+	// The server name is enrichment: an instance absent from the prefetched
+	// server map (e.g. the VM is being torn down) is reported without a name
+	// rather than failing the whole GPU listing.
+	t.Run("instance missing from server map reported without name", func(t *testing.T) {
 		vgpuInstanceId = func(instance nvml.VgpuInstance) uint32 { return 7 }
 		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
 			return gpu.InstanceLinks{}
-		}
-
-		getOpenstackServer = func(vmId string) (*servers.Server, error) {
-			return nil, errors.New("openstack unavailable")
 		}
 
 		device := newDevice([]nvml.VgpuInstance{newVgpuInstance("vm-9")}, nil)
@@ -552,31 +601,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 			IsDeviceVisible: true,
 			DeviceUUID:      "GPU-44444444-4444-4444-4444-444444444444",
 			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeSriovVgpu},
-		})
-
-		require.NoError(t, err)
-		require.Len(t, *instances, 1)
-		require.Equal(t, "vm-9", (*instances)[0].Id)
-		require.Empty(t, (*instances)[0].Name)
-	})
-
-	t.Run("missing server reports instance without name", func(t *testing.T) {
-		vgpuInstanceId = func(instance nvml.VgpuInstance) uint32 { return 7 }
-		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
-			return gpu.InstanceLinks{}
-		}
-
-		getOpenstackServer = func(vmId string) (*servers.Server, error) {
-			return nil, nil
-		}
-
-		device := newDevice([]nvml.VgpuInstance{newVgpuInstance("vm-9")}, nil)
-
-		instances, err := listVgpuAttachedInstances(listAttachedInstancesOpts{
-			Device:          device,
-			IsDeviceVisible: true,
-			DeviceUUID:      "GPU-44444444-4444-4444-4444-444444444444",
-			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeSriovVgpu},
+			ServerNames:     map[string]string{},
 		})
 
 		require.NoError(t, err)
@@ -619,46 +644,194 @@ func TestBuildVgpuInstanceUtilizationMap(t *testing.T) {
 		require.Empty(t, utilizationMap)
 	})
 
-	t.Run("utilization query failure returns error", func(t *testing.T) {
+	// ERROR_NOT_SUPPORTED (permanent on some hardware) and ERROR_GPU_IS_LOST
+	// (transient during a reset) are enrichment failures: degrade to an empty
+	// map instead of failing the whole listing.
+	t.Run("utilization query failure degrades to empty map", func(t *testing.T) {
+		for _, ret := range []nvml.Return{nvml.ERROR_NOT_SUPPORTED, nvml.ERROR_GPU_IS_LOST, nvml.ERROR_UNKNOWN} {
+			device := &nvmlmock.Device{
+				GetVgpuUtilizationFunc: func(v uint64) (nvml.ValueType, []nvml.VgpuInstanceUtilizationSample, nvml.Return) {
+					return nvml.VALUE_TYPE_UNSIGNED_INT, nil, ret
+				},
+			}
+
+			utilizationMap, err := buildVgpuInstanceUtilizationMap(device, "GPU-uuid")
+
+			require.NoError(t, err)
+			require.NotNil(t, utilizationMap)
+			require.Empty(t, utilizationMap)
+		}
+	})
+
+	// A double-typed sample carries the raw bytes of an IEEE-754 double and must
+	// be reinterpreted, not read as a little-endian integer.
+	t.Run("maps double samples by vgpu instance", func(t *testing.T) {
+		var smUtil [8]byte
+		binary.LittleEndian.PutUint64(smUtil[:], math.Float64bits(33.0))
+
 		device := &nvmlmock.Device{
 			GetVgpuUtilizationFunc: func(v uint64) (nvml.ValueType, []nvml.VgpuInstanceUtilizationSample, nvml.Return) {
-				return nvml.VALUE_TYPE_UNSIGNED_INT, nil, nvml.ERROR_UNKNOWN
+				return nvml.VALUE_TYPE_DOUBLE, []nvml.VgpuInstanceUtilizationSample{
+					{VgpuInstance: 7, SmUtil: smUtil},
+				}, nvml.SUCCESS
 			},
 		}
 
 		utilizationMap, err := buildVgpuInstanceUtilizationMap(device, "GPU-uuid")
 
-		require.Error(t, err)
-		require.Empty(t, utilizationMap)
+		require.NoError(t, err)
+		require.Equal(t, map[uint32]uint32{7: 33}, utilizationMap)
 	})
 }
 
+// The console link is no longer minted inline with the listing (it is created
+// on demand via getGpuInstanceConsole), so the list-time links carry only the
+// Grafana dashboard and an empty console.
 func TestBuildInstanceLinksViaOpenstack(t *testing.T) {
+	links := buildInstanceLinksViaOpenstack("vm-1")
+
+	require.Contains(t, links.Grafana, "/grafana/d/PVW6vU7Wz/instance")
+	require.Contains(t, links.Grafana, "var-UUID=vm-1")
+	require.Empty(t, links.Console)
+}
+
+func TestGetGpuInstanceConsole(t *testing.T) {
 	restoreGpuSeams(t)
 
+	t.Run("console url is returned when minted", func(t *testing.T) {
+		createConsole = func(vmId string) (*remoteconsoles.RemoteConsole, error) {
+			require.Equal(t, "vm-1", vmId)
+			return &remoteconsoles.RemoteConsole{URL: "https://console.example/vnc?token=abc"}, nil
+		}
+
+		console, err := (&helper{instanceId: "vm-1"}).getGpuInstanceConsole()
+
+		require.NoError(t, err)
+		require.Equal(t, "https://console.example/vnc?token=abc", console.Console)
+	})
+
 	// Nova refuses to create a console for a non-ACTIVE instance (409): the
-	// console link is enrichment, so the Grafana link must still be reported.
-	t.Run("console failure degrades to grafana-only links", func(t *testing.T) {
+	// on-demand endpoint surfaces that as an error to the caller.
+	t.Run("console creation failure returns error", func(t *testing.T) {
 		createConsole = func(vmId string) (*remoteconsoles.RemoteConsole, error) {
 			return nil, errors.New("instance not active (HTTP 409)")
 		}
 
-		links := buildInstanceLinksViaOpenstack("vm-1")
+		console, err := (&helper{instanceId: "vm-1"}).getGpuInstanceConsole()
 
-		require.Contains(t, links.Grafana, "/grafana/d/PVW6vU7Wz/instance")
-		require.Contains(t, links.Grafana, "var-UUID=vm-1")
-		require.Empty(t, links.Console)
+		require.Error(t, err)
+		require.Nil(t, console)
 	})
 
-	t.Run("console url is reported when available", func(t *testing.T) {
+	t.Run("nil console returns error", func(t *testing.T) {
 		createConsole = func(vmId string) (*remoteconsoles.RemoteConsole, error) {
-			return &remoteconsoles.RemoteConsole{URL: "https://console.example/vnc?token=abc"}, nil
+			return nil, nil
 		}
 
-		links := buildInstanceLinksViaOpenstack("vm-1")
+		console, err := (&helper{instanceId: "vm-1"}).getGpuInstanceConsole()
 
-		require.Contains(t, links.Grafana, "var-UUID=vm-1")
-		require.Equal(t, "https://console.example/vnc?token=abc", links.Console)
+		require.Error(t, err)
+		require.Nil(t, console)
+	})
+}
+
+func TestResolveServerNames(t *testing.T) {
+	restoreGpuSeams(t)
+
+	t.Run("skips openstack when node has no vgpu", func(t *testing.T) {
+		called := false
+		getOpenstackServerNames = func() (map[string]string, error) {
+			called = true
+			return nil, nil
+		}
+
+		names := (&helper{node: "node-1"}).resolveServerNames(map[string]gpu.GpuFromHex{
+			"0000:01:00.0": {Type: gpu.ResourceTypePgpu},
+		})
+
+		require.False(t, called)
+		require.NotNil(t, names)
+		require.Empty(t, names)
+	})
+
+	t.Run("fetches names once when a vgpu is present", func(t *testing.T) {
+		calls := 0
+		getOpenstackServerNames = func() (map[string]string, error) {
+			calls++
+			return map[string]string{"vm-9": "instance-9"}, nil
+		}
+
+		names := (&helper{node: "node-1"}).resolveServerNames(map[string]gpu.GpuFromHex{
+			"0000:01:00.0": {Type: gpu.ResourceTypeSriovVgpu},
+			"0000:02:00.0": {Type: gpu.ResourceTypeMigBackedVgpu},
+		})
+
+		require.Equal(t, 1, calls)
+		require.Equal(t, map[string]string{"vm-9": "instance-9"}, names)
+	})
+
+	// A server-listing failure is enrichment: names degrade to empty rather than
+	// failing the whole listing.
+	t.Run("degrades to empty map on openstack error", func(t *testing.T) {
+		getOpenstackServerNames = func() (map[string]string, error) {
+			return nil, errors.New("openstack unavailable")
+		}
+
+		names := (&helper{node: "node-1"}).resolveServerNames(map[string]gpu.GpuFromHex{
+			"0000:01:00.0": {Type: gpu.ResourceTypeSriovVgpu},
+		})
+
+		require.NotNil(t, names)
+		require.Empty(t, names)
+	})
+}
+
+func TestWarnGpusMissingFromHex(t *testing.T) {
+	restoreGpuSeams(t)
+
+	hexUUID := "GPU-11111111-1111-1111-1111-111111111111"
+	hexGpusMap := map[string]gpu.GpuFromHex{
+		"0000:01:00.0": {Id: hexUUID, Type: gpu.ResourceTypePgpu},
+	}
+
+	// A vfio-passthrough GPU is invisible to NVML enumeration, so reconciliation
+	// only makes sense while NVML is up.
+	t.Run("skips enumeration when nvml is unavailable", func(t *testing.T) {
+		isNvmlAvailable = func() bool { return false }
+		called := false
+		deviceGetCount = func() (int, nvml.Return) {
+			called = true
+			return 0, nvml.SUCCESS
+		}
+
+		(&helper{node: "node-1"}).warnGpusMissingFromHex(hexGpusMap)
+
+		require.False(t, called)
+	})
+
+	t.Run("enumerates every nvml device when available", func(t *testing.T) {
+		isNvmlAvailable = func() bool { return true }
+		deviceGetCount = func() (int, nvml.Return) { return 2, nvml.SUCCESS }
+
+		var indices []int
+		deviceGetHandleByIndex = func(i int) (nvml.Device, nvml.Return) {
+			indices = append(indices, i)
+
+			uuid := hexUUID
+			if i == 1 {
+				// A GPU visible to NVML but absent from hex (the case the warning
+				// is meant to surface).
+				uuid = "GPU-22222222-2222-2222-2222-222222222222"
+			}
+
+			return &nvmlmock.Device{
+				GetUUIDFunc: func() (string, nvml.Return) { return uuid, nvml.SUCCESS },
+			}, nvml.SUCCESS
+		}
+
+		(&helper{node: "node-1"}).warnGpusMissingFromHex(hexGpusMap)
+
+		require.Equal(t, []int{0, 1}, indices)
 	})
 }
 

@@ -74,6 +74,12 @@ var (
 		{
 			Version: apis.V1,
 			Method:  http.MethodGet,
+			Path:    "/nodes/:nodeName/gpuCards/instances/:instanceId/console",
+			Func:    getGpuInstanceConsole,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
 			Path:    "/nodes/:nodeName/devices",
 			Func:    listNodeDevices,
 		},
@@ -292,6 +298,24 @@ func listNodeGpuCards(c *gin.Context) {
 	}
 
 	bodies.SetOk(c, "node GPU cards retrieved successfully", gpuCards)
+}
+
+func getGpuInstanceConsole(c *gin.Context) {
+	h, err := initHelper(c, "getGpuInstanceConsole")
+	if err != nil {
+		log.Errorf("gpu(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	console, err := h.getGpuInstanceConsole()
+	if err != nil {
+		log.Errorf("gpu(%s): failed to create console for instance %s: %v", h.reqId, h.instanceId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	bodies.SetOk(c, "gpu instance console link retrieved successfully", console)
 }
 
 func ipmiOperateNode(c *gin.Context) {

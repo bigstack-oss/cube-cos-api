@@ -29,6 +29,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseListDevicesOptions()
 	case "listNodeGpuCards":
 		return h.parseListGPUCardsOptions()
+	case "getGpuInstanceConsole":
+		return h.parseGetGpuInstanceConsoleOptions()
 	case "addNodeDevice":
 		return h.parseCreateDeviceOptions()
 	case "updateNodeDevice":
@@ -364,6 +366,20 @@ func (h *helper) parseListGPUCardsOptions() error {
 	if h.node == "" {
 		return fmt.Errorf("nodeName should be provided")
 	}
+	return nil
+}
+
+func (h *helper) parseGetGpuInstanceConsoleOptions() error {
+	h.node = h.c.Param("nodeName")
+	if h.node == "" {
+		return fmt.Errorf("nodeName should be provided")
+	}
+
+	h.instanceId = h.c.Param("instanceId")
+	if h.instanceId == "" {
+		return fmt.Errorf("instanceId should be provided")
+	}
+
 	return nil
 }
 

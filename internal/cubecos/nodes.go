@@ -470,7 +470,9 @@ func GetNodePgpuAttachedInstance(pciAddress string) (*gpu.PgpuAttachedInstanceFr
 
 	attachedInstance := gpu.PgpuAttachedInstanceFromHex{}
 
-	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_pgpu_attached_instance_get", pciAddress).CombinedOutput()
+	// Output (stdout only) rather than CombinedOutput: a warning line printed to
+	// stderr ahead of the JSON would otherwise corrupt the unmarshal below.
+	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_pgpu_attached_instance_get", pciAddress).Output()
 	if err != nil {
 		return nil, fmt.Errorf("nodes: failed to get attached instance for gpu %s via hex_sdk: %w", pciAddress, err)
 	}
