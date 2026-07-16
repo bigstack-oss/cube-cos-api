@@ -71,3 +71,7 @@ Initialized in `internal/runtime/dependency.go`: MongoDB (primary store), Influx
 ### PR checklist
 
 Per `.github/pull_request_template.md`: update API docs (`task generateApiDocs`) and verify the API works before submitting.
+
+### Commits
+
+Every commit must be DCO signed off, or the DCO CI check fails. Always commit with `git commit -s` (use `git commit --amend --signoff` when amending). The `Signed-off-by:` email must match the commit author's email.
