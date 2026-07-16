@@ -1004,7 +1004,7 @@ func TestIsVgpu(t *testing.T) {
 }
 
 func TestValidateGpuCardUpdate(t *testing.T) {
-	profileCountLimit := 2
+	profileCountLimit := 10
 	vmCountLimit := 4
 
 	card := gpu.GpuFromHex{
@@ -1058,13 +1058,16 @@ func TestValidateGpuCardUpdate(t *testing.T) {
 		require.ErrorIs(t, err, gpu.ErrProfileNotFound)
 	})
 
-	t.Run("distinct profile count over card limit -> 409 sentinel", func(t *testing.T) {
-		three := 1
+	// The limit bounds the total number of vGPU instances (sum of the requested
+	// per-profile counts), not the number of distinct profiles: a single profile
+	// whose count exceeds the limit trips it.
+	t.Run("total profile count over card limit -> 409 sentinel", func(t *testing.T) {
+		two := 2
 		limited := card
-		limited.SriovVgpuProfileCountLimit = &three // allow only 1 distinct profile
+		limited.SriovVgpuProfileCountLimit = &two // allow only 2 vgpu instances total
 		err := validateGpuCardUpdate(limited, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeSriovVgpu,
-			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 1}, {Id: 58, Count: 1}},
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 3}}, // sum 3 > limit 2
 		}, profilesMap, totalVramMiB)
 		require.ErrorIs(t, err, gpu.ErrExceedProfileCountLimit)
 	})
@@ -1077,7 +1080,7 @@ func TestValidateGpuCardUpdate(t *testing.T) {
 		migCard.SriovVgpuProfileCountLimit = &one // would trip for SR-IOV, but must be ignored here
 		err := validateGpuCardUpdate(migCard, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeMigBackedVgpu,
-			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 1}, {Id: 58, Count: 1}}, // 2 distinct > limit 1
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 1}, {Id: 58, Count: 1}}, // total count 2 > limit 1
 		}, profilesMap, totalVramMiB)
 		require.NoError(t, err)
 	})

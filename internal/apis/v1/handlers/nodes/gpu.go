@@ -388,14 +388,8 @@ func validateGpuCardUpdate(
 		distinctIds[reqProfile.Id] = struct{}{}
 	}
 
-	// The profile-count limit only applies to SR-IOV vGPU; MIG-backed vGPU has no such limit.
-	if req.ResourceType == gpu.ResourceTypeSriovVgpu &&
-		card.SriovVgpuProfileCountLimit != nil && len(distinctIds) > *card.SriovVgpuProfileCountLimit {
-		return fmt.Errorf("gpu %s: %d distinct profiles exceed profile count limit %d: %w",
-			card.Id, len(distinctIds), *card.SriovVgpuProfileCountLimit, gpu.ErrExceedProfileCountLimit)
-	}
-
 	totalVramReqMiB := 0
+	totalProfileCount := 0
 	for _, reqProfile := range req.Profiles {
 		if reqProfile.Count <= 0 {
 			return fmt.Errorf("gpu %s: profile %d count %d must be positive: %w",
@@ -416,6 +410,16 @@ func validateGpuCardUpdate(
 		}
 
 		totalVramReqMiB += int(profile.VramMiB) * reqProfile.Count
+		totalProfileCount += reqProfile.Count
+	}
+
+	// The profile-count limit only applies to SR-IOV vGPU; MIG-backed vGPU has no such limit.
+	// It bounds the total number of vGPU instances (the sum of the requested per-profile
+	// counts), not the number of distinct profiles.
+	if req.ResourceType == gpu.ResourceTypeSriovVgpu &&
+		card.SriovVgpuProfileCountLimit != nil && totalProfileCount > *card.SriovVgpuProfileCountLimit {
+		return fmt.Errorf("gpu %s: total profile count %d exceeds profile count limit %d: %w",
+			card.Id, totalProfileCount, *card.SriovVgpuProfileCountLimit, gpu.ErrExceedProfileCountLimit)
 	}
 
 	// The VRAM limit only applies to MIG-backed vGPU; SR-IOV profiles are fixed
