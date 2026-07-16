@@ -144,7 +144,6 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string
 		} else {
 			log.Warnf("nvml: failed to get utilization rates for device %s: %s", hexGpu.Id, nvml.ErrorString(ret))
 		}
-		//TODO: We should add more check.
 	case ret == nvml.ERROR_NOT_FOUND && hexGpu.Type == gpu.ResourceTypePgpu:
 		// Expected: a pgpu bound to vfio for passthrough (attached to a VM or
 		// reserved for one) is invisible to NVML. Only a pgpu can disappear this
@@ -471,11 +470,11 @@ func buildVgpuInstanceUtilizationMap(device nvml.Device, deviceUUID string) (map
 }
 
 // buildInstanceLinksViaOpenstack builds the links reported inline with each
-// attached instance. The console link is intentionally NOT minted here: creating
-// a Nova console is a write that mints a short-lived token, and doing it for
-// every instance on every GPU-list poll floods Nova with sessions that are
-// almost always discarded. The console is minted on demand via the dedicated
-// getGpuInstanceConsole endpoint instead, so Console stays empty in list output.
+// attached instance. It deliberately carries no console link: creating a Nova
+// console is a write that mints a short-lived token, and doing it for every
+// instance on every GPU-list poll floods Nova with sessions that are almost
+// always discarded. The console is minted on demand via the dedicated
+// getGpuInstanceConsole endpoint instead.
 func buildInstanceLinksViaOpenstack(vmId string) gpu.InstanceLinks {
 	return gpu.InstanceLinks{
 		Grafana: grafana.InstanceDashboardLink(vmId),

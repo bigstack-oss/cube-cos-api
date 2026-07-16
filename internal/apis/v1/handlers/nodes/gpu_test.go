@@ -684,15 +684,13 @@ func TestBuildVgpuInstanceUtilizationMap(t *testing.T) {
 	})
 }
 
-// The console link is no longer minted inline with the listing (it is created
-// on demand via getGpuInstanceConsole), so the list-time links carry only the
-// Grafana dashboard and an empty console.
+// The list-time links carry only the Grafana dashboard; the console is minted
+// on demand via getGpuInstanceConsole and is not part of the listing.
 func TestBuildInstanceLinksViaOpenstack(t *testing.T) {
 	links := buildInstanceLinksViaOpenstack("vm-1")
 
 	require.Contains(t, links.Grafana, "/grafana/d/PVW6vU7Wz/instance")
 	require.Contains(t, links.Grafana, "var-UUID=vm-1")
-	require.Empty(t, links.Console)
 }
 
 func TestGetGpuInstanceConsole(t *testing.T) {

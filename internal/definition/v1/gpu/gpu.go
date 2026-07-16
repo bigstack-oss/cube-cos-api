@@ -115,7 +115,6 @@ type InstanceMemoryUsage struct {
 
 type InstanceLinks struct {
 	Grafana string `json:"grafana"`
-	Console string `json:"console"`
 }
 
 // InstanceConsole is the on-demand console link for an attached instance. It is
