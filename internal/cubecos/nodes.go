@@ -421,8 +421,13 @@ func listNodeGpus(nodeName string) ([]gpu.GpuFromHex, error) {
 	return gpus, nil
 }
 
-func GetNodeVgpuProfilesMap(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex) {
-	collection := getNodeVgpuProfileCollection(gpuId)
+// GetNodeVgpuProfilesMap returns the vGPU profiles for a GPU as both a
+// profile-id map and the raw collection. The error is non-nil when the hex
+// profile fetch itself failed (command or parse error), which callers treat as
+// degraded enrichment rather than an empty-but-valid profile set; the map and
+// collection are still returned (empty) so callers can proceed.
+func GetNodeVgpuProfilesMap(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
+	collection, err := getNodeVgpuProfileCollection(gpuId)
 
 	// Profile IDs will not conflict between SR-IOV and MIG.
 	profilesMap := map[uint32]gpu.VgpuProfileFromHex{}
@@ -439,10 +444,10 @@ func GetNodeVgpuProfilesMap(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gp
 		}
 	}
 
-	return profilesMap, collection
+	return profilesMap, collection, err
 }
 
-func getNodeVgpuProfileCollection(gpuId string) gpu.VgpuProfileCollectionFromHex {
+func getNodeVgpuProfileCollection(gpuId string) (gpu.VgpuProfileCollectionFromHex, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
 	defer cancel()
 
@@ -451,16 +456,16 @@ func getNodeVgpuProfileCollection(gpuId string) gpu.VgpuProfileCollectionFromHex
 	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_vgpu_profile_list", gpuId).CombinedOutput()
 	if err != nil {
 		log.Errorf("nodes: failed to list vgpu profiles for gpu %s: %v", gpuId, err)
-		return collection
+		return collection, err
 	}
 
 	err = json.Unmarshal(out, &collection)
 	if err != nil {
 		log.Errorf("nodes: failed to parse output when listing vgpu profiles for gpu %s via hex_sdk: %v", gpuId, err)
-		return collection
+		return collection, err
 	}
 
-	return collection
+	return collection, nil
 }
 
 // Returns (nil, nil) when the GPU has no attached instance.

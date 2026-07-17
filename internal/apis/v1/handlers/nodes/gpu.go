@@ -49,8 +49,32 @@ type listAttachedInstancesOpts struct {
 	HexGpu                   gpu.GpuFromHex
 	HexProfilesMap           map[uint32]gpu.VgpuProfileFromHex
 	// ServerNames maps Openstack server id to name, prefetched once per request
-	// so vGPU instance names do not cost a GetServer round trip each.
+	// so vGPU instance names do not cost a GetServer round trip each. A nil map
+	// means the prefetch failed outright, so a name missing for an attached
+	// instance is a real enrichment loss (degrade); a non-nil map that simply
+	// lacks an id means that one VM is absent (soft, reported without a name).
 	ServerNames map[string]string
+	// Enrichment accumulates the card's degraded state as attached-instance
+	// enrichment is gathered.
+	Enrichment *enrichment
+}
+
+// enrichment accumulates the degraded state of a single GPU card while its NVML,
+// hex and Openstack enrichment is gathered. degrade flags the card and logs why;
+// coupling flag and log in one call keeps a "(degraded)" warning from ever
+// drifting apart from the flag it is supposed to accompany. Gaps that are merely
+// incomplete but not misleading (an instance reported without a name, a transient
+// hex read skew) log directly via log.Warnf without flagging.
+type enrichment struct {
+	degraded bool
+}
+
+// degrade flags the card degraded and logs why. Use it when an omission could be
+// misread as a real state change (a dropped instance looks like a detach, an
+// empty profile set looks like real capacity).
+func (e *enrichment) degrade(format string, args ...any) {
+	e.degraded = true
+	log.Errorf(format, args...)
 }
 
 func (h *helper) listNodeGpuCards() ([]gpu.GpuCard, error) {
@@ -67,7 +91,8 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 	}
 
 	// Resolve vGPU instance names in a single Openstack round trip rather than
-	// one GetServer per attached instance.
+	// one GetServer per attached instance. A nil map signals the prefetch failed,
+	// which degrades any vGPU card that has attached instances needing a name.
 	serverNames := h.resolveServerNames(hexGpusMap)
 
 	gpuCards := []gpu.GpuCard{}
@@ -92,9 +117,9 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 }
 
 // resolveServerNames prefetches Openstack server names (id -> name) when the
-// node has any vGPU, whose attached-instance names come from Openstack. A lookup
-// failure degrades to an empty map (instances reported without a name) rather
-// than failing the listing.
+// node has any vGPU, whose attached-instance names come from Openstack. On a
+// lookup failure it returns nil (instances reported without a name) rather than
+// failing the listing; the nil map lets callers mark affected cards degraded.
 func (h *helper) resolveServerNames(hexGpusMap map[string]gpu.GpuFromHex) map[string]string {
 	needsServerNames := false
 	for _, hexGpu := range hexGpusMap {
@@ -110,7 +135,7 @@ func (h *helper) resolveServerNames(hexGpusMap map[string]gpu.GpuFromHex) map[st
 	serverNames, err := getOpenstackServerNames()
 	if err != nil {
 		log.Warnf("gpu(%s): failed to list Openstack servers for name resolution on node %s: %v; reporting instances without names", h.reqId, h.node, err)
-		return map[string]string{}
+		return nil
 	}
 
 	return serverNames
@@ -119,7 +144,7 @@ func (h *helper) resolveServerNames(hexGpusMap map[string]gpu.GpuFromHex) map[st
 func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string]string) (gpu.GpuCard, error) {
 	var memoryUsedMiB, memoryTotalMiB int
 	var memoryUtilizationPercent, gpuUtilizationPercent uint32
-	var degraded bool
+	enr := &enrichment{}
 
 	// Relies on hex reporting the GPU id as the NVML UUID.
 	device, ret := deviceGetHandleByUUID(hexGpu.Id)
@@ -134,7 +159,9 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string
 			memoryUsedMiB = bytesToMiB(memoryInfo.Used)
 			memoryTotalMiB = bytesToMiB(memoryInfo.Total)
 		} else {
-			log.Warnf("nvml: failed to get memory info for device %s: %s", hexGpu.Id, nvml.ErrorString(ret))
+			// Memory info is the card's capacity; losing it leaves the reported
+			// capacity untrustworthy, so flag the card degraded.
+			enr.degrade("nvml: failed to get memory info for device %s: %s; reporting card as degraded", hexGpu.Id, nvml.ErrorString(ret))
 		}
 
 		utilizationRates, ret := device.GetUtilizationRates()
@@ -142,7 +169,9 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string
 			memoryUtilizationPercent = utilizationRates.Memory
 			gpuUtilizationPercent = utilizationRates.Gpu
 		} else {
-			log.Warnf("nvml: failed to get utilization rates for device %s: %s", hexGpu.Id, nvml.ErrorString(ret))
+			// Utilization is runtime enrichment this card should have had; its
+			// absence makes the card's stats untrustworthy, so flag it degraded.
+			enr.degrade("nvml: failed to get utilization rates for device %s: %s; reporting card as degraded", hexGpu.Id, nvml.ErrorString(ret))
 		}
 	case ret == nvml.ERROR_NOT_FOUND && hexGpu.Type == gpu.ResourceTypePgpu:
 		// Expected: a pgpu bound to vfio for passthrough (attached to a VM or
@@ -157,11 +186,10 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string
 		// the card is reported without runtime stats or attached instances and
 		// its capacity is untrustworthy: flag it degraded. A node-wide NVML outage
 		// (init failed) is the common cause, so distinguish it in the log.
-		degraded = true
 		if !isNvmlAvailable() {
-			log.Warnf("nvml: NVML is not initialized on this node; gpu %s reported from hex without runtime stats or attachments (capacity is degraded)", hexGpu.Id)
+			enr.degrade("nvml: NVML is not initialized on this node; gpu %s reported from hex without runtime stats or attachments (capacity is degraded)", hexGpu.Id)
 		} else {
-			log.Warnf("nvml: failed to get device handle for gpu %s: %s; reporting card as degraded", hexGpu.Id, nvml.ErrorString(ret))
+			enr.degrade("nvml: failed to get device handle for gpu %s: %s; reporting card as degraded", hexGpu.Id, nvml.ErrorString(ret))
 		}
 	}
 
@@ -169,7 +197,21 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string
 	hexProfileCollection := gpu.VgpuProfileCollectionFromHex{}
 
 	if isVgpu(hexGpu) {
-		hexProfilesMap, hexProfileCollection = getNodeVgpuProfilesMap(hexGpu.PciAddress)
+		var profErr error
+		hexProfilesMap, hexProfileCollection, profErr = getNodeVgpuProfilesMap(hexGpu.PciAddress)
+		if profErr != nil {
+			// Profiles drive the card's advertised vGPU capacity; a failed hex
+			// profile fetch leaves that capacity untrustworthy, so flag degraded
+			// rather than reporting an empty profile set as if it were real.
+			enr.degrade("gpu: failed to get vgpu profiles for gpu %s on node %s: %v; reporting card as degraded", hexGpu.Id, h.node, profErr)
+		}
+	}
+
+	// A nil server-name map means the getOpenstackServerNames call failed, so
+	// attached-instance name enrichment is unavailable for the whole node: flag
+	// the card degraded.
+	if serverNames == nil {
+		enr.degrade("gpu: Openstack server prefetch failed on node %s; gpu %s reported without instance names (degraded)", h.node, hexGpu.Id)
 	}
 
 	attachedInstances, err := listAttachedInstances(listAttachedInstancesOpts{
@@ -183,6 +225,7 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string
 		HexGpu:                   hexGpu,
 		HexProfilesMap:           hexProfilesMap,
 		ServerNames:              serverNames,
+		Enrichment:               enr,
 	})
 	if err != nil {
 		return gpu.GpuCard{}, err
@@ -212,7 +255,7 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string
 		SriovVgpuProfileCountLimit: hexGpu.SriovVgpuProfileCountLimit,
 		Profiles:                   profileCollection,
 		AttachedInstances:          attachedInstances,
-		Degraded:                   degraded,
+		Degraded:                   enr.degraded,
 	}
 
 	return gpuCard, nil
@@ -290,6 +333,10 @@ func isVgpu(hexGpu gpu.GpuFromHex) bool {
 	return hexGpu.Type == gpu.ResourceTypeSriovVgpu || hexGpu.Type == gpu.ResourceTypeMigBackedVgpu
 }
 
+// listAttachedInstances returns the attached instances, flagging the card via
+// opts.Enrichment when NVML/hex enrichment that should have populated them could
+// not be obtained. An error is reserved for integrity failures (an unhandled
+// type) that must fail the whole listing.
 func listAttachedInstances(opts listAttachedInstancesOpts) (*[]gpu.AttachedInstance, error) {
 	hexGpu := opts.HexGpu
 
@@ -297,15 +344,19 @@ func listAttachedInstances(opts listAttachedInstancesOpts) (*[]gpu.AttachedInsta
 	case gpu.ResourceTypeUnset:
 		return nil, nil
 	case gpu.ResourceTypePgpu:
-		return listPgpuAttachedInstances(opts)
+		return listPgpuAttachedInstances(opts), nil
 	case gpu.ResourceTypeSriovVgpu, gpu.ResourceTypeMigBackedVgpu:
-		return listVgpuAttachedInstances(opts)
+		return listVgpuAttachedInstances(opts), nil
 	default:
 		return nil, fmt.Errorf("gpu: unhandled gpu type %s when listing attached instances for gpu %s", hexGpu.Type, hexGpu.Id)
 	}
 }
 
-func listPgpuAttachedInstances(opts listAttachedInstancesOpts) (*[]gpu.AttachedInstance, error) {
+// listPgpuAttachedInstances resolves a pgpu's attached instance from hex. A
+// failed hex attached-instance lookup degrades (the allocation is real but the
+// instance detail is unavailable, so no instance must not be read as absent); a
+// transient allocation/instance read skew is soft.
+func listPgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedInstance {
 	deviceMemoryUsedMiB,
 		deviceMemoryTotalMiB,
 		deviceGpuUtilizationRate,
@@ -320,21 +371,22 @@ func listPgpuAttachedInstances(opts listAttachedInstancesOpts) (*[]gpu.AttachedI
 	attachedInstances := []gpu.AttachedInstance{}
 
 	if hexGpu.Allocation == nil || hexGpu.Allocation.Current == 0 {
-		return &attachedInstances, nil
+		return &attachedInstances
 	}
 
 	attachedInstance, err := getNodePgpuAttachedInstance(hexGpu.PciAddress)
 	if err != nil {
-		return nil, err
+		opts.Enrichment.degrade("gpu: failed to get attached instance for pgpu %s on node %s: %v; reporting no attached instance (degraded)", hexGpu.PciAddress, nodeName, err)
+		return &attachedInstances
 	}
 
 	if attachedInstance == nil {
 		// The allocation count and the attached-instance lookup are two separate
 		// hex reads: during an attach/detach they can be observed out of sync
-		// (allocation already 1 while the instance is not yet reported). Degrade
-		// to no attached instance instead of failing the whole node listing.
+		// (allocation already 1 while the instance is not yet reported). This is a
+		// benign transient skew, not a lost enrichment, so it logs without degrading.
 		log.Warnf("gpu: hex reports allocation for pgpu %s on node %s but no attached instance yet (transient read skew); reporting no attached instance", hexGpu.PciAddress, nodeName)
-		return &attachedInstances, nil
+		return &attachedInstances
 	}
 
 	attachedInstances = append(attachedInstances, gpu.AttachedInstance{
@@ -349,75 +401,84 @@ func listPgpuAttachedInstances(opts listAttachedInstancesOpts) (*[]gpu.AttachedI
 		Links: buildInstanceLinks(attachedInstance.Id),
 	})
 
-	return &attachedInstances, nil
+	return &attachedInstances
 }
 
-// Returns the attached instances for SR-IOV and MIG-backed vGPUs.
-func listVgpuAttachedInstances(opts listAttachedInstancesOpts) (*[]gpu.AttachedInstance, error) {
-	device, deviceUUID, hexProfilesMap, serverNames := opts.Device, opts.DeviceUUID, opts.HexProfilesMap, opts.ServerNames
+// listVgpuAttachedInstances returns the attached instances for SR-IOV and
+// MIG-backed vGPUs. The instance list is derived entirely from NVML (enrichment):
+// any NVML failure degrades to a partial or empty list instead of failing the
+// whole node listing, so a single GPU being reset does not take down the listing
+// for every other card.
+func listVgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedInstance {
+	device, deviceUUID, hexProfilesMap, serverNames, enr := opts.Device, opts.DeviceUUID, opts.HexProfilesMap, opts.ServerNames, opts.Enrichment
 
 	attachedInstances := []gpu.AttachedInstance{}
 	if !opts.IsDeviceVisible {
-		return &attachedInstances, nil
+		// The device handle was unavailable; the caller already flagged the card
+		// degraded when it failed to resolve the handle, so do not double-flag.
+		return &attachedInstances
 	}
 
 	vgpuInstances, ret := device.GetActiveVgpus()
 	if ret != nvml.SUCCESS {
-		return nil, fmt.Errorf("nvml: failed to get active vgpus for device %s: %s", deviceUUID, nvml.ErrorString(ret))
+		// The active vGPU list is enrichment (e.g. ERROR_GPU_IS_LOST during a
+		// reset): degrade to no attached instances rather than failing the whole
+		// node listing.
+		enr.degrade("nvml: failed to get active vgpus for device %s: %s; reporting no attached instances (degraded)", deviceUUID, nvml.ErrorString(ret))
+		return &attachedInstances
 	}
 
 	// No active vGPU: skip the utilization query entirely (it can fail on a
 	// device with no samples yet, and its result would be unused anyway).
 	if len(vgpuInstances) == 0 {
-		return &attachedInstances, nil
+		return &attachedInstances
 	}
 
-	vgpuInstanceUtilizationMap, err := buildVgpuInstanceUtilizationMap(device, deviceUUID)
-	if err != nil {
-		return nil, err
-	}
+	vgpuInstanceUtilizationMap := buildVgpuInstanceUtilizationMap(device, deviceUUID, enr)
 
 	for i, vgpuInstance := range vgpuInstances {
 		// The per-instance NVML calls below are enrichment on top of the active
 		// vGPU list: a VM torn down between GetActiveVgpus and these calls leaves
 		// a stale handle that returns ERROR_NOT_FOUND. Skip just that instance
-		// instead of failing the whole node listing.
+		// (flagging the card degraded so the missing instance is not read as a
+		// real detach) instead of failing the whole node listing.
 		vmId, _, ret := vgpuInstance.GetVmID()
 		if ret != nvml.SUCCESS {
-			log.Warnf("nvml: failed to get VM ID for vgpu instance at index %d: %s; skipping instance", i, nvml.ErrorString(ret))
+			enr.degrade("nvml: failed to get VM ID for vgpu instance at index %d: %s; skipping instance (degraded)", i, nvml.ErrorString(ret))
 			continue
 		}
 
 		vgpuType, ret := vgpuInstance.GetType()
 		if ret != nvml.SUCCESS {
-			log.Warnf("nvml: failed to get type for vgpu instance %s: %s; skipping instance", vmId, nvml.ErrorString(ret))
+			enr.degrade("nvml: failed to get type for vgpu instance %s: %s; skipping instance (degraded)", vmId, nvml.ErrorString(ret))
 			continue
 		}
 
 		profileId, ret := vgpuType.GetGpuInstanceProfileId()
 		if ret != nvml.SUCCESS {
-			log.Warnf("nvml: failed to get profile ID for vgpu instance %s: %s; skipping instance", vmId, nvml.ErrorString(ret))
+			enr.degrade("nvml: failed to get profile ID for vgpu instance %s: %s; skipping instance (degraded)", vmId, nvml.ErrorString(ret))
 			continue
 		}
 
 		frameBufferBytes, ret := vgpuType.GetFramebufferSize()
 		if ret != nvml.SUCCESS {
-			log.Warnf("nvml: failed to get frame buffer size for profile %d: %s; skipping instance %s", profileId, nvml.ErrorString(ret), vmId)
+			enr.degrade("nvml: failed to get frame buffer size for profile %d: %s; skipping instance %s (degraded)", profileId, nvml.ErrorString(ret), vmId)
 			continue
 		}
 
 		fbUsage, ret := vgpuInstance.GetFbUsage()
 		if ret != nvml.SUCCESS {
-			log.Warnf("nvml: failed to get fb usage for vgpu instance %s: %s; skipping instance", vmId, nvml.ErrorString(ret))
+			enr.degrade("nvml: failed to get fb usage for vgpu instance %s: %s; skipping instance (degraded)", vmId, nvml.ErrorString(ret))
 			continue
 		}
 
 		hexProfile := hexProfilesMap[profileId]
 		profileAlias := hexProfile.Alias
 
-		// The server name is enrichment resolved from the prefetched map; a VM
-		// being torn down (or briefly missing from the listing) simply has no
-		// name rather than failing the whole listing.
+		// The server name is enrichment resolved from the prefetched map. A missing
+		// name just logs here (the instance is reported without one); a nil map
+		// means the prefetch failed outright, which the caller already flagged as
+		// degraded on the card itself.
 		serverName, ok := serverNames[vmId]
 		if !ok {
 			log.Warnf("gpu: Openstack server %s not found in prefetched servers; reporting instance without name", vmId)
@@ -438,20 +499,20 @@ func listVgpuAttachedInstances(opts listAttachedInstancesOpts) (*[]gpu.AttachedI
 		})
 	}
 
-	return &attachedInstances, nil
+	return &attachedInstances
 }
 
-func buildVgpuInstanceUtilizationMap(device nvml.Device, deviceUUID string) (map[uint32]uint32, error) {
+// buildVgpuInstanceUtilizationMap maps vGPU instance handle to SM utilization.
+// A failed query would leave every attached instance reporting 0% utilization,
+// which reads as idle rather than unknown, so any non-SUCCESS degrades the card
+// (never fails the listing) and returns an empty map.
+func buildVgpuInstanceUtilizationMap(device nvml.Device, deviceUUID string, enr *enrichment) map[uint32]uint32 {
 	utilizationMap := map[uint32]uint32{}
 	valueType, samples, ret := device.GetVgpuUtilization(0)
 
-	// Utilization is enrichment: NVML returns ERROR_NOT_FOUND when no samples
-	// exist yet, ERROR_NOT_SUPPORTED on some hardware, and ERROR_GPU_IS_LOST
-	// during a reset. None of those should fail the node listing, so any
-	// non-SUCCESS degrades to an empty map.
 	if ret != nvml.SUCCESS {
-		log.Warnf("nvml: failed to get vgpu utilization for device %s: %s; reporting empty utilization", deviceUUID, nvml.ErrorString(ret))
-		return utilizationMap, nil
+		enr.degrade("nvml: failed to get vgpu utilization for device %s: %s; reporting empty utilization (degraded)", deviceUUID, nvml.ErrorString(ret))
+		return utilizationMap
 	}
 
 	for _, sample := range samples {
@@ -466,7 +527,7 @@ func buildVgpuInstanceUtilizationMap(device nvml.Device, deviceUUID string) (map
 		}
 	}
 
-	return utilizationMap, nil
+	return utilizationMap
 }
 
 // buildInstanceLinksViaOpenstack builds the links reported inline with each

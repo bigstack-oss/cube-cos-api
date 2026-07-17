@@ -213,6 +213,8 @@ func TestListLocalGpuCardsDegradesOnNvmlFaults(t *testing.T) {
 		require.Len(t, cards, 1)
 		require.Equal(t, gpu.VramInfo{UtilizationPercent: 40}, cards[0].Vram)
 		require.Equal(t, gpu.GpuInfo{UtilizationPercent: 55}, cards[0].Gpu)
+		// Lost memory info is lost capacity: the card is flagged degraded.
+		require.True(t, cards[0].Degraded)
 	})
 
 	t.Run("utilization rates fault degrades utilization stats only", func(t *testing.T) {
@@ -233,6 +235,8 @@ func TestListLocalGpuCardsDegradesOnNvmlFaults(t *testing.T) {
 		require.Len(t, cards, 1)
 		require.Equal(t, gpu.VramInfo{AllocatedMiB: 2048, TotalMiB: 8192}, cards[0].Vram)
 		require.Equal(t, gpu.GpuInfo{}, cards[0].Gpu)
+		// Lost utilization is untrustworthy stats: the card is flagged degraded.
+		require.True(t, cards[0].Degraded)
 	})
 }
 
@@ -267,7 +271,7 @@ func TestBuildLocalGpuCardVgpuProfiles(t *testing.T) {
 		}, nvml.SUCCESS
 	}
 
-	getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex) {
+	getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
 		require.Equal(t, hexGpu.PciAddress, gpuId)
 
 		profile := gpu.VgpuProfileFromHex{
@@ -280,13 +284,15 @@ func TestBuildLocalGpuCardVgpuProfiles(t *testing.T) {
 		}
 
 		return map[uint32]gpu.VgpuProfileFromHex{1: profile},
-			gpu.VgpuProfileCollectionFromHex{Sriov: &[]gpu.VgpuProfileFromHex{profile}}
+			gpu.VgpuProfileCollectionFromHex{Sriov: &[]gpu.VgpuProfileFromHex{profile}},
+			nil
 	}
 
 	h := &helper{node: "node-1"}
 	card, err := h.buildLocalGpuCard(hexGpu, map[string]string{})
 
 	require.NoError(t, err)
+	require.False(t, card.Degraded)
 	require.Equal(t, hexGpu.Id, card.Id)
 	require.Len(t, card.Profiles.SriovVgpu, 1)
 	require.Equal(t, gpu.VgpuProfile{
@@ -303,17 +309,101 @@ func TestBuildLocalGpuCardVgpuProfiles(t *testing.T) {
 	require.Empty(t, *card.AttachedInstances)
 }
 
+// A failed hex vgpu-profile fetch leaves the card's advertised capacity
+// untrustworthy, so the card is flagged degraded rather than reporting an empty
+// profile set as if it were real.
+func TestBuildLocalGpuCardDegradesOnProfileFetchFailure(t *testing.T) {
+	restoreGpuSeams(t)
+
+	hexGpu := gpu.GpuFromHex{
+		Id:         "GPU-66666666-6666-6666-6666-666666666666",
+		Name:       "NVIDIA A100",
+		Type:       gpu.ResourceTypeSriovVgpu,
+		PciAddress: "0000:04:00.0",
+		Status:     gpu.GpuStatusInUse,
+	}
+
+	deviceGetHandleByUUID = func(uuid string) (nvml.Device, nvml.Return) {
+		return &nvmlmock.Device{
+			GetMemoryInfoFunc: func() (nvml.Memory, nvml.Return) {
+				return nvml.Memory{Used: 0, Total: 8192 * bytesPerMiB}, nvml.SUCCESS
+			},
+			GetUtilizationRatesFunc: func() (nvml.Utilization, nvml.Return) {
+				return nvml.Utilization{}, nvml.SUCCESS
+			},
+			GetActiveVgpusFunc: func() ([]nvml.VgpuInstance, nvml.Return) {
+				return []nvml.VgpuInstance{}, nvml.SUCCESS
+			},
+		}, nvml.SUCCESS
+	}
+
+	getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
+		return map[uint32]gpu.VgpuProfileFromHex{}, gpu.VgpuProfileCollectionFromHex{}, errors.New("hex_sdk failed")
+	}
+
+	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(hexGpu, map[string]string{})
+
+	require.NoError(t, err)
+	require.True(t, card.Degraded)
+}
+
+// A nil server-name map means the Openstack prefetch failed, so a vGPU card's
+// attached-instance names are all unavailable: the card is flagged degraded even
+// when it currently has no attached instances.
+func TestBuildLocalGpuCardDegradesOnServerPrefetchFailure(t *testing.T) {
+	restoreGpuSeams(t)
+
+	hexGpu := gpu.GpuFromHex{
+		Id:         "GPU-77777777-7777-7777-7777-777777777777",
+		Name:       "NVIDIA A100",
+		Type:       gpu.ResourceTypeSriovVgpu,
+		PciAddress: "0000:05:00.0",
+		Status:     gpu.GpuStatusIdle,
+	}
+
+	deviceGetHandleByUUID = func(uuid string) (nvml.Device, nvml.Return) {
+		return &nvmlmock.Device{
+			GetMemoryInfoFunc: func() (nvml.Memory, nvml.Return) {
+				return nvml.Memory{Used: 0, Total: 8192 * bytesPerMiB}, nvml.SUCCESS
+			},
+			GetUtilizationRatesFunc: func() (nvml.Utilization, nvml.Return) {
+				return nvml.Utilization{}, nvml.SUCCESS
+			},
+			// No active vGPU: the card still degrades because names are unavailable.
+			GetActiveVgpusFunc: func() ([]nvml.VgpuInstance, nvml.Return) {
+				return []nvml.VgpuInstance{}, nvml.SUCCESS
+			},
+		}, nvml.SUCCESS
+	}
+
+	getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
+		return map[uint32]gpu.VgpuProfileFromHex{}, gpu.VgpuProfileCollectionFromHex{}, nil
+	}
+
+	// nil serverNames == prefetch failed.
+	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(hexGpu, nil)
+
+	require.NoError(t, err)
+	require.True(t, card.Degraded)
+}
+
 func TestListAttachedInstancesUnhandledTypes(t *testing.T) {
+	enr := &enrichment{}
+
 	instances, err := listAttachedInstances(listAttachedInstancesOpts{
-		HexGpu: gpu.GpuFromHex{Type: gpu.ResourceTypeUnset},
+		HexGpu:     gpu.GpuFromHex{Type: gpu.ResourceTypeUnset},
+		Enrichment: enr,
 	})
 	require.NoError(t, err)
+	require.False(t, enr.degraded)
 	require.Nil(t, instances)
 
 	instances, err = listAttachedInstances(listAttachedInstancesOpts{
-		HexGpu: gpu.GpuFromHex{Type: gpu.ResourceType("bogus")},
+		HexGpu:     gpu.GpuFromHex{Type: gpu.ResourceType("bogus")},
+		Enrichment: enr,
 	})
 	require.Error(t, err)
+	require.False(t, enr.degraded)
 	require.Nil(t, instances)
 }
 
@@ -321,42 +411,52 @@ func TestListPgpuAttachedInstances(t *testing.T) {
 	restoreGpuSeams(t)
 
 	t.Run("no allocation reports no instances", func(t *testing.T) {
-		instances, err := listPgpuAttachedInstances(listAttachedInstancesOpts{
-			HexGpu: gpu.GpuFromHex{Type: gpu.ResourceTypePgpu},
+		enr := &enrichment{}
+		instances := listPgpuAttachedInstances(listAttachedInstancesOpts{
+			HexGpu:     gpu.GpuFromHex{Type: gpu.ResourceTypePgpu},
+			Enrichment: enr,
 		})
 
-		require.NoError(t, err)
+		require.False(t, enr.degraded)
 		require.NotNil(t, instances)
 		require.Empty(t, *instances)
 	})
 
 	t.Run("zero current allocation reports no instances", func(t *testing.T) {
-		instances, err := listPgpuAttachedInstances(listAttachedInstancesOpts{
+		enr := &enrichment{}
+		instances := listPgpuAttachedInstances(listAttachedInstancesOpts{
 			HexGpu: gpu.GpuFromHex{
 				Type:       gpu.ResourceTypePgpu,
 				Allocation: &gpu.AllocationSummary{Current: 0, Total: 1},
 			},
+			Enrichment: enr,
 		})
 
-		require.NoError(t, err)
+		require.False(t, enr.degraded)
 		require.NotNil(t, instances)
 		require.Empty(t, *instances)
 	})
 
-	t.Run("hex lookup failure returns error", func(t *testing.T) {
+	// A failed hex attached-instance lookup on an allocated pgpu degrades to no
+	// attached instance and flags the card degraded rather than failing the whole
+	// node listing.
+	t.Run("hex lookup failure degrades", func(t *testing.T) {
 		getNodePgpuAttachedInstance = func(pciAddress string) (*gpu.PgpuAttachedInstanceFromHex, error) {
 			return nil, errors.New("hex_sdk failed")
 		}
 
-		instances, err := listPgpuAttachedInstances(listAttachedInstancesOpts{
+		enr := &enrichment{}
+		instances := listPgpuAttachedInstances(listAttachedInstancesOpts{
 			HexGpu: gpu.GpuFromHex{
 				Type:       gpu.ResourceTypePgpu,
 				Allocation: &gpu.AllocationSummary{Current: 1, Total: 1},
 			},
+			Enrichment: enr,
 		})
 
-		require.Error(t, err)
-		require.Nil(t, instances)
+		require.True(t, enr.degraded)
+		require.NotNil(t, instances)
+		require.Empty(t, *instances)
 	})
 
 	// A transient hex read skew (allocation already counted while the attached
@@ -367,14 +467,18 @@ func TestListPgpuAttachedInstances(t *testing.T) {
 			return nil, nil
 		}
 
-		instances, err := listPgpuAttachedInstances(listAttachedInstancesOpts{
+		enr := &enrichment{}
+		instances := listPgpuAttachedInstances(listAttachedInstancesOpts{
 			HexGpu: gpu.GpuFromHex{
 				Type:       gpu.ResourceTypePgpu,
 				Allocation: &gpu.AllocationSummary{Current: 1, Total: 1},
 			},
+			Enrichment: enr,
 		})
 
-		require.NoError(t, err)
+		// A transient hex read skew is a benign out-of-sync read, not a lookup
+		// failure: the pgpu path stays soft without flagging the card.
+		require.False(t, enr.degraded)
 		require.NotNil(t, instances)
 		require.Empty(t, *instances)
 	})
@@ -390,7 +494,8 @@ func TestListPgpuAttachedInstances(t *testing.T) {
 			return links
 		}
 
-		instances, err := listPgpuAttachedInstances(listAttachedInstancesOpts{
+		enr := &enrichment{}
+		instances := listPgpuAttachedInstances(listAttachedInstancesOpts{
 			DeviceMemoryUsedMiB:      2048,
 			DeviceMemoryTotalMiB:     8192,
 			DeviceGpuUtilizationRate: 55,
@@ -398,9 +503,10 @@ func TestListPgpuAttachedInstances(t *testing.T) {
 				Type:       gpu.ResourceTypePgpu,
 				Allocation: &gpu.AllocationSummary{Current: 1, Total: 1},
 			},
+			Enrichment: enr,
 		})
 
-		require.NoError(t, err)
+		require.False(t, enr.degraded)
 		require.NotNil(t, instances)
 		require.Len(t, *instances, 1)
 		require.Equal(t, gpu.AttachedInstance{
@@ -458,35 +564,44 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 	}
 
 	t.Run("device invisible to nvml reports no instances", func(t *testing.T) {
-		instances, err := listVgpuAttachedInstances(listAttachedInstancesOpts{
+		enr := &enrichment{}
+		instances := listVgpuAttachedInstances(listAttachedInstancesOpts{
 			IsDeviceVisible: false,
 			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeSriovVgpu},
+			Enrichment:      enr,
 		})
 
-		require.NoError(t, err)
+		// The caller already flagged the card degraded when the handle failed, so
+		// this path does not double-flag.
+		require.False(t, enr.degraded)
 		require.NotNil(t, instances)
 		require.Empty(t, *instances)
 	})
 
-	t.Run("active vgpu listing failure returns error", func(t *testing.T) {
+	// The active vGPU list is NVML enrichment (e.g. GPU_IS_LOST during a reset):
+	// it degrades to no attached instances rather than failing the whole listing.
+	t.Run("active vgpu listing failure degrades", func(t *testing.T) {
 		device := &nvmlmock.Device{
 			GetActiveVgpusFunc: func() ([]nvml.VgpuInstance, nvml.Return) {
-				return nil, nvml.ERROR_UNKNOWN
+				return nil, nvml.ERROR_GPU_IS_LOST
 			},
 			GetVgpuUtilizationFunc: func(v uint64) (nvml.ValueType, []nvml.VgpuInstanceUtilizationSample, nvml.Return) {
 				return nvml.VALUE_TYPE_UNSIGNED_INT, nil, nvml.SUCCESS
 			},
 		}
 
-		instances, err := listVgpuAttachedInstances(listAttachedInstancesOpts{
+		enr := &enrichment{}
+		instances := listVgpuAttachedInstances(listAttachedInstancesOpts{
 			Device:          device,
 			IsDeviceVisible: true,
 			DeviceUUID:      "GPU-44444444-4444-4444-4444-444444444444",
 			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeSriovVgpu},
+			Enrichment:      enr,
 		})
 
-		require.Error(t, err)
-		require.Nil(t, instances)
+		require.True(t, enr.degraded)
+		require.NotNil(t, instances)
+		require.Empty(t, *instances)
 	})
 
 	// No active vGPU short-circuits before the utilization query, so a failing
@@ -501,14 +616,16 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 			},
 		}
 
-		instances, err := listVgpuAttachedInstances(listAttachedInstancesOpts{
+		enr := &enrichment{}
+		instances := listVgpuAttachedInstances(listAttachedInstancesOpts{
 			Device:          device,
 			IsDeviceVisible: true,
 			DeviceUUID:      "GPU-44444444-4444-4444-4444-444444444444",
 			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeSriovVgpu},
+			Enrichment:      enr,
 		})
 
-		require.NoError(t, err)
+		require.False(t, enr.degraded)
 		require.NotNil(t, instances)
 		require.Empty(t, *instances)
 	})
@@ -533,16 +650,20 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 			nil,
 		)
 
-		instances, err := listVgpuAttachedInstances(listAttachedInstancesOpts{
+		enr := &enrichment{}
+		instances := listVgpuAttachedInstances(listAttachedInstancesOpts{
 			Device:          device,
 			IsDeviceVisible: true,
 			DeviceUUID:      "GPU-44444444-4444-4444-4444-444444444444",
 			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeSriovVgpu},
 			HexProfilesMap:  map[uint32]gpu.VgpuProfileFromHex{profileId: {Alias: &alias}},
 			ServerNames:     map[string]string{"vm-9": "instance-9"},
+			Enrichment:      enr,
 		})
 
-		require.NoError(t, err)
+		// A skipped instance must flag the card degraded so the missing instance
+		// is not read as a real detach.
+		require.True(t, enr.degraded)
 		require.Len(t, *instances, 1)
 		require.Equal(t, "vm-9", (*instances)[0].Id)
 	})
@@ -560,16 +681,18 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 			[]nvml.VgpuInstanceUtilizationSample{{VgpuInstance: 7, SmUtil: [8]byte{33}}},
 		)
 
-		instances, err := listVgpuAttachedInstances(listAttachedInstancesOpts{
+		enr := &enrichment{}
+		instances := listVgpuAttachedInstances(listAttachedInstancesOpts{
 			Device:          device,
 			IsDeviceVisible: true,
 			DeviceUUID:      "GPU-44444444-4444-4444-4444-444444444444",
 			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeSriovVgpu},
 			HexProfilesMap:  map[uint32]gpu.VgpuProfileFromHex{profileId: {Alias: &alias}},
 			ServerNames:     map[string]string{"vm-9": "instance-9"},
+			Enrichment:      enr,
 		})
 
-		require.NoError(t, err)
+		require.False(t, enr.degraded)
 		require.NotNil(t, instances)
 		require.Len(t, *instances, 1)
 		require.Equal(t, gpu.AttachedInstance{
@@ -596,15 +719,46 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 
 		device := newDevice([]nvml.VgpuInstance{newVgpuInstance("vm-9")}, nil)
 
-		instances, err := listVgpuAttachedInstances(listAttachedInstancesOpts{
+		enr := &enrichment{}
+		instances := listVgpuAttachedInstances(listAttachedInstancesOpts{
 			Device:          device,
 			IsDeviceVisible: true,
 			DeviceUUID:      "GPU-44444444-4444-4444-4444-444444444444",
 			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeSriovVgpu},
 			ServerNames:     map[string]string{},
+			Enrichment:      enr,
 		})
 
-		require.NoError(t, err)
+		// A missing server name from a non-nil map is soft enrichment, not a lost
+		// instance: the card is not degraded.
+		require.False(t, enr.degraded)
+		require.Len(t, *instances, 1)
+		require.Equal(t, "vm-9", (*instances)[0].Id)
+		require.Empty(t, (*instances)[0].Name)
+	})
+
+	// A nil server-name map (prefetch failed) is handled at the card level by
+	// buildLocalGpuCard, not here: this layer only reports the instance without a
+	// name and does not itself degrade. See TestBuildLocalGpuCardDegradesOnServerPrefetchFailure.
+	t.Run("nil server map does not degrade at this layer", func(t *testing.T) {
+		vgpuInstanceId = func(instance nvml.VgpuInstance) uint32 { return 7 }
+		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
+			return gpu.InstanceLinks{}
+		}
+
+		device := newDevice([]nvml.VgpuInstance{newVgpuInstance("vm-9")}, nil)
+
+		enr := &enrichment{}
+		instances := listVgpuAttachedInstances(listAttachedInstancesOpts{
+			Device:          device,
+			IsDeviceVisible: true,
+			DeviceUUID:      "GPU-44444444-4444-4444-4444-444444444444",
+			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeSriovVgpu},
+			ServerNames:     nil,
+			Enrichment:      enr,
+		})
+
+		require.False(t, enr.degraded)
 		require.Len(t, *instances, 1)
 		require.Equal(t, "vm-9", (*instances)[0].Id)
 		require.Empty(t, (*instances)[0].Name)
@@ -622,42 +776,29 @@ func TestBuildVgpuInstanceUtilizationMap(t *testing.T) {
 			},
 		}
 
-		utilizationMap, err := buildVgpuInstanceUtilizationMap(device, "GPU-uuid")
+		enr := &enrichment{}
+		utilizationMap := buildVgpuInstanceUtilizationMap(device, "GPU-uuid", enr)
 
-		require.NoError(t, err)
+		require.False(t, enr.degraded)
 		require.Equal(t, map[uint32]uint32{7: 42, 9: 80}, utilizationMap)
 	})
 
-	// NVML returns ERROR_NOT_FOUND when no utilization samples exist yet
-	// (e.g. no vGPU has run since the last query); that is not a failure.
-	t.Run("no samples reports empty map", func(t *testing.T) {
-		device := &nvmlmock.Device{
-			GetVgpuUtilizationFunc: func(v uint64) (nvml.ValueType, []nvml.VgpuInstanceUtilizationSample, nvml.Return) {
-				return nvml.VALUE_TYPE_UNSIGNED_INT, nil, nvml.ERROR_NOT_FOUND
-			},
-		}
-
-		utilizationMap, err := buildVgpuInstanceUtilizationMap(device, "GPU-uuid")
-
-		require.NoError(t, err)
-		require.NotNil(t, utilizationMap)
-		require.Empty(t, utilizationMap)
-	})
-
-	// ERROR_NOT_SUPPORTED (permanent on some hardware) and ERROR_GPU_IS_LOST
-	// (transient during a reset) are enrichment failures: degrade to an empty
-	// map instead of failing the whole listing.
+	// Any non-SUCCESS return (no samples yet, unsupported hardware, GPU lost, or
+	// unknown) would leave every attached instance reporting 0% utilization, which
+	// reads as idle rather than unknown: degrade to an empty map instead of failing
+	// the whole listing.
 	t.Run("utilization query failure degrades to empty map", func(t *testing.T) {
-		for _, ret := range []nvml.Return{nvml.ERROR_NOT_SUPPORTED, nvml.ERROR_GPU_IS_LOST, nvml.ERROR_UNKNOWN} {
+		for _, ret := range []nvml.Return{nvml.ERROR_NOT_FOUND, nvml.ERROR_NOT_SUPPORTED, nvml.ERROR_GPU_IS_LOST, nvml.ERROR_UNKNOWN} {
 			device := &nvmlmock.Device{
 				GetVgpuUtilizationFunc: func(v uint64) (nvml.ValueType, []nvml.VgpuInstanceUtilizationSample, nvml.Return) {
 					return nvml.VALUE_TYPE_UNSIGNED_INT, nil, ret
 				},
 			}
 
-			utilizationMap, err := buildVgpuInstanceUtilizationMap(device, "GPU-uuid")
+			enr := &enrichment{}
+			utilizationMap := buildVgpuInstanceUtilizationMap(device, "GPU-uuid", enr)
 
-			require.NoError(t, err)
+			require.True(t, enr.degraded)
 			require.NotNil(t, utilizationMap)
 			require.Empty(t, utilizationMap)
 		}
@@ -677,9 +818,10 @@ func TestBuildVgpuInstanceUtilizationMap(t *testing.T) {
 			},
 		}
 
-		utilizationMap, err := buildVgpuInstanceUtilizationMap(device, "GPU-uuid")
+		enr := &enrichment{}
+		utilizationMap := buildVgpuInstanceUtilizationMap(device, "GPU-uuid", enr)
 
-		require.NoError(t, err)
+		require.False(t, enr.degraded)
 		require.Equal(t, map[uint32]uint32{7: 33}, utilizationMap)
 	})
 }
@@ -768,9 +910,9 @@ func TestResolveServerNames(t *testing.T) {
 		require.Equal(t, map[string]string{"vm-9": "instance-9"}, names)
 	})
 
-	// A server-listing failure is enrichment: names degrade to empty rather than
-	// failing the whole listing.
-	t.Run("degrades to empty map on openstack error", func(t *testing.T) {
+	// A server-listing failure is enrichment: names degrade to a nil map (the
+	// unavailable sentinel) rather than failing the whole listing.
+	t.Run("returns nil on openstack error", func(t *testing.T) {
 		getOpenstackServerNames = func() (map[string]string, error) {
 			return nil, errors.New("openstack unavailable")
 		}
@@ -779,8 +921,7 @@ func TestResolveServerNames(t *testing.T) {
 			"0000:01:00.0": {Type: gpu.ResourceTypeSriovVgpu},
 		})
 
-		require.NotNil(t, names)
-		require.Empty(t, names)
+		require.Nil(t, names)
 	})
 }
 
