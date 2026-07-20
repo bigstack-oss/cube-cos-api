@@ -70,6 +70,8 @@ Initialized in `internal/runtime/dependency.go`: MongoDB (primary store), Influx
 
 ### PR checklist
 
+Every GitHub pull request must use the `.github/pull_request_template.md` template for its description.
+
 Per `.github/pull_request_template.md`: update API docs (`task generateApiDocs`) and verify the API works before submitting.
 
 ### Commits
