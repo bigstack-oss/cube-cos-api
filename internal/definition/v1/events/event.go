@@ -1,11 +1,8 @@
 package events
 
 import (
-	"maps"
 	"strings"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
-	"github.com/google/uuid"
 )
 
 const (
@@ -37,7 +34,6 @@ var (
 )
 
 type Event struct {
-	SearchIndex string         `json:"-"`
 	Type        string         `json:"type"`
 	Severity    string         `json:"severity"`
 	Id          string         `json:"id"`
@@ -134,29 +130,6 @@ func GetSeverityFullNames(severities []string) []string {
 
 func (e *Event) GetSeverityFullName() string {
 	return GetSeverityFullName(e.Severity)
-}
-
-func (e *Event) SetSearchIndex() {
-	e.SearchIndex = uuid.New().String()
-}
-
-// note:
-// in the current search lib(bleve), the algo is not able to detect the string if it include uppercase
-// we've tried a few different init settings, but the result is not as expected as always
-// currenlty, the only way we found is to convert all the string to lower case and inject to searcher
-func (e *Event) GenSearchableObject() Event {
-	return Event{
-		SearchIndex: e.SearchIndex,
-		Type:        search.NormalizeKeyword(e.Type),
-		Id:          search.NormalizeKeyword(e.Id),
-		Severity:    search.NormalizeKeyword(e.Severity),
-		Description: search.NormalizeKeyword(e.Description),
-		Host:        search.NormalizeKeyword(e.Host),
-		Category:    search.NormalizeKeyword(e.Category),
-		Service:     search.NormalizeKeyword(e.Service),
-		Metadata:    maps.Clone(e.Metadata),
-		Time:        e.Time,
-	}
 }
 
 func (e *Event) SetCategory(metaObj map[string]any) {

@@ -1,67 +1,96 @@
 package events
 
 import (
+	"strings"
+	"unicode"
+
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/events"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
-	"github.com/blevesearch/bleve/v2"
-	log "go-micro.dev/v5/logger"
 )
 
-const (
-	maxSearchResults = 10000
-)
-
+// filteredByKeyword: word-prefix match per keyword term over visible fields
+// + metadata values ("CLU" matches "cluster", never "hacluster"); keeps time order
 func (h *helper) filteredByKeyword(nonFilterEvents []events.Event) []events.Event {
 	if !h.isKeywordRequired() {
 		return nonFilterEvents
 	}
 
-	h.setEventSearchIndex(&nonFilterEvents)
-	result, err := h.searchEvents(nonFilterEvents)
-	if err != nil {
-		log.Errorf("events: failed to search events(%v)", err)
+	terms := strings.FieldsFunc(strings.ToLower(h.keyword), isNonToken)
+	if len(terms) == 0 {
 		return nonFilterEvents
 	}
 
-	eventMap := genEventMap(nonFilterEvents)
+	// an event-id prefix ("CLU", "RUG00003") is the primary search token of
+	// this table: when the keyword names ids, return only those
+	if byId := filteredByIdPrefix(nonFilterEvents, strings.ToLower(h.keyword)); len(byId) > 0 {
+		return byId
+	}
+
 	filtered := []events.Event{}
-	for _, hit := range result.Hits {
-		filtered = append(filtered, eventMap[hit.ID])
+	for _, event := range nonFilterEvents {
+		if matchAllTerms(event, terms) {
+			filtered = append(filtered, event)
+		}
 	}
 
 	return filtered
 }
 
-func (h *helper) setEventSearchIndex(nonFilterEvents *[]events.Event) {
-	for i := range *nonFilterEvents {
-		(*nonFilterEvents)[i].SetSearchIndex()
-	}
-}
-
-func (h *helper) searchEvents(nonFilterEvents []events.Event) (*bleve.SearchResult, error) {
-	searcher, err := search.New()
-	if err != nil {
-		log.Errorf("events: failed to create search index(%v)", err)
-		return nil, err
-	}
-
+func filteredByIdPrefix(nonFilterEvents []events.Event, keyword string) []events.Event {
+	filtered := []events.Event{}
 	for _, event := range nonFilterEvents {
-		err := searcher.Index(event.SearchIndex, event.GenSearchableObject())
-		if err != nil {
-			continue
+		if strings.HasPrefix(strings.ToLower(event.Id), keyword) {
+			filtered = append(filtered, event)
 		}
 	}
 
-	defer searcher.Close()
-	keyword := search.NormalizeKeyword(h.keyword)
-	return searcher.Search(search.WildcardQuery(keyword))
+	return filtered
 }
 
-func genEventMap(nonFilterEvents []events.Event) map[string]events.Event {
-	eventMap := map[string]events.Event{}
-	for _, event := range nonFilterEvents {
-		eventMap[event.SearchIndex] = event
+func isNonToken(r rune) bool {
+	return !unicode.IsLetter(r) && !unicode.IsDigit(r)
+}
+
+func matchAllTerms(event events.Event, terms []string) bool {
+	tokens := eventTokens(event)
+	for _, term := range terms {
+		if !anyTokenHasPrefix(tokens, term) {
+			return false
+		}
 	}
 
-	return eventMap
+	return true
+}
+
+func eventTokens(event events.Event) []string {
+	fields := []string{
+		event.Id,
+		event.Description,
+		event.Host,
+		event.Category,
+		event.Service,
+		event.Severity,
+		event.Message,
+	}
+	for _, value := range event.Metadata {
+		if s, ok := value.(string); ok {
+			fields = append(fields, s)
+		}
+	}
+
+	tokens := []string{}
+	for _, field := range fields {
+		tokens = append(tokens, strings.FieldsFunc(strings.ToLower(field), isNonToken)...)
+	}
+
+	return tokens
+}
+
+func anyTokenHasPrefix(tokens []string, term string) bool {
+	for _, token := range tokens {
+		if strings.HasPrefix(token, term) {
+			return true
+		}
+	}
+
+	return false
 }
