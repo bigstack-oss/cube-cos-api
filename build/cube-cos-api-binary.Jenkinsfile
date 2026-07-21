@@ -107,14 +107,11 @@ pipeline {
                         }
 
                         def commitish = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
-                        createGitHubRelease(
-                            credentialId: GITHUB_PAT,
-                            repository: REPO_NAME,
-                            tag: version,
-                            commitish: commitish,
-                            bodyText: "Release ${version}",
-                            name: version
-                        )
+                        withCredentials([string(credentialsId: env.GITHUB_PAT, variable: 'PAT')]) {
+                            sh 'echo $PAT | gh auth login --with-token && ' +
+                                "gh release create ${version} --repo ${env.REPO_NAME} " +
+                                "--target ${commitish} --title '${version}' --notes 'Release ${version}'"
+                        }
                     }
                 }
             }
