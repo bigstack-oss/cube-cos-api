@@ -39,6 +39,8 @@ const (
 	RebootingFromInstall     = "rebooting from install"
 	RebootingFromRollback    = "rebooting from rollback"
 	EvacutingVmOnHost        = "evacuting vms on host"
+	Bootstrapping            = "bootstrapping"
+	Finalizing               = "finalizing"
 	PoweringOn               = "powering on"
 	PoweringOff              = "powering off"
 	PoweringCycle            = "powering cycle"

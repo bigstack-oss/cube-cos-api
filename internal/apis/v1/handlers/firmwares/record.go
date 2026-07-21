@@ -16,9 +16,21 @@ import (
 	cryptossh "golang.org/x/crypto/ssh"
 )
 
+// the gate the UI polls before watching upgrade progress; an in-flight
+// upgrade roll answers it the same way the old marker file did
 func (h *helper) hasBootstrappingMarker() bool {
 	_, err := os.Stat(firmwares.BootstrappingMarker)
-	return err == nil
+	if err == nil {
+		return true
+	}
+
+	roll, err := cubecos.GetRoll()
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to read roll job for bootstrapping marker(%v)", h.reqId, err)
+		return false
+	}
+
+	return roll.IsUpgrade() && roll.IsInFlight()
 }
 
 func (h *helper) syncBootstrappingMarker() {

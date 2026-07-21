@@ -93,6 +93,10 @@ func (h *helper) sortNodesByName(nodes *[]node) {
 }
 
 func (h *helper) updateFirmware() error {
+	if h.reqOpts.AutoRolling {
+		return h.startRollingUpdate()
+	}
+
 	h.resetBootstrappingLogs()
 	h.delegateToLocal()
 	if !cubecos.IsVirtualIpOwner(base.Hostname) {
@@ -109,7 +113,31 @@ func (h *helper) updateFirmware() error {
 	h.updatePeerFirmware(updatables, &progress)
 	cubecos.SetProgressDetails(&progress)
 	h.syncProgressToAllNodes()
-	go h.placeRollingTrigger()
+	return nil
+}
+
+// The roll is one cluster-wide job owned by the hex_sdk state machine: it
+// stages the package on every node, refuses to reboot anything unless all
+// nodes staged, then rolls node by node. The API only starts it and polls.
+func (h *helper) startRollingUpdate() error {
+	roll, err := cubecos.GetRollStatus()
+	if err != nil {
+		return err
+	}
+
+	if roll.IsInFlight() {
+		return fmt.Errorf("a rolling update is already in progress (%s)", roll.State)
+	}
+
+	h.resetBootstrappingLogs()
+	log.Infof("firmwares(%s): starting rolling update with %s", h.reqId, h.reqOpts.PkgPath)
+	go func(reqId string, pkg string) {
+		err := cubecos.StartRollingUpdate(pkg)
+		if err != nil {
+			log.Errorf("firmwares(%s): rolling update %s ended with an error(%v)", reqId, pkg, err)
+		}
+	}(h.reqId, h.reqOpts.PkgPath)
+
 	return nil
 }
 
@@ -141,13 +169,48 @@ func (h *helper) updateNodeFirmware() error {
 }
 
 func (h *helper) abortFirmwareUpdate() error {
+	err := h.abortRoll()
+	if err != nil {
+		return err
+	}
+
 	h.removeClusterFirmwareUpgradeProgress()
 	h.syncFirstTimeInstallationProgress()
 	h.syncProgressToAllNodes()
 	return nil
 }
 
+// Only an in-flight upgrade roll is aborted: a rolling restart is not a
+// firmware update and must not be stopped from here, and skipping when there is
+// nothing to abort keeps the endpoint idempotent.
+func (h *helper) abortRoll() error {
+	roll, err := cubecos.GetRoll()
+	if err != nil {
+		// Preserve the previous behaviour: still clear the local record.
+		log.Errorf("firmwares(%s): failed to read roll job to abort(%v)", h.reqId, err)
+		return nil
+	}
+
+	if !roll.IsUpgrade() || !roll.IsInFlight() {
+		return nil
+	}
+
+	log.Infof("firmwares(%s): aborting the in-flight rolling update", h.reqId)
+	return cubecos.AbortRoll()
+}
+
 func (h *helper) getFirmwareUpgradeProgress() (*firmwares.Upgrade, error) {
+	roll, err := cubecos.GetRoll()
+	if err != nil {
+		return nil, err
+	}
+
+	if roll.IsUpgrade() && roll.IsInFlight() {
+		return h.convertRollToUpgrade(roll)
+	}
+
+	// No firmware roll in flight: report the cluster as it stands from the
+	// local record.
 	h.syncFirstTimeInstallationProgress()
 	upgrade, err := h.getUpgradeDetails()
 	if err != nil {
@@ -156,6 +219,38 @@ func (h *helper) getFirmwareUpgradeProgress() (*firmwares.Upgrade, error) {
 
 	h.sortUpgradeProgress(&upgrade.Progresses)
 	return upgrade, nil
+}
+
+func (h *helper) convertRollToUpgrade(roll *firmwares.Roll) (*firmwares.Upgrade, error) {
+	rollStatus, err := cubecos.GetRollStatus()
+	if err != nil {
+		return nil, err
+	}
+
+	upgrade := &firmwares.Upgrade{
+		Version:          h.getRollTargetVersion(roll),
+		IsRollingApplied: rollStatus.IsRollingApplied,
+		Progresses:       rollStatus.Progresses,
+	}
+
+	h.sortUpgradeProgress(&upgrade.Progresses)
+	return upgrade, nil
+}
+
+// The roll job records the target package, not the display version the UI
+// matches firmware list entries on, so convert it back.
+func (h *helper) getRollTargetVersion(roll *firmwares.Roll) string {
+	if roll.Version == "" {
+		return base.ActiveFirmwareVersion
+	}
+
+	firmware, err := cubecos.ConvertPkgNameToFirmware(filepath.Base(roll.Version))
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to convert roll package %s(%v)", h.reqId, roll.Version, err)
+		return base.ActiveFirmwareVersion
+	}
+
+	return firmware.Version
 }
 
 func (h *helper) continueInterruptedFirmwareUpdate() error {

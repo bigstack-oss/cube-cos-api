@@ -12,12 +12,35 @@ const (
 	TmpPreCalculateMd5 = "precalculated.md5"
 	DefaultMd5File     = "md5"
 
-	UpdateDir           = "/var/update"
-	UpdateHistory       = "/var/appliance-db/update.history"
+	UpdateDir     = "/var/update"
+	UpdateHistory = "/var/appliance-db/update.history"
+
+	// Per-node, on the A/B root partition: it does not survive an upgrade.
+	// Only the non-rolling per-node update path uses it. Cluster-wide roll
+	// progress comes from RollJob / hex_sdk power_roll_status_json.
 	UpdateProgress      = "/var/lib/cube-cos-api/progress.json"
 	ResolvedMarker      = "/var/lib/cube-cos-api/resolved"
 	BootstrappingMarker = "/var/lib/cube-cos-api/bootstrapping"
 	BootstrappingLog    = "/run/cube_bootstrap.log"
+
+	// Cluster-wide roll state, on shared cephfs, written by the hex_sdk
+	// power_roll_* state machine.
+	RollJob = "/mnt/cephfs/rolling/job.json"
+)
+
+// Roll job states (job.json .state).
+const (
+	RollStateNone    = "none"
+	RollStateRunning = "running"
+	RollStatePaused  = "paused"
+	RollStateDone    = "done"
+	RollStateAborted = "aborted"
+)
+
+// Roll job kinds (job.json .kind).
+const (
+	RollKindRestart = "restart"
+	RollKindUpgrade = "upgrade"
 )
 
 type ReqOpts struct {
@@ -61,6 +84,61 @@ type Progress struct {
 	Host   string                      `json:"host"`
 	Phase  string                      `json:"phase"`
 	Status status.SystemUpdateProgress `json:"status"`
+}
+
+// RollStatus is the envelope emitted by "hex_sdk power_roll_status_json".
+// Progresses is shaped exactly like Upgrade.Progresses so it can be handed
+// to the API response unchanged.
+type RollStatus struct {
+	IsRollingApplied bool       `json:"isRollingApplied"`
+	State            string     `json:"state"`
+	Reason           string     `json:"reason"`
+	Progresses       []Progress `json:"progresses"`
+}
+
+// IsInFlight reports whether a roll is currently running or paused on a failure.
+func (r *RollStatus) IsInFlight() bool {
+	return r.State == RollStateRunning || r.State == RollStatePaused
+}
+
+// Roll is the subset of job.json the API reads directly. power_roll_status_json
+// does not project the target package, so the version comes from here.
+type Roll struct {
+	Kind    string     `json:"kind"`
+	Version string     `json:"version"`
+	State   string     `json:"state"`
+	Reason  string     `json:"reason"`
+	Nodes   []RollNode `json:"nodes"`
+}
+
+type RollNode struct {
+	Hostname string `json:"hostname"`
+	Role     string `json:"role"`
+	Status   string `json:"status"`
+}
+
+// The predicates are nil-safe: no roll has ever run on a fresh cluster.
+func (r *Roll) IsInFlight() bool {
+	return r != nil && (r.State == RollStateRunning || r.State == RollStatePaused)
+}
+
+func (r *Roll) IsUpgrade() bool {
+	return r != nil && r.Kind == RollKindUpgrade
+}
+
+// AreAllNodesDone reports whether every node in the job reached its final phase.
+func (r *Roll) AreAllNodesDone() bool {
+	if r == nil || len(r.Nodes) == 0 {
+		return false
+	}
+
+	for _, node := range r.Nodes {
+		if node.Status != "done" {
+			return false
+		}
+	}
+
+	return true
 }
 
 type BootstrappingStatus struct {

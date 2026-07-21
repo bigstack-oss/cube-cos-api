@@ -19,6 +19,10 @@ const (
 	VarRunCubeCosApiDir = "/var/run/cube-cos-api"
 	DataCenterHelpUrl   = "https://www.bigstack.co/contact-us"
 	BoardSerialPath     = "/sys/class/dmi/id/board_serial"
+
+	// Appended to the cluster firmware version while nodes are still being
+	// rolled, so a half-upgraded cluster does not read as finished.
+	FirmwareUpgradeInProgress = "(upgrade in progress)"
 )
 
 var (

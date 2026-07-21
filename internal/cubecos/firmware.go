@@ -96,6 +96,98 @@ func GetBootstrappingProgress() ([]firmwares.BootstrappingStatus, error) {
 	return status, nil
 }
 
+// GetRollStatus projects the cluster-wide roll job into the firmware upgrade
+// envelope. The job lives on shared cephfs, so it is readable from any node and
+// survives the A/B partition swap an upgrade performs.
+func GetRollStatus() (*firmwares.RollStatus, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(60))
+	defer cancel()
+
+	out, err := exec.CommandContext(ctx, "hex_sdk", "power_roll_status_json").Output()
+	if err != nil {
+		err := fmt.Errorf("failed to get roll status(%v %s)", err, string(out))
+		log.Errorf("firmwares: %v", err)
+		return nil, err
+	}
+
+	roll := &firmwares.RollStatus{}
+	err = json.Unmarshal(out, roll)
+	if err != nil {
+		err := genIntegrationErr("roll status output parsing failure")
+		log.Errorf("firmwares: %s (%s)", err.Error(), string(out))
+		return nil, err
+	}
+
+	return roll, nil
+}
+
+// GetRoll reads the raw roll job. Returns nil when no roll has ever been run.
+func GetRoll() (*firmwares.Roll, error) {
+	out, err := os.ReadFile(firmwares.RollJob)
+	if os.IsNotExist(err) {
+		return nil, nil
+	}
+	if err != nil {
+		log.Errorf("firmwares: failed to read roll job(%v)", err)
+		return nil, err
+	}
+
+	roll := &firmwares.Roll{}
+	err = json.Unmarshal(out, roll)
+	if err != nil {
+		log.Errorf("firmwares: failed to unmarshal roll job(%v)", err)
+		return nil, err
+	}
+
+	return roll, nil
+}
+
+// StartRollingUpdate kicks off the cluster-wide rolling firmware upgrade via
+// the CLI (confirmation fed on stdin). Blocks through staging and may be
+// killed when this node reboots -- expected, the shared job resumes the roll.
+func StartRollingUpdate(pkg string) error {
+	cmd := exec.Command("hex_cli", "-c", "cluster", "-c", "rolling_update", pkg)
+	cmd.Stdin = strings.NewReader("YES\n")
+
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		err := fmt.Errorf("failed to start rolling update %s(%v %s)", pkg, err, string(out))
+		log.Errorf("firmwares: %v", err)
+		return err
+	}
+
+	log.Infof("firmwares: %s", string(out))
+	return nil
+}
+
+// AbortRoll stops the cluster-wide roll; nothing already done is undone.
+// hex_cli always exits 0 here, so the job is re-read to confirm the abort.
+func AbortRoll() error {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(120))
+	defer cancel()
+
+	out, err := exec.CommandContext(ctx, "hex_cli", "-c", "cluster", "-c", "rolling_update", "abort").CombinedOutput()
+	if err != nil {
+		err := fmt.Errorf("failed to abort roll(%v %s)", err, string(out))
+		log.Errorf("firmwares: %v", err)
+		return err
+	}
+
+	log.Infof("firmwares: %s", string(out))
+	roll, err := GetRoll()
+	if err != nil {
+		return err
+	}
+
+	if roll.IsInFlight() {
+		err := fmt.Errorf("roll is still %s after abort", roll.State)
+		log.Errorf("firmwares: %v", err)
+		return err
+	}
+
+	return nil
+}
+
 func GetUpgradeProgress() (*firmwares.Upgrade, error) {
 	out, err := os.ReadFile(firmwares.UpdateProgress)
 	if err != nil {

@@ -328,6 +328,16 @@ func (h *helper) isPendingInprogress(s string) bool {
 	return s == status.Installing || s == status.WaitingReboot || s == status.Rebooting
 }
 
+// Phases a node passes through during a roll, none of which are terminal.
+func (h *helper) isRollPhaseInProgress(s string) bool {
+	switch s {
+	case status.Pending, status.EvacutingVmOnHost, status.Bootstrapping, status.Finalizing:
+		return true
+	}
+
+	return false
+}
+
 func (h *helper) syncOverallProgressStatus(progresses []firmwares.Progress) string {
 	statusMap := map[string]bool{}
 	for _, progress := range progresses {
@@ -344,6 +354,12 @@ func (h *helper) syncOverallProgressStatus(progresses []firmwares.Progress) stri
 
 	if statusMap[status.Rebooting] {
 		return status.Rebooting
+	}
+
+	for s := range statusMap {
+		if h.isRollPhaseInProgress(s) {
+			return status.Rebooting
+		}
 	}
 
 	if statusMap[status.Failed] {
@@ -371,32 +387,6 @@ func (h *helper) syncNodeUpgradeProgress(hostname string, upgrade *firmwares.Upg
 			Status: *s,
 		},
 	)
-}
-
-func (h *helper) waitForPrimaryControllerVmEvacuated() {
-	hostname, err := cubecos.GetPrimaryControllerHost()
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to get primary controller host(%v)", err, h.reqId)
-		h.markNodeAsFailed(err.Error())
-		return
-	}
-
-	log.Infof("firmwares: wait for all vms evacuated on node %s", hostname)
-	err = cubecos.WaitForAllVmsEvacuated(hostname)
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to wait for all vms evacuated (%v)", err, h.reqId)
-		h.markNodeAsFailed(err.Error())
-		return
-	}
-
-	err = cubecos.SetNodeUpdateProgress(hostname, status.Rebooting, status.Rebooting)
-	if err != nil {
-		log.Errorf("firmwares(%s): failed to set rebooting progress(%v)", err, h.reqId)
-		h.markNodeAsFailed(err.Error())
-		return
-	}
-
-	cubecos.SyncFirmwareUpgradeProgressToAllNodes()
 }
 
 func (h *helper) IsClusterInBootstrapping() bool {

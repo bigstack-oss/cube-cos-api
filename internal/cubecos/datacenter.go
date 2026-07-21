@@ -82,6 +82,26 @@ func GetActiveFirmwareVersion() (string, error) {
 	return fmt.Sprintf("%s %s %s", desc, version, date), nil
 }
 
+// GetClusterFirmwareVersion reports the CLUSTER's firmware version -- the
+// local settings.sys lies about a cluster mid-upgrade.
+func GetClusterFirmwareVersion() (string, error) {
+	local, err := GetActiveFirmwareVersion()
+	if err != nil {
+		return "", err
+	}
+
+	roll, err := GetRoll()
+	if err != nil {
+		return local, nil
+	}
+
+	if !roll.IsUpgrade() || !roll.IsInFlight() || roll.AreAllNodesDone() {
+		return local, nil
+	}
+
+	return fmt.Sprintf("%s %s", local, base.FirmwareUpgradeInProgress), nil
+}
+
 func GetInactiveFirmwareVersion() (string, error) {
 	active, err := GetActivePartition()
 	if err != nil {
