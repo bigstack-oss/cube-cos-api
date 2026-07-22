@@ -1,4 +1,4 @@
-FROM golang:1.24.2-bookworm
+FROM golang:1.26.5-bookworm
 
 ENV USER=jenkins UID=1000 GID=1000
 
