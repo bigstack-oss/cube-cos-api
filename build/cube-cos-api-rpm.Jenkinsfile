@@ -15,6 +15,7 @@ pipeline {
         BLDSRV         = 'bldsrv_prod'
 
         GITHUB_PAT     = 'Bigstack-CI-Bot-PAT'
+        GITHUB_SSH_KEY = 'github-SSH-KEY'
         SLACK_CHANNEL  = "#${PROJ_NAME}-ci"
     }
 
@@ -60,7 +61,10 @@ pipeline {
 
                 dir("${env.BLDPTH}") {
                     echo 'Creating the rpm package...'
-                    sh 'go-task rpm:build'
+                    // rpm:build clones the api/cube-cos-openapi submodule over SSH
+                    sshagent([GITHUB_SSH_KEY]) {
+                        sh 'go-task rpm:build'
+                    }
                 }
 
                 dir("${env.BLDPTH}") {
