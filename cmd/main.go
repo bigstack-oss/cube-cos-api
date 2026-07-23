@@ -5,7 +5,6 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/runtime"
 	svc "github.com/bigstack-oss/cube-cos-api/internal/service"
-	"go-micro.dev/v5"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -23,7 +22,7 @@ func main() {
 		return
 	}
 
-	err = svc.Micro(srv, micro.AfterStop(runtime.ShutdownNvml)).Run()
+	err = svc.Micro(srv).Run()
 	if err != nil {
 		log.Errorf("failed to run service(%v)", err)
 	}

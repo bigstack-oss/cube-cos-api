@@ -20,8 +20,6 @@ func NewHttpServer() (*server.Server, error) {
 		return nil, err
 	}
 
-	initNvml()
-
 	printWelcomeMessages()
 	return newHttpServer()
 }

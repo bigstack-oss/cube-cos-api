@@ -64,7 +64,7 @@ type GpuCard struct {
 	Profiles                   GpuProfileCollection  `json:"profiles"`
 	AttachedInstances          *[]AttachedInstance   `json:"attachedInstances"`
 	Status                     GpuStatusInfo         `json:"status"`
-	// Degraded is true when NVML runtime enrichment that this card should have
+	// Degraded is true when runtime enrichment that this card should have
 	// had (stats, attached instances) could not be obtained, so its capacity
 	// numbers are not trustworthy. Consumers such as schedulers should not
 	// allocate off a degraded card's reported capacity.

@@ -397,7 +397,7 @@ func GetNodeGpusMap(nodeName string) (map[string]gpu.GpuFromHex, error) {
 }
 
 // GetNodeGpuById returns the hex GPU whose Id matches gpuId, or gpu.ErrGpuNotFound.
-// Reuses GetNodeGpusMap (keyed by PCI address) and matches on the NVML UUID Id.
+// Reuses GetNodeGpusMap (keyed by PCI address) and matches on the GPU UUID Id.
 func GetNodeGpuById(nodeName, gpuId string) (gpu.GpuFromHex, error) {
 	gpusMap, err := GetNodeGpusMap(nodeName)
 	if err != nil {

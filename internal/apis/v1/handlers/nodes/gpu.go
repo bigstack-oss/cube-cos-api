@@ -2,21 +2,16 @@ package nodes
 
 import (
 	"context"
-	"encoding/binary"
 	"fmt"
 	"maps"
-	"math"
-	"reflect"
 	"slices"
 
-	"github.com/NVIDIA/go-nvml/pkg/nvml"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/gpu"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/nvmlruntime"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/remoteconsoles"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	log "go-micro.dev/v5/logger"
@@ -24,29 +19,45 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Seams for unit tests: hex_sdk CLI, the NVML driver, and Openstack are
+// Seams for unit tests: hex_sdk CLI, nvidia-smi, and Openstack are
 // unavailable there.
 var (
-	getNodeGpusMap              = cubecos.GetNodeGpusMap
-	getNodeVgpuProfilesMap      = cubecos.GetNodeVgpuProfilesMap
-	getNodePgpuAttachedInstance = cubecos.GetNodePgpuAttachedInstance
-	deviceGetHandleByUUID       = nvml.DeviceGetHandleByUUID
-	deviceGetCount              = nvml.DeviceGetCount
-	deviceGetHandleByIndex      = nvml.DeviceGetHandleByIndex
-	buildInstanceLinks          = buildInstanceLinksViaOpenstack
-	getOpenstackServerNames     = getOpenstackServerNamesViaHelper
-	createConsole               = createConsoleViaOpenstack
-	vgpuInstanceId              = vgpuInstanceIdViaReflect
-	isNvmlAvailable             = nvmlruntime.IsAvailable
-	getNodeGpuById              = cubecos.GetNodeGpuById
-	updateNodeGpuCardViaHex     = cubecos.UpdateNodeGpuCard
-	isGpuUpdating               = isGpuUpdatingViaMongo
-	upsertUpdatingGpuReq        = upsertUpdatingGpuReqViaMongo
-	deleteUpdatingGpuReq        = deleteUpdatingGpuReqViaMongo
+	getNodeGpusMap                 = cubecos.GetNodeGpusMap
+	getNodeVgpuProfilesMap         = cubecos.GetNodeVgpuProfilesMap
+	getNodePgpuAttachedInstance    = cubecos.GetNodePgpuAttachedInstance
+	getNvidiaSmiDevices            = cubecos.GetNvidiaSmiDevices
+	getNvidiaSmiVgpuInstances      = cubecos.GetNvidiaSmiVgpuInstances
+	getNvidiaSmiVgpuTypeProfileIds = cubecos.GetNvidiaSmiVgpuTypeGpuInstanceProfileIds
+	buildInstanceLinks             = buildInstanceLinksViaOpenstack
+	getOpenstackServerNames        = getOpenstackServerNamesViaHelper
+	createConsole                  = createConsoleViaOpenstack
+	getNodeGpuById                 = cubecos.GetNodeGpuById
+	updateNodeGpuCardViaHex        = cubecos.UpdateNodeGpuCard
+	isGpuUpdating                  = isGpuUpdatingViaMongo
+	upsertUpdatingGpuReq           = upsertUpdatingGpuReqViaMongo
+	deleteUpdatingGpuReq           = deleteUpdatingGpuReqViaMongo
 )
 
+// buildLocalGpuCardOpts carries data fetched once per listLocalGpuCards
+// request (Openstack server names, nvidia-smi's device and vGPU-instance
+// snapshots) into each card's build. nvidia-smi is a subprocess spawn, not an
+// in-process library call, so it is invoked once per request here rather than
+// once per GPU on the node.
+type buildLocalGpuCardOpts struct {
+	ServerNames map[string]string
+	// NvidiaSmiDevices/NvidiaSmiAvailable come from one `nvidia-smi -q` call.
+	// NvidiaSmiAvailable is false only when that call itself could not be run;
+	// a device simply absent from NvidiaSmiDevices (e.g. vfio-pci passthrough)
+	// is a normal, expected outcome even when NvidiaSmiAvailable is true.
+	NvidiaSmiDevices   map[string]cubecos.NvidiaSmiDevice
+	NvidiaSmiAvailable bool
+	// VgpuInstances/VgpuInstancesAvailable come from one `nvidia-smi vgpu -q`
+	// call already filtered to this card's PCI address.
+	VgpuInstances          []cubecos.NvidiaSmiVgpuInstance
+	VgpuInstancesAvailable bool
+}
+
 type listAttachedInstancesOpts struct {
-	Device                   nvml.Device
 	IsDeviceVisible          bool
 	DeviceUUID               string
 	DeviceMemoryUsedMiB      int
@@ -55,6 +66,14 @@ type listAttachedInstancesOpts struct {
 	NodeName                 string
 	HexGpu                   gpu.GpuFromHex
 	HexProfilesMap           map[uint32]gpu.VgpuProfileFromHex
+	// VgpuInstances/VgpuInstancesAvailable: see buildLocalGpuCardOpts.
+	VgpuInstances          []cubecos.NvidiaSmiVgpuInstance
+	VgpuInstancesAvailable bool
+	// MigTypeProfileIds maps vGPU Type ID -> GPU Instance Profile ID for a
+	// MIG-backed GPU's supported types (nvidia-smi vgpu -q reports the former
+	// per instance; hex's MIG-backed profile ids are the latter). Unused for
+	// SR-IOV, whose hex profile ids are the vGPU Type ID directly.
+	MigTypeProfileIds map[uint32]uint32
 	// ServerNames maps Openstack server id to name, prefetched once per request
 	// so vGPU instance names do not cost a GetServer round trip each. A nil map
 	// means the prefetch failed outright, so a name missing for an attached
@@ -66,12 +85,13 @@ type listAttachedInstancesOpts struct {
 	Enrichment *enrichment
 }
 
-// enrichment accumulates the degraded state of a single GPU card while its NVML,
-// hex and Openstack enrichment is gathered. degrade flags the card and logs why;
-// coupling flag and log in one call keeps a "(degraded)" warning from ever
-// drifting apart from the flag it is supposed to accompany. Gaps that are merely
-// incomplete but not misleading (an instance reported without a name, a transient
-// hex read skew) log directly via log.Warnf without flagging.
+// enrichment accumulates the degraded state of a single GPU card while its
+// nvidia-smi, hex and Openstack enrichment is gathered. degrade flags the
+// card and logs why; coupling flag and log in one call keeps a "(degraded)"
+// warning from ever drifting apart from the flag it is supposed to
+// accompany. Gaps that are merely incomplete but not misleading (an instance
+// reported without a name, a transient hex read skew) log directly via
+// log.Warnf without flagging.
 type enrichment struct {
 	degraded bool
 }
@@ -102,12 +122,31 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 	// which degrades any vGPU card that has attached instances needing a name.
 	serverNames := h.resolveServerNames(hexGpusMap)
 
+	nvidiaSmiDevices, nvidiaSmiErr := getNvidiaSmiDevices()
+	if nvidiaSmiErr != nil {
+		log.Errorf("gpu(%s): nvidia-smi is unavailable on node %s: %v; gpu runtime stats will be reported as degraded", h.reqId, h.node, nvidiaSmiErr)
+		nvidiaSmiDevices = map[string]cubecos.NvidiaSmiDevice{}
+	}
+
+	vgpuInstancesByPci, vgpuErr := h.resolveVgpuInstances(hexGpusMap)
+	if vgpuErr != nil {
+		log.Errorf("gpu(%s): failed to query vgpu instances on node %s: %v; vgpu attached instances will be reported as degraded", h.reqId, h.node, vgpuErr)
+	}
+
 	gpuCards := []gpu.GpuCard{}
 
-	// Iterate over hex GPUs instead of NVML devices: a GPU passed through to
-	// a VM is invisible to NVML, but must still be reported.
+	// Iterate over hex GPUs instead of nvidia-smi devices: a GPU passed
+	// through to a VM is invisible to nvidia-smi, but must still be reported.
 	for _, pciAddress := range slices.Sorted(maps.Keys(hexGpusMap)) {
-		gpuCard, err := h.buildLocalGpuCard(hexGpusMap[pciAddress], serverNames)
+		hexGpu := hexGpusMap[pciAddress]
+
+		gpuCard, err := h.buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
+			ServerNames:            serverNames,
+			NvidiaSmiDevices:       nvidiaSmiDevices,
+			NvidiaSmiAvailable:     nvidiaSmiErr == nil,
+			VgpuInstances:          vgpuInstancesByPci[hexGpu.PciAddress],
+			VgpuInstancesAvailable: vgpuErr == nil,
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -115,10 +154,10 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 		gpuCards = append(gpuCards, gpuCard)
 	}
 
-	// Hex is the source of truth for the response, but a GPU visible to NVML yet
-	// missing from hex points at a stale hex inventory (hot-add, cache lag): warn
-	// so the mismatch is not entirely silent.
-	h.warnGpusMissingFromHex(hexGpusMap)
+	// Hex is the source of truth for the response, but a GPU visible to
+	// nvidia-smi yet missing from hex points at a stale hex inventory
+	// (hot-add, cache lag): warn so the mismatch is not entirely silent.
+	h.warnGpusMissingFromHex(hexGpusMap, nvidiaSmiDevices, nvidiaSmiErr == nil)
 
 	return gpuCards, nil
 }
@@ -148,56 +187,59 @@ func (h *helper) resolveServerNames(hexGpusMap map[string]gpu.GpuFromHex) map[st
 	return serverNames
 }
 
-func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string]string) (gpu.GpuCard, error) {
+// resolveVgpuInstances fetches active vGPU instances once for the whole node
+// when hex reports at least one vGPU-type GPU, skipping the nvidia-smi call
+// entirely on pgpu-only nodes (mirrors resolveServerNames's lazy Openstack
+// prefetch).
+func (h *helper) resolveVgpuInstances(hexGpusMap map[string]gpu.GpuFromHex) (map[string][]cubecos.NvidiaSmiVgpuInstance, error) {
+	needsVgpu := false
+	for _, hexGpu := range hexGpusMap {
+		if isVgpu(hexGpu) {
+			needsVgpu = true
+			break
+		}
+	}
+	if !needsVgpu {
+		return map[string][]cubecos.NvidiaSmiVgpuInstance{}, nil
+	}
+
+	return getNvidiaSmiVgpuInstances()
+}
+
+func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCardOpts) (gpu.GpuCard, error) {
 	var memoryUsedMiB, memoryTotalMiB int
 	var memoryUtilizationPercent, gpuUtilizationPercent uint32
 	enr := &enrichment{}
 
-	// Relies on hex reporting the GPU id as the NVML UUID.
-	device, ret := deviceGetHandleByUUID(hexGpu.Id)
-	isDeviceVisible := ret == nvml.SUCCESS
+	// Relies on hex reporting the GPU id as nvidia-smi's own UUID.
+	device, isDeviceVisible := opts.NvidiaSmiDevices[hexGpu.Id]
 
-	// NVML runtime stats are enrichment on top of the hex inventory: when they
-	// are unavailable the card is still reported, just without stats.
+	// nvidia-smi runtime stats are enrichment on top of the hex inventory:
+	// when they are unavailable the card is still reported, just without
+	// stats.
 	switch {
 	case isDeviceVisible:
-		memoryInfo, ret := device.GetMemoryInfo()
-		if ret == nvml.SUCCESS {
-			memoryUsedMiB = bytesToMiB(memoryInfo.Used)
-			memoryTotalMiB = bytesToMiB(memoryInfo.Total)
-		} else {
-			// Memory info is the card's capacity; losing it leaves the reported
-			// capacity untrustworthy, so flag the card degraded.
-			enr.degrade("nvml: failed to get memory info for device %s: %s; reporting card as degraded", hexGpu.Id, nvml.ErrorString(ret))
-		}
-
-		utilizationRates, ret := device.GetUtilizationRates()
-		if ret == nvml.SUCCESS {
-			memoryUtilizationPercent = utilizationRates.Memory
-			gpuUtilizationPercent = utilizationRates.Gpu
-		} else {
-			// Utilization is runtime enrichment this card should have had; its
-			// absence makes the card's stats untrustworthy, so flag it degraded.
-			enr.degrade("nvml: failed to get utilization rates for device %s: %s; reporting card as degraded", hexGpu.Id, nvml.ErrorString(ret))
-		}
-	case ret == nvml.ERROR_NOT_FOUND && hexGpu.Type == gpu.ResourceTypePgpu:
+		memoryUsedMiB = device.MemoryUsedMiB
+		memoryTotalMiB = device.MemoryTotalMiB
+		memoryUtilizationPercent = device.MemoryUtilizationPercent
+		gpuUtilizationPercent = device.GpuUtilizationPercent
+	case !opts.NvidiaSmiAvailable:
+		// A node-wide nvidia-smi outage must degrade every card, pgpu included:
+		// this case is checked before the pgpu-passthrough case below so an
+		// outage is never misread as "every pgpu happens to be passed through".
+		enr.degrade("nvidiasmi: nvidia-smi is not available on this node; gpu %s reported from hex without runtime stats or attachments (capacity is degraded)", hexGpu.Id)
+	case hexGpu.Type == gpu.ResourceTypePgpu:
 		// Expected: a pgpu bound to vfio for passthrough (attached to a VM or
-		// reserved for one) is invisible to NVML. Only a pgpu can disappear this
-		// way, so any other type not being found is genuinely unexpected and
-		// falls through to the warning below. Logged so an unexpected hex-id vs
-		// NVML-UUID mismatch (which also surfaces as ERROR_NOT_FOUND) is not
-		// entirely silent.
-		log.Debugf("nvml: pgpu %s not visible to NVML (expected for vfio passthrough); reporting from hex without runtime stats", hexGpu.Id)
+		// reserved for one) is invisible to nvidia-smi. Only a pgpu can
+		// disappear this way, so any other type missing (checked with
+		// nvidia-smi confirmed available, from the case above) is genuinely
+		// unexpected and falls through to the warning below.
+		log.Debugf("nvidiasmi: pgpu %s not visible to nvidia-smi (expected for vfio passthrough); reporting from hex without runtime stats", hexGpu.Id)
 	default:
-		// NVML was expected to see this device but could not provide a handle, so
-		// the card is reported without runtime stats or attached instances and
-		// its capacity is untrustworthy: flag it degraded. A node-wide NVML outage
-		// (init failed) is the common cause, so distinguish it in the log.
-		if !isNvmlAvailable() {
-			enr.degrade("nvml: NVML is not initialized on this node; gpu %s reported from hex without runtime stats or attachments (capacity is degraded)", hexGpu.Id)
-		} else {
-			enr.degrade("nvml: failed to get device handle for gpu %s: %s; reporting card as degraded", hexGpu.Id, nvml.ErrorString(ret))
-		}
+		// nvidia-smi is available and was expected to see this device but did
+		// not report it, so the card is reported without runtime stats or
+		// attached instances and its capacity is untrustworthy: flag it degraded.
+		enr.degrade("nvidiasmi: device %s not reported by nvidia-smi; reporting card as degraded", hexGpu.Id)
 	}
 
 	hexProfilesMap := map[uint32]gpu.VgpuProfileFromHex{}
@@ -217,12 +259,24 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string
 	// A nil server-name map means the getOpenstackServerNames call failed, so
 	// attached-instance name enrichment is unavailable for the whole node: flag
 	// the card degraded.
-	if serverNames == nil {
+	if opts.ServerNames == nil {
 		enr.degrade("gpu: Openstack server prefetch failed on node %s; gpu %s reported without instance names (degraded)", h.node, hexGpu.Id)
 	}
 
+	// MIG-backed hex profile ids are the GPU Instance Profile ID, which
+	// nvidia-smi only reports per vGPU *type* (vgpu -s -v), not per active
+	// instance (vgpu -q reports the vGPU Type ID instead): resolve the
+	// type -> profile-id mapping once here, only when actually needed.
+	migTypeProfileIds := map[uint32]uint32{}
+	if hexGpu.Type == gpu.ResourceTypeMigBackedVgpu && len(opts.VgpuInstances) > 0 {
+		var err error
+		migTypeProfileIds, err = getNvidiaSmiVgpuTypeProfileIds(hexGpu.PciAddress)
+		if err != nil {
+			enr.degrade("nvidiasmi: failed to get vgpu type profile ids for gpu %s: %v; mig-backed instance aliases may be missing (degraded)", hexGpu.Id, err)
+		}
+	}
+
 	attachedInstances, err := listAttachedInstances(listAttachedInstancesOpts{
-		Device:                   device,
 		IsDeviceVisible:          isDeviceVisible,
 		DeviceUUID:               hexGpu.Id,
 		DeviceMemoryUsedMiB:      memoryUsedMiB,
@@ -231,7 +285,10 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string
 		NodeName:                 h.node,
 		HexGpu:                   hexGpu,
 		HexProfilesMap:           hexProfilesMap,
-		ServerNames:              serverNames,
+		VgpuInstances:            opts.VgpuInstances,
+		VgpuInstancesAvailable:   opts.VgpuInstancesAvailable,
+		MigTypeProfileIds:        migTypeProfileIds,
+		ServerNames:              opts.ServerNames,
 		Enrichment:               enr,
 	})
 	if err != nil {
@@ -268,19 +325,13 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, serverNames map[string
 	return gpuCard, nil
 }
 
-// warnGpusMissingFromHex enumerates NVML devices and warns for any that hex did
-// not report. Hex drives the response, so an NVML-visible GPU absent from hex
-// would otherwise silently disappear; the old code hard-errored on this. Runs
-// only when NVML is available (a vfio-passthrough GPU is invisible to NVML and
-// legitimately absent from enumeration, so it never triggers a warning).
-func (h *helper) warnGpusMissingFromHex(hexGpusMap map[string]gpu.GpuFromHex) {
-	if !isNvmlAvailable() {
-		return
-	}
-
-	count, ret := deviceGetCount()
-	if ret != nvml.SUCCESS {
-		log.Warnf("nvml: failed to get device count for hex reconciliation on node %s: %s", h.node, nvml.ErrorString(ret))
+// warnGpusMissingFromHex warns for any nvidia-smi device that hex did not
+// report. Hex drives the response, so an nvidia-smi-visible GPU absent from
+// hex would otherwise silently disappear; the old code hard-errored on this.
+// Runs only when nvidia-smi is available (a vfio-passthrough GPU is invisible
+// to nvidia-smi and legitimately absent, so it never triggers a warning).
+func (h *helper) warnGpusMissingFromHex(hexGpusMap map[string]gpu.GpuFromHex, nvidiaSmiDevices map[string]cubecos.NvidiaSmiDevice, nvidiaSmiAvailable bool) {
+	if !nvidiaSmiAvailable {
 		return
 	}
 
@@ -289,21 +340,9 @@ func (h *helper) warnGpusMissingFromHex(hexGpusMap map[string]gpu.GpuFromHex) {
 		hexUUIDs[hexGpu.Id] = struct{}{}
 	}
 
-	for i := range count {
-		device, ret := deviceGetHandleByIndex(i)
-		if ret != nvml.SUCCESS {
-			log.Warnf("nvml: failed to get device handle at index %d for hex reconciliation on node %s: %s", i, h.node, nvml.ErrorString(ret))
-			continue
-		}
-
-		uuid, ret := device.GetUUID()
-		if ret != nvml.SUCCESS {
-			log.Warnf("nvml: failed to get UUID for device at index %d for hex reconciliation on node %s: %s", i, h.node, nvml.ErrorString(ret))
-			continue
-		}
-
+	for uuid := range nvidiaSmiDevices {
 		if _, ok := hexUUIDs[uuid]; !ok {
-			log.Warnf("gpu: NVML reports device %s that is absent from the hex inventory on node %s; hex may be stale (hot-add, cache lag)", uuid, h.node)
+			log.Warnf("gpu: nvidia-smi reports device %s that is absent from the hex inventory on node %s; hex may be stale (hot-add, cache lag)", uuid, h.node)
 		}
 	}
 }
@@ -332,10 +371,6 @@ func (h *helper) listRemoteGpuCards() ([]gpu.GpuCard, error) {
 	return result.Data, nil
 }
 
-func bytesToMiB(bytes uint64) int {
-	return int(bytes / 1024 / 1024)
-}
-
 func isVgpu(hexGpu gpu.GpuFromHex) bool {
 	return isVgpuType(hexGpu.Type)
 }
@@ -354,9 +389,9 @@ func isSupportedType(supportTypes []gpu.SupportResourceType, t gpu.ResourceType)
 }
 
 // validateGpuCardUpdate checks a resource-type change against the card's real
-// capabilities. profilesMap (keyed by profile Id) and totalVramMiB (from NVML)
-// are only consulted for vGPU types with profiles. Returns a sentinel-wrapped
-// error the handler maps to a status.
+// capabilities. profilesMap (keyed by profile Id) and totalVramMiB (from
+// nvidia-smi) are only consulted for vGPU types with profiles. Returns a
+// sentinel-wrapped error the handler maps to a status.
 func validateGpuCardUpdate(
 	card gpu.GpuFromHex,
 	req gpu.UpdateGpuCardRequest,
@@ -433,9 +468,9 @@ func validateGpuCardUpdate(
 }
 
 // listAttachedInstances returns the attached instances, flagging the card via
-// opts.Enrichment when NVML/hex enrichment that should have populated them could
-// not be obtained. An error is reserved for integrity failures (an unhandled
-// type) that must fail the whole listing.
+// opts.Enrichment when nvidia-smi/hex enrichment that should have populated
+// them could not be obtained. An error is reserved for integrity failures (an
+// unhandled type) that must fail the whole listing.
 func listAttachedInstances(opts listAttachedInstancesOpts) (*[]gpu.AttachedInstance, error) {
 	hexGpu := opts.HexGpu
 
@@ -504,71 +539,39 @@ func listPgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedIn
 }
 
 // listVgpuAttachedInstances returns the attached instances for SR-IOV and
-// MIG-backed vGPUs. The instance list is derived entirely from NVML (enrichment):
-// any NVML failure degrades to a partial or empty list instead of failing the
-// whole node listing, so a single GPU being reset does not take down the listing
-// for every other card.
+// MIG-backed vGPUs, sourced from one `nvidia-smi vgpu -q` snapshot already
+// scoped to this device (opts.VgpuInstances). Unlike the old per-instance NVML
+// calls, this snapshot is captured atomically by a single subprocess, so there
+// is no "stale handle from a VM torn down mid-enumeration" case to guard
+// against: whatever nvidia-smi saw at invocation time is what gets reported.
+// A failed query still degrades to a partial or empty list instead of failing
+// the whole node listing, so a single GPU being reset does not take down the
+// listing for every other card.
 func listVgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedInstance {
-	device, deviceUUID, hexProfilesMap, serverNames, enr := opts.Device, opts.DeviceUUID, opts.HexProfilesMap, opts.ServerNames, opts.Enrichment
+	deviceUUID, hexProfilesMap, serverNames, enr := opts.DeviceUUID, opts.HexProfilesMap, opts.ServerNames, opts.Enrichment
 
 	attachedInstances := []gpu.AttachedInstance{}
 	if !opts.IsDeviceVisible {
-		// The device handle was unavailable; the caller already flagged the card
-		// degraded when it failed to resolve the handle, so do not double-flag.
+		// The device was unavailable; the caller already flagged the card
+		// degraded when it failed to resolve the device, so do not double-flag.
 		return &attachedInstances
 	}
 
-	vgpuInstances, ret := device.GetActiveVgpus()
-	if ret != nvml.SUCCESS {
-		// The active vGPU list is enrichment (e.g. ERROR_GPU_IS_LOST during a
-		// reset): degrade to no attached instances rather than failing the whole
-		// node listing.
-		enr.degrade("nvml: failed to get active vgpus for device %s: %s; reporting no attached instances (degraded)", deviceUUID, nvml.ErrorString(ret))
+	if !opts.VgpuInstancesAvailable {
+		enr.degrade("nvidiasmi: failed to query vgpu instances for device %s; reporting no attached instances (degraded)", deviceUUID)
 		return &attachedInstances
 	}
 
-	// No active vGPU: skip the utilization query entirely (it can fail on a
-	// device with no samples yet, and its result would be unused anyway).
-	if len(vgpuInstances) == 0 {
-		return &attachedInstances
-	}
+	for _, instance := range opts.VgpuInstances {
+		profileId := instance.VgpuTypeId
 
-	vgpuInstanceUtilizationMap := buildVgpuInstanceUtilizationMap(device, deviceUUID, enr)
-
-	for i, vgpuInstance := range vgpuInstances {
-		// The per-instance NVML calls below are enrichment on top of the active
-		// vGPU list: a VM torn down between GetActiveVgpus and these calls leaves
-		// a stale handle that returns ERROR_NOT_FOUND. Skip just that instance
-		// (flagging the card degraded so the missing instance is not read as a
-		// real detach) instead of failing the whole node listing.
-		vmId, _, ret := vgpuInstance.GetVmID()
-		if ret != nvml.SUCCESS {
-			enr.degrade("nvml: failed to get VM ID for vgpu instance at index %d: %s; skipping instance (degraded)", i, nvml.ErrorString(ret))
-			continue
-		}
-
-		vgpuType, ret := vgpuInstance.GetType()
-		if ret != nvml.SUCCESS {
-			enr.degrade("nvml: failed to get type for vgpu instance %s: %s; skipping instance (degraded)", vmId, nvml.ErrorString(ret))
-			continue
-		}
-
-		profileId, ret := vgpuType.GetGpuInstanceProfileId()
-		if ret != nvml.SUCCESS {
-			enr.degrade("nvml: failed to get profile ID for vgpu instance %s: %s; skipping instance (degraded)", vmId, nvml.ErrorString(ret))
-			continue
-		}
-
-		frameBufferBytes, ret := vgpuType.GetFramebufferSize()
-		if ret != nvml.SUCCESS {
-			enr.degrade("nvml: failed to get frame buffer size for profile %d: %s; skipping instance %s (degraded)", profileId, nvml.ErrorString(ret), vmId)
-			continue
-		}
-
-		fbUsage, ret := vgpuInstance.GetFbUsage()
-		if ret != nvml.SUCCESS {
-			enr.degrade("nvml: failed to get fb usage for vgpu instance %s: %s; skipping instance (degraded)", vmId, nvml.ErrorString(ret))
-			continue
+		if opts.HexGpu.Type == gpu.ResourceTypeMigBackedVgpu {
+			giProfileId, ok := opts.MigTypeProfileIds[instance.VgpuTypeId]
+			if !ok {
+				enr.degrade("nvidiasmi: no GPU Instance Profile ID found for vgpu type %d on device %s; skipping instance %s (degraded)", instance.VgpuTypeId, deviceUUID, instance.VmUUID)
+				continue
+			}
+			profileId = giProfileId
 		}
 
 		hexProfile := hexProfilesMap[profileId]
@@ -578,55 +581,25 @@ func listVgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedIn
 		// name just logs here (the instance is reported without one); a nil map
 		// means the prefetch failed outright, which the caller already flagged as
 		// degraded on the card itself.
-		serverName, ok := serverNames[vmId]
+		serverName, ok := serverNames[instance.VmUUID]
 		if !ok {
-			log.Warnf("gpu: Openstack server %s not found in prefetched servers; reporting instance without name", vmId)
+			log.Warnf("gpu: Openstack server %s not found in prefetched servers; reporting instance without name", instance.VmUUID)
 		}
 
-		utilizationPercent := vgpuInstanceUtilizationMap[vgpuInstanceId(vgpuInstance)]
-
 		attachedInstances = append(attachedInstances, gpu.AttachedInstance{
-			Id:                 vmId,
+			Id:                 instance.VmUUID,
 			Name:               serverName,
 			ProfileAlias:       profileAlias,
-			UtilizationPercent: utilizationPercent,
+			UtilizationPercent: instance.GpuUtilizationPercent,
 			MemoryUsage: gpu.InstanceMemoryUsage{
-				AllocatedMiB: bytesToMiB(fbUsage),
-				TotalMiB:     bytesToMiB(frameBufferBytes),
+				AllocatedMiB: instance.MemoryUsedMiB,
+				TotalMiB:     instance.MemoryTotalMiB,
 			},
-			Links: buildInstanceLinks(vmId),
+			Links: buildInstanceLinks(instance.VmUUID),
 		})
 	}
 
 	return &attachedInstances
-}
-
-// buildVgpuInstanceUtilizationMap maps vGPU instance handle to SM utilization.
-// A failed query would leave every attached instance reporting 0% utilization,
-// which reads as idle rather than unknown, so any non-SUCCESS degrades the card
-// (never fails the listing) and returns an empty map.
-func buildVgpuInstanceUtilizationMap(device nvml.Device, deviceUUID string, enr *enrichment) map[uint32]uint32 {
-	utilizationMap := map[uint32]uint32{}
-	valueType, samples, ret := device.GetVgpuUtilization(0)
-
-	if ret != nvml.SUCCESS {
-		enr.degrade("nvml: failed to get vgpu utilization for device %s: %s; reporting empty utilization (degraded)", deviceUUID, nvml.ErrorString(ret))
-		return utilizationMap
-	}
-
-	for _, sample := range samples {
-		switch valueType {
-		case nvml.VALUE_TYPE_UNSIGNED_INT:
-			utilizationMap[sample.VgpuInstance] = binary.LittleEndian.Uint32(sample.SmUtil[:4])
-		case nvml.VALUE_TYPE_DOUBLE:
-			// SmUtil holds the raw bytes of an IEEE-754 double; reinterpret it
-			// rather than reading the low bytes as an integer.
-			doubleBits := binary.LittleEndian.Uint64(sample.SmUtil[:])
-			utilizationMap[sample.VgpuInstance] = uint32(math.Round(math.Float64frombits(doubleBits)))
-		}
-	}
-
-	return utilizationMap
 }
 
 // buildInstanceLinksViaOpenstack builds the links reported inline with each
@@ -684,12 +657,6 @@ func getOpenstackServerNamesViaHelper() (map[string]string, error) {
 	}
 
 	return serverNames, nil
-}
-
-// nvml.VgpuInstance does not expose its raw handle; the driver's concrete
-// type is an integer handle, recovered here via reflection.
-func vgpuInstanceIdViaReflect(vgpuInstance nvml.VgpuInstance) uint32 {
-	return uint32(reflect.ValueOf(vgpuInstance).Uint())
 }
 
 func toProfileCollection(
@@ -787,7 +754,7 @@ func (h *helper) updateLocalGpuCard() error {
 	}
 
 	// vGPU profile/VRAM limits need the GPU's available profiles (hex) and its
-	// total VRAM (NVML). Only gather them when profiles are actually supplied.
+	// total VRAM (nvidia-smi). Only gather them when profiles are actually supplied.
 	var profilesMap map[uint32]gpu.VgpuProfileFromHex
 	var totalVramMiB int
 	if isVgpuType(h.gpuCardReq.ResourceType) && len(h.gpuCardReq.Profiles) > 0 {
@@ -883,18 +850,18 @@ func deleteUpdatingGpuReqViaMongo(h *helper, gpuId string) error {
 	)
 }
 
-// getGpuTotalVramMiB reads the physical GPU's total VRAM via NVML. Used as the
-// budget for the vGPU VRAM-limit validation.
+// getGpuTotalVramMiB reads the physical GPU's total VRAM via nvidia-smi. Used
+// as the budget for the vGPU VRAM-limit validation.
 func getGpuTotalVramMiB(uuid string) (int, error) {
-	device, ret := deviceGetHandleByUUID(uuid)
-	if ret != nvml.SUCCESS {
-		return 0, fmt.Errorf("nvml: failed to get device handle for gpu %s: %s", uuid, nvml.ErrorString(ret))
+	devices, err := getNvidiaSmiDevices()
+	if err != nil {
+		return 0, fmt.Errorf("nvidiasmi: failed to query devices for gpu %s: %w", uuid, err)
 	}
 
-	memoryInfo, ret := device.GetMemoryInfo()
-	if ret != nvml.SUCCESS {
-		return 0, fmt.Errorf("nvml: failed to get memory info for gpu %s: %s", uuid, nvml.ErrorString(ret))
+	device, ok := devices[uuid]
+	if !ok {
+		return 0, fmt.Errorf("nvidiasmi: device %s not reported by nvidia-smi", uuid)
 	}
 
-	return bytesToMiB(memoryInfo.Total), nil
+	return device.MemoryTotalMiB, nil
 }
