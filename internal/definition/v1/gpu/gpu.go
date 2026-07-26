@@ -1,6 +1,11 @@
 package gpu
 
-import "errors"
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"math"
+)
 
 type ResourceType string
 type SupportResourceType string
@@ -37,10 +42,40 @@ type VgpuProfileCollectionFromHex struct {
 	MigBacked *[]VgpuProfileFromHex `json:"migBacked"`
 }
 
+// MiB is a whole-MiB quantity decoded from a hex_sdk JSON number that may be
+// fractional. `hex_sdk gpu_vgpu_profile_list` derives a MIG-backed profile's
+// vramMiB from the GiB column of `nvidia-smi mig -lgip` (GiB * 1024), so it can
+// emit e.g. 23674.88 for a 23.12 GiB "1g.24gb" profile. Decoding that into a
+// plain uint64 fails, and because encoding/json aborts the whole document on a
+// single field error, one fractional profile drops *every* profile on the card.
+// Rounding at the decode boundary keeps every caller working in whole MiB.
+type MiB uint64
+
+func (m *MiB) UnmarshalJSON(data []byte) error {
+	// encoding/json calls UnmarshalJSON for a JSON null too; leave the value
+	// untouched, as it would for a plain numeric field.
+	if string(data) == "null" {
+		return nil
+	}
+
+	var f float64
+	if err := json.Unmarshal(data, &f); err != nil {
+		return err
+	}
+
+	if math.IsNaN(f) || math.IsInf(f, 0) || f < 0 || f > math.MaxUint64 {
+		return fmt.Errorf("vramMiB out of range: %v", f)
+	}
+
+	*m = MiB(math.Round(f))
+
+	return nil
+}
+
 type VgpuProfileFromHex struct {
 	Id           uint32  `json:"id"`
 	Name         string  `json:"name"`
-	VramMiB      uint64  `json:"vramMiB"`
+	VramMiB      MiB     `json:"vramMiB"`
 	Count        int     `json:"count"`
 	Alias        *string `json:"alias"`
 	VmCountLimit *int    `json:"vmCountLimit"`
