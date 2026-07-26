@@ -247,7 +247,13 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCard
 
 	if isVgpu(hexGpu) {
 		var profErr error
-		hexProfilesMap, hexProfileCollection, profErr = getNodeVgpuProfilesMap(hexGpu.PciAddress)
+		// Must be the GPU UUID, not the PCI address: gpu_vgpu_profile_list looks
+		// the card up in /etc/cube/cos/gpu/config.json by its `.id` field, which
+		// holds the UUID. A PCI address silently matches nothing there, so every
+		// profile comes back with count 0 and a nil alias while nvidia-smi still
+		// fills in the rest - a wrong answer that looks like a valid one. The
+		// update path below already passes card.Id; this call was the odd one out.
+		hexProfilesMap, hexProfileCollection, profErr = getNodeVgpuProfilesMap(hexGpu.Id)
 		if profErr != nil {
 			// Profiles drive the card's advertised vGPU capacity; a failed hex
 			// profile fetch leaves that capacity untrustworthy, so flag degraded
@@ -673,7 +679,7 @@ func toProfileCollection(
 			collection.SriovVgpu = append(collection.SriovVgpu, gpu.VgpuProfile{
 				Id:         profile.Id,
 				Name:       profile.Name,
-				VramMiB:    profile.VramMiB,
+				VramMiB:    uint64(profile.VramMiB),
 				Count:      profile.Count,
 				Remaining:  nil,
 				AliasName:  profile.Alias,
@@ -691,7 +697,7 @@ func toProfileCollection(
 			collection.MigBackedVgpu = append(collection.MigBackedVgpu, gpu.VgpuProfile{
 				Id:         profile.Id,
 				Name:       profile.Name,
-				VramMiB:    profile.VramMiB,
+				VramMiB:    uint64(profile.VramMiB),
 				Count:      profile.Count,
 				Remaining:  &remaining,
 				AliasName:  profile.Alias,

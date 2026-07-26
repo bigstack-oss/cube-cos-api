@@ -499,9 +499,20 @@ func getNodeVgpuProfileCollection(gpuId string) (gpu.VgpuProfileCollectionFromHe
 
 	collection := gpu.VgpuProfileCollectionFromHex{}
 
-	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_vgpu_profile_list", gpuId).CombinedOutput()
+	// Output (stdout only) rather than CombinedOutput: gpu_vgpu_profile_list
+	// prints diagnostics to stderr, and any such line would be prepended to the
+	// JSON and break the unmarshal below. Same reasoning as
+	// GetNodePgpuAttachedInstance. stderr is still surfaced on failure via
+	// ExitError.
+	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_vgpu_profile_list", gpuId).Output()
 	if err != nil {
-		log.Errorf("nodes: failed to list vgpu profiles for gpu %s: %v", gpuId, err)
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) && len(exitErr.Stderr) > 0 {
+			log.Errorf("nodes: failed to list vgpu profiles for gpu %s: %v: %s", gpuId, err, exitErr.Stderr)
+		} else {
+			log.Errorf("nodes: failed to list vgpu profiles for gpu %s: %v", gpuId, err)
+		}
+
 		return collection, err
 	}
 

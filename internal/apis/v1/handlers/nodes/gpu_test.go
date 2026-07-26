@@ -239,7 +239,10 @@ func TestBuildLocalGpuCardVgpuProfiles(t *testing.T) {
 	}
 
 	getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
-		require.Equal(t, hexGpu.PciAddress, gpuId)
+		// The UUID, not the PCI address: gpu_vgpu_profile_list keys off the
+		// `.id` field in config.json. This assertion previously demanded the
+		// PCI address, which is what kept the wrong lookup key in place.
+		require.Equal(t, hexGpu.Id, gpuId)
 
 		profile := gpu.VgpuProfileFromHex{
 			Id:           1,
