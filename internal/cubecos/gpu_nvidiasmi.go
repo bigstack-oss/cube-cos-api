@@ -168,12 +168,12 @@ func parseNvidiaSmiDeviceBlock(lines []string) (NvidiaSmiDevice, bool) {
 				haveUsed = true
 			}
 		case section == "Utilization" && key == "GPU":
-			if n, err := parseLeadingIntField(value); err == nil {
-				device.GpuUtilizationPercent = uint32(n)
+			if n, err := parseLeadingUint32Field(value); err == nil {
+				device.GpuUtilizationPercent = n
 			}
 		case section == "Utilization" && key == "Memory":
-			if n, err := parseLeadingIntField(value); err == nil {
-				device.MemoryUtilizationPercent = uint32(n)
+			if n, err := parseLeadingUint32Field(value); err == nil {
+				device.MemoryUtilizationPercent = n
 			}
 		}
 	}
@@ -242,8 +242,8 @@ func parseNvidiaSmiVgpuInstanceBlock(lines []string) []NvidiaSmiVgpuInstance {
 			case "VM UUID":
 				current.VmUUID = value
 			case "vGPU Type":
-				if n, err := strconv.Atoi(value); err == nil {
-					current.VgpuTypeId = uint32(n)
+				if n, err := parseLeadingUint32Field(value); err == nil {
+					current.VgpuTypeId = n
 				}
 			}
 		case indent == 12 && isKV:
@@ -257,8 +257,8 @@ func parseNvidiaSmiVgpuInstanceBlock(lines []string) []NvidiaSmiVgpuInstance {
 					current.MemoryUsedMiB = n
 				}
 			case section == "Utilization" && key == "GPU":
-				if n, err := parseLeadingIntField(value); err == nil {
-					current.GpuUtilizationPercent = uint32(n)
+				if n, err := parseLeadingUint32Field(value); err == nil {
+					current.GpuUtilizationPercent = n
 				}
 			}
 		}
@@ -297,8 +297,8 @@ func parseNvidiaSmiVgpuTypeProfileIds(output string) map[uint32]uint32 {
 			if !wOk || wKey != "GPU Instance Profile ID" {
 				continue
 			}
-			if profileId, err := strconv.Atoi(wValue); err == nil {
-				profileIds[vgpuTypeId] = uint32(profileId)
+			if profileId, err := parseLeadingUint32Field(wValue); err == nil {
+				profileIds[vgpuTypeId] = profileId
 			}
 			break
 		}
@@ -359,6 +359,25 @@ func parseLeadingIntField(value string) (int, error) {
 	}
 
 	return strconv.Atoi(fields[0])
+}
+
+// parseLeadingUint32Field is parseLeadingIntField for the fields that land in
+// a uint32 (utilization percentages, vGPU type ids, GPU instance profile ids).
+// Parsing into an int and converting would wrap silently on a value past
+// uint32 - the same "quietly produce a plausible wrong number" failure this
+// package exists to avoid - so bound it at parse time instead.
+func parseLeadingUint32Field(value string) (uint32, error) {
+	fields := strings.Fields(value)
+	if len(fields) == 0 {
+		return 0, strconv.ErrSyntax
+	}
+
+	n, err := strconv.ParseUint(fields[0], 10, 32)
+	if err != nil {
+		return 0, err
+	}
+
+	return uint32(n), nil
 }
 
 // parseNvidiaSmiHexId parses a "0x5ef"-style hex id into a decimal uint32,
