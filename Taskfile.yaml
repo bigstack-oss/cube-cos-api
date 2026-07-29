@@ -65,13 +65,11 @@ tasks:
       - task: buildLocalBinary
       - task: initRemoteCosDevEnv
       - task: moveLocalBinaryToRemoteCos
-      - task: moveLocalConfigToRemoteCos
       - task: activateSystemdService
   deployRemoteE2EApi:
     cmds:
       - task: buildLocalBinary
       - task: moveLocalBinaryToRemoteE2E
-      - task: moveLocalConfigToRemoteE2E
       - task: restartRemoteE2ESystemdService
   deployRemoteDevMongo:
     cmds:
