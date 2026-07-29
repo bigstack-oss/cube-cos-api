@@ -26,12 +26,23 @@ func (h *helper) verifyNodeIpmi() (*ipmi.FRU, error) {
 		return nil, fmt.Errorf("unable to connect with IPMI, please check your IPMI settings")
 	}
 
-	dateTime, err := time.Parse(bstime.FormatBmc, fru.ManufacturingDate)
+	manufacturingDate, err := convertBmcTime(fru.ManufacturingDate)
 	if err == nil {
-		fru.ManufacturingDate = bstime.ISO8601Z(dateTime)
+		fru.ManufacturingDate = manufacturingDate
 	}
 
 	return fru, nil
+}
+
+// FormatBmc carries no zone token, so the BMC wall clock must be parsed as the
+// node's local time — otherwise it is read as UTC and mislabeled.
+func convertBmcTime(rawTime string) (string, error) {
+	t, err := time.ParseInLocation(bstime.FormatBmc, rawTime, bstime.LocalFixedZone)
+	if err != nil {
+		return "", err
+	}
+
+	return bstime.RFC3339Z(t), nil
 }
 
 func (h *helper) checkBoardSerialConsistency(fru *ipmi.FRU) error {

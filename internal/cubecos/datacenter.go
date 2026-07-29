@@ -138,19 +138,22 @@ func GetFixpackVersion() (string, error) {
 	return version, nil
 }
 
+// Test seam.
+var getLastInstalledFixpack = GetDataCenterLastInstalledFixpack
+
 func GetFixpackUpdatedAt() (string, error) {
-	fixpack, err := GetDataCenterLastInstalledFixpack()
+	fixpack, err := getLastInstalledFixpack()
 	if err != nil {
 		return "", err
 	}
 
 	updatedAt := fixpack[0]
-	t, err := ostime.Parse(time.FormatFixpack, updatedAt)
+	t, err := ostime.ParseInLocation(time.FormatFixpack, updatedAt, time.LocalFixedZone)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse fixpack updatedAt(%s %v)", updatedAt, err)
 	}
 
-	return time.LocalRFC3339(t), nil
+	return time.RFC3339Z(t), nil
 }
 
 func GetDataCenterLastInstalledFixpack() ([]string, error) {

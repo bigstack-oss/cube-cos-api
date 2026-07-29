@@ -8,8 +8,6 @@ import (
 
 const (
 	FormatBmc          = "Mon Jan 2 15:04:05 2006"
-	FormatISO8601      = "2006-01-02T15:04:05"
-	FormatISO8601Z     = "2006-01-02T15:04:05+00:00"
 	FormatRFC3339      = time.RFC3339
 	FormatRFC3339Z     = "2006-01-02T15:04:05Z07:00"
 	FormatRFC3339ZUTC  = "2006-01-02T15:04:05Z"
@@ -18,6 +16,9 @@ const (
 	FormatFirmwarePkg  = "20060102-1504"
 	FormatFixpack      = "02 Jan 2006 15:04:05"
 )
+
+// Test seam.
+var bootTime = host.BootTime
 
 var (
 	Day = 24 * time.Hour
@@ -85,20 +86,12 @@ func LocalRFC3339AddDuration(t time.Time, duration time.Duration) string {
 	return adjusted.In(LocalFixedZone).Format(time.RFC3339)
 }
 
-func ISO8601Z(t time.Time) string {
-	return t.Format(FormatISO8601Z)
-}
-
 func Boot() string {
-	bootDuration, err := host.BootTime()
+	bootDuration, err := bootTime()
 	if err != nil {
-		return ISO8601Z(time.Now())
+		return LocalRFC3339(time.Now())
 	}
 
-	bootTime := time.Unix(int64(bootDuration), 0)
-	return ISO8601Z(bootTime)
-}
-
-func TimeISO8601Z(t time.Time) string {
-	return t.Format(FormatISO8601Z)
+	bootedAt := time.Unix(int64(bootDuration), 0)
+	return LocalRFC3339(bootedAt)
 }

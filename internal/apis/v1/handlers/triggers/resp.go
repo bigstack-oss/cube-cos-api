@@ -10,6 +10,9 @@ import (
 	"github.com/shirou/gopsutil/v4/host"
 )
 
+// Test seam.
+var bootTime = host.BootTime
+
 var (
 	builtInMap = map[string]triggerResp{
 		"admin-notify": {
@@ -119,14 +122,14 @@ func (t *triggerResp) SetOk() {
 		IsProcessing: false,
 	}
 
-	bootDuration, err := host.BootTime()
+	bootDuration, err := bootTime()
 	if err != nil {
-		t.Status.UpdatedAt = time.TimeISO8601Z(ostime.Now())
+		t.Status.UpdatedAt = time.LocalRFC3339(ostime.Now())
 		return
 	}
 
-	bootTime := ostime.Unix(int64(bootDuration), 0)
-	t.Status.UpdatedAt = time.TimeISO8601Z(bootTime)
+	bootedAt := ostime.Unix(int64(bootDuration), 0)
+	t.Status.UpdatedAt = time.LocalRFC3339(bootedAt)
 }
 
 func (t *triggerResp) HasEmails() bool {

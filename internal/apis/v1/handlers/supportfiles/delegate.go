@@ -54,7 +54,7 @@ func (h *helper) delegateSupportFileReq() {
 
 func (h *helper) setSupportFileReq() {
 	if h.fileReq.CreatedAt == "" {
-		h.fileReq.CreatedAt = time.ISO8601Z(ostime.Now())
+		h.fileReq.CreatedAt = time.LocalRFC3339(ostime.Now())
 	}
 
 	h.file = support.File{

@@ -137,7 +137,7 @@ func (h *helper) parseHosts() error {
 		return err
 	}
 
-	h.fileReq.CreatedAt = time.ISO8601Z(ostime.Now())
+	h.fileReq.CreatedAt = time.LocalRFC3339(ostime.Now())
 	return nil
 }
 
