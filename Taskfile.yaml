@@ -40,6 +40,10 @@ tasks:
   test:
     cmds:
       - CGO_ENABLED=1 GOWORK=off go test -v ./...
+  testFixpackMount:
+    desc: Regression tests for the fixpack mount path; needs root and a loop device, so it runs in a privileged container
+    cmds:
+      - ./scripts/test-fixpack-mount.sh
   buildLocalBinary:
     deps:
       - generateApiDocs

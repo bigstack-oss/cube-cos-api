@@ -717,13 +717,8 @@ func parseFixpackInfo(file string) ([]byte, error) {
 	}
 
 	defer unmountTmpDir(tmpDir)
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
-	defer cancel()
-
-	out, err := exec.CommandContext(ctx, "mount", file, tmpDir).CombinedOutput()
+	err = mountFixpackReadOnly(file, tmpDir)
 	if err != nil {
-		err := fmt.Errorf("failed to mount fixpack %s(%v %s)", file, err, string(out))
-		log.Errorf("fixpack: %v", err)
 		return nil, err
 	}
 
@@ -736,6 +731,41 @@ func parseFixpackInfo(file string) ([]byte, error) {
 	}
 
 	return bytes, nil
+}
+
+// mountFixpackReadOnly mounts a fixpack image without writing to it. A plain
+// read-write mount mutates the image's superblock (mount count, last write time),
+// which changes the file's md5 on every read. noload skips journal replay, so it
+// reads pre-recovery metadata -- correct for fixpack.info, which is fixed at
+// build time, but a degraded read. Try a proper ro mount first and fall back
+// only when the journal is dirty, which a read-only loop device cannot replay.
+func mountFixpackReadOnly(file string, tmpDir string) error {
+	var lastErr error
+	for _, opts := range []string{
+		"ro,nosuid,nodev,noexec",
+		"ro,noload,nosuid,nodev,noexec",
+	} {
+		out, err := runFixpackMount(file, tmpDir, opts)
+		if err == nil {
+			return nil
+		}
+
+		// An earlier option set failing is expected -- a dirty ext4 rejects a
+		// plain ro mount -- so only the exhausted loop is an error.
+		lastErr = fmt.Errorf("failed to mount fixpack %s with -o %s(%v %s)", file, opts, err, string(out))
+		log.Warnf("fixpack: %v", lastErr)
+	}
+
+	log.Errorf("fixpack: %v", lastErr)
+
+	return lastErr
+}
+
+func runFixpackMount(file string, tmpDir string, opts string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	defer cancel()
+
+	return exec.CommandContext(ctx, "mount", "-o", opts, file, tmpDir).CombinedOutput()
 }
 
 func unmountTmpDir(tmpDir string) {
