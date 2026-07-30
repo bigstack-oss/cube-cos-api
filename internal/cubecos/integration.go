@@ -116,6 +116,7 @@ func GetStorage(name string) (*storages.CinderDetails, error) {
 		return nil, err
 	}
 
+	convertStorageDetailsTimes(cinder)
 	return cinder, nil
 }
 
@@ -386,22 +387,37 @@ func identifyStorageModelDeleteErr(driver string, output []byte) error {
 
 func convertStorageTimes(list *[]storages.Cinder) {
 	for i, storage := range *list {
-		if storage.IsBuiltIn {
-			(*list)[i].UpdateTime = base.ActiveFirmwareUpdatedAt
-			continue
-		}
-
-		if storage.UpdateTime == "" {
-			(*list)[i].UpdateTime = time.NowRFC3339()
-			continue
-		}
-
-		updateTime, err := ostime.Parse(time.FormatRFC3339ZUTC, storage.UpdateTime)
-		if err != nil {
-			log.Warnf("integrations: failed to parse storage %s update time %s (%v)", storage.Name, storage.UpdateTime, err)
-			continue
-		}
-
-		(*list)[i].UpdateTime = time.LocalRFC3339(updateTime)
+		(*list)[i].UpdateTime = convertStorageTime(storage.Name, storage.IsBuiltIn, storage.UpdateTime)
 	}
+}
+
+// The details response emits the top-level update time and the one nested under
+// "storage"; both arrive as raw OpenStack UTC, so both go through the same
+// conversion the list path uses. Otherwise the two endpoints disagree about the
+// same storage's timestamp.
+func convertStorageDetailsTimes(details *storages.CinderDetails) {
+	if details == nil {
+		return
+	}
+
+	details.UpdateTime = convertStorageTime(details.Name, details.IsBuiltIn, details.UpdateTime)
+	details.Storage.UpdateTime = convertStorageTime(details.Name, details.IsBuiltIn, details.Storage.UpdateTime)
+}
+
+// A built-in storage and one hex_sdk reports no update time for are the same
+// case — no timestamp of its own — so both report the active firmware time.
+// That value is derived once at startup and already carries the node's offset;
+// request time would move on every GET and label itself UTC.
+func convertStorageTime(name string, isBuiltIn bool, updateTime string) string {
+	if isBuiltIn || updateTime == "" {
+		return base.ActiveFirmwareUpdatedAt
+	}
+
+	parsed, err := ostime.Parse(time.FormatRFC3339ZUTC, updateTime)
+	if err != nil {
+		log.Warnf("integrations: failed to parse storage %s update time %s (%v)", name, updateTime, err)
+		return updateTime
+	}
+
+	return time.LocalRFC3339(parsed)
 }

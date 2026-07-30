@@ -73,10 +73,6 @@ func RFC3339ZNano(t time.Time) string {
 	return t.Format(FormatRFC3339ZNano)
 }
 
-func NowRFC3339() string {
-	return time.Now().UTC().Format(time.RFC3339)
-}
-
 func LocalRFC3339(t time.Time) string {
 	return t.In(LocalFixedZone).Format(time.RFC3339)
 }
