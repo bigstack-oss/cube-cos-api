@@ -19,7 +19,6 @@ func restoreGpuSeams(t *testing.T) {
 	origGetNodePgpuAttachedInstance := getNodePgpuAttachedInstance
 	origGetNvidiaSmiDevices := getNvidiaSmiDevices
 	origGetNvidiaSmiVgpuInstances := getNvidiaSmiVgpuInstances
-	origGetNvidiaSmiVgpuTypeProfileIds := getNvidiaSmiVgpuTypeProfileIds
 	origBuildInstanceLinks := buildInstanceLinks
 	origGetOpenstackServerNames := getOpenstackServerNames
 	origCreateConsole := createConsole
@@ -40,7 +39,6 @@ func restoreGpuSeams(t *testing.T) {
 		getNodePgpuAttachedInstance = origGetNodePgpuAttachedInstance
 		getNvidiaSmiDevices = origGetNvidiaSmiDevices
 		getNvidiaSmiVgpuInstances = origGetNvidiaSmiVgpuInstances
-		getNvidiaSmiVgpuTypeProfileIds = origGetNvidiaSmiVgpuTypeProfileIds
 		buildInstanceLinks = origBuildInstanceLinks
 		getOpenstackServerNames = origGetOpenstackServerNames
 		createConsole = origCreateConsole
@@ -640,7 +638,8 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 			return gpu.InstanceLinks{}
 		}
 
-		giProfileId := uint32(47)
+		// hex keys migBacked profiles by vGPU Type ID (cubecos #905), the same id
+		// `vgpu -q` reports per instance - so no translation step is involved.
 		vgpuTypeId := uint32(0x619)
 
 		enr := &enrichment{}
@@ -648,12 +647,11 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 			IsDeviceVisible: true,
 			DeviceUUID:      "GPU-44444444-4444-4444-4444-444444444444",
 			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeMigBackedVgpu},
-			HexProfilesMap:  map[uint32]gpu.VgpuProfileFromHex{giProfileId: {Alias: &alias}},
+			HexProfilesMap:  map[uint32]gpu.VgpuProfileFromHex{vgpuTypeId: {Alias: &alias}},
 			VgpuInstances: []cubecos.NvidiaSmiVgpuInstance{
 				{VmUUID: "vm-9", VgpuTypeId: vgpuTypeId},
 			},
 			VgpuInstancesAvailable: true,
-			MigTypeProfileIds:      map[uint32]uint32{vgpuTypeId: giProfileId},
 			ServerNames:            map[string]string{},
 			Enrichment:             enr,
 		})
@@ -663,27 +661,29 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 		require.Equal(t, &alias, (*instances)[0].ProfileAlias)
 	})
 
-	// A MIG-backed vGPU type absent from the type->profile-id map (e.g. the
-	// static vgpu -s -v lookup failed or returned an incomplete set) is
-	// skipped rather than reported with a wrong or zero-value profile id.
-	t.Run("mig-backed instance with unresolvable type is skipped", func(t *testing.T) {
+	// A vGPU type absent from hex's profile list is reported without an alias and
+	// does not degrade the card - the same as the SR-IOV path has always behaved.
+	// Both flavours share one lookup now, so there is no MIG-only signal to keep:
+	// the id mismatch that used to produce one (hex reporting GPU Instance Profile
+	// IDs while vgpu -q reports vGPU Type IDs) no longer exists.
+	t.Run("vgpu type missing from hex profiles reports without an alias", func(t *testing.T) {
 		enr := &enrichment{}
 		instances := listVgpuAttachedInstances(listAttachedInstancesOpts{
 			IsDeviceVisible: true,
 			DeviceUUID:      "GPU-44444444-4444-4444-4444-444444444444",
 			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeMigBackedVgpu},
+			HexProfilesMap:  map[uint32]gpu.VgpuProfileFromHex{},
 			VgpuInstances: []cubecos.NvidiaSmiVgpuInstance{
 				{VmUUID: "vm-9", VgpuTypeId: 0x619},
 			},
 			VgpuInstancesAvailable: true,
-			MigTypeProfileIds:      map[uint32]uint32{},
 			ServerNames:            map[string]string{},
 			Enrichment:             enr,
 		})
 
-		require.True(t, enr.degraded)
-		require.NotNil(t, instances)
-		require.Empty(t, *instances)
+		require.False(t, enr.degraded)
+		require.Len(t, *instances, 1)
+		require.Nil(t, (*instances)[0].ProfileAlias)
 	})
 }
 

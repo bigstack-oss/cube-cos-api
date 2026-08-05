@@ -1,7 +1,6 @@
 package cubecos
 
 import (
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -174,65 +173,6 @@ func TestParseNvidiaSmiVgpuInstancesNoActiveVgpus(t *testing.T) {
 	require.Empty(t, instancesByPci)
 }
 
-// nvidiaSmiVgpuTypeBlock builds one synthetic "vGPU Type ID" block padded to
-// nvidiaSmiVgpuTypeProfileIdWindow lines so a test can prove the window
-// mechanism stays inside its own block and does not read a neighboring
-// type's fields. The filler field names are not real nvidia-smi output --
-// this repo has no captured `vgpu -s -v` sample to draw them from (see the
-// test doc comment below) -- only the two real fields this parser reads
-// (vGPU Type ID, GPU Instance Profile ID) are meaningful.
-func nvidiaSmiVgpuTypeBlock(hexId string, giProfileId string) string {
-	block := "    vGPU Type ID                          : " + hexId + "\n"
-	block += "        Name                              : NVIDIA RTX Pro 6000 Blackwell DC-Q\n"
-	for i := range nvidiaSmiVgpuTypeProfileIdWindow - 3 {
-		block += "        Filler Field " + strconv.Itoa(i) + "                     : n/a\n"
-	}
-	if giProfileId != "" {
-		block += "        GPU Instance Profile ID           : " + giProfileId + "\n"
-	}
-	return block
-}
-
-// parseNvidiaSmiVgpuTypeProfileIds ports gpu_vgpu_profile_list's own
-// windowed-grep strategy for `nvidia-smi vgpu -s -v` output; this test is
-// synthetic (this repo has no captured `vgpu -s -v` sample -- MIG-backed
-// vGPU creation does not work on any node available to it yet, see cubecos's
-// feat/905-mig-vgpu-infra-wip findings), so it only proves the windowing
-// mechanism matches the shell script's own `grep -A 20` semantics -- each
-// type's real field is placed exactly nvidiaSmiVgpuTypeProfileIdWindow-1
-// lines below its "vGPU Type ID" line (the edge of the window) so a
-// too-narrow or off-by-one window would fail this test, and each MIG type
-// carries a distinct profile id so a window overshooting into the next
-// block's field would also be caught as a wrong value, not just a missing one.
-func TestParseNvidiaSmiVgpuTypeProfileIds(t *testing.T) {
-	fixture := "Supported vGPU types on pGPU 0 :\n" +
-		nvidiaSmiVgpuTypeBlock("0x5ef", "") + // SR-IOV: no GI profile id
-		nvidiaSmiVgpuTypeBlock("0x619", "47") +
-		nvidiaSmiVgpuTypeBlock("0x61a", "48")
-
-	profileIds := parseNvidiaSmiVgpuTypeProfileIds(fixture)
-
-	require.Len(t, profileIds, 2)
-	require.Equal(t, map[uint32]uint32{
-		0x619: 47,
-		0x61a: 48,
-	}, profileIds)
-}
-
-// A GI profile id placed one line past the window must not be picked up by
-// the wrong (earlier) type, confirming the window is bounded, not unlimited.
-func TestParseNvidiaSmiVgpuTypeProfileIdsWindowIsBounded(t *testing.T) {
-	block := "    vGPU Type ID                          : 0x619\n"
-	for i := range nvidiaSmiVgpuTypeProfileIdWindow {
-		block += "        Filler Field " + strconv.Itoa(i) + "                     : n/a\n"
-	}
-	block += "        GPU Instance Profile ID           : 47\n"
-
-	profileIds := parseNvidiaSmiVgpuTypeProfileIds(block)
-
-	require.Empty(t, profileIds)
-}
-
 func TestParseLeadingIntField(t *testing.T) {
 	n, err := parseLeadingIntField("97887 MiB")
 	require.NoError(t, err)
@@ -246,15 +186,6 @@ func TestParseLeadingIntField(t *testing.T) {
 	require.Error(t, err)
 
 	_, err = parseLeadingIntField("")
-	require.Error(t, err)
-}
-
-func TestParseNvidiaSmiHexId(t *testing.T) {
-	n, err := parseNvidiaSmiHexId("0x5ef")
-	require.NoError(t, err)
-	require.Equal(t, uint32(1519), n)
-
-	_, err = parseNvidiaSmiHexId("not-hex")
 	require.Error(t, err)
 }
 

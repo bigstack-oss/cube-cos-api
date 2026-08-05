@@ -22,20 +22,19 @@ import (
 // Seams for unit tests: hex_sdk CLI, nvidia-smi, and Openstack are
 // unavailable there.
 var (
-	getNodeGpusMap                 = cubecos.GetNodeGpusMap
-	getNodeVgpuProfilesMap         = cubecos.GetNodeVgpuProfilesMap
-	getNodePgpuAttachedInstance    = cubecos.GetNodePgpuAttachedInstance
-	getNvidiaSmiDevices            = cubecos.GetNvidiaSmiDevices
-	getNvidiaSmiVgpuInstances      = cubecos.GetNvidiaSmiVgpuInstances
-	getNvidiaSmiVgpuTypeProfileIds = cubecos.GetNvidiaSmiVgpuTypeGpuInstanceProfileIds
-	buildInstanceLinks             = buildInstanceLinksViaOpenstack
-	getOpenstackServerNames        = getOpenstackServerNamesViaHelper
-	createConsole                  = createConsoleViaOpenstack
-	getNodeGpuById                 = cubecos.GetNodeGpuById
-	updateNodeGpuCardViaHex        = cubecos.UpdateNodeGpuCard
-	isGpuUpdating                  = isGpuUpdatingViaMongo
-	upsertUpdatingGpuReq           = upsertUpdatingGpuReqViaMongo
-	deleteUpdatingGpuReq           = deleteUpdatingGpuReqViaMongo
+	getNodeGpusMap              = cubecos.GetNodeGpusMap
+	getNodeVgpuProfilesMap      = cubecos.GetNodeVgpuProfilesMap
+	getNodePgpuAttachedInstance = cubecos.GetNodePgpuAttachedInstance
+	getNvidiaSmiDevices         = cubecos.GetNvidiaSmiDevices
+	getNvidiaSmiVgpuInstances   = cubecos.GetNvidiaSmiVgpuInstances
+	buildInstanceLinks          = buildInstanceLinksViaOpenstack
+	getOpenstackServerNames     = getOpenstackServerNamesViaHelper
+	createConsole               = createConsoleViaOpenstack
+	getNodeGpuById              = cubecos.GetNodeGpuById
+	updateNodeGpuCardViaHex     = cubecos.UpdateNodeGpuCard
+	isGpuUpdating               = isGpuUpdatingViaMongo
+	upsertUpdatingGpuReq        = upsertUpdatingGpuReqViaMongo
+	deleteUpdatingGpuReq        = deleteUpdatingGpuReqViaMongo
 )
 
 // buildLocalGpuCardOpts carries data fetched once per listLocalGpuCards
@@ -69,11 +68,6 @@ type listAttachedInstancesOpts struct {
 	// VgpuInstances/VgpuInstancesAvailable: see buildLocalGpuCardOpts.
 	VgpuInstances          []cubecos.NvidiaSmiVgpuInstance
 	VgpuInstancesAvailable bool
-	// MigTypeProfileIds maps vGPU Type ID -> GPU Instance Profile ID for a
-	// MIG-backed GPU's supported types (nvidia-smi vgpu -q reports the former
-	// per instance; hex's MIG-backed profile ids are the latter). Unused for
-	// SR-IOV, whose hex profile ids are the vGPU Type ID directly.
-	MigTypeProfileIds map[uint32]uint32
 	// ServerNames maps Openstack server id to name, prefetched once per request
 	// so vGPU instance names do not cost a GetServer round trip each. A nil map
 	// means the prefetch failed outright, so a name missing for an attached
@@ -269,19 +263,6 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCard
 		enr.degrade("gpu: Openstack server prefetch failed on node %s; gpu %s reported without instance names (degraded)", h.node, hexGpu.Id)
 	}
 
-	// MIG-backed hex profile ids are the GPU Instance Profile ID, which
-	// nvidia-smi only reports per vGPU *type* (vgpu -s -v), not per active
-	// instance (vgpu -q reports the vGPU Type ID instead): resolve the
-	// type -> profile-id mapping once here, only when actually needed.
-	migTypeProfileIds := map[uint32]uint32{}
-	if hexGpu.Type == gpu.ResourceTypeMigBackedVgpu && len(opts.VgpuInstances) > 0 {
-		var err error
-		migTypeProfileIds, err = getNvidiaSmiVgpuTypeProfileIds(hexGpu.PciAddress)
-		if err != nil {
-			enr.degrade("nvidiasmi: failed to get vgpu type profile ids for gpu %s: %v; mig-backed instance aliases may be missing (degraded)", hexGpu.Id, err)
-		}
-	}
-
 	attachedInstances, err := listAttachedInstances(listAttachedInstancesOpts{
 		IsDeviceVisible:          isDeviceVisible,
 		DeviceUUID:               hexGpu.Id,
@@ -293,7 +274,6 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCard
 		HexProfilesMap:           hexProfilesMap,
 		VgpuInstances:            opts.VgpuInstances,
 		VgpuInstancesAvailable:   opts.VgpuInstancesAvailable,
-		MigTypeProfileIds:        migTypeProfileIds,
 		ServerNames:              opts.ServerNames,
 		Enrichment:               enr,
 	})
@@ -569,18 +549,13 @@ func listVgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedIn
 	}
 
 	for _, instance := range opts.VgpuInstances {
-		profileId := instance.VgpuTypeId
-
-		if opts.HexGpu.Type == gpu.ResourceTypeMigBackedVgpu {
-			giProfileId, ok := opts.MigTypeProfileIds[instance.VgpuTypeId]
-			if !ok {
-				enr.degrade("nvidiasmi: no GPU Instance Profile ID found for vgpu type %d on device %s; skipping instance %s (degraded)", instance.VgpuTypeId, deviceUUID, instance.VmUUID)
-				continue
-			}
-			profileId = giProfileId
-		}
-
-		hexProfile := hexProfilesMap[profileId]
+		// hex reports both vGPU flavours' profile ids as vGPU Type IDs, which is
+		// exactly what `nvidia-smi vgpu -q` gives per active instance - so the
+		// lookup is direct for MIG-backed cards too. It used to need a
+		// type -> GPU Instance Profile ID translation, because
+		// gpu_vgpu_profile_list keyed migBacked entries by partition shape; that
+		// list is per vGPU type as of cubecos #905.
+		hexProfile := hexProfilesMap[instance.VgpuTypeId]
 		profileAlias := hexProfile.Alias
 
 		// The server name is enrichment resolved from the prefetched map. A missing

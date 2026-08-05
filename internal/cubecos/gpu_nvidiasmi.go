@@ -10,12 +10,6 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
-// nvidiaSmiVgpuTypeProfileIdWindow bounds how many lines past a "vGPU Type ID"
-// line are scanned for its "GPU Instance Profile ID". Mirrors the `grep -A 20`
-// window `gpu_vgpu_profile_list` (core/sdk_sh/modules/sdk_gpu.sh, cubecos repo)
-// already uses successfully against this exact nvidia-smi output.
-const nvidiaSmiVgpuTypeProfileIdWindow = 20
-
 // NvidiaSmiDevice is one GPU's device-level stats as reported by `nvidia-smi
 // -q`. MemoryUsedMiB is Reserved+Used: newer drivers split a fixed ECC/driver
 // reservation out of Used that the previous NVML v1 GetMemoryInfo() call
@@ -30,10 +24,9 @@ type NvidiaSmiDevice struct {
 }
 
 // NvidiaSmiVgpuInstance is one active vGPU instance as reported by `nvidia-smi
-// vgpu -q`. VgpuTypeId is the vGPU Type ID (not a GPU Instance Profile ID);
-// hex's SR-IOV profile ids are the vGPU Type ID directly, while MIG-backed
-// profile ids are the GPU Instance Profile ID, which needs a separate lookup
-// via GetNvidiaSmiVgpuTypeGpuInstanceProfileIds.
+// vgpu -q`. VgpuTypeId is the vGPU Type ID, which is what hex reports as the
+// profile id for both vGPU flavours, so it maps straight onto a hex profile
+// with no further lookup.
 type NvidiaSmiVgpuInstance struct {
 	VmUUID                string
 	VgpuTypeId            uint32
@@ -72,21 +65,6 @@ func GetNvidiaSmiVgpuInstances() (map[string][]NvidiaSmiVgpuInstance, error) {
 	}
 
 	return parseNvidiaSmiVgpuInstances(output), nil
-}
-
-// GetNvidiaSmiVgpuTypeGpuInstanceProfileIds runs `nvidia-smi vgpu -s -v -i
-// <pciAddress>` and returns the GPU Instance Profile ID for each MIG-backed
-// vGPU type the device supports, keyed by vGPU Type ID. SR-IOV vGPU types
-// have no GPU Instance Profile ID and are absent from the returned map --
-// hex's SR-IOV profile ids are the vGPU Type ID directly, so callers only
-// need this lookup to resolve MIG-backed profile ids.
-func GetNvidiaSmiVgpuTypeGpuInstanceProfileIds(pciAddress string) (map[uint32]uint32, error) {
-	output, err := runNvidiaSmi("vgpu", "-s", "-v", "-i", pciAddress)
-	if err != nil {
-		return nil, err
-	}
-
-	return parseNvidiaSmiVgpuTypeProfileIds(output), nil
 }
 
 func runNvidiaSmi(args ...string) (string, error) {
@@ -268,45 +246,6 @@ func parseNvidiaSmiVgpuInstanceBlock(lines []string) []NvidiaSmiVgpuInstance {
 	return result
 }
 
-// parseNvidiaSmiVgpuTypeProfileIds ports gpu_vgpu_profile_list's own parsing
-// strategy (core/sdk_sh/modules/sdk_gpu.sh, cubecos repo) for `nvidia-smi
-// vgpu -s -v` output to Go: find each "vGPU Type ID" line, then scan a
-// bounded window of following lines for "GPU Instance Profile ID" rather than
-// relying on strict block boundaries. That shell code is proven working
-// against this exact command in production, so the same tolerant strategy is
-// reused here instead of a stricter structural parse this package cannot
-// verify against real hardware output.
-func parseNvidiaSmiVgpuTypeProfileIds(output string) map[uint32]uint32 {
-	profileIds := map[uint32]uint32{}
-	lines := strings.Split(output, "\n")
-
-	for i, line := range lines {
-		key, value, ok := splitNvidiaSmiKeyValue(line)
-		if !ok || key != "vGPU Type ID" {
-			continue
-		}
-
-		vgpuTypeId, err := parseNvidiaSmiHexId(value)
-		if err != nil {
-			continue
-		}
-
-		windowEnd := min(i+nvidiaSmiVgpuTypeProfileIdWindow, len(lines))
-		for _, windowLine := range lines[i:windowEnd] {
-			wKey, wValue, wOk := splitNvidiaSmiKeyValue(windowLine)
-			if !wOk || wKey != "GPU Instance Profile ID" {
-				continue
-			}
-			if profileId, err := parseLeadingUint32Field(wValue); err == nil {
-				profileIds[vgpuTypeId] = profileId
-			}
-			break
-		}
-	}
-
-	return profileIds
-}
-
 // splitTopLevelBlocks splits text into blocks, each starting at a zero-indent
 // line beginning with headerPrefix and running until the next such line (or
 // EOF). Text before the first matching line is discarded.
@@ -373,18 +312,6 @@ func parseLeadingUint32Field(value string) (uint32, error) {
 	}
 
 	n, err := strconv.ParseUint(fields[0], 10, 32)
-	if err != nil {
-		return 0, err
-	}
-
-	return uint32(n), nil
-}
-
-// parseNvidiaSmiHexId parses a "0x5ef"-style hex id into a decimal uint32,
-// matching gpu_vgpu_profile_list's own `strtonum` conversion of the same
-// field in sdk_gpu.sh.
-func parseNvidiaSmiHexId(value string) (uint32, error) {
-	n, err := strconv.ParseUint(strings.TrimPrefix(value, "0x"), 16, 32)
 	if err != nil {
 		return 0, err
 	}
