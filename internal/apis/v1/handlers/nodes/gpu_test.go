@@ -222,6 +222,161 @@ func TestListLocalGpuCardsDegradesOnNvidiaSmiFaults(t *testing.T) {
 	})
 }
 
+// A card's vGPU profiles are capability data, not state: they say what the card
+// could be partitioned into, which is exactly what a client needs to switch a
+// pgpu card into vGPU mode. hex agrees - gpu_vgpu_profile_list builds them from
+// `nvidia-smi vgpu -s -v` and never reads the card's configured type - and so
+// does the API contract (docs.yaml's gpu-002 example is a pgpu card reporting
+// sriovVgpu profiles). Gating the fetch on the card's *current* type instead
+// makes the switch impossible: no profiles reported, so nothing to request.
+func TestBuildLocalGpuCardReportsProfilesForVgpuCapablePgpuCard(t *testing.T) {
+	restoreGpuSeams(t)
+
+	hexGpu := gpu.GpuFromHex{
+		Id:           "GPU-88888888-8888-8888-8888-888888888888",
+		Name:         "NVIDIA RTX Pro 6000 Blackwell",
+		Type:         gpu.ResourceTypePgpu,
+		SupportTypes: []gpu.SupportResourceType{gpu.SupportResourceTypePgpu, gpu.SupportResourceTypeSriovVgpu},
+		PciAddress:   "0000:06:00.0",
+		Status:       gpu.GpuStatusIdle,
+		Allocation:   &gpu.AllocationSummary{Current: 0, Total: 1},
+	}
+
+	// Mirrors what hex reports for an SR-IOV-capable card that is not currently
+	// partitioned: the profile comes from nvidia-smi (id, name, vram), while
+	// count/alias come from config.json, which holds no entry for this card yet.
+	// The name is the bare type suffix - sdk_gpu.sh takes `awk '{print $NF}'` of
+	// nvidia-smi's Name line, so "NVIDIA RTX Pro 6000 Blackwell DC-2B" arrives as
+	// "DC-2B". SR-IOV profiles carry no vmCountLimit: their nvidia-smi block has
+	// no `Max Instances` line, and sdk_gpu.sh defaults the field to null.
+	getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
+		require.Equal(t, hexGpu.Id, gpuId)
+
+		profile := gpu.VgpuProfileFromHex{
+			Id:           1518,
+			Name:         "DC-2B",
+			VramMiB:      2048,
+			Count:        0,
+			Alias:        nil,
+			VmCountLimit: nil,
+		}
+
+		return map[uint32]gpu.VgpuProfileFromHex{profile.Id: profile},
+			gpu.VgpuProfileCollectionFromHex{Sriov: &[]gpu.VgpuProfileFromHex{profile}},
+			nil
+	}
+
+	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
+		ServerNames: map[string]string{},
+		NvidiaSmiDevices: map[string]cubecos.NvidiaSmiDevice{
+			hexGpu.Id: {UUID: hexGpu.Id, MemoryTotalMiB: 98304},
+		},
+		NvidiaSmiAvailable:     true,
+		VgpuInstancesAvailable: true,
+	})
+
+	require.NoError(t, err)
+	require.False(t, card.Degraded)
+	require.Equal(t, []gpu.VgpuProfile{{
+		Id:         1518,
+		Name:       "DC-2B",
+		VramMiB:    2048,
+		Count:      0,
+		Remaining:  nil,
+		AliasName:  nil,
+		CountLimit: nil,
+	}}, card.Profiles.SriovVgpu)
+	require.Empty(t, card.Profiles.MigBackedVgpu)
+}
+
+// MIG capability counts the same as SR-IOV: an unset card that can only be
+// partitioned MIG-backed still reports the profiles needed to configure it.
+func TestBuildLocalGpuCardReportsProfilesForMigCapableUnsetCard(t *testing.T) {
+	restoreGpuSeams(t)
+
+	hexGpu := gpu.GpuFromHex{
+		Id:           "GPU-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+		Name:         "NVIDIA A100",
+		Type:         gpu.ResourceTypeUnset,
+		SupportTypes: []gpu.SupportResourceType{gpu.SupportResourceTypeMigBackedVgpu},
+		PciAddress:   "0000:08:00.0",
+		Status:       gpu.GpuStatusUnassigned,
+	}
+
+	// Post-#905 shape: a MIG-backed entry is a vGPU *type*, not a GPU Instance
+	// Profile, so its id is the vGPU type id and its name carries the slice count
+	// ("DC-1-3Q") that MIG_PROFILE_NAME_REGEX keys off. vmCountLimit is the
+	// `Max Instances` line of the same nvidia-smi block; SR-IOV types have none.
+	vmCountLimit := 32
+	getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
+		profile := gpu.VgpuProfileFromHex{
+			Id:           1549,
+			Name:         "DC-1-3Q",
+			VramMiB:      3072,
+			Count:        0,
+			Alias:        nil,
+			VmCountLimit: &vmCountLimit,
+		}
+
+		return map[uint32]gpu.VgpuProfileFromHex{profile.Id: profile},
+			gpu.VgpuProfileCollectionFromHex{MigBacked: &[]gpu.VgpuProfileFromHex{profile}},
+			nil
+	}
+
+	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
+		ServerNames: map[string]string{},
+		NvidiaSmiDevices: map[string]cubecos.NvidiaSmiDevice{
+			hexGpu.Id: {UUID: hexGpu.Id, MemoryTotalMiB: 81920},
+		},
+		NvidiaSmiAvailable:     true,
+		VgpuInstancesAvailable: true,
+	})
+
+	require.NoError(t, err)
+	require.False(t, card.Degraded)
+	require.Len(t, card.Profiles.MigBackedVgpu, 1)
+	require.Equal(t, uint32(1549), card.Profiles.MigBackedVgpu[0].Id)
+	require.Equal(t, &vmCountLimit, card.Profiles.MigBackedVgpu[0].CountLimit)
+	require.Empty(t, card.Profiles.SriovVgpu)
+}
+
+// The other side of the gate: a card that supports only pgpu has no vGPU
+// profiles to report, so hex is never asked for them. gpu_vgpu_profile_list is a
+// subprocess spawn per card, and the list path deliberately keeps those off the
+// per-card path (see buildLocalGpuCardOpts).
+func TestBuildLocalGpuCardSkipsProfileFetchForPgpuOnlyCard(t *testing.T) {
+	restoreGpuSeams(t)
+
+	hexGpu := gpu.GpuFromHex{
+		Id:           "GPU-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+		Name:         "NVIDIA T4",
+		Type:         gpu.ResourceTypePgpu,
+		SupportTypes: []gpu.SupportResourceType{gpu.SupportResourceTypePgpu},
+		PciAddress:   "0000:09:00.0",
+		Status:       gpu.GpuStatusIdle,
+		Allocation:   &gpu.AllocationSummary{Current: 0, Total: 1},
+	}
+
+	getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
+		t.Errorf("gpu_vgpu_profile_list must not be spawned for a pgpu-only card (gpu %s)", gpuId)
+		return nil, gpu.VgpuProfileCollectionFromHex{}, nil
+	}
+
+	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
+		ServerNames: map[string]string{},
+		NvidiaSmiDevices: map[string]cubecos.NvidiaSmiDevice{
+			hexGpu.Id: {UUID: hexGpu.Id, MemoryTotalMiB: 16384},
+		},
+		NvidiaSmiAvailable:     true,
+		VgpuInstancesAvailable: true,
+	})
+
+	require.NoError(t, err)
+	require.False(t, card.Degraded)
+	require.Empty(t, card.Profiles.SriovVgpu)
+	require.Empty(t, card.Profiles.MigBackedVgpu)
+}
+
 func TestBuildLocalGpuCardVgpuProfiles(t *testing.T) {
 	restoreGpuSeams(t)
 

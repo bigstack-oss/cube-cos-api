@@ -239,7 +239,24 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCard
 	hexProfilesMap := map[uint32]gpu.VgpuProfileFromHex{}
 	hexProfileCollection := gpu.VgpuProfileCollectionFromHex{}
 
-	if isVgpu(hexGpu) {
+	// Profiles are capability data, not state: hex builds them from nvidia-smi
+	// and never reads the configured type, and a client needs them to switch a
+	// pgpu/unset card into vGPU mode. Gating on the current type alone made that
+	// a dead end - no profiles reported, so nothing to request.
+	//
+	// The current type still counts on its own, as a second chance rather than a
+	// safeguard: supportTypes and the profile list both come from
+	// `nvidia-smi vgpu -s -v`, but from two hex calls made at different moments
+	// (gpu_device_list when the card list was built, gpu_vgpu_profile_list here).
+	// A probe that failed for the first can succeed for the second, so a card
+	// that is demonstrably running vGPU still gets asked.
+	//
+	// It buys no degraded flag. gpu_vgpu_profile_list sends nvidia-smi's stderr
+	// to /dev/null and never checks its exit status, so a failed probe returns
+	// {"sriov":[],"migBacked":[]} with exit 0 and the fetch below sees no error.
+	// Empty profile lists therefore never mean "degraded" - they mean either "no
+	// vGPU types" or "the probe failed", and the two are indistinguishable here.
+	if supportsVgpu(hexGpu) || isVgpu(hexGpu) {
 		var profErr error
 		// Must be the GPU UUID, not the PCI address: gpu_vgpu_profile_list looks
 		// the card up in /etc/cube/cos/gpu/config.json by its `.id` field, which
@@ -359,6 +376,15 @@ func (h *helper) listRemoteGpuCards() ([]gpu.GpuCard, error) {
 
 func isVgpu(hexGpu gpu.GpuFromHex) bool {
 	return isVgpuType(hexGpu.Type)
+}
+
+// supportsVgpu reports whether the card can be put into a vGPU mode, whatever
+// mode it is in now. Use it for capability data (the profile list); use isVgpu
+// for runtime data that only exists while the card actually runs vGPU (attached
+// instances, Openstack server-name resolution).
+func supportsVgpu(hexGpu gpu.GpuFromHex) bool {
+	return isSupportedType(hexGpu.SupportTypes, gpu.ResourceTypeSriovVgpu) ||
+		isSupportedType(hexGpu.SupportTypes, gpu.ResourceTypeMigBackedVgpu)
 }
 
 func isVgpuType(t gpu.ResourceType) bool {
