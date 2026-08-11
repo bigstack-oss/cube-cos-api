@@ -19,6 +19,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// remoteConsoleMicroversion is the first Nova microversion that serves
+// POST /servers/{id}/remote-consoles.
+const remoteConsoleMicroversion = "2.6"
+
 // Seams for unit tests: hex_sdk CLI, nvidia-smi, and Openstack are
 // unavailable there.
 var (
@@ -637,12 +641,17 @@ func (h *helper) getGpuInstanceConsole() (*gpu.InstanceConsole, error) {
 }
 
 func createConsoleViaOpenstack(vmId string) (*remoteconsoles.RemoteConsole, error) {
-	openstackHelper := openstack.GetGlobalHelper()
+	// Nova only routes POST /servers/{id}/remote-consoles from microversion 2.6.
+	// The shared compute client sends no microversion header, so Nova falls back
+	// to 2.1 and answers 404. Copy the client and raise the microversion here
+	// instead of mutating the shared one, which every other caller reads.
+	compute := *openstack.GetGlobalHelper().Compute
+	compute.Microversion = remoteConsoleMicroversion
 
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
 	defer cancel()
 
-	result := remoteconsoles.Create(ctx, openstackHelper.Compute, vmId, remoteconsoles.CreateOpts{
+	result := remoteconsoles.Create(ctx, &compute, vmId, remoteconsoles.CreateOpts{
 		Protocol: remoteconsoles.ConsoleProtocolVNC,
 		Type:     remoteconsoles.ConsoleTypeNoVNC,
 	})
