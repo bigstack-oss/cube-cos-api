@@ -9,7 +9,7 @@ RUN wget -q --no-check-certificate https://go.dev/dl/go1.26.5.linux-amd64.tar.gz
 RUN tar -C /usr/local -xzf go1.26.5.linux-amd64.tar.gz
 RUN rm go1.26.5.linux-amd64.tar.gz
 
-RUN dnf install -y go-task rpmdevtools gh
+RUN dnf install -y go-task rpmdevtools gh git openssh-clients
 RUN dnf install -y make automake gcc gcc-c++ kernel-devel
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -O /usr/local/bin/yq && chmod +x /usr/local/bin/yq
 
