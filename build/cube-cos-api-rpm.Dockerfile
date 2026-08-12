@@ -20,6 +20,15 @@ RUN mkdir -p /home/${USER}/workspace
 RUN chown -R ${USER}:${USER} /home/${USER}/workspace
 USER ${USER}
 
+# rpm:prepareTarball runs `git submodule update --init`, and api/cube-cos-openapi is
+# registered with an SSH URL. Multibranch tag jobs read their Jenkinsfile from the tag
+# commit, so every tag cut before the sshagent fix still reaches github.com with no SSH
+# identity and dies on "Permission denied (publickey)". cube-cos-openapi is public, so
+# clone it over HTTPS. Scoped to that one repo, which leaves origin on SSH.
+RUN git config --global \
+    url."https://github.com/bigstack-oss/cube-cos-openapi.git".insteadOf \
+    "git@github.com:bigstack-oss/cube-cos-openapi.git"
+
 ENV GOPATH=/home/${USER}/go
 ENV PATH=${PATH}:/usr/local/go/bin:${GOPATH}/bin
 
