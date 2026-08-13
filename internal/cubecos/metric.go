@@ -244,6 +244,22 @@ func GetDataCenterUsage(hostSummary *HostSummary) (*DataCenterSummary, error) {
 	}, nil
 }
 
+// divide guards every metric ratio against a missing sample set. A zero divisor
+// gives NaN or Inf, json.Marshal rejects both, and gin then answers 200 with an
+// empty body — which breaks every peer that reads the response.
+func divide(dividend, divisor float64) float64 {
+	if divisor == 0 {
+		return 0
+	}
+
+	quotient := dividend / divisor
+	if osmath.IsNaN(quotient) || osmath.IsInf(quotient, 0) {
+		return 0
+	}
+
+	return quotient
+}
+
 func GetHostsCpuAverage(cpuStats []metric.Compute) metric.Compute {
 	totalCores := float64(0)
 	usedCores := float64(0)
@@ -262,9 +278,9 @@ func GetHostsCpuAverage(cpuStats []metric.Compute) metric.Compute {
 	return metric.Compute{
 		TotalCores:  totalCores,
 		UsedCores:   math.RoundDown(usedCores, 4),
-		UsedPercent: math.RoundDown(usedPercent/float64(len(cpuStats)), 4),
+		UsedPercent: math.RoundDown(divide(usedPercent, float64(len(cpuStats))), 4),
 		FreeCores:   math.RoundDown(freeCores, 4),
-		FreePercent: math.RoundDown(freePercent/float64(len(cpuStats)), 4),
+		FreePercent: math.RoundDown(divide(freePercent, float64(len(cpuStats))), 4),
 	}
 }
 
@@ -286,9 +302,9 @@ func GetHostsMemoryAverage(spaceStats []metric.Space) metric.Space {
 	return metric.Space{
 		TotalMiB:    math.RoundDown(totalMiB, 4),
 		UsedMiB:     math.RoundDown(usedMiB, 4),
-		UsedPercent: math.RoundDown(usedPercent/float64(len(spaceStats)), 4),
+		UsedPercent: math.RoundDown(divide(usedPercent, float64(len(spaceStats))), 4),
 		FreeMiB:     math.RoundDown(freeMiB, 4),
-		FreePercent: math.RoundDown(freePercent/float64(len(spaceStats)), 4),
+		FreePercent: math.RoundDown(divide(freePercent, float64(len(spaceStats))), 4),
 	}
 }
 
@@ -371,9 +387,9 @@ func GetHostCpuSummary(hostname string) (*metric.Compute, error) {
 	return &metric.Compute{
 		TotalCores:  float64(runtime.NumCPU()),
 		UsedCores:   math.RoundDown(usedCores, 4),
-		UsedPercent: math.RoundDown(usedCores/totalCores*100, 4),
+		UsedPercent: math.RoundDown(divide(usedCores, totalCores)*100, 4),
 		FreeCores:   math.RoundDown(freeCores, 4),
-		FreePercent: math.RoundDown(freeCores/totalCores*100, 4),
+		FreePercent: math.RoundDown(divide(freeCores, totalCores)*100, 4),
 	}, nil
 }
 
@@ -523,9 +539,20 @@ func GetHostDiskStorageSummary() (*metric.Space, error) {
 		spaceStatistic.FreeMiB = parseDiskFree(record)
 	}
 
-	spaceStatistic.UsedPercent = math.RoundDown(spaceStatistic.UsedMiB/spaceStatistic.TotalMiB*100, 4)
-	spaceStatistic.FreePercent = math.RoundDown(spaceStatistic.FreeMiB/spaceStatistic.TotalMiB*100, 4)
+	if spaceStatistic.TotalMiB == 0 {
+		log.Warnf(
+			"metrics: host %s has no disk metric in the query window, disk usage reports 0",
+			base.Hostname,
+		)
+	}
+
+	setSpaceUsagePercent(spaceStatistic)
 	return spaceStatistic, nil
+}
+
+func setSpaceUsagePercent(space *metric.Space) {
+	space.UsedPercent = math.RoundDown(divide(space.UsedMiB, space.TotalMiB)*100, 4)
+	space.FreePercent = math.RoundDown(divide(space.FreeMiB, space.TotalMiB)*100, 4)
 }
 
 func GetHostsDiskBandwidthHistory(readStmt, writeStmt string) (*metric.StorageTimeSeries, error) {

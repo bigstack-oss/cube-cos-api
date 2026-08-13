@@ -190,6 +190,18 @@ func (o *Operator) askPeerNode(node nodes.Node) (*nodes.Node, error) {
 		SetHeaders(nodes.GetSecretHeaders()).
 		Get(node.GetNodeUrl())
 	if err != nil {
+		// A peer that cannot encode its own record answers 2xx with a JSON
+		// content type and no body. resty then reports the unmarshal failure,
+		// which says nothing about the peer being at fault.
+		if resp != nil && len(resp.Body()) == 0 {
+			err = fmt.Errorf(
+				"node %s answered %d with an empty body: %w",
+				node.Hostname,
+				resp.StatusCode(),
+				err,
+			)
+		}
+
 		log.Errorf("nodes: failed to get node details %s: %v", node.Hostname, err)
 		return nil, err
 	}

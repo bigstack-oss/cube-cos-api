@@ -1,6 +1,7 @@
 package bodies
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
@@ -10,6 +11,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/support"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/tunings"
 	"github.com/gin-gonic/gin"
+	log "go-micro.dev/v5/logger"
 )
 
 const (
@@ -72,13 +74,38 @@ type Fixpack struct {
 	Data   fixpacks.Fixpack `json:"data"`
 }
 
+const jsonContentType = "application/json; charset=utf-8"
+
+// The fallback body is encoded here, so the failure path cannot fail again.
+var encodeFailureBody = []byte(
+	`{"code":500,"status":"internal server error","msg":"failed to encode the response body"}`,
+)
+
+// writeJson encodes the body before it touches the wire. c.JSON writes the
+// content type first, and gin only records an encoder failure in c.Errors, so a
+// payload gin cannot encode leaves the client with a 200 and an empty body.
+// Peers read that empty body as a broken JSON document. Encode first, and answer
+// 500 when the payload is not encodable.
+func writeJson(c *gin.Context, code int, resp gin.H) {
+	body, err := json.Marshal(resp)
+	if err != nil {
+		log.Errorf("bodies: failed to encode the %d response body(%v)", code, err)
+		c.Data(http.StatusInternalServerError, jsonContentType, encodeFailureBody)
+		c.Abort()
+		return
+	}
+
+	c.Data(code, jsonContentType, body)
+}
+
 func SetOk(c *gin.Context, msg string, data any) {
 	resp := gin.H{Code: http.StatusOK, Status: "ok", Msg: msg}
 	if data != nil {
 		resp[Data] = data
 	}
 
-	c.JSON(
+	writeJson(
+		c,
 		http.StatusOK,
 		resp,
 	)
@@ -90,14 +117,16 @@ func SetCreated(c *gin.Context, msg string, data any) {
 		resp[Data] = data
 	}
 
-	c.JSON(
+	writeJson(
+		c,
 		http.StatusCreated,
 		resp,
 	)
 }
 
 func SetAccepted(c *gin.Context, msg string) {
-	c.JSON(
+	writeJson(
+		c,
 		http.StatusAccepted,
 		gin.H{
 			Code:   http.StatusAccepted,
@@ -120,14 +149,16 @@ func SetBadRequest(c *gin.Context, err error, data any) {
 		resp[Data] = data
 	}
 
-	c.JSON(
+	writeJson(
+		c,
 		http.StatusBadRequest,
 		resp,
 	)
 }
 
 func SetUnauthorized(c *gin.Context, err error) {
-	c.JSON(
+	writeJson(
+		c,
 		http.StatusUnauthorized,
 		gin.H{
 			Code:   http.StatusUnauthorized,
@@ -138,7 +169,8 @@ func SetUnauthorized(c *gin.Context, err error) {
 }
 
 func SetNotFound(c *gin.Context, err error) {
-	c.JSON(
+	writeJson(
+		c,
 		http.StatusNotFound,
 		gin.H{
 			Code:   http.StatusNotFound,
@@ -149,7 +181,8 @@ func SetNotFound(c *gin.Context, err error) {
 }
 
 func SetConflict(c *gin.Context, err error) {
-	c.JSON(
+	writeJson(
+		c,
 		http.StatusConflict,
 		gin.H{
 			Code:   http.StatusConflict,
@@ -160,7 +193,8 @@ func SetConflict(c *gin.Context, err error) {
 }
 
 func SetTooManyRequests(c *gin.Context, err error) {
-	c.JSON(
+	writeJson(
+		c,
 		http.StatusTooManyRequests,
 		gin.H{
 			Code:   http.StatusTooManyRequests,
@@ -171,7 +205,8 @@ func SetTooManyRequests(c *gin.Context, err error) {
 }
 
 func SetInternalServerError(c *gin.Context, err error) {
-	c.JSON(
+	writeJson(
+		c,
 		http.StatusInternalServerError,
 		gin.H{
 			Code:   http.StatusInternalServerError,
