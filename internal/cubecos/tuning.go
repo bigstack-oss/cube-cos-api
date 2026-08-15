@@ -252,10 +252,13 @@ func setTuningSpecs() {
 	}
 
 	for _, rawSpec := range rawSpecs {
-		tunings.SetSpec(
-			rawSpec.Name,
-			convertToTuningSpec(rawSpec),
-		)
+		spec := convertToTuningSpec(rawSpec)
+		if strings.HasPrefix(spec.Limitation.Type, "invalid tuning spec") {
+			log.Warnf("tunings: skip %s: unsupported spec type(%s)", rawSpec.Name, rawSpec.Limitation.Type)
+			continue
+		}
+
+		tunings.SetSpec(rawSpec.Name, spec)
 	}
 }
 
