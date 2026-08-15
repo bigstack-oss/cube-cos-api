@@ -97,6 +97,11 @@ const (
 	NovaControlHostVcpu         = "nova.control.host.vcpu"
 	NovaDebugEnabled            = "nova.debug.enabled"
 	NovaGpuType                 = "nova.gpu.type"
+	NovaLiveResizeEnabled       = "nova.live.resize.enabled"
+	NovaLiveResizeFactor        = "nova.live.resize.factor"
+	NovaLiveResizeMaxVcpus      = "nova.live.resize.max.vcpus"
+	NovaLiveResizeMaxMemoryMb   = "nova.live.resize.max.memory.mb"
+	NovaLiveResizeMigrateTmout  = "nova.live.resize.migrate.timeout"
 	NovaOvercommitCpuRatio      = "nova.overcommit.cpu.ratio"
 	NovaOvercommitDiskRatio     = "nova.overcommit.disk.ratio"
 	NovaOvercommitRamRatio      = "nova.overcommit.ram.ratio"
@@ -195,6 +200,18 @@ func setTuningToRoles() {
 	tuningToRoles[NovaControlHostVcpu] = []*nodes.Role{nodes.GetControlConvergeRole(), nodes.GetEdgeCoreRole()}
 	tuningToRoles[NovaDebugEnabled] = nodes.AllRoles
 	tuningToRoles[NovaGpuType] = nodes.ComputeRoles
+	novaLiveResizeRoles := []*nodes.Role{
+		nodes.GetControlRole(),
+		nodes.GetComputeRole(),
+		nodes.GetControlConvergeRole(),
+		nodes.GetEdgeCoreRole(),
+		nodes.GetModeratorRole(),
+	}
+	tuningToRoles[NovaLiveResizeEnabled] = novaLiveResizeRoles
+	tuningToRoles[NovaLiveResizeFactor] = novaLiveResizeRoles
+	tuningToRoles[NovaLiveResizeMaxVcpus] = novaLiveResizeRoles
+	tuningToRoles[NovaLiveResizeMaxMemoryMb] = novaLiveResizeRoles
+	tuningToRoles[NovaLiveResizeMigrateTmout] = novaLiveResizeRoles
 	tuningToRoles[NovaOvercommitCpuRatio] = nodes.AllRoles
 	tuningToRoles[NovaOvercommitDiskRatio] = nodes.AllRoles
 	tuningToRoles[NovaOvercommitRamRatio] = nodes.AllRoles
