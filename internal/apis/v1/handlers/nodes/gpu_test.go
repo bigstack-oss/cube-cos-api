@@ -10,6 +10,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func ptr[T any](v T) *T {
+	return &v
+}
+
 // Restores the test seams after each test so stubs do not leak between tests.
 func restoreGpuSeams(t *testing.T) {
 	t.Helper()
@@ -115,8 +119,8 @@ func TestListLocalGpuCardsIncludesGpusInvisibleToNvidiaSmi(t *testing.T) {
 				UUID:                     visibleUUID,
 				MemoryUsedMiB:            2048,
 				MemoryTotalMiB:           8192,
-				MemoryUtilizationPercent: 40,
-				GpuUtilizationPercent:    55,
+				MemoryUtilizationPercent: ptr(uint32(40)),
+				GpuUtilizationPercent:    ptr(uint32(55)),
 			},
 		}, nil
 	}
@@ -133,18 +137,20 @@ func TestListLocalGpuCardsIncludesGpusInvisibleToNvidiaSmi(t *testing.T) {
 	require.Equal(t, passthroughUUID, passthroughCard.Id)
 	require.Equal(t, "0000:01:00.0", passthroughCard.PciAddress)
 	require.Equal(t, gpu.GpuStatusInUse, passthroughCard.Status.Current)
-	// nvidia-smi data is unavailable for a passthrough GPU; hex data is still reported.
+	// nvidia-smi data is unavailable for a passthrough GPU; hex data is still
+	// reported. Every stat must be nil (JSON null) rather than 0, so a consumer
+	// cannot read an unmeasurable card as an idle one.
 	require.Equal(t, gpu.VramInfo{}, passthroughCard.Vram)
 	require.Equal(t, gpu.GpuInfo{}, passthroughCard.Gpu)
 
 	require.Equal(t, visibleUUID, visibleCard.Id)
 	require.Equal(t, "0000:02:00.0", visibleCard.PciAddress)
 	require.Equal(t, gpu.VramInfo{
-		AllocatedMiB:       2048,
-		TotalMiB:           8192,
-		UtilizationPercent: 40,
+		AllocatedMiB:       ptr(2048),
+		TotalMiB:           ptr(8192),
+		UtilizationPercent: ptr(uint32(40)),
 	}, visibleCard.Vram)
-	require.Equal(t, gpu.GpuInfo{UtilizationPercent: 55}, visibleCard.Gpu)
+	require.Equal(t, gpu.GpuInfo{UtilizationPercent: ptr(uint32(55))}, visibleCard.Gpu)
 
 	require.Equal(t, reservedUUID, reservedCard.Id)
 	require.Equal(t, gpu.VramInfo{}, reservedCard.Vram)
@@ -612,9 +618,9 @@ func TestListPgpuAttachedInstances(t *testing.T) {
 
 		enr := &enrichment{}
 		instances := listPgpuAttachedInstances(listAttachedInstancesOpts{
-			DeviceMemoryUsedMiB:      2048,
-			DeviceMemoryTotalMiB:     8192,
-			DeviceGpuUtilizationRate: 55,
+			DeviceMemoryUsedMiB:      ptr(2048),
+			DeviceMemoryTotalMiB:     ptr(8192),
+			DeviceGpuUtilizationRate: ptr(uint32(55)),
 			HexGpu: gpu.GpuFromHex{
 				Type:       gpu.ResourceTypePgpu,
 				Allocation: &gpu.AllocationSummary{Current: 1, Total: 1},
@@ -629,13 +635,38 @@ func TestListPgpuAttachedInstances(t *testing.T) {
 			Id:                 "vm-1",
 			Name:               "instance-1",
 			ProfileAlias:       nil,
-			UtilizationPercent: 55,
+			UtilizationPercent: ptr(uint32(55)),
 			MemoryUsage: gpu.InstanceMemoryUsage{
-				AllocatedMiB: 2048,
-				TotalMiB:     8192,
+				AllocatedMiB: ptr(2048),
+				TotalMiB:     ptr(8192),
 			},
 			Links: links,
 		}, (*instances)[0])
+	})
+
+	// A pgpu's card is invisible to nvidia-smi, so the instance inherits that
+	// absence: every stat must be nil rather than a zero that reads as idle.
+	t.Run("reports nil stats when the device is invisible", func(t *testing.T) {
+		getNodePgpuAttachedInstance = func(pciAddress string) (*gpu.PgpuAttachedInstanceFromHex, error) {
+			return &gpu.PgpuAttachedInstanceFromHex{Id: "vm-1", Name: "instance-1"}, nil
+		}
+		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
+			return gpu.InstanceLinks{}
+		}
+
+		enr := &enrichment{}
+		instances := listPgpuAttachedInstances(listAttachedInstancesOpts{
+			HexGpu: gpu.GpuFromHex{
+				Type:       gpu.ResourceTypePgpu,
+				Allocation: &gpu.AllocationSummary{Current: 1, Total: 1},
+			},
+			Enrichment: enr,
+		})
+
+		require.False(t, enr.degraded)
+		require.Len(t, *instances, 1)
+		require.Nil(t, (*instances)[0].UtilizationPercent)
+		require.Equal(t, gpu.InstanceMemoryUsage{}, (*instances)[0].MemoryUsage)
 	})
 }
 
@@ -707,7 +738,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 			// type-map lookup involved.
 			HexProfilesMap: map[uint32]gpu.VgpuProfileFromHex{profileId: {Alias: &alias}},
 			VgpuInstances: []cubecos.NvidiaSmiVgpuInstance{
-				{VmUUID: "vm-9", VgpuTypeId: profileId, MemoryUsedMiB: 1024, MemoryTotalMiB: 4096, GpuUtilizationPercent: 33},
+				{VmUUID: "vm-9", VgpuTypeId: profileId, MemoryUsedMiB: ptr(1024), MemoryTotalMiB: ptr(4096), GpuUtilizationPercent: ptr(uint32(33))},
 			},
 			VgpuInstancesAvailable: true,
 			ServerNames:            map[string]string{"vm-9": "instance-9"},
@@ -721,13 +752,43 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 			Id:                 "vm-9",
 			Name:               "instance-9",
 			ProfileAlias:       &alias,
-			UtilizationPercent: 33,
+			UtilizationPercent: ptr(uint32(33)),
 			MemoryUsage: gpu.InstanceMemoryUsage{
-				AllocatedMiB: 1024,
-				TotalMiB:     4096,
+				AllocatedMiB: ptr(1024),
+				TotalMiB:     ptr(4096),
 			},
 			Links: gpu.InstanceLinks{Grafana: "https://grafana.example/vm-9"},
 		}, (*instances)[0])
+	})
+
+	// A MIG-backed vGPU reports its framebuffer but N/A for utilization, so the
+	// instance must carry the memory numbers and a nil utilization.
+	t.Run("reports a MIG-backed instance without utilization", func(t *testing.T) {
+		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
+			return gpu.InstanceLinks{}
+		}
+
+		enr := &enrichment{}
+		instances := listVgpuAttachedInstances(listAttachedInstancesOpts{
+			IsDeviceVisible: true,
+			DeviceUUID:      "GPU-44444444-4444-4444-4444-444444444444",
+			HexGpu:          gpu.GpuFromHex{Type: gpu.ResourceTypeMigBackedVgpu},
+			HexProfilesMap:  map[uint32]gpu.VgpuProfileFromHex{profileId: {Alias: &alias}},
+			VgpuInstances: []cubecos.NvidiaSmiVgpuInstance{
+				{VmUUID: "vm-9", VgpuTypeId: profileId, MemoryUsedMiB: ptr(144), MemoryTotalMiB: ptr(2048)},
+			},
+			VgpuInstancesAvailable: true,
+			ServerNames:            map[string]string{"vm-9": "instance-9"},
+			Enrichment:             enr,
+		})
+
+		require.False(t, enr.degraded)
+		require.Len(t, *instances, 1)
+		require.Nil(t, (*instances)[0].UtilizationPercent)
+		require.Equal(t, gpu.InstanceMemoryUsage{
+			AllocatedMiB: ptr(144),
+			TotalMiB:     ptr(2048),
+		}, (*instances)[0].MemoryUsage)
 	})
 
 	// The server name is enrichment: an instance absent from the prefetched

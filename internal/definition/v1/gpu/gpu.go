@@ -106,14 +106,22 @@ type GpuCard struct {
 	Degraded bool `json:"degraded"`
 }
 
+// A nil field means the number does not exist for this card, not that it is
+// zero. Two situations produce it and neither is a fault, so neither sets
+// Degraded: a card handed to a VM as a pgpu is bound to vfio-pci and invisible
+// to nvidia-smi, so it has no runtime stats at all; and a card with MIG enabled
+// reports its framebuffer but `N/A` for utilization, because NVIDIA provides no
+// device-level utilization once the card is partitioned (per-GPU-instance
+// numbers would need DCGM). Reporting 0 instead would be indistinguishable from
+// an idle card.
 type VramInfo struct {
-	AllocatedMiB       int    `json:"allocatedMiB"`
-	TotalMiB           int    `json:"totalMiB"`
-	UtilizationPercent uint32 `json:"utilizationPercent"`
+	AllocatedMiB       *int    `json:"allocatedMiB"`
+	TotalMiB           *int    `json:"totalMiB"`
+	UtilizationPercent *uint32 `json:"utilizationPercent"`
 }
 
 type GpuInfo struct {
-	UtilizationPercent uint32 `json:"utilizationPercent"`
+	UtilizationPercent *uint32 `json:"utilizationPercent"`
 }
 
 type AllocationSummary struct {
@@ -136,18 +144,21 @@ type VgpuProfile struct {
 	CountLimit *int    `json:"countLimit"`
 }
 
+// UtilizationPercent and MemoryUsage are nil for the same reasons as VramInfo's
+// fields: a pgpu's card is invisible to the host, and a MIG-backed vGPU reports
+// framebuffer but no utilization.
 type AttachedInstance struct {
 	Id                 string              `json:"id"`
 	Name               string              `json:"name"`
 	ProfileAlias       *string             `json:"profileAlias"`
-	UtilizationPercent uint32              `json:"utilizationPercent"`
+	UtilizationPercent *uint32             `json:"utilizationPercent"`
 	MemoryUsage        InstanceMemoryUsage `json:"memoryUsage"`
 	Links              InstanceLinks       `json:"links"`
 }
 
 type InstanceMemoryUsage struct {
-	AllocatedMiB int `json:"allocatedMiB"`
-	TotalMiB     int `json:"totalMiB"`
+	AllocatedMiB *int `json:"allocatedMiB"`
+	TotalMiB     *int `json:"totalMiB"`
 }
 
 type InstanceLinks struct {

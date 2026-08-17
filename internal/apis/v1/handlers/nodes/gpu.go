@@ -61,11 +61,14 @@ type buildLocalGpuCardOpts struct {
 }
 
 type listAttachedInstancesOpts struct {
-	IsDeviceVisible          bool
-	DeviceUUID               string
-	DeviceMemoryUsedMiB      int
-	DeviceMemoryTotalMiB     int
-	DeviceGpuUtilizationRate uint32
+	IsDeviceVisible bool
+	DeviceUUID      string
+	// The Device* stats are nil when nvidia-smi could not report them; a pgpu's
+	// attached instance is reported with the card's own numbers, so it inherits
+	// their absence rather than substituting a zero.
+	DeviceMemoryUsedMiB      *int
+	DeviceMemoryTotalMiB     *int
+	DeviceGpuUtilizationRate *uint32
 	NodeName                 string
 	HexGpu                   gpu.GpuFromHex
 	HexProfilesMap           map[uint32]gpu.VgpuProfileFromHex
@@ -205,8 +208,12 @@ func (h *helper) resolveVgpuInstances(hexGpusMap map[string]gpu.GpuFromHex) (map
 }
 
 func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCardOpts) (gpu.GpuCard, error) {
-	var memoryUsedMiB, memoryTotalMiB int
-	var memoryUtilizationPercent, gpuUtilizationPercent uint32
+	// All four stay nil unless nvidia-smi actually reported them: an absent
+	// device (pgpu bound to vfio-pci) has no stats, and a MIG-enabled card has
+	// no utilization. nil is reported as JSON null so a consumer can tell
+	// "cannot be measured" from a real 0.
+	var memoryUsedMiB, memoryTotalMiB *int
+	var memoryUtilizationPercent, gpuUtilizationPercent *uint32
 	enr := &enrichment{}
 
 	// Relies on hex reporting the GPU id as nvidia-smi's own UUID.
@@ -217,8 +224,10 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCard
 	// stats.
 	switch {
 	case isDeviceVisible:
-		memoryUsedMiB = device.MemoryUsedMiB
-		memoryTotalMiB = device.MemoryTotalMiB
+		// A returned device record always carries both framebuffer numbers;
+		// utilization may still be nil (MIG).
+		usedMiB, totalMiB := device.MemoryUsedMiB, device.MemoryTotalMiB
+		memoryUsedMiB, memoryTotalMiB = &usedMiB, &totalMiB
 		memoryUtilizationPercent = device.MemoryUtilizationPercent
 		gpuUtilizationPercent = device.GpuUtilizationPercent
 	case !opts.NvidiaSmiAvailable:
