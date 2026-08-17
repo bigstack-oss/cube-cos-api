@@ -15,24 +15,35 @@ import (
 // reservation out of Used that the previous NVML v1 GetMemoryInfo() call
 // folded into a single "Total - Free" number, so callers that want the old
 // allocatedMiB semantics need both fields summed back together.
+// MemoryTotalMiB and MemoryUsedMiB are plain values because a device record is
+// only returned when both were parsed (see parseNvidiaSmiDeviceBlock). The
+// utilization fields are pointers because nvidia-smi reports them as `N/A`
+// whenever the card cannot produce them at all -- most notably once MIG is
+// enabled, where NVIDIA provides no device-level utilization -- and a nil there
+// must stay distinguishable from a real 0%.
 type NvidiaSmiDevice struct {
 	UUID                     string
 	MemoryTotalMiB           int
 	MemoryUsedMiB            int
-	GpuUtilizationPercent    uint32
-	MemoryUtilizationPercent uint32
+	GpuUtilizationPercent    *uint32
+	MemoryUtilizationPercent *uint32
 }
 
 // NvidiaSmiVgpuInstance is one active vGPU instance as reported by `nvidia-smi
 // vgpu -q`. VgpuTypeId is the vGPU Type ID, which is what hex reports as the
 // profile id for both vGPU flavours, so it maps straight onto a hex profile
 // with no further lookup.
+//
+// Unlike a device record, an instance is reported as soon as it has a VM UUID,
+// so none of its stats are guaranteed present: a MIG-backed vGPU reports its
+// framebuffer but `N/A` for every utilization, and a nil must not be reported
+// as 0.
 type NvidiaSmiVgpuInstance struct {
 	VmUUID                string
 	VgpuTypeId            uint32
-	MemoryUsedMiB         int
-	MemoryTotalMiB        int
-	GpuUtilizationPercent uint32
+	MemoryUsedMiB         *int
+	MemoryTotalMiB        *int
+	GpuUtilizationPercent *uint32
 }
 
 // GetNvidiaSmiDevices runs `nvidia-smi -q` once and returns every GPU
@@ -147,11 +158,11 @@ func parseNvidiaSmiDeviceBlock(lines []string) (NvidiaSmiDevice, bool) {
 			}
 		case section == "Utilization" && key == "GPU":
 			if n, err := parseLeadingUint32Field(value); err == nil {
-				device.GpuUtilizationPercent = n
+				device.GpuUtilizationPercent = &n
 			}
 		case section == "Utilization" && key == "Memory":
 			if n, err := parseLeadingUint32Field(value); err == nil {
-				device.MemoryUtilizationPercent = n
+				device.MemoryUtilizationPercent = &n
 			}
 		}
 	}
@@ -228,15 +239,15 @@ func parseNvidiaSmiVgpuInstanceBlock(lines []string) []NvidiaSmiVgpuInstance {
 			switch {
 			case section == "FB Memory Usage" && key == "Total":
 				if n, err := parseLeadingIntField(value); err == nil {
-					current.MemoryTotalMiB = n
+					current.MemoryTotalMiB = &n
 				}
 			case section == "FB Memory Usage" && key == "Used":
 				if n, err := parseLeadingIntField(value); err == nil {
-					current.MemoryUsedMiB = n
+					current.MemoryUsedMiB = &n
 				}
 			case section == "Utilization" && key == "GPU":
 				if n, err := parseLeadingUint32Field(value); err == nil {
-					current.GpuUtilizationPercent = n
+					current.GpuUtilizationPercent = &n
 				}
 			}
 		}

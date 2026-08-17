@@ -106,6 +106,10 @@ const nvidiaSmiVgpuQFixture = `GPU 00000001:C8:00.0
             Decoder                       : 0 %
 `
 
+func ptr[T any](v T) *T {
+	return &v
+}
+
 func TestParseNvidiaSmiDevices(t *testing.T) {
 	devices := parseNvidiaSmiDevices(nvidiaSmiQFixture)
 
@@ -117,8 +121,54 @@ func TestParseNvidiaSmiDevices(t *testing.T) {
 	// Reserved(2288) + Used(5952), matching the legacy NVML v1 GetMemoryInfo
 	// "Total - Free" semantics the existing API contract keeps.
 	require.Equal(t, 8240, device.MemoryUsedMiB)
-	require.Equal(t, uint32(0), device.GpuUtilizationPercent)
-	require.Equal(t, uint32(0), device.MemoryUtilizationPercent)
+	require.Equal(t, ptr(uint32(0)), device.GpuUtilizationPercent)
+	require.Equal(t, ptr(uint32(0)), device.MemoryUtilizationPercent)
+}
+
+// Real `nvidia-smi -q` output from a MIG-enabled card on cn13, trimmed to the
+// sections that matter: the nested MIG Device block carries its own FB numbers
+// (which must not shadow the device-level ones) and every utilization is N/A,
+// because NVIDIA reports no device-level utilization once MIG is on.
+const nvidiaSmiQMigFixture = `GPU 00000001:04:00.0
+    Product Name                          : NVIDIA RTX PRO 6000 Blackwell Server Edition
+    GPU UUID                              : GPU-171566b8-60f0-9c5e-7388-59b5583f7b97
+    MIG Mode
+        Current                           : Enabled
+        Pending                           : Enabled
+    MIG Device
+        Index                             : 0
+        GPU Instance ID                   : 3
+        FB Memory Usage
+            Total                         : 23680 MiB
+            Reserved                      : 0 MiB
+            Used                          : 2029 MiB
+            Free                          : 21652 MiB
+    FB Memory Usage
+        Total                             : 97887 MiB
+        Reserved                          : 2288 MiB
+        Used                              : 2029 MiB
+        Free                              : 93572 MiB
+    Utilization
+        GPU                               : N/A
+        Memory                            : N/A
+        Encoder                           : N/A
+        Decoder                           : N/A
+`
+
+// A MIG-enabled card must report the device-level framebuffer (not the GPU
+// instance's) and nil utilization -- reporting 0% there is indistinguishable
+// from a genuinely idle card.
+func TestParseNvidiaSmiDevicesMigEnabled(t *testing.T) {
+	devices := parseNvidiaSmiDevices(nvidiaSmiQMigFixture)
+
+	device, ok := devices["GPU-171566b8-60f0-9c5e-7388-59b5583f7b97"]
+	require.True(t, ok)
+	require.Equal(t, 97887, device.MemoryTotalMiB)
+	// Reserved(2288) + Used(2029) from the device-level block, not the GPU
+	// instance's 23680/2029.
+	require.Equal(t, 4317, device.MemoryUsedMiB)
+	require.Nil(t, device.GpuUtilizationPercent)
+	require.Nil(t, device.MemoryUtilizationPercent)
 }
 
 // A device block missing a required field (no GPU UUID line, e.g. a stripped
@@ -148,18 +198,54 @@ func TestParseNvidiaSmiVgpuInstances(t *testing.T) {
 	require.Equal(t, NvidiaSmiVgpuInstance{
 		VmUUID:                "083bc63f-0a3c-4647-9bb4-27f905b7d7bb",
 		VgpuTypeId:            1519,
-		MemoryUsedMiB:         128,
-		MemoryTotalMiB:        3072,
-		GpuUtilizationPercent: 0,
+		MemoryUsedMiB:         ptr(128),
+		MemoryTotalMiB:        ptr(3072),
+		GpuUtilizationPercent: ptr(uint32(0)),
 	}, instances[0])
 
 	require.Equal(t, NvidiaSmiVgpuInstance{
 		VmUUID:                "f0adb76f-7612-4c68-84b4-375a4e6c5476",
 		VgpuTypeId:            1519,
-		MemoryUsedMiB:         128,
-		MemoryTotalMiB:        3072,
-		GpuUtilizationPercent: 12,
+		MemoryUsedMiB:         ptr(128),
+		MemoryTotalMiB:        ptr(3072),
+		GpuUtilizationPercent: ptr(uint32(12)),
 	}, instances[1])
+}
+
+// Real `nvidia-smi vgpu -q` output from cn13 with a MIG-backed vGPU
+// (GPU Instance ID set) attached to a VM whose guest driver had already
+// reported its version -- so the N/A utilization is the hardware's answer, not
+// a not-ready artifact. Framebuffer is reported, utilization is not.
+const nvidiaSmiVgpuQMigBackedFixture = `GPU 00000001:04:00.0
+    Active vGPUs                          : 1
+    vGPU ID                               : 3251669307
+        VM UUID                           : de083752-e908-421a-a965-b18f302e5cb0
+        VM Name                           : instance-00000012
+        vGPU Name                         : NVIDIA RTX Pro 6000 Blackwell DC-1-2Q
+        vGPU Type                         : 1546
+        Guest Driver Version              : 580.105.08
+        GPU Instance ID                   : 3
+        FB Memory Usage
+            Total                         : 2048 MiB
+            Used                          : 144 MiB
+            Free                          : 1904 MiB
+        Utilization
+            GPU                           : N/A
+            Memory                        : N/A
+            Encoder                       : N/A
+            Decoder                       : N/A
+`
+
+func TestParseNvidiaSmiVgpuInstancesMigBacked(t *testing.T) {
+	instances := parseNvidiaSmiVgpuInstances(nvidiaSmiVgpuQMigBackedFixture)["00000001:04:00.0"]
+
+	require.Equal(t, []NvidiaSmiVgpuInstance{{
+		VmUUID:                "de083752-e908-421a-a965-b18f302e5cb0",
+		VgpuTypeId:            1546,
+		MemoryUsedMiB:         ptr(144),
+		MemoryTotalMiB:        ptr(2048),
+		GpuUtilizationPercent: nil,
+	}}, instances)
 }
 
 func TestParseNvidiaSmiVgpuInstancesNoActiveVgpus(t *testing.T) {
