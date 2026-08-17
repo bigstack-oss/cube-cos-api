@@ -32,7 +32,7 @@ var (
 	getNvidiaSmiDevices         = cubecos.GetNvidiaSmiDevices
 	getNvidiaSmiVgpuInstances   = cubecos.GetNvidiaSmiVgpuInstances
 	buildInstanceLinks          = buildInstanceLinksViaOpenstack
-	getOpenstackServerNames     = getOpenstackServerNamesViaHelper
+	getOpenstackServers         = getOpenstackServersViaHelper
 	createConsole               = createConsoleViaOpenstack
 	getNodeGpuById              = cubecos.GetNodeGpuById
 	updateNodeGpuCardViaHex     = cubecos.UpdateNodeGpuCard
@@ -41,13 +41,22 @@ var (
 	deleteUpdatingGpuReq        = deleteUpdatingGpuReqViaMongo
 )
 
+// openstackServer is the per-VM enrichment an attached instance needs from
+// Openstack: its display name, and the project that owns it -- the latter only
+// so the Grafana deep link can pin the dashboard's tenant variable to the right
+// project (see grafana.InstanceVgpuDashboardLink).
+type openstackServer struct {
+	Name     string
+	TenantId string
+}
+
 // buildLocalGpuCardOpts carries data fetched once per listLocalGpuCards
 // request (Openstack server names, nvidia-smi's device and vGPU-instance
 // snapshots) into each card's build. nvidia-smi is a subprocess spawn, not an
 // in-process library call, so it is invoked once per request here rather than
 // once per GPU on the node.
 type buildLocalGpuCardOpts struct {
-	ServerNames map[string]string
+	Servers map[string]openstackServer
 	// NvidiaSmiDevices/NvidiaSmiAvailable come from one `nvidia-smi -q` call.
 	// NvidiaSmiAvailable is false only when that call itself could not be run;
 	// a device simply absent from NvidiaSmiDevices (e.g. vfio-pci passthrough)
@@ -75,12 +84,13 @@ type listAttachedInstancesOpts struct {
 	// VgpuInstances/VgpuInstancesAvailable: see buildLocalGpuCardOpts.
 	VgpuInstances          []cubecos.NvidiaSmiVgpuInstance
 	VgpuInstancesAvailable bool
-	// ServerNames maps Openstack server id to name, prefetched once per request
-	// so vGPU instance names do not cost a GetServer round trip each. A nil map
-	// means the prefetch failed outright, so a name missing for an attached
-	// instance is a real enrichment loss (degrade); a non-nil map that simply
-	// lacks an id means that one VM is absent (soft, reported without a name).
-	ServerNames map[string]string
+	// Servers maps Openstack server id to that VM's name and owning project,
+	// prefetched once per request so an attached instance does not cost a
+	// GetServer round trip each. A nil map means the prefetch failed outright, so
+	// a missing entry is a real enrichment loss (degrade); a non-nil map that
+	// simply lacks an id means that one VM is absent (soft, reported without a
+	// name).
+	Servers map[string]openstackServer
 	// Enrichment accumulates the card's degraded state as attached-instance
 	// enrichment is gathered.
 	Enrichment *enrichment
@@ -121,7 +131,7 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 	// Resolve vGPU instance names in a single Openstack round trip rather than
 	// one GetServer per attached instance. A nil map signals the prefetch failed,
 	// which degrades any vGPU card that has attached instances needing a name.
-	serverNames := h.resolveServerNames(hexGpusMap)
+	serversById := h.resolveServers(hexGpusMap)
 
 	nvidiaSmiDevices, nvidiaSmiErr := getNvidiaSmiDevices()
 	if nvidiaSmiErr != nil {
@@ -142,7 +152,7 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 		hexGpu := hexGpusMap[pciAddress]
 
 		gpuCard, err := h.buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
-			ServerNames:            serverNames,
+			Servers:                serversById,
 			NvidiaSmiDevices:       nvidiaSmiDevices,
 			NvidiaSmiAvailable:     nvidiaSmiErr == nil,
 			VgpuInstances:          vgpuInstancesByPci[hexGpu.PciAddress],
@@ -163,34 +173,35 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 	return gpuCards, nil
 }
 
-// resolveServerNames prefetches Openstack server names (id -> name) when the
-// node has any vGPU, whose attached-instance names come from Openstack. On a
-// lookup failure it returns nil (instances reported without a name) rather than
-// failing the listing; the nil map lets callers mark affected cards degraded.
-func (h *helper) resolveServerNames(hexGpusMap map[string]gpu.GpuFromHex) map[string]string {
-	needsServerNames := false
+// resolveServers prefetches the Openstack servers (id -> name + owning project)
+// when the node has any vGPU, whose attached-instance enrichment comes from
+// Openstack. On a lookup failure it returns nil (instances reported without a
+// name) rather than failing the listing; the nil map lets callers mark affected
+// cards degraded.
+func (h *helper) resolveServers(hexGpusMap map[string]gpu.GpuFromHex) map[string]openstackServer {
+	needsServers := false
 	for _, hexGpu := range hexGpusMap {
 		if isVgpu(hexGpu) {
-			needsServerNames = true
+			needsServers = true
 			break
 		}
 	}
-	if !needsServerNames {
-		return map[string]string{}
+	if !needsServers {
+		return map[string]openstackServer{}
 	}
 
-	serverNames, err := getOpenstackServerNames()
+	serversById, err := getOpenstackServers()
 	if err != nil {
 		log.Warnf("gpu(%s): failed to list Openstack servers for name resolution on node %s: %v; reporting instances without names", h.reqId, h.node, err)
 		return nil
 	}
 
-	return serverNames
+	return serversById
 }
 
 // resolveVgpuInstances fetches active vGPU instances once for the whole node
 // when hex reports at least one vGPU-type GPU, skipping the nvidia-smi call
-// entirely on pgpu-only nodes (mirrors resolveServerNames's lazy Openstack
+// entirely on pgpu-only nodes (mirrors resolveServers's lazy Openstack
 // prefetch).
 func (h *helper) resolveVgpuInstances(hexGpusMap map[string]gpu.GpuFromHex) (map[string][]cubecos.NvidiaSmiVgpuInstance, error) {
 	needsVgpu := false
@@ -286,10 +297,10 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCard
 		}
 	}
 
-	// A nil server-name map means the getOpenstackServerNames call failed, so
+	// A nil server map means the getOpenstackServers call failed, so
 	// attached-instance name enrichment is unavailable for the whole node: flag
 	// the card degraded.
-	if opts.ServerNames == nil {
+	if opts.Servers == nil {
 		enr.degrade("gpu: Openstack server prefetch failed on node %s; gpu %s reported without instance names (degraded)", h.node, hexGpu.Id)
 	}
 
@@ -304,7 +315,7 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCard
 		HexProfilesMap:           hexProfilesMap,
 		VgpuInstances:            opts.VgpuInstances,
 		VgpuInstancesAvailable:   opts.VgpuInstancesAvailable,
-		ServerNames:              opts.ServerNames,
+		Servers:                  opts.Servers,
 		Enrichment:               enr,
 	})
 	if err != nil {
@@ -557,7 +568,14 @@ func listPgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedIn
 			AllocatedMiB: deviceMemoryUsedMiB,
 			TotalMiB:     deviceMemoryTotalMiB,
 		},
-		Links: buildInstanceLinks(attachedInstance.Id),
+		// hex supplies a pgpu's instance name, so the prefetched server map is
+		// consulted only for the owning project the Grafana link needs. It is
+		// absent on a pgpu-only node, where the prefetch is skipped entirely.
+		Links: buildInstanceLinks(instanceLinkOpts{
+			InstanceId: attachedInstance.Id,
+			TenantId:   opts.Servers[attachedInstance.Id].TenantId,
+			VmName:     attachedInstance.Name,
+		}),
 	})
 
 	return &attachedInstances
@@ -573,7 +591,7 @@ func listPgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedIn
 // the whole node listing, so a single GPU being reset does not take down the
 // listing for every other card.
 func listVgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedInstance {
-	deviceUUID, hexProfilesMap, serverNames, enr := opts.DeviceUUID, opts.HexProfilesMap, opts.ServerNames, opts.Enrichment
+	deviceUUID, hexProfilesMap, serversById, enr := opts.DeviceUUID, opts.HexProfilesMap, opts.Servers, opts.Enrichment
 
 	attachedInstances := []gpu.AttachedInstance{}
 	if !opts.IsDeviceVisible {
@@ -597,29 +615,40 @@ func listVgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedIn
 		hexProfile := hexProfilesMap[instance.VgpuTypeId]
 		profileAlias := hexProfile.Alias
 
-		// The server name is enrichment resolved from the prefetched map. A missing
-		// name just logs here (the instance is reported without one); a nil map
-		// means the prefetch failed outright, which the caller already flagged as
-		// degraded on the card itself.
-		serverName, ok := serverNames[instance.VmUUID]
+		// The name and owning project are enrichment resolved from the prefetched
+		// map. A missing entry just logs here (the instance is reported without a
+		// name, and its link cannot pin the dashboard's tenant); a nil map means the
+		// prefetch failed outright, which the caller already flagged as degraded on
+		// the card itself.
+		server, ok := serversById[instance.VmUUID]
 		if !ok {
 			log.Warnf("gpu: Openstack server %s not found in prefetched servers; reporting instance without name", instance.VmUUID)
 		}
 
 		attachedInstances = append(attachedInstances, gpu.AttachedInstance{
 			Id:                 instance.VmUUID,
-			Name:               serverName,
+			Name:               server.Name,
 			ProfileAlias:       profileAlias,
 			UtilizationPercent: instance.GpuUtilizationPercent,
 			MemoryUsage: gpu.InstanceMemoryUsage{
 				AllocatedMiB: instance.MemoryUsedMiB,
 				TotalMiB:     instance.MemoryTotalMiB,
 			},
-			Links: buildInstanceLinks(instance.VmUUID),
+			Links: buildInstanceLinks(instanceLinkOpts{InstanceId: instance.VmUUID, TenantId: server.TenantId, VmName: server.Name}),
 		})
 	}
 
 	return &attachedInstances
+}
+
+// instanceLinkOpts is what the Grafana deep link needs about one attached
+// instance. It is a struct rather than positional arguments so that adding a
+// dashboard variable later does not ripple through every call site and test
+// seam.
+type instanceLinkOpts struct {
+	InstanceId string
+	TenantId   string
+	VmName     string
 }
 
 // buildInstanceLinksViaOpenstack builds the links reported inline with each
@@ -628,9 +657,9 @@ func listVgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedIn
 // instance on every GPU-list poll floods Nova with sessions that are almost
 // always discarded. The console is minted on demand via the dedicated
 // getGpuInstanceConsole endpoint instead.
-func buildInstanceLinksViaOpenstack(vmId string) gpu.InstanceLinks {
+func buildInstanceLinksViaOpenstack(opts instanceLinkOpts) gpu.InstanceLinks {
 	return gpu.InstanceLinks{
-		Grafana: grafana.InstanceDashboardLink(vmId),
+		Grafana: grafana.InstanceVgpuDashboardLink(opts.InstanceId, opts.TenantId, opts.VmName),
 	}
 }
 
@@ -668,9 +697,9 @@ func createConsoleViaOpenstack(vmId string) (*remoteconsoles.RemoteConsole, erro
 	return result.Extract()
 }
 
-// getOpenstackServerNamesViaHelper returns a map of server id to name in a single
-// Openstack round trip, used to resolve vGPU attached-instance names in bulk.
-func getOpenstackServerNamesViaHelper() (map[string]string, error) {
+// getOpenstackServersViaHelper returns a map of server id to the enrichment an
+// attached instance needs, in a single Openstack round trip.
+func getOpenstackServersViaHelper() (map[string]openstackServer, error) {
 	// AllTenants is required: the API authenticates as a single project (admin),
 	// so a plain list returns only that project's servers and a vGPU VM owned by
 	// any other project would come back nameless. The per-instance GetServer this
@@ -681,12 +710,13 @@ func getOpenstackServerNamesViaHelper() (map[string]string, error) {
 		return nil, err
 	}
 
-	serverNames := make(map[string]string, len(serverList))
+	// Not named `servers`: that is the gophercloud package used just above.
+	byId := make(map[string]openstackServer, len(serverList))
 	for _, server := range serverList {
-		serverNames[server.ID] = server.Name
+		byId[server.ID] = openstackServer{Name: server.Name, TenantId: server.TenantID}
 	}
 
-	return serverNames, nil
+	return byId, nil
 }
 
 func toProfileCollection(

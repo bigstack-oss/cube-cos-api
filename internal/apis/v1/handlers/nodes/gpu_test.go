@@ -24,7 +24,7 @@ func restoreGpuSeams(t *testing.T) {
 	origGetNvidiaSmiDevices := getNvidiaSmiDevices
 	origGetNvidiaSmiVgpuInstances := getNvidiaSmiVgpuInstances
 	origBuildInstanceLinks := buildInstanceLinks
-	origGetOpenstackServerNames := getOpenstackServerNames
+	origGetOpenstackServers := getOpenstackServers
 	origCreateConsole := createConsole
 	origGetNodeGpuById := getNodeGpuById
 	origUpdateNodeGpuCardViaHex := updateNodeGpuCardViaHex
@@ -44,7 +44,7 @@ func restoreGpuSeams(t *testing.T) {
 		getNvidiaSmiDevices = origGetNvidiaSmiDevices
 		getNvidiaSmiVgpuInstances = origGetNvidiaSmiVgpuInstances
 		buildInstanceLinks = origBuildInstanceLinks
-		getOpenstackServerNames = origGetOpenstackServerNames
+		getOpenstackServers = origGetOpenstackServers
 		createConsole = origCreateConsole
 		getNodeGpuById = origGetNodeGpuById
 		updateNodeGpuCardViaHex = origUpdateNodeGpuCardViaHex
@@ -108,7 +108,7 @@ func TestListLocalGpuCardsIncludesGpusInvisibleToNvidiaSmi(t *testing.T) {
 		return &gpu.PgpuAttachedInstanceFromHex{Id: "vm-1", Name: "instance-1"}, nil
 	}
 
-	buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
+	buildInstanceLinks = func(opts instanceLinkOpts) gpu.InstanceLinks {
 		return gpu.InstanceLinks{}
 	}
 
@@ -273,7 +273,7 @@ func TestBuildLocalGpuCardReportsProfilesForVgpuCapablePgpuCard(t *testing.T) {
 	}
 
 	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
-		ServerNames: map[string]string{},
+		Servers: map[string]openstackServer{},
 		NvidiaSmiDevices: map[string]cubecos.NvidiaSmiDevice{
 			hexGpu.Id: {UUID: hexGpu.Id, MemoryTotalMiB: 98304},
 		},
@@ -330,7 +330,7 @@ func TestBuildLocalGpuCardReportsProfilesForMigCapableUnsetCard(t *testing.T) {
 	}
 
 	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
-		ServerNames: map[string]string{},
+		Servers: map[string]openstackServer{},
 		NvidiaSmiDevices: map[string]cubecos.NvidiaSmiDevice{
 			hexGpu.Id: {UUID: hexGpu.Id, MemoryTotalMiB: 81920},
 		},
@@ -369,7 +369,7 @@ func TestBuildLocalGpuCardSkipsProfileFetchForPgpuOnlyCard(t *testing.T) {
 	}
 
 	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
-		ServerNames: map[string]string{},
+		Servers: map[string]openstackServer{},
 		NvidiaSmiDevices: map[string]cubecos.NvidiaSmiDevice{
 			hexGpu.Id: {UUID: hexGpu.Id, MemoryTotalMiB: 16384},
 		},
@@ -419,7 +419,7 @@ func TestBuildLocalGpuCardVgpuProfiles(t *testing.T) {
 
 	h := &helper{node: "node-1"}
 	card, err := h.buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
-		ServerNames: map[string]string{},
+		Servers: map[string]openstackServer{},
 		NvidiaSmiDevices: map[string]cubecos.NvidiaSmiDevice{
 			hexGpu.Id: {UUID: hexGpu.Id, MemoryTotalMiB: 8192},
 		},
@@ -464,7 +464,7 @@ func TestBuildLocalGpuCardDegradesOnProfileFetchFailure(t *testing.T) {
 	}
 
 	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
-		ServerNames: map[string]string{},
+		Servers: map[string]openstackServer{},
 		NvidiaSmiDevices: map[string]cubecos.NvidiaSmiDevice{
 			hexGpu.Id: {UUID: hexGpu.Id, MemoryTotalMiB: 8192},
 		},
@@ -494,10 +494,10 @@ func TestBuildLocalGpuCardDegradesOnServerPrefetchFailure(t *testing.T) {
 		return map[uint32]gpu.VgpuProfileFromHex{}, gpu.VgpuProfileCollectionFromHex{}, nil
 	}
 
-	// nil ServerNames == prefetch failed. No active vGPU: the card still
+	// nil Servers == prefetch failed. No active vGPU: the card still
 	// degrades because names are unavailable.
 	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
-		ServerNames: nil,
+		Servers: nil,
 		NvidiaSmiDevices: map[string]cubecos.NvidiaSmiDevice{
 			hexGpu.Id: {UUID: hexGpu.Id, MemoryTotalMiB: 8192},
 		},
@@ -611,8 +611,8 @@ func TestListPgpuAttachedInstances(t *testing.T) {
 		}
 
 		links := gpu.InstanceLinks{Grafana: "https://grafana.example/vm-1"}
-		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
-			require.Equal(t, "vm-1", vmId)
+		buildInstanceLinks = func(opts instanceLinkOpts) gpu.InstanceLinks {
+			require.Equal(t, "vm-1", opts.InstanceId)
 			return links
 		}
 
@@ -650,7 +650,7 @@ func TestListPgpuAttachedInstances(t *testing.T) {
 		getNodePgpuAttachedInstance = func(pciAddress string) (*gpu.PgpuAttachedInstanceFromHex, error) {
 			return &gpu.PgpuAttachedInstanceFromHex{Id: "vm-1", Name: "instance-1"}, nil
 		}
-		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
+		buildInstanceLinks = func(opts instanceLinkOpts) gpu.InstanceLinks {
 			return gpu.InstanceLinks{}
 		}
 
@@ -725,8 +725,8 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 	})
 
 	t.Run("attached instance is reported with server name", func(t *testing.T) {
-		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
-			return gpu.InstanceLinks{Grafana: "https://grafana.example/" + vmId}
+		buildInstanceLinks = func(opts instanceLinkOpts) gpu.InstanceLinks {
+			return gpu.InstanceLinks{Grafana: "https://grafana.example/" + opts.InstanceId}
 		}
 
 		enr := &enrichment{}
@@ -741,7 +741,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 				{VmUUID: "vm-9", VgpuTypeId: profileId, MemoryUsedMiB: ptr(1024), MemoryTotalMiB: ptr(4096), GpuUtilizationPercent: ptr(uint32(33))},
 			},
 			VgpuInstancesAvailable: true,
-			ServerNames:            map[string]string{"vm-9": "instance-9"},
+			Servers:                map[string]openstackServer{"vm-9": {Name: "instance-9", TenantId: "proj-9"}},
 			Enrichment:             enr,
 		})
 
@@ -764,7 +764,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 	// A MIG-backed vGPU reports its framebuffer but N/A for utilization, so the
 	// instance must carry the memory numbers and a nil utilization.
 	t.Run("reports a MIG-backed instance without utilization", func(t *testing.T) {
-		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
+		buildInstanceLinks = func(opts instanceLinkOpts) gpu.InstanceLinks {
 			return gpu.InstanceLinks{}
 		}
 
@@ -778,7 +778,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 				{VmUUID: "vm-9", VgpuTypeId: profileId, MemoryUsedMiB: ptr(144), MemoryTotalMiB: ptr(2048)},
 			},
 			VgpuInstancesAvailable: true,
-			ServerNames:            map[string]string{"vm-9": "instance-9"},
+			Servers:                map[string]openstackServer{"vm-9": {Name: "instance-9", TenantId: "proj-9"}},
 			Enrichment:             enr,
 		})
 
@@ -795,7 +795,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 	// server map (e.g. the VM is being torn down) is reported without a name
 	// rather than failing the whole GPU listing.
 	t.Run("instance missing from server map reported without name", func(t *testing.T) {
-		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
+		buildInstanceLinks = func(opts instanceLinkOpts) gpu.InstanceLinks {
 			return gpu.InstanceLinks{}
 		}
 
@@ -808,7 +808,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 				{VmUUID: "vm-9", VgpuTypeId: profileId},
 			},
 			VgpuInstancesAvailable: true,
-			ServerNames:            map[string]string{},
+			Servers:                map[string]openstackServer{},
 			Enrichment:             enr,
 		})
 
@@ -824,7 +824,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 	// buildLocalGpuCard, not here: this layer only reports the instance without a
 	// name and does not itself degrade. See TestBuildLocalGpuCardDegradesOnServerPrefetchFailure.
 	t.Run("nil server map does not degrade at this layer", func(t *testing.T) {
-		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
+		buildInstanceLinks = func(opts instanceLinkOpts) gpu.InstanceLinks {
 			return gpu.InstanceLinks{}
 		}
 
@@ -837,7 +837,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 				{VmUUID: "vm-9", VgpuTypeId: profileId},
 			},
 			VgpuInstancesAvailable: true,
-			ServerNames:            nil,
+			Servers:                nil,
 			Enrichment:             enr,
 		})
 
@@ -850,7 +850,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 	// MIG-backed vGPU type IDs are not hex profile ids; the GI profile id is
 	// resolved via the pre-fetched type map instead of used directly.
 	t.Run("mig-backed instance resolves profile id via type map", func(t *testing.T) {
-		buildInstanceLinks = func(vmId string) gpu.InstanceLinks {
+		buildInstanceLinks = func(opts instanceLinkOpts) gpu.InstanceLinks {
 			return gpu.InstanceLinks{}
 		}
 
@@ -868,7 +868,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 				{VmUUID: "vm-9", VgpuTypeId: vgpuTypeId},
 			},
 			VgpuInstancesAvailable: true,
-			ServerNames:            map[string]string{},
+			Servers:                map[string]openstackServer{},
 			Enrichment:             enr,
 		})
 
@@ -893,7 +893,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 				{VmUUID: "vm-9", VgpuTypeId: 0x619},
 			},
 			VgpuInstancesAvailable: true,
-			ServerNames:            map[string]string{},
+			Servers:                map[string]openstackServer{},
 			Enrichment:             enr,
 		})
 
@@ -904,12 +904,20 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 }
 
 // The list-time links carry only the Grafana dashboard; the console is minted
-// on demand via getGpuInstanceConsole and is not part of the listing.
+// on demand via getGpuInstanceConsole and is not part of the listing. All three
+// dashboard variables must be pinned, or the page labels this VM's chart with
+// another VM's name.
 func TestBuildInstanceLinksViaOpenstack(t *testing.T) {
-	links := buildInstanceLinksViaOpenstack("vm-1")
+	links := buildInstanceLinksViaOpenstack(instanceLinkOpts{
+		InstanceId: "vm-1",
+		TenantId:   "proj-1",
+		VmName:     "instance-1",
+	})
 
 	require.Contains(t, links.Grafana, "/grafana/d/PVW6vU7Wz/instance")
 	require.Contains(t, links.Grafana, "var-UUID=vm-1")
+	require.Contains(t, links.Grafana, "var-TID=proj-1")
+	require.Contains(t, links.Grafana, "var-HOSTNAME=instance-1")
 }
 
 func TestGetGpuInstanceConsole(t *testing.T) {
@@ -952,53 +960,53 @@ func TestGetGpuInstanceConsole(t *testing.T) {
 	})
 }
 
-func TestResolveServerNames(t *testing.T) {
+func TestResolveServers(t *testing.T) {
 	restoreGpuSeams(t)
 
 	t.Run("skips openstack when node has no vgpu", func(t *testing.T) {
 		called := false
-		getOpenstackServerNames = func() (map[string]string, error) {
+		getOpenstackServers = func() (map[string]openstackServer, error) {
 			called = true
 			return nil, nil
 		}
 
-		names := (&helper{node: "node-1"}).resolveServerNames(map[string]gpu.GpuFromHex{
+		servers := (&helper{node: "node-1"}).resolveServers(map[string]gpu.GpuFromHex{
 			"0000:01:00.0": {Type: gpu.ResourceTypePgpu},
 		})
 
 		require.False(t, called)
-		require.NotNil(t, names)
-		require.Empty(t, names)
+		require.NotNil(t, servers)
+		require.Empty(t, servers)
 	})
 
-	t.Run("fetches names once when a vgpu is present", func(t *testing.T) {
+	t.Run("fetches servers once when a vgpu is present", func(t *testing.T) {
 		calls := 0
-		getOpenstackServerNames = func() (map[string]string, error) {
+		getOpenstackServers = func() (map[string]openstackServer, error) {
 			calls++
-			return map[string]string{"vm-9": "instance-9"}, nil
+			return map[string]openstackServer{"vm-9": {Name: "instance-9", TenantId: "proj-9"}}, nil
 		}
 
-		names := (&helper{node: "node-1"}).resolveServerNames(map[string]gpu.GpuFromHex{
+		servers := (&helper{node: "node-1"}).resolveServers(map[string]gpu.GpuFromHex{
 			"0000:01:00.0": {Type: gpu.ResourceTypeSriovVgpu},
 			"0000:02:00.0": {Type: gpu.ResourceTypeMigBackedVgpu},
 		})
 
 		require.Equal(t, 1, calls)
-		require.Equal(t, map[string]string{"vm-9": "instance-9"}, names)
+		require.Equal(t, map[string]openstackServer{"vm-9": {Name: "instance-9", TenantId: "proj-9"}}, servers)
 	})
 
 	// A server-listing failure is enrichment: names degrade to a nil map (the
 	// unavailable sentinel) rather than failing the whole listing.
 	t.Run("returns nil on openstack error", func(t *testing.T) {
-		getOpenstackServerNames = func() (map[string]string, error) {
+		getOpenstackServers = func() (map[string]openstackServer, error) {
 			return nil, errors.New("openstack unavailable")
 		}
 
-		names := (&helper{node: "node-1"}).resolveServerNames(map[string]gpu.GpuFromHex{
+		servers := (&helper{node: "node-1"}).resolveServers(map[string]gpu.GpuFromHex{
 			"0000:01:00.0": {Type: gpu.ResourceTypeSriovVgpu},
 		})
 
-		require.Nil(t, names)
+		require.Nil(t, servers)
 	})
 }
 
@@ -1433,7 +1441,7 @@ func TestBuildLocalGpuCardReportsIsProcessing(t *testing.T) {
 		Type:       gpu.ResourceTypePgpu,
 		Status:     gpu.GpuStatusIdle,
 	}, buildLocalGpuCardOpts{
-		ServerNames:        map[string]string{},
+		Servers:            map[string]openstackServer{},
 		NvidiaSmiDevices:   map[string]cubecos.NvidiaSmiDevice{},
 		NvidiaSmiAvailable: true,
 	})
