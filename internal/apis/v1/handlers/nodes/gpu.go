@@ -671,7 +671,12 @@ func createConsoleViaOpenstack(vmId string) (*remoteconsoles.RemoteConsole, erro
 // getOpenstackServerNamesViaHelper returns a map of server id to name in a single
 // Openstack round trip, used to resolve vGPU attached-instance names in bulk.
 func getOpenstackServerNamesViaHelper() (map[string]string, error) {
-	serverList, err := openstack.GetGlobalHelper().ListServers(servers.ListOpts{})
+	// AllTenants is required: the API authenticates as a single project (admin),
+	// so a plain list returns only that project's servers and a vGPU VM owned by
+	// any other project would come back nameless. The per-instance GetServer this
+	// prefetch replaced was unaffected, because fetching one server by id is not
+	// project-scoped for an admin token.
+	serverList, err := openstack.GetGlobalHelper().ListServers(servers.ListOpts{AllTenants: true})
 	if err != nil {
 		return nil, err
 	}
