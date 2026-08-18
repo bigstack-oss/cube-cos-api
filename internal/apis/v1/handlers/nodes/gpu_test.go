@@ -610,7 +610,7 @@ func TestListPgpuAttachedInstances(t *testing.T) {
 			return &gpu.PgpuAttachedInstanceFromHex{Id: "vm-1", Name: "instance-1"}, nil
 		}
 
-		links := gpu.InstanceLinks{Grafana: "https://grafana.example/vm-1"}
+		links := gpu.InstanceLinks{Grafana: ptr("https://grafana.example/vm-1")}
 		buildInstanceLinks = func(opts instanceLinkOpts) gpu.InstanceLinks {
 			require.Equal(t, "vm-1", opts.InstanceId)
 			return links
@@ -726,7 +726,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 
 	t.Run("attached instance is reported with server name", func(t *testing.T) {
 		buildInstanceLinks = func(opts instanceLinkOpts) gpu.InstanceLinks {
-			return gpu.InstanceLinks{Grafana: "https://grafana.example/" + opts.InstanceId}
+			return gpu.InstanceLinks{Grafana: ptr("https://grafana.example/" + opts.InstanceId)}
 		}
 
 		enr := &enrichment{}
@@ -757,7 +757,7 @@ func TestListVgpuAttachedInstances(t *testing.T) {
 				AllocatedMiB: ptr(1024),
 				TotalMiB:     ptr(4096),
 			},
-			Links: gpu.InstanceLinks{Grafana: "https://grafana.example/vm-9"},
+			Links: gpu.InstanceLinks{Grafana: ptr("https://grafana.example/vm-9")},
 		}, (*instances)[0])
 	})
 
@@ -914,10 +914,29 @@ func TestBuildInstanceLinksViaOpenstack(t *testing.T) {
 		VmName:     "instance-1",
 	})
 
-	require.Contains(t, links.Grafana, "/grafana/d/PVW6vU7Wz/instance")
-	require.Contains(t, links.Grafana, "var-UUID=vm-1")
-	require.Contains(t, links.Grafana, "var-TID=proj-1")
-	require.Contains(t, links.Grafana, "var-HOSTNAME=instance-1")
+	require.NotNil(t, links.Grafana)
+	require.Contains(t, *links.Grafana, "/grafana/d/PVW6vU7Wz/instance")
+	require.Contains(t, *links.Grafana, "var-UUID=vm-1")
+	require.Contains(t, *links.Grafana, "var-TID=proj-1")
+	require.Contains(t, *links.Grafana, "var-HOSTNAME=instance-1")
+}
+
+// A link that cannot pin the dashboard's variables must be absent rather than
+// wrong: without the owning project the page can chart one VM under another VM's
+// name, and a pgpu -- the case that has no tenant, because a pgpu-only node skips
+// the Openstack prefetch -- has no vGPU series to chart at all.
+func TestBuildInstanceLinksOmitsUnpinnableLink(t *testing.T) {
+	t.Run("no tenant", func(t *testing.T) {
+		links := buildInstanceLinksViaOpenstack(instanceLinkOpts{InstanceId: "vm-1", VmName: "instance-1"})
+
+		require.Nil(t, links.Grafana)
+	})
+
+	t.Run("no vm name", func(t *testing.T) {
+		links := buildInstanceLinksViaOpenstack(instanceLinkOpts{InstanceId: "vm-1", TenantId: "proj-1"})
+
+		require.Nil(t, links.Grafana)
+	})
 }
 
 func TestGetGpuInstanceConsole(t *testing.T) {

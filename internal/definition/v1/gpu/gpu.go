@@ -162,7 +162,13 @@ type InstanceMemoryUsage struct {
 }
 
 type InstanceLinks struct {
-	Grafana string `json:"grafana"`
+	// Grafana is nil when the dashboard variables cannot be pinned. The instance
+	// dashboard resolves its tenant, hostname and instance variables on load, so a
+	// link built without the owning project can label this VM's chart with another
+	// VM -- and a GPU passed through to a VM has no vGPU series to chart anyway.
+	// Same rule as the stats above: what cannot be produced correctly is absent,
+	// not zeroed.
+	Grafana *string `json:"grafana"`
 }
 
 // InstanceConsole is the on-demand console link for an attached instance. It is

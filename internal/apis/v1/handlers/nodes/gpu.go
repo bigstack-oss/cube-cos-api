@@ -658,9 +658,18 @@ type instanceLinkOpts struct {
 // always discarded. The console is minted on demand via the dedicated
 // getGpuInstanceConsole endpoint instead.
 func buildInstanceLinksViaOpenstack(opts instanceLinkOpts) gpu.InstanceLinks {
-	return gpu.InstanceLinks{
-		Grafana: grafana.InstanceVgpuDashboardLink(opts.InstanceId, opts.TenantId, opts.VmName),
+	// Both variables are required for the link to survive the dashboard's own
+	// variable refresh. A pgpu-only node skips the Openstack prefetch, so the
+	// tenant is unknown there; an instance missing from the prefetch has neither.
+	// Reporting no link beats reporting one that lands on another VM, and a pgpu
+	// has no vGPU series to chart in the first place.
+	if opts.TenantId == "" || opts.VmName == "" {
+		return gpu.InstanceLinks{}
 	}
+
+	link := grafana.InstanceVgpuDashboardLink(opts.InstanceId, opts.TenantId, opts.VmName)
+
+	return gpu.InstanceLinks{Grafana: &link}
 }
 
 // getGpuInstanceConsole mints a Nova console for a single attached instance on
