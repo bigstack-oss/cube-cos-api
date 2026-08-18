@@ -98,6 +98,7 @@ type GpuCard struct {
 	SriovVgpuProfileCountLimit *int                  `json:"sriovVgpuProfileCountLimit"`
 	Profiles                   GpuProfileCollection  `json:"profiles"`
 	AttachedInstances          *[]AttachedInstance   `json:"attachedInstances"`
+	Links                      GpuCardLinks          `json:"links"`
 	Status                     GpuStatusInfo         `json:"status"`
 	// Degraded is true when runtime enrichment that this card should have
 	// had (stats, attached instances) could not be obtained, so its capacity
@@ -142,6 +143,14 @@ type VgpuProfile struct {
 	Remaining  *int    `json:"remaining"`
 	AliasName  *string `json:"aliasName"`
 	CountLimit *int    `json:"countLimit"`
+}
+
+// GpuCardLinks are the history charts for this one card. They are reported
+// inline with the card because the UI offers them from its row, and a link built
+// per node would be identical on every row of the same node.
+type GpuCardLinks struct {
+	WorkloadHistory string `json:"workloadHistory"`
+	VramHistory     string `json:"vramHistory"`
 }
 
 // UtilizationPercent and MemoryUsage are nil for the same reasons as VramInfo's

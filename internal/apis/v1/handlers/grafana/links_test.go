@@ -36,3 +36,28 @@ func TestInstanceVgpuDashboardLinkEscapesValues(t *testing.T) {
 
 	require.Contains(t, link, "var-HOSTNAME=my+vm%26x")
 }
+
+// A link offered from one GPU's row has to name that card, or every row on the
+// node yields the same chart.
+func TestDeviceGpuHistoryLinksPinTheCard(t *testing.T) {
+	util := DeviceGpuUtilizationHistoryLink("cn13", "00000001:04:00.0")
+	vram := DeviceGpuVramHistoryLink("cn13", "00000001:04:00.0")
+
+	for _, link := range []string{util, vram} {
+		require.Contains(t, link, "/grafana/d/i-device/device")
+		require.Contains(t, link, "var-GPU_HOST=cn13")
+		// Colons have to survive as an escaped query value.
+		require.Contains(t, link, "var-GPU_PCIID=00000001%3A04%3A00.0")
+	}
+	require.Contains(t, util, "viewPanel=50")
+	require.Contains(t, vram, "viewPanel=51")
+}
+
+// An empty PCI address must drop the variable rather than send it empty: it
+// defaults to All, while an empty value would match no card at all.
+func TestDeviceGpuHistoryLinkOmitsEmptyCard(t *testing.T) {
+	link := DeviceGpuUtilizationHistoryLink("cn13", "")
+
+	require.Contains(t, link, "var-GPU_HOST=cn13")
+	require.NotContains(t, link, "GPU_PCIID")
+}

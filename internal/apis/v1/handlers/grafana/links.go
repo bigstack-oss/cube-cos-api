@@ -101,21 +101,56 @@ func genStoragesLink() string {
 	)
 }
 
-// panel 50 = GPU Utilization on the device dashboard (UID i-device).
-// Filtered by the hidden $GPU_HOST variable (gpu.host's `host` tag), NOT $HOST.
-func genGpuUtilizationHistoryLink(c *gin.Context) string {
-	return fmt.Sprintf(
-		"https://%s/grafana/d/i-device/device?orgId=1&var-GPU_HOST=%s&from=now-3h&to=now&viewPanel=50",
+// The device dashboard's GPU panel ids, pinned here as deep-link targets:
+// renumbering or reordering them in device.json breaks these links.
+const (
+	deviceGpuUtilizationPanelId = 50
+	deviceGpuVramPanelId        = 51
+)
+
+// deviceGpuHistoryLink builds a device-dashboard deep link (UID i-device) to one
+// GPU history panel.
+//
+// $GPU_HOST is gpu.host's `host` tag, NOT $HOST (which comes from ipmi_sensor and
+// can differ). pciAddress is optional and scopes the chart to a single card via
+// the hidden $GPU_PCIID variable, whose values are gpu.host's `pciid` tag --
+// byte-identical to the pciAddress the GPU listing reports for the same card, so
+// no translation is needed. Passing an empty pciAddress omits the variable
+// entirely rather than sending it empty: it defaults to All, and an empty value
+// would match no card at all.
+func deviceGpuHistoryLink(hostname, pciAddress string, panelId int) string {
+	link := fmt.Sprintf(
+		"https://%s/grafana/d/i-device/device?orgId=1&var-GPU_HOST=%s",
 		base.DataCenterVip,
-		c.Param("hostname"),
+		url.QueryEscape(hostname),
 	)
+	if pciAddress != "" {
+		// A PCI address carries colons, so it has to be escaped to survive as a
+		// query value.
+		link += "&var-GPU_PCIID=" + url.QueryEscape(pciAddress)
+	}
+
+	return fmt.Sprintf("%s&from=now-3h&to=now&viewPanel=%d", link, panelId)
 }
 
-// panel 51 = GPU VRAM Usage on the device dashboard (UID i-device).
+// DeviceGpuUtilizationHistoryLink and DeviceGpuVramHistoryLink are the
+// per-card history links, exported for the GPU listing handler to report inline
+// with each card. The UI offers them from a single GPU's row, so they have to
+// answer for that card rather than for every card on the node.
+func DeviceGpuUtilizationHistoryLink(hostname, pciAddress string) string {
+	return deviceGpuHistoryLink(hostname, pciAddress, deviceGpuUtilizationPanelId)
+}
+
+func DeviceGpuVramHistoryLink(hostname, pciAddress string) string {
+	return deviceGpuHistoryLink(hostname, pciAddress, deviceGpuVramPanelId)
+}
+
+// The node-scoped endpoints keep answering for the whole node: they are handed
+// only a hostname, so they cannot name a card.
+func genGpuUtilizationHistoryLink(c *gin.Context) string {
+	return deviceGpuHistoryLink(c.Param("hostname"), "", deviceGpuUtilizationPanelId)
+}
+
 func genGpuVramHistoryLink(c *gin.Context) string {
-	return fmt.Sprintf(
-		"https://%s/grafana/d/i-device/device?orgId=1&var-GPU_HOST=%s&from=now-3h&to=now&viewPanel=51",
-		base.DataCenterVip,
-		c.Param("hostname"),
-	)
+	return deviceGpuHistoryLink(c.Param("hostname"), "", deviceGpuVramPanelId)
 }

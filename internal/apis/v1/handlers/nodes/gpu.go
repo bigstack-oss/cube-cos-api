@@ -32,6 +32,7 @@ var (
 	getNvidiaSmiDevices         = cubecos.GetNvidiaSmiDevices
 	getNvidiaSmiVgpuInstances   = cubecos.GetNvidiaSmiVgpuInstances
 	buildInstanceLinks          = buildInstanceLinksViaOpenstack
+	buildGpuCardLinks           = buildGpuCardLinksViaGrafana
 	getOpenstackServers         = getOpenstackServersViaHelper
 	createConsole               = createConsoleViaOpenstack
 	getNodeGpuById              = cubecos.GetNodeGpuById
@@ -346,6 +347,7 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCard
 		SriovVgpuProfileCountLimit: hexGpu.SriovVgpuProfileCountLimit,
 		Profiles:                   profileCollection,
 		AttachedInstances:          attachedInstances,
+		Links:                      buildGpuCardLinks(h.node, hexGpu.PciAddress),
 		Degraded:                   enr.degraded,
 	}
 
@@ -639,6 +641,17 @@ func listVgpuAttachedInstances(opts listAttachedInstancesOpts) *[]gpu.AttachedIn
 	}
 
 	return &attachedInstances
+}
+
+// buildGpuCardLinksViaGrafana builds the history links reported inline with each
+// GPU card. Both are pure string building from data already in hand -- the node
+// name and the card's PCI address -- so they cost nothing per card and need no
+// extra endpoint for the UI to call per row.
+func buildGpuCardLinksViaGrafana(hostname, pciAddress string) gpu.GpuCardLinks {
+	return gpu.GpuCardLinks{
+		WorkloadHistory: grafana.DeviceGpuUtilizationHistoryLink(hostname, pciAddress),
+		VramHistory:     grafana.DeviceGpuVramHistoryLink(hostname, pciAddress),
+	}
 }
 
 // instanceLinkOpts is what the Grafana deep link needs about one attached

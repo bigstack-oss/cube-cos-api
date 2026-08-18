@@ -24,6 +24,7 @@ func restoreGpuSeams(t *testing.T) {
 	origGetNvidiaSmiDevices := getNvidiaSmiDevices
 	origGetNvidiaSmiVgpuInstances := getNvidiaSmiVgpuInstances
 	origBuildInstanceLinks := buildInstanceLinks
+	origBuildGpuCardLinks := buildGpuCardLinks
 	origGetOpenstackServers := getOpenstackServers
 	origCreateConsole := createConsole
 	origGetNodeGpuById := getNodeGpuById
@@ -44,6 +45,7 @@ func restoreGpuSeams(t *testing.T) {
 		getNvidiaSmiDevices = origGetNvidiaSmiDevices
 		getNvidiaSmiVgpuInstances = origGetNvidiaSmiVgpuInstances
 		buildInstanceLinks = origBuildInstanceLinks
+		buildGpuCardLinks = origBuildGpuCardLinks
 		getOpenstackServers = origGetOpenstackServers
 		createConsole = origCreateConsole
 		getNodeGpuById = origGetNodeGpuById
@@ -145,6 +147,15 @@ func TestListLocalGpuCardsIncludesGpusInvisibleToNvidiaSmi(t *testing.T) {
 
 	require.Equal(t, visibleUUID, visibleCard.Id)
 	require.Equal(t, "0000:02:00.0", visibleCard.PciAddress)
+	// The history links are reported per card, so they must name this card and
+	// not just the node -- otherwise every row on the node links to the same
+	// chart. They are built for a passthrough card too: the card exists, the
+	// chart simply has no series for it.
+	for _, link := range []string{visibleCard.Links.WorkloadHistory, visibleCard.Links.VramHistory} {
+		require.Contains(t, link, "var-GPU_HOST=node-1")
+		require.Contains(t, link, "var-GPU_PCIID=0000%3A02%3A00.0")
+	}
+	require.Contains(t, passthroughCard.Links.WorkloadHistory, "var-GPU_PCIID=0000%3A01%3A00.0")
 	require.Equal(t, gpu.VramInfo{
 		AllocatedMiB:       ptr(2048),
 		TotalMiB:           ptr(8192),
