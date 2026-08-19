@@ -170,14 +170,22 @@ type InstanceMemoryUsage struct {
 	TotalMiB     *int `json:"totalMiB"`
 }
 
+// InstanceLinks are the history charts for one attached instance -- the VM-level
+// counterpart of GpuCardLinks, and named to match it: workload and VRAM each open
+// their own panel in the instance dashboard's vGPU row.
 type InstanceLinks struct {
-	// Grafana is nil when the dashboard variables cannot be pinned. The instance
+	// Both are nil when the dashboard variables cannot be pinned. The instance
 	// dashboard resolves its tenant, hostname and instance variables on load, so a
 	// link built without the owning project can label this VM's chart with another
-	// VM -- and a GPU passed through to a VM has no vGPU series to chart anyway.
-	// Same rule as the stats above: what cannot be produced correctly is absent,
-	// not zeroed.
-	Grafana *string `json:"grafana"`
+	// VM. Same rule as the stats above: what cannot be produced correctly is
+	// absent, not zeroed.
+	//
+	// An empty chart, unlike a wrong one, is not a reason to omit a link: a
+	// MIG-backed vGPU has no utilization series, so its workload link opens an
+	// empty panel -- exactly what the card-level workloadHistory does on a
+	// MIG-enabled card.
+	WorkloadHistory *string `json:"workloadHistory"`
+	VramHistory     *string `json:"vramHistory"`
 }
 
 // InstanceConsole is the on-demand console link for an attached instance. It is

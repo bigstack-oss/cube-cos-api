@@ -45,7 +45,7 @@ var (
 // openstackServer is the per-VM enrichment an attached instance needs from
 // Openstack: its display name, and the project that owns it -- the latter only
 // so the Grafana deep link can pin the dashboard's tenant variable to the right
-// project (see grafana.InstanceVgpuDashboardLink).
+// project (see grafana.InstanceVgpuWorkloadHistoryLink).
 type openstackServer struct {
 	Name     string
 	TenantId string
@@ -664,8 +664,13 @@ type instanceLinkOpts struct {
 	VmName     string
 }
 
-// buildInstanceLinksViaOpenstack builds the links reported inline with each
-// attached instance. It deliberately carries no console link: creating a Nova
+// buildInstanceLinksViaOpenstack builds the two history links reported inline
+// with each attached instance, one per panel of the instance dashboard's vGPU
+// row. Both are pure string building from data already in hand, so they cost
+// nothing per instance and need no extra endpoint for the UI to call per row --
+// the same shape as the card-level pair.
+//
+// It deliberately carries no console link: creating a Nova
 // console is a write that mints a short-lived token, and doing it for every
 // instance on every GPU-list poll floods Nova with sessions that are almost
 // always discarded. The console is minted on demand via the dedicated
@@ -680,9 +685,10 @@ func buildInstanceLinksViaOpenstack(opts instanceLinkOpts) gpu.InstanceLinks {
 		return gpu.InstanceLinks{}
 	}
 
-	link := grafana.InstanceVgpuDashboardLink(opts.InstanceId, opts.TenantId, opts.VmName)
+	workload := grafana.InstanceVgpuWorkloadHistoryLink(opts.InstanceId, opts.TenantId, opts.VmName)
+	vram := grafana.InstanceVgpuVramHistoryLink(opts.InstanceId, opts.TenantId, opts.VmName)
 
-	return gpu.InstanceLinks{Grafana: &link}
+	return gpu.InstanceLinks{WorkloadHistory: &workload, VramHistory: &vram}
 }
 
 // getGpuInstanceConsole mints a Nova console for a single attached instance on

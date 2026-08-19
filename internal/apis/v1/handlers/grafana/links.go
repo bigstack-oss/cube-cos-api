@@ -19,8 +19,8 @@ func genHostLink(c *gin.Context) string {
 // InstanceDashboardLink is the Grafana instance dashboard URL for a VM, as
 // served by the generic /grafana/instances/{instanceId} endpoint. That endpoint
 // knows nothing but the id, so the link cannot pin the dashboard's tenant and
-// hostname variables; callers that do know them should use
-// InstanceVgpuDashboardLink instead.
+// hostname variables; callers that do know them should use the per-VM history
+// links below instead.
 func InstanceDashboardLink(instanceId string) string {
 	return fmt.Sprintf(
 		"https://%s/grafana/d/PVW6vU7Wz/instance?refresh=5m&kiosk=tv&orgId=1&var-UUID=%s",
@@ -29,14 +29,16 @@ func InstanceDashboardLink(instanceId string) string {
 	)
 }
 
-// instanceVgpuMemoryPanelId is the Memory Usage panel in the instance
-// dashboard's vGPU row (dashboard UID PVW6vU7Wz). Pinned here as a deep-link
-// target, so renumbering or reordering that row's panels in instance.json
-// breaks these links -- same cross-team contract as the device dashboard's
-// panels 50 and 51.
-const instanceVgpuMemoryPanelId = 37
+// The instance dashboard's vGPU panel ids (dashboard UID PVW6vU7Wz), pinned here
+// as deep-link targets: renumbering or reordering that row's panels in
+// instance.json breaks these links -- the same cross-team contract as the device
+// dashboard's panels 50 and 51.
+const (
+	instanceVgpuWorkloadPanelId = 36
+	instanceVgpuVramPanelId     = 37
+)
 
-// InstanceVgpuDashboardLink is the deep link to one VM's vGPU usage.
+// instanceVgpuHistoryLink is the deep link to one VM's vGPU usage.
 //
 // Pinning var-UUID alone is not enough. UUID is the tail of a
 // TID -> TENANT -> HOSTNAME -> UUID chain of query variables that all refresh on
@@ -47,10 +49,9 @@ const instanceVgpuMemoryPanelId = 37
 // the owning project; var-HOSTNAME pins the picker to this VM.
 //
 // viewPanel is required because the vGPU row ships collapsed: a link to the
-// dashboard alone lands on a page with no GPU chart visible. Memory is the panel
-// to open because it renders for every vGPU flavour, while GPU utilization is
-// empty for a MIG-backed vGPU by design.
-func InstanceVgpuDashboardLink(instanceId, tenantId, vmName string) string {
+// dashboard alone lands on a page with no GPU chart visible, so each link opens
+// the one panel it answers for.
+func instanceVgpuHistoryLink(instanceId, tenantId, vmName string, panelId int) string {
 	return fmt.Sprintf(
 		"https://%s/grafana/d/PVW6vU7Wz/instance?orgId=1&refresh=5m&var-TID=%s&var-HOSTNAME=%s&var-UUID=%s&from=now-3h&to=now&viewPanel=%d",
 		base.DataCenterVip,
@@ -58,8 +59,25 @@ func InstanceVgpuDashboardLink(instanceId, tenantId, vmName string) string {
 		// A VM name is user-supplied and may contain spaces or '&'.
 		url.QueryEscape(vmName),
 		url.QueryEscape(instanceId),
-		instanceVgpuMemoryPanelId,
+		panelId,
 	)
+}
+
+// InstanceVgpuWorkloadHistoryLink and InstanceVgpuVramHistoryLink are the
+// per-VM history links, exported for the GPU listing handler to report inline
+// with each attached instance. They mirror the card-level pair: the UI offers
+// them from one VM's row, so each has to answer for that VM.
+//
+// The workload panel is empty for a MIG-backed vGPU, whose hardware reports no
+// utilization at all -- the same "the panel exists, it just has no series" case
+// the card-level workload link already answers for on a MIG-enabled card. The
+// link says where to look; it does not promise a series.
+func InstanceVgpuWorkloadHistoryLink(instanceId, tenantId, vmName string) string {
+	return instanceVgpuHistoryLink(instanceId, tenantId, vmName, instanceVgpuWorkloadPanelId)
+}
+
+func InstanceVgpuVramHistoryLink(instanceId, tenantId, vmName string) string {
+	return instanceVgpuHistoryLink(instanceId, tenantId, vmName, instanceVgpuVramPanelId)
 }
 
 func genInstanceLink(c *gin.Context) string {
