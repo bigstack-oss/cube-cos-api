@@ -415,8 +415,31 @@ func GetNodeGpuById(nodeName, gpuId string) (gpu.GpuFromHex, error) {
 
 // UpdateNodeGpuCard sets a GPU's resource type via hex_config. Profiles, when
 // present, are passed as a single JSON-string positional argument.
+//
+// The timeout is deliberately far longer than the 30s used by the read-only
+// hex_sdk calls in this file, because this call *mutates hardware*. A resource
+// switch releases the card from vfio-pci, carves it (sriov-manage -e brings up
+// 48 VFs; a MIG-backed carve enables MIG mode and creates GPU instances),
+// rewrites /etc/nova/nova.d/gpu.conf and then restarts the nova services.
+// Measured on cn13 (RTX PRO 6000 Blackwell, 2026-08-20): pgpu -> sriovVgpu took
+// 37.7s and pgpu -> migBackedVgpu 30.4s, so 30s cut the first one off mid-flight
+// and left the second passing only by luck.
+//
+// What the old timeout actually cost is worse than a slow request: CommandContext
+// SIGKILLs hex_config on expiry, i.e. it kills a process partway through
+// repartitioning a GPU, with the hardware, /etc/cube/cos/gpu/config.json and
+// nova's config able to disagree afterwards. The point of the longer budget is to
+// let that sequence finish, not merely to return a 200.
+//
+// Note the caller may still not see the result: haproxy fronting this API is
+// configured with `timeout server 1m` and nginx's /cos-api/ location takes the
+// 60s proxy_read_timeout default, so a switch that runs past a minute is reported
+// to the client as a gateway timeout regardless of the value here - the work
+// still completes. Making the response honest needs the endpoint to go
+// asynchronous (return 202 and let the caller poll Status.IsProcessing, which
+// the ReqGpuCollection record already drives); that is a separate change.
 func UpdateNodeGpuCard(gpuId string, req gpu.UpdateGpuCardRequest) error {
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(180))
 	defer cancel()
 
 	args := []string{"gpu_resource_set", gpuId, string(req.ResourceType)}
