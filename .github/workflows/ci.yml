@@ -16,7 +16,7 @@ jobs:
         with:
           submodules: true
       - name: Generate API docs
-        uses: mikefarah/yq@1b9b4ac5187171d2e5e3129be0cfa827c7f9d53d # v4.53.3
+        uses: mikefarah/yq@c14f446382944492701b16c1ddb48bb9dbe683e3 # v4.53.6
         with:
           cmd: yq -o=json -I=4 api/cube-cos-openapi/docs.yaml > api/docs.json
       - name: Install Golang
@@ -34,7 +34,7 @@ jobs:
         with:
           submodules: true
       - name: Generate API docs
-        uses: mikefarah/yq@1b9b4ac5187171d2e5e3129be0cfa827c7f9d53d # v4.53.3
+        uses: mikefarah/yq@c14f446382944492701b16c1ddb48bb9dbe683e3 # v4.53.6
         with:
           cmd: yq -o=json -I=4 api/cube-cos-openapi/docs.yaml > api/docs.json
       - name: Install Golang
