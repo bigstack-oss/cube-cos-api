@@ -2,7 +2,6 @@ package cubecos
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -362,13 +361,25 @@ func checkLicenseErr(err error) error {
 }
 
 func parseLicenseDat(file string) (*licenses.License, error) {
-	err := unzipLicense(file)
+	work, err := os.MkdirTemp(filepath.Dir(file), "members")
+	if err != nil {
+		log.Errorf("licenses: failed to create work dir(%v)", err)
+		return nil, err
+	}
+
+	defer os.RemoveAll(work)
+	err = unzipLicense(file, work)
 	if err != nil {
 		return nil, err
 	}
 
-	dir, name := getLicenseDirAndName(file)
-	dat, err := os.Open(filepath.Join(dir, fmt.Sprintf("%s.dat", name)))
+	stem, err := licenseMemberStem(work)
+	if err != nil {
+		log.Errorf("licenses: %v(%s)", err, filepath.Base(file))
+		return nil, err
+	}
+
+	dat, err := os.Open(stem + ".dat")
 	if err != nil {
 		return nil, err
 	}
@@ -378,14 +389,13 @@ func parseLicenseDat(file string) (*licenses.License, error) {
 	setLicenseDat(dat, license)
 	setLicenseDatStatus(
 		license,
-		checkImportLicense(file, *license),
+		checkImportLicense(stem, *license),
 	)
 
 	return license, nil
 }
 
-func unzipLicense(license string) error {
-	dir, _ := getLicenseDirAndName(license)
+func unzipLicense(license string, dir string) error {
 	err := zip.DecompressFromTo(license, dir)
 	if err != nil {
 		log.Errorf("licenses: failed to unzip license(%v)", err)
@@ -395,14 +405,33 @@ func unzipLicense(license string) error {
 	return nil
 }
 
-func checkImportLicense(file string, license licenses.License) error {
-	dir, file := getLicenseDirAndName(file)
+// licenseMemberStem returns the shared path prefix of the archive's .dat/.sig
+// pair. The member names need not match the uploaded filename.
+func licenseMemberStem(dir string) (string, error) {
+	dats, err := filepath.Glob(filepath.Join(dir, "*.dat"))
+	if err != nil {
+		return "", err
+	}
+
+	for _, dat := range dats {
+		stem := strings.TrimSuffix(dat, ".dat")
+		_, err := os.Stat(stem + ".sig")
+		if err == nil {
+			return stem, nil
+		}
+	}
+
+	return "", errors.ErrLicenseMalformedArchive
+}
+
+// stem is the member path prefix; hex_config license_check appends .dat/.sig.
+func checkImportLicense(stem string, license licenses.License) error {
 	product := "def"
 	if license.Product.Name == licenses.CubeCMP {
 		product = "cmp"
 	}
 
-	_, err := exec.Command("hex_config", "license_check", product, filepath.Join(dir, file)).Output()
+	_, err := exec.Command("hex_config", "license_check", product, stem).Output()
 	return checkLicenseErr(err)
 }
 
