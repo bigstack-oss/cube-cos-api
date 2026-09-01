@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
+	"github.com/bigstack-oss/cube-cos-api/internal/upload"
 	log "go-micro.dev/v5/logger"
 	"gopkg.in/yaml.v3"
 )
@@ -15,7 +16,7 @@ func (h *helper) loadStorageModel() error {
 		return err
 	}
 
-	err = h.c.SaveUploadedFile(list, storages.TmpUploadedStorageModel)
+	err = upload.Save(list, storages.TmpUploadedStorageModel)
 	if err != nil {
 		log.Errorf("storages(%s): failed to save storage model(%v)", h.reqId, err)
 		return err
@@ -40,7 +41,7 @@ func (h *helper) loadStorageModelList() error {
 		return err
 	}
 
-	err = h.c.SaveUploadedFile(list, storages.TmpUploadedStorageModelList)
+	err = upload.Save(list, storages.TmpUploadedStorageModelList)
 	if err != nil {
 		log.Errorf("storages(%s): failed to save storage models(%v)", h.reqId, err)
 		return err
