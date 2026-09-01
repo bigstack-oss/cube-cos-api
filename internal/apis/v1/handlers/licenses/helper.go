@@ -11,6 +11,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
+	"github.com/bigstack-oss/cube-cos-api/internal/upload"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
 )
@@ -59,7 +60,7 @@ func (h *helper) storeVerifyLicense() (string, error) {
 		return "", err
 	}
 
-	err = h.c.SaveUploadedFile(license, filePath)
+	err = upload.Save(license, filePath)
 	if err != nil {
 		log.Errorf("licenses(%s): failed to save license file: %v", h.reqId, err)
 		return "", err
@@ -81,7 +82,7 @@ func (h *helper) storeImportLicense() (string, error) {
 		return "", err
 	}
 
-	err = h.c.SaveUploadedFile(license, filePath)
+	err = upload.Save(license, filePath)
 	if err != nil {
 		log.Errorf("licenses(%s): failed to save license file: %v", h.reqId, err)
 		return "", err

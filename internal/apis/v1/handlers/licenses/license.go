@@ -9,6 +9,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/licenses"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
+	"github.com/bigstack-oss/cube-cos-api/internal/upload"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -100,7 +101,7 @@ func (h *helper) importLocal(license *multipart.FileHeader) error {
 		return err
 	}
 
-	err = h.c.SaveUploadedFile(license, filePath)
+	err = upload.Save(license, filePath)
 	if err != nil {
 		log.Errorf("licenses(%s): failed to save license file: %v", h.reqId, err)
 		return err
