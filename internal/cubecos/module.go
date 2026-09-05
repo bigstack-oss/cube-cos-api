@@ -208,6 +208,18 @@ var (
 			},
 		},
 		{
+			// The metric persistence layer, kept separate from metrics (which is
+			// collection and visualisation). influxdb and kapacitor stay under
+			// notifications for now: kapacitor is a write proxy and alerting engine
+			// here, not only storage, so moving them is its own decision.
+			Name:     "metricsDb",
+			Category: "infrascope",
+			Modules: []services.Module{
+				{Name: "prometheus", IsRepairable: true},
+				{Name: "thanos", IsRepairable: true},
+			},
+		},
+		{
 			Name:     "logAnalytics",
 			Category: "infrascope",
 			Modules: []services.Module{
