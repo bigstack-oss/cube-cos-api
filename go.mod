@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.109.1
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.110.0
 	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20260130102442-288f9c049e55
 	github.com/blevesearch/bleve/v2 v2.6.1
 	github.com/coreos/go-oidc v2.5.0+incompatible
@@ -24,7 +24,7 @@ require (
 	github.com/micro/plugins/v5/wrapper/ratelimiter/uber v1.0.2
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/prometheus-community/pro-bing v0.9.1
-	github.com/shirou/gopsutil/v4 v4.26.7
+	github.com/shirou/gopsutil/v4 v4.26.8
 	github.com/stretchr/testify v1.12.1
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1
@@ -32,7 +32,7 @@ require (
 	github.com/xhit/go-str2duration v1.2.0
 	go-micro.dev/v5 v5.3.0
 	go.mongodb.org/mongo-driver v1.17.9
-	golang.org/x/crypto v0.55.0
+	golang.org/x/crypto v0.56.0
 	golang.org/x/sys v0.47.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.37.0
