@@ -442,7 +442,13 @@ func UpdateNodeGpuCard(gpuId string, req gpu.UpdateGpuCardRequest) error {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(180))
 	defer cancel()
 
-	args := []string{"gpu_resource_set", gpuId, string(req.ResourceType)}
+	// -e makes hex_config log to stderr as well as syslog. Without it a refusal
+	// is completely silent: gpu_resource_set exits 1 having written nothing to
+	// stdout or stderr, CombinedOutput captures an empty string, and what
+	// reaches the client is exec.ExitError's own text - the bare
+	// "exit status 1" the Web UI used to show (#1452) - while the actual reason
+	// sits in /var/log/hex_config.log on the node, reachable only by SSH.
+	args := []string{"-e", "gpu_resource_set", gpuId, string(req.ResourceType)}
 	if len(req.Profiles) > 0 {
 		profilesJson, err := json.Marshal(req.Profiles)
 		if err != nil {
@@ -454,7 +460,7 @@ func UpdateNodeGpuCard(gpuId string, req gpu.UpdateGpuCardRequest) error {
 	out, err := exec.CommandContext(ctx, "hex_config", args...).CombinedOutput()
 	if err != nil {
 		log.Errorf("nodes: failed to set gpu %s resource via hex_config: %v, output: %s", gpuId, err, string(out))
-		return err
+		return fmt.Errorf("hex_config gpu_resource_set failed: %s", HexErrorReason(out, err))
 	}
 
 	if !IsHexSuccessful(err) {

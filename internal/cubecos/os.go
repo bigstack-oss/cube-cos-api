@@ -58,6 +58,40 @@ func IsExpectedEmptyStdOut(err error) bool {
 	return exitErr.ExitCode() == 255
 }
 
+// HexErrorReason extracts the "Error: ..." lines from hex_config output taken
+// with -e, which is what turns a refusal into something a caller can act on.
+// Under -e hex_config writes its whole trace to stderr - the command it is
+// running, warnings, then the errors - and only the error lines answer why the
+// request was refused.
+//
+// Falls back to the raw output, then to the exec error, so the result is never
+// empty: without -e hex_config exits 1 having printed nothing at all, and a
+// caller that reported that would be back to showing "exit status 1".
+func HexErrorReason(out []byte, err error) string {
+	const marker = "Error: "
+
+	var reasons []string
+	for _, line := range strings.Split(string(out), "\n") {
+		if i := strings.Index(line, marker); i >= 0 {
+			if reason := strings.TrimSpace(line[i+len(marker):]); reason != "" {
+				reasons = append(reasons, reason)
+			}
+		}
+	}
+
+	if len(reasons) > 0 {
+		return strings.Join(reasons, "; ")
+	}
+	if trimmed := strings.TrimSpace(string(out)); trimmed != "" {
+		return trimmed
+	}
+	if err != nil {
+		return err.Error()
+	}
+
+	return "no reason reported"
+}
+
 func IsHexSuccessful(err error) bool {
 	if err == nil {
 		return true
