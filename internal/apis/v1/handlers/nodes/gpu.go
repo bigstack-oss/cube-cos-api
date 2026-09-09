@@ -220,10 +220,16 @@ func (h *helper) resolveVgpuInstances(hexGpusMap map[string]gpu.GpuFromHex) (map
 }
 
 func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCardOpts) (gpu.GpuCard, error) {
-	// All four stay nil unless nvidia-smi actually reported them: an absent
-	// device (pgpu bound to vfio-pci) has no stats, and a MIG-enabled card has
-	// no utilization. nil is reported as JSON null so a consumer can tell
-	// "cannot be measured" from a real 0.
+	// The three runtime figures stay nil unless nvidia-smi actually reported
+	// them: an absent device (pgpu bound to vfio-pci) has no stats, and a
+	// MIG-enabled card has no utilization. nil is reported as JSON null so a
+	// consumer can tell "cannot be measured" from a real 0.
+	//
+	// Total framebuffer is not a runtime figure - it is a property of the card -
+	// so it falls back to what hex recorded when the card was last readable
+	// (see the pgpu case below). Without that the Edit GPU Resource screen shows
+	// a pgpu's capacity as 0 and refuses to let the operator switch it to a vGPU
+	// type (#1424).
 	var memoryUsedMiB, memoryTotalMiB *int
 	var memoryUtilizationPercent, gpuUtilizationPercent *uint32
 	enr := &enrichment{}
@@ -259,6 +265,16 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCard
 		// not report it, so the card is reported without runtime stats or
 		// attached instances and its capacity is untrustworthy: flag it degraded.
 		enr.degrade("nvidiasmi: device %s not reported by nvidia-smi; reporting card as degraded", hexGpu.Id)
+	}
+
+	// A card nvidia-smi could not report still has a framebuffer, and hex knows
+	// what it is: measured while the card was last readable and kept in
+	// config.json. Filling it in is what lets the UI show a pgpu's capacity and
+	// offer a switch to a vGPU type; the runtime figures above stay nil, because
+	// unlike capacity they genuinely cannot be measured through a vfio binding.
+	if memoryTotalMiB == nil && hexGpu.TotalVramMiB != nil {
+		recorded := *hexGpu.TotalVramMiB
+		memoryTotalMiB = &recorded
 	}
 
 	hexProfilesMap := map[uint32]gpu.VgpuProfileFromHex{}

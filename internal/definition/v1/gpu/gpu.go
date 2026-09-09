@@ -35,6 +35,14 @@ type GpuFromHex struct {
 	SriovVgpuProfileCountLimit *int                  `json:"sriovVgpuProfileCountLimit"`
 	Status                     GpuStatus             `json:"status"`
 	Allocation                 *AllocationSummary    `json:"allocation"`
+
+	// TotalVramMiB is the card's framebuffer as hex knows it: measured from
+	// nvidia-smi when the card is visible, and otherwise the value recorded in
+	// config.json at carve time. It is what lets a pgpu - bound to vfio-pci and
+	// invisible to nvidia-smi - still report its capacity. nil when hex could
+	// not supply it, which for a pgpu means it was carved before the field
+	// existed.
+	TotalVramMiB *int `json:"totalVramMiB"`
 }
 
 type VgpuProfileCollectionFromHex struct {

@@ -1609,3 +1609,98 @@ func TestBuildLocalGpuCardReportsIsProcessing(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, card.Status.IsProcessing)
 }
+
+// A pgpu is bound to vfio-pci and invisible to nvidia-smi, so its framebuffer
+// cannot be measured on the read path. It is still a property of the card, and
+// hex reports what config.json recorded at carve time - without which the Edit
+// GPU Resource screen shows the card's capacity as 0 and will not let the
+// operator switch it to a vGPU type (#1424).
+func TestBuildLocalGpuCardReportsRecordedVramWhenNvidiaSmiCannotSeeTheCard(t *testing.T) {
+	restoreGpuSeams(t)
+
+	recordedVram := 97887
+	hexGpu := gpu.GpuFromHex{
+		Id:           "GPU-cccccccc-cccc-cccc-cccc-cccccccccccc",
+		Name:         "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+		Type:         gpu.ResourceTypePgpu,
+		SupportTypes: []gpu.SupportResourceType{gpu.SupportResourceTypePgpu},
+		PciAddress:   "00000001:04:00.0",
+		Status:       gpu.GpuStatusIdle,
+		Allocation:   &gpu.AllocationSummary{Current: 0, Total: 1},
+		TotalVramMiB: &recordedVram,
+	}
+
+	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
+		Servers:                map[string]openstackServer{},
+		NvidiaSmiDevices:       map[string]cubecos.NvidiaSmiDevice{}, // the card is not there
+		NvidiaSmiAvailable:     true,
+		VgpuInstancesAvailable: true,
+	})
+
+	require.NoError(t, err)
+	require.NotNil(t, card.Vram.TotalMiB)
+	require.Equal(t, recordedVram, *card.Vram.TotalMiB)
+
+	// Capacity is recoverable; the runtime figures are not, and reporting 0 for
+	// them would be indistinguishable from an idle card.
+	require.Nil(t, card.Vram.AllocatedMiB)
+	require.Nil(t, card.Vram.UtilizationPercent)
+	require.Nil(t, card.Gpu.UtilizationPercent)
+}
+
+// nvidia-smi wins when it can see the card: it is the live measurement, while
+// the recorded value is a snapshot from the last carve.
+func TestBuildLocalGpuCardPrefersNvidiaSmiVramOverTheRecordedValue(t *testing.T) {
+	restoreGpuSeams(t)
+
+	staleVram := 16384
+	hexGpu := gpu.GpuFromHex{
+		Id:           "GPU-dddddddd-dddd-dddd-dddd-dddddddddddd",
+		Name:         "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+		Type:         gpu.ResourceTypePgpu,
+		SupportTypes: []gpu.SupportResourceType{gpu.SupportResourceTypePgpu},
+		PciAddress:   "00000001:C8:00.0",
+		Status:       gpu.GpuStatusIdle,
+		Allocation:   &gpu.AllocationSummary{Current: 0, Total: 1},
+		TotalVramMiB: &staleVram,
+	}
+
+	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
+		Servers: map[string]openstackServer{},
+		NvidiaSmiDevices: map[string]cubecos.NvidiaSmiDevice{
+			hexGpu.Id: {UUID: hexGpu.Id, MemoryTotalMiB: 97887},
+		},
+		NvidiaSmiAvailable:     true,
+		VgpuInstancesAvailable: true,
+	})
+
+	require.NoError(t, err)
+	require.NotNil(t, card.Vram.TotalMiB)
+	require.Equal(t, 97887, *card.Vram.TotalMiB)
+}
+
+// Nothing to fall back to: a card carved before the field existed reports null,
+// which a consumer can tell apart from a real 0.
+func TestBuildLocalGpuCardLeavesVramNilWhenHexHasNoRecord(t *testing.T) {
+	restoreGpuSeams(t)
+
+	hexGpu := gpu.GpuFromHex{
+		Id:           "GPU-eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+		Name:         "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+		Type:         gpu.ResourceTypePgpu,
+		SupportTypes: []gpu.SupportResourceType{gpu.SupportResourceTypePgpu},
+		PciAddress:   "00000000:8C:00.0",
+		Status:       gpu.GpuStatusIdle,
+		Allocation:   &gpu.AllocationSummary{Current: 0, Total: 1},
+	}
+
+	card, err := (&helper{node: "node-1"}).buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
+		Servers:                map[string]openstackServer{},
+		NvidiaSmiDevices:       map[string]cubecos.NvidiaSmiDevice{},
+		NvidiaSmiAvailable:     true,
+		VgpuInstancesAvailable: true,
+	})
+
+	require.NoError(t, err)
+	require.Nil(t, card.Vram.TotalMiB)
+}
