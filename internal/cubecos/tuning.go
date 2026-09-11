@@ -102,6 +102,7 @@ const (
 	NovaLiveResizeMaxVcpus      = "nova.live.resize.max.vcpus"
 	NovaLiveResizeMaxMemoryMb   = "nova.live.resize.max.memory.mb"
 	NovaLiveResizeMigrateTmout  = "nova.live.resize.migrate.timeout"
+	NovaNestedVirtEnabled       = "nova.nested.virt.enabled"
 	NovaOvercommitCpuRatio      = "nova.overcommit.cpu.ratio"
 	NovaOvercommitDiskRatio     = "nova.overcommit.disk.ratio"
 	NovaOvercommitRamRatio      = "nova.overcommit.ram.ratio"
@@ -212,6 +213,8 @@ func setTuningToRoles() {
 	tuningToRoles[NovaLiveResizeMaxVcpus] = novaLiveResizeRoles
 	tuningToRoles[NovaLiveResizeMaxMemoryMb] = novaLiveResizeRoles
 	tuningToRoles[NovaLiveResizeMigrateTmout] = novaLiveResizeRoles
+	// Only applied in nova.conf's [libvirt] section.
+	tuningToRoles[NovaNestedVirtEnabled] = nodes.ComputeRoles
 	tuningToRoles[NovaOvercommitCpuRatio] = nodes.AllRoles
 	tuningToRoles[NovaOvercommitDiskRatio] = nodes.AllRoles
 	tuningToRoles[NovaOvercommitRamRatio] = nodes.AllRoles
