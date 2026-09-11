@@ -214,7 +214,7 @@ func (h *helper) genHostNetworkEgressHistoryStmt() string {
 
 func (h *helper) genVmsCpuUsageRankStmt() string {
 	query := influx.Query{}
-	return query.Bucket("monasca").
+	return query.Bucket("telegraf").
 		Range("start: -5m").
 		Filter(`fn: (r) => r._measurement == "vm.cpu.utilization_norm_perc" and r._field == "value"`).
 		Group(`columns: ["resource_id", "vm_name"]`).
@@ -228,7 +228,7 @@ func (h *helper) genVmsCpuUsageRankStmt() string {
 
 func (h *helper) genVmsMemoryRankStmt() string {
 	query := influx.Query{}
-	return query.Bucket("monasca").
+	return query.Bucket("telegraf").
 		Range("start: -5m").
 		Measurement("vm.mem.free_perc").
 		Filter(`fn: (r) => r._field == "value"`).
@@ -243,7 +243,7 @@ func (h *helper) genVmsMemoryRankStmt() string {
 
 func (h *helper) genVmsStorageIopsReadRankStmt() string {
 	query := influx.Query{}
-	return query.Bucket("monasca").
+	return query.Bucket("telegraf").
 		Range("start: -5m").
 		Measurement("vm.io.read_bytes_sec").
 		Filter(`fn: (r) => r._field == "value"`).
@@ -258,7 +258,7 @@ func (h *helper) genVmsStorageIopsReadRankStmt() string {
 
 func (h *helper) genVmsStorageIopsWriteRankStmt() string {
 	query := influx.Query{}
-	return query.Bucket("monasca").
+	return query.Bucket("telegraf").
 		Range("start: -5m").
 		Measurement("vm.io.write_bytes_sec").
 		Filter(`fn: (r) => r._field == "value"`).
@@ -273,7 +273,7 @@ func (h *helper) genVmsStorageIopsWriteRankStmt() string {
 
 func (h *helper) genVmsNetworkIngressRankStmt() string {
 	query := influx.Query{}
-	return query.Bucket("monasca").
+	return query.Bucket("telegraf").
 		Range("start: -5m").
 		Filter(`fn: (r) => r._measurement == "vm.net.in_bytes_sec" and r._field == "value"`).
 		Group(`columns: ["resource_id", "vm_name", "device"]`).
@@ -286,7 +286,7 @@ func (h *helper) genVmsNetworkIngressRankStmt() string {
 
 func (h *helper) genVmsNetworkEgressRankStmt() string {
 	query := influx.Query{}
-	return query.Bucket("monasca").
+	return query.Bucket("telegraf").
 		Range("start: -5m").
 		Filter(`fn: (r) => r._measurement == "vm.net.out_bytes_sec" and r._field == "value"`).
 		Group(`columns: ["resource_id", "vm_name", "device"]`).
