@@ -27,6 +27,7 @@ var (
 	ErrLicenseInvalidHardware       = errors.New("license's hardware serial is not matched with the current system")
 	ErrLicenseInvalidSignature      = errors.New("license's signature is invalid")
 	ErrLicenseSystemCompromised     = errors.New("license system is compromised")
+	ErrLicenseMalformedArchive      = errors.New("license archive holds no .dat/.sig pair")
 	ErrSdkExecutionFailure          = errors.New("sdk execution error")
 	ErrUnknownSettingType           = errors.New("unknown setting type")
 	ErrInvalidListenAddress         = errors.New("invalid listen address")
