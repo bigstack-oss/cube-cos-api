@@ -202,7 +202,6 @@ var (
 			Name:     "metrics",
 			Category: "infrascope",
 			Modules: []services.Module{
-				{Name: "monasca", IsRepairable: true},
 				{Name: "telegraf", IsRepairable: true},
 				{Name: "grafana", IsRepairable: true},
 			},

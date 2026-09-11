@@ -86,7 +86,6 @@ const (
 	ManilaVolumeType            = "manila.volume.type"
 	MasakariHostEvacuateAll     = "masakari.host.evacuate_all"
 	MasakariWaitPeriod          = "masakari.wait.period"
-	MonascaDebugEnabled         = "monasca.debug.enabled"
 	MysqlBackupCuratorRp        = "mysql.backup.curator.rp"
 	NetIfMtuName                = "net.if.mtu.<name>"
 	NetIpv4TcpSyncookies        = "net.ipv4.tcp_syncookies"
@@ -189,7 +188,6 @@ func setTuningToRoles() {
 	tuningToRoles[ManilaVolumeType] = nodes.AllRoles
 	tuningToRoles[MasakariHostEvacuateAll] = nodes.AllRoles
 	tuningToRoles[MasakariWaitPeriod] = nodes.ControlRoles
-	tuningToRoles[MonascaDebugEnabled] = nodes.AllRoles
 	tuningToRoles[MysqlBackupCuratorRp] = nodes.AllRoles
 	tuningToRoles[NetIfMtuName] = nodes.AllRoles
 	tuningToRoles[NetIpv4TcpSyncookies] = nodes.AllRoles

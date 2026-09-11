@@ -135,7 +135,7 @@ var (
 	`
 
 	vmCpuUsageHistoryStmt = `
-		from(bucket: "monasca")
+		from(bucket: "telegraf")
 			|> range(start: -1h)
 			|> filter(fn: (r) =>
 				r._measurement == "vm.cpu.utilization_norm_perc" and
@@ -145,7 +145,7 @@ var (
 	`
 
 	vmMemoryUsageHistoryStmt = `
-		from(bucket: "monasca")
+		from(bucket: "telegraf")
             |> range(start: -1h)
             |> filter(fn: (r) => 
                 r._measurement == "vm.mem.free_perc" and
@@ -158,7 +158,7 @@ var (
 	`
 
 	vmStorageIopsReadHistoryStmt = `
-		from(bucket: "monasca")
+		from(bucket: "telegraf")
 			|> range(start: -1h)
 			|> filter(fn: (r) =>
 				r._measurement == "vm.io.read_bytes_sec" and
@@ -169,7 +169,7 @@ var (
 	`
 
 	vmStorageIopsWriteHistoryStmt = `
-		from(bucket: "monasca")
+		from(bucket: "telegraf")
 			|> range(start: -1h)
 			|> filter(fn: (r) =>
 				r._measurement == "vm.io.write_bytes_sec" and
@@ -180,7 +180,7 @@ var (
 	`
 
 	vmNetworkIngressHistoryStmt = `
-		from(bucket: "monasca")
+		from(bucket: "telegraf")
 			|> range(start: -1h)
 			|> filter(fn: (r) =>
 				r._measurement == "vm.net.in_bytes_sec" and
@@ -192,7 +192,7 @@ var (
 	`
 
 	vmNetworkEgressHistoryStmt = `
-		from(bucket: "monasca")
+		from(bucket: "telegraf")
 			|> range(start: -1h)
 			|> filter(fn: (r) => 
 				r._measurement == "vm.net.out_bytes_sec" and
