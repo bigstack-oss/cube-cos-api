@@ -32,11 +32,16 @@ func restoreGpuSeams(t *testing.T) {
 	origIsGpuUpdating := isGpuUpdating
 	origUpsertUpdatingGpuReq := upsertUpdatingGpuReq
 	origDeleteUpdatingGpuReq := deleteUpdatingGpuReq
+	origGetNodeDeviceProfilesMap := getNodeDeviceProfilesMap
 
 	// Defaults that avoid MongoDB in tests that build/list cards.
 	isGpuUpdating = func(h *helper, gpuId string) bool { return false }
 	upsertUpdatingGpuReq = func(h *helper, gpuId string) error { return nil }
 	deleteUpdatingGpuReq = func(h *helper, gpuId string) error { return nil }
+
+	// Without this, any test that lists a node holding a pgpu card would shell
+	// out to a real hex_sdk.
+	getNodeDeviceProfilesMap = func() (map[string]*string, error) { return map[string]*string{}, nil }
 
 	t.Cleanup(func() {
 		getNodeGpusMap = origGetNodeGpusMap
@@ -53,6 +58,7 @@ func restoreGpuSeams(t *testing.T) {
 		isGpuUpdating = origIsGpuUpdating
 		upsertUpdatingGpuReq = origUpsertUpdatingGpuReq
 		deleteUpdatingGpuReq = origDeleteUpdatingGpuReq
+		getNodeDeviceProfilesMap = origGetNodeDeviceProfilesMap
 	})
 }
 
@@ -1093,6 +1099,123 @@ func TestResolveVgpuInstances(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, 1, calls)
 		require.Equal(t, "vm-9", instances["0000:01:00.0"][0].VmUUID)
+	})
+}
+
+func TestResolveDeviceProfiles(t *testing.T) {
+	restoreGpuSeams(t)
+
+	t.Run("makes no Openstack call when the node has no pgpu card", func(t *testing.T) {
+		called := false
+		getNodeDeviceProfilesMap = func() (map[string]*string, error) {
+			called = true
+			return nil, nil
+		}
+
+		profiles := (&helper{node: "node-1"}).resolveDeviceProfiles(map[string]gpu.GpuFromHex{
+			"0000:01:00.0": {Id: "GPU-a", Type: gpu.ResourceTypeSriovVgpu},
+			"0000:02:00.0": {Id: "GPU-b", Type: gpu.ResourceTypeMigBackedVgpu},
+		})
+
+		require.False(t, called)
+		require.Empty(t, profiles)
+	})
+
+	t.Run("fetches once for a node with pgpu cards", func(t *testing.T) {
+		calls := 0
+		name := "rtx_a2000_1"
+		getNodeDeviceProfilesMap = func() (map[string]*string, error) {
+			calls++
+			return map[string]*string{"GPU-a": &name, "GPU-b": nil}, nil
+		}
+
+		profiles := (&helper{node: "node-1"}).resolveDeviceProfiles(map[string]gpu.GpuFromHex{
+			"0000:01:00.0": {Id: "GPU-a", Type: gpu.ResourceTypePgpu},
+			"0000:02:00.0": {Id: "GPU-b", Type: gpu.ResourceTypePgpu},
+		})
+
+		require.Equal(t, 1, calls)
+		require.Equal(t, "rtx_a2000_1", *profiles["GPU-a"])
+		require.Nil(t, profiles["GPU-b"])
+	})
+
+	t.Run("a lookup failure yields nil rather than failing the listing", func(t *testing.T) {
+		getNodeDeviceProfilesMap = func() (map[string]*string, error) {
+			return nil, errors.New("cyborg unreachable")
+		}
+
+		profiles := (&helper{node: "node-1"}).resolveDeviceProfiles(map[string]gpu.GpuFromHex{
+			"0000:01:00.0": {Id: "GPU-a", Type: gpu.ResourceTypePgpu},
+		})
+
+		require.Nil(t, profiles)
+	})
+}
+
+func TestBuildLocalGpuCardReportsDeviceProfile(t *testing.T) {
+	restoreGpuSeams(t)
+
+	buildGpuCardLinks = func(node, pciAddress string) gpu.GpuCardLinks { return gpu.GpuCardLinks{} }
+
+	name := "rtx_a2000_1"
+	pgpu := gpu.GpuFromHex{Id: "GPU-a", Type: gpu.ResourceTypePgpu, PciAddress: "0000:01:00.0"}
+
+	t.Run("a pgpu card reports its profile", func(t *testing.T) {
+		card, err := (&helper{node: "node-1"}).buildLocalGpuCard(pgpu, buildLocalGpuCardOpts{
+			NvidiaSmiAvailable: true,
+			DeviceProfiles:     map[string]*string{"GPU-a": &name},
+		})
+
+		require.NoError(t, err)
+		require.NotNil(t, card.DeviceProfile)
+		require.Equal(t, "rtx_a2000_1", *card.DeviceProfile)
+	})
+
+	t.Run("a pgpu card whose profile does not exist yet reports nil", func(t *testing.T) {
+		card, err := (&helper{node: "node-1"}).buildLocalGpuCard(pgpu, buildLocalGpuCardOpts{
+			NvidiaSmiAvailable: true,
+			DeviceProfiles:     map[string]*string{"GPU-a": nil},
+		})
+
+		require.NoError(t, err)
+		require.Nil(t, card.DeviceProfile)
+	})
+
+	t.Run("a failed lookup reports nil and does not change Degraded", func(t *testing.T) {
+		// Degraded means the card's capacity numbers cannot be trusted. A
+		// missing profile name is not that, so it must not move the flag
+		// either way. Compared against the same card built with a profile
+		// rather than asserted as false outright: this card degrades for
+		// unrelated reasons here (no nvidia-smi, no profile fetch), and
+		// pinning the absolute value would test those instead of this.
+		withProfile, err := (&helper{node: "node-1"}).buildLocalGpuCard(pgpu, buildLocalGpuCardOpts{
+			NvidiaSmiAvailable: true,
+			DeviceProfiles:     map[string]*string{"GPU-a": &name},
+		})
+		require.NoError(t, err)
+
+		lookupFailed, err := (&helper{node: "node-1"}).buildLocalGpuCard(pgpu, buildLocalGpuCardOpts{
+			NvidiaSmiAvailable: true,
+			DeviceProfiles:     nil,
+		})
+		require.NoError(t, err)
+
+		require.Nil(t, lookupFailed.DeviceProfile)
+		require.Equal(t, withProfile.Degraded, lookupFailed.Degraded)
+	})
+
+	t.Run("a vgpu card never reports one", func(t *testing.T) {
+		// Even if the map somehow carried an entry for it: only pgpu is
+		// scheduled through a device profile.
+		vgpu := gpu.GpuFromHex{Id: "GPU-a", Type: gpu.ResourceTypeSriovVgpu, PciAddress: "0000:01:00.0"}
+
+		card, err := (&helper{node: "node-1"}).buildLocalGpuCard(vgpu, buildLocalGpuCardOpts{
+			NvidiaSmiAvailable: true,
+			DeviceProfiles:     map[string]*string{"GPU-a": &name},
+		})
+
+		require.NoError(t, err)
+		require.Nil(t, card.DeviceProfile)
 	})
 }
 

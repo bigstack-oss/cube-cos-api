@@ -413,6 +413,48 @@ func GetNodeGpuById(nodeName, gpuId string) (gpu.GpuFromHex, error) {
 	return gpu.GpuFromHex{}, fmt.Errorf("gpu %s not found on node %s: %w", gpuId, nodeName, gpu.ErrGpuNotFound)
 }
 
+// GetNodeDeviceProfilesMap returns the Cyborg device profile name of every
+// pgpu card on this node, keyed by GPU id. A pgpu card that has no profile yet
+// maps to nil.
+//
+// One call for the whole node rather than one per card: hex_sdk answers it with
+// a single Openstack round trip, which costs over a second on a real node, and
+// a per-card loop would multiply that by the number of pgpu cards on every
+// listing. A node with no pgpu card makes no Openstack call at all.
+//
+// An error here means "could not tell", never "no profiles" -- hex_sdk fails
+// rather than reporting an empty answer when Cyborg is unreachable, and callers
+// must keep that distinction instead of reporting every card as having none.
+func GetNodeDeviceProfilesMap() (map[string]*string, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
+	defer cancel()
+
+	profiles := map[string]*string{}
+
+	// Output rather than CombinedOutput, for the same reason as
+	// getNodeVgpuProfileCollection: a diagnostic on stderr would be prepended
+	// to the JSON and break the unmarshal. stderr still reaches the log below
+	// through ExitError.
+	out, err := exec.CommandContext(ctx, "hex_sdk", "gpu_device_profile_map").Output()
+	if err != nil {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) && len(exitErr.Stderr) > 0 {
+			log.Errorf("nodes: failed to list gpu device profiles: %v: %s", err, exitErr.Stderr)
+		} else {
+			log.Errorf("nodes: failed to list gpu device profiles: %v", err)
+		}
+
+		return nil, err
+	}
+
+	if err := json.Unmarshal(out, &profiles); err != nil {
+		log.Errorf("nodes: failed to parse gpu device profiles from hex_sdk: %v", err)
+		return nil, err
+	}
+
+	return profiles, nil
+}
+
 // UpdateNodeGpuCard sets a GPU's resource type via hex_config. Profiles, when
 // present, are passed as a single JSON-string positional argument.
 //

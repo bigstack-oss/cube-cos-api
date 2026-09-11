@@ -106,8 +106,17 @@ type GpuCard struct {
 	SriovVgpuProfileCountLimit *int                  `json:"sriovVgpuProfileCountLimit"`
 	Profiles                   GpuProfileCollection  `json:"profiles"`
 	AttachedInstances          *[]AttachedInstance   `json:"attachedInstances"`
-	Links                      GpuCardLinks          `json:"links"`
-	Status                     GpuStatusInfo         `json:"status"`
+	// DeviceProfile is the Cyborg device profile that a flavor's
+	// accel:device_profile must name in order to be scheduled onto this card.
+	// Only a pgpu card has one -- sriovVgpu and migBackedVgpu cards are
+	// scheduled through the PCI alias already reported per profile -- so it is
+	// nil on every other resource type, and nil on a pgpu card whose profile
+	// has not been created yet (or could not be looked up). It is never an
+	// empty string: a name is only worth reporting if it resolves, since one
+	// that does not exist sends the operator to NoValidHost with no clue why.
+	DeviceProfile *string       `json:"deviceProfile"`
+	Links         GpuCardLinks  `json:"links"`
+	Status        GpuStatusInfo `json:"status"`
 	// Degraded is true when runtime enrichment that this card should have
 	// had (stats, attached instances) could not be obtained, so its capacity
 	// numbers are not trustworthy. Consumers such as schedulers should not

@@ -36,6 +36,7 @@ var (
 	getOpenstackServers         = getOpenstackServersViaHelper
 	createConsole               = createConsoleViaOpenstack
 	getNodeGpuById              = cubecos.GetNodeGpuById
+	getNodeDeviceProfilesMap    = cubecos.GetNodeDeviceProfilesMap
 	updateNodeGpuCardViaHex     = cubecos.UpdateNodeGpuCard
 	isGpuUpdating               = isGpuUpdatingViaMongo
 	upsertUpdatingGpuReq        = upsertUpdatingGpuReqViaMongo
@@ -64,6 +65,11 @@ type buildLocalGpuCardOpts struct {
 	// is a normal, expected outcome even when NvidiaSmiAvailable is true.
 	NvidiaSmiDevices   map[string]cubecos.NvidiaSmiDevice
 	NvidiaSmiAvailable bool
+	// DeviceProfiles maps a pgpu card's GPU id to its Cyborg device profile,
+	// prefetched once per request. A nil map means the lookup failed; an entry
+	// present but nil means that card has no profile yet. Both are reported the
+	// same way to the client (null), because neither is a name it could use.
+	DeviceProfiles map[string]*string
 	// VgpuInstances/VgpuInstancesAvailable come from one `nvidia-smi vgpu -q`
 	// call already filtered to this card's PCI address.
 	VgpuInstances          []cubecos.NvidiaSmiVgpuInstance
@@ -140,6 +146,8 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 		nvidiaSmiDevices = map[string]cubecos.NvidiaSmiDevice{}
 	}
 
+	deviceProfiles := h.resolveDeviceProfiles(hexGpusMap)
+
 	vgpuInstancesByPci, vgpuErr := h.resolveVgpuInstances(hexGpusMap)
 	if vgpuErr != nil {
 		log.Errorf("gpu(%s): failed to query vgpu instances on node %s: %v; vgpu attached instances will be reported as degraded", h.reqId, h.node, vgpuErr)
@@ -158,6 +166,7 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 			NvidiaSmiAvailable:     nvidiaSmiErr == nil,
 			VgpuInstances:          vgpuInstancesByPci[hexGpu.PciAddress],
 			VgpuInstancesAvailable: vgpuErr == nil,
+			DeviceProfiles:         deviceProfiles,
 		})
 		if err != nil {
 			return nil, err
@@ -172,6 +181,41 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 	h.warnGpusMissingFromHex(hexGpusMap, nvidiaSmiDevices, nvidiaSmiErr == nil)
 
 	return gpuCards, nil
+}
+
+// resolveDeviceProfiles prefetches the Cyborg device profile of every pgpu card
+// on the node, keyed by GPU id.
+//
+// Skipped entirely when the node has no pgpu card: that is the only resource
+// type with a device profile -- sriovVgpu and migBackedVgpu are scheduled
+// through the PCI alias each profile already carries -- and the lookup costs an
+// Openstack round trip.
+//
+// A failure returns nil rather than failing the listing, and deliberately does
+// not mark cards degraded. Degraded means a card's capacity numbers cannot be
+// trusted; a missing profile name means one convenience string is unavailable,
+// which is not a reason to hide the card or to tell a scheduler its capacity is
+// suspect.
+func (h *helper) resolveDeviceProfiles(hexGpusMap map[string]gpu.GpuFromHex) map[string]*string {
+	hasPgpu := false
+	for _, hexGpu := range hexGpusMap {
+		if hexGpu.Type == gpu.ResourceTypePgpu {
+			hasPgpu = true
+			break
+		}
+	}
+
+	if !hasPgpu {
+		return map[string]*string{}
+	}
+
+	profiles, err := getNodeDeviceProfilesMap()
+	if err != nil {
+		log.Errorf("gpu(%s): failed to look up gpu device profiles on node %s: %v; pgpu cards will be reported without one", h.reqId, h.node, err)
+		return nil
+	}
+
+	return profiles
 }
 
 // resolveServers prefetches the Openstack servers (id -> name + owning project)
@@ -341,6 +385,14 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCard
 
 	profileCollection := toProfileCollection(hexProfileCollection, attachedInstances)
 
+	// Only a pgpu card has a device profile. Indexing a nil map (the lookup
+	// failed) yields nil, which is the same answer as "not created yet" -- the
+	// client cannot use either, and the failure is already in the log.
+	var deviceProfile *string
+	if hexGpu.Type == gpu.ResourceTypePgpu {
+		deviceProfile = opts.DeviceProfiles[hexGpu.Id]
+	}
+
 	gpuCard := gpu.GpuCard{
 		Id:                   hexGpu.Id,
 		Name:                 hexGpu.Name,
@@ -363,6 +415,7 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCard
 		SriovVgpuProfileCountLimit: hexGpu.SriovVgpuProfileCountLimit,
 		Profiles:                   profileCollection,
 		AttachedInstances:          attachedInstances,
+		DeviceProfile:              deviceProfile,
 		Links:                      buildGpuCardLinks(h.node, hexGpu.PciAddress),
 		Degraded:                   enr.degraded,
 	}
