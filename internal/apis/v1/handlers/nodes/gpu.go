@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"sync"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
@@ -153,26 +154,55 @@ func (h *helper) listLocalGpuCards() ([]gpu.GpuCard, error) {
 		log.Errorf("gpu(%s): failed to query vgpu instances on node %s: %v; vgpu attached instances will be reported as degraded", h.reqId, h.node, vgpuErr)
 	}
 
-	gpuCards := []gpu.GpuCard{}
-
 	// Iterate over hex GPUs instead of nvidia-smi devices: a GPU passed
 	// through to a VM is invisible to nvidia-smi, but must still be reported.
-	for _, pciAddress := range slices.Sorted(maps.Keys(hexGpusMap)) {
-		hexGpu := hexGpusMap[pciAddress]
+	//
+	// Built concurrently, one goroutine per card. Each card still costs one
+	// `hex_sdk gpu_vgpu_profile_list`, and that cost is hex_sdk's own startup
+	// (fork + sourcing every module), not the query -- so four cards ran four
+	// startups back to back. Measured on a four-card node: 12.58s serial,
+	// 4.11s concurrent, with the responses byte-for-byte identical.
+	//
+	// Everything the builds share is either prefetched above and read-only
+	// from here (Servers, NvidiaSmiDevices, VgpuInstances already sliced per
+	// card) or per-card state created inside buildLocalGpuCard. The hex_sdk
+	// call itself writes only its own mktemp file.
+	//
+	// Results are written back by index into a fixed-length slice, not
+	// appended: the order is the sorted PCI address order above, and the UI
+	// renders cards in the order it receives them. Appending as goroutines
+	// finish would reorder the cards on every request.
+	addresses := slices.Sorted(maps.Keys(hexGpusMap))
+	gpuCards := make([]gpu.GpuCard, len(addresses))
+	errs := make([]error, len(addresses))
 
-		gpuCard, err := h.buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
-			Servers:                serversById,
-			NvidiaSmiDevices:       nvidiaSmiDevices,
-			NvidiaSmiAvailable:     nvidiaSmiErr == nil,
-			VgpuInstances:          vgpuInstancesByPci[hexGpu.PciAddress],
-			VgpuInstancesAvailable: vgpuErr == nil,
-			DeviceProfiles:         deviceProfiles,
-		})
+	var wg sync.WaitGroup
+	for i, pciAddress := range addresses {
+		wg.Add(1)
+
+		go func(i int, hexGpu gpu.GpuFromHex) {
+			defer wg.Done()
+
+			gpuCards[i], errs[i] = h.buildLocalGpuCard(hexGpu, buildLocalGpuCardOpts{
+				Servers:                serversById,
+				NvidiaSmiDevices:       nvidiaSmiDevices,
+				NvidiaSmiAvailable:     nvidiaSmiErr == nil,
+				VgpuInstances:          vgpuInstancesByPci[hexGpu.PciAddress],
+				VgpuInstancesAvailable: vgpuErr == nil,
+				DeviceProfiles:         deviceProfiles,
+			})
+		}(i, hexGpusMap[pciAddress])
+	}
+
+	wg.Wait()
+
+	// Same contract as the serial loop: one card failing to build fails the
+	// listing. A card that merely lacks enrichment is not an error -- it comes
+	// back with Degraded set, which stays per card.
+	for _, err := range errs {
 		if err != nil {
 			return nil, err
 		}
-
-		gpuCards = append(gpuCards, gpuCard)
 	}
 
 	// Hex is the source of truth for the response, but a GPU visible to

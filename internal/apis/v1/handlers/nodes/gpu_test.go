@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
@@ -1100,6 +1101,83 @@ func TestResolveVgpuInstances(t *testing.T) {
 		require.Equal(t, 1, calls)
 		require.Equal(t, "vm-9", instances["0000:01:00.0"][0].VmUUID)
 	})
+}
+
+func TestListLocalGpuCardsKeepsPciOrderWhenBuiltConcurrently(t *testing.T) {
+	restoreGpuSeams(t)
+
+	// The cards are built one goroutine each, so the order of the response is
+	// whatever the write-back does -- not the order the builds finish in. The
+	// UI renders cards in the order it receives them, so a response that
+	// reorders between requests makes the list jump around.
+	addresses := []string{
+		"00000001:c8:00.0",
+		"00000000:42:00.0",
+		"00000001:04:00.0",
+		"00000000:8c:00.0",
+	}
+
+	getNodeGpusMap = func(nodeName string) (map[string]gpu.GpuFromHex, error) {
+		gpus := map[string]gpu.GpuFromHex{}
+		for i, addr := range addresses {
+			gpus[addr] = gpu.GpuFromHex{
+				Id:         fmt.Sprintf("GPU-%d", i),
+				PciAddress: addr,
+				Type:       gpu.ResourceTypePgpu,
+			}
+		}
+		return gpus, nil
+	}
+	getNvidiaSmiDevices = func() (map[string]cubecos.NvidiaSmiDevice, error) {
+		return map[string]cubecos.NvidiaSmiDevice{}, nil
+	}
+	buildGpuCardLinks = func(node, pciAddress string) gpu.GpuCardLinks { return gpu.GpuCardLinks{} }
+
+	// Repeated because a wrong write-back (append from goroutines) would only
+	// reorder some of the time.
+	for range 20 {
+		cards, err := (&helper{node: "node-1"}).listLocalGpuCards()
+		require.NoError(t, err)
+		require.Len(t, cards, len(addresses))
+
+		got := make([]string, 0, len(cards))
+		for _, card := range cards {
+			got = append(got, card.PciAddress)
+		}
+
+		require.Equal(t, []string{
+			"00000000:42:00.0",
+			"00000000:8c:00.0",
+			"00000001:04:00.0",
+			"00000001:c8:00.0",
+		}, got, "cards must come back in sorted PCI address order")
+	}
+}
+
+func TestListLocalGpuCardsFailsWhenOneCardFailsToBuild(t *testing.T) {
+	restoreGpuSeams(t)
+
+	// Building cards concurrently must not change the contract: one card
+	// failing to build still fails the whole listing rather than silently
+	// returning a short list.
+	//
+	// An unhandled resource type is what actually makes a build fail -- a
+	// failed hex or Openstack lookup only degrades the card.
+	getNodeGpusMap = func(nodeName string) (map[string]gpu.GpuFromHex, error) {
+		return map[string]gpu.GpuFromHex{
+			"0000:01:00.0": {Id: "GPU-ok", PciAddress: "0000:01:00.0", Type: gpu.ResourceTypePgpu},
+			"0000:02:00.0": {Id: "GPU-bad", PciAddress: "0000:02:00.0", Type: gpu.ResourceType("someFutureType")},
+		}, nil
+	}
+	getNvidiaSmiDevices = func() (map[string]cubecos.NvidiaSmiDevice, error) {
+		return map[string]cubecos.NvidiaSmiDevice{}, nil
+	}
+	buildGpuCardLinks = func(node, pciAddress string) gpu.GpuCardLinks { return gpu.GpuCardLinks{} }
+
+	cards, err := (&helper{node: "node-1"}).listLocalGpuCards()
+
+	require.Error(t, err)
+	require.Nil(t, cards)
 }
 
 func TestResolveDeviceProfiles(t *testing.T) {
