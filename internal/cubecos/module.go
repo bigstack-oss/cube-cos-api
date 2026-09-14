@@ -24,6 +24,7 @@ var (
 			Modules: []services.Module{
 				{Name: "bootstrap", IsRepairable: false},
 				{Name: "license", IsRepairable: false},
+				{Name: "advisor", IsRepairable: true},
 			},
 		},
 		{
