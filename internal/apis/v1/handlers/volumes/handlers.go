@@ -177,22 +177,14 @@ func moveVolume(c *gin.Context) {
 		return
 	}
 
-	pf, err := h.runMovePreflight()
+	md, err := h.runMoveVolume()
 	if err != nil {
-		log.Errorf("volumes(%s): failed to run move preflight(%v)", h.reqId, err)
+		log.Errorf("volumes(%s): failed to run move volume(%v)", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
 		return
 	}
 
-	if !pf.OK {
-		respondMovePreflight(c, pf)
-		return
-	}
-
-	bodies.SetAccepted(
-		c,
-		"the volume move request is accepted and dispatching",
-	)
+	respondMoveDispatch(c, md)
 }
 
 // respondMovePreflight maps a preflight result to its HTTP status and returns
@@ -206,5 +198,26 @@ func respondMovePreflight(c *gin.Context, pf *cubecos.MovePreflight) {
 		bodies.SetBadRequest(c, errors.New(pf.Reason), pf)
 	default:
 		bodies.SetConflictWithData(c, errors.New(pf.Reason), pf)
+	}
+}
+
+// respondMoveDispatch maps a cinder_move_volume result to its HTTP status. A
+// refusal maps exactly as the preflight does and carries every blocker; a
+// dispatch failure (E_DISPATCH_FAILED) is a server-side failure, not a client
+// mistake; a successful dispatch stays 202 Accepted.
+func respondMoveDispatch(c *gin.Context, md *cubecos.MoveDispatch) {
+	status := cubecos.MoveDispatchStatus(md.Code)
+	switch status {
+	case http.StatusAccepted:
+		bodies.SetAccepted(
+			c,
+			"the volume move request is accepted and dispatching",
+		)
+	case http.StatusBadRequest:
+		bodies.SetBadRequest(c, errors.New(md.Reason), md)
+	case http.StatusInternalServerError:
+		bodies.SetInternalServerError(c, errors.New(md.Reason))
+	default:
+		bodies.SetConflictWithData(c, errors.New(md.Reason), md)
 	}
 }

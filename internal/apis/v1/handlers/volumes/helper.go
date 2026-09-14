@@ -62,6 +62,10 @@ func (h *helper) runMovePreflight() (*cubecos.MovePreflight, error) {
 	return cubecos.RunMovePreflight(h.volumeId, h.destType)
 }
 
+func (h *helper) runMoveVolume() (*cubecos.MoveDispatch, error) {
+	return cubecos.RunMoveVolume(h.volumeId, h.destType)
+}
+
 func (h *helper) listVolumesAsCsv() (*csv.Writer, error) {
 	list, err := h.listVolumes()
 	if err != nil {
