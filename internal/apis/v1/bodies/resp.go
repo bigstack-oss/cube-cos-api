@@ -192,6 +192,21 @@ func SetConflict(c *gin.Context, err error) {
 	)
 }
 
+// SetConflictWithData behaves like SetConflict but also attaches data, for
+// callers that must return structured detail beyond the message.
+func SetConflictWithData(c *gin.Context, err error, data any) {
+	resp := gin.H{Code: http.StatusConflict, Status: "status conflict", Msg: err.Error()}
+	if data != nil {
+		resp[Data] = data
+	}
+
+	writeJson(
+		c,
+		http.StatusConflict,
+		resp,
+	)
+}
+
 func SetTooManyRequests(c *gin.Context, err error) {
 	writeJson(
 		c,

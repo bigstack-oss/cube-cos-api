@@ -27,6 +27,10 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseConvertImageParams()
 	case "updateImageConvertionTask":
 		return h.parseUpdateImageConvertionTask()
+	case "getVolumeMovePreflight":
+		return h.parseMovePreflightParams()
+	case "moveVolume":
+		return h.parseMoveParams()
 	default:
 		return nil
 	}
@@ -60,6 +64,34 @@ func (h *helper) parseConvertImageParams() error {
 
 func (h *helper) parseUpdateImageConvertionTask() error {
 	return h.c.ShouldBindJSON(&h.imageReqOpts)
+}
+
+func (h *helper) parseMovePreflightParams() error {
+	h.volumeId = h.c.Param("volumeId")
+	h.destType = h.c.DefaultQuery("destType", "")
+	if h.destType == "" {
+		return fmt.Errorf("destType parameter is required")
+	}
+
+	return nil
+}
+
+func (h *helper) parseMoveParams() error {
+	h.volumeId = h.c.Param("volumeId")
+
+	var body struct {
+		DestType string `json:"destType"`
+	}
+	if err := h.c.ShouldBindJSON(&body); err != nil {
+		return err
+	}
+
+	h.destType = body.DestType
+	if h.destType == "" {
+		return fmt.Errorf("destType parameter is required")
+	}
+
+	return nil
 }
 
 func (h *helper) parsePage() error {

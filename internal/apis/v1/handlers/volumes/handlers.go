@@ -1,10 +1,12 @@
 package volumes
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/nodes"
 	"github.com/gin-gonic/gin"
 	log "go-micro.dev/v5/logger"
@@ -35,6 +37,18 @@ var (
 			Method:  http.MethodPatch,
 			Path:    "/volumes/images/tasks",
 			Func:    updateImageConvertionTask,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/volumes/:volumeId/move-preflight",
+			Func:    getVolumeMovePreflight,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/volumes/:volumeId/move",
+			Func:    moveVolume,
 		},
 	}
 )
@@ -135,4 +149,62 @@ func updateImageConvertionTask(c *gin.Context) {
 		"volume task is updated successfully",
 		nil,
 	)
+}
+
+func getVolumeMovePreflight(c *gin.Context) {
+	h, err := initHelper(c, "getVolumeMovePreflight")
+	if err != nil {
+		log.Errorf("volumes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	pf, err := h.runMovePreflight()
+	if err != nil {
+		log.Errorf("volumes(%s): failed to run move preflight(%v)", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	respondMovePreflight(c, pf)
+}
+
+func moveVolume(c *gin.Context) {
+	h, err := initHelper(c, "moveVolume")
+	if err != nil {
+		log.Errorf("volumes(%s): failed to init helper(%v)", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
+	pf, err := h.runMovePreflight()
+	if err != nil {
+		log.Errorf("volumes(%s): failed to run move preflight(%v)", h.reqId, err)
+		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	if !pf.OK {
+		respondMovePreflight(c, pf)
+		return
+	}
+
+	bodies.SetAccepted(
+		c,
+		"the volume move request is accepted and dispatching",
+	)
+}
+
+// respondMovePreflight maps a preflight result to its HTTP status and returns
+// the full result, including every blocker, as the response data.
+func respondMovePreflight(c *gin.Context, pf *cubecos.MovePreflight) {
+	status := cubecos.MovePreflightStatus(pf.Code)
+	switch status {
+	case http.StatusOK:
+		bodies.SetOk(c, pf.Reason, pf)
+	case http.StatusBadRequest:
+		bodies.SetBadRequest(c, errors.New(pf.Reason), pf)
+	default:
+		bodies.SetConflictWithData(c, errors.New(pf.Reason), pf)
+	}
 }
