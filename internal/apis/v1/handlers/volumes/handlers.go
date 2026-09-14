@@ -1,6 +1,7 @@
 package volumes
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -162,6 +163,10 @@ func getVolumeMovePreflight(c *gin.Context) {
 	pf, err := h.runMovePreflight()
 	if err != nil {
 		log.Errorf("volumes(%s): failed to run move preflight(%v)", h.reqId, err)
+		if errors.Is(err, context.DeadlineExceeded) {
+			bodies.SetGatewayTimeout(c, err)
+			return
+		}
 		bodies.SetInternalServerError(c, err)
 		return
 	}
@@ -180,6 +185,12 @@ func moveVolume(c *gin.Context) {
 	md, err := h.runMoveVolume()
 	if err != nil {
 		log.Errorf("volumes(%s): failed to run move volume(%v)", h.reqId, err)
+		if errors.Is(err, context.DeadlineExceeded) {
+			// The retype may already be running on the cluster; say the move
+			// could not be confirmed rather than that it failed.
+			bodies.SetGatewayTimeout(c, err)
+			return
+		}
 		bodies.SetInternalServerError(c, err)
 		return
 	}

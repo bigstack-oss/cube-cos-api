@@ -66,9 +66,25 @@ func TestMoveDispatchGoldenSamples(t *testing.T) {
 			wantStatus: 202,
 		},
 		{
+			// The reason is asserted, not just the status: this sample is the
+			// shell's ERROR_CINDER_MOVE_DISPATCH_FAILED verbatim, and a
+			// sample that merely looks plausible pins nothing.
 			name:       "dispatch failure",
-			json:       `{"ok":false,"code":"E_DISPATCH_FAILED","reason":"cinder retype command failed"}`,
+			json:       `{"ok":false,"code":"E_DISPATCH_FAILED","reason":"retype command failed"}`,
 			wantStatus: 500,
+			check: func(t *testing.T, md *MoveDispatch) {
+				if md.Reason != "retype command failed" {
+					t.Errorf("Reason = %q, want %q", md.Reason, "retype command failed")
+				}
+			},
+		},
+		{
+			// A refusal code the Go side does not know by name must still be
+			// refused, never fall through as a success.
+			name: "an unresolvable backend is a refusal",
+			json: `{"ok":false,"code":"E_BACKEND_UNRESOLVED",` +
+				`"reason":"the ceph cluster and pool behind one of the tiers cannot be determined"}`,
+			wantStatus: 409,
 		},
 		{
 			name: "refusal carries every blocker and every preflight field",

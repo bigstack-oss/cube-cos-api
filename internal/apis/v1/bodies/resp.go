@@ -219,6 +219,21 @@ func SetTooManyRequests(c *gin.Context, err error) {
 	)
 }
 
+// SetGatewayTimeout reports that an upstream this API shells out to did not
+// answer in time. It is not a client mistake and not an internal fault, so it
+// is neither 400 nor 500: the work may well still be running.
+func SetGatewayTimeout(c *gin.Context, err error) {
+	writeJson(
+		c,
+		http.StatusGatewayTimeout,
+		gin.H{
+			Code:   http.StatusGatewayTimeout,
+			Status: "gateway timeout",
+			Msg:    err.Error(),
+		},
+	)
+}
+
 func SetInternalServerError(c *gin.Context, err error) {
 	writeJson(
 		c,

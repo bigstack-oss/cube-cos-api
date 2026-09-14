@@ -1,9 +1,20 @@
 package cubecos
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"os/exec"
+
+	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 )
+
+// moveShellTimeout bounds both hex_sdk shell-outs. cinder_move_preflight is
+// the slow one: a `ceph fsid` per tier at 20s each, a `cubectl node exec` at
+// 30s, and a handful of openstack calls each capped by $SRVTO. Five minutes
+// sits comfortably above that worst case while still freeing the HTTP
+// handler rather than tying up the request indefinitely.
+const moveShellTimeout = 5
 
 type MoveBlocker struct {
 	Code   string `json:"code"`
@@ -56,7 +67,13 @@ func MovePreflightStatus(code string) int {
 // non-zero on refusal, so non-empty stdout is authoritative over the exit
 // status.
 func RunMovePreflight(volumeID, destType string) (*MovePreflight, error) {
-	out, err := exec.Command("hex_sdk", "cinder_move_preflight", volumeID, destType).Output()
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(moveShellTimeout))
+	defer cancel()
+
+	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_move_preflight", volumeID, destType).Output()
+	if ctxErr := ctx.Err(); ctxErr != nil {
+		return nil, fmt.Errorf("cinder_move_preflight did not finish within %d minutes: %w", moveShellTimeout, ctxErr)
+	}
 	if len(out) == 0 && err != nil {
 		return nil, err
 	}
@@ -121,7 +138,13 @@ func MoveDispatchStatus(code string) int {
 // non-zero on the first two, so non-empty stdout is authoritative over the
 // exit status, exactly as with the preflight.
 func RunMoveVolume(volumeID, destType string) (*MoveDispatch, error) {
-	out, err := exec.Command("hex_sdk", "cinder_move_volume", volumeID, destType).Output()
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(moveShellTimeout))
+	defer cancel()
+
+	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_move_volume", volumeID, destType).Output()
+	if ctxErr := ctx.Err(); ctxErr != nil {
+		return nil, fmt.Errorf("cinder_move_volume did not finish within %d minutes: %w", moveShellTimeout, ctxErr)
+	}
 	if len(out) == 0 && err != nil {
 		return nil, err
 	}
