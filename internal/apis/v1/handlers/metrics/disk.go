@@ -84,6 +84,30 @@ func (h *helper) getDiskIopsHistory() (any, error) {
 	}
 }
 
+func (h *helper) getStorageUsage() (any, error) {
+	switch h.viewType {
+	case "rank":
+		return h.getStorageUsageRank()
+	default:
+		return nil, fmt.Errorf(
+			"invalid view type(%s) to get storage usage metrics",
+			h.viewType,
+		)
+	}
+}
+
+func (h *helper) getStorageUsageRank() (any, error) {
+	switch h.entityType {
+	case "vms":
+		return cubecos.GetVmsStorageUsageRank(h.genVmsStorageUsageRankStmt())
+	default:
+		return nil, fmt.Errorf(
+			"invalid entity type(%s) to get storage usage rank",
+			h.entityType,
+		)
+	}
+}
+
 func (h *helper) getDiskReadIops() (any, error) {
 	switch h.viewType {
 	case "rank":
