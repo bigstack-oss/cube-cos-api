@@ -55,6 +55,8 @@ func (h *helper) getMetrics() (any, error) {
 		return h.getDiskWriteIops()
 	case "diskLatency":
 		return h.getDiskLatency()
+	case "storageUsage":
+		return h.getStorageUsage()
 	case "networkTrafficIn":
 		return h.getNetworkIngressTraffic()
 	case "networkTrafficOut":
