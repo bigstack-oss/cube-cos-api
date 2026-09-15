@@ -6,6 +6,7 @@ import (
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/pages"
 	"github.com/gin-gonic/gin"
@@ -25,6 +26,9 @@ type helper struct {
 	page    *pages.Page
 	keyword string
 	watch   bool
+
+	volumeId string
+	destType string
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
@@ -52,6 +56,14 @@ func (h *helper) listVolumes() (*volumePage, error) {
 		Volumes: h.paginateVolumes(volumes),
 		Page:    h.genPageInfo(volumes),
 	}, nil
+}
+
+func (h *helper) runMovePreflight() (*cubecos.MovePreflight, error) {
+	return cubecos.RunMovePreflight(h.volumeId, h.destType)
+}
+
+func (h *helper) runMoveVolume() (*cubecos.MoveDispatch, error) {
+	return cubecos.RunMoveVolume(h.volumeId, h.destType)
 }
 
 func (h *helper) listVolumesAsCsv() (*csv.Writer, error) {

@@ -192,6 +192,21 @@ func SetConflict(c *gin.Context, err error) {
 	)
 }
 
+// SetConflictWithData behaves like SetConflict but also attaches data, for
+// callers that must return structured detail beyond the message.
+func SetConflictWithData(c *gin.Context, err error, data any) {
+	resp := gin.H{Code: http.StatusConflict, Status: "status conflict", Msg: err.Error()}
+	if data != nil {
+		resp[Data] = data
+	}
+
+	writeJson(
+		c,
+		http.StatusConflict,
+		resp,
+	)
+}
+
 func SetTooManyRequests(c *gin.Context, err error) {
 	writeJson(
 		c,
@@ -199,6 +214,21 @@ func SetTooManyRequests(c *gin.Context, err error) {
 		gin.H{
 			Code:   http.StatusTooManyRequests,
 			Status: "too many requests",
+			Msg:    err.Error(),
+		},
+	)
+}
+
+// SetGatewayTimeout reports that an upstream this API shells out to did not
+// answer in time. It is not a client mistake and not an internal fault, so it
+// is neither 400 nor 500: the work may well still be running.
+func SetGatewayTimeout(c *gin.Context, err error) {
+	writeJson(
+		c,
+		http.StatusGatewayTimeout,
+		gin.H{
+			Code:   http.StatusGatewayTimeout,
+			Status: "gateway timeout",
 			Msg:    err.Error(),
 		},
 	)
