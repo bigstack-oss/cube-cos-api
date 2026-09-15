@@ -27,7 +27,10 @@ type MovePreflight struct {
 	Reason string `json:"reason"`
 	// Blockers carries every reason the move cannot proceed; Code/Reason
 	// repeat the first so single-line callers stay simple.
-	Blockers   []MoveBlocker `json:"blockers"`
+	Blockers []MoveBlocker `json:"blockers"`
+	// Warnings are advisory: they never make OK false. A move that only
+	// warns is still allowed to proceed.
+	Warnings   []MoveBlocker `json:"warnings"`
 	SrcType    string        `json:"srcType"`
 	DstType    string        `json:"dstType"`
 	SizeGb     int           `json:"sizeGb"`
@@ -42,6 +45,7 @@ type rawMovePreflight struct {
 	Code       string        `json:"code"`
 	Reason     string        `json:"reason"`
 	Blockers   []MoveBlocker `json:"blockers"`
+	Warnings   []MoveBlocker `json:"warnings"`
 	SrcType    string        `json:"src_type"`
 	DstType    string        `json:"dst_type"`
 	SizeGb     int           `json:"size_gb"`
@@ -95,7 +99,10 @@ type MoveDispatch struct {
 	Reason string `json:"reason"`
 	// Blockers carries every reason the move cannot proceed; Code/Reason
 	// repeat the first so single-line callers stay simple.
-	Blockers   []MoveBlocker `json:"blockers"`
+	Blockers []MoveBlocker `json:"blockers"`
+	// Warnings are advisory: they never make OK false. A move that only
+	// warns is still allowed to proceed.
+	Warnings   []MoveBlocker `json:"warnings"`
 	SrcType    string        `json:"srcType"`
 	DstType    string        `json:"dstType"`
 	SizeGb     int           `json:"sizeGb"`
@@ -110,6 +117,7 @@ type rawMoveDispatch struct {
 	Code       string        `json:"code"`
 	Reason     string        `json:"reason"`
 	Blockers   []MoveBlocker `json:"blockers"`
+	Warnings   []MoveBlocker `json:"warnings"`
 	SrcType    string        `json:"src_type"`
 	DstType    string        `json:"dst_type"`
 	SizeGb     int           `json:"size_gb"`
