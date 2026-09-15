@@ -46,7 +46,7 @@ var (
 	ErrSlackChannelNameIsEmpty      = errors.New("slack channel name is empty")
 	ErrSessionIndexNotFound         = errors.New("session index not found in jwt session")
 	ErrAuthMethodCannotGetUserInfo  = errors.New("authed method not support to fetch user info")
-	ErrMetricTypeInvalid            = errors.New("metricType should be cpuUsage, memoryUsage, diskUsage, diskBandwidth, diskIops, diskLatency, diskReadIops, diskWriteIops, networkTrafficIn, or networkTrafficOut")
+	ErrMetricTypeInvalid            = errors.New("metricType should be cpuUsage, memoryUsage, diskUsage, storageUsage, diskBandwidth, diskIops, diskLatency, diskReadIops, diskWriteIops, networkTrafficIn, or networkTrafficOut")
 	ErrViewTypeInvalid              = errors.New("viewType should be summary, history, or rank")
 	ErrEntityTypeInvalid            = errors.New("entityType should be hosts or vms")
 	ErrLimitInvalid                 = errors.New("limit should be an integer and greater than 0")

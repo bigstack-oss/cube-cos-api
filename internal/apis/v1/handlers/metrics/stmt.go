@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/influx"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 )
 
 func (h *helper) genHostsCpuSummaryStmt() string {
@@ -268,6 +269,27 @@ func (h *helper) genVmsStorageIopsWriteRankStmt() string {
 		Top(fmt.Sprintf(`n: %d, columns: ["_value"]`, h.rank.head)).
 		Rename(`columns: {_value: "used"}`).
 		Keep(`columns: ["resource_id", "vm_name", "device", "used"]`).
+		String()
+}
+
+// telegraf, not monasca: the per-instance database moved in cubecos#672 phase 3.
+// A VM has several disks, so the per-disk last() values are summed per instance
+// before ranking -- ranking the raw points would rank disks, not VMs.
+// The window follows storage.usage.interval, which is tunable up to a day.
+func (h *helper) genVmsStorageUsageRankStmt() string {
+	query := influx.Query{}
+	return query.Bucket("telegraf").
+		Range(fmt.Sprintf("start: -%dm", cubecos.StorageUsageRankMinutes())).
+		Measurement("storage_usage_guest").
+		Filter(`fn: (r) => r._field == "guest_used_bytes" or r._field == "guest_total_bytes"`).
+		Group(`columns: ["resource_id", "vm_name", "_field"]`).
+		Last().
+		Group(`columns: []`).
+		Pivot(`rowKey: ["resource_id", "vm_name"], columnKey: ["_field"], valueColumn: "_value"`).
+		Filter(`fn: (r) => r.guest_total_bytes > 0`).
+		Map(`fn: (r) => ({ r with used: 100.0 * float(v: r.guest_used_bytes) / float(v: r.guest_total_bytes) })`).
+		Top(fmt.Sprintf(`n: %d, columns: ["used"]`, h.rank.head)).
+		Keep(`columns: ["resource_id", "vm_name", "used"]`).
 		String()
 }
 
