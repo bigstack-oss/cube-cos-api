@@ -4,13 +4,13 @@ go 1.26.0
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.113.0
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.113.1
 	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20260130102442-288f9c049e55
 	github.com/blevesearch/bleve/v2 v2.6.1
 	github.com/coreos/go-oidc v2.5.0+incompatible
 	github.com/creack/pty v1.1.24
 	github.com/crewjam/saml v0.5.1
-	github.com/dustin/go-humanize v1.0.1
+	github.com/dustin/go-humanize v1.1.0
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-micro/plugins/v5/config/encoder/yaml v1.0.0
