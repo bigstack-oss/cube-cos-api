@@ -32,6 +32,7 @@ var (
 		"cpuUsage":          true,
 		"memoryUsage":       true,
 		"diskUsage":         true,
+		"storageUsage":      true,
 		"diskBandwidth":     true,
 		"diskIops":          true,
 		"diskReadIops":      true,
@@ -202,6 +203,21 @@ var (
 			)
 			|> map(fn: (r) => ({ r with _value: r._value * 8.0 }))
 	`
+	vmStorageUsageHistoryStmt = `
+		from(bucket: "telegraf")
+			|> range(start: -1h)
+			|> filter(fn: (r) =>
+				r._measurement == "storage_usage_guest" and
+				r.resource_id == "%s" and
+				(r._field == "guest_used_bytes" or r._field == "guest_total_bytes")
+			)
+			|> aggregateWindow(every: 5m, fn: last, createEmpty: false)
+			|> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+			|> filter(fn: (r) => r.guest_total_bytes > 0)
+			|> map(fn: (r) => ({ r with _value: 100.0 * float(v: r.guest_used_bytes) / float(v: r.guest_total_bytes) }))
+			|> sort(columns: ["_time"])
+	`
+
 )
 
 func IsValidMetricType(t string) bool {
@@ -787,6 +803,99 @@ func GetVmsDiskReadIopsRank(stmt string) (*metric.Rank, error) {
 	appendHistoryToVmDiskReadIopsRank(rank)
 	return &metric.Rank{
 		Unit: "ops",
+		Rank: rank,
+	}, nil
+}
+
+// Byte counters are written as integers, so influx hands them back as int64
+// unless a stage in the query already forced them to float.
+func recordValueFloat(v interface{}) (float64, bool) {
+	switch n := v.(type) {
+	case float64:
+		return n, true
+	case int64:
+		return float64(n), true
+	default:
+		return 0, false
+	}
+}
+
+func GetVmStorageUsageHistory(entityId string) ([]metric.TimeValue, error) {
+	stmt := fmt.Sprintf(vmStorageUsageHistoryStmt, entityId)
+	c, cancel, err := influx.GetQueryCursor(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer cancel()
+	defer c.Close()
+	return parseVmStorageUsageHistory(c)
+}
+
+func parseVmStorageUsageHistory(c *api.QueryTableResult) ([]metric.TimeValue, error) {
+	points := []metric.TimeValue{}
+	for c.Next() {
+		date, err := ostime.Parse(metric.TimeLayout, c.Record().Time().String())
+		if err != nil {
+			continue
+		}
+
+		used, ok := recordValueFloat(c.Record().Value())
+		if !ok {
+			continue
+		}
+
+		points = append(
+			points,
+			metric.TimeValue{
+				Time:  time.LocalRFC3339(date),
+				Value: math.RoundDown(used, 4),
+			},
+		)
+	}
+
+	return points, nil
+}
+
+// The rank points always carry a history slice, never nil: the dashboard maps
+// over it directly.
+func appendHistoryToVmStorageUsageRank(rank []metric.RankPoint) {
+	for i, vm := range rank {
+		history, err := GetVmStorageUsageHistory(vm.Id)
+		if err != nil {
+			log.Errorf("metrics: failed to get storage usage history of vm %s: %v", vm.Id, err)
+			rank[i].History = []metric.TimeValue{}
+			continue
+		}
+
+		rank[i].History = history
+	}
+}
+
+func GetVmsStorageUsageRank(stmt string) (*metric.Rank, error) {
+	c, cancel, err := influx.GetQueryCursor(stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	defer cancel()
+	defer c.Close()
+	rank := []metric.RankPoint{}
+	for c.Next() {
+		rank = append(rank, metric.RankPoint{
+			Id:    parseResourceId(c.Record()),
+			Name:  parseVmName(c.Record()),
+			Value: parseVmStorageUsed(c.Record()),
+		})
+	}
+	if c.Err() != nil {
+		return nil, c.Err()
+	}
+
+	appendHistoryToVmStorageUsageRank(rank)
+
+	return &metric.Rank{
+		Unit: "percentage",
 		Rank: rank,
 	}, nil
 }
@@ -1729,7 +1838,7 @@ func parseVmCpuUsed(record *query.FluxRecord) float64 {
 }
 
 func parseVmStorageUsed(record *query.FluxRecord) float64 {
-	used, ok := record.ValueByKey("used").(float64)
+	used, ok := recordValueFloat(record.ValueByKey("used"))
 	if !ok {
 		return 0
 	}
