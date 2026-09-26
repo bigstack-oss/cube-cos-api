@@ -1,6 +1,8 @@
 package images
 
 import (
+	"slices"
+
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
@@ -9,6 +11,13 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/projects"
 	log "go-micro.dev/v5/logger"
 )
+
+// hiddenServiceDomains are Keystone domains CubeCOS creates for its own
+// services (heat holds Heat's stack users and projects), not for tenants.
+// They are left out of the domain choices, as sdk_os.sh does for the CLI.
+var hiddenServiceDomains = []string{
+	"heat",
+}
 
 func (h *helper) listProjects() ([]Project, error) {
 	openstack := openstack.GetGlobalHelper()
@@ -39,14 +48,20 @@ func (h *helper) listDomains() ([]string, error) {
 		return nil, err
 	}
 
-	domains := []string{}
+	return visibleDomainNames(opsDomains), nil
+}
+
+func visibleDomainNames(opsDomains []domains.Domain) []string {
+	names := []string{}
 	for _, opsDomain := range opsDomains {
-		domains = append(
-			domains, opsDomain.Name,
-		)
+		if slices.Contains(hiddenServiceDomains, opsDomain.Name) {
+			continue
+		}
+
+		names = append(names, opsDomain.Name)
 	}
 
-	return domains, nil
+	return names
 }
 
 func (h *helper) listDestinations() ([]destination, error) {
