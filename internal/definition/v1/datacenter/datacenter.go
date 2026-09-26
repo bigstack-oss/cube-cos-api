@@ -39,3 +39,7 @@ func GetAllowRoles() []string {
 
 	return []string{}
 }
+
+func GetRegisteredRoles() []string {
+	return nodes.GetRegisteredRoles(GetAllowRoles(), nodes.List())
+}

@@ -23,14 +23,15 @@ func getClusterFirmwareVersion() string {
 func getLocalDataCenter() base.DataCenter {
 	version := getClusterFirmwareVersion()
 	return base.DataCenter{
-		Type:        datacenter.GetType(),
-		Roles:       datacenter.GetAllowRoles(),
-		Name:        base.DataCenterName,
-		Version:     version,
-		VirtualIp:   base.DataCenterVip,
-		IsLocal:     true,
-		IsHaEnabled: base.IsHaEnabled,
-		UtcTimeZone: time.LocalZone,
+		Type:            datacenter.GetType(),
+		Roles:           datacenter.GetAllowRoles(),
+		RegisteredRoles: datacenter.GetRegisteredRoles(),
+		Name:            base.DataCenterName,
+		Version:         version,
+		VirtualIp:       base.DataCenterVip,
+		IsLocal:         true,
+		IsHaEnabled:     base.IsHaEnabled,
+		UtcTimeZone:     time.LocalZone,
 		Firmware: base.Firmware{
 			Version:   version,
 			UpdatedAt: base.ActiveFirmwareUpdatedAt,
