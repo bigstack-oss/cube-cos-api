@@ -190,6 +190,20 @@ func GetEdgeRoles() []string {
 	return edgeRoles
 }
 
+// GetRegisteredRoles keeps the roles in candidates that at least one of nodes
+// holds, in candidates' order. It reads the node registry, not metrics, so a
+// node missing its metrics still keeps its role listed.
+func GetRegisteredRoles(candidates []string, nodes []Node) []string {
+	registered := []string{}
+	for _, role := range candidates {
+		if slices.ContainsFunc(nodes, func(n Node) bool { return n.Role == role }) {
+			registered = append(registered, role)
+		}
+	}
+
+	return registered
+}
+
 func GetNodesByRole(role string) ([]Node, error) {
 	svcs, err := GetDiscoveredServices()
 	if err != nil {

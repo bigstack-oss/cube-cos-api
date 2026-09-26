@@ -8,18 +8,19 @@ const (
 )
 
 type DataCenter struct {
-	Type        string   `json:"type"`
-	Id          string   `json:"id,omitempty"`
-	Name        string   `json:"name"`
-	Roles       []string `json:"roles"`
-	Version     string   `json:"version"`
-	VirtualIp   string   `json:"virtualIp"`
-	IsLocal     bool     `json:"isLocal"`
-	IsHaEnabled bool     `json:"isHaEnabled"`
-	UtcTimeZone string   `json:"utcTimeZone,omitempty"`
-	Firmware    `json:"firmware"`
-	Fixpack     `json:"fixpack"`
-	Additional  `json:"additional"`
+	Type            string   `json:"type"`
+	Id              string   `json:"id,omitempty"`
+	Name            string   `json:"name"`
+	Roles           []string `json:"roles"`
+	RegisteredRoles []string `json:"registeredRoles"`
+	Version         string   `json:"version"`
+	VirtualIp       string   `json:"virtualIp"`
+	IsLocal         bool     `json:"isLocal"`
+	IsHaEnabled     bool     `json:"isHaEnabled"`
+	UtcTimeZone     string   `json:"utcTimeZone,omitempty"`
+	Firmware        `json:"firmware"`
+	Fixpack         `json:"fixpack"`
+	Additional      `json:"additional"`
 }
 
 type Additional struct {
