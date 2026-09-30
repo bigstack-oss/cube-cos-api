@@ -13,9 +13,9 @@ import (
 	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/ssh"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	"github.com/google/uuid"
@@ -218,6 +218,7 @@ func InstallFixpack(req *fixpacks.ReqOpts) error {
 	return nil
 }
 
+// Per-node: only this node's marker; each node runs its own install.
 func syncRebootingMarker(req *fixpacks.ReqOpts) {
 	fixpack, found := GetFixpackRawByVersion(req.Version)
 	if !found {
@@ -229,21 +230,29 @@ func syncRebootingMarker(req *fixpacks.ReqOpts) {
 		return
 	}
 
-	_, err := os.Create(fixpacks.NeedRebootMarker)
-	if err != nil {
-		log.Errorf("fixpack: failed to create need reboot marker(%v)", err)
+	if !slices.Contains(parseRebootTargetNodes(fixpack.RebootRequired), base.Hostname) {
 		return
 	}
 
-	for _, node := range parseRebootTargetNodes(fixpack.RebootRequired) {
-		err := ssh.SyncRemoteFile(node, fixpacks.NeedRebootMarker, fixpacks.NeedRebootMarker)
-		if err != nil {
-			log.Errorf("fixpack: failed to sync rebooting marker to node %s(%v)", node, err)
-		}
+	_, err := os.Create(fixpacks.NeedRebootMarker)
+	if err != nil {
+		log.Errorf("fixpack: failed to create need reboot marker(%v)", err)
 	}
 }
 
 func RollbackFixpack(req *fixpacks.ReqOpts) error {
+	// rollback removes the latest fixpack; refuse if that isn't req.Version
+	top, err := GetFixpackRollbackTop()
+	if err != nil {
+		return err
+	}
+
+	if !strings.EqualFold(top, req.Version) {
+		err := fmt.Errorf("latest fixpack on %s is %q, not %s", base.Hostname, top, req.Version)
+		log.Errorf("fixpack: %v", err)
+		return err
+	}
+
 	out, err := exec.Command("hex_fixpack_install", "-u").CombinedOutput()
 	if err != nil {
 		err := fmt.Errorf("failed to execute the fixpack rollback cmd(%v %s)", err, string(out))

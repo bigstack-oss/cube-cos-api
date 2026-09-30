@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
@@ -12,6 +13,8 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	log "go-micro.dev/v5/logger"
 )
+
+var validFixpackVersion = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
 
 func (h *helper) parseParamsByHandler() error {
 	switch h.handler {
@@ -41,6 +44,8 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseDeleteParams()
 	case "updateFixpackTask":
 		return h.parseUpdateFixpackTaskParams()
+	case "listNodeFixpackStatus":
+		return h.parseNodeStatusParams()
 	default:
 		return nil
 	}
@@ -171,6 +176,13 @@ func (h *helper) parseUpdateInterruptedParams() error {
 		return fmt.Errorf("nodeName parameter is required")
 	}
 
+	// the node's request record says which fixpack it was working on
+	record, err := h.getNodeReqRecord(h.reqOpts.Hostname)
+	if err != nil {
+		return fmt.Errorf("no fixpack operation found on %s", h.reqOpts.Hostname)
+	}
+	h.reqOpts.Version = record.Version
+
 	return h.parseListParams()
 }
 
@@ -191,7 +203,28 @@ func (h *helper) parseRollbackParams() error {
 		return err
 	}
 
+	// optional body: {"nodes": [...]}
+	if h.c.Request.ContentLength > 0 {
+		body := fixpacks.ReqOpts{}
+		err := h.c.ShouldBindJSON(&body)
+		if err != nil {
+			log.Errorf("fixpacks(%s): failed to bind JSON for rollback parameters (%v)", h.reqId, err)
+			return err
+		}
+
+		h.reqOpts.Nodes = body.Nodes
+	}
+
 	h.reqOpts.SetRollingBack()
+	return nil
+}
+
+func (h *helper) parseNodeStatusParams() error {
+	h.reqOpts.Version = h.c.DefaultQuery("version", "")
+	if h.reqOpts.Version != "" && !validFixpackVersion.MatchString(h.reqOpts.Version) {
+		return fmt.Errorf("invalid fixpack version %s", h.reqOpts.Version)
+	}
+
 	return nil
 }
 

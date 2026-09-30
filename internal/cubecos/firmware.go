@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 	ostime "time"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
@@ -123,8 +124,25 @@ func GetRollStatus() (*firmwares.RollStatus, error) {
 
 // GetRoll reads the raw roll job. Returns nil when no roll has ever been run.
 func GetRoll() (*firmwares.Roll, error) {
-	out, err := os.ReadFile(firmwares.RollJob)
+	return getRollFrom(firmwares.RollJob, cephfsDir)
+}
+
+// cephfsDir holds the roll job; a var so tests can point it elsewhere.
+var cephfsDir = "/mnt/cephfs"
+
+const cephSuperMagic = 0x00c36400
+
+// A missing job means "no roll" only while cephfs is mounted; otherwise the
+// local record may be the previous firmware's.
+func getRollFrom(job string, cephfs string) (*firmwares.Roll, error) {
+	out, err := os.ReadFile(job)
 	if os.IsNotExist(err) {
+		if !isCephfsMounted(cephfs) {
+			err := fmt.Errorf("roll state unavailable: %s is not mounted", cephfs)
+			log.Errorf("firmwares: %v", err)
+			return nil, err
+		}
+
 		return nil, nil
 	}
 	if err != nil {
@@ -475,4 +493,10 @@ func convertFirmwareVersion(version, date string) string {
 
 func convertReleaseNotes(version, variant, date string) string {
 	return fmt.Sprintf("The CubeCOS %s(%s) firmware release since %s", version, variant, date)
+}
+
+func isCephfsMounted(dir string) bool {
+	fs := syscall.Statfs_t{}
+	err := syscall.Statfs(dir, &fs)
+	return err == nil && int64(fs.Type) == cephSuperMagic
 }

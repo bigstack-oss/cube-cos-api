@@ -31,6 +31,8 @@ type ReqOpts struct {
 	Version  string         `json:"version" bson:"version"`
 	Path     string         `json:"path" bson:"path"`
 	Status   status.Fixpack `json:"status" bson:"status"`
+	// Nodes to operate on; empty means the default targets for the operation.
+	Nodes []string `json:"nodes,omitempty" bson:"-"`
 }
 
 type Raw struct {

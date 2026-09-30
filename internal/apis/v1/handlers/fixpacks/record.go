@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -199,11 +198,12 @@ func (h *helper) changeNodeFixpackStatus(status string) error {
 	)
 }
 
+// deleteReqRecord drops this node's record only; other nodes keep theirs.
 func (h *helper) deleteReqRecord() error {
 	err := h.mongo.DeleteAll(
 		fixpacks.Db,
 		fixpacks.ReqCollection,
-		bson.M{"version": h.reqOpts.Version},
+		bson.M{"hostname": h.reqOpts.Hostname, "version": h.reqOpts.Version},
 	)
 	if err == nil {
 		return nil
@@ -216,11 +216,26 @@ func (h *helper) deleteReqRecord() error {
 	return err
 }
 
-func (h *helper) markReqRecordAsCompleted() error {
-	return h.mongo.UpdateMany(
+func (h *helper) getNodeReqRecord(hostname string) (*fixpacks.ReqOpts, error) {
+	result, err := h.mongo.Get(fixpacks.Db, fixpacks.ReqCollection, bson.M{"hostname": hostname})
+	if err != nil {
+		return nil, err
+	}
+
+	record := &fixpacks.ReqOpts{}
+	err = result.Decode(record)
+	if err != nil {
+		return nil, err
+	}
+
+	return record, nil
+}
+
+func (h *helper) markNodeReqRecord() error {
+	return h.mongo.UpdateOne(
 		fixpacks.Db,
 		fixpacks.ReqCollection,
-		bson.M{"version": h.reqOpts.Version},
+		bson.M{"hostname": h.reqOpts.Hostname, "version": h.reqOpts.Version},
 		bson.M{
 			"$set": bson.M{
 				"status.current":      h.reqOpts.Status.Current,
@@ -229,31 +244,4 @@ func (h *helper) markReqRecordAsCompleted() error {
 			},
 		},
 	)
-}
-
-func (h *helper) markReqRecordAsFailed(list []nodes.Node) error {
-	for _, node := range list {
-		err := h.mongo.UpdateOne(
-			fixpacks.Db,
-			fixpacks.ReqCollection,
-			bson.M{"hostname": node.Hostname, "version": h.reqOpts.Version},
-			bson.M{
-				"$set": bson.M{
-					"status.current":      h.reqOpts.Status.Current,
-					"status.isProcessing": h.reqOpts.Status.IsProcessing,
-					"status.description":  h.reqOpts.Status.Description,
-				},
-			},
-		)
-		if err == nil {
-			return nil
-		}
-
-		log.Errorf(
-			"fixpacks(%s): failed mark req record as failed(%v)",
-			h.reqId, err,
-		)
-	}
-
-	return nil
 }

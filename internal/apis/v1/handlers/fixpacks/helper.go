@@ -3,10 +3,10 @@ package fixpacks
 import (
 	"fmt"
 	"os"
+	"slices"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/http"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
-	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
@@ -83,10 +83,29 @@ func (h *helper) listUpdatableNodes(version string) ([]node, error) {
 		return nil, err
 	}
 
+	h.markInstalledNodes(updatables, version)
 	h.sortNodesByHost(&updatables)
 	return updatables, nil
 }
 
+// markInstalledNodes flags the nodes whose own history has version installed.
+func (h *helper) markInstalledNodes(list []node, version string) {
+	statuses, err := cubecos.ListFixpackNodeStatus(version)
+	if err != nil {
+		log.Warnf("fixpacks(%s): failed to get node fixpack status(%v)", h.reqId, err)
+		return
+	}
+
+	for i := range list {
+		for _, s := range statuses {
+			if s.Name == list[i].Name && slices.Contains(s.Installed, version) {
+				list[i].Installed = true
+			}
+		}
+	}
+}
+
+// listRollbackableNodes lists the nodes whose latest rollback point is the version.
 func (h *helper) listRollbackableNodes() ([]node, error) {
 	fixpack, found := cubecos.GetFixpackRawByVersion(h.reqOpts.Version)
 	if !found {
@@ -96,14 +115,22 @@ func (h *helper) listRollbackableNodes() ([]node, error) {
 		return []node{}, nil
 	}
 
-	list, err := h.filterNodesByRole(fixpack.RebootRequired)
+	hosts, err := cubecos.ListFixpackRollbackNodes(h.reqOpts.Version)
 	if err != nil {
 		return nil, err
 	}
 
-	updatables := h.convertToRollbackableNodes(list)
-	h.sortNodesByHost(&updatables)
-	return updatables, nil
+	list := []nodes.Node{}
+	for _, host := range hosts {
+		n, err := nodes.Get(host)
+		if err == nil {
+			list = append(list, *n)
+		}
+	}
+
+	rollbackables := h.convertToRollbackableNodes(list)
+	h.sortNodesByHost(&rollbackables)
+	return rollbackables, nil
 }
 
 func (h *helper) convertToUpdatableNodes(list []nodes.Node) []node {
@@ -161,61 +188,12 @@ func (h *helper) deleteFixpack() error {
 	return nil
 }
 
-func (h *helper) updateFixpackTask(nodes []node) error {
+// updateFixpackTask records one node's reported result.
+func (h *helper) updateFixpackTask() error {
 	switch h.reqOpts.Status.Current {
-	case status.Installed, status.Rollbacked:
-		return h.markReqRecordAsCompleted()
-	case status.Failed:
-		failures := h.findFailedNodes(nodes)
-		return h.markReqRecordAsFailed(failures)
+	case status.Installed, status.Rollbacked, status.Failed:
+		return h.markNodeReqRecord()
 	default:
 		return fmt.Errorf("invalid status: %s", h.reqOpts.Status.Current)
 	}
-}
-
-func (h *helper) findFailedNodes(list []node) []nodes.Node {
-	failures := []nodes.Node{}
-
-	for _, n := range list {
-		node, err := nodes.Get(n.Name)
-		if err != nil {
-			log.Warnf("fixpacks(%s): failed to get node %s (%v)", h.reqId, n.Name, err)
-			continue
-		}
-
-		fixpack := &fixpacks.Fixpack{}
-		if node.IsLocal() {
-			fixpack, err = cubecos.GetLatestFixpackInfo()
-		} else {
-			fixpack, err = h.askPeerFixpackInfo(*node)
-		}
-		if err != nil {
-			continue
-		}
-
-		if fixpack.Version != h.reqOpts.Version {
-			failures = append(failures, *node)
-		}
-	}
-
-	return failures
-}
-
-func (h *helper) askPeerFixpackInfo(node nodes.Node) (*fixpacks.Fixpack, error) {
-	resp, err := h.http.R().
-		SetResult(&bodies.Fixpack{}).
-		SetHeaders(nodes.GetSecretHeaders()).
-		Get(node.GetFixpackInfoUrl())
-	if err != nil {
-		log.Errorf("fixpacks: failed to get node details %s: %v", node.Hostname, err)
-		return nil, err
-	}
-
-	if !resp.IsError() {
-		return &resp.Result().(*bodies.Fixpack).Data, nil
-	}
-
-	err = fmt.Errorf("resp error for node fixpack info %s: %s", node.Hostname, string(resp.Body()))
-	log.Errorf("fixpacks(%v)", err)
-	return nil, err
 }

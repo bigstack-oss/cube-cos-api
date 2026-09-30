@@ -20,6 +20,7 @@ type node struct {
 	Name      string `json:"name"`
 	Version   string `json:"version,omitempty"`
 	UpdatedAt string `json:"updatedAt"`
+	Installed bool   `json:"installed"`
 }
 
 type update struct {
@@ -81,8 +82,8 @@ func (h *helper) parseUpdateProgress(c *mongo.Cursor, version string) (*update, 
 		}
 
 		update.Version = reqOpts.Version
-		update.Operation = h.convertOperationByStatus(reqOpts.Status.Current)
-		current, processPercent := h.getProgressByVersion(version)
+		update.Operation = h.convertOperationByStatus(reqOpts.Status)
+		current, processPercent := h.getProgressByRecord(reqOpts.Status)
 		node, err := nodes.Get(reqOpts.Hostname)
 		if err != nil {
 			log.Warnf("fixpacks(%s): failed to get node %s info for fixpack progress (%v)", h.reqId, reqOpts.Hostname, err)
@@ -165,7 +166,13 @@ func (h *helper) getRebootingHintsByNodeRole(host string) string {
 	}
 }
 
-func (h *helper) convertOperationByStatus(current string) string {
+func (h *helper) convertOperationByStatus(s status.Fixpack) string {
+	current := s.Current
+	// a failed record keeps the operation it was asked for
+	if current == status.Failed {
+		current = s.Desired
+	}
+
 	switch strings.ToLower(current) {
 	case status.Installed, status.Installing:
 		return "install"
@@ -209,33 +216,24 @@ func (h *helper) sortUpdateProgress(progresses *[]progress) {
 	})
 }
 
-func (h *helper) getProgressByVersion(version string) (string, float64) {
-	current := status.Available
-	processPercent := float64(0)
-	s, err := h.getVersionStatus(version)
-	if err != nil {
-		return current, processPercent
-	}
-
-	switch s {
-	case status.Installing:
-		current = status.Installing
-		processPercent = 50
+// getProgressByRecord maps a node's own request record to its progress.
+func (h *helper) getProgressByRecord(s status.Fixpack) (string, float64) {
+	switch s.Current {
+	case status.Installing, status.RollingBack:
+		return s.Current, 50
 	case status.Installed:
-		current = status.Installed
-		processPercent = 100
-	case status.RollingBack:
-		current = status.RollingBack
-		processPercent = 50
+		return s.Current, 100
+	case status.Rollbacked:
+		// the UI's progress vocabulary shows a rolled-back node as available
+		return status.Available, 100
 	case status.Failed:
-		current = status.Failed
-		processPercent = 50
-	case status.Available:
-		current = status.Available
-		processPercent = 0
+		if s.Desired == status.Rollbacked {
+			return status.RollbackFailed, 50
+		}
+		return status.InstallFailed, 50
+	default:
+		return status.Available, 0
 	}
-
-	return current, processPercent
 }
 
 func (h *helper) checkConditionForContinue() error {
@@ -250,7 +248,8 @@ func (h *helper) checkConditionForContinue() error {
 			continue
 		}
 
-		if progress.Status.Current == status.Failed {
+		switch progress.Status.Current {
+		case status.Failed, status.InstallFailed, status.RollbackFailed:
 			return nil
 		}
 	}
