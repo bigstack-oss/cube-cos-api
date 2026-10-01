@@ -5,7 +5,6 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/gin-gonic/gin"
@@ -120,7 +119,7 @@ func forwardNetworksLink(c *gin.Context) {
 		"fetch networks link successfully",
 		grafana.Dashboard{
 			Link:    genNetworksLink(),
-			Enabled: cubecos.IsOvnSFlowEnabled(),
+			Enabled: true,
 		},
 	)
 }
@@ -131,7 +130,7 @@ func forwardNetworkDevicesLink(c *gin.Context) {
 		"fetch network devices link successfully",
 		grafana.Dashboard{
 			Link:    genNetworkDevicesLink(),
-			Enabled: cubecos.IsOvnSFlowEnabled(),
+			Enabled: true,
 		},
 	)
 }

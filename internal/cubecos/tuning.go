@@ -78,9 +78,6 @@ const (
 	KapacitorAlertCheckEventId  = "kapacitor.alert.check.eventid"
 	KapacitorAlertCheckInterval = "kapacitor.alert.check.interval"
 	KapacitorAlertExtraPrefix   = "kapacitor.alert.extra.prefix"
-	KapacitorAlertFlowBase      = "kapacitor.alert.flow.base"
-	KapacitorAlertFlowThreshold = "kapacitor.alert.flow.threshold"
-	KapacitorAlertFlowUnit      = "kapacitor.alert.flow.unit"
 	KeystoneDebugEnabled        = "keystone.debug.enabled"
 	ManilaDebugEnabled          = "manila.debug.enabled"
 	ManilaVolumeType            = "manila.volume.type"
@@ -181,9 +178,6 @@ func setTuningToRoles() {
 	tuningToRoles[KapacitorAlertCheckEventId] = nodes.ControlRoles
 	tuningToRoles[KapacitorAlertCheckInterval] = nodes.ControlRoles
 	tuningToRoles[KapacitorAlertExtraPrefix] = nodes.ControlRoles
-	tuningToRoles[KapacitorAlertFlowBase] = nodes.ControlRoles
-	tuningToRoles[KapacitorAlertFlowThreshold] = nodes.ControlRoles
-	tuningToRoles[KapacitorAlertFlowUnit] = nodes.ControlRoles
 	tuningToRoles[KeystoneDebugEnabled] = nodes.AllRoles
 	tuningToRoles[ManilaDebugEnabled] = nodes.AllRoles
 	tuningToRoles[ManilaVolumeType] = nodes.AllRoles
