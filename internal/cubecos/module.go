@@ -204,6 +204,7 @@ var (
 			Modules: []services.Module{
 				{Name: "telegraf", IsRepairable: true},
 				{Name: "grafana", IsRepairable: true},
+				{Name: "lachesis", IsRepairable: true},
 			},
 		},
 		{
