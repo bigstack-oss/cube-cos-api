@@ -673,7 +673,7 @@ func GetHostsNetworkIngressRank() (*metric.Rank, error) {
 
 	appendHistoryToNetworkTrafficInRank(rank)
 	return &metric.Rank{
-		Unit: "packets",
+		Unit: "bps",
 		Rank: rank,
 	}, nil
 }
@@ -705,7 +705,7 @@ func GetHostsNetworkEgressRank() (*metric.Rank, error) {
 
 	appendHistoryToNetworkEgressRank(rank)
 	return &metric.Rank{
-		Unit: "packets",
+		Unit: "bps",
 		Rank: rank,
 	}, nil
 }
@@ -958,7 +958,7 @@ func GetVmsNetworkEgressRank(stmt string) (*metric.Rank, error) {
 
 	appendHistoryToVmNetworkEgressRank(rank)
 	return &metric.Rank{
-		Unit: "packets",
+		Unit: "bps",
 		Rank: rank,
 	}, nil
 }
@@ -1002,7 +1002,7 @@ func GetVmsNetworkIngressRank(stmt string) (*metric.Rank, error) {
 
 	appendHistoryToVmNetworkIngressRank(rank)
 	return &metric.Rank{
-		Unit: "packets",
+		Unit: "bps",
 		Rank: rank,
 	}, nil
 }
