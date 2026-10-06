@@ -5,6 +5,7 @@ go 1.26.0
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.113.1
+	github.com/beevik/etree v1.6.0
 	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20260130102442-288f9c049e55
 	github.com/blevesearch/bleve/v2 v2.6.1
 	github.com/coreos/go-oidc v2.5.0+incompatible
@@ -19,6 +20,7 @@ require (
 	github.com/gophercloud/gophercloud/v2 v2.14.0
 	github.com/influxdata/influxdb-client-go/v2 v2.14.0
 	github.com/json-iterator/go v1.1.12
+	github.com/mattermost/xml-roundtrip-validator v0.1.0
 	github.com/micro/plugins/v5/server/http v1.0.2
 	github.com/micro/plugins/v5/wrapper/breaker/hystrix v1.0.2
 	github.com/micro/plugins/v5/wrapper/ratelimiter/uber v1.0.2
@@ -63,7 +65,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.29.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.33.17 // indirect
 	github.com/aws/smithy-go v1.28.1 // indirect
-	github.com/beevik/etree v1.6.0 // indirect
 	github.com/bitly/go-simplejson v0.5.0 // indirect
 	github.com/bits-and-blooms/bitset v1.24.2 // indirect
 	github.com/blevesearch/bleve_index_api v1.4.1 // indirect
@@ -136,7 +137,6 @@ require (
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
-	github.com/mattermost/xml-roundtrip-validator v0.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/micro/plugins/v5/logger/zap v1.0.2 // indirect
 	github.com/miekg/dns v1.1.50 // indirect

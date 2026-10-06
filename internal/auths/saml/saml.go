@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
+	"strings"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/keycloak"
@@ -25,6 +27,9 @@ import (
 var (
 	SpAuth *samlsp.Middleware
 )
+
+// Bounds a logged rejection reason; crewjam's are a line or two.
+const maxFailureReasonLen = 512
 
 type Options struct {
 	IdentityProvider Provider `json:"identityProvider" yaml:"identityProvider"`
@@ -187,12 +192,14 @@ func ServeAcs() gin.HandlerFunc {
 
 		err = checkTrackedRequest(c)
 		if err != nil {
+			log.Warnf("auth: rejected SAML response, request not tracked(%v)", err)
 			bodies.SetRedirect(c, auths.RedirectPath)
 			return
 		}
 
 		assertion, err := getAssertion(c)
 		if err != nil {
+			log.Warnf("auth: rejected SAML response(%s)", samlFailureReason(err))
 			bodies.SetRedirect(c, auths.RedirectPath)
 			return
 		}
@@ -294,6 +301,30 @@ func getAssertion(c *gin.Context) (*saml.Assertion, error) {
 	}
 
 	return SpAuth.ServiceProvider.ParseResponse(c.Request, reqIds)
+}
+
+// samlFailureReason says why crewjam rejected a response, fit for the log. Every
+// ParseResponse failure reads "Authentication failed" and keeps the cause in
+// PrivateErr. The response itself is left out, since it carries the assertion, and
+// so is the detail of an XML round-trip failure, which prints the offending tokens
+// (crewjam flattens it into "... invalid XML: %s", so it is recognised by its text).
+// What remains can still echo response-controlled values such as Destination, so it
+// is quoted and bounded.
+func samlFailureReason(err error) string {
+	var invalid *saml.InvalidResponseError
+	if errors.As(err, &invalid) && invalid.PrivateErr != nil {
+		err = invalid.PrivateErr
+	}
+
+	reason := err.Error()
+	if strings.Contains(reason, "roundtrip error") {
+		reason = "response failed XML round-trip validation (details withheld)"
+	}
+	if len(reason) > maxFailureReasonLen {
+		reason = reason[:maxFailureReasonLen] + "..."
+	}
+
+	return strconv.Quote(reason)
 }
 
 func createSession(c *gin.Context, assertion *saml.Assertion) error {
