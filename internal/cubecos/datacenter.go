@@ -11,6 +11,8 @@ import (
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	log "go-micro.dev/v5/logger"
 )
@@ -183,6 +185,69 @@ func GetDataCenterLastInstalledFixpack() ([]string, error) {
 	}
 
 	return segments, nil
+}
+
+// GetCurrentFixpack reports the fixpack in effect: the most recently installed
+// one that has not been rolled back since. Unlike the base.Fixpack* values read
+// at service start, it reflects installs and rollbacks done after that. An
+// empty Fixpack means no fixpack is installed.
+func GetCurrentFixpack() (base.Fixpack, error) {
+	history, err := listFixpackHistory()
+	if err != nil {
+		return base.Fixpack{}, err
+	}
+
+	current := findCurrentFixpack(history)
+	if current == nil {
+		return base.Fixpack{}, nil
+	}
+
+	return base.Fixpack{
+		Name:      current.Name,
+		Version:   current.Version,
+		UpdatedAt: current.UpdatedAt,
+	}, nil
+}
+
+// Test seam.
+var listFixpackHistory = func() ([]fixpacks.Fixpack, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxSeconds(10))
+	defer cancel()
+
+	out, err := exec.CommandContext(ctx, "hex_config", "fixpack_get_history").Output()
+	if err != nil {
+		err = fmt.Errorf("failed to get fixpack history(%v %s)", err, string(out))
+		log.Errorf("datacenter: %v", err)
+		return nil, err
+	}
+
+	return convertHistoryToFixpacks(out)
+}
+
+// The history holds each version's latest action only, so a rolled-back
+// fixpack is no longer Installed.
+func findCurrentFixpack(history []fixpacks.Fixpack) *fixpacks.Fixpack {
+	var current *fixpacks.Fixpack
+	for i, fixpack := range history {
+		if fixpack.Status.Current != status.Installed {
+			continue
+		}
+
+		if current == nil || parseFixpackUpdatedAt(fixpack).After(parseFixpackUpdatedAt(*current)) {
+			current = &history[i]
+		}
+	}
+
+	return current
+}
+
+func parseFixpackUpdatedAt(fixpack fixpacks.Fixpack) ostime.Time {
+	t, err := ostime.Parse(ostime.RFC3339, fixpack.UpdatedAt)
+	if err != nil {
+		return ostime.Time{}
+	}
+
+	return t
 }
 
 func GetActiveFirmwaretUpdatedAt() (string, error) {
