@@ -28,3 +28,12 @@ func parseInfluxOpts() influx.Options {
 	influx.Url = fmt.Sprintf("%s://%s:%d", influx.Protocol, influx.Host, influx.Port)
 	return influx
 }
+
+func parsePrometheusUrl() string {
+	url := conf.Opts.Spec.Store.Prometheus.Url
+	if url != "" {
+		return url
+	}
+
+	return fmt.Sprintf("http://%s/prometheus", base.DataCenterVip)
+}
