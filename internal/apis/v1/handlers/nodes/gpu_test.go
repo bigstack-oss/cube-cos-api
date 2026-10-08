@@ -1357,7 +1357,7 @@ func TestValidateGpuCardUpdate(t *testing.T) {
 		57: {Id: 57, VramMiB: 2048, VmCountLimit: &vmCountLimit},
 		58: {Id: 58, VramMiB: 4096},
 	}
-	totalVramMiB := 16384
+	migCapacityMiB := 16384
 
 	t.Run("unsupported resource type -> 409 sentinel", func(t *testing.T) {
 		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{ResourceType: gpu.ResourceTypeMigBackedVgpu}, nil, nil)
@@ -1368,7 +1368,7 @@ func TestValidateGpuCardUpdate(t *testing.T) {
 		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypePgpu,
 			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 1}},
-		}, profilesMap, &totalVramMiB)
+		}, profilesMap, &migCapacityMiB)
 		require.ErrorIs(t, err, gpu.ErrProfilesNotAllowed)
 	})
 
@@ -1390,7 +1390,7 @@ func TestValidateGpuCardUpdate(t *testing.T) {
 		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeSriovVgpu,
 			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 999, Count: 1}},
-		}, profilesMap, &totalVramMiB)
+		}, profilesMap, &migCapacityMiB)
 		require.ErrorIs(t, err, gpu.ErrProfileNotFound)
 	})
 
@@ -1404,7 +1404,7 @@ func TestValidateGpuCardUpdate(t *testing.T) {
 		err := validateGpuCardUpdate(limited, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeSriovVgpu,
 			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 3}}, // sum 3 > limit 2
-		}, profilesMap, &totalVramMiB)
+		}, profilesMap, &migCapacityMiB)
 		require.ErrorIs(t, err, gpu.ErrExceedProfileCountLimit)
 	})
 
@@ -1417,7 +1417,7 @@ func TestValidateGpuCardUpdate(t *testing.T) {
 		err := validateGpuCardUpdate(migCard, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeMigBackedVgpu,
 			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 1}, {Id: 58, Count: 1}}, // total count 2 > limit 1
-		}, profilesMap, &totalVramMiB)
+		}, profilesMap, &migCapacityMiB)
 		require.NoError(t, err)
 	})
 
@@ -1428,7 +1428,7 @@ func TestValidateGpuCardUpdate(t *testing.T) {
 		err := validateGpuCardUpdate(migCard, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeMigBackedVgpu,
 			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 5}}, // vmCountLimit is 4; 2048*5 = 10240 <= 16384 so vram is not what trips
-		}, profilesMap, &totalVramMiB)
+		}, profilesMap, &migCapacityMiB)
 		require.ErrorIs(t, err, gpu.ErrExceedProfileCountLimit)
 	})
 
@@ -1436,31 +1436,29 @@ func TestValidateGpuCardUpdate(t *testing.T) {
 		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeSriovVgpu,
 			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 5}}, // vmCountLimit is 4, but ignored for sriov
-		}, profilesMap, &totalVramMiB)
+		}, profilesMap, &migCapacityMiB)
 		require.NoError(t, err)
 	})
 
 	// The VRAM limit applies to MIG-backed vGPU only.
-	t.Run("mig-backed total requested vram over device total -> 409 sentinel", func(t *testing.T) {
+	t.Run("mig-backed total requested vram over the mig-backed capacity -> 409 sentinel", func(t *testing.T) {
 		migCard := card
 		migCard.SupportTypes = []gpu.SupportResourceType{gpu.SupportResourceTypePgpu, gpu.SupportResourceTypeMigBackedVgpu}
 		err := validateGpuCardUpdate(migCard, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeMigBackedVgpu,
 			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 58, Count: 5}}, // 4096*5 = 20480 > 16384
-		}, profilesMap, &totalVramMiB)
+		}, profilesMap, &migCapacityMiB)
 		require.ErrorIs(t, err, gpu.ErrExceedVramLimit)
 	})
 
-	// A pgpu is bound to vfio-pci and therefore invisible to nvidia-smi, so its
-	// total VRAM is simply unknown while it is being switched over. Skip the
-	// check rather than reject a carve the driver may well accept once hex has
-	// rebound the card.
-	t.Run("mig-backed with an unknown device total skips the vram check", func(t *testing.T) {
+	// No MIG-backed profiles to derive a capacity from: skip the check and
+	// leave it to hex, which applies the same rule and fails closed.
+	t.Run("mig-backed with an unknown capacity skips the vram check", func(t *testing.T) {
 		migCard := card
 		migCard.SupportTypes = []gpu.SupportResourceType{gpu.SupportResourceTypePgpu, gpu.SupportResourceTypeMigBackedVgpu}
 		err := validateGpuCardUpdate(migCard, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeMigBackedVgpu,
-			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 58, Count: 5}}, // 20480 MiB: would trip a known 16384 total
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 58, Count: 5}}, // 20480 MiB: would trip a known 16384 capacity
 		}, profilesMap, nil)
 		require.NoError(t, err)
 	})
@@ -1470,7 +1468,7 @@ func TestValidateGpuCardUpdate(t *testing.T) {
 		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeSriovVgpu,
 			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 58, Count: 5}}, // 20480 > 16384, but ignored for sriov
-		}, profilesMap, &totalVramMiB)
+		}, profilesMap, &migCapacityMiB)
 		require.NoError(t, err)
 	})
 
@@ -1483,14 +1481,14 @@ func TestValidateGpuCardUpdate(t *testing.T) {
 		require.NoError(t, validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeSriovVgpu,
 			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 2}, {Id: 58, Count: 1}}, // 2048*2+4096 = 8192
-		}, profilesMap, &totalVramMiB))
+		}, profilesMap, &migCapacityMiB))
 	})
 
 	t.Run("non-positive profile count -> 400 sentinel", func(t *testing.T) {
 		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeSriovVgpu,
 			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 0}},
-		}, profilesMap, &totalVramMiB)
+		}, profilesMap, &migCapacityMiB)
 		require.ErrorIs(t, err, gpu.ErrInvalidProfileCount)
 	})
 
@@ -1498,9 +1496,41 @@ func TestValidateGpuCardUpdate(t *testing.T) {
 		err := validateGpuCardUpdate(card, gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeSriovVgpu,
 			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 1}, {Id: 57, Count: 1}}, // same id twice
-		}, profilesMap, &totalVramMiB)
+		}, profilesMap, &migCapacityMiB)
 		require.ErrorIs(t, err, gpu.ErrDuplicateProfile)
 	})
+}
+
+func TestMigBackedCapacityMiB(t *testing.T) {
+	four, eight, one, zero := 4, 8, 1, 0
+
+	require.Nil(t, migBackedCapacityMiB(gpu.VgpuProfileCollectionFromHex{}), "no mig-backed list")
+	require.Nil(t, migBackedCapacityMiB(gpu.VgpuProfileCollectionFromHex{MigBacked: &[]gpu.VgpuProfileFromHex{}}), "empty list")
+
+	// The RTX PRO 6000 Blackwell's numbers: every type gives 98304.
+	mig := []gpu.VgpuProfileFromHex{
+		{Id: 1558, VramMiB: 12288, VmCountLimit: &eight}, // DC-1-12Q
+		{Id: 1576, VramMiB: 24576, VmCountLimit: &four},  // DC-4-24Q
+		{Id: 1585, VramMiB: 98304, VmCountLimit: &one},   // DC-4-96Q
+	}
+	got := migBackedCapacityMiB(gpu.VgpuProfileCollectionFromHex{MigBacked: &mig})
+	require.NotNil(t, got)
+	require.Equal(t, 98304, *got)
+
+	// The largest product wins, not the largest profile.
+	mixed := []gpu.VgpuProfileFromHex{
+		{Id: 1, VramMiB: 10240, VmCountLimit: &eight}, // 81920
+		{Id: 2, VramMiB: 40960, VmCountLimit: &one},   // 40960
+	}
+	require.Equal(t, 81920, *migBackedCapacityMiB(gpu.VgpuProfileCollectionFromHex{MigBacked: &mixed}))
+
+	// A vfio-bound card's list carries no vmCountLimit (or a zero): each
+	// profile counts once, so the full-size profile sets the capacity.
+	unknown := []gpu.VgpuProfileFromHex{
+		{Id: 1576, VramMiB: 24576},
+		{Id: 1585, VramMiB: 98304, VmCountLimit: &zero},
+	}
+	require.Equal(t, 98304, *migBackedCapacityMiB(gpu.VgpuProfileCollectionFromHex{MigBacked: &unknown}))
 }
 
 func TestToProfileCollectionComputesMigRemaining(t *testing.T) {
@@ -1625,24 +1655,26 @@ func TestUpdateLocalGpuCard(t *testing.T) {
 		require.True(t, hexCalled)
 	})
 
-	// The pgpu -> migBackedVgpu path. The card is still bound to vfio-pci when
-	// this runs, so nvidia-smi cannot report it; hex only rebinds it to the
-	// nvidia driver inside gpu_resource_set, i.e. after validation. The request
-	// must therefore still reach hex instead of failing with a 500.
-	t.Run("mig-backed vgpu update proceeds when nvidia-smi cannot see the vfio-bound card", func(t *testing.T) {
+	// The card's total VRAM as nvidia-smi measures it is not a budget for
+	// MIG-backed profiles, whose sizes are nominal (#1794), so validation never
+	// asks for it. That also keeps the pgpu -> migBackedVgpu path working: the
+	// card is still bound to vfio-pci when this runs, invisible to nvidia-smi.
+	// hex rebuilds a vfio-bound card's profiles from the static vGPU type XML,
+	// leaving vmCountLimit null, so the capacity falls back to the largest
+	// profile - the card's full-size one.
+	t.Run("mig-backed vgpu validation never queries nvidia-smi", func(t *testing.T) {
 		migCard := card
 		migCard.SupportTypes = []gpu.SupportResourceType{gpu.SupportResourceTypePgpu, gpu.SupportResourceTypeMigBackedVgpu}
 
 		getNodeGpuById = func(nodeName, gpuId string) (gpu.GpuFromHex, error) { return migCard, nil }
-		// hex rebuilds a vfio-bound card's profiles from the static vGPU type
-		// XML, leaving the runtime vmCountLimit null.
 		getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
-			return map[uint32]gpu.VgpuProfileFromHex{
-				57: {Id: 57, VramMiB: 2048},
-			}, gpu.VgpuProfileCollectionFromHex{}, nil
+			mig := []gpu.VgpuProfileFromHex{{Id: 57, VramMiB: 2048}, {Id: 58, VramMiB: 16384}}
+			return map[uint32]gpu.VgpuProfileFromHex{57: mig[0], 58: mig[1]},
+				gpu.VgpuProfileCollectionFromHex{MigBacked: &mig}, nil
 		}
 		getNvidiaSmiDevices = func() (map[string]cubecos.NvidiaSmiDevice, error) {
-			return map[string]cubecos.NvidiaSmiDevice{}, nil // the pgpu is absent from the listing
+			t.Error("mig-backed vgpu validation must not query nvidia-smi")
+			return nil, nil
 		}
 		upsertUpdatingGpuReq = func(h *helper, gpuId string) error { return nil }
 		deleteUpdatingGpuReq = func(h *helper, gpuId string) error { return nil }
@@ -1652,29 +1684,29 @@ func TestUpdateLocalGpuCard(t *testing.T) {
 
 		h := &helper{node: "node-1", gpuId: "GPU-1", gpuCardReq: gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeMigBackedVgpu,
-			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 2}},
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 2}}, // 4096 <= 16384
 		}}
 
 		require.NoError(t, h.updateLocalGpuCard())
 		require.True(t, hexCalled)
 	})
 
-	// nvidia-smi being unusable altogether is degraded information, not grounds
-	// to reject here: config_gpu.cpp's ValidateVgpuProfiles enforces the same
-	// VRAM rule inside gpu_resource_set - after the card leaves vfio-pci, and
-	// failing closed - so an over-committed carve is still refused.
-	t.Run("mig-backed vgpu update proceeds when nvidia-smi is unavailable", func(t *testing.T) {
+	// #1794: the card's own full-size profile at count 1 fits its nominal
+	// capacity exactly. It used to be refused against nvidia-smi's smaller
+	// memory.total (98304 against 97887 on an RTX PRO 6000 Blackwell).
+	t.Run("mig-backed vgpu update at the nominal capacity passes", func(t *testing.T) {
 		migCard := card
 		migCard.SupportTypes = []gpu.SupportResourceType{gpu.SupportResourceTypePgpu, gpu.SupportResourceTypeMigBackedVgpu}
+		four, one := 4, 1
 
 		getNodeGpuById = func(nodeName, gpuId string) (gpu.GpuFromHex, error) { return migCard, nil }
 		getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
-			return map[uint32]gpu.VgpuProfileFromHex{
-				57: {Id: 57, VramMiB: 2048},
-			}, gpu.VgpuProfileCollectionFromHex{}, nil
-		}
-		getNvidiaSmiDevices = func() (map[string]cubecos.NvidiaSmiDevice, error) {
-			return nil, errors.New("nvidia-smi not found")
+			mig := []gpu.VgpuProfileFromHex{
+				{Id: 1576, VramMiB: 24576, VmCountLimit: &four}, // DC-4-24Q
+				{Id: 1585, VramMiB: 98304, VmCountLimit: &one},  // DC-4-96Q
+			}
+			return map[uint32]gpu.VgpuProfileFromHex{1576: mig[0], 1585: mig[1]},
+				gpu.VgpuProfileCollectionFromHex{MigBacked: &mig}, nil
 		}
 		upsertUpdatingGpuReq = func(h *helper, gpuId string) error { return nil }
 		deleteUpdatingGpuReq = func(h *helper, gpuId string) error { return nil }
@@ -1682,30 +1714,35 @@ func TestUpdateLocalGpuCard(t *testing.T) {
 		var hexCalled bool
 		updateNodeGpuCardViaHex = func(gpuId string, req gpu.UpdateGpuCardRequest) error { hexCalled = true; return nil }
 
-		h := &helper{node: "node-1", gpuId: "GPU-1", gpuCardReq: gpu.UpdateGpuCardRequest{
-			ResourceType: gpu.ResourceTypeMigBackedVgpu,
-			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 2}},
-		}}
-
-		require.NoError(t, h.updateLocalGpuCard())
-		require.True(t, hexCalled)
+		for _, profiles := range [][]gpu.UpdateGpuCardProfile{
+			{{Id: 1585, Count: 1}}, // 98304
+			{{Id: 1576, Count: 4}}, // 4 x 24576 = 98304
+		} {
+			hexCalled = false
+			h := &helper{node: "node-1", gpuId: "GPU-1", gpuCardReq: gpu.UpdateGpuCardRequest{
+				ResourceType: gpu.ResourceTypeMigBackedVgpu,
+				Profiles:     profiles,
+			}}
+			require.NoError(t, h.updateLocalGpuCard())
+			require.True(t, hexCalled)
+		}
 	})
 
-	// ...and when nvidia-smi *can* report the card, the limit still bites.
-	t.Run("mig-backed vgpu update over a reported device total is rejected", func(t *testing.T) {
+	// ...and a request over the nominal capacity is still rejected, here one
+	// that keeps every type within its own vmCountLimit.
+	t.Run("mig-backed vgpu update over the nominal capacity is rejected", func(t *testing.T) {
 		migCard := card
 		migCard.SupportTypes = []gpu.SupportResourceType{gpu.SupportResourceTypePgpu, gpu.SupportResourceTypeMigBackedVgpu}
+		eight, one := 8, 1
 
 		getNodeGpuById = func(nodeName, gpuId string) (gpu.GpuFromHex, error) { return migCard, nil }
 		getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
-			return map[uint32]gpu.VgpuProfileFromHex{
-				57: {Id: 57, VramMiB: 2048},
-			}, gpu.VgpuProfileCollectionFromHex{}, nil
-		}
-		getNvidiaSmiDevices = func() (map[string]cubecos.NvidiaSmiDevice, error) {
-			return map[string]cubecos.NvidiaSmiDevice{
-				"GPU-1": {UUID: "GPU-1", MemoryTotalMiB: 16384},
-			}, nil
+			mig := []gpu.VgpuProfileFromHex{
+				{Id: 57, VramMiB: 2048, VmCountLimit: &eight}, // capacity 16384
+				{Id: 58, VramMiB: 16384, VmCountLimit: &one},
+			}
+			return map[uint32]gpu.VgpuProfileFromHex{57: mig[0], 58: mig[1]},
+				gpu.VgpuProfileCollectionFromHex{MigBacked: &mig}, nil
 		}
 
 		hexCalled := false
@@ -1713,7 +1750,7 @@ func TestUpdateLocalGpuCard(t *testing.T) {
 
 		h := &helper{node: "node-1", gpuId: "GPU-1", gpuCardReq: gpu.UpdateGpuCardRequest{
 			ResourceType: gpu.ResourceTypeMigBackedVgpu,
-			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 10}}, // 2048*10 = 20480 > 16384
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 58, Count: 1}, {Id: 57, Count: 1}}, // 18432 > 16384
 		}}
 
 		require.ErrorIs(t, h.updateLocalGpuCard(), gpu.ErrExceedVramLimit)
