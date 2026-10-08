@@ -526,15 +526,15 @@ func isSupportedType(supportTypes []gpu.SupportResourceType, t gpu.ResourceType)
 }
 
 // validateGpuCardUpdate checks a resource-type change against the card's real
-// capabilities. profilesMap (keyed by profile Id) and totalVramMiB (from
-// nvidia-smi) are only consulted for vGPU types with profiles; a nil
-// totalVramMiB means the card's total is unavailable and the VRAM check is
-// skipped. Returns a sentinel-wrapped error the handler maps to a status.
+// capabilities. profilesMap (keyed by profile Id) and migCapacityMiB (see
+// migBackedCapacityMiB) are only consulted for vGPU types with profiles; a nil
+// migCapacityMiB means the capacity is unknown and the VRAM check is skipped.
+// Returns a sentinel-wrapped error the handler maps to a status.
 func validateGpuCardUpdate(
 	card gpu.GpuFromHex,
 	req gpu.UpdateGpuCardRequest,
 	profilesMap map[uint32]gpu.VgpuProfileFromHex,
-	totalVramMiB *int,
+	migCapacityMiB *int,
 ) error {
 	if !isSupportedType(card.SupportTypes, req.ResourceType) {
 		return fmt.Errorf("gpu card %s does not support '%s' resource type: %w", card.Id, req.ResourceType, gpu.ErrUnsupportedType)
@@ -596,16 +596,14 @@ func validateGpuCardUpdate(
 	}
 
 	// The VRAM limit only applies to MIG-backed vGPU; SR-IOV profiles are fixed
-	// partitions constrained by the profile-count limit instead. A nil total
-	// means nvidia-smi could not report the card - the normal state of a
-	// still-vfio-bound pgpu - so the check is skipped here and left to
-	// config_gpu.cpp's ValidateVgpuProfiles, which enforces the same rule after
-	// the card is released from vfio-pci and fails closed. See
-	// getGpuTotalVramMiB.
+	// partitions constrained by the profile-count limit instead. A nil capacity
+	// means the profile list yielded none, so the check is left to
+	// config_gpu.cpp's ValidateVgpuProfiles, which enforces the same rule and
+	// fails closed.
 	if req.ResourceType == gpu.ResourceTypeMigBackedVgpu &&
-		totalVramMiB != nil && totalVramReqMiB > *totalVramMiB {
-		return fmt.Errorf("gpu %s: requested vram %d MiB exceeds device total %d MiB: %w",
-			card.Id, totalVramReqMiB, *totalVramMiB, gpu.ErrExceedVramLimit)
+		migCapacityMiB != nil && totalVramReqMiB > *migCapacityMiB {
+		return fmt.Errorf("gpu %s: requested vram %d MiB exceeds the card's mig-backed vgpu capacity %d MiB: %w",
+			card.Id, totalVramReqMiB, *migCapacityMiB, gpu.ErrExceedVramLimit)
 	}
 
 	return nil
@@ -950,25 +948,24 @@ func (h *helper) updateLocalGpuCard() error {
 	// vGPU profile limits need the GPU's available profiles (hex). Only gather
 	// them when profiles are actually supplied.
 	var profilesMap map[uint32]gpu.VgpuProfileFromHex
-	var totalVramMiB *int
+	var migCapacityMiB *int
 	if isVgpuType(h.gpuCardReq.ResourceType) && len(h.gpuCardReq.Profiles) > 0 {
-		profilesMap, _, err = getNodeVgpuProfilesMap(card.Id)
+		var collection gpu.VgpuProfileCollectionFromHex
+		profilesMap, collection, err = getNodeVgpuProfilesMap(card.Id)
 		if err != nil {
 			log.Errorf("gpu(%s): failed to get vgpu profiles for gpu %s: %v", h.reqId, h.gpuId, err)
 			return err
 		}
 
-		// The card's total VRAM is only ever consulted for MIG-backed vGPU;
-		// SR-IOV profiles are fixed partitions bounded by the profile-count
-		// limit instead (see validateGpuCardUpdate). Querying nvidia-smi for
-		// SR-IOV as well made a pgpu -> sriovVgpu switch fail on a value that
-		// request would never have used.
+		// Only MIG-backed vGPU has a VRAM budget; SR-IOV profiles are fixed
+		// partitions bounded by the profile-count limit instead (see
+		// validateGpuCardUpdate).
 		if h.gpuCardReq.ResourceType == gpu.ResourceTypeMigBackedVgpu {
-			totalVramMiB = getGpuTotalVramMiB(card.Id)
+			migCapacityMiB = migBackedCapacityMiB(collection)
 		}
 	}
 
-	if err := validateGpuCardUpdate(card, h.gpuCardReq, profilesMap, totalVramMiB); err != nil {
+	if err := validateGpuCardUpdate(card, h.gpuCardReq, profilesMap, migCapacityMiB); err != nil {
 		return err
 	}
 
@@ -1047,41 +1044,35 @@ func deleteUpdatingGpuReqViaMongo(h *helper, gpuId string) error {
 	)
 }
 
-// getGpuTotalVramMiB reads the physical GPU's total VRAM via nvidia-smi, the
-// budget for the MIG-backed VRAM-limit validation. A nil result means "not
-// available", not "zero": the caller skips that check rather than failing the
-// request.
+// migBackedCapacityMiB is the budget for the MIG-backed VRAM-limit validation:
+// the card's nominal MIG-backed capacity, the largest vramMiB*vmCountLimit among
+// its MIG-backed profiles (vmCountLimit taken as 1 where hex reports none, as it
+// does for a card still bound to vfio-pci). nil when there are no MIG-backed
+// profiles to derive it from; the caller then skips the check.
 //
-// The card being absent from nvidia-smi is the *expected* answer while it is
-// still a pgpu. A passthrough card is bound to vfio-pci and therefore invisible
-// to nvidia-smi (see sdk_gpu.sh's gpu_device_list and the pgpu branch of
-// gpu_release_resource), and hex only hands it back to the nvidia driver inside
-// gpu_resource_set - that is, after this validation has already run. Returning
-// an error here failed every pgpu -> migBackedVgpu switch with a 500 before hex
-// was ever called.
-//
-// Skipping the check costs nothing, because it is not the authoritative one.
-// config_gpu.cpp's ValidateVgpuProfiles runs the identical rule (its own
-// GetGpuTotalVramMiB against the same requested total) inside gpu_resource_set,
-// and it runs it *after* gpu_unbind_vfio_pci - so it reads a card nvidia-smi
-// can actually see, and it fails closed: an unreadable total is rejected there
-// rather than waved through. That check also rolls the card back to vfio-pci if
-// it trips, so a rejected request still leaves a pgpu exactly as it was. This
-// one is only an early, friendlier error for a caller who already knows the
-// card's total; when it cannot know, deferring to hex is the correct answer,
-// not a bypass.
-func getGpuTotalVramMiB(uuid string) *int {
-	devices, err := getNvidiaSmiDevices()
-	if err != nil {
-		log.Errorf("nvidiasmi: failed to query devices for gpu %s: %v; skipping the vram limit check", uuid, err)
+// Not nvidia-smi's memory.total. Profile sizes are nominal - DC-4-96Q is 98304
+// MiB - while memory.total is what is usable, 97887 MiB on an RTX PRO 6000
+// Blackwell, so budgeting against it refused the card's own full-size profile at
+// count 1 (#1794). Every MIG-backed type on that card gives 98304 here, and
+// config_gpu.cpp's ValidateVgpuProfiles applies the same budget.
+func migBackedCapacityMiB(collection gpu.VgpuProfileCollectionFromHex) *int {
+	if collection.MigBacked == nil {
 		return nil
 	}
 
-	device, ok := devices[uuid]
-	if !ok {
-		log.Warnf("nvidiasmi: device %s not reported by nvidia-smi (expected while it is a vfio-bound pgpu); skipping the vram limit check", uuid)
-		return nil
+	capacityMiB := 0
+	for _, profile := range *collection.MigBacked {
+		count := 1
+		if profile.VmCountLimit != nil && *profile.VmCountLimit > 0 {
+			count = *profile.VmCountLimit
+		}
+		if c := int(profile.VramMiB) * count; c > capacityMiB {
+			capacityMiB = c
+		}
 	}
 
-	return &device.MemoryTotalMiB
+	if capacityMiB <= 0 {
+		return nil
+	}
+	return &capacityMiB
 }
