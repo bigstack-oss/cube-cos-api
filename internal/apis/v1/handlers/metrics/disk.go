@@ -21,10 +21,12 @@ func (h *helper) getDiskBandwidth() (any, error) {
 func (h *helper) getDiskBandwidthHistory() (any, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GetHostsDiskBandwidthHistory(
-			h.genHostsDiskReadBandwidthStmt(),
-			h.genHostsDiskWriteBandwidthStmt(),
-		)
+		r, err := h.genStorageRange()
+		if err != nil {
+			return nil, err
+		}
+
+		return cubecos.GetHostsDiskBandwidthHistory(r)
 	default:
 		return nil, fmt.Errorf(
 			"invalid entity type(%s) to get disk bandwidth history",
@@ -72,10 +74,12 @@ func (h *helper) getDiskIops() (any, error) {
 func (h *helper) getDiskIopsHistory() (any, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GetHostsDiskIopsHistory(
-			h.genHostsStorageReadIopsStmt(),
-			h.genHostsStorageWriteIopsStmt(),
-		)
+		r, err := h.genStorageRange()
+		if err != nil {
+			return nil, err
+		}
+
+		return cubecos.GetHostsDiskIopsHistory(r)
 	default:
 		return nil, fmt.Errorf(
 			"invalid entity type(%s) to get disk iops",
@@ -171,7 +175,12 @@ func (h *helper) getDiskLatency() (any, error) {
 func (h *helper) getDiskLatencyHistory() (any, error) {
 	switch h.entityType {
 	case "hosts":
-		return cubecos.GeHostsDiskLatencyHistory(h.past)
+		r, err := h.genStorageRange()
+		if err != nil {
+			return nil, err
+		}
+
+		return cubecos.GetHostsDiskLatencyHistory(r)
 	default:
 		return nil, fmt.Errorf(
 			"invalid entity type(%s) to get disk latency",

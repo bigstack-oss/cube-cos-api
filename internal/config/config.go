@@ -139,8 +139,13 @@ type K3s struct {
 }
 
 type Store struct {
-	MongoDB  mongo.Options  `json:"mongodb" yaml:"mongodb"`
-	InfluxDB influx.Options `json:"influxdb" yaml:"influxdb"`
+	MongoDB    mongo.Options  `json:"mongodb" yaml:"mongodb"`
+	InfluxDB   influx.Options `json:"influxdb" yaml:"influxdb"`
+	Prometheus Prometheus     `json:"prometheus" yaml:"prometheus"`
+}
+
+type Prometheus struct {
+	Url string `json:"url" yaml:"url"`
 }
 
 type Observability struct {
