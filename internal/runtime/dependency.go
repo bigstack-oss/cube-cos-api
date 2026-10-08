@@ -25,6 +25,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/notifications"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
+	"github.com/bigstack-oss/cube-cos-api/internal/prometheus"
 	"github.com/gophercloud/gophercloud/v2"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
@@ -88,6 +89,8 @@ func newGlobalHelpers() error {
 		log.Errorf("runtime: failed to init influx helper(%v)", err)
 		return err
 	}
+
+	prometheus.NewGlobalClient(parsePrometheusUrl())
 
 	err = newGlobalOpenstackHelper()
 	if err != nil {

@@ -57,56 +57,6 @@ func (h *helper) genHostsCpuUsageRankStmt() string {
 		String()
 }
 
-func (h *helper) genHostsDiskReadBandwidthStmt() string {
-	query := influx.Query{}
-	return query.Bucket("ceph").
-		Range(h.genTimeDuration()).
-		Filter(`fn: (r) => r._measurement == "ceph_daemon_stats" and r.ceph_daemon =~ /^osd\.[0-9]+$/ and r.type_instance == "osd.op_r_out_bytes"`).
-		AggregateWindow(`every: 60s, fn: sum, createEmpty: false`).
-		Derivative(`unit: 1s, nonNegative: true`).
-		Group(`columns: ["_time"]`).
-		Max(`column: "_value"`).
-		Group("").
-		String()
-}
-
-func (h *helper) genHostsDiskWriteBandwidthStmt() string {
-	query := influx.Query{}
-	return query.Bucket("ceph").
-		Range(h.genTimeDuration()).
-		Filter(`fn: (r) => r._measurement == "ceph_daemon_stats" and r.ceph_daemon =~ /^osd\.[0-9]+$/ and r.type_instance == "osd.op_w_in_bytes"`).
-		AggregateWindow(`every: 60s, fn: sum, createEmpty: false`).
-		Derivative(`unit: 1s, nonNegative: true`).
-		Group(`columns: ["_time"]`).
-		Max(`column: "_value"`).
-		Group("").
-		String()
-}
-
-func (h *helper) genHostsStorageReadIopsStmt() string {
-	query := influx.Query{}
-	return query.Bucket("ceph").
-		Range(h.genTimeDuration()).
-		Filter(`fn: (r) => r._measurement == "ceph_daemon_stats" and r.ceph_daemon =~ /^osd\.[0-9]+$/ and r.type_instance == "osd.op_r"`).
-		AggregateWindow(`every: 60s, fn: sum, createEmpty: false`).
-		Derivative(`unit: 1s, nonNegative: true`).
-		Group(`columns: ["_time"]`).
-		Sum(`column: "_value"`).
-		String()
-}
-
-func (h *helper) genHostsStorageWriteIopsStmt() string {
-	query := influx.Query{}
-	return query.Bucket("ceph").
-		Range(h.genTimeDuration()).
-		Filter(`fn: (r) => r._measurement == "ceph_daemon_stats" and r.ceph_daemon =~ /^osd\.[0-9]+$/ and r.type_instance == "osd.op_w"`).
-		AggregateWindow(`every: 60s, fn: sum, createEmpty: false`).
-		Derivative(`unit: 1s, nonNegative: true`).
-		Group(`columns: ["_time"]`).
-		Sum(`column: "_value"`).
-		String()
-}
-
 func (h *helper) genHostsStorageUsageRankStmt() string {
 	query := influx.Query{}
 	return query.Bucket("telegraf").

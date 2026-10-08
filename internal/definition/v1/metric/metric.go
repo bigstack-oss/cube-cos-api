@@ -1,5 +1,7 @@
 package metric
 
+import "time"
+
 const (
 	Module  = "metrics"
 	Summary = "summary"
@@ -71,4 +73,11 @@ type StorageTimeSeries struct {
 type TimeValue struct {
 	Time  string `json:"time"`
 	Value any    `json:"value"`
+}
+
+// Range is the window and resolution of a Prometheus range query.
+type Range struct {
+	Start time.Time
+	End   time.Time
+	Step  time.Duration
 }
