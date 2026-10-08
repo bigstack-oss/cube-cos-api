@@ -8,6 +8,7 @@ import (
 	query "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/metric"
 	duration "github.com/xhit/go-str2duration"
 )
 
@@ -187,4 +188,34 @@ func (h *helper) genTimeDuration() string {
 		h.Period.Start,
 		h.Period.Stop,
 	)
+}
+
+// genStorageRange is genTimeDuration for the Prometheus-backed storage charts.
+func (h *helper) genStorageRange() (metric.Range, error) {
+	step, err := duration.Str2Duration(h.aggregateWindow)
+	if err != nil {
+		return metric.Range{}, fmt.Errorf("invalid 'aggregateWindow' duration: %s", h.aggregateWindow)
+	}
+
+	if h.isPastRequired() {
+		past, err := duration.Str2Duration(h.past)
+		if err != nil {
+			return metric.Range{}, fmt.Errorf("invalid 'past' duration: %s", h.past)
+		}
+
+		end := time.Now()
+		return metric.Range{Start: end.Add(-past), End: end, Step: step}, nil
+	}
+
+	start, err := time.Parse(time.RFC3339, h.Period.Start)
+	if err != nil {
+		return metric.Range{}, fmt.Errorf("'start' time format should be aligned with RFC3339: %s", h.Period.Start)
+	}
+
+	end, err := time.Parse(time.RFC3339, h.Period.Stop)
+	if err != nil {
+		return metric.Range{}, fmt.Errorf("'stop' time format should be aligned with RFC3339: %s", h.Period.Stop)
+	}
+
+	return metric.Range{Start: start, End: end, Step: step}, nil
 }
