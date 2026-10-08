@@ -5,6 +5,8 @@ import (
 	"testing"
 	ostime "time"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/time"
 	"github.com/stretchr/testify/require"
 )
@@ -99,6 +101,88 @@ func TestGetFixpackUpdatedAtPropagatesTheHistoryLookupError(t *testing.T) {
 	})
 
 	_, err := GetFixpackUpdatedAt()
+
+	require.ErrorContains(t, err, "hex_config unavailable")
+}
+
+// Restores the fixpack-history seam so stubs do not leak between tests.
+func stubFixpackHistory(t *testing.T, fn func() ([]fixpacks.Fixpack, error)) {
+	t.Helper()
+
+	orig := listFixpackHistory
+	listFixpackHistory = fn
+
+	t.Cleanup(func() { listFixpackHistory = orig })
+}
+
+// Feeds raw hex_config fixpack_get_history output through the real parser.
+func stubRawFixpackHistory(t *testing.T, raw string) {
+	t.Helper()
+
+	stubFixpackHistory(t, func() ([]fixpacks.Fixpack, error) {
+		return convertHistoryToFixpacks([]byte(raw))
+	})
+}
+
+func TestGetCurrentFixpackReportsTheLatestInstalledFixpack(t *testing.T) {
+	useLocalZone(t, 8*60*60)
+	stubRawFixpackHistory(t, ""+
+		"01 May 2026 09:00:00|001|first-fix|Yes|installed|note|\n"+
+		"06 May 2026 14:24:29|002|appctl 4eaec97|No|installed|fix appfw offline install|\n")
+
+	got, err := GetCurrentFixpack()
+
+	require.NoError(t, err)
+	require.Equal(t, base.Fixpack{
+		Name:      "appctl 4eaec97",
+		Version:   "002",
+		UpdatedAt: "2026-05-06T14:24:29+08:00",
+	}, got)
+}
+
+// A rollback appends an "uninstalled" line rather than removing the install,
+// so the last history line is not necessarily the fixpack in effect.
+func TestGetCurrentFixpackFallsBackToThePreviousFixpackAfterARollback(t *testing.T) {
+	useLocalZone(t, 8*60*60)
+	stubRawFixpackHistory(t, ""+
+		"01 May 2026 09:00:00|001|first-fix|Yes|installed|note|\n"+
+		"06 May 2026 14:24:29|002|second-fix|Yes|installed|note|\n"+
+		"07 May 2026 10:00:00|002|second-fix|Yes|uninstalled|note|\n")
+
+	got, err := GetCurrentFixpack()
+
+	require.NoError(t, err)
+	require.Equal(t, "001", got.Version)
+	require.Equal(t, "first-fix", got.Name)
+}
+
+func TestGetCurrentFixpackIsEmptyWhenEveryFixpackIsRolledBack(t *testing.T) {
+	useLocalZone(t, 8*60*60)
+	stubRawFixpackHistory(t, ""+
+		"06 May 2026 14:24:29|001|first-fix|Yes|installed|note|\n"+
+		"07 May 2026 10:00:00|001|first-fix|Yes|uninstalled|note|\n")
+
+	got, err := GetCurrentFixpack()
+
+	require.NoError(t, err)
+	require.Equal(t, base.Fixpack{}, got)
+}
+
+func TestGetCurrentFixpackIsEmptyWithoutHistory(t *testing.T) {
+	stubRawFixpackHistory(t, "")
+
+	got, err := GetCurrentFixpack()
+
+	require.NoError(t, err)
+	require.Equal(t, base.Fixpack{}, got)
+}
+
+func TestGetCurrentFixpackPropagatesTheHistoryLookupError(t *testing.T) {
+	stubFixpackHistory(t, func() ([]fixpacks.Fixpack, error) {
+		return nil, errors.New("hex_config unavailable")
+	})
+
+	_, err := GetCurrentFixpack()
 
 	require.ErrorContains(t, err, "hex_config unavailable")
 }

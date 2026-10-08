@@ -449,12 +449,14 @@ func parseHistoryFixpacks(out []byte) []fixpacks.Fixpack {
 
 		date := segments[0]
 		version := segments[1]
+		name := segments[2]
 		isRollbackable := segments[3]
 		action := segments[4]
 		note := segments[5]
 
 		list = append(list, fixpacks.Fixpack{
 			Version:   version,
+			Name:      name,
 			Action:    action,
 			Note:      note,
 			UpdatedAt: convertRawTime(time.FormatFixpack, date),
