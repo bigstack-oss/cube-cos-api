@@ -1747,6 +1747,55 @@ func TestUpdateLocalGpuCard(t *testing.T) {
 		require.ErrorIs(t, err, gpu.ErrUnsupportedType)
 	})
 
+	// #1769: a pgpu-only card bound to vfio-pci has no vGPU profiles to answer
+	// with, so the profile fetch fails there. Asking it first turned a request
+	// for a type the card cannot take into a bare 500.
+	t.Run("unsupported vgpu type with profiles is a 409 before any profile fetch", func(t *testing.T) {
+		pgpuOnly := gpu.GpuFromHex{
+			Id:           "GPU-A2000",
+			PciAddress:   "0000:86:00.0",
+			Type:         gpu.ResourceTypePgpu,
+			SupportTypes: []gpu.SupportResourceType{gpu.SupportResourceTypePgpu},
+			Status:       gpu.GpuStatusIdle,
+		}
+		getNodeGpuById = func(nodeName, gpuId string) (gpu.GpuFromHex, error) { return pgpuOnly, nil }
+		getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
+			t.Errorf("gpu_vgpu_profile_list must not be spawned for a type the card does not support (gpu %s)", gpuId)
+			return nil, gpu.VgpuProfileCollectionFromHex{}, errors.New("exit status 1")
+		}
+		upsertUpdatingGpuReq = func(h *helper, gpuId string) error { t.Fatal("must not upsert"); return nil }
+		updateNodeGpuCardViaHex = func(gpuId string, req gpu.UpdateGpuCardRequest) error { t.Fatal("must not call hex"); return nil }
+
+		for _, req := range []gpu.UpdateGpuCardRequest{
+			{ResourceType: gpu.ResourceTypeSriovVgpu, Profiles: []gpu.UpdateGpuCardProfile{{Id: 1, Count: 1}}},
+			{ResourceType: gpu.ResourceTypeMigBackedVgpu, Profiles: []gpu.UpdateGpuCardProfile{{Id: 1, Count: 64}}},
+		} {
+			h := &helper{node: "node-1", gpuId: "GPU-A2000", gpuCardReq: req}
+
+			err := h.updateLocalGpuCard()
+			require.ErrorIs(t, err, gpu.ErrUnsupportedType)
+			require.Contains(t, err.Error(), fmt.Sprintf("does not support '%s' resource type", req.ResourceType))
+		}
+	})
+
+	t.Run("in-use card with profiles is a 409 before any profile fetch", func(t *testing.T) {
+		inUse := card
+		inUse.Status = gpu.GpuStatusInUse
+		getNodeGpuById = func(nodeName, gpuId string) (gpu.GpuFromHex, error) { return inUse, nil }
+		getNodeVgpuProfilesMap = func(gpuId string) (map[uint32]gpu.VgpuProfileFromHex, gpu.VgpuProfileCollectionFromHex, error) {
+			t.Errorf("gpu_vgpu_profile_list must not be spawned for a card in use (gpu %s)", gpuId)
+			return nil, gpu.VgpuProfileCollectionFromHex{}, nil
+		}
+		updateNodeGpuCardViaHex = func(gpuId string, req gpu.UpdateGpuCardRequest) error { t.Fatal("must not call hex"); return nil }
+
+		h := &helper{node: "node-1", gpuId: "GPU-1", gpuCardReq: gpu.UpdateGpuCardRequest{
+			ResourceType: gpu.ResourceTypeSriovVgpu,
+			Profiles:     []gpu.UpdateGpuCardProfile{{Id: 57, Count: 1}},
+		}}
+
+		require.ErrorIs(t, h.updateLocalGpuCard(), gpu.ErrGpuInUse)
+	})
+
 	t.Run("gpu not found is surfaced", func(t *testing.T) {
 		getNodeGpuById = func(nodeName, gpuId string) (gpu.GpuFromHex, error) {
 			return gpu.GpuFromHex{}, gpu.ErrGpuNotFound
@@ -1787,6 +1836,8 @@ func TestUpdateLocalGpuCard(t *testing.T) {
 		require.NotErrorIs(t, err, gpu.ErrExceedProfileCountLimit)
 		require.NotErrorIs(t, err, gpu.ErrExceedVramLimit)
 		require.NotErrorIs(t, err, gpu.ErrGpuInUse)
+		require.Contains(t, err.Error(), "failed to read the vgpu profiles of gpu GPU-1")
+		require.Contains(t, err.Error(), "hex_sdk profile list failed")
 		require.False(t, hexCalled)
 	})
 }

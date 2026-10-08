@@ -366,11 +366,10 @@ func (h *helper) buildLocalGpuCard(hexGpu gpu.GpuFromHex, opts buildLocalGpuCard
 	// A probe that failed for the first can succeed for the second, so a card
 	// that is demonstrably running vGPU still gets asked.
 	//
-	// It buys no degraded flag. gpu_vgpu_profile_list sends nvidia-smi's stderr
-	// to /dev/null and never checks its exit status, so a failed probe returns
-	// {"sriov":[],"migBacked":[]} with exit 0 and the fetch below sees no error.
-	// Empty profile lists therefore never mean "degraded" - they mean either "no
-	// vGPU types" or "the probe failed", and the two are indistinguishable here.
+	// Since cubecos#1247, gpu_vgpu_profile_list exits non-zero when its
+	// nvidia-smi probe fails and the static vGPU type table cannot answer for the
+	// card either, and that error marks the card degraded below. Empty lists with
+	// exit 0 are an answer: the card has no vGPU types (cubecos#1765).
 	if supportsVgpu(hexGpu) || isVgpu(hexGpu) {
 		var profErr error
 		// Must be the GPU UUID, not the PCI address: gpu_vgpu_profile_list looks
@@ -525,6 +524,29 @@ func isSupportedType(supportTypes []gpu.SupportResourceType, t gpu.ResourceType)
 	return false
 }
 
+// validateGpuCardRequest is the part of validateGpuCardUpdate that needs only
+// the card and the request: the type is one the card supports, profiles come
+// only with a vGPU type, and the card is not in use. updateLocalGpuCard runs it
+// before asking hex for the card's vGPU profiles. A pgpu-only card bound to
+// vfio-pci has no profiles to answer with, so asking first turned a request for
+// a type the card cannot take into a bare "exit status 1" 500 instead of the 409
+// it is (#1769).
+func validateGpuCardRequest(card gpu.GpuFromHex, req gpu.UpdateGpuCardRequest) error {
+	if !isSupportedType(card.SupportTypes, req.ResourceType) {
+		return fmt.Errorf("gpu card %s does not support '%s' resource type: %w", card.Id, req.ResourceType, gpu.ErrUnsupportedType)
+	}
+
+	if !isVgpuType(req.ResourceType) && len(req.Profiles) > 0 {
+		return fmt.Errorf("profiles are not allowed for resource type %s: %w", req.ResourceType, gpu.ErrProfilesNotAllowed)
+	}
+
+	if card.Status == gpu.GpuStatusInUse || (card.Allocation != nil && card.Allocation.Current > 0) {
+		return fmt.Errorf("gpu %s is in use: %w", card.Id, gpu.ErrGpuInUse)
+	}
+
+	return nil
+}
+
 // validateGpuCardUpdate checks a resource-type change against the card's real
 // capabilities. profilesMap (keyed by profile Id) and totalVramMiB (from
 // nvidia-smi) are only consulted for vGPU types with profiles; a nil
@@ -536,16 +558,8 @@ func validateGpuCardUpdate(
 	profilesMap map[uint32]gpu.VgpuProfileFromHex,
 	totalVramMiB *int,
 ) error {
-	if !isSupportedType(card.SupportTypes, req.ResourceType) {
-		return fmt.Errorf("gpu card %s does not support '%s' resource type: %w", card.Id, req.ResourceType, gpu.ErrUnsupportedType)
-	}
-
-	if !isVgpuType(req.ResourceType) && len(req.Profiles) > 0 {
-		return fmt.Errorf("profiles are not allowed for resource type %s: %w", req.ResourceType, gpu.ErrProfilesNotAllowed)
-	}
-
-	if card.Status == gpu.GpuStatusInUse || (card.Allocation != nil && card.Allocation.Current > 0) {
-		return fmt.Errorf("gpu %s is in use: %w", card.Id, gpu.ErrGpuInUse)
+	if err := validateGpuCardRequest(card, req); err != nil {
+		return err
 	}
 
 	if !isVgpuType(req.ResourceType) {
@@ -947,6 +961,11 @@ func (h *helper) updateLocalGpuCard() error {
 		return err
 	}
 
+	// Settle what the request alone can settle before spawning hex for profiles.
+	if err := validateGpuCardRequest(card, h.gpuCardReq); err != nil {
+		return err
+	}
+
 	// vGPU profile limits need the GPU's available profiles (hex). Only gather
 	// them when profiles are actually supplied.
 	var profilesMap map[uint32]gpu.VgpuProfileFromHex
@@ -955,7 +974,7 @@ func (h *helper) updateLocalGpuCard() error {
 		profilesMap, _, err = getNodeVgpuProfilesMap(card.Id)
 		if err != nil {
 			log.Errorf("gpu(%s): failed to get vgpu profiles for gpu %s: %v", h.reqId, h.gpuId, err)
-			return err
+			return fmt.Errorf("failed to read the vgpu profiles of gpu %s: %w", card.Id, err)
 		}
 
 		// The card's total VRAM is only ever consulted for MIG-backed vGPU;
