@@ -6,7 +6,7 @@ require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.113.1
 	github.com/beevik/etree v1.6.0
-	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20260130102442-288f9c049e55
+	github.com/bigstack-oss/bigstack-dependency-go v0.0.0-20260702021020-596a0a8b40f0
 	github.com/blevesearch/bleve/v2 v2.6.1
 	github.com/coreos/go-oidc v2.5.0+incompatible
 	github.com/creack/pty v1.1.24
@@ -167,6 +167,7 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	github.com/urfave/cli/v2 v2.27.3 // indirect
+	github.com/wneessen/go-mail v0.7.3 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.2.0 // indirect

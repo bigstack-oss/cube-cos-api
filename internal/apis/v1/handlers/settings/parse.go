@@ -78,6 +78,12 @@ func (h *helper) initEmailSenderCreateParams() error {
 		return errors.ErrEmailSenderPortInvalid
 	}
 
+	err = h.task.Sender.Normalize(nil)
+	if err != nil {
+		log.Errorf("settings(%s): %v", h.reqId, err)
+		return err
+	}
+
 	h.task.Key = h.task.Sender.Host
 	h.task.SetUpdating()
 	return nil
@@ -115,18 +121,21 @@ func (h *helper) initEmailSenderPatchParams() error {
 		h.task.Sender.Host = h.emailSender
 	}
 
+	current := h.getCurrentSender()
 	h.task.Key = h.task.Sender.Host
-	h.task.Sender.Password = h.parsePassword()
+	h.task.Sender.Password = h.parsePassword(current)
+	err = h.task.Sender.Normalize(current)
+	if err != nil {
+		log.Errorf("settings(%s): %v", h.reqId, err)
+		return err
+	}
+
 	h.task.Sender.ResetAccessVerification()
 	h.task.SetUpdating()
 	return nil
 }
 
-func (h *helper) parsePassword() *string {
-	if h.task.Sender.Password != nil {
-		return h.task.Sender.Password
-	}
-
+func (h *helper) getCurrentSender() *email.Sender {
 	senders, err := cubecos.GetEmailSenders()
 	if err != nil {
 		return nil
@@ -135,7 +144,21 @@ func (h *helper) parsePassword() *string {
 		return nil
 	}
 
-	return senders[0].Password
+	return &senders[0]
+}
+
+// parsePassword keeps the current password when the request leaves it out.
+// An operator who clears the password on purpose sends an empty string,
+// which is kept as is.
+func (h *helper) parsePassword(current *email.Sender) *string {
+	if h.task.Sender.Password != nil {
+		return h.task.Sender.Password
+	}
+	if current == nil {
+		return nil
+	}
+
+	return current.Password
 }
 
 func (h *helper) initEmailSenderDeleteParams() error {

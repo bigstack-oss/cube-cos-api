@@ -144,7 +144,7 @@ func DeleteEmailSender() error {
 }
 
 func ApplyEmailSender(sender email.Sender) error {
-	bytes, err := json.Marshal(sender)
+	bytes, err := json.Marshal(sender.ToHexSchema())
 	if err != nil {
 		log.Errorf("settings: failed to marshal email sender(%v)", err)
 		return err
