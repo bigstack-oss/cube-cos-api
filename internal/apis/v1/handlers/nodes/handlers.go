@@ -604,6 +604,11 @@ func updateNodeOsd(c *gin.Context) {
 		return
 	}
 
+	if h.isReweightAbsent {
+		bodies.SetOk(c, "no reweight given, no update needed", nil)
+		return
+	}
+
 	err = h.validateOsdReq()
 	if err != nil {
 		bodies.SetBadRequest(c, err, nil)

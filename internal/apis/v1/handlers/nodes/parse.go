@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/blockdevice"
@@ -211,12 +214,16 @@ func (h *helper) parseUpdateDeviceOsdsOptions() error {
 		return fmt.Errorf("device name should be provided")
 	}
 
-	err := h.c.ShouldBindJSON(&h.osdReqOpts)
+	hasReweight, err := bindOsdReweight(h.c, &h.osdReqOpts)
 	if err != nil {
 		return fmt.Errorf(
 			"failed to parse patch osd options(%v)",
 			err,
 		)
+	}
+	if !hasReweight {
+		h.isReweightAbsent = true
+		return nil
 	}
 
 	if !h.isValidReweight(h.osdReqOpts.Reweight) {
@@ -304,12 +311,16 @@ func (h *helper) parseUpdateOsdOptions() error {
 		return fmt.Errorf("osd id should be provided")
 	}
 
-	err := h.c.ShouldBindJSON(&h.osdReqOpts)
+	hasReweight, err := bindOsdReweight(h.c, &h.osdReqOpts)
 	if err != nil {
 		return fmt.Errorf(
 			"failed to parse patch osd options(%v)",
 			err,
 		)
+	}
+	if !hasReweight {
+		h.isReweightAbsent = true
+		return nil
 	}
 
 	if !h.isValidReweight(h.osdReqOpts.Reweight) {
@@ -430,4 +441,25 @@ func (h *helper) setOsdReqOptses() error {
 	}
 
 	return nil
+}
+
+// bindOsdReweight binds an OSD reweight request and reports whether the body
+// carried a reweight at all. An absent (or null) reweight would otherwise bind
+// as 0 and run `ceph osd reweight <id> 0`, pushing all data off the OSD, so the
+// caller treats it as "no change", while an explicit 0 stays a real request.
+func bindOsdReweight(c *gin.Context, opts *nodes.OsdReqOpts) (bool, error) {
+	err := c.ShouldBindBodyWith(opts, binding.JSON)
+	if err != nil {
+		return false, err
+	}
+
+	presence := struct {
+		Reweight *float64 `json:"reweight"`
+	}{}
+	err = c.ShouldBindBodyWith(&presence, binding.JSON)
+	if err != nil {
+		return false, err
+	}
+
+	return presence.Reweight != nil, nil
 }
