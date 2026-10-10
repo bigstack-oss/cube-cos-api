@@ -3,6 +3,7 @@ package notifications
 import (
 	"encoding/json"
 	"sync"
+	"time"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/search"
 	"github.com/google/uuid"
@@ -26,11 +27,14 @@ type Notification struct {
 	SearchId       string            `json:"-" bson:"-"`
 }
 
+// Start and Stop are instants: a stored time is compared by the instant it
+// denotes, not by its string, because stored times carry mixed offsets
+// (`Z`, `+00:00`, `+09:00`).
 type ListOpts struct {
-	Limit     int64  `json:"limit"`
-	Desending bool   `json:"descending"`
-	Start     string `json:"start"`
-	Stop      string `json:"stop"`
+	Limit     int64     `json:"limit"`
+	Desending bool      `json:"descending"`
+	Start     time.Time `json:"start"`
+	Stop      time.Time `json:"stop"`
 }
 
 func (n *Notification) String() string {
