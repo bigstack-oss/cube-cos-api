@@ -45,6 +45,9 @@ type helper struct {
 
 	page  *pages.Page
 	watch bool
+
+	// isReweightAbsent is set when a reweight PATCH body has no reweight.
+	isReweightAbsent bool
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {

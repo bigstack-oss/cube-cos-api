@@ -104,9 +104,14 @@ func RemoveOsd(req nodes.OsdReqOpts) error {
 	return nil
 }
 
+// reweightOsdArgs sets the OSD's 0..1 override weight (the REWEIGHT column of
+// `ceph osd tree`), not its CRUSH weight, which tracks the disk size.
+func reweightOsdArgs(req nodes.OsdReqOpts) []string {
+	return []string{"osd", "reweight", req.OsdId, fmt.Sprintf("%f", req.Reweight)}
+}
+
 func ReweightOsd(req nodes.OsdReqOpts) error {
-	value := fmt.Sprintf("%f", req.Reweight)
-	out, err := exec.Command("ceph", "osd", "crush", "reweight", req.OsdId, value).CombinedOutput()
+	out, err := exec.Command("ceph", reweightOsdArgs(req)...).CombinedOutput()
 	if err != nil {
 		log.Errorf(
 			"hexSdk: failed to execute osd reweight cmd %s(%v %s)",

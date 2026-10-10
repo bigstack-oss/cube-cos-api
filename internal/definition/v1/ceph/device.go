@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	stdmath "math"
 	"os/exec"
 	"slices"
 	"strings"
@@ -52,6 +53,7 @@ type Node struct {
 	Name        string  `json:"name"`
 	Type        string  `json:"type"`
 	CrushWeight float64 `json:"crush_weight"`
+	Reweight    float64 `json:"reweight"`
 	Utilization float64 `json:"utilization"`
 	Pgs         int     `json:"pgs"`
 	Status      string  `json:"status"`
@@ -271,11 +273,18 @@ func GetOsdByDaemonId(daemonId string) (*Osd, error) {
 	return &osd, nil
 }
 
+// roundReweight rounds to the nearest hundredth. Ceph keeps the reweight in
+// 16.16 fixed point and truncates on write, so 0.95 reads back as 0.94999695;
+// rounding down would show 0.94.
+func roundReweight(reweight float64) float64 {
+	return stdmath.Round(reweight*100) / 100
+}
+
 func convertToOsd(raw Node) Osd {
 	return Osd{
 		Id:           raw.Name,
 		DeviceClass:  strings.ToUpper(raw.DeviceClass),
-		Reweight:     math.RoundDown(raw.CrushWeight, 2),
+		Reweight:     roundReweight(raw.Reweight),
 		UsagePercent: math.RoundDown(raw.Utilization, 4),
 		Pgs:          raw.Pgs,
 		Status:       raw.Status,
