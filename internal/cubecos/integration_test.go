@@ -1,6 +1,8 @@
 package cubecos
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
@@ -196,4 +198,38 @@ func TestConvertStorageDetailsTimesToleratesANilStorage(t *testing.T) {
 	useLocalZone(t, 8*60*60)
 
 	require.NotPanics(t, func() { convertStorageDetailsTimes(nil) })
+}
+
+// Puts a fake hex_sdk first on PATH. cinder_delete_model fails with "does not
+// exist" and cinder_get_models lists no models, as on a node where the driver
+// is already gone (a new driver in a bulk replace, or a delete race).
+func stubHexSdkWithoutModel(t *testing.T) {
+	t.Helper()
+
+	dir := t.TempDir()
+	script := `#!/bin/sh
+case "$1" in
+cinder_delete_model)
+	echo '{"message": "model does not exist"}'
+	exit 1
+	;;
+cinder_get_models)
+	echo '[]'
+	exit 0
+	;;
+esac
+exit 99
+`
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "hex_sdk"), []byte(script), 0o755))
+	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
+}
+
+// Deleting a model that is already absent is success: it must not dereference
+// the nil error identifyStorageModelDeleteErr returns for that case.
+func TestDeleteStorageModelTreatsAnAbsentModelAsDeleted(t *testing.T) {
+	stubHexSdkWithoutModel(t)
+
+	require.NotPanics(t, func() {
+		require.NoError(t, DeleteStorageModel("cinder.volume.drivers.rt694_1659.ModelB"))
+	})
 }

@@ -342,6 +342,11 @@ func DeleteStorageModel(driver string) error {
 	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_delete_model", string(input)).CombinedOutput()
 	if err != nil {
 		err := identifyStorageModelDeleteErr(driver, out)
+		if err == nil {
+			log.Warnf("storage: model %s is already absent, nothing to delete (%s)", driver, string(out))
+			return nil
+		}
+
 		log.Errorf("storage: %s (%s)", err.Error(), string(out))
 		return err
 	}

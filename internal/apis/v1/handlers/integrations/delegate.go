@@ -137,8 +137,19 @@ func (h *helper) initBatchStorageModelReqOpts() []defstorages.ModelReqOpts {
 		return nil
 	}
 
+	return markBatchStorageModelReqOpts(h.batchModelReqOpts, currents, h.reqId, base.Hostname)
+}
+
+// Replacing the model list creates the drivers that are new and updates the
+// ones that exist. It never deletes: custom models left out of the upload stay.
+func markBatchStorageModelReqOpts(
+	uploaded []defstorages.ModelReqOpts,
+	currents []defstorages.Model,
+	reqId string,
+	hostname string,
+) []defstorages.ModelReqOpts {
 	inited := []defstorages.ModelReqOpts{}
-	for _, modelReqOpts := range h.batchModelReqOpts {
+	for _, modelReqOpts := range uploaded {
 		found := false
 		for _, current := range currents {
 			if modelReqOpts.Driver == current.Driver {
@@ -147,12 +158,12 @@ func (h *helper) initBatchStorageModelReqOpts() []defstorages.ModelReqOpts {
 			}
 		}
 
-		modelReqOpts.ReqId = h.reqId
-		modelReqOpts.Hostname = base.Hostname
+		modelReqOpts.ReqId = reqId
+		modelReqOpts.Hostname = hostname
 		if found {
 			modelReqOpts.SetUpdating()
 		} else {
-			modelReqOpts.SetDeleting()
+			modelReqOpts.SetCreating()
 		}
 
 		inited = append(inited, modelReqOpts)
@@ -168,7 +179,15 @@ func (h *helper) updatePeerStorageModel() {
 
 func (h *helper) updateLocalStorageModel() {
 	h.addStorageModelReqRecord()
-	modelReqQueue.Add(&h.modelReqOpts)
+	h.enqueueStorageModelReq()
+}
+
+// Queues a copy of the current request. The batch path reuses h.modelReqOpts
+// for every model, and the queue de-duplicates by pointer, so queueing its
+// address would keep only the last model of the list.
+func (h *helper) enqueueStorageModelReq() {
+	reqOpts := h.modelReqOpts
+	modelReqQueue.Add(&reqOpts)
 }
 
 func (h *helper) updatePeerStorageModels() {
