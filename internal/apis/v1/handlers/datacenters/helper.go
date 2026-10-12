@@ -20,6 +20,22 @@ func getClusterFirmwareVersion() string {
 	return version
 }
 
+// Resolved per request: the cached base.Fixpack* values are this node's fixpack
+// as of service start, and a fixpack install or rollback doesn't restart it.
+func getCurrentFixpack() base.Fixpack {
+	fixpack, err := cubecos.GetCurrentFixpack()
+	if err != nil {
+		log.Errorf("datacenters: failed to get current fixpack(%v)", err)
+		return base.Fixpack{
+			Name:      base.FixpackName,
+			Version:   base.FixpackVersion,
+			UpdatedAt: base.FixpackUpdatedAt,
+		}
+	}
+
+	return fixpack
+}
+
 func getLocalDataCenter() base.DataCenter {
 	version := getClusterFirmwareVersion()
 	return base.DataCenter{
@@ -36,11 +52,7 @@ func getLocalDataCenter() base.DataCenter {
 			Version:   version,
 			UpdatedAt: base.ActiveFirmwareUpdatedAt,
 		},
-		Fixpack: base.Fixpack{
-			Name:      base.FixpackName,
-			Version:   base.FixpackVersion,
-			UpdatedAt: base.FixpackUpdatedAt,
-		},
+		Fixpack: getCurrentFixpack(),
 		Additional: base.Additional{
 			HelpUrl:           base.DataCenterHelpUrl,
 			V1ApiDocUrl:       base.GenApiDocUrl(),
