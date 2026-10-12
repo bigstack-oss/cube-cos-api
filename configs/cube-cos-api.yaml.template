@@ -60,6 +60,9 @@ spec:
         password: admin
     influxdb:
       port: 8086
+    # Leave url empty to use http://<data center VIP>/prometheus.
+    prometheus:
+      url: ""
   observability:
     log:
       file: /var/log/cube-cos-api/cube-cos-api.log
