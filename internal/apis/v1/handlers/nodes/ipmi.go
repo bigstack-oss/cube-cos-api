@@ -51,15 +51,39 @@ func (h *helper) checkBoardSerialConsistency(fru *ipmi.FRU) error {
 		return err
 	}
 
-	if strings.Contains(node.BoardSerial, fru.Board.Serial) {
+	return matchBoardSerial(h.node, node.BoardSerial, h.ipmi.Ip, fru)
+}
+
+// matchBoardSerial accepts the BMC only when its FRU board serial is the
+// node's board serial: either the same plain value, or the dotted
+// ".<product serial>.<board serial>." layout some vendors put in DMI.
+// Anything else, including an empty serial on either side, is refused.
+func matchBoardSerial(host, nodeSerial, bmcIp string, fru *ipmi.FRU) error {
+	nodeSerial = strings.TrimSpace(nodeSerial)
+	boardSerial := strings.TrimSpace(fru.Board.Serial)
+	productSerial := strings.TrimSpace(fru.Product.Serial)
+
+	if boardSerial == "" {
+		return fmt.Errorf("board serial is mismatched: BMC %s reports no board serial", bmcIp)
+	}
+
+	if nodeSerial == "" {
+		return fmt.Errorf("board serial is mismatched: host %s has no board serial on record", host)
+	}
+
+	if nodeSerial == boardSerial {
+		return nil
+	}
+
+	if productSerial != "" && nodeSerial == fmt.Sprintf(".%s.%s.", productSerial, boardSerial) {
 		return nil
 	}
 
 	return fmt.Errorf(
 		"board serial is mismatched: %s serial is '%s', but host %s board serial is '%s'",
-		h.ipmi.Ip,
-		fru.Board.Serial,
-		h.node,
-		node.BoardSerial,
+		bmcIp,
+		boardSerial,
+		host,
+		nodeSerial,
 	)
 }
