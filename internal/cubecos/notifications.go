@@ -10,7 +10,6 @@ import (
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func InsertNotification(notification notifications.Notification) error {
@@ -35,12 +34,10 @@ func InsertNotification(notification notifications.Notification) error {
 }
 
 func ListNotifications(opts notifications.ListOpts) ([]notifications.Notification, error) {
-	h := bsmongo.GetGlobalHelper()
-	c, err := h.GetQueryCursor(
+	c, err := bsmongo.GetGlobalHelper().Aggregate(
 		notifications.Db,
 		notifications.ToastCollection,
-		genQueryFilter(opts),
-		genQueryOpts(opts),
+		genListPipeline(opts),
 	)
 	if err != nil {
 		log.Errorf("notifications: failed to get query cursor for notifications: %v", err)
@@ -58,12 +55,10 @@ func ListNotifications(opts notifications.ListOpts) ([]notifications.Notificatio
 // GetLastNotification is used to get the last notification only, so it does not need to consider the complicated query options like time fallback, sorting order,
 // reading size and so on which makes this function simpler and more efficient.
 func GetLastNotification() (*notifications.Notification, error) {
-	h := bsmongo.GetGlobalHelper()
-	c, err := h.GetQueryCursor(
+	c, err := bsmongo.GetGlobalHelper().Aggregate(
 		notifications.Db,
 		notifications.ToastCollection,
-		bson.M{},
-		options.Find().SetSort(bson.D{{Key: "time", Value: -1}}).SetLimit(1),
+		genLastPipeline(),
 	)
 	if err != nil {
 		log.Errorf("notifications: failed to get last notification cursor: %v", err)
@@ -85,22 +80,57 @@ func GetLastNotification() (*notifications.Notification, error) {
 	return &list[0], nil
 }
 
-func genQueryFilter(opts notifications.ListOpts) bson.M {
-	return bson.M{
-		"time": bson.M{
-			"$gte": opts.Start,
-			"$lte": opts.Stop,
-		},
-	}
+// timeAtField holds the instant parsed from the string `time` while a pipeline
+// runs; it is projected away before the documents are returned.
+const timeAtField = "_timeAt"
+
+// `time` is stored as a string whose offset depends on the node's zone when it
+// was written (`Z`, `+00:00`, `+09:00`), so comparing or sorting the strings
+// does not follow the instants. Parse it with $dateFromString first. A `time`
+// that does not parse becomes null, which no date bound matches and which
+// sorts last.
+func genTimeAtStage() bson.D {
+	return bson.D{{Key: "$addFields", Value: bson.D{{
+		Key: timeAtField,
+		Value: bson.D{{Key: "$dateFromString", Value: bson.D{
+			{Key: "dateString", Value: "$time"},
+			{Key: "onError", Value: nil},
+			{Key: "onNull", Value: nil},
+		}}},
+	}}}}
 }
 
-func genQueryOpts(opts notifications.ListOpts) *options.FindOptions {
-	findOpts := options.Find().SetLimit(opts.Limit)
-	if opts.Desending {
-		return findOpts.SetSort(bson.D{{Key: "time", Value: -1}})
+func genDropTimeAtStage() bson.D {
+	return bson.D{{Key: "$project", Value: bson.D{{Key: timeAtField, Value: 0}}}}
+}
+
+func genListPipeline(opts notifications.ListOpts) mongo.Pipeline {
+	pipeline := mongo.Pipeline{
+		genTimeAtStage(),
+		{{Key: "$match", Value: bson.D{{Key: timeAtField, Value: bson.D{
+			{Key: "$gte", Value: opts.Start},
+			{Key: "$lte", Value: opts.Stop},
+		}}}}},
 	}
 
-	return findOpts
+	if opts.Desending {
+		pipeline = append(pipeline, bson.D{{Key: "$sort", Value: bson.D{{Key: timeAtField, Value: -1}}}})
+	}
+
+	if opts.Limit > 0 {
+		pipeline = append(pipeline, bson.D{{Key: "$limit", Value: opts.Limit}})
+	}
+
+	return append(pipeline, genDropTimeAtStage())
+}
+
+func genLastPipeline() mongo.Pipeline {
+	return mongo.Pipeline{
+		genTimeAtStage(),
+		{{Key: "$sort", Value: bson.D{{Key: timeAtField, Value: -1}}}},
+		{{Key: "$limit", Value: 1}},
+		genDropTimeAtStage(),
+	}
 }
 
 func parseNotifications(c *mongo.Cursor) ([]notifications.Notification, error) {
