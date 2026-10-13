@@ -216,12 +216,20 @@ func ServeAcs() gin.HandlerFunc {
 
 func AuthRequest(c *gin.Context) {
 	session, err := SpAuth.Session.GetSession(c.Request)
-	if session != nil {
+	if session != nil && isSessionAlive(session) {
 		c.Request = c.Request.WithContext(samlsp.ContextWithSession(c.Request.Context(), session))
 		c.Next()
 		return
 	}
-	if err != samlsp.ErrNoSession {
+	if session != nil {
+		// Signed out on the Keycloak side: drop the cookie and answer as for
+		// a request without one, so the UI goes back to the Keycloak login.
+		log.Infof("auth: COS UI session ended in Keycloak, signing it out")
+		err = SpAuth.Session.DeleteSession(c.Writer, c.Request)
+		if err != nil {
+			log.Errorf("auth: failed to delete ended COS UI session(%v)", err)
+		}
+	} else if err != samlsp.ErrNoSession {
 		SpAuth.OnError(c.Writer, c.Request, err)
 		c.Abort()
 		return
