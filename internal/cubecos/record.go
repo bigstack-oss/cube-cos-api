@@ -29,3 +29,20 @@ func RemoveHostPendingReq(db, collection string) {
 		log.Errorf("%s: failed to reset isUpdating requests: %v", db, err)
 	}
 }
+
+// RemoveHostProcessingReq drops this node's storage and storage-model requests
+// still marked processing, which RemoveHostPendingReq does not match.
+func RemoveHostProcessingReq(db, collection string) {
+	h := mongo.GetGlobalHelper()
+	err := h.DeleteAll(db, collection, hostProcessingFilter())
+	if err != nil {
+		log.Errorf("%s: failed to remove processing requests: %v", db, err)
+	}
+}
+
+func hostProcessingFilter() bson.M {
+	return bson.M{
+		"hostname":            base.Hostname,
+		"status.isProcessing": true,
+	}
+}

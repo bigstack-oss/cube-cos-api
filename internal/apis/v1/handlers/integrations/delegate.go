@@ -4,7 +4,6 @@ import (
 	"maps"
 	"net/http"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	defstorages "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
@@ -33,7 +32,7 @@ func (h *helper) updatePeerStorage() {
 		return
 	}
 
-	if !cubecos.IsVirtualIpOwner(base.Hostname) {
+	if h.isPeerRequest() {
 		return
 	}
 
@@ -75,9 +74,14 @@ func (h *helper) sendStorageReqToPeer(node nodes.Node) {
 	}
 }
 
+// isPeerRequest is true for a request forwarded by another control
+func (h *helper) isPeerRequest() bool {
+	return h.c.GetHeader(nodes.ForwardedHeader) != ""
+}
+
 func (h *helper) getStorageUrlByHandler(node nodes.Node) string {
 	switch h.handler {
-	case "creaeteStorage":
+	case "createStorage":
 		return node.PostStorageUrl()
 	case "setStorageAsDefault":
 		return node.SetDefaultStorageUrl(h.storageReqOpts.CinderDetails.Name)
@@ -100,7 +104,7 @@ func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
 		}
 	}
 
-	maps.Copy(headerMap, nodes.GetSecretHeaders())
+	maps.Copy(headerMap, nodes.GetForwardedHeaders())
 	return headerMap
 }
 
@@ -158,7 +162,7 @@ func (h *helper) updatePeerStorageModels() {
 		return
 	}
 
-	if !cubecos.IsVirtualIpOwner(base.Hostname) {
+	if h.isPeerRequest() {
 		return
 	}
 
