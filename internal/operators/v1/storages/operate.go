@@ -39,8 +39,8 @@ func (o *Operator) Name() string {
 func (o *Operator) Init() error {
 	o.http = http.GetGlobalHelper()
 	o.ctx, o.cancel = context.WithCancel(context.Background())
-	cubecos.RemoveHostPendingReq(storages.Db, storages.ReqCollection)
-	cubecos.RemoveHostPendingReq(storages.Db, storages.ModelReqCollection)
+	cubecos.RemoveHostProcessingReq(storages.Db, storages.ReqCollection)
+	cubecos.RemoveHostProcessingReq(storages.Db, storages.ModelReqCollection)
 	return nil
 }
 

@@ -20,3 +20,13 @@ func GetSecretHeaders() map[string]string {
 		"Authorization": fmt.Sprintf("Bearer %s", auths.DefaultNodeToken),
 	}
 }
+
+// ForwardedHeader marks a request forwarded by another control; its value is
+// the origin's hostname.
+const ForwardedHeader = "X-Cube-Forwarded"
+
+func GetForwardedHeaders() map[string]string {
+	headers := GetSecretHeaders()
+	headers[ForwardedHeader] = base.Hostname
+	return headers
+}
