@@ -81,6 +81,24 @@ var (
 		},
 		{
 			Version: apis.V1,
+			Method:  http.MethodGet,
+			Path:    "/integrations/storages/tiers",
+			Func:    listStorageTiers,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodPost,
+			Path:    "/integrations/storages/tiers",
+			Func:    createStorageTier,
+		},
+		{
+			Version: apis.V1,
+			Method:  http.MethodDelete,
+			Path:    "/integrations/storages/tiers/:tierName",
+			Func:    deleteStorageTier,
+		},
+		{
+			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/integrations/storages/models",
 			Func:    createStorageModel,

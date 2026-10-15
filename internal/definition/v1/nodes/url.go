@@ -431,3 +431,15 @@ func (n *Node) UpdateModelTaskUrl() string {
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages/models/tasks", base.DataCenterName)
 	return u.String()
 }
+
+func (n *Node) PostStorageTierUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages/tiers", base.DataCenterName)
+	return u.String()
+}
+
+func (n *Node) DeleteStorageTierUrl(name string) string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages/tiers/%s", base.DataCenterName, name)
+	return u.String()
+}
