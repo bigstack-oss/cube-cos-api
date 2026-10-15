@@ -33,6 +33,20 @@ type ReqOpts struct {
 	Status            status.Storage `json:"status" bson:"status"`
 	VerficationResult `json:"verificationResult" bson:"verificationResult"`
 	Notify            `json:"notify" bson:"notify"`
+
+	// set only on the control that received the original request
+	IsOrigin bool     `json:"-" bson:"-"`
+	Peers    []string `json:"-" bson:"-"`
+}
+
+// ChangesBackends is true for requests that rewrite cinder-volume's backends
+func (r *ReqOpts) ChangesBackends() bool {
+	switch r.Status.Desired {
+	case status.Created, status.Updated, status.Deleted:
+		return true
+	}
+
+	return false
 }
 
 type ModelReqOpts struct {

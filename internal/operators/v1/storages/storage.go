@@ -50,8 +50,11 @@ func (o *Operator) handleStorageExit(req storages.ReqOpts, err error) {
 		req.SetCompleted()
 	}
 
-	o.reportStorageToController(req)
+	reportStorage(o, req)
 }
+
+// reportStorage sends the result to the VIP control; replaced in tests
+var reportStorage = (*Operator).reportStorageToController
 
 func (o *Operator) reportStorageToController(req storages.ReqOpts) {
 	node, err := cubecos.GetVirtualIpController()

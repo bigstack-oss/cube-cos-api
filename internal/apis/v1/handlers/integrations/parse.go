@@ -34,6 +34,10 @@ func (h *helper) parseParamsByHandler() error {
 		return h.parseDeleteStorageModelParams()
 	case "updateModelTask":
 		return h.parseUpdateStorageModelTaskOptions()
+	case "createStorageTier":
+		return h.parseCreateStorageTierParams()
+	case "deleteStorageTier":
+		return h.parseDeleteStorageTierParams()
 	default:
 		return nil
 	}
