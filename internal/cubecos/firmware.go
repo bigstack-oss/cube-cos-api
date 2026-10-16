@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
+	"sync"
 	"syscall"
 	ostime "time"
 
@@ -132,13 +134,16 @@ var cephfsDir = "/mnt/cephfs"
 
 const cephSuperMagic = 0x00c36400
 
+// ErrRollStateUnavailable: the roll job can't be read (cephfs not mounted).
+var ErrRollStateUnavailable = errors.New("roll state unavailable")
+
 // A missing job means "no roll" only while cephfs is mounted; otherwise the
 // local record may be the previous firmware's.
 func getRollFrom(job string, cephfs string) (*firmwares.Roll, error) {
 	out, err := os.ReadFile(job)
 	if os.IsNotExist(err) {
 		if !isCephfsMounted(cephfs) {
-			err := fmt.Errorf("roll state unavailable: %s is not mounted", cephfs)
+			err := fmt.Errorf("%w: %s is not mounted", ErrRollStateUnavailable, cephfs)
 			log.Errorf("firmwares: %v", err)
 			return nil, err
 		}
@@ -206,8 +211,21 @@ func AbortRoll() error {
 	return nil
 }
 
+// ErrCorruptProgress: progress.json does not parse and has no last good copy.
+var ErrCorruptProgress = errors.New("firmware progress file is corrupt")
+
+var lastGoodProgress struct {
+	sync.Mutex
+	upgrade *firmwares.Upgrade
+}
+
 func GetUpgradeProgress() (*firmwares.Upgrade, error) {
-	out, err := os.ReadFile(firmwares.UpdateProgress)
+	return readUpgradeProgress(firmwares.UpdateProgress)
+}
+
+// readUpgradeProgress falls back to the last good read when the file is corrupt.
+func readUpgradeProgress(path string) (*firmwares.Upgrade, error) {
+	out, err := os.ReadFile(path)
 	if err != nil {
 		log.Errorf("firmwares: failed to read progress file(%v)", err)
 		return nil, err
@@ -215,12 +233,41 @@ func GetUpgradeProgress() (*firmwares.Upgrade, error) {
 
 	upgrade := &firmwares.Upgrade{}
 	err = json.Unmarshal(out, upgrade)
-	if err != nil {
-		log.Errorf("firmwares: failed to unmarshal progress file(%v)", err)
-		return nil, err
+	if err == nil {
+		storeLastGoodProgress(upgrade)
+		return upgrade, nil
 	}
 
-	return upgrade, nil
+	last := loadLastGoodProgress()
+	if last != nil {
+		log.Warnf("firmwares: progress file is corrupt, using the last good copy(%v)", err)
+		return last, nil
+	}
+
+	log.Errorf("firmwares: progress file is corrupt(%v)", err)
+	return nil, fmt.Errorf("%w: %v", ErrCorruptProgress, err)
+}
+
+func storeLastGoodProgress(upgrade *firmwares.Upgrade) {
+	lastGoodProgress.Lock()
+	defer lastGoodProgress.Unlock()
+	lastGoodProgress.upgrade = copyUpgrade(upgrade)
+}
+
+func loadLastGoodProgress() *firmwares.Upgrade {
+	lastGoodProgress.Lock()
+	defer lastGoodProgress.Unlock()
+	return copyUpgrade(lastGoodProgress.upgrade)
+}
+
+func copyUpgrade(upgrade *firmwares.Upgrade) *firmwares.Upgrade {
+	if upgrade == nil {
+		return nil
+	}
+
+	c := *upgrade
+	c.Progresses = append([]firmwares.Progress(nil), upgrade.Progresses...)
+	return &c
 }
 
 func GetUpgradeProgressFromVip() (*firmwares.Upgrade, error) {
@@ -256,6 +303,15 @@ func SetNodeUpdateProgress(hostname, phase, status string) error {
 		return err
 	}
 
+	// A rolling restart projection is not firmware state: keep the local record.
+	if update.Kind == firmwares.RollKindRestart {
+		update, err = GetUpgradeProgress()
+		if err != nil {
+			log.Errorf("firmwares: failed to get local update progress(%v)", err)
+			return err
+		}
+	}
+
 	for i, progress := range update.Progresses {
 		if progress.Host != hostname {
 			continue
@@ -286,26 +342,68 @@ func SetNodeAsContinueAnywaied(hostname string) error {
 }
 
 func SetProgressDetails(progress *firmwares.Upgrade) error {
-	file, err := os.Create(firmwares.UpdateProgress)
-	if err != nil {
-		log.Errorf("firmwares: failed to create progress file for update(%v)", err)
-		return err
-	}
+	return writeUpgradeProgress(firmwares.UpdateProgress, progress)
+}
 
-	defer file.Close()
+func writeUpgradeProgress(path string, progress *firmwares.Upgrade) error {
 	content, err := json.MarshalIndent(progress, "", "  ")
 	if err != nil {
 		log.Errorf("firmwares: failed to marshal progress details(%v)", err)
 		return err
 	}
 
-	_, err = file.WriteString(string(content))
+	err = WriteFileAtomic(path, content, 0o644)
 	if err != nil {
 		log.Errorf("firmwares: failed to write progress file(%v)", err)
 		return err
 	}
 
+	storeLastGoodProgress(progress)
 	return nil
+}
+
+// WriteFileAtomic writes a fsynced temp file and renames it over path.
+func WriteFileAtomic(path string, data []byte, perm os.FileMode) error {
+	dir := filepath.Dir(path)
+	tmp, err := os.CreateTemp(dir, "."+filepath.Base(path)+".tmp-*")
+	if err != nil {
+		return err
+	}
+
+	tmpName := tmp.Name()
+	defer os.Remove(tmpName)
+
+	_, err = tmp.Write(data)
+	if err == nil {
+		err = tmp.Chmod(perm)
+	}
+	if err == nil {
+		err = tmp.Sync()
+	}
+	closeErr := tmp.Close()
+	if err != nil {
+		return err
+	}
+	if closeErr != nil {
+		return closeErr
+	}
+
+	err = os.Rename(tmpName, path)
+	if err != nil {
+		return err
+	}
+
+	return syncDir(dir)
+}
+
+func syncDir(dir string) error {
+	d, err := os.Open(dir)
+	if err != nil {
+		return err
+	}
+
+	defer d.Close()
+	return d.Sync()
 }
 
 func SyncFirmwareUpgradeProgressToAllNodes() {

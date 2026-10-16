@@ -24,6 +24,7 @@ type helper struct {
 	storageReqOpts    storages.ReqOpts
 	modelReqOpts      storages.ModelReqOpts
 	batchModelReqOpts []storages.ModelReqOpts
+	tierReqOpts       storages.TierReqOpts
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {

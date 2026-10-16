@@ -1,7 +1,6 @@
 package firmwares
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"sort"
@@ -225,13 +224,6 @@ func (h *helper) syncByOtherNodes() {
 }
 
 func (h *helper) setFreshFirmwareProgressFile() {
-	file, err := os.Create(firmwares.UpdateProgress)
-	if err != nil {
-		log.Errorf("firmwares: failed to create firmware progress file(%v)", err)
-		return
-	}
-
-	defer file.Close()
 	version, err := cubecos.GetActiveFirmwareVersion()
 	if err != nil {
 		log.Errorf("firmwares: failed to get active firmware version(%v)", err)
@@ -249,16 +241,21 @@ func (h *helper) setFreshFirmwareProgressFile() {
 		})
 	}
 
-	b, err := json.MarshalIndent(upgrade, "", "  ")
-	if err != nil {
-		log.Errorf("firmwares: failed to marshal firmware progress(%v)", err)
-		return
-	}
-
-	_, err = file.Write(b)
+	err = cubecos.SetProgressDetails(&upgrade)
 	if err != nil {
 		log.Errorf("firmwares: failed to write firmware progress(%v)", err)
 	}
+}
+
+// resetCorruptProgress rebuilds a progress file that does not parse.
+func (h *helper) resetCorruptProgress() {
+	err := os.Remove(firmwares.UpdateProgress)
+	if err != nil && !os.IsNotExist(err) {
+		log.Errorf("firmwares(%s): failed to remove corrupt progress file(%v)", h.reqId, err)
+		return
+	}
+
+	h.syncFirstTimeInstallationProgress()
 }
 
 func (h *helper) syncProgressToAllNodes() {
@@ -438,9 +435,17 @@ func (h *helper) copyFirmwareDataFrom(node nodes.Node) error {
 		return err
 	}
 
-	err = ssh.CopyFrom(firmwares.UpdateProgress, firmwares.UpdateProgress)
+	tmp := firmwares.UpdateProgress + ".copy"
+	defer os.Remove(tmp)
+	err = ssh.CopyFrom(firmwares.UpdateProgress, tmp)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to copy firmware upgrade progress from node %s(%v)", h.reqId, node.Hostname, err)
+		return err
+	}
+
+	err = os.Rename(tmp, firmwares.UpdateProgress)
+	if err != nil {
+		log.Errorf("firmwares(%s): failed to install copied firmware upgrade progress(%v)", h.reqId, err)
 		return err
 	}
 
@@ -473,26 +478,7 @@ func (h *helper) setNodeUpdateProgress(hostname, phase, status string) error {
 }
 
 func (h *helper) setProgressDetails(progress *firmwares.Upgrade) error {
-	file, err := os.Create(firmwares.UpdateProgress)
-	if err != nil {
-		log.Errorf("firmwares: failed to create progress file for update(%v)", err)
-		return err
-	}
-
-	defer file.Close()
-	content, err := json.MarshalIndent(progress, "", "  ")
-	if err != nil {
-		log.Errorf("firmwares: failed to marshal progress details(%v)", err)
-		return err
-	}
-
-	_, err = file.WriteString(string(content))
-	if err != nil {
-		log.Errorf("firmwares: failed to write progress file(%v)", err)
-		return err
-	}
-
-	return nil
+	return cubecos.SetProgressDetails(progress)
 }
 
 func (h *helper) removeClusterFirmwareUpgradeProgress() {

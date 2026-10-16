@@ -4,7 +4,6 @@ import (
 	"maps"
 	"net/http"
 
-	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	defstorages "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/storages"
@@ -18,41 +17,53 @@ var (
 	modelReqQueue = storages.ModelReqQueue
 )
 
+// updateStorage forwards to the peers, then queues locally with the peers to wait for
 func (h *helper) updateStorage() {
-	h.updateLocalStorage()
-	h.updatePeerStorage()
-}
+	recordStorageReq(h)
+	peers := h.updatePeerStorage()
+	if base.IsHaEnabled && !h.isPeerRequest() && h.storageReqOpts.ChangesBackends() {
+		h.storageReqOpts.IsOrigin = true
+		h.storageReqOpts.Peers = peers
+	}
 
-func (h *helper) updateLocalStorage() {
-	h.addStorageReqRecord()
 	reqQueue.Add(&h.storageReqOpts)
 }
 
-func (h *helper) updatePeerStorage() {
-	if !base.IsHaEnabled {
-		return
+func (h *helper) updateLocalStorage() {
+	recordStorageReq(h)
+	reqQueue.Add(&h.storageReqOpts)
+}
+
+// recordStorageReq stores the request in mongo; replaced in tests
+var recordStorageReq = (*helper).addStorageReqRecord
+
+// updatePeerStorage returns the peers that accepted the request
+func (h *helper) updatePeerStorage() []string {
+	if h.isPeerRequest() {
+		return nil
 	}
 
-	if !cubecos.IsVirtualIpOwner(base.Hostname) {
-		return
-	}
-
-	nodes, err := nodes.GetPeerControls()
+	nodes, err := peerControls()
 	if err != nil {
 		log.Errorf("storages(%s): failed to get peer controller nodes: %v", h.reqId, err)
-		return
+		return nil
 	}
 
+	accepted := []string{}
 	for _, node := range nodes {
 		if node.IsLocal() {
 			continue
 		}
 
-		h.sendStorageReqToPeer(node)
+		if h.sendStorageReqToPeer(node) {
+			accepted = append(accepted, node.Hostname)
+		}
 	}
+
+	return accepted
 }
 
-func (h *helper) sendStorageReqToPeer(node nodes.Node) {
+func (h *helper) sendStorageReqToPeer(node nodes.Node) bool {
 	req := h.genStorageReqByHandler()
 	resp, err := req.Execute(
 		h.c.Request.Method,
@@ -63,7 +74,7 @@ func (h *helper) sendStorageReqToPeer(node nodes.Node) {
 			"storages(%s): failed to update peer storage %s(%v)",
 			h.reqId, node.Hostname, err,
 		)
-		return
+		return false
 	}
 
 	if resp.IsError() {
@@ -71,13 +82,20 @@ func (h *helper) sendStorageReqToPeer(node nodes.Node) {
 			"storages(%s): has resp error during updating peer storage on node %s(%s)",
 			h.reqId, node.Hostname, resp.String(),
 		)
-		return
+		return false
 	}
+
+	return true
+}
+
+// isPeerRequest is true for a request forwarded by another control
+func (h *helper) isPeerRequest() bool {
+	return h.c.GetHeader(nodes.ForwardedHeader) != ""
 }
 
 func (h *helper) getStorageUrlByHandler(node nodes.Node) string {
 	switch h.handler {
-	case "creaeteStorage":
+	case "createStorage":
 		return node.PostStorageUrl()
 	case "setStorageAsDefault":
 		return node.SetDefaultStorageUrl(h.storageReqOpts.CinderDetails.Name)
@@ -100,7 +118,7 @@ func (h *helper) convertHeadersToMap(headers http.Header) map[string]string {
 		}
 	}
 
-	maps.Copy(headerMap, nodes.GetSecretHeaders())
+	maps.Copy(headerMap, nodes.GetForwardedHeaders())
 	return headerMap
 }
 
@@ -158,7 +176,7 @@ func (h *helper) updatePeerStorageModels() {
 		return
 	}
 
-	if !cubecos.IsVirtualIpOwner(base.Hostname) {
+	if h.isPeerRequest() {
 		return
 	}
 
