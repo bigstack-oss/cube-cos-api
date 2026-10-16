@@ -7,6 +7,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/nodes"
 	"github.com/gin-gonic/gin"
@@ -370,7 +371,11 @@ func getFirmwareUpgradeProgress(c *gin.Context) {
 		return
 	}
 
-	progresses, err := h.getFirmwareUpgradeProgress()
+	progresses, err := h.getRollingProgress()
+	if errors.Is(err, cubecos.ErrRollStateUnavailable) {
+		bodies.SetServiceUnavailable(c, err)
+		return
+	}
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return

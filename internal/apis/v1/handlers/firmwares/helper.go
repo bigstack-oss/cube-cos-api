@@ -200,13 +200,38 @@ func (h *helper) abortRoll() error {
 	return cubecos.AbortRoll()
 }
 
+// Stubbed in tests.
+var (
+	getRoll       = cubecos.GetRoll
+	getRollStatus = cubecos.GetRollStatus
+)
+
+// getFirmwareUpgradeProgress projects an in-flight upgrade roll, never a restart.
 func (h *helper) getFirmwareUpgradeProgress() (*firmwares.Upgrade, error) {
-	roll, err := cubecos.GetRoll()
+	return h.getProgress(false)
+}
+
+// getRollingProgress also projects an in-flight rolling restart.
+func (h *helper) getRollingProgress() (*firmwares.Upgrade, error) {
+	upgrade, err := h.getProgress(true)
+	return h.fallBackToCachedRoll(upgrade, err)
+}
+
+func isRollProjected(roll *firmwares.Roll, withRestart bool) bool {
+	if !roll.IsInFlight() {
+		return false
+	}
+
+	return roll.IsUpgrade() || (withRestart && roll.IsRestart())
+}
+
+func (h *helper) getProgress(withRestart bool) (*firmwares.Upgrade, error) {
+	roll, err := getRoll()
 	if err != nil {
 		return nil, err
 	}
 
-	if roll.IsUpgrade() && roll.IsInFlight() {
+	if isRollProjected(roll, withRestart) {
 		return h.convertRollToUpgrade(roll)
 	}
 
@@ -214,6 +239,10 @@ func (h *helper) getFirmwareUpgradeProgress() (*firmwares.Upgrade, error) {
 	// local record.
 	h.syncFirstTimeInstallationProgress()
 	upgrade, err := h.getUpgradeDetails()
+	if errors.Is(err, cubecos.ErrCorruptProgress) {
+		h.resetCorruptProgress()
+		upgrade, err = h.getUpgradeDetails()
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -223,12 +252,23 @@ func (h *helper) getFirmwareUpgradeProgress() (*firmwares.Upgrade, error) {
 }
 
 func (h *helper) convertRollToUpgrade(roll *firmwares.Roll) (*firmwares.Upgrade, error) {
-	rollStatus, err := cubecos.GetRollStatus()
+	rollStatus, err := getRollStatus()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", cubecos.ErrRollStateUnavailable, err)
+	}
+
+	// The job vanished between the two reads (cephfs unmounting).
+	if len(rollStatus.Progresses) == 0 {
+		return nil, fmt.Errorf("%w: roll job has no nodes (state %q)", cubecos.ErrRollStateUnavailable, rollStatus.State)
+	}
+
+	kind := firmwares.RollKindUpgrade
+	if roll.IsRestart() {
+		kind = firmwares.RollKindRestart
 	}
 
 	upgrade := &firmwares.Upgrade{
+		Kind:             kind,
 		Version:          h.getRollTargetVersion(roll),
 		IsRollingApplied: rollStatus.IsRollingApplied,
 		Progresses:       rollStatus.Progresses,
