@@ -215,3 +215,15 @@ func SetInternalServerError(c *gin.Context, err error) {
 		},
 	)
 }
+
+func SetServiceUnavailable(c *gin.Context, err error) {
+	writeJson(
+		c,
+		http.StatusServiceUnavailable,
+		gin.H{
+			Code:   http.StatusServiceUnavailable,
+			Status: "service unavailable",
+			Msg:    err.Error(),
+		},
+	)
+}
