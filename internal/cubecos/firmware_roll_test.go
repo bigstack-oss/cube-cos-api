@@ -1,6 +1,7 @@
 package cubecos
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -11,8 +12,8 @@ func TestGetRollFromMissingJob(t *testing.T) {
 
 	// not cephfs: the job's absence proves nothing
 	roll, err := getRollFrom(filepath.Join(dir, "job.json"), dir)
-	if err == nil || roll != nil {
-		t.Fatalf("got roll=%v err=%v, want an error", roll, err)
+	if !errors.Is(err, ErrRollStateUnavailable) || roll != nil {
+		t.Fatalf("got roll=%v err=%v, want ErrRollStateUnavailable", roll, err)
 	}
 }
 

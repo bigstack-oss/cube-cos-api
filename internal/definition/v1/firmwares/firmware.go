@@ -75,6 +75,9 @@ type Raw struct {
 }
 
 type Upgrade struct {
+	// Kind is the in-flight roll's kind (upgrade/restart); empty when the
+	// progress comes from the local record.
+	Kind             string     `json:"kind,omitempty"`
 	Version          string     `json:"version"`
 	IsRollingApplied bool       `json:"isRollingApplied"`
 	Progresses       []Progress `json:"progresses"`
@@ -124,6 +127,11 @@ func (r *Roll) IsInFlight() bool {
 
 func (r *Roll) IsUpgrade() bool {
 	return r != nil && r.Kind == RollKindUpgrade
+}
+
+// IsRestart matches hex, which treats a job without a kind as a restart.
+func (r *Roll) IsRestart() bool {
+	return r != nil && (r.Kind == RollKindRestart || r.Kind == "")
 }
 
 // AreAllNodesDone reports whether every node in the job reached its final phase.
