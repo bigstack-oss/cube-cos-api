@@ -477,7 +477,8 @@ func conditionalSaml() gin.HandlerFunc {
 }
 
 func isTokenRequest(c *gin.Context) bool {
-	return strings.Contains(c.Request.URL.Path, "/token")
+	return c.Request.Method == "POST" &&
+		c.FullPath() == dcRoute("/tokens")
 }
 
 func registerHandlersByCurrentRole(router *gin.Engine) error {
