@@ -15,7 +15,12 @@ import (
 )
 
 type claims struct {
-	PreferredUsername string `json:"preferred_username"`
+	PreferredUsername string      `json:"preferred_username"`
+	RealmAccess       realmAccess `json:"realm_access"`
+}
+
+type realmAccess struct {
+	Roles []string `json:"roles"`
 }
 
 func VerifyToken(token string) (*claims, error) {

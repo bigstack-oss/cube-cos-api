@@ -168,6 +168,18 @@ func SetUnauthorized(c *gin.Context, err error) {
 	)
 }
 
+func SetForbidden(c *gin.Context, err error) {
+	writeJson(
+		c,
+		http.StatusForbidden,
+		gin.H{
+			Code:   http.StatusForbidden,
+			Status: "forbidden",
+			Msg:    err.Error(),
+		},
+	)
+}
+
 func SetNotFound(c *gin.Context, err error) {
 	writeJson(
 		c,
