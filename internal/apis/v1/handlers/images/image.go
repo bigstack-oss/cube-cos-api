@@ -15,7 +15,7 @@ func (h *helper) listConvertedImages() ([]images.Image, error) {
 		return nil, err
 	}
 
-	images := h.convertToImages(list)
+	images := h.convertToImages(h.visibleImages(list))
 	h.syncProcessingImages(&images)
 	return images, nil
 }
@@ -58,6 +58,7 @@ func (h *helper) syncProcessingImages(images *[]images.Image) {
 		return
 	}
 
+	processings = h.visibleProcessings(processings)
 	existings := map[string]int{}
 	for i, image := range *images {
 		existings[image.Name] = i

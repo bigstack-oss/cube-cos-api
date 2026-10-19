@@ -18,6 +18,7 @@ type helper struct {
 	handler   string
 	mongo     *mongo.Helper
 	openstack *openstack.Helper
+	caller    caller
 
 	reqOpts    images.ReqOpts
 	project    string
@@ -35,6 +36,11 @@ func initHelper(c *gin.Context, handler string) (*helper, error) {
 		openstack: openstack.GetGlobalHelper(),
 		reqId:     queries.GetReqId(c),
 		handler:   handler,
+	}
+
+	err := h.resolveCaller()
+	if err != nil {
+		return h, err
 	}
 
 	return h, h.parseParamsByHandler()
@@ -57,12 +63,12 @@ func (h *helper) listMaterials() (*materials, error) {
 	}
 
 	return &materials{
-		ReservedImages: images.GetReserved(),
+		ReservedImages: h.listReservedImages(),
 		Projects:       projects,
 		Domains:        dominas,
 		Oses:           images.Oses,
 		Destinations:   destinations,
-		Visibilities:   images.Visibilitise,
+		Visibilities:   h.listVisibilities(),
 	}, nil
 }
 

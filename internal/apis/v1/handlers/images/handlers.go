@@ -61,7 +61,7 @@ func listImageMaterials(c *gin.Context) {
 	h, err := initHelper(c, "listMaterials")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err, nil)
+		setInitError(c, err)
 		return
 	}
 
@@ -83,7 +83,7 @@ func listImages(c *gin.Context) {
 	h, err := initHelper(c, "listImages")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err, nil)
+		setInitError(c, err)
 		return
 	}
 
@@ -110,7 +110,7 @@ func listImageAsCsv(c *gin.Context) {
 	h, err := initHelper(c, "listImagesAsCsv")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err, nil)
+		setInitError(c, err)
 		return
 	}
 
@@ -128,7 +128,13 @@ func importImage(c *gin.Context) {
 	h, err := initHelper(c, "importImage")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err, nil)
+		setInitError(c, err)
+		return
+	}
+
+	err = h.authorizeImport()
+	if err != nil {
+		setAuthorizeError(c, err)
 		return
 	}
 
@@ -155,7 +161,13 @@ func updateImage(c *gin.Context) {
 	h, err := initHelper(c, "updateImage")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err, nil)
+		setInitError(c, err)
+		return
+	}
+
+	err = h.authorizeUpdate()
+	if err != nil {
+		setAuthorizeError(c, err)
 		return
 	}
 
@@ -187,7 +199,13 @@ func updateImageTask(c *gin.Context) {
 	h, err := initHelper(c, "updateImageTask")
 	if err != nil {
 		log.Errorf("images(%s): failed to init helper(%v)", h.reqId, err)
-		bodies.SetBadRequest(c, err, nil)
+		setInitError(c, err)
+		return
+	}
+
+	err = h.authorizeTask()
+	if err != nil {
+		setAuthorizeError(c, err)
 		return
 	}
 
@@ -203,4 +221,22 @@ func updateImageTask(c *gin.Context) {
 		"image task is updated successfully",
 		nil,
 	)
+}
+
+func setInitError(c *gin.Context, err error) {
+	if isForbidden(err) {
+		bodies.SetForbidden(c, err)
+		return
+	}
+
+	bodies.SetBadRequest(c, err, nil)
+}
+
+func setAuthorizeError(c *gin.Context, err error) {
+	if isForbidden(err) {
+		bodies.SetForbidden(c, err)
+		return
+	}
+
+	bodies.SetInternalServerError(c, err)
 }

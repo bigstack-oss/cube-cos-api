@@ -134,7 +134,16 @@ func (h *helper) parseProject() error {
 		return nil
 	}
 
-	var err error
+	err := h.authorizeList()
+	if err != nil {
+		return err
+	}
+
+	if !h.caller.isAdmin {
+		h.project = h.caller.projectId
+		return nil
+	}
+
 	h.project, err = h.openstack.GetProjectIdByName(h.project)
 	if err != nil {
 		log.Errorf("images(%s): failed to get project id by name %s(%v)", h.reqId, h.project, err)
