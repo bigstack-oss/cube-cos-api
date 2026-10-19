@@ -357,6 +357,19 @@ func checkLive() gin.HandlerFunc {
 	}
 }
 
+// Tests replace these to run the middleware chain without a SAML SP or Keycloak.
+var (
+	samlAuthRequest = saml.AuthRequest
+	verifyOidcToken = func(token string) (string, error) {
+		claims, err := oidc.VerifyToken(token)
+		if err != nil {
+			return "", err
+		}
+
+		return claims.PreferredUsername, nil
+	}
+)
+
 func verifyAuthToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if isAuthFreeReq(c) {
@@ -385,11 +398,11 @@ func verifyAuthToken() gin.HandlerFunc {
 		}
 
 		oidcToken := parseOidcToken(c)
-		claims, err := oidc.VerifyToken(oidcToken)
+		username, err := verifyOidcToken(oidcToken)
 		if err == nil {
 			c.Set("isTokenValid", true)
 			c.Set("authType", auths.Oidc)
-			c.Set("authUser", claims.PreferredUsername)
+			c.Set("authUser", username)
 		}
 
 		c.Next()
@@ -459,7 +472,7 @@ func conditionalSaml() gin.HandlerFunc {
 		}
 
 		c.Set("authType", auths.Saml)
-		saml.AuthRequest(c)
+		samlAuthRequest(c)
 	}
 }
 
