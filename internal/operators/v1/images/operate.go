@@ -37,13 +37,26 @@ func (o *Operator) importImage(req *images.ReqOpts) error {
 
 	go o.syncProgressToController(req, &opts.StreamingLogs)
 	defer cubecos.RemoveRawImage(filepath.Join(opts.Dir, opts.File))
-	err = cubecos.ImportImage(opts)
+	id, err := cubecos.ImportImage(opts)
 	if err != nil {
 		return err
 	}
 
-	updateOpts := o.genImageCustomProperties(req)
-	cubecos.SetImagePropertiesByName(req.Name, updateOpts)
+	// An import into a volume pool leaves no glance image to set properties on.
+	if opts.PoolType != "glance-images" {
+		return nil
+	}
+
+	if id == "" {
+		log.Errorf("images: no glance image id found for %s, skip setting properties", req.Name)
+		return nil
+	}
+
+	err = cubecos.UpdateImage(id, o.genImageCustomProperties(req))
+	if err != nil {
+		log.Errorf("images: failed to set properties of image %s(%s)(%v)", req.Name, id, err)
+	}
+
 	return nil
 }
 

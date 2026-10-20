@@ -149,3 +149,63 @@ func TestGenCmdRunsHexSdkDirectly(t *testing.T) {
 	require.NoError(t, err)
 	require.Empty(t, scripts)
 }
+
+// glanceCreateOutput mimics `glance image-create --progress` on a pty, where
+// every line ends with \r\n and the progress bar redraws with \r.
+func glanceCreateOutput(eol string) string {
+	lines := []string{
+		"[11:20:01] Importing image new-img ...",
+		"+------------------+----------------------------------------------------------------------------------+",
+		"| Property         | Value                                                                            |",
+		"+------------------+----------------------------------------------------------------------------------+",
+		"| checksum         | 443b7623e27ecf03dc9e01ee93f67afe                                                 |",
+		"| id               | 53271608-b457-41df-a3f7-cbd7eff03e91                                             |",
+		"| owner            | 3f291a8728b446a7bce0288918fa6708                                                 |",
+		"| status           | active                                                                           |",
+		"+------------------+----------------------------------------------------------------------------------+",
+		"[11:20:09] Finished creating image new-img",
+	}
+
+	return "[=====>                        ] 20%\r[===============>              ] 50%\r" +
+		"[=============================>] 100%" + eol +
+		strings.Join(lines, eol) + eol
+}
+
+func traceOpts() *images.CreateOpts {
+	opts := validCreateOpts()
+	opts.StreamingLogs = make(chan float64, 10)
+	return opts
+}
+
+func TestTraceImportProgressReturnsGlanceId(t *testing.T) {
+	opts := traceOpts()
+	id := traceImportProgress(opts, strings.NewReader(glanceCreateOutput("\r\n")))
+	require.Equal(t, "53271608-b457-41df-a3f7-cbd7eff03e91", id)
+
+	close(opts.StreamingLogs)
+	progress := []float64{}
+	for p := range opts.StreamingLogs {
+		progress = append(progress, p)
+	}
+	require.Equal(t, []float64{20, 50, 100}, progress)
+}
+
+func TestTraceImportProgressWithLfOnly(t *testing.T) {
+	id := traceImportProgress(traceOpts(), strings.NewReader(glanceCreateOutput("\n")))
+	require.Equal(t, "53271608-b457-41df-a3f7-cbd7eff03e91", id)
+}
+
+func TestTraceImportProgressWithoutIdRow(t *testing.T) {
+	out := "[===============>              ] 50%\r[=============================>] 100%\r\n" +
+		"| status           | active |\r\n"
+	id := traceImportProgress(traceOpts(), strings.NewReader(out))
+	require.Empty(t, id)
+}
+
+func TestTraceImportProgressIgnoresOtherIdLikeRows(t *testing.T) {
+	out := "| owner_id         | 11111111-2222-3333-4444-555555555555 |\r\n" +
+		"| volume_id        | 66666666-7777-8888-9999-000000000000 |\r\n" +
+		"| id               | 53271608-b457-41df-a3f7-cbd7eff03e91 |\r\n"
+	id := traceImportProgress(traceOpts(), strings.NewReader(out))
+	require.Equal(t, "53271608-b457-41df-a3f7-cbd7eff03e91", id)
+}

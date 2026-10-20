@@ -23,6 +23,7 @@ var (
 	imageProgress  = regexp.MustCompile(`\[[= >]+\]\s+(\d+)%`)
 	volumeProgress = regexp.MustCompile(`Importing image:\s+(\d+)%\s+complete`)
 	importParam    = regexp.MustCompile(`^[\p{L}\p{N}][\p{L}\p{N}._+-]*$`)
+	glanceImageId  = regexp.MustCompile(`\|\s*id\s*\|\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*\|`)
 )
 
 const maxImportParamLen = 255
@@ -61,31 +62,33 @@ func ValidateImportOpts(opts images.ReqOpts) error {
 	return nil
 }
 
-func ImportImage(opts *images.CreateOpts) error {
+// ImportImage returns the id of the glance image created during the import,
+// or an empty id when glance printed none.
+func ImportImage(opts *images.CreateOpts) (string, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(180))
 	defer cancel()
 	cmd := genCmd(ctx, opts)
 	out, err := tty.Start(cmd)
 	if err != nil {
 		log.Errorf("images: failed to start command(%v)", err)
-		return err
+		return "", err
 	}
 
 	defer out.Close()
-	traceImportProgress(opts, out)
+	id := traceImportProgress(opts, out)
 	err = cmd.Wait()
 	if err != nil {
 		log.Errorf("images: failed to wait for image %s import command(%v)", opts.Name, err)
-		return err
+		return "", err
 	}
 
 	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("failed to import image %s(%v)", opts.Name, err)
 		log.Errorf("images: %v", err)
-		return err
+		return "", err
 	}
 
-	return nil
+	return id, nil
 }
 
 func RemoveRawImage(path string) {
@@ -125,25 +128,17 @@ func genImageArgs(opts *images.CreateOpts) []string {
 	}
 }
 
-func SetImagePropertiesByName(name string, opts opsimage.UpdateOpts) error {
-	h := openstack.GetGlobalHelper()
-	image, err := h.GetImageByName(name)
-	if err != nil {
-		log.Errorf("images: failed to get image %s(%v)", name, err)
-		return err
-	}
-
-	return h.UpdateImageProperty(image.ID, opts)
-}
-
 func UpdateImage(id string, opts opsimage.UpdateOpts) error {
 	h := openstack.GetGlobalHelper()
 	return h.UpdateImageProperty(id, opts)
 }
 
-func traceImportProgress(opts *images.CreateOpts, out io.Reader) {
+// traceImportProgress streams the import progress and returns the image id
+// from the table glance prints after creating the image.
+func traceImportProgress(opts *images.CreateOpts, out io.Reader) string {
 	buf := bytes.Buffer{}
 	last := float64(0)
+	id := ""
 
 	for {
 		tmp := make([]byte, 1)
@@ -154,11 +149,13 @@ func traceImportProgress(opts *images.CreateOpts, out io.Reader) {
 
 		bytes := tmp[0]
 		if bytes == '\n' {
+			id = keepGlanceImageId(id, &buf)
 			buf.Reset()
 			continue
 		}
 
 		if bytes == '\r' {
+			id = keepGlanceImageId(id, &buf)
 			streamImportProgress(
 				opts.PoolType, &buf, &last, &opts.StreamingLogs,
 			)
@@ -168,6 +165,21 @@ func traceImportProgress(opts *images.CreateOpts, out io.Reader) {
 
 		buf.WriteByte(bytes)
 	}
+
+	return id
+}
+
+func keepGlanceImageId(id string, buf *bytes.Buffer) string {
+	if id != "" {
+		return id
+	}
+
+	matches := glanceImageId.FindStringSubmatch(buf.String())
+	if len(matches) < 2 {
+		return ""
+	}
+
+	return matches[1]
 }
 
 func streamImportProgress(poolType string, buf *bytes.Buffer, last *float64, streamingLogs *chan float64) {
