@@ -183,17 +183,21 @@ func TestAuthFreeRoutesMatchRegisteredHandlers(t *testing.T) {
 		require.True(t, registered[r], "auth-free route is not registered: %s %s", r.method, r.path)
 	}
 	require.True(t, registered[route{http.MethodPost, dcRoute("/tokens")}], "token route is not registered")
+}
 
-	for _, h := range grafanapi.Handlers {
-		r := route{h.Method, getUrlParentPath(h) + h.Path}
-		require.True(t, authFreeRoutes[r], "route missing from the auth-free list: %s %s", r.method, r.path)
-	}
+func TestGrafanaRoutesRequireCredentials(t *testing.T) {
+	requireCredentialsForHandlers(t, grafanapi.Handlers)
 }
 
 func TestOpenSearchRoutesRequireCredentials(t *testing.T) {
+	requireCredentialsForHandlers(t, opensearchapi.Handlers)
+}
+
+func requireCredentialsForHandlers(t *testing.T, handlers []apis.Handler) {
+	t.Helper()
 	router := newAuthTestRouter(t)
 
-	for _, h := range opensearchapi.Handlers {
+	for _, h := range handlers {
 		r := route{h.Method, getUrlParentPath(h) + h.Path}
 		require.False(t, authFreeRoutes[r], "%s %s", r.method, r.path)
 

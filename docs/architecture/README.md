@@ -182,7 +182,7 @@ when UI send out the GET request to fetch data, the actually first service it me
 <br/>
 
 - keycloak
-    - Auth free: data center listing api, grafana api, and opensearch api
+    - Auth free: data center listing api
     - UI: auth by SAML
     - Pure API: auth by OIDC or internal node token
 
