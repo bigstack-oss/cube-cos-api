@@ -28,16 +28,7 @@ type route struct {
 // authFreeRoutes lists every route served without credentials, keyed by the
 // route template gin matched rather than the raw request path.
 var authFreeRoutes = map[route]bool{
-	{http.MethodGet, apis.V1 + "/datacenters"}:                             true,
-	{http.MethodGet, dcRoute("/grafana/hosts/:hostname")}:                  true,
-	{http.MethodGet, dcRoute("/grafana/instances/:instanceId")}:            true,
-	{http.MethodGet, dcRoute("/grafana/topHosts")}:                         true,
-	{http.MethodGet, dcRoute("/grafana/topInstances")}:                     true,
-	{http.MethodGet, dcRoute("/grafana/networks")}:                         true,
-	{http.MethodGet, dcRoute("/grafana/networkDevices")}:                   true,
-	{http.MethodGet, dcRoute("/grafana/storages")}:                         true,
-	{http.MethodGet, dcRoute("/grafana/devices/:hostname/gpuUtilization")}: true,
-	{http.MethodGet, dcRoute("/grafana/devices/:hostname/gpuVram")}:        true,
+	{http.MethodGet, apis.V1 + "/datacenters"}: true,
 }
 
 func dcRoute(path string) string {
