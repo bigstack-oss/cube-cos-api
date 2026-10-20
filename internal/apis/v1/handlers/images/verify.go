@@ -4,11 +4,18 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	log "go-micro.dev/v5/logger"
 )
 
 func (h *helper) validateValues() error {
+	err := cubecos.ValidateImportOpts(h.reqOpts)
+	if err != nil {
+		log.Errorf("images(%s): %v", h.reqId, err)
+		return err
+	}
+
 	if h.isImageExist() {
 		err := fmt.Errorf("image %s already exists", h.reqOpts.Name)
 		log.Errorf("images(%s): %v", h.reqId, err)

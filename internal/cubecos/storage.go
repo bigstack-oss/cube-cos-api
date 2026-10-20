@@ -23,6 +23,11 @@ import (
 )
 
 func GenCreateOptsByReqOpts(reqOpts images.ReqOpts) (*images.CreateOpts, error) {
+	err := ValidateImportOpts(reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
 	poolType := "glance-images"
 	visibility := reqOpts.Visibility
 	if reqOpts.SourceFromAnotherHypervisor {

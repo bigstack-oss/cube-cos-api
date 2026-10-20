@@ -10,13 +10,11 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	tty "github.com/creack/pty"
-	"github.com/google/uuid"
 	opsimage "github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	log "go-micro.dev/v5/logger"
 )
@@ -24,18 +22,49 @@ import (
 var (
 	imageProgress  = regexp.MustCompile(`\[[= >]+\]\s+(\d+)%`)
 	volumeProgress = regexp.MustCompile(`Importing image:\s+(\d+)%\s+complete`)
+	importParam    = regexp.MustCompile(`^[\p{L}\p{N}][\p{L}\p{N}._+-]*$`)
 )
+
+const maxImportParamLen = 255
+
+// ValidateImportOpts limits every import parameter to a plain token, since
+// hex_sdk passes them on to further shell commands. The file must also be a
+// bare name so it stays inside the glance directory.
+func ValidateImportOpts(opts images.ReqOpts) error {
+	params := []struct{ field, value string }{
+		{"file", opts.File},
+		{"name", opts.Name},
+		{"os", opts.Os},
+		{"destination", opts.Destination},
+		{"domain", opts.Domain},
+		{"project", opts.Project},
+		{"visibility", opts.Visibility},
+	}
+
+	for _, p := range params {
+		if len(p.value) > maxImportParamLen {
+			return fmt.Errorf("invalid %s: longer than %d bytes", p.field, maxImportParamLen)
+		}
+
+		if !importParam.MatchString(p.value) {
+			return fmt.Errorf(
+				"invalid %s %q: only letters, digits, '.', '_', '+' and '-' are allowed, starting with a letter or digit",
+				p.field, p.value,
+			)
+		}
+	}
+
+	if filepath.Base(opts.File) != opts.File {
+		return fmt.Errorf("invalid file %q: must be a file name, not a path", opts.File)
+	}
+
+	return nil
+}
 
 func ImportImage(opts *images.CreateOpts) error {
 	ctx, cancel := context.WithTimeout(wait.CtxMinutes(180))
 	defer cancel()
-	cmd, path, err := genCmd(ctx, opts)
-	if err != nil {
-		log.Errorf("images: failed to gen cmd by pool type (%v)", err)
-		return err
-	}
-
-	defer removeWorkaroundScriptIfExists(path)
+	cmd := genCmd(ctx, opts)
 	out, err := tty.Start(cmd)
 	if err != nil {
 		log.Errorf("images: failed to start command(%v)", err)
@@ -70,35 +99,8 @@ func RemoveRawImage(path string) {
 	}
 }
 
-func genCmd(ctx context.Context, opts *images.CreateOpts) (*exec.Cmd, string, error) {
-	script := fmt.Sprintf(
-		"#!/bin/bash\nhex_sdk %s\n",
-		strings.Join(genImageArgs(opts), " "),
-	)
-
-	reqId := uuid.New().String()[:8]
-	scriptPath := fmt.Sprintf("image-import-%s.sh", reqId)
-	if err := os.WriteFile(scriptPath, []byte(script), 0755); err != nil {
-		log.Errorf("images: failed to write script file(%v)", err)
-		return nil, "", err
-	}
-
-	absPath, err := filepath.Abs(scriptPath)
-	if err != nil {
-		log.Errorf("images: failed to get abs path(%v)", err)
-		return nil, "", err
-	}
-
-	err = os.Chmod(absPath, 0755)
-	if err != nil {
-		log.Errorf("images: failed to chmod script file(%v)", err)
-		return nil, "", err
-	}
-
-	return exec.CommandContext(
-		ctx,
-		absPath,
-	), scriptPath, nil
+func genCmd(ctx context.Context, opts *images.CreateOpts) *exec.Cmd {
+	return exec.CommandContext(ctx, "hex_sdk", genImageArgs(opts)...)
 }
 
 func genImageArgs(opts *images.CreateOpts) []string {
@@ -117,7 +119,7 @@ func genImageArgs(opts *images.CreateOpts) []string {
 		return []string{
 			"os_image_import",
 			opts.Dir, opts.File, opts.Name,
-			fmt.Sprintf(`"--os-project-domain-name %s --os-project-name %s --visibility %s"`, opts.Domain, opts.Project, opts.Visibility),
+			fmt.Sprintf("--os-project-domain-name %s --os-project-name %s --visibility %s", opts.Domain, opts.Project, opts.Visibility),
 			opts.PoolType, opts.Destination, opts.Os,
 		}
 	}
@@ -198,8 +200,4 @@ func streamImportProgress(poolType string, buf *bytes.Buffer, last *float64, str
 		*last = percent
 		*streamingLogs <- percent
 	}
-}
-
-func removeWorkaroundScriptIfExists(path string) {
-	os.Remove(path)
 }

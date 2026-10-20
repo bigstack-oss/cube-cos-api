@@ -3,10 +3,17 @@ package volumes
 import (
 	"fmt"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	log "go-micro.dev/v5/logger"
 )
 
 func (h *helper) validateImageConvertionValues() error {
+	err := cubecos.ValidateImportOpts(h.imageReqOpts)
+	if err != nil {
+		log.Errorf("volumes(%s): %v", h.reqId, err)
+		return err
+	}
+
 	if !h.isProjectExists() {
 		err := fmt.Errorf("invalid project %s", h.imageReqOpts.Project)
 		log.Errorf("volumes(%s): %v", h.reqId, err)
