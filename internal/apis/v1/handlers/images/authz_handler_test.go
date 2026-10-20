@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/mongo"
@@ -63,6 +64,9 @@ var (
 		sync.Mutex
 		ids []string
 	}{}
+
+	// glanceMembersFail makes the fake Glance answer member lookups with 500.
+	glanceMembersFail atomic.Bool
 
 	testRouter *gin.Engine
 )
@@ -307,6 +311,10 @@ func serveFakeGlance(w http.ResponseWriter, r *http.Request) {
 		}
 		writeFakeJson(w, http.StatusOK, fakeImageBody(image))
 	case len(parts) == 4 && parts[0] == "images" && parts[2] == "members":
+		if glanceMembersFail.Load() {
+			writeFakeJson(w, http.StatusInternalServerError, map[string]any{})
+			return
+		}
 		image, found := findFakeImage(parts[1])
 		status, isMember := image.members[parts[3]]
 		if !found || !isMember {
@@ -407,6 +415,22 @@ func TestListImagesOfOwnProjectForMember(t *testing.T) {
 func TestListImagesWithoutProjectShowsOnlyVisibleImagesToMember(t *testing.T) {
 	rec := testReq{method: http.MethodGet, path: "/images", token: "alice-tok"}.do()
 	require.ElementsMatch(t, []string{"img-a", "img-pub", "img-shared", "img-comm"}, listedImageIds(t, rec))
+}
+
+func TestListImagesFailsForMemberWhenGlanceMemberLookupFails(t *testing.T) {
+	glanceMembersFail.Store(true)
+	defer glanceMembersFail.Store(false)
+
+	rec := testReq{method: http.MethodGet, path: "/images", token: "alice-tok"}.do()
+	require.Equal(t, http.StatusInternalServerError, rec.Code, rec.Body.String())
+}
+
+func TestListImagesForAdminSkipsGlanceMemberLookup(t *testing.T) {
+	glanceMembersFail.Store(true)
+	defer glanceMembersFail.Store(false)
+
+	rec := testReq{method: http.MethodGet, path: "/images", token: "admin-tok"}.do()
+	require.Len(t, listedImageIds(t, rec), len(fakeImages))
 }
 
 func TestListImagesOfAnotherProjectForAdmin(t *testing.T) {
