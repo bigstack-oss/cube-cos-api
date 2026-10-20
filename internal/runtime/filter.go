@@ -38,7 +38,6 @@ var authFreeRoutes = map[route]bool{
 	{http.MethodGet, dcRoute("/grafana/storages")}:                         true,
 	{http.MethodGet, dcRoute("/grafana/devices/:hostname/gpuUtilization")}: true,
 	{http.MethodGet, dcRoute("/grafana/devices/:hostname/gpuVram")}:        true,
-	{http.MethodGet, dcRoute("/opensearch/requests/:requestId")}:           true,
 }
 
 func dcRoute(path string) string {
