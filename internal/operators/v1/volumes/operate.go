@@ -36,7 +36,8 @@ func (o *Operator) convertImage(req *images.ReqOpts) error {
 
 	go o.syncProgressToController(req, &opts.StreamingLogs)
 	defer cubecos.RemoveRawImage(filepath.Join(opts.Dir, opts.File))
-	return cubecos.ImportImage(opts)
+	_, err = cubecos.ImportImage(opts)
+	return err
 }
 
 func (o *Operator) syncProgressToController(req *images.ReqOpts, streamingLogs *chan float64) {
