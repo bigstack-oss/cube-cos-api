@@ -245,52 +245,62 @@ func (h *helper) authorizeTask() error {
 }
 
 // visibleImages keeps the images Glance would list for the caller's token.
-func (h *helper) visibleImages(list []opsimage.Image) []opsimage.Image {
+func (h *helper) visibleImages(list []opsimage.Image) ([]opsimage.Image, error) {
 	if h.caller.isAdmin {
-		return list
+		return list, nil
 	}
 
 	visible := []opsimage.Image{}
 	for _, image := range list {
-		if h.isImageVisible(image) {
+		isVisible, err := h.isImageVisible(image)
+		if err != nil {
+			return nil, err
+		}
+		if isVisible {
 			visible = append(visible, image)
 		}
 	}
 
-	return visible
+	return visible, nil
 }
 
-func (h *helper) isImageVisible(image opsimage.Image) bool {
+func (h *helper) isImageVisible(image opsimage.Image) (bool, error) {
 	switch image.Visibility {
 	case opsimage.ImageVisibilityPublic, opsimage.ImageVisibilityCommunity:
-		return true
+		return true, nil
 	}
 
 	if !h.caller.hasProject() {
-		return false
+		return false, nil
 	}
 
 	if image.Owner == h.caller.projectId {
-		return true
+		return true, nil
 	}
 
 	if image.Visibility != opsimage.ImageVisibilityShared {
-		return false
+		return false, nil
 	}
 
 	return h.isAcceptedMember(image.ID)
 }
 
-func (h *helper) isAcceptedMember(imageId string) bool {
+// isAcceptedMember treats only Glance's 404 as "not a member". Any other
+// failure is returned, so the list fails instead of silently dropping images.
+func (h *helper) isAcceptedMember(imageId string) (bool, error) {
 	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
 	defer cancel()
 
 	member, err := members.Get(ctx, h.openstack.Image, imageId, h.caller.projectId).Extract()
+	if gophercloud.ResponseCodeIs(err, http.StatusNotFound) {
+		return false, nil
+	}
 	if err != nil {
-		return false
+		log.Errorf("images(%s): failed to get member %s of image %s(%v)", h.reqId, h.caller.projectId, imageId, err)
+		return false, err
 	}
 
-	return member.Status == "accepted"
+	return member.Status == "accepted", nil
 }
 
 // visibleProcessings keeps the import records of the caller's project. The

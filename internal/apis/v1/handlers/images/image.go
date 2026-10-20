@@ -15,7 +15,13 @@ func (h *helper) listConvertedImages() ([]images.Image, error) {
 		return nil, err
 	}
 
-	images := h.convertToImages(h.visibleImages(list))
+	visible, err := h.visibleImages(list)
+	if err != nil {
+		log.Errorf("images(%s): failed to check which images the caller can see(%v)", h.reqId, err)
+		return nil, err
+	}
+
+	images := h.convertToImages(visible)
 	h.syncProcessingImages(&images)
 	return images, nil
 }
