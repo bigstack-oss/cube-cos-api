@@ -89,7 +89,7 @@ func newGinRouter() *gin.Engine {
 	router.Use(filterReq)
 	router.Use(initReqId)
 	router.Any("/live", checkLive())
-	router.Any("/saml/*any", saml.ServeAcs())
+	router.Any("/saml/*any", saml.ServeSaml())
 	router.Use(verifyAuthToken())
 	router.Use(conditionalSaml())
 	return router
