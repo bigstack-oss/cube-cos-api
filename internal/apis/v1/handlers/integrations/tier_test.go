@@ -110,6 +110,7 @@ func (r *tierRig) helper(method, body string, forwarded bool) *helper {
 	c.Request.Header.Set("Node", "cube45")
 	if forwarded {
 		c.Request.Header.Set(nodes.ForwardedHeader, "cube45")
+		c.Set("isNode", true)
 	}
 	return &helper{c: c}
 }
