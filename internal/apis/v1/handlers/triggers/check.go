@@ -6,7 +6,9 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
+	"github.com/bigstack-oss/cube-cos-api/internal/upload"
 )
 
 func (h *helper) isTriggerExist(name string) bool {
@@ -150,6 +152,13 @@ func (h *helper) hasInvalidCategories() error {
 }
 
 func (h *helper) checkScript() error {
+	if h.reqOpts.Response.Script.Name != "" {
+		_, err := upload.PathIn(settings.ScriptDir, h.reqOpts.Response.Script.Name)
+		if err != nil {
+			return fmt.Errorf("invalid script name for trigger %s: %w", h.reqOpts.Name, err)
+		}
+	}
+
 	if h.reqOpts.Response.Script.Content == "" {
 		return nil
 	}

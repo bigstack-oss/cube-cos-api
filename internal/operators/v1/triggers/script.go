@@ -3,11 +3,11 @@ package triggers
 import (
 	"encoding/base64"
 	"os"
-	"path/filepath"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
+	"github.com/bigstack-oss/cube-cos-api/internal/upload"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -36,13 +36,18 @@ func (o *Operator) applyScriptOnFs(script triggers.Script) error {
 		return nil
 	}
 
+	path, err := upload.PathIn(settings.ScriptDir, script.Name)
+	if err != nil {
+		log.Errorf("triggers: invalid script name %s(%v)", script.Name, err)
+		return err
+	}
+
 	bytes, err := base64.StdEncoding.DecodeString(script.Content)
 	if err != nil {
 		log.Errorf("triggers: failed to decode script content %s(%v)", script.Content, err)
 		return err
 	}
 
-	path := filepath.Join(settings.ScriptDir, script.Name)
 	err = os.WriteFile(path, bytes, 0755)
 	if err != nil {
 		log.Errorf("triggers: failed to write script file %s(%v)", script.Name, err)
