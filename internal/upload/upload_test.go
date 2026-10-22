@@ -58,6 +58,41 @@ func TestSaveKeepsDirMode(t *testing.T) {
 	}
 }
 
+func TestPathInAcceptsFileName(t *testing.T) {
+	for _, name := range []string{
+		"CUBE Appliance 3.2.0 x86_64.pkg",
+		"3.2.0-1.fixpack",
+		"notify.sh",
+		"..notify.sh",
+	} {
+		got, err := PathIn("/tmp/firmwares", name)
+		if err != nil {
+			t.Fatalf("PathIn(%q): %v", name, err)
+		}
+		if want := "/tmp/firmwares/" + name; got != want {
+			t.Fatalf("PathIn(%q) = %q, want %q", name, got, want)
+		}
+	}
+}
+
+func TestPathInRejectsPath(t *testing.T) {
+	for _, name := range []string{
+		"",
+		".",
+		"..",
+		"../x",
+		"../../etc/x",
+		"a/b",
+		"/etc/x",
+		"x/",
+		"/",
+	} {
+		if got, err := PathIn("/tmp/firmwares", name); err == nil {
+			t.Fatalf("PathIn(%q) = %q, want an error", name, got)
+		}
+	}
+}
+
 // A directory Save creates must not be world-accessible.
 func TestSaveCreatesDirNotWorldReadable(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "cos-storages")
