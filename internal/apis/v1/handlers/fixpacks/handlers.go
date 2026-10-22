@@ -25,18 +25,21 @@ var (
 			Method:  http.MethodPost,
 			Path:    "/fixpacks",
 			Func:    uploadFixpack,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/fixpacks/md5sum",
 			Func:    uploadFixpackMd5Sum,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/fixpacks/md5sum/verify",
 			Func:    verfiyFixpackAndMd5Sum,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
@@ -49,12 +52,14 @@ var (
 			Method:  http.MethodPatch,
 			Path:    "/fixpacks",
 			Func:    installFixpack,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/fixpacks/continueAnyway/:nodeName",
 			Func:    continueInterruptedFixpackUpdate,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
@@ -79,6 +84,7 @@ var (
 			Method:  http.MethodPost,
 			Path:    "/fixpacks/:version/rollback",
 			Func:    rollbackFixpack,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
@@ -91,12 +97,14 @@ var (
 			Method:  http.MethodDelete,
 			Path:    "/fixpacks/:version",
 			Func:    deleteFixpack,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/fixpacks/tasks",
 			Func:    updateFixpackTask,
+			Access:  apis.AccessNode,
 		},
 	}
 )

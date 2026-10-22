@@ -37,18 +37,21 @@ var (
 			Method:  http.MethodPost,
 			Path:    "/images",
 			Func:    importImage,
+			Access:  apis.AccessHandler,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/images/:imageId",
 			Func:    updateImage,
+			Access:  apis.AccessHandler,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/images/tasks",
 			Func:    updateImageTask,
+			Access:  apis.AccessHandler,
 		},
 	}
 )
