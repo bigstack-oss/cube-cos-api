@@ -11,6 +11,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
+	"github.com/bigstack-oss/cube-cos-api/internal/upload"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -66,6 +67,11 @@ func (h *helper) parseUploadFixpackParams() error {
 	h.file = h.c.DefaultQuery("file", "")
 	if h.file == "" {
 		return fmt.Errorf("file parameter is required")
+	}
+
+	_, err := upload.PathIn(fixpacks.TmpUploadDir, h.file)
+	if err != nil {
+		return err
 	}
 
 	return h.parseListParams()
@@ -258,7 +264,12 @@ func (h *helper) parseUpdateFixpackTaskParams() error {
 }
 
 func (h *helper) saveUploadFile() error {
-	path := filepath.Join(fixpacks.TmpUploadDir, h.file)
+	path, err := upload.PathIn(fixpacks.TmpUploadDir, h.file)
+	if err != nil {
+		log.Errorf("fixpacks(%s): invalid upload file name (%v)", h.reqId, err)
+		return err
+	}
+
 	out, err := os.Create(path)
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to create %s %s(%v)", path, h.reqId, path, err)

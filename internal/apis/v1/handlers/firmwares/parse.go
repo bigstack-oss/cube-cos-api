@@ -9,6 +9,7 @@ import (
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/queries"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
+	"github.com/bigstack-oss/cube-cos-api/internal/upload"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -58,7 +59,8 @@ func (h *helper) parseUploadFirmwareParams() error {
 		return fmt.Errorf("file parameter is required")
 	}
 
-	return nil
+	_, err := upload.PathIn(firmwares.TmpUploadDir, h.file)
+	return err
 }
 
 func (h *helper) parseUpdateParams() error {
@@ -207,7 +209,12 @@ func (h *helper) parseContinueInterruptionParams() error {
 }
 
 func (h *helper) saveUploadFile() error {
-	path := filepath.Join(firmwares.TmpUploadDir, h.file)
+	path, err := upload.PathIn(firmwares.TmpUploadDir, h.file)
+	if err != nil {
+		log.Errorf("firmwares(%s): invalid upload file name (%v)", h.reqId, err)
+		return err
+	}
+
 	out, err := os.Create(path)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to create %s %s(%v)", path, h.reqId, path, err)
