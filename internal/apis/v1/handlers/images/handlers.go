@@ -1,11 +1,13 @@
 package images
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/apis"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/bodies"
+	"github.com/bigstack-oss/cube-cos-api/internal/auths/authz"
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	_ "github.com/bigstack-oss/cube-cos-api/internal/operators/v1/nodes"
 	"github.com/gin-gonic/gin"
@@ -229,6 +231,11 @@ func updateImageTask(c *gin.Context) {
 func setInitError(c *gin.Context, err error) {
 	if isForbidden(err) {
 		bodies.SetForbidden(c, err)
+		return
+	}
+
+	if errors.Is(err, authz.ErrUnavailable) {
+		bodies.SetServiceUnavailable(c, err)
 		return
 	}
 
