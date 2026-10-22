@@ -554,3 +554,26 @@ func TestUpdateImageTaskIsForbiddenForMember(t *testing.T) {
 	rec := testReq{method: http.MethodPatch, path: "/images/tasks", token: "alice-tok", body: `{"id":"img-a","name":"img-a"}`}.do()
 	require.Equal(t, http.StatusForbidden, rec.Code, rec.Body.String())
 }
+
+func importErrMsg(t *testing.T, rec *httptest.ResponseRecorder) string {
+	t.Helper()
+	require.Equal(t, http.StatusBadRequest, rec.Code, rec.Body.String())
+
+	body := struct {
+		Msg string `json:"msg"`
+	}{}
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
+	return body.Msg
+}
+
+func TestImportWithPathInFileIsBadRequest(t *testing.T) {
+	path := "/images?file=..%2Fx.qcow2&name=new-img&os=Ubuntu&destination=cube-storage&project=alpha&domain=Default"
+	rec := testReq{method: http.MethodPost, path: path, token: "alice-tok"}.do()
+	require.Contains(t, importErrMsg(t, rec), "invalid file")
+}
+
+func TestImportWithSpaceInNameIsBadRequest(t *testing.T) {
+	path := "/images?file=new.qcow2&name=a%20b&os=Ubuntu&destination=cube-storage&project=alpha&domain=Default"
+	rec := testReq{method: http.MethodPost, path: path, token: "alice-tok"}.do()
+	require.Contains(t, importErrMsg(t, rec), "invalid name")
+}

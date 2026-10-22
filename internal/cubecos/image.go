@@ -10,13 +10,11 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	tty "github.com/creack/pty"
-	"github.com/google/uuid"
 	opsimage "github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	log "go-micro.dev/v5/logger"
 )
@@ -24,39 +22,73 @@ import (
 var (
 	imageProgress  = regexp.MustCompile(`\[[= >]+\]\s+(\d+)%`)
 	volumeProgress = regexp.MustCompile(`Importing image:\s+(\d+)%\s+complete`)
+	importParam    = regexp.MustCompile(`^[\p{L}\p{N}][\p{L}\p{N}._+-]*$`)
+	glanceImageId  = regexp.MustCompile(`\|\s*id\s*\|\s*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*\|`)
 )
 
-func ImportImage(opts *images.CreateOpts) error {
-	ctx, cancel := context.WithTimeout(wait.CtxMinutes(180))
-	defer cancel()
-	cmd, path, err := genCmd(ctx, opts)
-	if err != nil {
-		log.Errorf("images: failed to gen cmd by pool type (%v)", err)
-		return err
+const maxImportParamLen = 255
+
+// ValidateImportOpts limits every import parameter to a plain token, since
+// hex_sdk passes them on to further shell commands. The file must also be a
+// bare name so it stays inside the glance directory.
+func ValidateImportOpts(opts images.ReqOpts) error {
+	params := []struct{ field, value string }{
+		{"file", opts.File},
+		{"name", opts.Name},
+		{"os", opts.Os},
+		{"destination", opts.Destination},
+		{"domain", opts.Domain},
+		{"project", opts.Project},
+		{"visibility", opts.Visibility},
 	}
 
-	defer removeWorkaroundScriptIfExists(path)
+	for _, p := range params {
+		if len(p.value) > maxImportParamLen {
+			return fmt.Errorf("invalid %s: longer than %d bytes", p.field, maxImportParamLen)
+		}
+
+		if !importParam.MatchString(p.value) {
+			return fmt.Errorf(
+				"invalid %s %q: only letters, digits, '.', '_', '+' and '-' are allowed, starting with a letter or digit",
+				p.field, p.value,
+			)
+		}
+	}
+
+	if filepath.Base(opts.File) != opts.File {
+		return fmt.Errorf("invalid file %q: must be a file name, not a path", opts.File)
+	}
+
+	return nil
+}
+
+// ImportImage returns the id of the glance image created during the import,
+// or an empty id when glance printed none.
+func ImportImage(opts *images.CreateOpts) (string, error) {
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(180))
+	defer cancel()
+	cmd := genCmd(ctx, opts)
 	out, err := tty.Start(cmd)
 	if err != nil {
 		log.Errorf("images: failed to start command(%v)", err)
-		return err
+		return "", err
 	}
 
 	defer out.Close()
-	traceImportProgress(opts, out)
+	id := traceImportProgress(opts, out)
 	err = cmd.Wait()
 	if err != nil {
 		log.Errorf("images: failed to wait for image %s import command(%v)", opts.Name, err)
-		return err
+		return "", err
 	}
 
 	if !IsHexSuccessful(err) {
 		err := fmt.Errorf("failed to import image %s(%v)", opts.Name, err)
 		log.Errorf("images: %v", err)
-		return err
+		return "", err
 	}
 
-	return nil
+	return id, nil
 }
 
 func RemoveRawImage(path string) {
@@ -70,35 +102,8 @@ func RemoveRawImage(path string) {
 	}
 }
 
-func genCmd(ctx context.Context, opts *images.CreateOpts) (*exec.Cmd, string, error) {
-	script := fmt.Sprintf(
-		"#!/bin/bash\nhex_sdk %s\n",
-		strings.Join(genImageArgs(opts), " "),
-	)
-
-	reqId := uuid.New().String()[:8]
-	scriptPath := fmt.Sprintf("image-import-%s.sh", reqId)
-	if err := os.WriteFile(scriptPath, []byte(script), 0755); err != nil {
-		log.Errorf("images: failed to write script file(%v)", err)
-		return nil, "", err
-	}
-
-	absPath, err := filepath.Abs(scriptPath)
-	if err != nil {
-		log.Errorf("images: failed to get abs path(%v)", err)
-		return nil, "", err
-	}
-
-	err = os.Chmod(absPath, 0755)
-	if err != nil {
-		log.Errorf("images: failed to chmod script file(%v)", err)
-		return nil, "", err
-	}
-
-	return exec.CommandContext(
-		ctx,
-		absPath,
-	), scriptPath, nil
+func genCmd(ctx context.Context, opts *images.CreateOpts) *exec.Cmd {
+	return exec.CommandContext(ctx, "hex_sdk", genImageArgs(opts)...)
 }
 
 func genImageArgs(opts *images.CreateOpts) []string {
@@ -117,21 +122,10 @@ func genImageArgs(opts *images.CreateOpts) []string {
 		return []string{
 			"os_image_import",
 			opts.Dir, opts.File, opts.Name,
-			fmt.Sprintf(`"--os-project-domain-name %s --os-project-name %s --visibility %s"`, opts.Domain, opts.Project, opts.Visibility),
+			fmt.Sprintf("--os-project-domain-name %s --os-project-name %s --visibility %s", opts.Domain, opts.Project, opts.Visibility),
 			opts.PoolType, opts.Destination, opts.Os,
 		}
 	}
-}
-
-func SetImagePropertiesByName(name string, opts opsimage.UpdateOpts) error {
-	h := openstack.GetGlobalHelper()
-	image, err := h.GetImageByName(name)
-	if err != nil {
-		log.Errorf("images: failed to get image %s(%v)", name, err)
-		return err
-	}
-
-	return h.UpdateImageProperty(image.ID, opts)
 }
 
 func UpdateImage(id string, opts opsimage.UpdateOpts) error {
@@ -139,9 +133,12 @@ func UpdateImage(id string, opts opsimage.UpdateOpts) error {
 	return h.UpdateImageProperty(id, opts)
 }
 
-func traceImportProgress(opts *images.CreateOpts, out io.Reader) {
+// traceImportProgress streams the import progress and returns the image id
+// from the table glance prints after creating the image.
+func traceImportProgress(opts *images.CreateOpts, out io.Reader) string {
 	buf := bytes.Buffer{}
 	last := float64(0)
+	id := ""
 
 	for {
 		tmp := make([]byte, 1)
@@ -152,11 +149,13 @@ func traceImportProgress(opts *images.CreateOpts, out io.Reader) {
 
 		bytes := tmp[0]
 		if bytes == '\n' {
+			id = keepGlanceImageId(id, &buf)
 			buf.Reset()
 			continue
 		}
 
 		if bytes == '\r' {
+			id = keepGlanceImageId(id, &buf)
 			streamImportProgress(
 				opts.PoolType, &buf, &last, &opts.StreamingLogs,
 			)
@@ -166,6 +165,21 @@ func traceImportProgress(opts *images.CreateOpts, out io.Reader) {
 
 		buf.WriteByte(bytes)
 	}
+
+	return id
+}
+
+func keepGlanceImageId(id string, buf *bytes.Buffer) string {
+	if id != "" {
+		return id
+	}
+
+	matches := glanceImageId.FindStringSubmatch(buf.String())
+	if len(matches) < 2 {
+		return ""
+	}
+
+	return matches[1]
 }
 
 func streamImportProgress(poolType string, buf *bytes.Buffer, last *float64, streamingLogs *chan float64) {
@@ -198,8 +212,4 @@ func streamImportProgress(poolType string, buf *bytes.Buffer, last *float64, str
 		*last = percent
 		*streamingLogs <- percent
 	}
-}
-
-func removeWorkaroundScriptIfExists(path string) {
-	os.Remove(path)
 }
