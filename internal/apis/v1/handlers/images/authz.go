@@ -6,16 +6,11 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
-	"strings"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/wait"
-	"github.com/bigstack-oss/cube-cos-api/internal/auths/oidc"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
+	"github.com/bigstack-oss/cube-cos-api/internal/auths/authz"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
-	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
-	"github.com/crewjam/saml/samlsp"
 	"github.com/gophercloud/gophercloud/v2"
-	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/tokens"
 	opsimage "github.com/gophercloud/gophercloud/v2/openstack/image/v2/images"
 	"github.com/gophercloud/gophercloud/v2/openstack/image/v2/members"
 	log "go-micro.dev/v5/logger"
@@ -25,21 +20,7 @@ import (
 // credential, so the caller's own rights are checked here. The rules follow
 // the Glance policy CubeCOS ships: writes need the member role in the image's
 // project, and only admins publish images or touch other projects.
-var (
-	adminRoles = []string{"admin", "service"}
-	writeRole  = "member"
-	realmAdmin = "admin"
-)
-
-// oidcRealmRoles is a variable so tests can stand in for Keycloak.
-var oidcRealmRoles = func(token string) (string, []string, error) {
-	claims, err := oidc.VerifyToken(token)
-	if err != nil {
-		return "", nil, err
-	}
-
-	return claims.PreferredUsername, claims.RealmAccess.Roles, nil
-}
+var writeRole = "member"
 
 type caller struct {
 	user        string
@@ -89,78 +70,25 @@ func (h *helper) allow() {
 }
 
 func (h *helper) resolveCaller() error {
-	switch h.c.GetString("authType") {
-	case auths.Openstack:
-		return h.resolveOpenstackCaller()
-	case auths.Oidc:
-		return h.resolveOidcCaller()
-	case auths.Saml:
-		h.caller.user = samlsp.AttributeFromContext(h.c.Request.Context(), "username")
-		return nil
-	default:
-		return h.deny("unknown authentication type")
+	resolved, err := authz.Resolve(h.c)
+	if errors.Is(err, authz.ErrUnavailable) {
+		return err
 	}
-}
 
-func (h *helper) resolveOpenstackCaller() error {
-	ctx, cancel := context.WithTimeout(wait.CtxSeconds(30))
-	defer cancel()
-
-	token := tokens.Get(ctx, h.openstack.Identity, h.c.GetHeader("X-Auth-Token"))
-	user, err := token.ExtractUser()
 	if err != nil {
-		log.Errorf("images(%s): failed to resolve openstack token(%v)", h.reqId, err)
-		return h.deny("cannot resolve the openstack token")
+		return h.deny(err.Error())
 	}
 
-	roles, err := token.ExtractRoles()
-	if err != nil {
-		log.Errorf("images(%s): failed to resolve openstack token roles(%v)", h.reqId, err)
-		return h.deny("cannot resolve the openstack token")
+	h.caller = caller{
+		user:        resolved.User,
+		isAdmin:     resolved.IsAdmin,
+		projectId:   resolved.ProjectId,
+		projectName: resolved.ProjectName,
+		domainId:    resolved.DomainId,
+		domainName:  resolved.DomainName,
+		roles:       resolved.Roles,
 	}
 
-	project, err := token.ExtractProject()
-	if err != nil {
-		log.Errorf("images(%s): failed to resolve openstack token project(%v)", h.reqId, err)
-		return h.deny("cannot resolve the openstack token")
-	}
-
-	h.caller.user = user.Name
-	for _, role := range roles {
-		h.caller.roles = append(h.caller.roles, role.Name)
-	}
-
-	if project != nil {
-		h.caller.projectId = project.ID
-		h.caller.projectName = project.Name
-		h.caller.domainId = project.Domain.ID
-		h.caller.domainName = project.Domain.Name
-	}
-
-	h.caller.isAdmin = slices.ContainsFunc(h.caller.roles, func(role string) bool {
-		return slices.Contains(adminRoles, role)
-	})
-
-	return nil
-}
-
-func (h *helper) resolveOidcCaller() error {
-	token := strings.TrimPrefix(h.c.GetHeader("Authorization"), "Bearer ")
-	node := h.c.GetHeader("Node")
-	if node != "" && token == nodes.GenToken(node) {
-		h.caller.user = fmt.Sprintf("node:%s", node)
-		h.caller.isAdmin = true
-		return nil
-	}
-
-	user, roles, err := oidcRealmRoles(token)
-	if err != nil {
-		log.Errorf("images(%s): failed to resolve oidc token(%v)", h.reqId, err)
-		return h.deny("cannot resolve the oidc token")
-	}
-
-	h.caller.user = user
-	h.caller.isAdmin = slices.Contains(roles, realmAdmin)
 	return nil
 }
 

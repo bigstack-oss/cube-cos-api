@@ -36,24 +36,28 @@ var (
 			Method:  http.MethodPatch,
 			Path:    "/healths",
 			Func:    checkAndRepairAllModules,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/healths/services/:serviceType/modules/:moduleType",
 			Func:    forceRepairModule,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodDelete,
 			Path:    "/healths/tasks/repairing",
 			Func:    deleteCheckRepairTask,
+			Access:  apis.AccessNode,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodDelete,
 			Path:    "/healths/tasks/repairing/:moduleType",
 			Func:    deleteModuleRepairTask,
+			Access:  apis.AccessNode,
 		},
 	}
 )

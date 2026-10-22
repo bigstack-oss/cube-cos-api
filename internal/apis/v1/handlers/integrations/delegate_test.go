@@ -18,11 +18,13 @@ func TestIsPeerRequest(t *testing.T) {
 	tests := []struct {
 		name    string
 		headers map[string]string
+		isNode  bool
 		want    bool
 	}{
-		{"user request through the VIP", nil, false},
-		{"CLI request with the node token", map[string]string{"Node": "cube46", "Authorization": "Bearer t"}, false},
-		{"request forwarded by a control", map[string]string{"Node": "cube46", nodes.ForwardedHeader: "cube46"}, true},
+		{"user request through the VIP", nil, false, false},
+		{"CLI request with the node token", map[string]string{"Node": "cube46", "Authorization": "Bearer t"}, true, false},
+		{"request forwarded by a control", map[string]string{"Node": "cube46", nodes.ForwardedHeader: "cube46"}, true, true},
+		{"forwarded header without the node token", map[string]string{nodes.ForwardedHeader: "cube46"}, false, false},
 	}
 
 	for _, tt := range tests {
@@ -31,6 +33,7 @@ func TestIsPeerRequest(t *testing.T) {
 		for k, v := range tt.headers {
 			c.Request.Header.Set(k, v)
 		}
+		c.Set("isNode", tt.isNode)
 
 		h := &helper{c: c}
 		if got := h.isPeerRequest(); got != tt.want {
@@ -110,6 +113,7 @@ func TestUpdateStorageMarksOriginWithAcceptingPeers(t *testing.T) {
 		c.Request = httptest.NewRequest(tt.method, "/api/v1/datacenters/dc/integrations/storages", strings.NewReader(`{"name":"pure1"}`))
 		if tt.forwarded {
 			c.Request.Header.Set(nodes.ForwardedHeader, "cube46")
+			c.Set("isNode", true)
 		}
 		h := &helper{c: c, handler: tt.handler, http: client, rawBody: []byte(`{"name":"pure1"}`)}
 		h.storageReqOpts.CinderDetails.Name = "pure1"
