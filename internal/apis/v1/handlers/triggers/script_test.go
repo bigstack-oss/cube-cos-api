@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"testing"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/script"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
 	"github.com/stretchr/testify/require"
 )
@@ -29,4 +30,11 @@ func TestCheckScriptRejectsPath(t *testing.T) {
 		require.Error(t, scriptHelper(name, content).checkScript(), name)
 		require.Error(t, scriptHelper(name, "").checkScript(), name)
 	}
+}
+
+// A script name saved before names were checked is not read from outside ScriptDir.
+func TestParseScriptDetailsSkipsPath(t *testing.T) {
+	trigger := triggers.Trigger{}
+	trigger.Execs.Shells = []script.Shell{{Name: "../../etc/hosts"}}
+	require.Equal(t, triggers.Script{}, (&helper{}).parseScriptDetails(trigger))
 }

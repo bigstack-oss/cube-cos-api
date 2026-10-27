@@ -2,7 +2,6 @@ package triggers
 
 import (
 	"os"
-	"path/filepath"
 
 	"github.com/bigstack-oss/cube-cos-api/internal/cubecos"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
@@ -11,6 +10,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/slack"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/triggers"
+	"github.com/bigstack-oss/cube-cos-api/internal/upload"
 	log "go-micro.dev/v5/logger"
 )
 
@@ -183,7 +183,12 @@ func (h *helper) parseSlackDetails(settings *settings.Cos, slacks []slack.CosCha
 func (h *helper) parseScriptDetails(trigger triggers.Trigger) triggers.Script {
 	script := triggers.Script{}
 	for _, shell := range trigger.Execs.Shells {
-		path := filepath.Join(settings.ScriptDir, shell.Name)
+		path, err := upload.PathIn(settings.ScriptDir, shell.Name)
+		if err != nil {
+			log.Errorf("triggers(%s): invalid script name %s(%v)", h.reqId, shell.Name, err)
+			continue
+		}
+
 		file, err := os.ReadFile(path)
 		if err != nil {
 			log.Errorf("triggers(%s): failed to read script file %s(%v)", h.reqId, shell.Name, err)
