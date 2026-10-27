@@ -69,7 +69,7 @@ func lookupRealmAdmin(username string) (bool, error) {
 	defer cancel()
 
 	client := keycloak()
-	jwt, err := client.LoginAdmin(ctx, base.ServiceName, base.SystemSeed, conf.Opts.Spec.Identity.Keycloak.Realm)
+	jwt, err := client.LoginAdmin(ctx, base.ServiceName, base.SystemSeed, auths.DefaultKeycloakRealm)
 	if err != nil {
 		return false, err
 	}

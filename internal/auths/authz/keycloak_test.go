@@ -68,14 +68,14 @@ func realmRoles(names ...string) []*gocloak.Role {
 }
 
 func TestLookupRealmAdminFindsCompositeAdminRole(t *testing.T) {
-	conf.Opts.Spec.Identity.Keycloak.Realm = "login-realm"
+	conf.Opts.Spec.Identity.Keycloak.Realm = "other-realm"
 	fake := &fakeKeycloak{users: keycloakUser("u1"), roles: realmRoles("offline_access", "admin")}
 	stubKeycloak(t, fake)
 
 	isAdmin, err := lookupRealmAdmin("alice")
 	require.NoError(t, err)
 	require.True(t, isAdmin)
-	require.Equal(t, []string{base.ServiceName, base.SystemSeed, "login-realm"}, fake.loginArgs)
+	require.Equal(t, []string{base.ServiceName, base.SystemSeed, auths.DefaultKeycloakRealm}, fake.loginArgs)
 	require.Equal(t, "alice", gocloak.PString(fake.params.Username))
 	require.True(t, gocloak.PBool(fake.params.Exact))
 	require.Equal(t, []string{auths.DefaultKeycloakRealm, auths.DefaultKeycloakRealm}, fake.realms)
