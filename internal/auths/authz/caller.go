@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"slices"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
@@ -12,6 +13,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/crewjam/saml/samlsp"
 	"github.com/gin-gonic/gin"
+	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/tokens"
 	log "go-micro.dev/v5/logger"
 )
@@ -87,6 +89,11 @@ var openstackToken = func(token string) tokens.GetResult {
 func resolveOpenstackCaller(c *gin.Context) (Caller, error) {
 	reqId := queries.GetReqId(c)
 	token := openstackToken(c.GetHeader("X-Auth-Token"))
+	if token.Err != nil && !gophercloud.ResponseCodeIs(token.Err, http.StatusNotFound) {
+		log.Errorf("authz(%s): failed to look up openstack token(%v)", reqId, token.Err)
+		return Caller{}, ErrUnavailable
+	}
+
 	user, err := token.ExtractUser()
 	if err != nil {
 		log.Errorf("authz(%s): failed to resolve openstack token(%v)", reqId, err)

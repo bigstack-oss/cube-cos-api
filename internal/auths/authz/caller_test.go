@@ -11,6 +11,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/crewjam/saml/samlsp"
 	"github.com/gin-gonic/gin"
+	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/tokens"
 	"github.com/stretchr/testify/require"
 )
@@ -117,18 +118,31 @@ func TestOpenstackMemberIsNotAdmin(t *testing.T) {
 	}, caller)
 }
 
-func TestUnresolvableOpenstackTokenIsRefused(t *testing.T) {
+func stubOpenstackTokenError(t *testing.T, err error) {
+	t.Helper()
+
 	original := openstackToken
 	openstackToken = func(string) tokens.GetResult {
 		result := tokens.GetResult{}
-		result.Err = errors.New("token not found")
+		result.Err = err
 		return result
 	}
 	t.Cleanup(func() { openstackToken = original })
+}
+
+func TestUnresolvableOpenstackTokenIsRefused(t *testing.T) {
+	stubOpenstackTokenError(t, gophercloud.ErrUnexpectedResponseCode{Actual: http.StatusNotFound})
 
 	_, err := Resolve(newTestContext(t, auths.Openstack))
 	require.Error(t, err)
 	require.NotErrorIs(t, err, ErrUnavailable)
+}
+
+func TestKeystoneOutageIsUnavailable(t *testing.T) {
+	stubOpenstackTokenError(t, errors.New("connection refused"))
+
+	_, err := Resolve(newTestContext(t, auths.Openstack))
+	require.ErrorIs(t, err, ErrUnavailable)
 }
 
 func TestOidcCallerIsLookedUpInKeycloak(t *testing.T) {
