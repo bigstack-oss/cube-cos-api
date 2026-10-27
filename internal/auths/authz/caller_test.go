@@ -90,16 +90,46 @@ func TestNodeCallerIsAdmin(t *testing.T) {
 	require.Empty(t, stub.users)
 }
 
+func stubAdminProjectId(t *testing.T, id string, err error) {
+	t.Helper()
+
+	original := adminProjectId
+	adminProjectId = func() (string, error) { return id, err }
+	t.Cleanup(func() { adminProjectId = original })
+}
+
 func TestOpenstackAdminRoleIsAdmin(t *testing.T) {
 	for _, role := range []string{"admin", "service"} {
 		t.Run(role, func(t *testing.T) {
 			stubOpenstackToken(t, `{"id": "r1", "name": "`+role+`"}`)
+			stubAdminProjectId(t, "p1", nil)
 
 			caller, err := Resolve(newTestContext(t, auths.Openstack))
 			require.NoError(t, err)
 			require.True(t, caller.IsAdmin)
 		})
 	}
+}
+
+func TestOpenstackAdminRoleInOtherProjectIsNotAdmin(t *testing.T) {
+	for _, role := range []string{"admin", "service"} {
+		t.Run(role, func(t *testing.T) {
+			stubOpenstackToken(t, `{"id": "r1", "name": "`+role+`"}`)
+			stubAdminProjectId(t, "p-admin", nil)
+
+			caller, err := Resolve(newTestContext(t, auths.Openstack))
+			require.NoError(t, err)
+			require.False(t, caller.IsAdmin)
+		})
+	}
+}
+
+func TestUnknownAdminProjectIsUnavailable(t *testing.T) {
+	stubOpenstackToken(t, `{"id": "r1", "name": "admin"}`)
+	stubAdminProjectId(t, "", errors.New("not signed in"))
+
+	_, err := Resolve(newTestContext(t, auths.Openstack))
+	require.ErrorIs(t, err, ErrUnavailable)
 }
 
 func TestOpenstackMemberIsNotAdmin(t *testing.T) {

@@ -124,11 +124,45 @@ func resolveOpenstackCaller(c *gin.Context) (Caller, error) {
 		caller.DomainName = project.Domain.Name
 	}
 
-	caller.IsAdmin = slices.ContainsFunc(caller.Roles, func(role string) bool {
+	hasAdminRole := slices.ContainsFunc(caller.Roles, func(role string) bool {
 		return slices.Contains(adminRoles, role)
 	})
+	if !hasAdminRole || caller.ProjectId == "" {
+		return caller, nil
+	}
 
+	adminProject, err := adminProjectId()
+	if err != nil {
+		log.Errorf("authz(%s): failed to find the admin project(%v)", reqId, err)
+		return Caller{}, ErrUnavailable
+	}
+
+	caller.IsAdmin = caller.ProjectId == adminProject
 	return caller, nil
+}
+
+// adminProjectId returns the project the API itself signs in to Keystone
+// with, which is the cluster's admin project. Roles held in any other
+// project do not make the caller an admin. It is a variable so tests can
+// stand in for Keystone.
+var adminProjectId = func() (string, error) {
+	result, ok := openstack.GetGlobalHelper().Provider.GetAuthResult().(interface {
+		ExtractProject() (*tokens.Project, error)
+	})
+	if !ok {
+		return "", errors.New("the api's openstack sign-in result is not available")
+	}
+
+	project, err := result.ExtractProject()
+	if err != nil {
+		return "", err
+	}
+
+	if project == nil {
+		return "", errors.New("the api's openstack token is not scoped to a project")
+	}
+
+	return project.ID, nil
 }
 
 func resolveKeycloakCaller(c *gin.Context, username string) (Caller, error) {
