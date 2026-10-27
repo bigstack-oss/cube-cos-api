@@ -12,7 +12,7 @@ import (
 )
 
 func (h *helper) syncFixpackMd5() error {
-	path := filepath.Join(fixpacks.TmpUploadDir, h.file)
+	path := h.uploadPath
 	sum, err := md5.GenByFile(path)
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to generate md5 sum for fixpack file %s(%v)", h.reqId, path, err)

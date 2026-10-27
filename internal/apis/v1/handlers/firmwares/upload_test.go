@@ -1,9 +1,14 @@
 package firmwares
 
 import (
+	"io"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,6 +28,9 @@ func TestUploadParamsAcceptFileName(t *testing.T) {
 	if want := "CUBE Appliance 3.2.0 x86_64.pkg"; h.file != want {
 		t.Fatalf("file = %q, want %q", h.file, want)
 	}
+	if want := filepath.Join(firmwares.TmpUploadDir, "CUBE Appliance 3.2.0 x86_64.pkg"); h.uploadPath != want {
+		t.Fatalf("uploadPath = %q, want %q", h.uploadPath, want)
+	}
 }
 
 func TestUploadParamsRejectPath(t *testing.T) {
@@ -34,10 +42,15 @@ func TestUploadParamsRejectPath(t *testing.T) {
 	}
 }
 
-func TestSaveUploadFileRejectsPath(t *testing.T) {
+func TestSaveUploadFileWritesUploadPath(t *testing.T) {
 	h := newUploadHelper(t, "/firmwares")
-	h.file = "../x.pkg"
-	if err := h.saveUploadFile(); err == nil {
-		t.Fatal("saveUploadFile accepted a file name with a path")
+	h.c.Request.Body = io.NopCloser(strings.NewReader("data"))
+	h.uploadPath = filepath.Join(t.TempDir(), "x.pkg")
+	if err := h.saveUploadFile(); err != nil {
+		t.Fatalf("saveUploadFile: %v", err)
+	}
+	got, err := os.ReadFile(h.uploadPath)
+	if err != nil || string(got) != "data" {
+		t.Fatalf("uploadPath content = %q, %v", got, err)
 	}
 }

@@ -81,12 +81,12 @@ func (h *helper) getVersionStatus(version string) (string, error) {
 }
 
 func (h *helper) checkFixpackDuplication() error {
-	file := filepath.Join(fixpacks.TmpUploadDir, h.file)
+	file := h.uploadPath
 	if !strings.HasSuffix(file, ".fixpack") {
 		return fmt.Errorf("invalid fixpack file format: %s, expected .fixpack", h.file)
 	}
 
-	copyFile := filepath.Join(fixpacks.TmpUploadDir, h.file+".copy")
+	copyFile := file + ".copy"
 	err := h.copyFile(file, copyFile)
 	if err != nil {
 		return err

@@ -59,7 +59,8 @@ func (h *helper) parseUploadFirmwareParams() error {
 		return fmt.Errorf("file parameter is required")
 	}
 
-	_, err := upload.PathIn(firmwares.TmpUploadDir, h.file)
+	var err error
+	h.uploadPath, err = upload.PathIn(firmwares.TmpUploadDir, h.file)
 	return err
 }
 
@@ -117,6 +118,7 @@ func (h *helper) parseRetryNodeFirmwareUpdateParams() error {
 
 func (h *helper) parseUploadMd5Params() error {
 	h.file = firmwares.DefaultMd5File
+	h.uploadPath = filepath.Join(firmwares.TmpUploadDir, h.file)
 	return nil
 }
 
@@ -209,12 +211,7 @@ func (h *helper) parseContinueInterruptionParams() error {
 }
 
 func (h *helper) saveUploadFile() error {
-	path, err := upload.PathIn(firmwares.TmpUploadDir, h.file)
-	if err != nil {
-		log.Errorf("firmwares(%s): invalid upload file name (%v)", h.reqId, err)
-		return err
-	}
-
+	path := h.uploadPath
 	out, err := os.Create(path)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to create %s %s(%v)", path, h.reqId, path, err)

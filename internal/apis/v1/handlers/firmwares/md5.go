@@ -11,7 +11,7 @@ import (
 )
 
 func (h *helper) syncFirmwareMd5() error {
-	path := filepath.Join(firmwares.TmpUploadDir, h.file)
+	path := h.uploadPath
 	sum, err := md5.GenByFile(path)
 	if err != nil {
 		log.Errorf("firmwares(%s): failed to generate md5 sum for firmware file %s(%v)", h.reqId, path, err)
