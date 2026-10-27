@@ -69,7 +69,8 @@ func (h *helper) parseUploadFixpackParams() error {
 		return fmt.Errorf("file parameter is required")
 	}
 
-	_, err := upload.PathIn(fixpacks.TmpUploadDir, h.file)
+	var err error
+	h.uploadPath, err = upload.PathIn(fixpacks.TmpUploadDir, h.file)
 	if err != nil {
 		return err
 	}
@@ -79,6 +80,7 @@ func (h *helper) parseUploadFixpackParams() error {
 
 func (h *helper) parseUploadMd5Params() error {
 	h.file = fixpacks.DefaultMd5File
+	h.uploadPath = filepath.Join(fixpacks.TmpUploadDir, h.file)
 	return nil
 }
 
@@ -264,12 +266,7 @@ func (h *helper) parseUpdateFixpackTaskParams() error {
 }
 
 func (h *helper) saveUploadFile() error {
-	path, err := upload.PathIn(fixpacks.TmpUploadDir, h.file)
-	if err != nil {
-		log.Errorf("fixpacks(%s): invalid upload file name (%v)", h.reqId, err)
-		return err
-	}
-
+	path := h.uploadPath
 	out, err := os.Create(path)
 	if err != nil {
 		log.Errorf("fixpacks(%s): failed to create %s %s(%v)", path, h.reqId, path, err)

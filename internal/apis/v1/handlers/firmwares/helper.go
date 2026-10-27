@@ -33,9 +33,10 @@ type helper struct {
 	http    *http.Helper
 	mongo   *mongo.Helper
 
-	file    string
-	reqOpts firmwares.ReqOpts
-	page    *pages.Page
+	file       string
+	uploadPath string
+	reqOpts    firmwares.ReqOpts
+	page       *pages.Page
 }
 
 func initHelper(c *gin.Context, handler string) (*helper, error) {
