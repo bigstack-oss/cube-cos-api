@@ -222,8 +222,7 @@ func (h *helper) parseUpdateDeviceOsdsOptions() error {
 		)
 	}
 	if !hasReweight {
-		h.isReweightAbsent = true
-		return nil
+		return fmt.Errorf("reweight should be provided")
 	}
 
 	if !h.isValidReweight(h.osdReqOpts.Reweight) {
@@ -319,8 +318,7 @@ func (h *helper) parseUpdateOsdOptions() error {
 		)
 	}
 	if !hasReweight {
-		h.isReweightAbsent = true
-		return nil
+		return fmt.Errorf("reweight should be provided")
 	}
 
 	if !h.isValidReweight(h.osdReqOpts.Reweight) {
@@ -446,7 +444,8 @@ func (h *helper) setOsdReqOptses() error {
 // bindOsdReweight binds an OSD reweight request and reports whether the body
 // carried a reweight at all. An absent (or null) reweight would otherwise bind
 // as 0 and run `ceph osd reweight <id> 0`, pushing all data off the OSD, so the
-// caller treats it as "no change", while an explicit 0 stays a real request.
+// caller rejects it (the API spec makes reweight required), while an explicit
+// 0 stays a real request.
 func bindOsdReweight(c *gin.Context, opts *nodes.OsdReqOpts) (bool, error) {
 	err := c.ShouldBindBodyWith(opts, binding.JSON)
 	if err != nil {
