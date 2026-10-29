@@ -24,11 +24,23 @@ var (
 	EdgeCoreHandlers  = map[string][]Handler{}
 )
 
+// Access is who may call a route. The router checks it before the handler
+// runs.
+type Access int
+
+const (
+	AccessDefault Access = iota // GET: any authenticated caller; other methods are refused
+	AccessAdmin                 // cluster admins and nodes
+	AccessNode                  // nodes only
+	AccessHandler               // the handler authorizes the caller itself
+)
+
 type Handler struct {
 	Version              string
 	Method               string
 	Path                 string
 	Func                 gin.HandlerFunc
+	Access               Access
 	IsNotUnderDataCenter bool
 }
 

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/openstack/v2"
+	"github.com/bigstack-oss/cube-cos-api/internal/auths/authz"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/auths"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
@@ -23,18 +24,21 @@ func newTestHelper(t *testing.T, authType string, headers map[string]string) *he
 		c.Request.Header.Set(key, value)
 	}
 	c.Set("authType", authType)
+	if authType == auths.Oidc {
+		c.Set("authUser", "oidc-user")
+	}
 
 	return &helper{c: c, openstack: openstack.GetGlobalHelper(), handler: "test"}
 }
 
-func stubOidcRealmRoles(t *testing.T, roles []string, err error) {
+func stubRealmAdmin(t *testing.T, isAdmin bool, err error) {
 	t.Helper()
 
-	original := oidcRealmRoles
-	oidcRealmRoles = func(string) (string, []string, error) {
-		return "oidc-user", roles, err
+	original := authz.IsRealmAdmin
+	authz.IsRealmAdmin = func(string) (bool, error) {
+		return isAdmin, err
 	}
-	t.Cleanup(func() { oidcRealmRoles = original })
+	t.Cleanup(func() { authz.IsRealmAdmin = original })
 }
 
 func TestNodeTokenCallerIsAdmin(t *testing.T) {
@@ -42,13 +46,14 @@ func TestNodeTokenCallerIsAdmin(t *testing.T) {
 		"Node":          "n1",
 		"Authorization": "Bearer " + nodes.GenToken("n1"),
 	})
+	h.c.Set("isNode", true)
 
 	require.NoError(t, h.resolveCaller())
 	require.True(t, h.caller.isAdmin)
 }
 
 func TestOidcRealmAdminIsAdmin(t *testing.T) {
-	stubOidcRealmRoles(t, []string{"admin"}, nil)
+	stubRealmAdmin(t, true, nil)
 	h := newTestHelper(t, auths.Oidc, map[string]string{"Authorization": "Bearer jwt"})
 
 	require.NoError(t, h.resolveCaller())
@@ -56,7 +61,7 @@ func TestOidcRealmAdminIsAdmin(t *testing.T) {
 }
 
 func TestOidcUserWithoutRealmAdminHasNoProject(t *testing.T) {
-	stubOidcRealmRoles(t, []string{"offline_access"}, nil)
+	stubRealmAdmin(t, false, nil)
 	h := newTestHelper(t, auths.Oidc, map[string]string{"Authorization": "Bearer jwt"})
 
 	require.NoError(t, h.resolveCaller())
@@ -65,11 +70,21 @@ func TestOidcUserWithoutRealmAdminHasNoProject(t *testing.T) {
 	require.False(t, h.caller.canWrite())
 }
 
-func TestUnverifiableOidcTokenIsForbidden(t *testing.T) {
-	stubOidcRealmRoles(t, nil, errors.New("bad token"))
+func TestKeycloakFailureLeavesCallerUnresolved(t *testing.T) {
+	stubRealmAdmin(t, false, errors.New("keycloak down"))
 	h := newTestHelper(t, auths.Oidc, map[string]string{"Authorization": "Bearer jwt"})
 
-	require.True(t, isForbidden(h.resolveCaller()))
+	err := h.resolveCaller()
+	require.ErrorIs(t, err, authz.ErrUnavailable)
+	require.False(t, isForbidden(err))
+}
+
+func TestUnresolvedCallerAnswersServiceUnavailable(t *testing.T) {
+	rec := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(rec)
+
+	setInitError(c, authz.ErrUnavailable)
+	require.Equal(t, http.StatusServiceUnavailable, rec.Code)
 }
 
 func TestMaterialsOfMemberAreLimitedToOwnProject(t *testing.T) {
@@ -90,7 +105,7 @@ func TestMaterialsOfMemberAreLimitedToOwnProject(t *testing.T) {
 }
 
 func TestMaterialsOfCallerWithoutProjectAreEmpty(t *testing.T) {
-	stubOidcRealmRoles(t, []string{"offline_access"}, nil)
+	stubRealmAdmin(t, false, nil)
 	h := newTestHelper(t, auths.Oidc, map[string]string{"Authorization": "Bearer jwt"})
 	require.NoError(t, h.resolveCaller())
 
@@ -120,7 +135,7 @@ func TestProcessingsAreLimitedToOwnProject(t *testing.T) {
 	require.NoError(t, admin.resolveCaller())
 	require.Len(t, admin.visibleProcessings(processings), 3)
 
-	stubOidcRealmRoles(t, []string{"offline_access"}, nil)
+	stubRealmAdmin(t, false, nil)
 	unscoped := newTestHelper(t, auths.Oidc, map[string]string{"Authorization": "Bearer jwt"})
 	require.NoError(t, unscoped.resolveCaller())
 	require.Empty(t, unscoped.visibleProcessings(processings))
