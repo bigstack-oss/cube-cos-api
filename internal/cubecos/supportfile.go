@@ -183,7 +183,7 @@ func UploadSupportFileToObjectStore(supportFile support.File) error {
 func GetSupportFileUrl(file support.File) string {
 	u := url.URL{}
 	u.Scheme = "https"
-	u.Host = fmt.Sprintf("%s:%d", base.DataCenterVip, config.Opts.Saml.ServiceProvider.Host.Port)
+	u.Host = fmt.Sprintf("%s:%d", base.DataCenterPublicHost, config.Opts.Saml.ServiceProvider.Host.Port)
 	u.Path = fmt.Sprintf(
 		"/api/v1/datacenters/%s/supportFiles/%s/%s",
 		base.DataCenterName,

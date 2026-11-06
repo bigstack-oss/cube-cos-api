@@ -69,6 +69,17 @@ func initIdentities() error {
 		return err
 	}
 
+	// read at start: setting or resetting the FQDN restarts the API
+	base.DataCenterFqdn, err = cubecos.GetFqdn()
+	if err != nil {
+		log.Warnf("runtime: failed to read the cluster fqdn, serving links on the vip(%v)", err)
+	}
+
+	base.DataCenterPublicHost = base.DataCenterVip
+	if base.DataCenterFqdn != "" {
+		base.DataCenterPublicHost = base.DataCenterFqdn
+	}
+
 	base.DataCenterName, err = cubecos.GetDataCenterName()
 	if err != nil {
 		log.Errorf("runtime: failed to get data center name(%v)", err)

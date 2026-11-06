@@ -17,7 +17,7 @@ func (h *helper) syncHostPortInUrl(files *[]support.File) {
 		}
 
 		url.Host = fmt.Sprintf(
-			"%s:%d", base.DataCenterVip,
+			"%s:%d", base.DataCenterPublicHost,
 			conf.Opts.Saml.ServiceProvider.Host.Port,
 		)
 

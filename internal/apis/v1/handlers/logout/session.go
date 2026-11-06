@@ -81,7 +81,7 @@ func (h *helper) deleteKeycloakSession(claims samlsp.JWTSessionClaims) error {
 func genRedirectUrl() string {
 	return fmt.Sprintf(
 		"https://%s:%d%s",
-		base.DataCenterVip,
+		base.DataCenterPublicHost,
 		conf.Opts.Spec.Saml.ServiceProvider.Host.Port,
 		conf.Opts.Spec.Identity.Redirect,
 	)
