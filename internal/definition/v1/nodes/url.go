@@ -443,3 +443,21 @@ func (n *Node) DeleteStorageTierUrl(name string) string {
 	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/integrations/storages/tiers/%s", base.DataCenterName, name)
 	return u.String()
 }
+
+func (n *Node) FqdnNodeUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/fqdn/node", base.DataCenterName)
+	return u.String()
+}
+
+func (n *Node) FqdnNodeCertificateUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/fqdn/node/certificate", base.DataCenterName)
+	return u.String()
+}
+
+func (n *Node) FqdnNodeApiUrl() string {
+	u := n.GenUrl()
+	u.Path = fmt.Sprintf("/api/v1/datacenters/%s/fqdn/node/api", base.DataCenterName)
+	return u.String()
+}

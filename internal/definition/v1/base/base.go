@@ -52,10 +52,18 @@ var (
 	ManagementIp             string
 	StorageNet               string
 	StorageIP                string
-	IsDomainNameEnabled      bool
 	IsHaEnabled              bool
 	IsGpuEnabled             bool
 	NodeMetadata             map[string]string
+)
+
+var (
+	// DataCenterFqdn is cubesys.fqdn, the name browsers reach the cluster on; empty when unset.
+	DataCenterFqdn string
+	// DataCenterPublicHost is the host every URL handed to a browser is built on:
+	// DataCenterFqdn when set, DataCenterVip otherwise. Connections the API makes itself
+	// stay on DataCenterVip.
+	DataCenterPublicHost string
 )
 
 func GetMacAddr(netInterface string) (string, error) {

@@ -11,7 +11,7 @@ import (
 func genHostLink(c *gin.Context) string {
 	return fmt.Sprintf(
 		"https://%s/grafana/d/i-R2q81iz/host?refresh=5m&kiosk=tv&orgId=1&var-HOST=%s",
-		base.DataCenterVip,
+		base.DataCenterPublicHost,
 		c.Param("hostname"),
 	)
 }
@@ -24,7 +24,7 @@ func genHostLink(c *gin.Context) string {
 func InstanceDashboardLink(instanceId string) string {
 	return fmt.Sprintf(
 		"https://%s/grafana/d/PVW6vU7Wz/instance?refresh=5m&kiosk=tv&orgId=1&var-UUID=%s",
-		base.DataCenterVip,
+		base.DataCenterPublicHost,
 		instanceId,
 	)
 }
@@ -54,7 +54,7 @@ const (
 func instanceVgpuHistoryLink(instanceId, tenantId, vmName string, panelId int) string {
 	return fmt.Sprintf(
 		"https://%s/grafana/d/PVW6vU7Wz/instance?orgId=1&refresh=5m&var-TID=%s&var-HOSTNAME=%s&var-UUID=%s&from=now-3h&to=now&viewPanel=%d",
-		base.DataCenterVip,
+		base.DataCenterPublicHost,
 		url.QueryEscape(tenantId),
 		// A VM name is user-supplied and may contain spaces or '&'.
 		url.QueryEscape(vmName),
@@ -87,35 +87,35 @@ func genInstanceLink(c *gin.Context) string {
 func genTopHostLink() string {
 	return fmt.Sprintf(
 		"https://%s/grafana/d/M3ncw6lmk/top-hosts?refresh=5m&kiosk=tv&orgId=1",
-		base.DataCenterVip,
+		base.DataCenterPublicHost,
 	)
 }
 
 func genTopInstanceLink() string {
 	return fmt.Sprintf(
 		"https://%s/grafana/d/qzfq087Wk/top-instances?refresh=5m&orgId=1&var-TID=&var-TOP=50&var-TENANT=admin",
-		base.DataCenterVip,
+		base.DataCenterPublicHost,
 	)
 }
 
 func genNetworksLink() string {
 	return fmt.Sprintf(
 		"https://%s/grafana/d/Xx2kkftWk/network?orgId=1&refresh=5m",
-		base.DataCenterVip,
+		base.DataCenterPublicHost,
 	)
 }
 
 func genNetworkDevicesLink() string {
 	return fmt.Sprintf(
 		"https://%s/grafana/d/i-device/device?refresh=5m&orgId=1",
-		base.DataCenterVip,
+		base.DataCenterPublicHost,
 	)
 }
 
 func genStoragesLink() string {
 	return fmt.Sprintf(
 		"https://%s/grafana/d/QTc_sAxiw/storage?refresh=5m&kiosk=tv&orgId=1",
-		base.DataCenterVip,
+		base.DataCenterPublicHost,
 	)
 }
 
@@ -139,7 +139,7 @@ const (
 func deviceGpuHistoryLink(hostname, pciAddress string, panelId int) string {
 	link := fmt.Sprintf(
 		"https://%s/grafana/d/i-device/device?orgId=1&var-GPU_HOST=%s",
-		base.DataCenterVip,
+		base.DataCenterPublicHost,
 		url.QueryEscape(hostname),
 	)
 	if pciAddress != "" {

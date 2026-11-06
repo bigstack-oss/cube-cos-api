@@ -51,21 +51,21 @@ func GetCommonServices() []Service {
 			IsHeaderShortcutEnabled: true,
 			Description:             "Single sign-on authentication and authorization service",
 			IsBuiltIn:               true,
-			Url:                     fmt.Sprintf("https://%s:10443/auth/admin", base.DataCenterVip),
+			Url:                     fmt.Sprintf("https://%s:10443/auth/admin", base.DataCenterPublicHost),
 		},
 		{
 			Name:                    "openstack",
 			IsHeaderShortcutEnabled: true,
 			Description:             "Free and open-source cloud computing platform",
 			IsBuiltIn:               true,
-			Url:                     fmt.Sprintf("https://%s:9999/base/overview", base.DataCenterVip),
+			Url:                     fmt.Sprintf("https://%s:9999/base/overview", base.DataCenterPublicHost),
 		},
 		{
 			Name:                    "ceph",
 			IsHeaderShortcutEnabled: true,
 			Description:             "Software-defined storage platform built on a general-purpose distributed framework, supporting object storage, block storage, and file storage.",
 			IsBuiltIn:               true,
-			Url:                     fmt.Sprintf("https://%s:7443/ceph/#/dashboard", base.DataCenterVip),
+			Url:                     fmt.Sprintf("https://%s:7443/ceph/#/dashboard", base.DataCenterPublicHost),
 		},
 	}
 }
@@ -76,6 +76,6 @@ func GetCloudService() Service {
 		IsHeaderShortcutEnabled: true,
 		Description:             "Turnkey Kubernetes container management platform",
 		IsBuiltIn:               true,
-		Url:                     fmt.Sprintf("https://%s:10443", base.DataCenterVip),
+		Url:                     fmt.Sprintf("https://%s:10443", base.DataCenterPublicHost),
 	}
 }

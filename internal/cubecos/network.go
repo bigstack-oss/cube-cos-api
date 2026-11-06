@@ -5,7 +5,6 @@ import (
 	"os/exec"
 	"strings"
 
-	conf "github.com/bigstack-oss/cube-cos-api/internal/config"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/nodes"
 	json "github.com/json-iterator/go"
@@ -22,10 +21,6 @@ type NetworkInterface struct {
 }
 
 func GetControllerVirtualIp(net string) (string, error) {
-	if base.IsDomainNameEnabled {
-		return conf.Opts.Spec.Listen.DomainName, nil
-	}
-
 	if !base.IsHaEnabled {
 		return GetStandaloneVirtualIp(net)
 	}

@@ -174,10 +174,12 @@ func CreateSamlMapper(id string, mapper gocloak.ProtocolMapperRepresentation) er
 	return err
 }
 
+// The SP's entity ID and its ACS are where Keycloak sends the browser back, so both live on
+// the public host, as the keycloak_api SAML client registers them.
 func GenServiceProviderMetadataUrl(opts Options) url.URL {
 	return url.URL{
 		Scheme: opts.ServiceProvider.Scheme,
-		Host:   fmt.Sprintf("%s:%d", base.DataCenterVip, opts.ServiceProvider.Host.Port),
+		Host:   fmt.Sprintf("%s:%d", base.DataCenterPublicHost, opts.ServiceProvider.Host.Port),
 		Path:   opts.ServiceProvider.MetadataPath,
 	}
 }
@@ -272,7 +274,7 @@ func AuthRequest(c *gin.Context) {
 func genRootUrl(opts Options) url.URL {
 	return url.URL{
 		Scheme: opts.ServiceProvider.Host.Scheme,
-		Host:   fmt.Sprintf("%s:%d", base.DataCenterVip, opts.ServiceProvider.Host.Port),
+		Host:   fmt.Sprintf("%s:%d", base.DataCenterPublicHost, opts.ServiceProvider.Host.Port),
 	}
 }
 
