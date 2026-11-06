@@ -52,7 +52,6 @@ var (
 	ManagementIp             string
 	StorageNet               string
 	StorageIP                string
-	IsDomainNameEnabled      bool
 	IsHaEnabled              bool
 	IsGpuEnabled             bool
 	NodeMetadata             map[string]string
