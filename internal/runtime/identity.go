@@ -39,12 +39,6 @@ func initIdentities() error {
 		return err
 	}
 
-	base.IsDomainNameEnabled, err = checkIfDomainNameEnabled()
-	if err != nil {
-		log.Errorf("runtime: failed to get domain name enabled(%v)", err)
-		return err
-	}
-
 	base.ManagementNet, err = cubecos.GetManagementNet()
 	if err != nil {
 		log.Errorf("runtime: failed to get management network(%v)", err)
@@ -73,6 +67,17 @@ func initIdentities() error {
 	if err != nil {
 		log.Errorf("runtime: failed to get controller virtual ip(%v)", err)
 		return err
+	}
+
+	// read at start: setting or resetting the FQDN restarts the API
+	base.DataCenterFqdn, err = cubecos.GetFqdn()
+	if err != nil {
+		log.Warnf("runtime: failed to read the cluster fqdn, serving links on the vip(%v)", err)
+	}
+
+	base.DataCenterPublicHost = base.DataCenterVip
+	if base.DataCenterFqdn != "" {
+		base.DataCenterPublicHost = base.DataCenterFqdn
 	}
 
 	base.DataCenterName, err = cubecos.GetDataCenterName()

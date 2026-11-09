@@ -77,13 +77,17 @@ func newToken(provider *oidc.Provider, token string) (*oidc.IDToken, context.Can
 
 func genRealmUrl() string {
 	keycloak := &config.Opts.Spec.Identity.Keycloak
-	if keycloak.Ip == "" {
-		keycloak.Ip = base.DataCenterVip
+	// go-oidc requires the issuer in the discovery document to match this URL, and Keycloak
+	// issues on the public host (KC_HOSTNAME, config_keycloak.cpp). The node resolves an FQDN to
+	// the VIP itself (cube_scan's /etc/hosts entry), so this still reaches the local cluster.
+	host := keycloak.Ip
+	if host == "" {
+		host = base.DataCenterPublicHost
 	}
 
 	u := url.URL{}
 	u.Scheme = keycloak.Scheme
-	u.Host = fmt.Sprintf("%s:%d", keycloak.Ip, keycloak.Port)
+	u.Host = fmt.Sprintf("%s:%d", host, keycloak.Port)
 	u.Path = fmt.Sprintf("%s/realms/%s", keycloak.Path, keycloak.Realm)
 	return u.String()
 }

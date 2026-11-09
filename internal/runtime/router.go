@@ -12,6 +12,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/events"
 	firmwaresapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/firmwares"
 	fixpacksapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/fixpacks"
+	fqdnapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/fqdn"
 	grafanapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/healths"
 	imagesapi "github.com/bigstack-oss/cube-cos-api/internal/apis/v1/handlers/images"
@@ -37,6 +38,7 @@ import (
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/base"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/firmwares"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fixpacks"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/fqdn"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/grafana"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/health"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/images"
@@ -306,6 +308,18 @@ func prepareApiHandlersByRole() {
 	apis.RegisterHandlersToRoles(
 		fixpacks.Module,
 		fixpacksapi.Handlers,
+		nodes.RoleControl,
+		nodes.RoleCompute,
+		nodes.RoleStorage,
+		nodes.RoleModerator,
+		nodes.RoleEdgeCore,
+	)
+
+	// every role: each node takes the FQDN through /fqdn/node; changing it is refused on
+	// anything but a control
+	apis.RegisterHandlersToRoles(
+		fqdn.Module,
+		fqdnapi.Handlers,
 		nodes.RoleControl,
 		nodes.RoleCompute,
 		nodes.RoleStorage,
