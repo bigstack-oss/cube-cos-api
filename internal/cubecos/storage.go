@@ -175,7 +175,65 @@ func GetRawBlockDevices() ([]nodes.RawBlockDevice, error) {
 		return nil, errors.New("no block device found")
 	}
 
-	return getBlockOrPartitionOnly(raws), nil
+	nonDas, err := getNonDasDisks()
+	if err != nil {
+		return nil, err
+	}
+
+	return getBlockOrPartitionOnly(raws, nonDas), nil
+}
+
+type lsblkNode struct {
+	Name     string      `json:"name"`
+	Type     string      `json:"type"`
+	Tran     string      `json:"tran"`
+	Children []lsblkNode `json:"children"`
+}
+
+// getNonDasDisks lists the disks that are not direct-attached. It needs the tree
+// output: with --sort, lsblk prints each mpath device once, under one of its paths.
+func getNonDasDisks() (map[string]bool, error) {
+	out, err := exec.Command("/bin/lsblk", "--json", "-o", "NAME,TYPE,TRAN", "-e", blockdevice.NetCode).Output()
+	if err != nil {
+		log.Errorf("nodes: failed to get block device tree(%v)", err)
+		return nil, err
+	}
+
+	resp := map[string][]lsblkNode{}
+	err = json.Unmarshal(out, &resp)
+	if err != nil {
+		log.Errorf("nodes: failed to unmarshal block device tree(%v)", err)
+		return nil, err
+	}
+
+	return nonDasDisks(resp["blockdevices"]), nil
+}
+
+// nonDasDisks follows hex_sdk storage_is_das: a disk on an FC or iSCSI
+// transport, or a path of a multipath device, belongs to external storage
+func nonDasDisks(devs []lsblkNode) map[string]bool {
+	nonDas := map[string]bool{}
+	for _, dev := range devs {
+		if dev.Type != "disk" {
+			continue
+		}
+
+		if dev.Tran == "fc" || dev.Tran == "iscsi" || hasMpathChild(dev) {
+			nonDas[dev.Name] = true
+		}
+	}
+
+	return nonDas
+}
+
+func hasMpathChild(dev lsblkNode) bool {
+	for _, child := range dev.Children {
+		if child.Type == "mpath" || hasMpathChild(child) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func RawToBlockDevice(rawBlockDev nodes.RawBlockDevice) nodes.BlockDevice {
@@ -188,10 +246,10 @@ func RawToBlockDevice(rawBlockDev nodes.RawBlockDevice) nodes.BlockDevice {
 	}
 }
 
-func getBlockOrPartitionOnly(rawBlockDevs []nodes.RawBlockDevice) []nodes.RawBlockDevice {
+func getBlockOrPartitionOnly(rawBlockDevs []nodes.RawBlockDevice, nonDas map[string]bool) []nodes.RawBlockDevice {
 	blockDevs := []nodes.RawBlockDevice{}
 	for _, rawBlockDev := range rawBlockDevs {
-		if rawBlockDev.IsBlock() {
+		if rawBlockDev.IsBlock() && !nonDas[rawBlockDev.Name] {
 			blockDevs = append(blockDevs, rawBlockDev)
 		}
 
