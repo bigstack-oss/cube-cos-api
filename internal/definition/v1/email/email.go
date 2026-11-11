@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	emailv2 "github.com/bigstack-oss/bigstack-dependency-go/pkg/email/v2"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/status"
 )
 
@@ -143,10 +144,27 @@ func (s *Sender) Normalize(current *Sender) error {
 		)
 	}
 
+	err := s.Validate()
+	if err != nil {
+		return err
+	}
+
 	if !*s.Auth {
 		empty := ""
 		s.Username = ""
 		s.Password = &empty
+	}
+
+	return nil
+}
+
+// Validate rejects a sender that the alert path cannot use. kapacitor sends
+// alert mail through Go's net/smtp, whose PLAIN auth refuses to send
+// credentials over a connection without TLS. With auth on and tls none the
+// test email would succeed while every alert fails, so both are refused.
+func (s *Sender) Validate() error {
+	if s.IsAuth() && s.TLS == emailv2.TLSNone {
+		return errors.ErrEmailSenderAuthRequiresTLS
 	}
 
 	return nil

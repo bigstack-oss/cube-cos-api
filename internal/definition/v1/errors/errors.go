@@ -22,6 +22,7 @@ var (
 	ErrDataCenterIsRepairing        = errors.New("data center is repairing")
 	ErrEmailSenderHostInvalid       = errors.New("email sender host is invalid")
 	ErrEmailSenderPortInvalid       = errors.New("email sender port is invalid")
+	ErrEmailSenderAuthRequiresTLS   = errors.New(`email sender authentication with tls "none" is not supported, because alert mail never sends credentials without tls: use a mail server that offers tls and set tls to "opportunistic" or "mandatory", or turn authentication off`)
 	ErrLicenseAlreadyExpired        = errors.New("license is already expired")
 	ErrLicenseNotInstalled          = errors.New("license is not installed")
 	ErrLicenseInvalidHardware       = errors.New("license's hardware serial is not matched with the current system")

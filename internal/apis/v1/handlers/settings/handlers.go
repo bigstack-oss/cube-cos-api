@@ -201,6 +201,15 @@ func tryEmailSender(c *gin.Context) {
 	}
 
 	sender := senders[0]
+	// check before sending: sendEmail replaces every send error with a
+	// generic one, and the operator needs to see why this sender is refused
+	err = sender.Validate()
+	if err != nil {
+		log.Errorf("settings(%s): %v", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
+		return
+	}
+
 	err = h.sendEmail(&sender, h.trial.Email)
 	if err != nil {
 		log.Errorf("settings(%s): %v", h.reqId, err)
@@ -317,6 +326,13 @@ func tryEmailRecipient(c *gin.Context) {
 	if err != nil {
 		log.Errorf("settings(%s): failed to get verified email sender: %v", h.reqId, err)
 		bodies.SetInternalServerError(c, err)
+		return
+	}
+
+	err = sender.Validate()
+	if err != nil {
+		log.Errorf("settings(%s): %v", h.reqId, err)
+		bodies.SetBadRequest(c, err, nil)
 		return
 	}
 

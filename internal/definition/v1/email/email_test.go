@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	emailv2 "github.com/bigstack-oss/bigstack-dependency-go/pkg/email/v2"
+	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/errors"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,6 +26,7 @@ func TestSenderNormalize(t *testing.T) {
 		wantUsername string
 		wantPassword string
 		wantErr      bool
+		wantErrIs    error
 	}{
 		{
 			name:         "unset auth with a username authenticates",
@@ -80,6 +82,32 @@ func TestSenderNormalize(t *testing.T) {
 			sender:  Sender{TLS: "None"},
 			wantErr: true,
 		},
+		{
+			name:      "auth with tls none is rejected",
+			sender:    Sender{Auth: boolPtr(true), Username: "user", Password: strPtr("secret"), TLS: emailv2.TLSNone},
+			wantErr:   true,
+			wantErrIs: errors.ErrEmailSenderAuthRequiresTLS,
+		},
+		{
+			name:      "unset auth with a username and tls none is rejected",
+			sender:    Sender{Username: "user", Password: strPtr("secret"), TLS: emailv2.TLSNone},
+			wantErr:   true,
+			wantErrIs: errors.ErrEmailSenderAuthRequiresTLS,
+		},
+		{
+			name:      "tls none from the current sender with auth turned on is rejected",
+			sender:    Sender{Auth: boolPtr(true), Username: "user", Password: strPtr("secret")},
+			current:   &Sender{Auth: boolPtr(false), TLS: emailv2.TLSNone},
+			wantErr:   true,
+			wantErrIs: errors.ErrEmailSenderAuthRequiresTLS,
+		},
+		{
+			name:      "auth from the current sender with tls set to none is rejected",
+			sender:    Sender{TLS: emailv2.TLSNone},
+			current:   &Sender{Auth: boolPtr(true), TLS: emailv2.TLSOpportunistic},
+			wantErr:   true,
+			wantErrIs: errors.ErrEmailSenderAuthRequiresTLS,
+		},
 	}
 
 	for _, tt := range tests {
@@ -88,6 +116,9 @@ func TestSenderNormalize(t *testing.T) {
 			err := s.Normalize(tt.current)
 			if tt.wantErr {
 				require.Error(t, err)
+				if tt.wantErrIs != nil {
+					require.ErrorIs(t, err, tt.wantErrIs)
+				}
 				return
 			}
 
@@ -96,6 +127,36 @@ func TestSenderNormalize(t *testing.T) {
 			require.Equal(t, tt.wantTLS, s.TLS)
 			require.Equal(t, tt.wantUsername, s.Username)
 			require.Equal(t, tt.wantPassword, s.GetPassword())
+		})
+	}
+}
+
+func TestSenderValidate(t *testing.T) {
+	tests := []struct {
+		name    string
+		sender  Sender
+		wantErr bool
+	}{
+		{name: "auth with tls none", sender: Sender{Auth: boolPtr(true), TLS: emailv2.TLSNone}, wantErr: true},
+		{name: "auth with tls opportunistic", sender: Sender{Auth: boolPtr(true), TLS: emailv2.TLSOpportunistic}},
+		{name: "auth with tls mandatory", sender: Sender{Auth: boolPtr(true), TLS: emailv2.TLSMandatory}},
+		{name: "no auth with tls none", sender: Sender{Auth: boolPtr(false), TLS: emailv2.TLSNone}},
+		{name: "unset auth with tls none", sender: Sender{TLS: emailv2.TLSNone}},
+		{
+			name:   "a sender stored before tls existed",
+			sender: (&CosSender{Host: "relay", Port: "25", Username: "user", Auth: true}).ToApiSchema(),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.sender.Validate()
+			if tt.wantErr {
+				require.ErrorIs(t, err, errors.ErrEmailSenderAuthRequiresTLS)
+				return
+			}
+
+			require.NoError(t, err)
 		})
 	}
 }
