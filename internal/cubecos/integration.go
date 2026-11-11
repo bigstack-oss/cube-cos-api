@@ -18,6 +18,9 @@ import (
 	log "go-micro.dev/v5/logger"
 )
 
+// storage put/delete each run a full hex_config apply, ~3 minutes on one node
+const storageApplyMinutes = 10
+
 func SetDefaultStorage(name string) error {
 	nameMap := map[string]string{"name": name}
 	input, err := json.Marshal(nameMap)
@@ -143,7 +146,7 @@ func UpdateStorage(details storages.CinderDetails) error {
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(storageApplyMinutes))
 	defer cancel()
 	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_put_storage", string(input)).CombinedOutput()
 	if err != nil {
@@ -205,7 +208,7 @@ func DeleteStorage(name string) error {
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(wait.CtxMinutes(3))
+	ctx, cancel := context.WithTimeout(wait.CtxMinutes(storageApplyMinutes))
 	defer cancel()
 	out, err := exec.CommandContext(ctx, "hex_sdk", "cinder_delete_storage", string(input)).CombinedOutput()
 	if err != nil {
