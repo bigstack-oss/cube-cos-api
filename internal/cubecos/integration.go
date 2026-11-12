@@ -226,6 +226,25 @@ func DeleteStorage(name string) error {
 	return nil
 }
 
+// CheckStorageManilaFree fails with the shares and share servers Manila still
+// has on the storage, or with why they could not be read
+func CheckStorageManilaFree(name string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*ostime.Minute)
+	defer cancel()
+
+	out, err := runHexSdk(ctx, "cinder_is_storage_manila_free", name)
+	if err == nil {
+		return nil
+	}
+
+	reason := strings.TrimSpace(string(out))
+	log.Errorf("storage: manila check of %s failed(%v): %s", name, err, reason)
+	if reason == "" {
+		reason = fmt.Sprintf("Manila shares or share servers of storage %s could not be read", name)
+	}
+	return fmt.Errorf("%s", reason)
+}
+
 func ListVendors() ([]string, error) {
 	models, err := ListModels()
 	if err != nil {

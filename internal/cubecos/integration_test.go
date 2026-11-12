@@ -1,6 +1,8 @@
 package cubecos
 
 import (
+	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -232,4 +234,38 @@ func TestDeleteStorageModelTreatsAnAbsentModelAsDeleted(t *testing.T) {
 	require.NotPanics(t, func() {
 		require.NoError(t, DeleteStorageModel("cinder.volume.drivers.rt694_1659.ModelB"))
 	})
+}
+
+func TestCheckStorageManilaFreeReportsHexSdkReason(t *testing.T) {
+	saved := runHexSdk
+	t.Cleanup(func() { runHexSdk = saved })
+
+	tests := []struct {
+		name string
+		out  string
+		err  error
+		want string
+	}{
+		{"free", "", nil, ""},
+		{"in use", "storage nfs1 is still used by Manila, delete these first: shares s1 (error)", errors.New("exit status 1"),
+			"storage nfs1 is still used by Manila, delete these first: shares s1 (error)"},
+		{"no output", "", errors.New("exit status 127"),
+			"Manila shares or share servers of storage nfs1 could not be read"},
+	}
+
+	for _, tt := range tests {
+		var gotArgs []string
+		runHexSdk = func(ctx context.Context, args ...string) ([]byte, error) {
+			gotArgs = args
+			return []byte(tt.out), tt.err
+		}
+
+		err := CheckStorageManilaFree("nfs1")
+		if tt.want == "" {
+			require.NoError(t, err, tt.name)
+		} else {
+			require.EqualError(t, err, tt.want, tt.name)
+		}
+		require.Equal(t, []string{"cinder_is_storage_manila_free", "nfs1"}, gotArgs, tt.name)
+	}
 }

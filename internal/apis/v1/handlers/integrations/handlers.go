@@ -302,6 +302,12 @@ func setStorageAsDefault(c *gin.Context) {
 	)
 }
 
+// replaced in tests
+var (
+	storageExists     = cubecos.CheckStorageExist
+	storageManilaFree = cubecos.CheckStorageManilaFree
+)
+
 func deleteStorage(c *gin.Context) {
 	h, err := initHelper(c, "deleteStorage")
 	if err != nil {
@@ -310,7 +316,7 @@ func deleteStorage(c *gin.Context) {
 		return
 	}
 
-	found, err := cubecos.CheckStorageExist(h.storageReqOpts.CinderDetails.Name)
+	found, err := storageExists(h.storageReqOpts.CinderDetails.Name)
 	if err != nil {
 		bodies.SetInternalServerError(c, err)
 		return
@@ -318,6 +324,16 @@ func deleteStorage(c *gin.Context) {
 	if !found {
 		bodies.SetNotFound(c, fmt.Errorf("storage %s not found", h.storageReqOpts.CinderDetails.Name))
 		return
+	}
+
+	// the delete runs after the 202, so refuse here what it would refuse there
+	if !h.isPeerRequest() {
+		err = storageManilaFree(h.storageReqOpts.CinderDetails.Name)
+		if err != nil {
+			log.Errorf("integrations(%s): refused to delete storage %s: %v", h.reqId, h.storageReqOpts.CinderDetails.Name, err)
+			bodies.SetConflict(c, err)
+			return
+		}
 	}
 
 	h.updateStorage()
