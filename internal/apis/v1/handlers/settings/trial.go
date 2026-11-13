@@ -1,12 +1,14 @@
 package settings
 
 import (
+	"crypto/tls"
 	"fmt"
 
 	emailv2 "github.com/bigstack-oss/bigstack-dependency-go/pkg/email/v2"
 	"github.com/bigstack-oss/bigstack-dependency-go/pkg/slack"
 	emailv1 "github.com/bigstack-oss/cube-cos-api/internal/definition/v1/email"
 	"github.com/bigstack-oss/cube-cos-api/internal/definition/v1/settings"
+	mail "github.com/wneessen/go-mail"
 	log "go-micro.dev/v5/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -31,10 +33,44 @@ func sendTrialEmail(sender *emailv1.Sender, recipient string) error {
 		return err
 	}
 
+	err = skipVerifyUnlessMandatory(helper, sender)
+	if err != nil {
+		return err
+	}
+
 	return helper.Send(emailv2.Message{
 		To:      []string{recipient},
 		Subject: "Test Email",
 		Body:    "Hi, \nThis is a test email to verify that our email delivery system is working correctly. If you received this message, it means the email route is functioning as expected. No further action is required.\nBest.",
+	})
+}
+
+// skipVerifyUnlessMandatory gives the test email the alert path's certificate
+// rule. kapacitor writes no-verify = true unless the policy is mandatory
+// (cubecos config_kapacitor.cpp), so with opportunistic a relay whose
+// certificate cannot be verified still gets alert mail. pkg/email/v2 has no TLS
+// option at the pinned version, so set it on the go-mail client it built.
+// Like alert mail, opportunistic then accepts any certificate, wrong host
+// included.
+func skipVerifyUnlessMandatory(helper emailv2.HelperI, sender *emailv1.Sender) error {
+	if sender.TLS != emailv2.TLSOpportunistic {
+		return nil
+	}
+
+	h, ok := helper.(*emailv2.Helper)
+	if !ok {
+		return fmt.Errorf("email: unexpected helper type %T", helper)
+	}
+
+	client, ok := h.Client.(*mail.Client)
+	if !ok {
+		return fmt.Errorf("email: unexpected client type %T", h.Client)
+	}
+
+	return client.SetTLSConfig(&tls.Config{
+		ServerName:         sender.Host,
+		MinVersion:         mail.DefaultTLSMinVersion,
+		InsecureSkipVerify: true, //nolint:gosec // matches alert mail
 	})
 }
 
