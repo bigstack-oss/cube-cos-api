@@ -31,6 +31,13 @@ import (
  * (/saml/slo) revokes the cookies issued until then at once on the node that
  * receives it.
  *
+ * Idle timeout: COS UI does not go back to Keycloak after the login, so Keycloak
+ * drops the user session at the realm's SSO Session Idle even while the user
+ * keeps using COS UI. The session list cannot tell that from a sign-out, so the
+ * check only runs until sessionIdleMargin before the idle timeout, counted from
+ * the cookie's issue time; after that the cookie is honoured until it expires.
+ * A sign-out after that point takes effect when the cookie expires.
+ *
  * Keycloak unreachable: fail open. The cookie is then honoured until it expires,
  * as before this check existed, and a warning is logged; Keycloak is not retried
  * for sessionCheckRetry. Failing closed would sign every COS UI user out during
@@ -44,19 +51,27 @@ const (
 	// A cookie issued within this margin of a snapshot may postdate it (JWT iat
 	// is in whole seconds, and on 3cc another node's clock issued it).
 	sessionIssueMargin = 5 * time.Second
+	// Keycloak's idle clock may start before the cookie's iat (the browser posts
+	// the assertion after Keycloak touched the session), or on another node's clock.
+	sessionIdleMargin = time.Minute
+	// Keycloak's default SSO Session Idle, used when the realm leaves it unset.
+	defaultSsoSessionIdle = 30 * time.Minute
 
 	sessionPageSize = 100
 	sessionMaxPages = 100
 )
 
-// sessionLister lists the Keycloak user session ids that hold a session of the client.
+// sessionLister lists the Keycloak user session ids that hold a session of the
+// client, and reads the realm's SSO Session Idle in seconds.
 type sessionLister interface {
 	ListClientSessionIds(ctx context.Context, idOfClient string) (map[string]struct{}, error)
+	SsoSessionIdle(ctx context.Context) (*int, error)
 }
 
 type clientSessions struct {
 	mu       sync.Mutex
 	ids      map[string]struct{}
+	idle     time.Duration
 	takenAt  time.Time
 	failedAt time.Time
 }
@@ -138,7 +153,7 @@ func (s *sessionChecker) isAlive(index string, issuedAt time.Time) bool {
 	_, listed := c.ids[sessionId]
 	fresh := !c.takenAt.IsZero() && now.Sub(c.takenAt) < sessionCheckTTL
 	if fresh && (listed || issuedBefore(issuedAt, c.takenAt)) {
-		return listed
+		return listed || pastIdleCheck(issuedAt, c.idle, now)
 	}
 
 	if !c.failedAt.IsZero() && now.Sub(c.failedAt) < sessionCheckRetry {
@@ -147,7 +162,7 @@ func (s *sessionChecker) isAlive(index string, issuedAt time.Time) bool {
 
 	ctx, cancel := context.WithTimeout(context.Background(), sessionCheckTimeout)
 	defer cancel()
-	ids, err := s.lister.ListClientSessionIds(ctx, clientId)
+	ids, idle, err := s.refresh(ctx, clientId)
 	if err != nil {
 		c.failedAt = now
 		log.Warnf("auth: cannot check Keycloak sessions, COS UI sessions are not checked for %s(%v)", sessionCheckRetry, err)
@@ -155,10 +170,34 @@ func (s *sessionChecker) isAlive(index string, issuedAt time.Time) bool {
 	}
 
 	c.ids = ids
+	c.idle = idle
 	c.takenAt = now
 	c.failedAt = time.Time{}
 	_, listed = c.ids[sessionId]
-	return listed || !issuedBefore(issuedAt, c.takenAt)
+	return listed || !issuedBefore(issuedAt, c.takenAt) || pastIdleCheck(issuedAt, c.idle, now)
+}
+
+func (s *sessionChecker) refresh(ctx context.Context, clientId string) (map[string]struct{}, time.Duration, error) {
+	ids, err := s.lister.ListClientSessionIds(ctx, clientId)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	seconds, err := s.lister.SsoSessionIdle(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+	if seconds == nil || *seconds <= 0 {
+		return ids, defaultSsoSessionIdle, nil
+	}
+
+	return ids, time.Duration(*seconds) * time.Second, nil
+}
+
+// pastIdleCheck reports whether Keycloak may have dropped the session of a
+// cookie issued at issuedAt as idle by now, so its absence is no sign-out.
+func pastIdleCheck(issuedAt time.Time, idle time.Duration, now time.Time) bool {
+	return !now.Before(issuedAt.Add(idle - sessionIdleMargin))
 }
 
 // issuedBefore reports whether a cookie issued at issuedAt certainly predates a
@@ -169,6 +208,10 @@ func issuedBefore(issuedAt, takenAt time.Time) bool {
 
 type clientUserSessionGetter interface {
 	GetClientUserSessions(ctx context.Context, token, realm, idOfClient string, params ...gocloak.GetClientUserSessionsParams) ([]*gocloak.UserSessionRepresentation, error)
+}
+
+type realmGetter interface {
+	GetRealm(ctx context.Context, token, realm string) (*gocloak.RealmRepresentation, error)
 }
 
 // keycloakSessionLister lists sessions with the API's Keycloak account, keeping
@@ -221,6 +264,31 @@ func (k *keycloakSessionLister) ListClientSessionIds(ctx context.Context, idOfCl
 	}
 
 	return nil, fmt.Errorf("more than %d sessions for client %s", sessionPageSize*sessionMaxPages, idOfClient)
+}
+
+func (k *keycloakSessionLister) SsoSessionIdle(ctx context.Context) (*int, error) {
+	h := keycloak.GetGlobalHelper()
+	if h == nil || h.Client == nil {
+		return nil, errors.New("keycloak helper is not initialised")
+	}
+
+	getter, ok := h.Client.(realmGetter)
+	if !ok {
+		return nil, errors.New("keycloak client cannot get the realm")
+	}
+
+	token, err := k.adminToken(ctx, h)
+	if err != nil {
+		return nil, err
+	}
+
+	realm, err := getter.GetRealm(ctx, token, auths.DefaultKeycloakRealm)
+	if err != nil {
+		k.dropToken()
+		return nil, err
+	}
+
+	return realm.SsoSessionIdleTimeout, nil
 }
 
 func (k *keycloakSessionLister) adminToken(ctx context.Context, h *keycloak.Helper) (string, error) {

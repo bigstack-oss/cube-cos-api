@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Nerzal/gocloak/v13"
 	"github.com/beevik/etree"
 	"github.com/crewjam/saml"
 	"github.com/crewjam/saml/samlsp"
@@ -583,10 +584,12 @@ func TestAuthRequestHonoursKeycloakSignOut(t *testing.T) {
 }
 
 type fakeLister struct {
-	mu    sync.Mutex
-	ids   map[string]struct{}
-	err   error
-	calls int
+	mu      sync.Mutex
+	ids     map[string]struct{}
+	idle    *int
+	err     error
+	idleErr error
+	calls   int
 }
 
 func (l *fakeLister) ListClientSessionIds(_ context.Context, idOfClient string) (map[string]struct{}, error) {
@@ -605,6 +608,12 @@ func (l *fakeLister) ListClientSessionIds(_ context.Context, idOfClient string) 
 		ids[id] = struct{}{}
 	}
 	return ids, nil
+}
+
+func (l *fakeLister) SsoSessionIdle(context.Context) (*int, error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.idle, l.idleErr
 }
 
 func (l *fakeLister) set(ids map[string]struct{}) {
@@ -629,6 +638,12 @@ type fakeClock struct{ now time.Time }
 
 func (c *fakeClock) Now() time.Time          { return c.now }
 func (c *fakeClock) advance(d time.Duration) { c.now = c.now.Add(d) }
+
+// keycloak.Helper.Client is a *gocloak.GoCloak; the lister type-asserts these.
+var (
+	_ clientUserSessionGetter = (*gocloak.GoCloak)(nil)
+	_ realmGetter             = (*gocloak.GoCloak)(nil)
+)
 
 func TestSessionChecker(t *testing.T) {
 	start := time.Unix(1_800_000_000, 0)
@@ -684,6 +699,61 @@ func TestSessionChecker(t *testing.T) {
 		require.Equal(t, 1, lister.count(), "no retry within the back-off")
 		clock.advance(sessionCheckRetry)
 		lister.fail(nil)
+		require.False(t, checker.isAlive("us-9::client-1", issued))
+		require.Equal(t, 2, lister.count())
+	})
+
+	t.Run("removed after the realm idle timeout is left to cos_token", func(t *testing.T) {
+		checker, lister, clock := newChecker()
+		idle := 1800
+		lister.idle = &idle
+		require.True(t, checker.isAlive("us-1::client-1", issued))
+		// Nobody touched the Keycloak session since the login; Keycloak drops it as idle.
+		clock.advance(30 * time.Minute)
+		lister.set(map[string]struct{}{})
+		require.True(t, checker.isAlive("us-1::client-1", issued))
+	})
+
+	t.Run("removed before the realm idle timeout is a sign-out", func(t *testing.T) {
+		checker, lister, clock := newChecker()
+		idle := 120
+		lister.idle = &idle
+		require.True(t, checker.isAlive("us-1::client-1", clock.now))
+		clock.advance(sessionCheckTTL)
+		lister.set(map[string]struct{}{})
+		require.False(t, checker.isAlive("us-1::client-1", start))
+	})
+
+	t.Run("realm idle unset counts as keycloak's default", func(t *testing.T) {
+		checker, lister, clock := newChecker()
+		require.True(t, checker.isAlive("us-1::client-1", issued))
+		lister.set(map[string]struct{}{})
+		// Keycloak's default is 30 minutes: checked 28 minutes after the
+		// login, left to cos_token from 29.
+		clock.advance(27 * time.Minute)
+		require.False(t, checker.isAlive("us-1::client-1", issued))
+		clock.advance(time.Minute)
+		require.True(t, checker.isAlive("us-1::client-1", issued))
+	})
+
+	t.Run("realm idle beyond cos_token is still checked before it expires", func(t *testing.T) {
+		checker, lister, clock := newChecker()
+		idle := 7200
+		lister.idle = &idle
+		require.True(t, checker.isAlive("us-1::client-1", issued))
+		lister.set(map[string]struct{}{})
+		clock.advance(time.Hour - 2*time.Minute)
+		require.False(t, checker.isAlive("us-1::client-1", issued))
+	})
+
+	t.Run("realm unreadable fails open and backs off", func(t *testing.T) {
+		checker, lister, clock := newChecker()
+		lister.idleErr = errors.New("403 Forbidden")
+		require.True(t, checker.isAlive("us-9::client-1", issued))
+		require.True(t, checker.isAlive("us-9::client-1", issued))
+		require.Equal(t, 1, lister.count(), "no retry within the back-off")
+		clock.advance(sessionCheckRetry)
+		lister.idleErr = nil
 		require.False(t, checker.isAlive("us-9::client-1", issued))
 		require.Equal(t, 2, lister.count())
 	})
