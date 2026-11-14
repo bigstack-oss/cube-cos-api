@@ -30,6 +30,7 @@ var (
 			Method:  "POST",
 			Path:    "/supportFiles",
 			Func:    createSupportFile,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
@@ -42,18 +43,21 @@ var (
 			Method:  "DELETE",
 			Path:    "/supportFiles/:supportFileGroup",
 			Func:    deleteSupportFileGroup,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  "DELETE",
 			Path:    "/supportFiles/:supportFileGroup/:supportFileName",
 			Func:    deleteSupportFile,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  "PATCH",
 			Path:    "/supportFiles/:supportFileGroup",
 			Func:    updateSupportFileTask,
+			Access:  apis.AccessNode,
 		},
 	}
 )

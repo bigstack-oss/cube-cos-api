@@ -88,9 +88,10 @@ func (h *helper) sendStorageReqToPeer(node nodes.Node) bool {
 	return true
 }
 
-// isPeerRequest is true for a request forwarded by another control
+// isPeerRequest is true for a request forwarded by another control, which
+// carries the node token
 func (h *helper) isPeerRequest() bool {
-	return h.c.GetHeader(nodes.ForwardedHeader) != ""
+	return h.c.GetHeader(nodes.ForwardedHeader) != "" && h.c.GetBool("isNode")
 }
 
 func (h *helper) getStorageUrlByHandler(node nodes.Node) string {

@@ -104,7 +104,7 @@ func setRoleHandlersToRouter(router *gin.Engine, handlers []apis.Handler) {
 
 		urlParentPath := getUrlParentPath(h)
 		versionGroup := router.Group(urlParentPath)
-		versionGroup.Handle(h.Method, h.Path, h.Func)
+		versionGroup.Handle(h.Method, h.Path, authorize(h), h.Func)
 		log.Infof(
 			"register API: %s %s",
 			h.Method,
@@ -383,6 +383,7 @@ func verifyAuthToken() gin.HandlerFunc {
 		internalToken := parseInternalToken(c)
 		if isValidInternalToken(c, internalToken) {
 			c.Set("isTokenValid", true)
+			c.Set("isNode", true)
 			c.Set("authType", auths.Oidc)
 			c.Set("authUser", c.ClientIP())
 			c.Next()

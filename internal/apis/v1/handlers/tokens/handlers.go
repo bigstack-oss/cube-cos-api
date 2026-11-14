@@ -18,6 +18,7 @@ var (
 			Method:  http.MethodPost,
 			Path:    "/tokens",
 			Func:    createToken,
+			Access:  apis.AccessHandler,
 		},
 	}
 )

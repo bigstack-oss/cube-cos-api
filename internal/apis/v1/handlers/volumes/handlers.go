@@ -29,12 +29,14 @@ var (
 			Method:  http.MethodPost,
 			Path:    "/volumes/images",
 			Func:    convertImageToVolume,
+			Access:  apis.AccessHandler,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/volumes/images/tasks",
 			Func:    updateImageConvertionTask,
+			Access:  apis.AccessNode,
 		},
 	}
 )

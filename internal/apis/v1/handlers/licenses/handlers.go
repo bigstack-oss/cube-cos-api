@@ -24,18 +24,21 @@ var (
 			Method:  http.MethodPost,
 			Path:    "/licenses/verify",
 			Func:    verifyLicense,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/licenses",
 			Func:    importClusterLicense,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/licenses/hosts/:hostname",
 			Func:    importHostLicense,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
