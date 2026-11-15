@@ -58,6 +58,7 @@ var (
 		"admin-tok":  {user: "admin", project: "p-admin", roles: []string{"admin", "member", "reader"}},
 		"alice-tok":  {user: "alice", project: "p-alpha", roles: []string{"member", "reader"}},
 		"reader-tok": {user: "rita", project: "p-alpha", roles: []string{"reader"}},
+		"padmin-tok": {user: "pat", project: "p-alpha", roles: []string{"admin", "member", "reader"}},
 	}
 
 	glancePatches = struct {
@@ -404,6 +405,11 @@ func TestListImagesOfAnotherProjectIsForbiddenForMember(t *testing.T) {
 
 func TestListImagesCsvOfAnotherProjectIsForbiddenForMember(t *testing.T) {
 	rec := testReq{method: http.MethodGet, path: "/images.csv?project=beta", token: "alice-tok"}.do()
+	require.Equal(t, http.StatusForbidden, rec.Code, rec.Body.String())
+}
+
+func TestListImagesOfAnotherProjectIsForbiddenForProjectAdmin(t *testing.T) {
+	rec := testReq{method: http.MethodGet, path: "/images?project=beta", token: "padmin-tok"}.do()
 	require.Equal(t, http.StatusForbidden, rec.Code, rec.Body.String())
 }
 

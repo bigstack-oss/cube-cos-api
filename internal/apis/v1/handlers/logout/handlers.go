@@ -16,6 +16,7 @@ var (
 			Method:               http.MethodPost,
 			Path:                 "/logout",
 			Func:                 logout,
+			Access:               apis.AccessHandler,
 			IsNotUnderDataCenter: true,
 		},
 	}

@@ -31,6 +31,7 @@ var (
 			Method:               http.MethodPost,
 			Path:                 "/datacenters/:DataCenter/rollingReboot",
 			Func:                 softRebootDataCenter,
+			Access:               apis.AccessAdmin,
 			IsNotUnderDataCenter: true,
 		},
 	}

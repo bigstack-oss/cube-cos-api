@@ -25,6 +25,7 @@ var (
 			Method:  http.MethodPost,
 			Path:    "/triggers/materials/script/verify",
 			Func:    verifyMaterialScript,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
@@ -43,30 +44,35 @@ var (
 			Method:  http.MethodPost,
 			Path:    "/triggers",
 			Func:    createTrigger,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/triggers/:triggerName",
 			Func:    updateTrigger,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/triggers/:triggerName/enable",
 			Func:    enableOrDisableTrigger,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodDelete,
 			Path:    "/triggers/:triggerName",
 			Func:    deleteTrigger,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/triggers/tasks",
 			Func:    updateTriggerTask,
+			Access:  apis.AccessNode,
 		},
 	}
 )

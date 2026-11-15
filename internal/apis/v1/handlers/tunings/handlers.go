@@ -30,24 +30,28 @@ var (
 			Method:  http.MethodPatch,
 			Path:    "/tunings/parameters/:parameterName",
 			Func:    updateTuning,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/tunings/parameters/:parameterName/enable",
 			Func:    enableOrDisableTuning,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPost,
 			Path:    "/tunings/parameters/:parameterName/reset",
 			Func:    resetTuning,
+			Access:  apis.AccessAdmin,
 		},
 		{
 			Version: apis.V1,
 			Method:  http.MethodPatch,
 			Path:    "/tunings/tasks",
 			Func:    updateTuningTask,
+			Access:  apis.AccessNode,
 		},
 	}
 )
