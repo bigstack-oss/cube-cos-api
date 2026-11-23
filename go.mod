@@ -1,6 +1,6 @@
 module github.com/bigstack-oss/cube-cos-api
 
-go 1.26.10
+go 1.26.0
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
@@ -32,7 +32,7 @@ require (
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1
 	github.com/swaggo/swag v1.16.6
-	github.com/wneessen/go-mail v0.8.2
+	github.com/wneessen/go-mail v0.7.3
 	github.com/xhit/go-str2duration v1.2.0
 	go-micro.dev/v5 v5.3.0
 	go.mongodb.org/mongo-driver v1.17.10

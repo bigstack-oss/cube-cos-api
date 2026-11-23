@@ -124,7 +124,7 @@ func (f *sloFixture) cookie(t *testing.T, sessionIndex string) *http.Cookie {
 	})
 	require.NoError(t, err)
 	for _, c := range w.Result().Cookies() {
-		if c.Name == "cos_token" {
+		if c.Name == "cos_token" && c.Value != "" {
 			return c
 		}
 	}
