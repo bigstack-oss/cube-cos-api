@@ -103,7 +103,10 @@ func isSessionAlive(session samlsp.Session) bool {
 		return true
 	}
 
-	issuedAt := time.Unix(claims.IssuedAt, 0)
+	issuedAt := time.Unix(0, 0)
+	if claims.IssuedAt != nil {
+		issuedAt = claims.IssuedAt.Time
+	}
 	for _, index := range claims.Attributes[sessionIndexClaim] {
 		if revokedSessions.revokes(index, issuedAt, saml.TimeNow()) {
 			return false
